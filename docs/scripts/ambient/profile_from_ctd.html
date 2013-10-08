@@ -1,0 +1,178 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>profile_from_ctd &mdash; Texas A&amp;M Oilspill Calculator v0.1 Manual</title>
+    
+    <link rel="stylesheet" href="../../_static/scipy.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../../index.html" />
+    <link rel="up" title="Reference" href="../../modules/reference.html" />
+    <link rel="next" title="profile_from_lab" href="profile_from_lab.html" />
+    <link rel="prev" title="simp.outer_fr" href="../../spm/simp.outer_fr.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="profile_from_lab.html" title="profile_from_lab"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../../spm/simp.outer_fr.html" title="simp.outer_fr"
+             accesskey="P">previous</a> |</li>
+<li><a href="../../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+
+          <li><a href="../../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="profile-from-ctd">
+<h1>profile_from_ctd<a class="headerlink" href="#profile-from-ctd" title="Permalink to this headline">¶</a></h1>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">September 11, 2013</td>
+</tr>
+</tbody>
+</table>
+<span class="target" id="module-profile_from_ctd"></span><div class="section" id="create-a-profile-from-an-ascii-ctd-datafile">
+<h2>Create a Profile from an ASCII CTD datafile<a class="headerlink" href="#create-a-profile-from-an-ascii-ctd-datafile" title="Permalink to this headline">¶</a></h2>
+<p>Use the TAMOC ambient module to create profiles in netCDF format for use by 
+TAMOC from data in text files downloaded from a CTD.  This file demonstrates
+working with the data from the R/V Brooks McCall at Station BM 54 on May 30,
+2010, stored in the file /Raw_Data/ctd_BM54.cnv.</p>
+<div class="section" id="notes">
+<h3>Notes<a class="headerlink" href="#notes" title="Permalink to this headline">¶</a></h3>
+<p>Much of the input data in the script (e.g., columns to extract, column names,
+lat and lon location data, date and time, etc.) is read by the user manually
+from the header file of the CTD text file. These data are then hand-coded in
+the script text. While it would be straightforward to automate this process
+for a given format of CTD files, this step is left to the user to customize to
+their own data sets.</p>
+</div>
+<div class="section" id="requires">
+<h3>Requires<a class="headerlink" href="#requires" title="Permalink to this headline">¶</a></h3>
+<p>This script read data from the text file:</p>
+<div class="highlight-python"><pre>./Profiles/Raw_Data/ctd_BM54.dat</pre>
+</div>
+</div>
+<div class="section" id="returns">
+<h3>Returns<a class="headerlink" href="#returns" title="Permalink to this headline">¶</a></h3>
+<p>This script generates a <a class="reference internal" href="../../modules/ambient.html#ambient.Profile" title="ambient.Profile"><tt class="xref py py-obj docutils literal"><span class="pre">ambient.Profile</span></tt></a> object, whose netCDF file is written
+to the file:</p>
+<div class="highlight-python"><pre>./Profiles/Profiles/BM54.nc</pre>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../contents.html">
+              <img class="logo" src="../../_static/logo_holder.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../../contents.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">profile_from_ctd</a><ul>
+<li><a class="reference internal" href="#create-a-profile-from-an-ascii-ctd-datafile">Create a Profile from an ASCII CTD datafile</a><ul>
+<li><a class="reference internal" href="#notes">Notes</a></li>
+<li><a class="reference internal" href="#requires">Requires</a></li>
+<li><a class="reference internal" href="#returns">Returns</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../../spm/simp.outer_fr.html"
+                        title="previous chapter">simp.outer_fr</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="profile_from_lab.html"
+                        title="next chapter">profile_from_lab</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../../_sources/scripts/ambient/profile_from_ctd.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<ul class="this-page-menu">
+  <li><a href="/numpy/docs/numpy-docs/scripts/ambient/profile_from_ctd.rst">Edit page</a></li>
+</ul>
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="profile_from_lab.html" title="profile_from_lab"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../../spm/simp.outer_fr.html" title="simp.outer_fr"
+             >previous</a> |</li>
+<li><a href="../../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+
+          <li><a href="../../modules/reference.html" >Reference</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Scott A. Socolofsky.
+      Last updated on Sep 11, 2013.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,1125 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>simp &mdash; Texas A&amp;M Oilspill Calculator v0.1 Manual</title>
+    
+    <link rel="stylesheet" href="../_static/scipy.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+
+          <li><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for simp</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Stratified Integral Multiphase Plume</span>
+<span class="sd">====================================</span>
+
+<span class="sd">This module contains the numerical solution for the `stratified_plume_model`</span>
+<span class="sd">module.  While these functions make use of the objects and methods defined</span>
+<span class="sd">in the `stratified_plume_model`, these functions could be converted to </span>
+<span class="sd">Fortran to have a stand alone numerical solution to the integral plume </span>
+<span class="sd">model.  In that case, the `stratified_plume_model` module would be the </span>
+<span class="sd">interface sending input to this module and post-processing the output from </span>
+<span class="sd">this module.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="c"># S. Socolofsky, July 2013, Texas A&amp;M University &lt;socolofs@tamu.edu&gt;.</span>
+<span class="kn">from</span> <span class="nn">tamoc</span> <span class="kn">import</span> <span class="n">seawater</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">integrate</span>
+<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">fsolve</span>
+
+<span class="c"># ----------------------------------------------------------------------------</span>
+<span class="c"># Derivatives of the system of ODEs</span>
+<span class="c"># ----------------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="derivs_inner"><a class="viewcode-back" href="../spm/simp.derivs_inner.html#simp.derivs_inner">[docs]</a><span class="k">def</span> <span class="nf">derivs_inner</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">yi</span><span class="p">,</span> <span class="n">yo</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">neighbor</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the derivatives for the system of ODEs for the inner plume</span>
+<span class="sd">    </span>
+<span class="sd">    Calculates the right-hand-side of the system of ODEs for the inner plume</span>
+<span class="sd">    state space.  These equations follow Socolofsky et al. (2008) very </span>
+<span class="sd">    closely, with the exception that multiple dispersed phase particles are</span>
+<span class="sd">    allowed within the inner plume.  Heat transfer between the dispersed</span>
+<span class="sd">    and continuous phase is also added.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    z : float</span>
+<span class="sd">        Current value for the independent variable (depth in m).</span>
+<span class="sd">    y : ndarray</span>
+<span class="sd">        Current value for the inner plume state space vector.</span>
+<span class="sd">    yi : `InnerPlume`</span>
+<span class="sd">        Object for manipulating the inner plume state space</span>
+<span class="sd">    yo : `OuterPlume`</span>
+<span class="sd">        Object for manipulating the outer plume state space</span>
+<span class="sd">    particles : list of `Particle` objects</span>
+<span class="sd">        List of `Particle` objects containing the dispersed phase local</span>
+<span class="sd">        conditions and behavior.</span>
+<span class="sd">    profile : `ambient.Profile` object</span>
+<span class="sd">        The ambient CTD object used by the simulation.</span>
+<span class="sd">    p : `ModelParams` object</span>
+<span class="sd">        Object containing the fixed model parameters for the stratified </span>
+<span class="sd">        plume model.</span>
+<span class="sd">    neighbor : `scipy.interpolate.interp1d` object</span>
+<span class="sd">        Container holding the latest solution for the outer plume state</span>
+<span class="sd">        space</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    yp : ndarray</span>
+<span class="sd">        A vector of the derivatives of the inner plume state space.</span>
+<span class="sd">    </span>
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    stratified_plume_model.InnerPlume, stratified_plume_model.OuterPlume, </span>
+<span class="sd">    stratified_plume_model.inner_main, calculate</span>
+<span class="sd">    </span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    It is important that the inner plume entrains fluid from either the </span>
+<span class="sd">    ambient water (whenever the outer plume is not present) or the outer </span>
+<span class="sd">    plume (whenever it is shrouding the inner plume).  This is accomplished</span>
+<span class="sd">    in `stratified_plume_model.OuterPlume`:  if there is no outer plume </span>
+<span class="sd">    segment, then the ambient conditions are stored in the outer plume </span>
+<span class="sd">    variables.  Thus, `yo.c[i]` is equivalent to `ca[i]` when there is no </span>
+<span class="sd">    outer plume.  This behavior is true for temperature, salinity, density</span>
+<span class="sd">    and concentration.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># Set up the output from the fuction to have the right size and type</span>
+    <span class="n">yp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">yi</span><span class="o">.</span><span class="n">len</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+    
+    <span class="c"># Update the inner plume object with the corrent solution</span>
+    <span class="n">yi</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+    
+    <span class="c"># Update the outer plume object at the current depth</span>
+    <span class="k">if</span> <span class="n">z</span> <span class="o">&lt;</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">neighbor</span><span class="o">.</span><span class="n">x</span><span class="p">):</span>
+        <span class="c"># This plume is above any existing outer plumes</span>
+        <span class="n">yo</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">yo</span><span class="o">.</span><span class="n">len</span><span class="p">),</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">yi</span><span class="o">.</span><span class="n">b</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c"># Interpolate the outer plume solution to the current depth</span>
+        <span class="n">yo</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">neighbor</span><span class="p">(</span><span class="n">z</span><span class="p">),</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">yi</span><span class="o">.</span><span class="n">b</span><span class="p">)</span>
+    
+    <span class="c"># Conservation of mass</span>
+    <span class="n">yp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">2.</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">yi</span><span class="o">.</span><span class="n">b</span> <span class="o">*</span> <span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">alpha_1</span> <span class="o">*</span> <span class="p">(</span><span class="n">yi</span><span class="o">.</span><span class="n">u</span> <span class="o">+</span> <span class="n">p</span><span class="o">.</span><span class="n">c1</span> <span class="o">*</span> <span class="n">yo</span><span class="o">.</span><span class="n">u</span><span class="p">)</span> <span class="o">+</span> \
+            <span class="n">p</span><span class="o">.</span><span class="n">alpha_2</span> <span class="o">*</span> <span class="n">yo</span><span class="o">.</span><span class="n">u</span><span class="p">)</span> <span class="o">+</span> <span class="n">yi</span><span class="o">.</span><span class="n">Ep</span>
+            
+    <span class="c"># Conservation of momentum</span>
+    <span class="n">yp</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">/</span> <span class="n">p</span><span class="o">.</span><span class="n">gamma_i</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">p</span><span class="o">.</span><span class="n">g</span> <span class="o">*</span> <span class="n">yi</span><span class="o">.</span><span class="n">b</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">p</span><span class="o">.</span><span class="n">rho_r</span> <span class="o">*</span> \
+            <span class="p">(</span><span class="n">yi</span><span class="o">.</span><span class="n">Fb</span> <span class="o">+</span> <span class="n">p</span><span class="o">.</span><span class="n">lambda_2</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">yi</span><span class="o">.</span><span class="n">Xi</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">yi</span><span class="o">.</span><span class="n">rho_a</span> <span class="o">-</span> \
+            <span class="n">yi</span><span class="o">.</span><span class="n">rho</span><span class="p">))</span> <span class="o">+</span> <span class="mf">2.</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">yi</span><span class="o">.</span><span class="n">b</span> <span class="o">*</span> <span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">alpha_1</span> <span class="o">*</span> <span class="p">(</span><span class="n">yi</span><span class="o">.</span><span class="n">u</span> <span class="o">+</span> <span class="n">p</span><span class="o">.</span><span class="n">c1</span> <span class="o">*</span> \
+            <span class="n">yo</span><span class="o">.</span><span class="n">u</span><span class="p">)</span> <span class="o">*</span> <span class="n">yo</span><span class="o">.</span><span class="n">u</span> <span class="o">+</span> <span class="n">p</span><span class="o">.</span><span class="n">alpha_2</span> <span class="o">*</span> <span class="n">yo</span><span class="o">.</span><span class="n">u</span> <span class="o">*</span> <span class="n">yi</span><span class="o">.</span><span class="n">u</span><span class="p">)</span> <span class="o">+</span> <span class="n">yi</span><span class="o">.</span><span class="n">Ep</span> <span class="o">*</span> <span class="n">yi</span><span class="o">.</span><span class="n">u</span><span class="p">)</span>
+            
+    <span class="c"># Conservation of salinity</span>
+    <span class="n">yp</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mf">2.</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">yi</span><span class="o">.</span><span class="n">b</span> <span class="o">*</span> <span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">alpha_1</span> <span class="o">*</span> <span class="p">(</span><span class="n">yi</span><span class="o">.</span><span class="n">u</span> <span class="o">+</span> <span class="n">p</span><span class="o">.</span><span class="n">c1</span> <span class="o">*</span> <span class="n">yo</span><span class="o">.</span><span class="n">u</span><span class="p">)</span> <span class="o">*</span> \
+            <span class="n">yo</span><span class="o">.</span><span class="n">s</span> <span class="o">+</span> <span class="n">p</span><span class="o">.</span><span class="n">alpha_2</span> <span class="o">*</span> <span class="n">yo</span><span class="o">.</span><span class="n">u</span> <span class="o">*</span> <span class="n">yi</span><span class="o">.</span><span class="n">s</span><span class="p">)</span> <span class="o">+</span> <span class="n">yi</span><span class="o">.</span><span class="n">Ep</span> <span class="o">*</span> <span class="n">yi</span><span class="o">.</span><span class="n">s</span>
+            
+    <span class="c"># Conservation of continuous phase fluid heat</span>
+    <span class="n">yp</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">rho_r</span> <span class="o">*</span> <span class="n">seawater</span><span class="o">.</span><span class="n">cp</span><span class="p">()</span> <span class="o">*</span> <span class="p">(</span><span class="mf">2.</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">yi</span><span class="o">.</span><span class="n">b</span> <span class="o">*</span> <span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">alpha_1</span> <span class="o">*</span> \
+            <span class="p">(</span><span class="n">yi</span><span class="o">.</span><span class="n">u</span> <span class="o">+</span> <span class="n">p</span><span class="o">.</span><span class="n">c1</span> <span class="o">*</span> <span class="n">yo</span><span class="o">.</span><span class="n">u</span><span class="p">)</span> <span class="o">*</span> <span class="n">yo</span><span class="o">.</span><span class="n">T</span> <span class="o">+</span> <span class="n">p</span><span class="o">.</span><span class="n">alpha_2</span> <span class="o">*</span> <span class="n">yo</span><span class="o">.</span><span class="n">u</span> <span class="o">*</span> <span class="n">yi</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">+</span> \
+            <span class="n">yi</span><span class="o">.</span><span class="n">Ep</span> <span class="o">*</span> <span class="n">yi</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+            
+    <span class="c"># Conservation equations for each dispersed phase</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">yi</span><span class="o">.</span><span class="n">np</span><span class="p">):</span>
+        <span class="c"># Track the mass dissolving into the continuous phase</span>
+        <span class="n">delDiss</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">yi</span><span class="o">.</span><span class="n">nchems</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">issoluble</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">yi</span><span class="o">.</span><span class="n">nchems</span><span class="p">):</span>
+                
+                <span class="c"># Conservation of particle mass for soluble particles </span>
+                <span class="n">yp</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">A</span> <span class="o">*</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">nb0</span> <span class="o">/</span> <span class="p">(</span><span class="n">yi</span><span class="o">.</span><span class="n">u</span> <span class="o">+</span> 
+                            <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">us</span><span class="p">)</span> <span class="o">*</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">beta</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">*</span> 
+                            <span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">Cs</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="n">yi</span><span class="o">.</span><span class="n">c</span><span class="p">[</span><span class="n">j</span><span class="p">]))</span>
+                <span class="n">delDiss</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">+=</span> <span class="n">yp</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+                
+                <span class="c"># Update continuous phase temperature with heat of solution</span>
+                <span class="n">yp</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">yp</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="n">delDiss</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">*</span> \
+                        <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">dH_solR</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">*</span> <span class="n">p</span><span class="o">.</span><span class="n">Ru</span> <span class="o">/</span> \
+                        <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">M</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+                <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span>
+            
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># Conservation of particle mass for insoluble particles</span>
+            <span class="n">yp</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span>
+        
+        <span class="c"># Conservation of particle heat including dissolution mass transfer</span>
+        <span class="n">yp</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">A</span> <span class="o">*</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">nb0</span> <span class="o">/</span> <span class="p">(</span><span class="n">yi</span><span class="o">.</span><span class="n">u</span> <span class="o">+</span> 
+                  <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">us</span><span class="p">)</span> <span class="o">*</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">rho_p</span> <span class="o">*</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">cp</span> <span class="o">*</span> \
+                  <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">beta_T</span> <span class="o">*</span> <span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">T</span> <span class="o">-</span> <span class="n">yi</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">+</span> \
+                  <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">delDiss</span><span class="p">)</span> <span class="o">*</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">cp</span> <span class="o">*</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
+        
+        <span class="c"># Take the heat leaving the particle and put it in the continuous </span>
+        <span class="c"># phase fluid</span>
+        <span class="n">yp</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">yp</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="n">yp</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> 
+        <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span>
+    
+    <span class="c"># Conservation equations for the dissolved constituents.</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">yi</span><span class="o">.</span><span class="n">nchems</span><span class="p">):</span>
+        <span class="n">yp</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="mf">2.</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">yi</span><span class="o">.</span><span class="n">b</span> <span class="o">*</span> <span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">alpha_1</span> <span class="o">*</span> <span class="p">(</span><span class="n">yi</span><span class="o">.</span><span class="n">u</span> <span class="o">+</span> <span class="n">p</span><span class="o">.</span><span class="n">c1</span> <span class="o">*</span> <span class="n">yo</span><span class="o">.</span><span class="n">u</span><span class="p">)</span> <span class="o">*</span> \
+                  <span class="n">yo</span><span class="o">.</span><span class="n">c</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">p</span><span class="o">.</span><span class="n">alpha_2</span> <span class="o">*</span> <span class="n">yo</span><span class="o">.</span><span class="n">u</span> <span class="o">*</span> <span class="n">yi</span><span class="o">.</span><span class="n">c</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">+</span> <span class="n">yi</span><span class="o">.</span><span class="n">Ep</span> <span class="o">*</span> \
+                  <span class="n">yi</span><span class="o">.</span><span class="n">c</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">delDiss</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span>
+    
+    <span class="c"># z is positive downward (depth)</span>
+    <span class="k">return</span> <span class="o">-</span><span class="n">yp</span>
+</div>
+<div class="viewcode-block" id="derivs_outer"><a class="viewcode-back" href="../spm/simp.derivs_outer.html#simp.derivs_outer">[docs]</a><span class="k">def</span> <span class="nf">derivs_outer</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">yi</span><span class="p">,</span> <span class="n">yo</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">neighbor</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the derivatives for the system of ODEs for the outer plume</span>
+<span class="sd">    </span>
+<span class="sd">    Calculates the right-hand-side of the system of ODEs for the outer plume</span>
+<span class="sd">    state space.  These equations follow those in Socolofsky et al. (2008).</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    z : float</span>
+<span class="sd">        Current value for the independent variable (depth in m).</span>
+<span class="sd">    y : ndarray</span>
+<span class="sd">        Current value for the outer plume state space vector.</span>
+<span class="sd">    yi : `InnerPlume`</span>
+<span class="sd">        Object for manipulating the inner plume state space</span>
+<span class="sd">    yo : `OuterPlume`</span>
+<span class="sd">        Object for manipulating the outer plume state space</span>
+<span class="sd">    particles : list of `Particle` objects</span>
+<span class="sd">        List of `Particle` objects containing the dispersed phase local</span>
+<span class="sd">        conditions and behavior.</span>
+<span class="sd">    profile : `ambient.Profile` object</span>
+<span class="sd">        The ambient CTD object used by the simulation.</span>
+<span class="sd">    p : `ModelParams` object</span>
+<span class="sd">        Object containing the fixed model parameters for the stratified </span>
+<span class="sd">        plume model.</span>
+<span class="sd">    neighbor : `scipy.interpolate.interp1d` object</span>
+<span class="sd">        Container holding the latest solution for the outer plume state</span>
+<span class="sd">        space</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    yp : ndarray</span>
+<span class="sd">        A vector of the derivatives of the outer plume state space.</span>
+<span class="sd">    </span>
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    stratified_plume_model.InnerPlume, stratified_plume_model.OuterPlume, </span>
+<span class="sd">    stratified_plume_model.outer_main, calculate</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># Set up the output from the function to have the correct size and type</span>
+    <span class="n">yp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">yo</span><span class="o">.</span><span class="n">len</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+    
+    <span class="c"># Update the inner plume object at the current depth</span>
+    <span class="k">if</span> <span class="n">z</span> <span class="o">&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">neighbor</span><span class="o">.</span><span class="n">x</span><span class="p">):</span>
+        <span class="n">yi</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">yi</span><span class="o">.</span><span class="n">len</span><span class="p">),</span> <span class="n">particles</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">yi</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">neighbor</span><span class="p">(</span><span class="n">z</span><span class="p">),</span> <span class="n">particles</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+    
+    <span class="c"># Update the outer plume object with the current solution</span>
+    <span class="n">yo</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">yi</span><span class="o">.</span><span class="n">b</span><span class="p">)</span>
+    
+    <span class="c"># Conservation of Mass:</span>
+    <span class="n">yp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">2.</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">yi</span><span class="o">.</span><span class="n">b</span> <span class="o">*</span> <span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">alpha_1</span> <span class="o">*</span> <span class="p">(</span><span class="n">yi</span><span class="o">.</span><span class="n">u</span> <span class="o">+</span> <span class="n">p</span><span class="o">.</span><span class="n">c1</span> <span class="o">*</span> <span class="n">yo</span><span class="o">.</span><span class="n">u</span><span class="p">)</span> <span class="o">+</span> \
+            <span class="n">p</span><span class="o">.</span><span class="n">alpha_2</span> <span class="o">*</span> <span class="n">yo</span><span class="o">.</span><span class="n">u</span><span class="p">)</span> <span class="o">+</span> <span class="mf">2.</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">yo</span><span class="o">.</span><span class="n">b</span> <span class="o">*</span> <span class="n">p</span><span class="o">.</span><span class="n">alpha_3</span> <span class="o">*</span> <span class="n">yo</span><span class="o">.</span><span class="n">u</span> <span class="o">+</span> <span class="n">yi</span><span class="o">.</span><span class="n">Ep</span>
+    
+    <span class="c"># Conservation of Momentum:</span>
+    <span class="n">yp</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">/</span> <span class="n">p</span><span class="o">.</span><span class="n">gamma_o</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">p</span><span class="o">.</span><span class="n">g</span> <span class="o">*</span> <span class="p">(</span><span class="n">yo</span><span class="o">.</span><span class="n">b</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="n">yi</span><span class="o">.</span><span class="n">b</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">p</span><span class="o">.</span><span class="n">rho_r</span> <span class="o">*</span> \
+            <span class="p">(</span><span class="n">yo</span><span class="o">.</span><span class="n">rho_a</span> <span class="o">-</span> <span class="n">yo</span><span class="o">.</span><span class="n">rho</span><span class="p">)</span> <span class="o">+</span> <span class="mf">2.</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">yi</span><span class="o">.</span><span class="n">b</span> <span class="o">*</span> <span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">alpha_1</span> <span class="o">*</span> <span class="p">(</span><span class="n">yi</span><span class="o">.</span><span class="n">u</span> <span class="o">+</span> \
+            <span class="n">p</span><span class="o">.</span><span class="n">c1</span> <span class="o">*</span> <span class="n">yo</span><span class="o">.</span><span class="n">u</span><span class="p">)</span> <span class="o">*</span> <span class="n">yo</span><span class="o">.</span><span class="n">u</span> <span class="o">+</span> <span class="n">p</span><span class="o">.</span><span class="n">alpha_2</span> <span class="o">*</span> <span class="n">yo</span><span class="o">.</span><span class="n">u</span> <span class="o">*</span> <span class="n">yi</span><span class="o">.</span><span class="n">u</span><span class="p">)</span> <span class="o">+</span> <span class="n">yi</span><span class="o">.</span><span class="n">Ep</span> <span class="o">*</span> <span class="n">yi</span><span class="o">.</span><span class="n">u</span><span class="p">)</span>
+    
+    <span class="c"># Conservation of Salinity:</span>
+    <span class="n">yp</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mf">2.</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">yi</span><span class="o">.</span><span class="n">b</span> <span class="o">*</span> <span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">alpha_1</span> <span class="o">*</span> <span class="p">(</span><span class="n">yi</span><span class="o">.</span><span class="n">u</span> <span class="o">+</span> <span class="n">p</span><span class="o">.</span><span class="n">c1</span> <span class="o">*</span> <span class="n">yo</span><span class="o">.</span><span class="n">u</span><span class="p">)</span> <span class="o">*</span> <span class="n">yo</span><span class="o">.</span><span class="n">s</span> <span class="o">+</span> \
+            <span class="n">p</span><span class="o">.</span><span class="n">alpha_2</span> <span class="o">*</span> <span class="n">yo</span><span class="o">.</span><span class="n">u</span> <span class="o">*</span> <span class="n">yi</span><span class="o">.</span><span class="n">s</span><span class="p">)</span> <span class="o">+</span> <span class="mf">2.</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">yo</span><span class="o">.</span><span class="n">b</span> <span class="o">*</span> <span class="n">p</span><span class="o">.</span><span class="n">alpha_3</span> <span class="o">*</span> \
+            <span class="n">yo</span><span class="o">.</span><span class="n">u</span> <span class="o">*</span> <span class="n">yo</span><span class="o">.</span><span class="n">Sa</span> <span class="o">+</span> <span class="n">yi</span><span class="o">.</span><span class="n">Ep</span> <span class="o">*</span> <span class="n">yi</span><span class="o">.</span><span class="n">s</span>
+    
+    <span class="c"># Conservation of Heat:</span>
+    <span class="n">yp</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">rho_r</span> <span class="o">*</span> <span class="n">seawater</span><span class="o">.</span><span class="n">cp</span><span class="p">()</span> <span class="o">*</span> <span class="p">(</span><span class="mf">2.</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">yi</span><span class="o">.</span><span class="n">b</span> <span class="o">*</span> <span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">alpha_1</span> <span class="o">*</span> \
+            <span class="p">(</span><span class="n">yi</span><span class="o">.</span><span class="n">u</span> <span class="o">+</span> <span class="n">p</span><span class="o">.</span><span class="n">c1</span> <span class="o">*</span> <span class="n">yo</span><span class="o">.</span><span class="n">u</span><span class="p">)</span> <span class="o">*</span> <span class="n">yo</span><span class="o">.</span><span class="n">T</span> <span class="o">+</span> <span class="n">p</span><span class="o">.</span><span class="n">alpha_2</span> <span class="o">*</span> <span class="n">yo</span><span class="o">.</span><span class="n">u</span> <span class="o">*</span> <span class="n">yi</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">+</span> \
+            <span class="mf">2.</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">yo</span><span class="o">.</span><span class="n">b</span> <span class="o">*</span> <span class="n">p</span><span class="o">.</span><span class="n">alpha_3</span> <span class="o">*</span> <span class="n">yo</span><span class="o">.</span><span class="n">u</span> <span class="o">*</span> <span class="n">yo</span><span class="o">.</span><span class="n">Ta</span> <span class="o">+</span> <span class="n">yi</span><span class="o">.</span><span class="n">Ep</span> <span class="o">*</span> <span class="n">yi</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+    
+    <span class="c"># Conservation of tracked chemical constituents:</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">yo</span><span class="o">.</span><span class="n">nchems</span><span class="p">):</span>
+        <span class="n">yp</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="mf">2.</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">yi</span><span class="o">.</span><span class="n">b</span> <span class="o">*</span> <span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">alpha_1</span> <span class="o">*</span> <span class="p">(</span><span class="n">yi</span><span class="o">.</span><span class="n">u</span> <span class="o">+</span> <span class="n">p</span><span class="o">.</span><span class="n">c1</span> <span class="o">*</span> <span class="n">yo</span><span class="o">.</span><span class="n">u</span><span class="p">)</span> <span class="o">*</span> \
+                <span class="n">yo</span><span class="o">.</span><span class="n">c</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">p</span><span class="o">.</span><span class="n">alpha_2</span> <span class="o">*</span> <span class="n">yo</span><span class="o">.</span><span class="n">u</span> <span class="o">*</span> <span class="n">yi</span><span class="o">.</span><span class="n">c</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">+</span> <span class="mf">2.</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">yo</span><span class="o">.</span><span class="n">b</span> <span class="o">*</span> \
+                <span class="n">p</span><span class="o">.</span><span class="n">alpha_3</span> <span class="o">*</span> <span class="n">yo</span><span class="o">.</span><span class="n">u</span> <span class="o">*</span> <span class="n">yo</span><span class="o">.</span><span class="n">ca</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">yi</span><span class="o">.</span><span class="n">Ep</span> <span class="o">*</span> <span class="n">yi</span><span class="o">.</span><span class="n">c</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span>
+    
+    <span class="c"># z is positive downward (depth)</span>
+    <span class="k">return</span> <span class="n">yp</span>
+
+
+<span class="c"># ----------------------------------------------------------------------------</span>
+<span class="c"># Main integration controller</span>
+<span class="c"># ----------------------------------------------------------------------------</span>
+</div>
+<div class="viewcode-block" id="calculate"><a class="viewcode-back" href="../spm/simp.calculate.html#simp.calculate">[docs]</a><span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span><span class="n">yi</span><span class="p">,</span> <span class="n">yo</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">neighbor</span><span class="p">,</span> <span class="n">derivs</span><span class="p">,</span> <span class="n">z0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">zf</span><span class="p">,</span> 
+              <span class="n">z_dir</span><span class="p">,</span> <span class="n">delta_z</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Integrate an inner or outer plume segment from `z0` to `zf`</span>
+<span class="sd">    </span>
+<span class="sd">    Integrate the inner or outer plume over the range from `z0` to `zf`, </span>
+<span class="sd">    integrating in the direction (positive or negative) given by `z_dir`.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    yi : `InnerPlume`</span>
+<span class="sd">        Object for manipulating the inner plume state space</span>
+<span class="sd">    yo : `OuterPlume`</span>
+<span class="sd">        Object for manipulating the outer plume state space</span>
+<span class="sd">    particles : list of `Particle` objects</span>
+<span class="sd">        List of `Particle` objects containing the dispersed phase local</span>
+<span class="sd">        conditions and behavior.</span>
+<span class="sd">    profile : `ambient.Profile` object</span>
+<span class="sd">        The ambient CTD object used by the simulation.</span>
+<span class="sd">    p : `ModelParams` object</span>
+<span class="sd">        Object containing the fixed model parameters for the stratified </span>
+<span class="sd">        plume model.</span>
+<span class="sd">    neighbor : `scipy.interpolate.interp1d` object</span>
+<span class="sd">        Container holding the latest solution for the outer plume state</span>
+<span class="sd">        space</span>
+<span class="sd">    derivs : function handle</span>
+<span class="sd">        Pointer to the function where the derivatives of the ODE system are</span>
+<span class="sd">        stored.  Should be either `simp.derivs_inner` or `simp.derivs_outer`.</span>
+<span class="sd">    z0 : float</span>
+<span class="sd">        Initial depth (m)</span>
+<span class="sd">    y0 : ndarray</span>
+<span class="sd">        Initial values of the state space vector</span>
+<span class="sd">    zf : float</span>
+<span class="sd">        Final depth to calculate (m)</span>
+<span class="sd">    z_dir : float</span>
+<span class="sd">        Direction (+1 or -1) to integrate the vertical coordinate.  The inner</span>
+<span class="sd">        plume integrates in the negative z-direction (to shallower depths),</span>
+<span class="sd">        and the outer plume integrates in the positive z-direction (to </span>
+<span class="sd">        greater depths).</span>
+<span class="sd">    delta_z : float</span>
+<span class="sd">        Maximum step size to use in the simulation (m).  The ODE solver </span>
+<span class="sd">        in `calculate` is set up with adaptive step size integration, so </span>
+<span class="sd">        in theory this value determines the largest step size in the </span>
+<span class="sd">        output data, but not the numerical stability of the calculation.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    z : ndarray</span>
+<span class="sd">        Vector of elevations where the inner plume solution is obtained (m).</span>
+<span class="sd">    y : ndarray</span>
+<span class="sd">        Matrix of inner plume state space solutions.  Each row corresponds to</span>
+<span class="sd">        a depth in z.</span>
+<span class="sd">    </span>
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    derivs_inner, derivs_outer, stratified_plume_model.Model, </span>
+<span class="sd">    stratified_plume_model.inner_main, stratified_plume_model.outer_main, </span>
+<span class="sd">    stratified_plume_model.InnerPlume, stratified_plume_model.OuterPlume</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># Create the integrator object:  use &quot;vode&quot; with &quot;backward </span>
+    <span class="c"># differentiation formula&quot; for stiff ODEs</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">integrate</span><span class="o">.</span><span class="n">ode</span><span class="p">(</span><span class="n">derivs</span><span class="p">)</span><span class="o">.</span><span class="n">set_integrator</span><span class="p">(</span><span class="s">&#39;vode&#39;</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s">&#39;bdf&#39;</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1.e-6</span><span class="p">,</span> 
+        <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">max_step</span><span class="o">=</span><span class="n">delta_z</span><span class="p">)</span>
+    
+    <span class="c"># Initialize the state space</span>
+    <span class="n">r</span><span class="o">.</span><span class="n">set_initial_value</span><span class="p">(</span><span class="n">y0</span><span class="p">,</span> <span class="n">z0</span><span class="p">)</span>
+    
+    <span class="c"># Set passing variables for derivs method</span>
+    <span class="n">r</span><span class="o">.</span><span class="n">set_f_params</span><span class="p">(</span><span class="n">yi</span><span class="p">,</span> <span class="n">yo</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">neighbor</span><span class="p">)</span>
+    
+    <span class="c"># Create vectors (using the list data type) to store the solution</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="p">[</span><span class="n">z0</span><span class="p">]</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="p">[</span><span class="n">y0</span><span class="p">]</span>
+    
+    <span class="c"># Integrate to zf unless the solution stops naturally earlier</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">psteps</span> <span class="o">=</span> <span class="mf">15.</span>
+    <span class="n">stop</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="k">while</span> <span class="n">r</span><span class="o">.</span><span class="n">successful</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">stop</span> <span class="ow">and</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="mi">30000</span><span class="p">:</span>
+        
+        <span class="c"># Print progress to the screen</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">remainder</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">(</span><span class="n">k</span><span class="p">),</span> <span class="n">psteps</span><span class="p">)</span> <span class="o">==</span> <span class="mf">0.</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">&#39;    Depth:  </span><span class="si">%g</span><span class="s"> (m), k: </span><span class="si">%d</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">z</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">k</span><span class="p">)</span>
+        
+        <span class="c"># Perform one step of the integration</span>
+        <span class="n">r</span><span class="o">.</span><span class="n">integrate</span><span class="p">(</span><span class="n">zf</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        
+        <span class="c"># Store the results</span>
+        <span class="k">if</span> <span class="n">derivs</span> <span class="o">==</span> <span class="n">derivs_inner</span><span class="p">:</span>
+            <span class="c"># Check the particle temperatures as heat transfer switches off</span>
+            <span class="n">yi</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">t</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="n">correct_temperature</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">profile</span><span class="p">)</span>
+        <span class="n">z</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">t</span><span class="p">)</span>
+        <span class="n">y</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+        <span class="n">k</span> <span class="o">+=</span> <span class="mi">1</span>
+        
+        <span class="c"># Evaluate the stop criteria</span>
+        <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">successful</span><span class="p">():</span>
+            <span class="c"># Check if we reached the free surface</span>
+            <span class="k">if</span> <span class="n">z</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">z_dir</span> <span class="o">&gt;=</span> <span class="n">zf</span> <span class="o">*</span> <span class="n">z_dir</span><span class="p">:</span>
+                <span class="n">stop</span> <span class="o">=</span> <span class="bp">True</span>
+            <span class="c"># Check if the momentum went negative</span>
+            <span class="k">if</span> <span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">0.</span><span class="p">:</span>
+                <span class="n">stop</span> <span class="o">=</span> <span class="bp">True</span>
+    
+    <span class="c"># Convert solution to numpy arrays.</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+    
+    <span class="c"># Remove any part of the solution with a negative momentum</span>
+    <span class="n">rows</span> <span class="o">=</span> <span class="n">y</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">0</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">z</span><span class="p">[</span><span class="n">rows</span><span class="p">,:]</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="n">rows</span><span class="p">,:]</span>
+    
+    <span class="c"># Return the solution</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">remainder</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">(</span><span class="n">k</span><span class="p">),</span> <span class="n">psteps</span><span class="p">)</span> <span class="o">==</span> <span class="mf">0.</span><span class="p">:</span>
+        <span class="k">print</span> <span class="s">&#39;    Depth:  </span><span class="si">%g</span><span class="s"> (m), k: </span><span class="si">%d</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">z</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">k</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="correct_temperature"><a class="viewcode-back" href="../spm/simp.correct_temperature.html#simp.correct_temperature">[docs]</a><span class="k">def</span> <span class="nf">correct_temperature</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">profile</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Make sure the correct temperature is stored in the state space solution</span>
+<span class="sd">    </span>
+<span class="sd">    When the dispersed phase particles equilibrate to their surround </span>
+<span class="sd">    temperature, heat transfer is turned off by the methods in </span>
+<span class="sd">    `stratified_plume_model.Particle`.  This is needed to prevent numerical</span>
+<span class="sd">    oscillations as the particles become small.  Unfortunately, it is not as</span>
+<span class="sd">    easy to make the numerical solution obtain the correct result.  </span>
+<span class="sd">    </span>
+<span class="sd">    Once heat transfer is turned off, all of the model methods uses the </span>
+<span class="sd">    correct temperature (e.g., the ambient temperature) in all of the </span>
+<span class="sd">    equations coupled to the heat transfer equation and in all equations </span>
+<span class="sd">    involving particle temperature.  </span>
+<span class="sd">    </span>
+<span class="sd">    In order to prevent the state space variable for particle temperature </span>
+<span class="sd">    from blowing up as the mass goes to zero, we also continue to adjust the</span>
+<span class="sd">    particle heat in the ODE solution to maintain a constant temperature. </span>
+<span class="sd">    This is done by setting `beta_T = 0`.  This is merely a numerical trick, </span>
+<span class="sd">    as all equations using the particle temperature know to use the ambient</span>
+<span class="sd">    temperature when this is the case.  </span>
+<span class="sd">    </span>
+<span class="sd">    Hence, the purpose of this function is to simply overwrite the state </span>
+<span class="sd">    space solution containing the particle heat (returned by the ODE solver</span>
+<span class="sd">    to maintain a constant particle temperature) with the correct particle</span>
+<span class="sd">    heat yielding the ambient temperature for the particle temperature.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    r : `scipy.integrate.ode` object</span>
+<span class="sd">        ODE solution containing the currect values of the state space (e.g., </span>
+<span class="sd">        `r.y`).</span>
+<span class="sd">    particles : list of `Particle` objects</span>
+<span class="sd">        List of `Particle` objects containing the dispersed phase local</span>
+<span class="sd">        conditions and behavior.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    r : `scipy.integrate.ode` object</span>
+<span class="sd">        Returns the original ODE object with the corrected solution.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># Find the values in the solution where the heat is stored</span>
+    <span class="n">Ta</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">t</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;temperature&#39;</span><span class="p">])</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">particles</span><span class="p">)):</span>
+        <span class="n">idx</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">composition</span><span class="p">)</span>
+        <span class="n">r</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">m</span><span class="p">)</span> <span class="o">*</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">nb0</span> <span class="o">*</span> \
+                   <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">cp</span> <span class="o">*</span> <span class="n">Ta</span>
+        <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span>
+    
+    <span class="c"># Return the corrected solution</span>
+    <span class="k">return</span> <span class="n">r</span>
+
+<span class="c"># ----------------------------------------------------------------------------</span>
+<span class="c"># General tools used throughout the model simulation</span>
+<span class="c"># ----------------------------------------------------------------------------</span>
+</div>
+<div class="viewcode-block" id="bf_average"><a class="viewcode-back" href="../spm/simp.bf_average.html#simp.bf_average">[docs]</a><span class="k">def</span> <span class="nf">bf_average</span><span class="p">(</span><span class="n">particles</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">rho_r</span><span class="p">,</span> <span class="n">parm</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute a buoyancy-flux-weighted average of `parm`</span>
+<span class="sd">    </span>
+<span class="sd">    Computes a weighted average of the values in `parm` using the kinematic</span>
+<span class="sd">    buoyancy flux of each particle containing parm as the weight in the </span>
+<span class="sd">    average calculation.  </span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    particles : list of `single_particle_model.Particle` objects</span>
+<span class="sd">        Iterable list of dbm class objects describing each</span>
+<span class="sd">        dispersed phase.</span>
+<span class="sd">    rho : float</span>
+<span class="sd">        Local density of ambient fluid outside plume (kg/m^3).</span>
+<span class="sd">    g : float</span>
+<span class="sd">        Acceleration of gravity (m/s^2).</span>
+<span class="sd">    rho_r : float</span>
+<span class="sd">        Model reference density (kg/m^3).</span>
+<span class="sd">    parm : ndarray</span>
+<span class="sd">        Numpy array of parameters to average, one value for each </span>
+<span class="sd">        dispersed phase entry (same as elements in parm).</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    parm_ave : float</span>
+<span class="sd">        The weighted average of `parm`.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># Compute the total buoyancy flux of each dispersed phase particle in the </span>
+    <span class="c"># simulation</span>
+    <span class="n">F</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">particles</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">particles</span><span class="p">)):</span>
+        <span class="c"># Get the total particle volume flux</span>
+        <span class="n">Q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">m</span><span class="p">)</span> <span class="o">*</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">nb0</span> <span class="o">/</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">rho_p</span>
+        <span class="c"># Compute the particle kinematic buoyancy flux</span>
+        <span class="n">F</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">g</span> <span class="o">*</span> <span class="p">(</span><span class="n">rho</span> <span class="o">-</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">rho_p</span><span class="p">)</span> <span class="o">/</span> <span class="n">rho_r</span> <span class="o">*</span> <span class="n">Q</span>
+    
+    <span class="c"># Return the buoyancy-flux-weighted value of parm</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">F</span><span class="p">)</span> <span class="o">==</span> <span class="mf">0.</span><span class="p">:</span>
+        <span class="n">parm</span> <span class="o">=</span> <span class="mf">0.</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">parm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">F</span> <span class="o">*</span> <span class="n">parm</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">F</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">parm</span>
+</div>
+<div class="viewcode-block" id="cp_model"><a class="viewcode-back" href="../spm/simp.cp_model.html#simp.cp_model">[docs]</a><span class="k">def</span> <span class="nf">cp_model</span><span class="p">(</span><span class="n">epsilon</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">rho_a</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">rho_r</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">u</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Continuous peeling model of Crounse (2000)</span>
+<span class="sd">    </span>
+<span class="sd">    Computes the local peeling flux from the continuous model of Crounse</span>
+<span class="sd">    (2000)</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    epsilon : float</span>
+<span class="sd">        Continuous peeling model calibration factor (--).</span>
+<span class="sd">    particles : list of `single_particle_model.Particle` objects</span>
+<span class="sd">        Iterable list of dbm class objects describing each dispersed phase.</span>
+<span class="sd">    rho_a : float</span>
+<span class="sd">        Local density of ambient fluid outside plume (kg/m^3).</span>
+<span class="sd">    rho : float</span>
+<span class="sd">        Local density of plume fluid (kg/m^3)</span>
+<span class="sd">    g : float</span>
+<span class="sd">        Acceleration of gravity (m/s^2).</span>
+<span class="sd">    rho_r : float</span>
+<span class="sd">        Model reference density (kg/m^3).</span>
+<span class="sd">    b : float</span>
+<span class="sd">        Local plume half-width (m)</span>
+<span class="sd">    u : float</span>
+<span class="sd">        Local plume fluid velocity (m/s)</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># Compute a buoyancy flux weighted average of the slip velocity</span>
+    <span class="n">us</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">us</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">particles</span><span class="p">))])</span>
+    <span class="n">us</span> <span class="o">=</span> <span class="n">bf_average</span><span class="p">(</span><span class="n">particles</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">rho_r</span><span class="p">,</span> <span class="n">us</span><span class="p">)</span>
+    
+    <span class="c"># Return the peeling flux</span>
+    <span class="k">return</span> <span class="n">epsilon</span> <span class="o">*</span> <span class="p">(</span><span class="n">us</span> <span class="o">/</span> <span class="n">u</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">g</span> <span class="o">*</span> <span class="p">(</span><span class="n">rho_a</span> <span class="o">-</span> <span class="n">rho</span><span class="p">)</span> <span class="o">/</span> <span class="n">rho_r</span> <span class="o">*</span> \
+           <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">b</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">u</span>
+
+<span class="c"># ----------------------------------------------------------------------------</span>
+<span class="c"># Functions to compute inner plume initial conditions</span>
+<span class="c"># ---------------------------------------------------------------------------</span>
+</div>
+<div class="viewcode-block" id="main_ic"><a class="viewcode-back" href="../spm/simp.main_ic.html#simp.main_ic">[docs]</a><span class="k">def</span> <span class="nf">main_ic</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">z0</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the initial conditions for the inner plume state space</span>
+<span class="sd">    </span>
+<span class="sd">    Compute the initial conditions at the release location for the inner</span>
+<span class="sd">    plume state space</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    profile : `ambient.Profile` object</span>
+<span class="sd">        The ambient CTD object used by the single bubble model simulation.</span>
+<span class="sd">    particles : list of `Particle` objects</span>
+<span class="sd">        List of `Particle` objects containing the dispersed phase initial</span>
+<span class="sd">        conditions</span>
+<span class="sd">    p : `stratified_plume_model.ModelParams` object</span>
+<span class="sd">        Object containing the fixed model parameters for the stratified </span>
+<span class="sd">        plume model.</span>
+<span class="sd">    z0 : float</span>
+<span class="sd">        Depth of the release point (m)</span>
+<span class="sd">    R : float</span>
+<span class="sd">        Radius of the release port (m)</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># Get the initial volume flux and related variables at the source</span>
+    <span class="n">Q</span><span class="p">,</span> <span class="n">J</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">Ta</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">rho</span> <span class="o">=</span> <span class="n">flux_ic</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">z0</span><span class="p">,</span> <span class="n">R</span><span class="p">)</span>
+    
+    <span class="c"># Sequentially build the inner plume state space</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="p">[</span><span class="n">Q</span><span class="p">,</span> <span class="n">J</span><span class="p">,</span> <span class="n">Sa</span> <span class="o">*</span> <span class="n">Q</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">rho_r</span> <span class="o">*</span> <span class="n">seawater</span><span class="o">.</span><span class="n">cp</span><span class="p">()</span> <span class="o">*</span> <span class="n">Ta</span> <span class="o">*</span> <span class="n">Q</span><span class="p">]</span>
+    
+    <span class="c"># Include the dispersed phase variables (mass fluxes followed by heat </span>
+    <span class="c"># flux, one particle at a time)</span>
+    <span class="n">chem_names</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">particles</span><span class="p">)):</span>
+        
+        <span class="c"># Total mass flux</span>
+        <span class="n">y</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">m0</span> <span class="o">*</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">nb0</span><span class="p">)</span>
+        
+        <span class="c"># Total heat flux</span>
+        <span class="n">y</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">m0</span><span class="p">)</span> <span class="o">*</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">nb0</span> <span class="o">*</span> 
+                 <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">cp</span> <span class="o">*</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">T0</span><span class="p">)</span>
+        
+        <span class="c"># Chemical composition</span>
+        <span class="k">if</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">issoluble</span><span class="p">:</span>
+            <span class="n">chem_names</span> <span class="o">=</span> <span class="n">chem_names</span> <span class="o">+</span> <span class="p">[</span><span class="n">chem</span> <span class="k">for</span> <span class="n">chem</span> <span class="ow">in</span> 
+                                       <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">composition</span> <span class="k">if</span> <span class="n">chem</span> 
+                                       <span class="ow">not</span> <span class="ow">in</span> <span class="n">chem_names</span><span class="p">]</span>
+    
+    <span class="c"># Get the mass fluxes of dissolved components</span>
+    <span class="n">ca</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">chem_names</span><span class="p">)</span>
+    <span class="n">C</span> <span class="o">=</span> <span class="n">ca</span> <span class="o">*</span> <span class="n">Q</span>
+    <span class="n">y</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">C</span><span class="p">)</span>
+    
+    <span class="c"># Return the initial depth, state space, and list of chem_names</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">chem_names</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="flux_ic"><a class="viewcode-back" href="../spm/simp.flux_ic.html#simp.flux_ic">[docs]</a><span class="k">def</span> <span class="nf">flux_ic</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">z0</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Initial volume and momentum flux for the inner plume</span>
+<span class="sd">    </span>
+<span class="sd">    Uses the Wueest et al. (1992) plume Froude number method to estimate</span>
+<span class="sd">    the amount of entrainment at the source of a dispersed phase plume with</span>
+<span class="sd">    zero continuous phase flux (e.g., a pure bubble, droplet, or particle </span>
+<span class="sd">    plume)</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    profile : `ambient.Profile` object</span>
+<span class="sd">        The ambient CTD object used by the single bubble model simulation.</span>
+<span class="sd">    particles : list of `Particle` objects</span>
+<span class="sd">        List of `Particle` objects containing the dispersed phase initial</span>
+<span class="sd">        conditions</span>
+<span class="sd">    p : `stratified_plume_model.ModelParams` object</span>
+<span class="sd">        Object containing the fixed model parameters for the stratified </span>
+<span class="sd">        plume model.</span>
+<span class="sd">    z0 : float</span>
+<span class="sd">        Depth of the release point (m)</span>
+<span class="sd">    R : float</span>
+<span class="sd">        Radius of the release port (m)</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># Get the ambient conditions at the discharge</span>
+    <span class="n">Ta</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">P</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="n">z0</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;temperature&#39;</span><span class="p">,</span> <span class="s">&#39;salinity&#39;</span><span class="p">,</span> 
+                                   <span class="s">&#39;pressure&#39;</span><span class="p">])</span>
+    <span class="n">rho</span> <span class="o">=</span> <span class="n">seawater</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">Ta</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
+    
+    <span class="c"># Get the individual particle properties</span>
+    <span class="n">lambda_1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">particles</span><span class="p">))</span>
+    <span class="n">us</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">particles</span><span class="p">))</span>
+    <span class="n">rho_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">particles</span><span class="p">))</span>
+    <span class="n">Q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">particles</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">particles</span><span class="p">)):</span>
+        <span class="n">lambda_1</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">lambda_1</span>
+        <span class="n">us</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">rho_p</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">properties</span><span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">m</span><span class="p">,</span> 
+                          <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">Q</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">m</span><span class="p">)</span> <span class="o">*</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">nb0</span> <span class="o">/</span> <span class="n">rho_p</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+    
+    <span class="c"># Compute the buoyancy flux weighted average of lambda_1</span>
+    <span class="n">lambda_ave</span> <span class="o">=</span> <span class="n">bf_average</span><span class="p">(</span><span class="n">particles</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">g</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">rho_r</span><span class="p">,</span> <span class="n">lambda_1</span><span class="p">)</span>
+    
+    <span class="c"># Calculate the initial velocity of entrained ambient fluid</span>
+    <span class="n">u_0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">Q</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">lambda_ave</span> <span class="o">*</span> <span class="n">R</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">u</span> <span class="o">=</span> <span class="n">wuest_ic</span><span class="p">(</span><span class="n">u_0</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">lambda_1</span><span class="p">,</span> <span class="n">lambda_ave</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> 
+                 <span class="n">p</span><span class="o">.</span><span class="n">g</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">Fr_0</span><span class="p">)</span>
+    
+    <span class="c"># The initial width of the plume is the source radius</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="n">R</span>
+    
+    <span class="c"># Calcualte the flux variables</span>
+    <span class="n">Q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">b</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">u</span>
+    <span class="n">J</span> <span class="o">=</span> <span class="n">Q</span> <span class="o">*</span> <span class="n">u</span>
+    
+    <span class="c"># The initial condition is valid at the diffuser (e.g., no virtual point</span>
+    <span class="c"># source for the Wuest et al 1992 initial conditions)</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">z0</span>
+    
+    <span class="k">return</span> <span class="p">(</span><span class="n">Q</span><span class="p">,</span> <span class="n">J</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">Ta</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">rho</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="wuest_ic"><a class="viewcode-back" href="../spm/simp.wuest_ic.html#simp.wuest_ic">[docs]</a><span class="k">def</span> <span class="nf">wuest_ic</span><span class="p">(</span><span class="n">u_0</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">lambda_1</span><span class="p">,</span> <span class="n">lambda_ave</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> 
+             <span class="n">g</span><span class="p">,</span> <span class="n">Fr_0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the initial velocity of entrained ambient fluid</span>
+<span class="sd">    </span>
+<span class="sd">    Computes the initial velocity of the entrained ambient fluid following </span>
+<span class="sd">    the method in Wueest et al. (1992).  This method is implicit; thus, an </span>
+<span class="sd">    initial guess for the velocity and a root-finding approach is required.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    u_0 : float</span>
+<span class="sd">        Initial guess for the entrained fluid velocity (m/s)</span>
+<span class="sd">    particles : list of `Particle` objects</span>
+<span class="sd">        List of `Particle` objects containing the dispersed phase initial</span>
+<span class="sd">        conditions</span>
+<span class="sd">    lambda_1 : ndarray</span>
+<span class="sd">        Spreading rate of the each dispersed phase particle in a plume (--)</span>
+<span class="sd">    lambda_ave : float</span>
+<span class="sd">        Buoyancy flux averaged value of lambda_1 (--)</span>
+<span class="sd">    us : ndarray</span>
+<span class="sd">        Slip velocity of each of the dispersed phase particles (m/s)</span>
+<span class="sd">    rho_p : ndarray</span>
+<span class="sd">        Density of each of the dispersed phase particles (kg/m^3)</span>
+<span class="sd">    rho : float</span>
+<span class="sd">        Density of the local ambient continuous phase fluid (kg/m^3)</span>
+<span class="sd">    Q : ndarray</span>
+<span class="sd">        Total volume flux of particles for each dispersed phase (m^3/s)</span>
+<span class="sd">    R : float</span>
+<span class="sd">        Radius of the release port (m)</span>
+<span class="sd">    g : float</span>
+<span class="sd">        Acceleration of gravity (m/s^2)</span>
+<span class="sd">    Fr_0 : float</span>
+<span class="sd">        Desired initial plume Froude number (--)</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    u : float</span>
+<span class="sd">        The converged value of the entrained fluid velocity in m/s at the </span>
+<span class="sd">        release location in order to achieve the specified value of Fr_0.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># The Wuest et al. (1992) initial condition is implicit; define the </span>
+    <span class="c"># residual for use in a root-finding algorithm</span>
+    <span class="k">def</span> <span class="nf">residual</span><span class="p">(</span><span class="n">u</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the residual of the Wueest et al. (1992) initial condition</span>
+<span class="sd">        using the current guess for the initial velocity u.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        u : float</span>
+<span class="sd">            the current guess for the initial velocity (m/s)</span>
+<span class="sd">        </span>
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        All parameters of `wuest_ic` are global to this function since it is</span>
+<span class="sd">        a subfunction of `wuest_ic`.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Get the void fraction for the current estimate of the mixture of </span>
+        <span class="c"># dispersed phases and entrained ambient water</span>
+        <span class="n">xi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">particles</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">particles</span><span class="p">)):</span>
+            <span class="n">xi</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">Q</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">lambda_1</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">R</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">us</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> 
+                    <span class="mf">2.</span> <span class="o">*</span> <span class="n">u</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">+</span> <span class="n">lambda_1</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)))</span>
+        
+        <span class="c"># Get the mixed-fluid plume density</span>
+        <span class="n">rho_m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">xi</span> <span class="o">*</span> <span class="n">rho_p</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">xi</span><span class="p">))</span> <span class="o">*</span> <span class="n">rho</span>
+        
+        <span class="c"># Calculate the deviation from the desired Froude number</span>
+        <span class="k">return</span> <span class="n">Fr_0</span> <span class="o">-</span> <span class="n">u</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.</span> <span class="o">*</span> <span class="n">lambda_ave</span> <span class="o">*</span> <span class="n">R</span> <span class="o">*</span> <span class="n">g</span> <span class="o">*</span> 
+                                  <span class="p">(</span><span class="n">rho</span> <span class="o">-</span> <span class="n">rho_m</span><span class="p">)</span> <span class="o">/</span> <span class="n">rho_m</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">fsolve</span><span class="p">(</span><span class="n">residual</span><span class="p">,</span> <span class="n">u_0</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="c"># ----------------------------------------------------------------------------</span>
+<span class="c"># Functions to compute outer plume initial conditions</span>
+<span class="c"># ---------------------------------------------------------------------------</span>
+</div>
+<div class="viewcode-block" id="outer_surf"><a class="viewcode-back" href="../spm/simp.outer_surf.html#simp.outer_surf">[docs]</a><span class="k">def</span> <span class="nf">outer_surf</span><span class="p">(</span><span class="n">yi</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the initial condition for the outer plume at the sea surface</span>
+<span class="sd">    </span>
+<span class="sd">    Computes the initial conditions for the first outer plume segment after</span>
+<span class="sd">    the inner plume impinges on the free surface of the water body.  It is </span>
+<span class="sd">    assumed that the inner plume had significant volume flux and that this </span>
+<span class="sd">    first outer plume segment will be viable.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    yi : `stratified_plume_model.InnerPlume` object</span>
+<span class="sd">        Object for manipulating the inner plume state space</span>
+<span class="sd">    p : `ModelParams` object</span>
+<span class="sd">        Object containing the fixed model parameters for the stratified </span>
+<span class="sd">        plume model.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    z0 : float</span>
+<span class="sd">        Initial depth of the outer plume segment (m).</span>
+<span class="sd">    y0 : ndarray</span>
+<span class="sd">        Initial dependent variables state space for the outer plume segment.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># The outer plume is a mixture of inner plume fluid and ambient fluid</span>
+    <span class="c"># entrained from the water surface</span>
+    <span class="n">Q</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">+</span> <span class="n">p</span><span class="o">.</span><span class="n">fe</span><span class="p">)</span> <span class="o">*</span> <span class="n">yi</span><span class="o">.</span><span class="n">Q</span>
+    <span class="n">T</span> <span class="o">=</span> <span class="p">(</span><span class="n">yi</span><span class="o">.</span><span class="n">T</span> <span class="o">+</span> <span class="n">yi</span><span class="o">.</span><span class="n">Ta</span> <span class="o">*</span> <span class="n">p</span><span class="o">.</span><span class="n">fe</span><span class="p">)</span> <span class="o">*</span> <span class="n">yi</span><span class="o">.</span><span class="n">Q</span> <span class="o">/</span> <span class="n">Q</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="p">(</span><span class="n">yi</span><span class="o">.</span><span class="n">s</span> <span class="o">+</span> <span class="n">yi</span><span class="o">.</span><span class="n">Sa</span> <span class="o">*</span> <span class="n">p</span><span class="o">.</span><span class="n">fe</span><span class="p">)</span> <span class="o">*</span> <span class="n">yi</span><span class="o">.</span><span class="n">Q</span> <span class="o">/</span> <span class="n">Q</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="p">(</span><span class="n">yi</span><span class="o">.</span><span class="n">c</span> <span class="o">+</span> <span class="n">yi</span><span class="o">.</span><span class="n">ca</span> <span class="o">*</span> <span class="n">p</span><span class="o">.</span><span class="n">fe</span><span class="p">)</span> <span class="o">*</span> <span class="n">yi</span><span class="o">.</span><span class="n">Q</span> <span class="o">/</span> <span class="n">Q</span>
+    <span class="n">rho</span> <span class="o">=</span> <span class="n">seawater</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">yi</span><span class="o">.</span><span class="n">P</span><span class="p">)</span>
+    
+    <span class="c"># Use a Froude number approach to set the initial width and velocity</span>
+    <span class="n">u</span> <span class="o">=</span> <span class="n">outer_fr</span><span class="p">(</span><span class="n">yi</span><span class="o">.</span><span class="n">u</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">yi</span><span class="o">.</span><span class="n">b</span><span class="p">,</span> <span class="n">yi</span><span class="o">.</span><span class="n">rho_a</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">g</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">Fro_0</span><span class="p">)</span>
+    
+    <span class="c"># Calculate the outer plume state space variables</span>
+    <span class="n">y0</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">Q</span> <span class="o">=</span> <span class="o">-</span><span class="n">Q</span>
+    <span class="n">y0</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Q</span><span class="p">)</span>
+    <span class="n">y0</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Q</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="n">u</span><span class="p">))</span>
+    <span class="n">y0</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span> <span class="o">*</span> <span class="n">Q</span><span class="p">)</span>
+    <span class="n">y0</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">rho_r</span> <span class="o">*</span> <span class="n">seawater</span><span class="o">.</span><span class="n">cp</span><span class="p">()</span> <span class="o">*</span> <span class="n">T</span> <span class="o">*</span> <span class="n">Q</span><span class="p">)</span>
+    <span class="n">y0</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">c</span> <span class="o">*</span> <span class="n">Q</span><span class="p">)</span>
+    
+    <span class="c"># Return the outer plume initial condition</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">yi</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y0</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="outer_dis"><a class="viewcode-back" href="../spm/simp.outer_dis.html#simp.outer_dis">[docs]</a><span class="k">def</span> <span class="nf">outer_dis</span><span class="p">(</span><span class="n">yi</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">neighbor</span><span class="p">,</span> <span class="n">z_0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the initial condition for the outer plume at the DMPR</span>
+<span class="sd">    </span>
+<span class="sd">    Computes the initial conditions for the an outer plume segment at the </span>
+<span class="sd">    depth of maximum plume rise (DMPR) following full dissolution of the </span>
+<span class="sd">    dispersed phases.  </span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    yi : `stratified_plume_model.InnerPlume` object</span>
+<span class="sd">        Object for manipulating the inner plume state space.</span>
+<span class="sd">    particles : list of `Particle` objects</span>
+<span class="sd">        List of `Particle` objects containing the dispersed phase local</span>
+<span class="sd">        conditions and behavior.</span>
+<span class="sd">    profile : `ambient.Profile` object</span>
+<span class="sd">        The ambient CTD object used by the simulation.</span>
+<span class="sd">    p : `ModelParams` object</span>
+<span class="sd">        Object containing the fixed model parameters for the stratified </span>
+<span class="sd">        plume model.</span>
+<span class="sd">    neighbor : `scipy.interpolate.interp1d` object</span>
+<span class="sd">        Container holding the latest solution for the inner plume state</span>
+<span class="sd">        space.</span>
+<span class="sd">    z_0 : float</span>
+<span class="sd">        Top of the inner plume calculation (m).</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    z0 : float</span>
+<span class="sd">        Initial depth of the outer plume segment (m).</span>
+<span class="sd">    y0 : ndarray</span>
+<span class="sd">        Initial dependent variables state space for the outer plume segment.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># Search for the maximum flux near the top of the plume</span>
+    <span class="n">Qmax</span> <span class="o">=</span> <span class="n">neighbor</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">imax</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">while</span> <span class="n">Qmax</span> <span class="o">&lt;</span> <span class="n">neighbor</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="n">imax</span><span class="p">,</span><span class="mi">0</span><span class="p">]:</span>
+        <span class="n">Qmax</span> <span class="o">=</span> <span class="n">neighbor</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="n">imax</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">imax</span> <span class="o">+=</span> <span class="mi">1</span>
+    
+    <span class="c"># Since most of this fluid will be regained as the outer plume descends</span>
+    <span class="c"># through Ep, take the initial volume flux as a small fraction (given</span>
+    <span class="c"># by model parameter qdis_ic)</span>
+    <span class="n">Q</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">qdis_ic</span> <span class="o">*</span> <span class="n">Qmax</span>
+    
+    <span class="c"># Get the local plume properties at the top of the plume</span>
+    <span class="n">yi</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">z_0</span><span class="p">,</span> <span class="n">neighbor</span><span class="p">(</span><span class="n">z_0</span><span class="p">),</span> <span class="n">particles</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+    <span class="n">rho</span> <span class="o">=</span> <span class="n">yi</span><span class="o">.</span><span class="n">rho</span>
+    
+    <span class="c"># Use a Froude number approach to set the initial width and velocity</span>
+    <span class="n">yi</span><span class="o">.</span><span class="n">u</span><span class="p">,</span> <span class="o">-</span><span class="n">Q</span><span class="p">,</span> <span class="n">yi</span><span class="o">.</span><span class="n">b</span><span class="p">,</span> <span class="n">yi</span><span class="o">.</span><span class="n">rho_a</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">g</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">Fro_0</span>
+    <span class="n">u</span> <span class="o">=</span> <span class="n">outer_fr</span><span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">yi</span><span class="o">.</span><span class="n">b</span><span class="p">,</span> <span class="n">yi</span><span class="o">.</span><span class="n">rho_a</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">g</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">Fro_0</span><span class="p">)</span>
+    
+    <span class="c"># Calculate the outer plume state space variables</span>
+    <span class="n">y0</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">Q</span> <span class="o">=</span> <span class="o">-</span><span class="n">Q</span>
+    <span class="n">y0</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Q</span><span class="p">)</span>
+    <span class="n">y0</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Q</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="n">u</span><span class="p">))</span>
+    <span class="n">y0</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">yi</span><span class="o">.</span><span class="n">s</span> <span class="o">*</span> <span class="n">Q</span><span class="p">)</span>
+    <span class="n">y0</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">rho_r</span> <span class="o">*</span> <span class="n">seawater</span><span class="o">.</span><span class="n">cp</span><span class="p">()</span> <span class="o">*</span> <span class="n">yi</span><span class="o">.</span><span class="n">T</span> <span class="o">*</span> <span class="n">Q</span><span class="p">)</span>
+    <span class="n">y0</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">yi</span><span class="o">.</span><span class="n">c</span> <span class="o">*</span> <span class="n">Q</span><span class="p">)</span>
+    
+    <span class="c"># Return the outer plume initial condition</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">yi</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y0</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="outer_cpic"><a class="viewcode-back" href="../spm/simp.outer_cpic.html#simp.outer_cpic">[docs]</a><span class="k">def</span> <span class="nf">outer_cpic</span><span class="p">(</span><span class="n">yi</span><span class="p">,</span> <span class="n">yo</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">neighbor</span><span class="p">,</span> <span class="n">z_0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the initial condition for the outer plume at depth</span>
+<span class="sd">    </span>
+<span class="sd">    Computes the initial conditions for the an outer plume segment within the </span>
+<span class="sd">    reservoir body.  Part of the calculation determines whether or not the </span>
+<span class="sd">    computed initial condition has enough downward momentum to be viable as </span>
+<span class="sd">    an initial condition (e.g., whether or not it will be overwhelmed by the</span>
+<span class="sd">    upward drag of the inner plume).</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    yi : `stratified_plume_model.InnerPlume` object</span>
+<span class="sd">        Object for manipulating the inner plume state space.</span>
+<span class="sd">    yo : `stratified_plume_model.OuterPlume` object</span>
+<span class="sd">        Object for manipulating the outer plume state space.</span>
+<span class="sd">    particles : list of `Particle` objects</span>
+<span class="sd">        List of `Particle` objects containing the dispersed phase local</span>
+<span class="sd">        conditions and behavior.</span>
+<span class="sd">    profile : `ambient.Profile` object</span>
+<span class="sd">        The ambient CTD object used by the simulation.</span>
+<span class="sd">    p : `ModelParams` object</span>
+<span class="sd">        Object containing the fixed model parameters for the stratified </span>
+<span class="sd">        plume model.</span>
+<span class="sd">    neighbor : `scipy.interpolate.interp1d` object</span>
+<span class="sd">        Container holding the latest solution for the inner plume state</span>
+<span class="sd">        space.</span>
+<span class="sd">    z_0 : float</span>
+<span class="sd">        Top of the inner plume calculation (m).</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    z0 : float</span>
+<span class="sd">        Initial depth of the outer plume segment (m).</span>
+<span class="sd">    y0 : ndarray</span>
+<span class="sd">        Initial dependent variables state space for the outer plume segment.</span>
+<span class="sd">    flag : bool</span>
+<span class="sd">        Outer plume viability flag:  `True` means the outer plume segment is</span>
+<span class="sd">        viable and should be integrated; `False` means the outer plume </span>
+<span class="sd">        segment is too weak and should be discarded, moving down the inner </span>
+<span class="sd">        plume to calculate the next outer plume initial condition.</span>
+<span class="sd">    </span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The iteration required to find a viable outer plume segment is conducted </span>
+<span class="sd">    by the `stratified_plume_model.outer_main` function.  This function </span>
+<span class="sd">    computes the initial conditions for one attempt to find an outer plume</span>
+<span class="sd">    segment and reports back (through `flag`) on the success.</span>
+<span class="sd">    </span>
+<span class="sd">    There is one caveat to the above statement.  The model parameter </span>
+<span class="sd">    `p.nwidths` determines the vertical scale over which this function may</span>
+<span class="sd">    integrate to find the start to an outer plume, given as a integer number</span>
+<span class="sd">    of times of the inner plume half-width.  This function starts by searching</span>
+<span class="sd">    one half-width.  If `p.nwidths` is greater than one, it will continue to</span>
+<span class="sd">    expand the search region.  The physical interpretation of `p.nwidths` is</span>
+<span class="sd">    to set a reasonable upper bound on the diameter of eddies shed from the</span>
+<span class="sd">    inner plume in the peeling region into the outer plume.  While the </span>
+<span class="sd">    integral model does not have &quot;eddies&quot; per se, the search window size </span>
+<span class="sd">    should still be representative of this type of length scale.  </span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># Start the iteration counters</span>
+    <span class="nb">iter</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">done</span> <span class="o">=</span> <span class="bp">False</span>
+    
+    <span class="c"># Compute the outer plume initial conditions until the outer plume is </span>
+    <span class="c"># viable or until the maximum number of widths is integrated</span>
+    <span class="k">while</span> <span class="ow">not</span> <span class="n">done</span> <span class="ow">and</span> <span class="nb">iter</span> <span class="o">&lt;</span> <span class="n">p</span><span class="o">.</span><span class="n">nwidths</span><span class="p">:</span>
+        
+        <span class="c"># Update iteration counter</span>
+        <span class="nb">iter</span> <span class="o">+=</span> <span class="mi">1</span>
+        
+        <span class="c"># Get the inner plume properties at the top of this peeling region</span>
+        <span class="n">yi</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">z_0</span><span class="p">,</span> <span class="n">neighbor</span><span class="p">(</span><span class="n">z_0</span><span class="p">),</span> <span class="n">particles</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+        
+        <span class="c"># Set the range to integrate to get the current peeling flux</span>
+        <span class="n">z_upper</span> <span class="o">=</span> <span class="n">z_0</span>
+        <span class="n">z_lower</span> <span class="o">=</span> <span class="n">z_0</span> <span class="o">+</span> <span class="nb">iter</span> <span class="o">*</span> <span class="n">yi</span><span class="o">.</span><span class="n">b</span>
+        
+        <span class="c"># Check if the bottom of the reservoir is encountered.</span>
+        <span class="k">if</span> <span class="n">z_lower</span> <span class="o">&gt;</span> <span class="n">profile</span><span class="o">.</span><span class="n">z_max</span><span class="p">:</span>
+            <span class="n">z_lower</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">z_max</span>
+        
+        <span class="c"># Find the indices in the raw data for the inner plume solution close</span>
+        <span class="c"># to where z_upper and z_lower occur</span>
+        <span class="n">i_upper</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">neighbor</span><span class="o">.</span><span class="n">x</span> <span class="o">&gt;=</span> <span class="n">z_upper</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">i_lower</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">neighbor</span><span class="o">.</span><span class="n">x</span> <span class="o">&lt;=</span> <span class="n">z_lower</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+        
+        <span class="c"># Get the grid of elevations where we will integrate the solution to </span>
+        <span class="c"># obtain the initial flux for the outer plume.  This is needed </span>
+        <span class="c"># because the solution is so stiff:  if we integrated over a fixed</span>
+        <span class="c"># step size, we could easily miss dramatic changes in the solution.</span>
+        <span class="c"># Hence, we integrate over the steps in the numerical solution </span>
+        <span class="c"># itself.</span>
+        <span class="n">n_grid</span> <span class="o">=</span> <span class="n">i_lower</span> <span class="o">-</span> <span class="n">i_upper</span> <span class="o">+</span> <span class="mi">3</span>
+        <span class="n">zi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_grid</span><span class="p">)</span>
+        <span class="n">zi</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">z_upper</span>
+        <span class="n">zi</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">z_lower</span>
+        <span class="n">zi</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">neighbor</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">i_upper</span><span class="p">:</span><span class="n">i_lower</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+        
+        <span class="c"># Integrate the peeling fluid over this grid to get the total </span>
+        <span class="c"># contributions going into the outer plume</span>
+        <span class="n">Q</span> <span class="o">=</span> <span class="mf">0.</span>
+        <span class="n">tracer_vars</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span> <span class="o">+</span> <span class="n">yi</span><span class="o">.</span><span class="n">nchems</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">zi</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+            <span class="n">yi</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">zi</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">neighbor</span><span class="p">(</span><span class="n">zi</span><span class="p">[</span><span class="n">i</span><span class="p">]),</span> <span class="n">particles</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+            <span class="n">dz</span> <span class="o">=</span> <span class="n">zi</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">zi</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">Q</span> <span class="o">=</span> <span class="n">Q</span> <span class="o">+</span> <span class="n">yi</span><span class="o">.</span><span class="n">Ep</span> <span class="o">*</span> <span class="n">dz</span>
+            <span class="n">tracer_vars</span> <span class="o">=</span> <span class="n">tracer_vars</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">yi</span><span class="o">.</span><span class="n">s</span><span class="p">,</span> <span class="n">yi</span><span class="o">.</span><span class="n">T</span> <span class="o">*</span> <span class="n">p</span><span class="o">.</span><span class="n">rho_r</span> <span class="o">*</span> \
+                          <span class="n">seawater</span><span class="o">.</span><span class="n">cp</span><span class="p">(),</span> <span class="n">yi</span><span class="o">.</span><span class="n">c</span><span class="p">))</span> <span class="o">*</span> <span class="n">yi</span><span class="o">.</span><span class="n">Ep</span> <span class="o">*</span> <span class="n">dz</span>
+        
+        <span class="c"># Get the initial velocity of the peeling fluid using the modified </span>
+        <span class="c"># outer plume Froude number condition</span>
+        <span class="n">T</span> <span class="o">=</span> <span class="n">tracer_vars</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">Q</span> <span class="o">*</span> <span class="n">p</span><span class="o">.</span><span class="n">rho_r</span> <span class="o">*</span> <span class="n">seawater</span><span class="o">.</span><span class="n">cp</span><span class="p">())</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">tracer_vars</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">Q</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">tracer_vars</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span> <span class="o">/</span> <span class="n">Q</span>
+        <span class="n">rho</span> <span class="o">=</span> <span class="n">seawater</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">yi</span><span class="o">.</span><span class="n">P</span><span class="p">)</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="n">outer_fr</span><span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="o">-</span><span class="n">Q</span><span class="p">,</span> <span class="n">yi</span><span class="o">.</span><span class="n">b</span><span class="p">,</span> <span class="n">yi</span><span class="o">.</span><span class="n">rho_a</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">g</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">Fro_0</span><span class="p">)</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">Q</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="n">Q</span><span class="p">)</span> <span class="o">*</span> <span class="n">u</span><span class="p">)</span> <span class="o">+</span> <span class="n">yi</span><span class="o">.</span><span class="n">b</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">dQdz</span> <span class="o">=</span> <span class="mf">2.</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">yi</span><span class="o">.</span><span class="n">b</span> <span class="o">*</span> <span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">alpha_1</span> <span class="o">*</span> <span class="p">(</span><span class="n">yi</span><span class="o">.</span><span class="n">u</span> <span class="o">+</span> <span class="n">p</span><span class="o">.</span><span class="n">c1</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="n">u</span><span class="p">))</span> <span class="o">+</span> \
+                <span class="n">p</span><span class="o">.</span><span class="n">alpha_2</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="n">u</span><span class="p">))</span> <span class="o">+</span> <span class="mf">2.</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">b</span> <span class="o">*</span> <span class="n">p</span><span class="o">.</span><span class="n">alpha_3</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="n">u</span><span class="p">)</span> <span class="o">+</span> <span class="n">yi</span><span class="o">.</span><span class="n">Ep</span>
+        
+        <span class="c"># Check whether this outer plume segment will be viable</span>
+        <span class="k">if</span> <span class="n">dQdz</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c"># This outer plume segment is not viable</span>
+            <span class="n">flag</span> <span class="o">=</span> <span class="bp">False</span>
+            <span class="n">z0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">z_0</span><span class="p">,</span> <span class="n">z_lower</span><span class="p">])</span>
+            <span class="n">y0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">yo</span><span class="o">.</span><span class="n">len</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">yo</span><span class="o">.</span><span class="n">len</span><span class="p">)])</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># This outer plume segmet is viable...stop integrating widths</span>
+            <span class="n">done</span> <span class="o">=</span> <span class="bp">True</span>
+            
+            <span class="c"># Check where the diffuser is</span>
+            <span class="k">if</span> <span class="n">z_lower</span> <span class="o">&gt;=</span> <span class="n">yi</span><span class="o">.</span><span class="n">z0</span><span class="p">:</span>
+                <span class="c"># This outer plume segment should not exist</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="bp">False</span>
+                <span class="n">z0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">z_0</span><span class="p">,</span> <span class="n">z_lower</span><span class="p">])</span>
+                <span class="n">y0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">yo</span><span class="o">.</span><span class="n">len</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">yo</span><span class="o">.</span><span class="n">len</span><span class="p">)])</span>
+            
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c"># This is the next outer plume segment to integrate</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="bp">True</span>
+                <span class="n">z0</span> <span class="o">=</span> <span class="n">z_lower</span>
+                <span class="n">y0</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">y0</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Q</span><span class="p">)</span>
+                <span class="n">y0</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Q</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="n">u</span><span class="p">))</span>
+                <span class="n">y0</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span> <span class="o">*</span> <span class="n">Q</span><span class="p">)</span>
+                <span class="n">y0</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">rho_r</span> <span class="o">*</span> <span class="n">seawater</span><span class="o">.</span><span class="n">cp</span><span class="p">()</span> <span class="o">*</span> <span class="n">T</span> <span class="o">*</span> <span class="n">Q</span><span class="p">)</span>
+                <span class="n">y0</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">c</span> <span class="o">*</span> <span class="n">Q</span><span class="p">)</span>
+    
+    <span class="c"># Return the results of the initial conditions search</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">z0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y0</span><span class="p">),</span> <span class="n">flag</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="outer_fr"><a class="viewcode-back" href="../spm/simp.outer_fr.html#simp.outer_fr">[docs]</a><span class="k">def</span> <span class="nf">outer_fr</span><span class="p">(</span><span class="n">u_0</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">bi</span><span class="p">,</span> <span class="n">rho_a</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">Fr_0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the outer plume initial width and velocity</span>
+<span class="sd">    </span>
+<span class="sd">    Computes the initial velocity of an outer plume segment using a Froude</span>
+<span class="sd">    number condition analogous to Wueest et al. (1992) and calibrated and </span>
+<span class="sd">    reported in Socolofsky et al. (2008).</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    u_0 : float</span>
+<span class="sd">        Initial guess for the outer plume velocity (m/s).</span>
+<span class="sd">    Q : float</span>
+<span class="sd">        Flow rate in the outer plume (m^3/s).</span>
+<span class="sd">    bi : float</span>
+<span class="sd">        Radius of the inner plume (m).</span>
+<span class="sd">    rho_a : float</span>
+<span class="sd">        Density of the ambient water (kg/m^3).</span>
+<span class="sd">    rho : float</span>
+<span class="sd">        Density of the continuous outer plume fluid (kg/m^3).</span>
+<span class="sd">    g : float</span>
+<span class="sd">        Acceleration of gravity (m/s^2).</span>
+<span class="sd">    Fr_0 : float</span>
+<span class="sd">        Equilibrium plume Froude number for the outer plume (--).</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    u0 : float</span>
+<span class="sd">        The initial velocity of the outer plume (m/s).</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># The Froude number condition is implicit; define the residual for use in</span>
+    <span class="c"># a root-finding algorithm</span>
+    <span class="k">def</span> <span class="nf">residual</span><span class="p">(</span><span class="n">u</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the residual of a modified Froude number condition for </span>
+<span class="sd">        starting outer plume segments using the current guess for the initial</span>
+<span class="sd">        velocity u.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        u : float</span>
+<span class="sd">            the current guess for the initial velocity (m/s).</span>
+<span class="sd">        </span>
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        All parameters of `outer_Fr` are global to this function since it is</span>
+<span class="sd">        a subfunction of `outer_Fr`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Compute the outer plume width from Qo</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">Q</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">Q</span> <span class="o">*</span> <span class="n">u</span><span class="p">)</span> <span class="o">+</span> <span class="n">bi</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        
+        <span class="c"># Calculate the deviation from the desired Froude number</span>
+        <span class="k">return</span> <span class="n">u</span> <span class="o">-</span> <span class="n">Fr_0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">((</span><span class="n">b</span> <span class="o">-</span> <span class="n">bi</span><span class="p">)</span> <span class="o">*</span> <span class="n">g</span> <span class="o">*</span> <span class="p">(</span><span class="n">rho_a</span> <span class="o">-</span> <span class="n">rho</span><span class="p">)</span> <span class="o">/</span> 
+               <span class="n">rho</span><span class="p">))</span>
+    
+    <span class="k">return</span> <span class="n">fsolve</span><span class="p">(</span><span class="n">residual</span><span class="p">,</span> <span class="n">u_0</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../contents.html">
+              <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
+            </a></p>
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+
+          <li><a href="index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Scott A. Socolofsky.
+      Last updated on Sep 19, 2013.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

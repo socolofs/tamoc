@@ -1,0 +1,337 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>stratified_plume_model.InnerPlume &mdash; Texas A&amp;M Oilspill Calculator v0.1 Manual</title>
+    
+    <link rel="stylesheet" href="../_static/scipy.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../index.html" />
+    <link rel="up" title="Reference" href="../modules/reference.html" />
+    <link rel="next" title="stratified_plume_model.InnerPlume.update" href="stratified_plume_model.InnerPlume.update.html" />
+    <link rel="prev" title="stratified_plume_model.Particle.diameter" href="stratified_plume_model.Particle.diameter.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="stratified_plume_model.InnerPlume.update.html" title="stratified_plume_model.InnerPlume.update"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="stratified_plume_model.Particle.diameter.html" title="stratified_plume_model.Particle.diameter"
+             accesskey="P">previous</a> |</li>
+<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+
+          <li><a href="../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="stratified-plume-model-innerplume">
+<h1>stratified_plume_model.InnerPlume<a class="headerlink" href="#stratified-plume-model-innerplume" title="Permalink to this headline">¶</a></h1>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">September 19, 2013</td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="stratified_plume_model.InnerPlume">
+<em class="property">class </em><tt class="descclassname">stratified_plume_model.</tt><tt class="descname">InnerPlume</tt><big>(</big><em>z0</em>, <em>y0</em>, <em>profile</em>, <em>particles</em>, <em>p</em>, <em>chem_names</em><big>)</big><a class="reference internal" href="../_modules/stratified_plume_model.html#InnerPlume"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stratified_plume_model.InnerPlume" title="Permalink to this definition">¶</a></dt>
+<dd><p>Manages the inner plume state space and derived variables</p>
+<p>Manages storage and calculation of the derived variables for the inner
+plume as a function of the state space.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>z0</strong> : float</p>
+<blockquote>
+<div><p>Starting depth (m) of the inner plume</p>
+</div></blockquote>
+<p><strong>y0</strong> : ndarray</p>
+<blockquote>
+<div><p>Initial conditions for the inner plume.</p>
+</div></blockquote>
+<p><strong>profile</strong> : <a class="reference internal" href="../modules/ambient.html#ambient.Profile" title="ambient.Profile"><tt class="xref py py-obj docutils literal"><span class="pre">ambient.Profile</span></tt></a> object</p>
+<blockquote>
+<div><p>The ambient CTD object used by the simulation.</p>
+</div></blockquote>
+<p><strong>particles</strong> : list of <a class="reference internal" href="stratified_plume_model.Particle.html#stratified_plume_model.Particle" title="stratified_plume_model.Particle"><tt class="xref py py-obj docutils literal"><span class="pre">Particle</span></tt></a> objects</p>
+<blockquote>
+<div><p>List of <a class="reference internal" href="stratified_plume_model.Particle.html#stratified_plume_model.Particle" title="stratified_plume_model.Particle"><tt class="xref py py-obj docutils literal"><span class="pre">Particle</span></tt></a> objects containing the dispersed phase local
+conditions and behavior.</p>
+</div></blockquote>
+<p><strong>p</strong> : <a class="reference internal" href="stratified_plume_model.ModelParams.html#stratified_plume_model.ModelParams" title="stratified_plume_model.ModelParams"><tt class="xref py py-obj docutils literal"><span class="pre">ModelParams</span></tt></a> object</p>
+<blockquote>
+<div><p>Object containing the fixed model parameters for the stratified 
+plume model.</p>
+</div></blockquote>
+<p><strong>chem_names</strong> : str list</p>
+<blockquote class="last">
+<div><p>List of chemical names to track for the dissolution.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="11%" />
+<col width="17%" />
+<col width="72%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>z0</td>
+<td>float</td>
+<td>Starting depth (m) of the inner plume</td>
+</tr>
+<tr class="row-even"><td>y0</td>
+<td>ndarray</td>
+<td>Initial conditions for the inner plume</td>
+</tr>
+<tr class="row-odd"><td>chem_names</td>
+<td>str lit</td>
+<td>List of chemical names to track for the dissolution</td>
+</tr>
+<tr class="row-even"><td>len</td>
+<td>int</td>
+<td>Number of variables in the state space vector y</td>
+</tr>
+<tr class="row-odd"><td>nchems</td>
+<td>int</td>
+<td>Number of chemical names to track for the dissolution</td>
+</tr>
+<tr class="row-even"><td>np</td>
+<td>int</td>
+<td>Number of dispersed phase particle objects</td>
+</tr>
+<tr class="row-odd"><td>z</td>
+<td>float</td>
+<td>Current value of the depth (m)</td>
+</tr>
+<tr class="row-even"><td>y</td>
+<td>ndarray</td>
+<td>Current value of the state space vector</td>
+</tr>
+<tr class="row-odd"><td>Q</td>
+<td>float</td>
+<td>Continuous phase volume flux (m^3/s)</td>
+</tr>
+<tr class="row-even"><td>J</td>
+<td>float</td>
+<td>Continuous phase kinematic momentum flux (m^4/s^2)</td>
+</tr>
+<tr class="row-odd"><td>S</td>
+<td>float</td>
+<td>Plume salinity flux (psu m^3/s)</td>
+</tr>
+<tr class="row-even"><td>H</td>
+<td>float</td>
+<td>Continuous phase heat flux (J/s)</td>
+</tr>
+<tr class="row-odd"><td>M_p</td>
+<td>dict of ndarrays</td>
+<td>For integer key: the total mass fluxes (kg/s) of each component in a
+particle.</td>
+</tr>
+<tr class="row-even"><td>H_p</td>
+<td>ndarray</td>
+<td>Total heat flux for each particle (J/s)</td>
+</tr>
+<tr class="row-odd"><td>C</td>
+<td>ndarray</td>
+<td>Mass flux of dissolved components (kg/s)</td>
+</tr>
+<tr class="row-even"><td>Ta</td>
+<td>float</td>
+<td>Ambient temperature outside the plume (K)</td>
+</tr>
+<tr class="row-odd"><td>Sa</td>
+<td>float</td>
+<td>Ambient salinity outside the plume (psu)</td>
+</tr>
+<tr class="row-even"><td>P</td>
+<td>float</td>
+<td>Local pressure (Pa)</td>
+</tr>
+<tr class="row-odd"><td>rho_a</td>
+<td>float</td>
+<td>Ambient density outside the plume (kg/m^3)</td>
+</tr>
+<tr class="row-even"><td>ca</td>
+<td>ndarray</td>
+<td>Ambient concentrations outside the plume (kg/m^3)</td>
+</tr>
+<tr class="row-odd"><td>u</td>
+<td>float</td>
+<td>Velocity of the continuous phase fluid (m/s)</td>
+</tr>
+<tr class="row-even"><td>b</td>
+<td>float</td>
+<td>Plume half-width (m)</td>
+</tr>
+<tr class="row-odd"><td>s</td>
+<td>float</td>
+<td>Salinity of the plume fluid (psu)</td>
+</tr>
+<tr class="row-even"><td>T</td>
+<td>float</td>
+<td>Temperature of the plume fluid (K)</td>
+</tr>
+<tr class="row-odd"><td>c</td>
+<td>ndarray</td>
+<td>Concentrations of the dissolved components in the plume fluid
+(kg/m^3)</td>
+</tr>
+<tr class="row-even"><td>rho</td>
+<td>float</td>
+<td>Density of the continuous phase inside the plume (kg/m^3)</td>
+</tr>
+<tr class="row-odd"><td>xi</td>
+<td>ndarray</td>
+<td>Void fraction of each particle object (&#8211;)</td>
+</tr>
+<tr class="row-even"><td>fb</td>
+<td>ndarray</td>
+<td>Buoyant force of each particle object (kg/m^3)</td>
+</tr>
+<tr class="row-odd"><td>Xi</td>
+<td>float</td>
+<td>Total void fraction in the plume (&#8211;)</td>
+</tr>
+<tr class="row-even"><td>Fb</td>
+<td>float</td>
+<td>Total buoyant force of all particles in the plume (??)</td>
+</tr>
+<tr class="row-odd"><td>Ep</td>
+<td>float</td>
+<td>Local peeling flux (m^2/s)</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="stratified_plume_model.InnerPlume.update.html#stratified_plume_model.InnerPlume.update" title="stratified_plume_model.InnerPlume.update"><tt class="xref py py-obj docutils literal"><span class="pre">update</span></tt></a>(z,&nbsp;y,&nbsp;particles,&nbsp;profile,&nbsp;p)</td>
+<td>Update the <a class="reference internal" href="#stratified_plume_model.InnerPlume" title="stratified_plume_model.InnerPlume"><tt class="xref py py-obj docutils literal"><span class="pre">InnerPlume</span></tt></a> object with the current local conditions</td>
+</tr>
+</tbody>
+</table>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="stratified_plume_model.InnerPlume.update.html#stratified_plume_model.InnerPlume.update" title="stratified_plume_model.InnerPlume.update"><tt class="xref py py-obj docutils literal"><span class="pre">InnerPlume.update</span></tt></a>(z,&nbsp;y,&nbsp;particles,&nbsp;profile,&nbsp;p)</td>
+<td>Update the <a class="reference internal" href="#stratified_plume_model.InnerPlume" title="stratified_plume_model.InnerPlume"><tt class="xref py py-obj docutils literal"><span class="pre">InnerPlume</span></tt></a> object with the current local conditions</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../contents.html">
+              <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
+            </a></p>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="stratified_plume_model.Particle.diameter.html"
+                        title="previous chapter">stratified_plume_model.Particle.diameter</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="stratified_plume_model.InnerPlume.update.html"
+                        title="next chapter">stratified_plume_model.InnerPlume.update</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/spm/stratified_plume_model.InnerPlume.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<ul class="this-page-menu">
+  <li><a href="/numpy/docs/numpy-docs/spm/stratified_plume_model.InnerPlume.rst">Edit page</a></li>
+</ul>
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="stratified_plume_model.InnerPlume.update.html" title="stratified_plume_model.InnerPlume.update"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="stratified_plume_model.Particle.diameter.html" title="stratified_plume_model.Particle.diameter"
+             >previous</a> |</li>
+<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+
+          <li><a href="../modules/reference.html" >Reference</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Scott A. Socolofsky.
+      Last updated on Sep 19, 2013.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

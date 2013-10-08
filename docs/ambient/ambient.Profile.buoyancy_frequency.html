@@ -1,0 +1,191 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ambient.Profile.buoyancy_frequency &mdash; Texas A&amp;M Oilspill Calculator v0.1 Manual</title>
+    
+    <link rel="stylesheet" href="../_static/scipy.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../index.html" />
+    <link rel="up" title="Reference" href="../modules/reference.html" />
+    <link rel="next" title="ambient.Profile.extend_profile_deeper" href="ambient.Profile.extend_profile_deeper.html" />
+    <link rel="prev" title="ambient.Profile.get_values" href="ambient.Profile.get_values.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="ambient.Profile.extend_profile_deeper.html" title="ambient.Profile.extend_profile_deeper"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ambient.Profile.get_values.html" title="ambient.Profile.get_values"
+             accesskey="P">previous</a> |</li>
+<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+
+          <li><a href="../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="ambient-profile-buoyancy-frequency">
+<h1>ambient.Profile.buoyancy_frequency<a class="headerlink" href="#ambient-profile-buoyancy-frequency" title="Permalink to this headline">¶</a></h1>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">September 19, 2013</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="ambient.Profile.buoyancy_frequency">
+<tt class="descclassname">Profile.</tt><tt class="descname">buoyancy_frequency</tt><big>(</big><em>z</em>, <em>h=0.01</em><big>)</big><a class="reference internal" href="../_modules/ambient.html#Profile.buoyancy_frequency"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ambient.Profile.buoyancy_frequency" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the local buoyancy frequency</p>
+<p>Calculate the buoyancy frequency at the depth <em class="xref py py-obj">z</em>, optionally using 
+the length-scale <em class="xref py py-obj">h</em> to obtain smooth results.  This calculation uses
+the in-situ pressure at the depth z as a constant so that the effect
+of compressibility is removed.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>z</strong> : float or ndarray</p>
+<blockquote>
+<div><p>Depth(s) (m) at which data are desired.  The value of <em class="xref py py-obj">z</em> must lie 
+between the <em class="xref py py-obj">valid_min</em> and <em class="xref py py-obj">valid_max</em> values of <em class="xref py py-obj">z</em> in the 
+netCDF dataset.</p>
+</div></blockquote>
+<p><strong>h</strong> : float, default value is 0.01</p>
+<blockquote>
+<div><p>Fraction of the water depth (&#8211;) to use as the length-scale in a 
+finite-difference approximation to the density gradient.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>N</strong> : float</p>
+<blockquote>
+<div><p>The buoyancy frequency (1/s).</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises :</th><td class="field-body"><p class="first"><strong>ValueError :</strong> :</p>
+<blockquote>
+<div><p>The input value of <em class="xref py py-obj">z</em> must be between the <em class="xref py py-obj">valid_min</em> and 
+<em class="xref py py-obj">valid_max</em> values of the depth variable of the netCDF dataset.  
+If it is outside this range, a <em class="xref py py-obj">ValueError</em> is raised.</p>
+</div></blockquote>
+<p><strong>ValueError :</strong> :</p>
+<blockquote class="last">
+<div><p>The parameter <em class="xref py py-obj">h</em> must be between zero and one; otherwise, the 
+length-scale of the finite difference approximation will be 
+greater than the water depth.  If <em class="xref py py-obj">h</em> is outside this range, a 
+<em class="xref py py-obj">ValueError</em> is raised.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>Uses the interpolation function to extract data from the profile; 
+therefore, it may already be smoothed by <a class="reference internal" href="ambient.coarsen.html#ambient.coarsen" title="ambient.coarsen"><tt class="xref py py-obj docutils literal"><span class="pre">coarsen</span></tt></a> through the 
+<em class="xref py py-obj">self.err</em> value, and the computed values are generally not taken 
+directly from measured data, but rather at interpolation points.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../contents.html">
+              <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
+            </a></p>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ambient.Profile.get_values.html"
+                        title="previous chapter">ambient.Profile.get_values</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ambient.Profile.extend_profile_deeper.html"
+                        title="next chapter">ambient.Profile.extend_profile_deeper</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/ambient/ambient.Profile.buoyancy_frequency.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<ul class="this-page-menu">
+  <li><a href="/numpy/docs/numpy-docs/ambient/ambient.Profile.buoyancy_frequency.rst">Edit page</a></li>
+</ul>
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="ambient.Profile.extend_profile_deeper.html" title="ambient.Profile.extend_profile_deeper"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ambient.Profile.get_values.html" title="ambient.Profile.get_values"
+             >previous</a> |</li>
+<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+
+          <li><a href="../modules/reference.html" >Reference</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Scott A. Socolofsky.
+      Last updated on Sep 19, 2013.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

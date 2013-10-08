@@ -1,0 +1,173 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>simp.outer_surf &mdash; Texas A&amp;M Oilspill Calculator v0.1 Manual</title>
+    
+    <link rel="stylesheet" href="../_static/scipy.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../index.html" />
+    <link rel="up" title="Reference" href="../modules/reference.html" />
+    <link rel="next" title="simp.outer_dis" href="simp.outer_dis.html" />
+    <link rel="prev" title="simp.wuest_ic" href="simp.wuest_ic.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="simp.outer_dis.html" title="simp.outer_dis"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="simp.wuest_ic.html" title="simp.wuest_ic"
+             accesskey="P">previous</a> |</li>
+<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+
+          <li><a href="../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="simp-outer-surf">
+<h1>simp.outer_surf<a class="headerlink" href="#simp-outer-surf" title="Permalink to this headline">¶</a></h1>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">September 11, 2013</td>
+</tr>
+</tbody>
+</table>
+<dl class="function">
+<dt id="simp.outer_surf">
+<tt class="descclassname">simp.</tt><tt class="descname">outer_surf</tt><big>(</big><em>yi</em>, <em>p</em><big>)</big><a class="reference internal" href="../_modules/simp.html#outer_surf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simp.outer_surf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the initial condition for the outer plume at the sea surface</p>
+<p>Computes the initial conditions for the first outer plume segment after
+the inner plume impinges on the free surface of the water body.  It is 
+assumed that the inner plume had significant volume flux and that this 
+first outer plume segment will be viable.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>yi</strong> : <a class="reference internal" href="stratified_plume_model.InnerPlume.html#stratified_plume_model.InnerPlume" title="stratified_plume_model.InnerPlume"><tt class="xref py py-obj docutils literal"><span class="pre">stratified_plume_model.InnerPlume</span></tt></a> object</p>
+<blockquote>
+<div><p>Object for manipulating the inner plume state space</p>
+</div></blockquote>
+<p><strong>p</strong> : <em class="xref py py-obj">ModelParams</em> object</p>
+<blockquote>
+<div><p>Object containing the fixed model parameters for the stratified 
+plume model.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>z0</strong> : float</p>
+<blockquote>
+<div><p>Initial depth of the outer plume segment (m).</p>
+</div></blockquote>
+<p><strong>y0</strong> : ndarray</p>
+<blockquote class="last">
+<div><p>Initial dependent variables state space for the outer plume segment.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../contents.html">
+              <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
+            </a></p>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="simp.wuest_ic.html"
+                        title="previous chapter">simp.wuest_ic</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="simp.outer_dis.html"
+                        title="next chapter">simp.outer_dis</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/spm/simp.outer_surf.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<ul class="this-page-menu">
+  <li><a href="/numpy/docs/numpy-docs/spm/simp.outer_surf.rst">Edit page</a></li>
+</ul>
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="simp.outer_dis.html" title="simp.outer_dis"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="simp.wuest_ic.html" title="simp.wuest_ic"
+             >previous</a> |</li>
+<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+
+          <li><a href="../modules/reference.html" >Reference</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Scott A. Socolofsky.
+      Last updated on Sep 11, 2013.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

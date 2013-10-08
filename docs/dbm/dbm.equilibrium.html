@@ -1,0 +1,202 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>dbm.equilibrium &mdash; Texas A&amp;M Oilspill Calculator v0.1 Manual</title>
+    
+    <link rel="stylesheet" href="../_static/scipy.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../index.html" />
+    <link rel="up" title="Reference" href="../modules/reference.html" />
+    <link rel="next" title="dbm.gas_liq_eq" href="dbm.gas_liq_eq.html" />
+    <link rel="prev" title="dbm.InsolubleParticle.return_all" href="dbm.InsolubleParticle.return_all.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="dbm.gas_liq_eq.html" title="dbm.gas_liq_eq"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="dbm.InsolubleParticle.return_all.html" title="dbm.InsolubleParticle.return_all"
+             accesskey="P">previous</a> |</li>
+<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+
+          <li><a href="../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="dbm-equilibrium">
+<h1>dbm.equilibrium<a class="headerlink" href="#dbm-equilibrium" title="Permalink to this headline">¶</a></h1>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">September 11, 2013</td>
+</tr>
+</tbody>
+</table>
+<dl class="function">
+<dt id="dbm.equilibrium">
+<tt class="descclassname">dbm.</tt><tt class="descname">equilibrium</tt><big>(</big><em>m_0</em>, <em>T</em>, <em>P</em>, <em>M</em>, <em>Pc</em>, <em>Tc</em>, <em>omega</em>, <em>delta</em><big>)</big><a class="reference internal" href="../_modules/dbm.html#equilibrium"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dbm.equilibrium" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the equilibrium composition of a mixture using the P-R EOS</p>
+<p>Computes the mole fraction composition for the gas and liquid phases of a
+mixture using the Peng-Robinson equation of state and the methodology
+described in McCain (1990), Properties of Petroleum Fluids, 2nd Edition,
+PennWell Publishing Company, Tulsa, Oklahoma.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>T</strong> : float</p>
+<blockquote>
+<div><p>temperature (K)</p>
+</div></blockquote>
+<p><strong>P</strong> : float</p>
+<blockquote>
+<div><p>pressure (Pa)</p>
+</div></blockquote>
+<p><strong>m_0</strong> : ndarray, size (nc)</p>
+<blockquote>
+<div><p>masses of each component present in the whole mixture (gas plus 
+liquid, kg)</p>
+</div></blockquote>
+<p><strong>M</strong> : ndarray, size (nc)</p>
+<blockquote>
+<div><p>Molecular weights (kg/mol)</p>
+</div></blockquote>
+<p><strong>Pc</strong> : ndarray, size (nc)</p>
+<blockquote>
+<div><p>Critical pressures (Pa)</p>
+</div></blockquote>
+<p><strong>Tc</strong> : ndarray, size (nc)</p>
+<blockquote>
+<div><p>Critical temperatures (K)</p>
+</div></blockquote>
+<p><strong>omega</strong> : ndarray, size (nc)</p>
+<blockquote>
+<div><p>Acentric factors (&#8211;)</p>
+</div></blockquote>
+<p><strong>delta</strong> : ndarray, size (nc, nc)</p>
+<blockquote>
+<div><p>Binary interaction coefficients for the Peng-Robinson equation of 
+state.  If not passed at instantiation, Python will assume a 
+full matrix of zeros.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>xi</strong> : ndarray, size(2, nc)</p>
+<blockquote class="last">
+<div><p>Mole fraction of each component in the mixture.  Row 1 gives the
+values for the gas phase and Row 2 gives the values for the liquid 
+phase (&#8211;)</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>The method estimates the K-factors giving the mole fractions in gas and
+liquid and optimizes the K-factor estimates until they converge on the
+ratio of the actual fugacity coefficients (phi_liq / phi_gas).
+Convergence uses a squared relative error as in McCain (1990).</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../contents.html">
+              <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
+            </a></p>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="dbm.InsolubleParticle.return_all.html"
+                        title="previous chapter">dbm.InsolubleParticle.return_all</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="dbm.gas_liq_eq.html"
+                        title="next chapter">dbm.gas_liq_eq</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/dbm/dbm.equilibrium.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<ul class="this-page-menu">
+  <li><a href="/numpy/docs/numpy-docs/dbm/dbm.equilibrium.rst">Edit page</a></li>
+</ul>
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="dbm.gas_liq_eq.html" title="dbm.gas_liq_eq"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="dbm.InsolubleParticle.return_all.html" title="dbm.InsolubleParticle.return_all"
+             >previous</a> |</li>
+<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+
+          <li><a href="../modules/reference.html" >Reference</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Scott A. Socolofsky.
+      Last updated on Sep 11, 2013.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,202 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>dbm.InsolubleParticle.particle_shape &mdash; Texas A&amp;M Oilspill Calculator v0.1 Manual</title>
+    
+    <link rel="stylesheet" href="../_static/scipy.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../index.html" />
+    <link rel="up" title="Reference" href="../modules/reference.html" />
+    <link rel="next" title="dbm.InsolubleParticle.slip_velocity" href="dbm.InsolubleParticle.slip_velocity.html" />
+    <link rel="prev" title="dbm.InsolubleParticle.diameter" href="dbm.InsolubleParticle.diameter.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="dbm.InsolubleParticle.slip_velocity.html" title="dbm.InsolubleParticle.slip_velocity"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="dbm.InsolubleParticle.diameter.html" title="dbm.InsolubleParticle.diameter"
+             accesskey="P">previous</a> |</li>
+<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+
+          <li><a href="../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="dbm-insolubleparticle-particle-shape">
+<h1>dbm.InsolubleParticle.particle_shape<a class="headerlink" href="#dbm-insolubleparticle-particle-shape" title="Permalink to this headline">¶</a></h1>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">September 11, 2013</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="dbm.InsolubleParticle.particle_shape">
+<tt class="descclassname">InsolubleParticle.</tt><tt class="descname">particle_shape</tt><big>(</big><em>m</em>, <em>T</em>, <em>P</em>, <em>Sa</em>, <em>Ta</em><big>)</big><a class="reference internal" href="../_modules/dbm.html#InsolubleParticle.particle_shape"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dbm.InsolubleParticle.particle_shape" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine the shape of an inert fluid particle from the properties of 
+the particle and surrounding fluid.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>m</strong> : float</p>
+<blockquote>
+<div><p>mass of the inert fluid particle (m)</p>
+</div></blockquote>
+<p><strong>T</strong> : float</p>
+<blockquote>
+<div><p>particle temperature (K)</p>
+</div></blockquote>
+<p><strong>P</strong> : float</p>
+<blockquote>
+<div><p>particle pressure (Pa)</p>
+</div></blockquote>
+<p><strong>Sa</strong> : float</p>
+<blockquote>
+<div><p>salinity of ambient seawater (psu)</p>
+</div></blockquote>
+<p><strong>Ta</strong> : float</p>
+<blockquote>
+<div><p>temperature of ambient seawater (K)</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>A tuple containing:</strong> :</p>
+<blockquote class="last">
+<div><dl class="docutils">
+<dt>shape <span class="classifier-delimiter">:</span> <span class="classifier">integer</span></dt>
+<dd><p class="first last">1 - sphere, 2 - ellipsoid, 3 - spherical cap, 4 - rigid</p>
+</dd>
+<dt>de <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">equivalent spherical diameter (m)</p>
+</dd>
+<dt>rho_p <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">particle density (kg/m^3)</p>
+</dd>
+<dt>rho <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">ambient seawater density (kg/m^3)</p>
+</dd>
+<dt>mu <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">ambient seawater dynamic viscosity (Pa s)</p>
+</dd>
+<dt>sigma <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">interfacial tension (N/m)</p>
+</dd>
+</dl>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>We use the particle temperature to calculate properties at the 
+interface (e.g., to calculate the interfacial tension) and the 
+ambient temperature for properties of the bulk continuous phase 
+(e.g., density and viscosity).</p>
+<p>Uses the Fortran subroutines in <tt class="docutils literal"><span class="pre">./src/dbm_phys.f95</span></tt>.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../contents.html">
+              <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
+            </a></p>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="dbm.InsolubleParticle.diameter.html"
+                        title="previous chapter">dbm.InsolubleParticle.diameter</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="dbm.InsolubleParticle.slip_velocity.html"
+                        title="next chapter">dbm.InsolubleParticle.slip_velocity</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/dbm/dbm.InsolubleParticle.particle_shape.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<ul class="this-page-menu">
+  <li><a href="/numpy/docs/numpy-docs/dbm/dbm.InsolubleParticle.particle_shape.rst">Edit page</a></li>
+</ul>
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="dbm.InsolubleParticle.slip_velocity.html" title="dbm.InsolubleParticle.slip_velocity"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="dbm.InsolubleParticle.diameter.html" title="dbm.InsolubleParticle.diameter"
+             >previous</a> |</li>
+<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+
+          <li><a href="../modules/reference.html" >Reference</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Scott A. Socolofsky.
+      Last updated on Sep 11, 2013.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

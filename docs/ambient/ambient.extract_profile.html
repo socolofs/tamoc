@@ -1,0 +1,198 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ambient.extract_profile &mdash; Texas A&amp;M Oilspill Calculator v0.1 Manual</title>
+    
+    <link rel="stylesheet" href="../_static/scipy.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../index.html" />
+    <link rel="up" title="Reference" href="../modules/reference.html" />
+    <link rel="next" title="ambient.coarsen" href="ambient.coarsen.html" />
+    <link rel="prev" title="ambient.convert_units" href="ambient.convert_units.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="ambient.coarsen.html" title="ambient.coarsen"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ambient.convert_units.html" title="ambient.convert_units"
+             accesskey="P">previous</a> |</li>
+<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+
+          <li><a href="../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="ambient-extract-profile">
+<h1>ambient.extract_profile<a class="headerlink" href="#ambient-extract-profile" title="Permalink to this headline">¶</a></h1>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">September 19, 2013</td>
+</tr>
+</tbody>
+</table>
+<dl class="function">
+<dt id="ambient.extract_profile">
+<tt class="descclassname">ambient.</tt><tt class="descname">extract_profile</tt><big>(</big><em>data</em>, <em>z_col=0</em>, <em>z_start=50</em>, <em>p_col=None</em>, <em>P_atm=101325.0</em><big>)</big><a class="reference internal" href="../_modules/ambient.html#extract_profile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ambient.extract_profile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to extract a CTD profile with monotonically increasing depth</p>
+<p>This function scans a complete CTD profile data array looking for 
+direction reversals at the top and bottom of the profile.  It then removes
+all reversals, yielding a single profile with monotonically increasing 
+depth.  This is particularly useful for CTD datasets that include both the
+up and down cast or that have not been preprocessed to remove the surface 
+entry and swaying at the top and bottom of the profile.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>data</strong> : ndarray</p>
+<blockquote>
+<div><p>Contains the complete CTD dataset in <tt class="xref py py-obj docutils literal"><span class="pre">numpy.array</span></tt> format.  All 
+columns will be preserved; only the depth column will be used to make 
+decisions.</p>
+</div></blockquote>
+<p><strong>z_col</strong> : integer, default is 0</p>
+<blockquote>
+<div><p>Column number of the column containing the depth data.  The first 
+column is numbered zero.</p>
+</div></blockquote>
+<p><strong>z_start</strong> : float, default is 50</p>
+<blockquote>
+<div><p>Depth over which reversals are considered to be at the top of the 
+profile.  If a depth reversal is found below this value, the profile
+will be assumed to end there.  The top of the profile will be either
+the first row of data or the lowest row of data containing a reversal
+for which <em class="xref py py-obj">z</em> &lt; <em class="xref py py-obj">z_start</em>.</p>
+</div></blockquote>
+<p><strong>p_col</strong> : integer, default is None</p>
+<blockquote>
+<div><p>Column number of the column containing the pressure data.  If the
+profile is artificially extended to the free surface, the pressure
+must approach atmospheric pressure.</p>
+</div></blockquote>
+<p><strong>P_amt</strong> : float, default is 101325</p>
+<blockquote class="last">
+<div><p>Value for atmospheric pressure.  This function does not do any unit
+conversion, so if the pressure units passed to this function are not
+Pa or the pressure is different than standard atmospheric pressure, 
+then the correct value should be specified.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>If the start of the profile is found to occur below <em class="xref py py-obj">z</em> = 0, then a row 
+will be added to the top of the profile with depth <em class="xref py py-obj">z</em> = 0 and all other 
+values equal to their value on the next row of the profile.  This is 
+generally needed by interpolation methods in the <tt class="docutils literal"><span class="pre">TAMOC</span></tt> simulation 
+suite that require data throughout the water column.</p>
+<p>This function is for use in creating a CTD data array before it is 
+added to a netCDF dataset.  Once the depths have been added to a netCDF 
+dataset, the methods defined in this module do not allow the depth to be
+further changed.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../contents.html">
+              <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
+            </a></p>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ambient.convert_units.html"
+                        title="previous chapter">ambient.convert_units</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ambient.coarsen.html"
+                        title="next chapter">ambient.coarsen</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/ambient/ambient.extract_profile.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<ul class="this-page-menu">
+  <li><a href="/numpy/docs/numpy-docs/ambient/ambient.extract_profile.rst">Edit page</a></li>
+</ul>
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="ambient.coarsen.html" title="ambient.coarsen"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ambient.convert_units.html" title="ambient.convert_units"
+             >previous</a> |</li>
+<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+
+          <li><a href="../modules/reference.html" >Reference</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Scott A. Socolofsky.
+      Last updated on Sep 19, 2013.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

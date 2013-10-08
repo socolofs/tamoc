@@ -1,0 +1,180 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>profile_from_txt &mdash; Texas A&amp;M Oilspill Calculator v0.1 Manual</title>
+    
+    <link rel="stylesheet" href="../../_static/scipy.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../../index.html" />
+    <link rel="up" title="Reference" href="../../modules/reference.html" />
+    <link rel="next" title="profile_from_roms" href="profile_from_roms.html" />
+    <link rel="prev" title="profile_from_lab" href="profile_from_lab.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="profile_from_roms.html" title="profile_from_roms"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="profile_from_lab.html" title="profile_from_lab"
+             accesskey="P">previous</a> |</li>
+<li><a href="../../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+
+          <li><a href="../../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="profile-from-txt">
+<h1>profile_from_txt<a class="headerlink" href="#profile-from-txt" title="Permalink to this headline">¶</a></h1>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">September 11, 2013</td>
+</tr>
+</tbody>
+</table>
+<span class="target" id="module-profile_from_txt"></span><div class="section" id="create-a-profile-from-arbitrary-ascii-text-files">
+<h2>Create a Profile from arbitrary ASCII text files<a class="headerlink" href="#create-a-profile-from-arbitrary-ascii-text-files" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="script-profile-from-txt">
+<h3>Script profile_from_txt<a class="headerlink" href="#script-profile-from-txt" title="Permalink to this headline">¶</a></h3>
+<p>Use the TAMOC ambient module to create profiles in netCDF format for use by
+TAMOC from data in text files. This file demonstrates working with data
+digitized from plots of temperature and salinity in the SINTEF DeepSpill 
+report</p>
+</div>
+<div class="section" id="notes">
+<h3>Notes<a class="headerlink" href="#notes" title="Permalink to this headline">¶</a></h3>
+<p>Much of the input data coded in the script (e.g., columns to extract, column
+names, lat and lon location data, date and time, etc.) must be known by the
+user (e.g., from the SINTEF report) and is hand-coded in the script code.</p>
+</div>
+<div class="section" id="requires">
+<h3>Requires<a class="headerlink" href="#requires" title="Permalink to this headline">¶</a></h3>
+<p>This script read data from the files:</p>
+<div class="highlight-python"><pre>./Profiles/Raw_Data/C.dat
+./Profiles/Raw_Data/T.dat.</pre>
+</div>
+</div>
+<div class="section" id="returns">
+<h3>Returns<a class="headerlink" href="#returns" title="Permalink to this headline">¶</a></h3>
+<p>This script generates a <a class="reference internal" href="../../modules/ambient.html#ambient.Profile" title="ambient.Profile"><tt class="xref py py-obj docutils literal"><span class="pre">ambient.Profile</span></tt></a> object, whose netCDF file is written
+to the file:</p>
+<div class="highlight-python"><pre>./Profiles/Profiles/DS.nc</pre>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../contents.html">
+              <img class="logo" src="../../_static/logo_holder.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../../contents.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">profile_from_txt</a><ul>
+<li><a class="reference internal" href="#create-a-profile-from-arbitrary-ascii-text-files">Create a Profile from arbitrary ASCII text files</a><ul>
+<li><a class="reference internal" href="#script-profile-from-txt">Script profile_from_txt</a></li>
+<li><a class="reference internal" href="#notes">Notes</a></li>
+<li><a class="reference internal" href="#requires">Requires</a></li>
+<li><a class="reference internal" href="#returns">Returns</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="profile_from_lab.html"
+                        title="previous chapter">profile_from_lab</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="profile_from_roms.html"
+                        title="next chapter">profile_from_roms</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../../_sources/scripts/ambient/profile_from_txt.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<ul class="this-page-menu">
+  <li><a href="/numpy/docs/numpy-docs/scripts/ambient/profile_from_txt.rst">Edit page</a></li>
+</ul>
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="profile_from_roms.html" title="profile_from_roms"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="profile_from_lab.html" title="profile_from_lab"
+             >previous</a> |</li>
+<li><a href="../../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+
+          <li><a href="../../modules/reference.html" >Reference</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Scott A. Socolofsky.
+      Last updated on Sep 11, 2013.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

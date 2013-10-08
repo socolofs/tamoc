@@ -1,0 +1,167 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Seawater Module Users Guide &mdash; Texas A&amp;M Oilspill Calculator v0.1 Manual</title>
+    
+    <link rel="stylesheet" href="../_static/scipy.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../index.html" />
+    <link rel="next" title="Single Bubble Model Users Guide" href="../sbm/guide.html" />
+    <link rel="prev" title="hydrocarbon_drops" href="../scripts/dbm/hydrocarbon_drops.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../sbm/guide.html" title="Single Bubble Model Users Guide"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../scripts/dbm/hydrocarbon_drops.html" title="hydrocarbon_drops"
+             accesskey="P">previous</a> |</li>
+<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+ 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="seawater-module-users-guide">
+<h1>Seawater Module Users Guide<a class="headerlink" href="#seawater-module-users-guide" title="Permalink to this headline">¶</a></h1>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">September 11, 2013</td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p>The <a class="reference internal" href="../modules/seawater.html#module-seawater" title="seawater"><tt class="xref py py-obj docutils literal"><span class="pre">seawater</span></tt></a> module provides a few simple equations of state for seawater.
+See the code documentations under the <a class="reference internal" href="../modules/seawater.html#module-seawater" title="seawater"><tt class="xref py py-obj docutils literal"><span class="pre">seawater</span></tt></a> module pages for details.</p>
+<p>In each example, the thermodynamic state is needed as input.  Consider a
+typical deepwater condition as follows:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">T</span> <span class="o">=</span> <span class="mf">273.15</span> <span class="o">+</span> <span class="mf">4.1</span>   <span class="c"># K</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">P</span> <span class="o">=</span> <span class="mf">150e5</span>          <span class="c"># 150 bar expressed in Pa</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">S</span> <span class="o">=</span> <span class="mf">35.4</span>           <span class="c"># psu</span>
+</pre></div>
+</div>
+<p>The various properties of seawater at this state are obtained as follows:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">seawater</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">seawater</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
+<span class="go">1034.959691281713</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">seawater</span><span class="o">.</span><span class="n">mu</span><span class="p">(</span><span class="n">T</span><span class="p">)</span>
+<span class="go">0.0015673283914517876</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">seawater</span><span class="o">.</span><span class="n">sigma</span><span class="p">(</span><span class="n">T</span><span class="p">)</span>
+<span class="go">0.0750703665</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">seawater</span><span class="o">.</span><span class="n">cp</span><span class="p">()</span>
+<span class="go">4185.5</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">seawater</span><span class="o">.</span><span class="n">k</span><span class="p">()</span>
+<span class="go">1.46e-07</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../contents.html">
+              <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../contents.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Seawater Module Users Guide</a><ul>
+<li><a class="reference internal" href="#examples">Examples</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../scripts/dbm/hydrocarbon_drops.html"
+                        title="previous chapter">hydrocarbon_drops</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../sbm/guide.html"
+                        title="next chapter">Single Bubble Model Users Guide</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/seawater/guide.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<ul class="this-page-menu">
+  <li><a href="/numpy/docs/numpy-docs/seawater/guide.rst">Edit page</a></li>
+</ul>
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../sbm/guide.html" title="Single Bubble Model Users Guide"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../scripts/dbm/hydrocarbon_drops.html" title="hydrocarbon_drops"
+             >previous</a> |</li>
+<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+ 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Scott A. Socolofsky.
+      Last updated on Sep 11, 2013.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

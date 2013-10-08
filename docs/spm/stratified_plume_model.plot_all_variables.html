@@ -1,0 +1,198 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>stratified_plume_model.plot_all_variables &mdash; Texas A&amp;M Oilspill Calculator v0.1 Manual</title>
+    
+    <link rel="stylesheet" href="../_static/scipy.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../index.html" />
+    <link rel="up" title="Reference" href="../modules/reference.html" />
+    <link rel="next" title="simp.derivs_inner" href="simp.derivs_inner.html" />
+    <link rel="prev" title="stratified_plume_model.plot_state_space" href="stratified_plume_model.plot_state_space.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="simp.derivs_inner.html" title="simp.derivs_inner"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="stratified_plume_model.plot_state_space.html" title="stratified_plume_model.plot_state_space"
+             accesskey="P">previous</a> |</li>
+<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+
+          <li><a href="../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="stratified-plume-model-plot-all-variables">
+<h1>stratified_plume_model.plot_all_variables<a class="headerlink" href="#stratified-plume-model-plot-all-variables" title="Permalink to this headline">¶</a></h1>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">September 19, 2013</td>
+</tr>
+</tbody>
+</table>
+<dl class="function">
+<dt id="stratified_plume_model.plot_all_variables">
+<tt class="descclassname">stratified_plume_model.</tt><tt class="descname">plot_all_variables</tt><big>(</big><em>zi</em>, <em>yi</em>, <em>zo</em>, <em>yo</em>, <em>yi_local</em>, <em>yo_local</em>, <em>particles</em>, <em>profile</em>, <em>p</em>, <em>fig</em><big>)</big><a class="headerlink" href="#stratified_plume_model.plot_all_variables" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the complete variable suite for model validation and interpretation</p>
+<p>Plot a complete suite of state and derived variables along with some 
+key model parameters and environmental data.  These plots provide both
+validation that model calculations are within expected ranges and a clear
+presentation of the results to aid in model interpretation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>zi</strong> : ndarray</p>
+<blockquote>
+<div><p>Vector of depth for the inner plume solution (m).</p>
+</div></blockquote>
+<p><strong>yi</strong> : ndarray</p>
+<blockquote>
+<div><p>Matrix of inner plume solutions, with each row corresponding to a 
+depth in <em class="xref py py-obj">zi</em>.</p>
+</div></blockquote>
+<p><strong>zo</strong> : ndarray</p>
+<blockquote>
+<div><p>Vector of depth for the outer plume solution (m).</p>
+</div></blockquote>
+<p><strong>yo</strong> : ndarray</p>
+<blockquote>
+<div><p>Matrix of outer plume solutions, with each row corresponding to a 
+depth in <em class="xref py py-obj">zo</em>.</p>
+</div></blockquote>
+<p><strong>yi_local</strong> : <a class="reference internal" href="stratified_plume_model.InnerPlume.html#stratified_plume_model.InnerPlume" title="stratified_plume_model.InnerPlume"><tt class="xref py py-obj docutils literal"><span class="pre">InnerPlume</span></tt></a> object</p>
+<blockquote>
+<div><p>Inner plume object for extracting variables from the state space.</p>
+</div></blockquote>
+<p><strong>yo_local</strong> : <a class="reference internal" href="stratified_plume_model.OuterPlume.html#stratified_plume_model.OuterPlume" title="stratified_plume_model.OuterPlume"><tt class="xref py py-obj docutils literal"><span class="pre">OuterPlume</span></tt></a> object</p>
+<blockquote>
+<div><p>Outer plume object for extracting variables from the state space.</p>
+</div></blockquote>
+<p><strong>particles</strong> : list of <a class="reference internal" href="stratified_plume_model.Particle.html#stratified_plume_model.Particle" title="stratified_plume_model.Particle"><tt class="xref py py-obj docutils literal"><span class="pre">Particle</span></tt></a> objects</p>
+<blockquote>
+<div><p>List of <a class="reference internal" href="stratified_plume_model.Particle.html#stratified_plume_model.Particle" title="stratified_plume_model.Particle"><tt class="xref py py-obj docutils literal"><span class="pre">Particle</span></tt></a> objects containing the dispersed phase local
+conditions and behavior.</p>
+</div></blockquote>
+<p><strong>profile</strong> : <a class="reference internal" href="../modules/ambient.html#ambient.Profile" title="ambient.Profile"><tt class="xref py py-obj docutils literal"><span class="pre">ambient.Profile</span></tt></a> object</p>
+<blockquote>
+<div><p>The ambient CTD object used by the simulation.</p>
+</div></blockquote>
+<p><strong>p</strong> : <a class="reference internal" href="stratified_plume_model.ModelParams.html#stratified_plume_model.ModelParams" title="stratified_plume_model.ModelParams"><tt class="xref py py-obj docutils literal"><span class="pre">ModelParams</span></tt></a> object</p>
+<blockquote>
+<div><p>Object containing the fixed model parameters for the stratified 
+plume model.</p>
+</div></blockquote>
+<p><strong>fig</strong> : int</p>
+<blockquote class="last">
+<div><p>Figure number.  Number of the figure window in which to draw the plot.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../contents.html">
+              <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
+            </a></p>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="stratified_plume_model.plot_state_space.html"
+                        title="previous chapter">stratified_plume_model.plot_state_space</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="simp.derivs_inner.html"
+                        title="next chapter">simp.derivs_inner</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/spm/stratified_plume_model.plot_all_variables.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<ul class="this-page-menu">
+  <li><a href="/numpy/docs/numpy-docs/spm/stratified_plume_model.plot_all_variables.rst">Edit page</a></li>
+</ul>
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="simp.derivs_inner.html" title="simp.derivs_inner"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="stratified_plume_model.plot_state_space.html" title="stratified_plume_model.plot_state_space"
+             >previous</a> |</li>
+<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+
+          <li><a href="../modules/reference.html" >Reference</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Scott A. Socolofsky.
+      Last updated on Sep 19, 2013.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

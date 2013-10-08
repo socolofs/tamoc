@@ -1,0 +1,223 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Overview of Chemical Properties &mdash; Texas A&amp;M Oilspill Calculator v0.1 Manual</title>
+    
+    <link rel="stylesheet" href="../_static/scipy.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../index.html" />
+    <link rel="up" title="Reference" href="reference.html" />
+    <link rel="next" title="Sources of Data in ChemData.csv" href="../chem/ChemData_ReadMe.html" />
+    <link rel="prev" title="ambient.load_raw" href="../ambient/ambient.load_raw.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../chem/ChemData_ReadMe.html" title="Sources of Data in ChemData.csv"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../ambient/ambient.load_raw.html" title="ambient.load_raw"
+             accesskey="P">previous</a> |</li>
+<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+
+          <li><a href="reference.html" accesskey="U">Reference</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="overview-of-chemical-properties">
+<h1>Overview of Chemical Properties<a class="headerlink" href="#overview-of-chemical-properties" title="Permalink to this headline">¶</a></h1>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">September 11, 2013</td>
+</tr>
+</tbody>
+</table>
+<span class="target" id="module-chemical_properties"></span><div class="section" id="chemical-properties-script">
+<h2>Chemical Properties Script<a class="headerlink" href="#chemical-properties-script" title="Permalink to this headline">¶</a></h2>
+<p>Create a dictionary of chemical properties</p>
+<p>This script creates a dictionary of the properties of several hydrocarbons and
+chemicals of environmental interest in a global dictionary for use by other
+programs that need to know chemical properties.</p>
+<div class="section" id="parameters">
+<h3>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></h3>
+<p>The chemical data are stored in <tt class="docutils literal"><span class="pre">./data/ChemData.csv</span></tt>. The columns in the 
+file are expected to contain a key name, the molecular weight, critical-point
+pressure, critical-point temperature, acentric factor, Henry&#8217;s law constant at
+298.15 K, enthalpy of solution, specific volume at inifinite dilution, and 
+parameters of the diffusivity model.  The data sources and more details are
+documented in the file <tt class="docutils literal"><span class="pre">../docs/ChemData_ReadMe.txt</span></tt>.</p>
+</div>
+<div class="section" id="returns">
+<h3>Returns<a class="headerlink" href="#returns" title="Permalink to this headline">¶</a></h3>
+<dl class="docutils">
+<dt>data <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
+<dd><p class="first">a nested dictionary containing the chemical name as the first key 
+and the following list of secondary keys matched with the numerical
+value of each variable:</p>
+<blockquote class="last">
+<div>M : molecular weight (kg/mol)
+Pc : pressure at the critical point (Pa)
+Tc : temperatue at the critical point (K)
+omega : acentric factor (&#8211;)
+kh_0 : Henry&#8217;s law constant at 298.15 K (kg/(m^3 Pa))
+dH_solR : enthalpy of solution / R (K)
+nu_bar : specific volume at infinite dilution (m^3/mol)
+B : diffusivity model coefficient (m^2/s)
+dE : diffusivity model coefficient (J/mol)</div></blockquote>
+</dd>
+<dt>units <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
+<dd>dictionary with the same keys as the variables names listed above 
+(e.g., M, Pc, Tc, etc.) linked to a string containing the units of 
+each variable.</dd>
+</dl>
+</div>
+<div class="section" id="see-also">
+<h3>See also<a class="headerlink" href="#see-also" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference internal" href="dbm.html#module-dbm" title="dbm"><tt class="xref py py-obj docutils literal"><span class="pre">dbm</span></tt></a> : Uses these dictionaries to create chemical mixture objects.</p>
+</div>
+<div class="section" id="examples">
+<h3>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">tamoc</span> <span class="kn">import</span> <span class="n">chemical_properties</span> <span class="k">as</span> <span class="n">chem</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">chem</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;oxygen&#39;</span><span class="p">][</span><span class="s">&#39;M&#39;</span><span class="p">]</span>
+<span class="go">0.031998800000000001</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">chem</span><span class="o">.</span><span class="n">units</span><span class="p">[</span><span class="s">&#39;M&#39;</span><span class="p">]</span>
+<span class="go">&#39;(kg/mol)&#39;</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="input-data-documentation">
+<h2>Input Data Documentation<a class="headerlink" href="#input-data-documentation" title="Permalink to this headline">¶</a></h2>
+<p>This script loads the chemical properties database into the name space.  If
+the import command is:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">chemical_properties</span>
+</pre></div>
+</div>
+<p>then the database is in the <tt class="docutils literal"><span class="pre">chemical_properties</span></tt> namespace.  The <tt class="docutils literal"><span class="pre">TAMOC</span></tt>
+package usually imports using:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">chemical_properties</span> <span class="kn">as</span> <span class="nn">chem</span>
+</pre></div>
+</div>
+<p>so that the database is in the <tt class="docutils literal"><span class="pre">chem</span></tt> namespace.</p>
+<p>The data loaded into these namespaces is stored in the file:</p>
+<div class="highlight-python"><pre>./data/ChemData.csv</pre>
+</div>
+<p>The format for these data is described in <a class="reference internal" href="../chem/ChemData_ReadMe.html"><em>Sources of Data in ChemData.csv</em></a></p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../contents.html">
+              <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../contents.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Overview of Chemical Properties</a><ul>
+<li><a class="reference internal" href="#chemical-properties-script">Chemical Properties Script</a><ul>
+<li><a class="reference internal" href="#parameters">Parameters</a></li>
+<li><a class="reference internal" href="#returns">Returns</a></li>
+<li><a class="reference internal" href="#see-also">See also</a></li>
+<li><a class="reference internal" href="#examples">Examples</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#input-data-documentation">Input Data Documentation</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../ambient/ambient.load_raw.html"
+                        title="previous chapter">ambient.load_raw</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../chem/ChemData_ReadMe.html"
+                        title="next chapter">Sources of Data in ChemData.csv</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/modules/chem.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<ul class="this-page-menu">
+  <li><a href="/numpy/docs/numpy-docs/modules/chem.rst">Edit page</a></li>
+</ul>
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../chem/ChemData_ReadMe.html" title="Sources of Data in ChemData.csv"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../ambient/ambient.load_raw.html" title="ambient.load_raw"
+             >previous</a> |</li>
+<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+
+          <li><a href="reference.html" >Reference</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Scott A. Socolofsky.
+      Last updated on Sep 11, 2013.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

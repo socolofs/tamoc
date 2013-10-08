@@ -1,0 +1,177 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>profile_from_roms &mdash; Texas A&amp;M Oilspill Calculator v0.1 Manual</title>
+    
+    <link rel="stylesheet" href="../../_static/scipy.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../../index.html" />
+    <link rel="up" title="Reference" href="../../modules/reference.html" />
+    <link rel="next" title="profile_extending" href="profile_extending.html" />
+    <link rel="prev" title="profile_from_txt" href="profile_from_txt.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="profile_extending.html" title="profile_extending"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="profile_from_txt.html" title="profile_from_txt"
+             accesskey="P">previous</a> |</li>
+<li><a href="../../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+
+          <li><a href="../../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="profile-from-roms">
+<h1>profile_from_roms<a class="headerlink" href="#profile-from-roms" title="Permalink to this headline">¶</a></h1>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">September 11, 2013</td>
+</tr>
+</tbody>
+</table>
+<span class="target" id="module-profile_from_roms"></span><div class="section" id="create-a-profile-from-roms-model-output-netcdf-files">
+<h2>Create a Profile from ROMS model output netCDF files<a class="headerlink" href="#create-a-profile-from-roms-model-output-netcdf-files" title="Permalink to this headline">¶</a></h2>
+<p>Use the TAMOC ambient module to create profiles in netCDF format for use by
+TAMOC from data in ROMS output files.</p>
+<div class="section" id="notes">
+<h3>Notes<a class="headerlink" href="#notes" title="Permalink to this headline">¶</a></h3>
+<p>Most of the profile information (e.g., lat, lon, time, depths, temperature, 
+etc.) is read automatically from the ROMS netCDF file by the package methods
+and functions.  Hence, a minimal amount of auxiliary information must be 
+provided to the script file to generate fully-annotated Profile objects.</p>
+</div>
+<div class="section" id="requires">
+<h3>Requires<a class="headerlink" href="#requires" title="Permalink to this headline">¶</a></h3>
+<p>The ROMS netCDF files do not directly store the depth information, and the 
+external package <tt class="xref py py-obj docutils literal"><span class="pre">octant.roms</span></tt> is used to tranlsate the ROMS data.  In 
+addition, this script reads ROMS data from a THREDDS server in the file:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="s">&#39;http://barataria.tamu.edu:8080/thredds/dodsC/ROMS_Daily/08122012/&#39;</span> <span class="o">+</span>     <span class="s">&#39;ocean_his_08122012_24.nc&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="returns">
+<h3>Returns<a class="headerlink" href="#returns" title="Permalink to this headline">¶</a></h3>
+<p>This script generates a <a class="reference internal" href="../../modules/ambient.html#ambient.Profile" title="ambient.Profile"><tt class="xref py py-obj docutils literal"><span class="pre">ambient.Profile</span></tt></a> object, whose netCDF file is written
+to the file:</p>
+<div class="highlight-python"><pre>./Profiles/Profiles/roms.nc</pre>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../contents.html">
+              <img class="logo" src="../../_static/logo_holder.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../../contents.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">profile_from_roms</a><ul>
+<li><a class="reference internal" href="#create-a-profile-from-roms-model-output-netcdf-files">Create a Profile from ROMS model output netCDF files</a><ul>
+<li><a class="reference internal" href="#notes">Notes</a></li>
+<li><a class="reference internal" href="#requires">Requires</a></li>
+<li><a class="reference internal" href="#returns">Returns</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="profile_from_txt.html"
+                        title="previous chapter">profile_from_txt</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="profile_extending.html"
+                        title="next chapter">profile_extending</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../../_sources/scripts/ambient/profile_from_roms.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<ul class="this-page-menu">
+  <li><a href="/numpy/docs/numpy-docs/scripts/ambient/profile_from_roms.rst">Edit page</a></li>
+</ul>
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="profile_extending.html" title="profile_extending"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="profile_from_txt.html" title="profile_from_txt"
+             >previous</a> |</li>
+<li><a href="../../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+
+          <li><a href="../../modules/reference.html" >Reference</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Scott A. Socolofsky.
+      Last updated on Sep 11, 2013.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

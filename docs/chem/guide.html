@@ -1,0 +1,207 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Chemical Properties Users Guide &mdash; Texas A&amp;M Oilspill Calculator v0.1 Manual</title>
+    
+    <link rel="stylesheet" href="../_static/scipy.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../index.html" />
+    <link rel="next" title="Discrete Bubble Model Users Guide" href="../dbm/guide.html" />
+    <link rel="prev" title="profile_extending" href="../scripts/ambient/profile_extending.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../dbm/guide.html" title="Discrete Bubble Model Users Guide"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../scripts/ambient/profile_extending.html" title="profile_extending"
+             accesskey="P">previous</a> |</li>
+<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+ 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="chemical-properties-users-guide">
+<h1>Chemical Properties Users Guide<a class="headerlink" href="#chemical-properties-users-guide" title="Permalink to this headline">¶</a></h1>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">September 11, 2013</td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p>This is a very straight-forward script. It&#8217;s main purpose is to load in the
+chemical property data in <tt class="docutils literal"><span class="pre">./data/ChemData.csv</span></tt> and to store that data in a
+Python dictionary, available to other programs. Within <tt class="docutils literal"><span class="pre">TAMOC</span></tt> this script
+is generally not used by the user; rather, the class objects, methods, and
+functions in the <a class="reference internal" href="../modules/dbm.html#module-dbm" title="dbm"><tt class="xref py py-obj docutils literal"><span class="pre">dbm</span></tt></a> module provides a fluid interface to these databases.</p>
+<p>To load the data, simply import the script and optionally assign a new
+namespace for storing the databases:</p>
+<div class="highlight-python"><pre>&gt;&gt; import chemical_properties as chem</pre>
+</div>
+<p>After import, two new dictionaries will be created, one with the properties
+(called <em class="xref py py-obj">chem.data</em>) and another with the units (called <em class="xref py py-obj">chem.units</em>).  The
+<em class="xref py py-obj">chem.data</em> dictionary is double-nested, with the first set of keys choosing
+a chemical component, and the second set of keys choosing a particular
+property.</p>
+<p>As an example:</p>
+<div class="highlight-python"><pre>&gt;&gt; chem.data.keys()
+['benzene',
+ 'n-decane',
+ 'nitrogen',
+ '3-methylpentane',
+ 'hydrogen',
+ 'neohexane',
+ 'carbon_monoxide',
+ 'n-butane',
+ 'carbon_dioxide',
+ 'ethylbenzene',
+ 'isopentane',
+ 'isobutane',
+ 'propane',
+ 'n-heptane',
+ 'water',
+ '2-methylpentane',
+ 'n-pentane',
+ 'toluene',
+ 'n-hexane',
+ 'neopentane',
+ 'oxygen',
+ 'hydrogen_sulfide',
+ 'argon',
+ '2-3-dimethylbutane',
+ 'ethane',
+ 'sulfure_dioxide',
+ 'methane']</pre>
+</div>
+<p>Focusing on the nested dictionary for one of these keys, we have:</p>
+<div class="highlight-python"><pre>&gt;&gt; chem.data['oxygen'].keys()
+['B', 'dH_solR', 'dE', 'M', 'Pc', 'nu_bar', 'kh_0', 'omega', 'Tc']</pre>
+</div>
+<p>To access the value for one of these keys, just use the double-nested
+index:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">chem</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;oxygen&#39;</span><span class="p">][</span><span class="s">&#39;M&#39;</span><span class="p">]</span>    <span class="c"># Molecular weight</span>
+<span class="go">0.031998800000000001</span>
+</pre></div>
+</div>
+<p>The <em class="xref py py-obj">chem.units</em> database provides access to the units of each of these
+variables.  Because the units are independent of the chemical, the units
+database only includes the second dictionary of keys:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">chem</span><span class="o">.</span><span class="n">units</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+<span class="go">[&#39;Pc&#39;, &#39;nu_bar&#39;, &#39;Compound&#39;, &#39;kh_0&#39;, &#39;omega&#39;, &#39;B&#39;, &#39;dE&#39;, &#39;M&#39;, &#39;Tc&#39;, &#39;dH_solR&#39;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">chem</span><span class="o">.</span><span class="n">units</span><span class="p">[</span><span class="s">&#39;M&#39;</span><span class="p">]</span>
+<span class="go">&#39;(kg/mol)&#39;</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../contents.html">
+              <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../contents.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Chemical Properties Users Guide</a><ul>
+<li><a class="reference internal" href="#examples">Examples</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../scripts/ambient/profile_extending.html"
+                        title="previous chapter">profile_extending</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../dbm/guide.html"
+                        title="next chapter">Discrete Bubble Model Users Guide</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/chem/guide.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<ul class="this-page-menu">
+  <li><a href="/numpy/docs/numpy-docs/chem/guide.rst">Edit page</a></li>
+</ul>
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../dbm/guide.html" title="Discrete Bubble Model Users Guide"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../scripts/ambient/profile_extending.html" title="profile_extending"
+             >previous</a> |</li>
+<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+ 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Scott A. Socolofsky.
+      Last updated on Sep 11, 2013.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

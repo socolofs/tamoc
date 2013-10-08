@@ -1,0 +1,252 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Single Bubble Model Users Guide &mdash; Texas A&amp;M Oilspill Calculator v0.1 Manual</title>
+    
+    <link rel="stylesheet" href="../_static/scipy.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../index.html" />
+    <link rel="next" title="bubble" href="../scripts/sbm/bubble.html" />
+    <link rel="prev" title="Seawater Module Users Guide" href="../seawater/guide.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../scripts/sbm/bubble.html" title="bubble"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../seawater/guide.html" title="Seawater Module Users Guide"
+             accesskey="P">previous</a> |</li>
+<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+ 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="single-bubble-model-users-guide">
+<h1>Single Bubble Model Users Guide<a class="headerlink" href="#single-bubble-model-users-guide" title="Permalink to this headline">¶</a></h1>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">September 11, 2013</td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="scripts">
+<h2>Scripts<a class="headerlink" href="#scripts" title="Permalink to this headline">¶</a></h2>
+<p>The class objects and method functions defined in the <a class="reference internal" href="../modules/sbm.html#module-single_bubble_model" title="single_bubble_model"><tt class="xref py py-obj docutils literal"><span class="pre">single_bubble_model</span></tt></a>
+module provide a flexible structure to handle simulations of the fate of a
+single rising bubble, drop, or particle. The examples detailed below show how
+to set up and run <a class="reference internal" href="../modules/sbm.html#module-single_bubble_model" title="single_bubble_model"><tt class="xref py py-obj docutils literal"><span class="pre">single_bubble_model</span></tt></a> simulations. Further examples are
+presented in the following scripts distributed in the <tt class="docutils literal"><span class="pre">./bin/sbm</span></tt> directory
+with the source code.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../scripts/sbm/bubble.html">bubble</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts/sbm/drop.html">drop</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts/sbm/particle.html">particle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts/sbm/sbm_file_io.html">sbm_file_io</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p>This example illustrates the tasks necessary to setup, run, save, and
+post-process simulations using the <a class="reference internal" href="../modules/sbm.html#module-single_bubble_model" title="single_bubble_model"><tt class="xref py py-obj docutils literal"><span class="pre">single_bubble_model</span></tt></a> module.  A wide
+class of bubble, droplet, or particle compositions and initial conditions
+can be simulated by the <a class="reference internal" href="../modules/sbm.html#module-single_bubble_model" title="single_bubble_model"><tt class="xref py py-obj docutils literal"><span class="pre">single_bubble_model</span></tt></a>.  In each case, the simulation
+considers the rise velocity, dissolution, and heat transfer of a single
+particle assuming it rises through a quiescent fluid.  This model cannot
+consider multiple particle (run multiple simulations to get the results
+for each desired particle type) and, thus, includes no particle-particle
+interaction.</p>
+<div class="section" id="initialize-the-single-bubble-model-model-object">
+<h3>Initialize the <a class="reference internal" href="single_bubble_model.Model.html#single_bubble_model.Model" title="single_bubble_model.Model"><tt class="xref py py-obj docutils literal"><span class="pre">single_bubble_model.Model</span></tt></a> Object<a class="headerlink" href="#initialize-the-single-bubble-model-model-object" title="Permalink to this headline">¶</a></h3>
+<p>There are two ways to initialize a <a class="reference internal" href="../modules/sbm.html#module-single_bubble_model" title="single_bubble_model"><tt class="xref py py-obj docutils literal"><span class="pre">single_bubble_model</span></tt></a> object. When a new
+simulation will be made, this should be done by specifying the ambient
+conditions data that will be used in the simulation. Alternatively, if a
+previous simulation is to be reloaded for post-processing, then the filename
+of the netCDF dataset containing the results is used to initialize the object.
+Here, we use the profile data. In a later section of this example, once the
+simulation data have been save, the second method of using the saved data to
+create the <a class="reference internal" href="single_bubble_model.Model.html#single_bubble_model.Model" title="single_bubble_model.Model"><tt class="xref py py-obj docutils literal"><span class="pre">single_bubble_model.Model</span></tt></a> object is demonstrated:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">ambient</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">single_bubble_model</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nc</span> <span class="o">=</span> <span class="s">&#39;.test/output/test_bm54.nc&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bm54</span> <span class="o">=</span> <span class="n">ambient</span><span class="o">.</span><span class="n">Profile</span><span class="p">(</span><span class="n">nc</span><span class="p">,</span> <span class="n">chem_names</span><span class="o">=</span><span class="s">&#39;all&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bm54</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sbm</span> <span class="o">=</span> <span class="n">single_bubble_model</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">profile</span><span class="o">=</span><span class="n">bm54</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="setup-and-run-a-simulation">
+<h3>Setup and Run a Simulation<a class="headerlink" href="#setup-and-run-a-simulation" title="Permalink to this headline">¶</a></h3>
+<p>To run a simulation, one must pass the initial conditions to the
+<em class="xref py py-obj">single_bubble_model.simulate</em> method.  Here, we specify the initial
+conditions as:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">composition</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;methane&#39;</span><span class="p">,</span> <span class="s">&#39;oxygen&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mol_frac</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">de</span> <span class="o">=</span> <span class="mf">0.005</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">z0</span> <span class="o">=</span> <span class="mf">1500.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">T0</span> <span class="o">=</span> <span class="bp">None</span>       <span class="c"># T0 will be set equal to the ambient temperature</span>
+</pre></div>
+</div>
+<p>The <a class="reference internal" href="../modules/sbm.html#module-single_bubble_model" title="single_bubble_model"><tt class="xref py py-obj docutils literal"><span class="pre">single_bubble_model</span></tt></a> expects the particle information to be passed
+as a <a class="reference internal" href="../modules/dbm.html#dbm.FluidParticle" title="dbm.FluidParticle"><tt class="xref py py-obj docutils literal"><span class="pre">dbm.FluidParticle</span></tt></a> or <a class="reference internal" href="../modules/dbm.html#dbm.InsolubleParticle" title="dbm.InsolubleParticle"><tt class="xref py py-obj docutils literal"><span class="pre">dbm.InsolubleParticle</span></tt></a> object.  Create a soluble
+particle for this example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">dbm</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bub</span> <span class="o">=</span> <span class="n">dbm</span><span class="o">.</span><span class="n">FluidParticle</span><span class="p">(</span><span class="n">composition</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The <a class="reference internal" href="../modules/sbm.html#module-single_bubble_model" title="single_bubble_model"><tt class="xref py py-obj docutils literal"><span class="pre">single_bubble_model</span></tt></a> handles the conversion from initial diameter to
+the initial masses, so we can now run the simulation:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">sbm</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">bub</span><span class="p">,</span> <span class="n">z0</span><span class="p">,</span> <span class="n">de</span><span class="p">,</span> <span class="n">mol_frac</span><span class="p">,</span> <span class="n">T0</span><span class="p">,</span> <span class="n">fdis</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span> <span class="n">delta_t</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>After executing the above command, the model will echo its progress to the
+screen.  Following the simulation, the data will be plotted showing the
+state space variables and several other derived quantities in three different
+figure windows.</p>
+</div>
+<div class="section" id="saving-and-loading-simulation-results">
+<h3>Saving and Loading Simulation Results<a class="headerlink" href="#saving-and-loading-simulation-results" title="Permalink to this headline">¶</a></h3>
+<p>To save the simulation results in a netCDF dataset file that can also be used
+to recreate the current <a class="reference internal" href="single_bubble_model.Model.html#single_bubble_model.Model" title="single_bubble_model.Model"><tt class="xref py py-obj docutils literal"><span class="pre">single_bubble_model.Model</span></tt></a> object, use the
+<em class="xref py py-obj">single_bubble_model.save_sim</em> method:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">nc_file</span> <span class="o">=</span> <span class="s">&#39;./sims/bubble_path.nc&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">profile</span> <span class="o">=</span> <span class="s">&#39;./test/output/test_bm54.nc&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sim_info</span> <span class="o">=</span> <span class="s">&#39;Sample results from the documentation examples&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sbm</span><span class="o">.</span><span class="n">save_sim</span><span class="p">(</span><span class="n">nc_file</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">sim_info</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The data can also be saved as <tt class="docutils literal"><span class="pre">ASCII</span></tt> text in a format that is readable by,
+for example, Matlab.  If <tt class="xref py py-obj docutils literal"><span class="pre">numpy</span></tt> version 1.7.0 is used, a header with the
+file metadata can be written; otherwise, only the data table can be written.
+In either case, the function call is the same:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">sbm</span><span class="o">.</span><span class="n">save_txt</span><span class="p">(</span><span class="n">nc_file</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">sim_info</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If the netCDF dataset object is used, this can be used later to reload the
+simulation into the <a class="reference internal" href="single_bubble_model.Model.html#single_bubble_model.Model" title="single_bubble_model.Model"><tt class="xref py py-obj docutils literal"><span class="pre">single_bubble_model.Model</span></tt></a> object.  Since the netCDF
+dataset is self-documenting, this can be done simply by passing the file
+name of the netCDF dataset to the <a class="reference internal" href="single_bubble_model.Model.html#single_bubble_model.Model" title="single_bubble_model.Model"><tt class="xref py py-obj docutils literal"><span class="pre">single_bubble_model.Model</span></tt></a> constructor:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">sbm_old</span> <span class="o">=</span> <span class="n">single_bubble_model</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s">&#39;./sims/bubble_path.nc&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../contents.html">
+              <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../contents.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Single Bubble Model Users Guide</a><ul>
+<li><a class="reference internal" href="#scripts">Scripts</a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#examples">Examples</a><ul>
+<li><a class="reference internal" href="#initialize-the-single-bubble-model-model-object">Initialize the <tt class="docutils literal"><span class="pre">single_bubble_model.Model</span></tt> Object</a></li>
+<li><a class="reference internal" href="#setup-and-run-a-simulation">Setup and Run a Simulation</a></li>
+<li><a class="reference internal" href="#saving-and-loading-simulation-results">Saving and Loading Simulation Results</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../seawater/guide.html"
+                        title="previous chapter">Seawater Module Users Guide</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../scripts/sbm/bubble.html"
+                        title="next chapter">bubble</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/sbm/guide.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<ul class="this-page-menu">
+  <li><a href="/numpy/docs/numpy-docs/sbm/guide.rst">Edit page</a></li>
+</ul>
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../scripts/sbm/bubble.html" title="bubble"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../seawater/guide.html" title="Seawater Module Users Guide"
+             >previous</a> |</li>
+<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+ 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Scott A. Socolofsky.
+      Last updated on Sep 11, 2013.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,997 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Overview of Stratified Plume Model Module &mdash; Texas A&amp;M Oilspill Calculator v0.1 Manual</title>
+    
+    <link rel="stylesheet" href="../_static/scipy.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../index.html" />
+    <link rel="up" title="Reference" href="reference.html" />
+    <link rel="prev" title="single_bubble_model.plot_state_space" href="../sbm/single_bubble_model.plot_state_space.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../sbm/single_bubble_model.plot_state_space.html" title="single_bubble_model.plot_state_space"
+             accesskey="P">previous</a> |</li>
+<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+
+          <li><a href="reference.html" accesskey="U">Reference</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="overview-of-stratified-plume-model-module">
+<h1>Overview of Stratified Plume Model Module<a class="headerlink" href="#overview-of-stratified-plume-model-module" title="Permalink to this headline">¶</a></h1>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">September 19, 2013</td>
+</tr>
+</tbody>
+</table>
+<span class="target" id="module-stratified_plume_model"></span><div class="section" id="stratified-plume-model">
+<h2>Stratified Plume Model<a class="headerlink" href="#stratified-plume-model" title="Permalink to this headline">¶</a></h2>
+<p>Simulate a buoyant plume in stratification dominate or quiescent conditions</p>
+<p>This module defines the classes, methods, and functions necessary to simulate
+the buoyant plume behavior in stratification dominant conditions, where the
+effects of crossflows are negligible. The ambient water properties are
+provided through an <a class="reference internal" href="ambient.html#ambient.Profile" title="ambient.Profile"><tt class="xref py py-obj docutils literal"><span class="pre">ambient.Profile</span></tt></a> class object, which contains a
+netCDF4-classic dataset of CTD data and the needed interpolation methods. The
+<a class="reference internal" href="dbm.html#module-dbm" title="dbm"><tt class="xref py py-obj docutils literal"><span class="pre">dbm</span></tt></a> class objects <a class="reference internal" href="dbm.html#dbm.FluidParticle" title="dbm.FluidParticle"><tt class="xref py py-obj docutils literal"><span class="pre">dbm.FluidParticle</span></tt></a> and <a class="reference internal" href="dbm.html#dbm.InsolubleParticle" title="dbm.InsolubleParticle"><tt class="xref py py-obj docutils literal"><span class="pre">dbm.InsolubleParticle</span></tt></a> report the
+properties of the dispersed phase during the simulation.</p>
+<div class="section" id="notes">
+<h3>Notes<a class="headerlink" href="#notes" title="Permalink to this headline">¶</a></h3>
+<p>This model is a double plume integral model following the approach in
+Socolofsky et al. (2008), but including the capability to have an arbitrary
+number of dispersed phases, each with its own particle size distribution.</p>
+<p>Detrainment to for subsurface intrusions follows the approach in Crounse
+(2000).</p>
+</div>
+<div class="section" id="see-also">
+<h3>See Also<a class="headerlink" href="#see-also" title="Permalink to this headline">¶</a></h3>
+<dl class="docutils">
+<dt><a class="reference internal" href="sbm.html#module-single_bubble_model" title="single_bubble_model"><tt class="xref py py-obj docutils literal"><span class="pre">single_bubble_model</span></tt></a> <span class="classifier-delimiter">:</span> <span class="classifier">Tracks the trajectory of a single bubble, drop or </span></dt>
+<dd>particle through the water column.  The numerical solution, including
+the various object types and their functionality, used here follows the
+pattern in the <a class="reference internal" href="sbm.html#module-single_bubble_model" title="single_bubble_model"><tt class="xref py py-obj docutils literal"><span class="pre">single_bubble_model</span></tt></a>.  The main difference is the more
+complex state space and governing equations.</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="class-objects">
+<h2>Class Objects<a class="headerlink" href="#class-objects" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="stratified_plume_model.Model">
+<em class="property">class </em><tt class="descclassname">stratified_plume_model.</tt><tt class="descname">Model</tt><big>(</big><em>profile=None</em>, <em>simfile=None</em><big>)</big><a class="reference internal" href="../_modules/stratified_plume_model.html#Model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stratified_plume_model.Model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Master class object for controlling and post-processing the simulation</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>profile</strong> : <a class="reference internal" href="ambient.html#ambient.Profile" title="ambient.Profile"><tt class="xref py py-obj docutils literal"><span class="pre">ambient.Profile</span></tt></a> object, default = None</p>
+<blockquote>
+<div><p>An object containing the ambient CTD data and associated methods.  
+The netCDF dataset stored in the <a class="reference internal" href="ambient.html#ambient.Profile" title="ambient.Profile"><tt class="xref py py-obj docutils literal"><span class="pre">ambient.Profile</span></tt></a> object may be open 
+or closed at instantiation.  If open, the initializer will close the 
+file since this model does not support changing the ambient data once 
+initialized.</p>
+</div></blockquote>
+<p><strong>simfile: str, default = None</strong> :</p>
+<blockquote class="last">
+<div><p>File name of a netCDF file containing the results of a previous 
+simulation run.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition-see-also admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="../spm/stratified_plume_model.Model.simulate.html#stratified_plume_model.Model.simulate" title="stratified_plume_model.Model.simulate"><tt class="xref py py-obj docutils literal"><span class="pre">simulate</span></tt></a>, <a class="reference internal" href="../spm/stratified_plume_model.Model.save_sim.html#stratified_plume_model.Model.save_sim" title="stratified_plume_model.Model.save_sim"><tt class="xref py py-obj docutils literal"><span class="pre">save_sim</span></tt></a>, <a class="reference internal" href="../spm/stratified_plume_model.Model.load_sim.html#stratified_plume_model.Model.load_sim" title="stratified_plume_model.Model.load_sim"><tt class="xref py py-obj docutils literal"><span class="pre">load_sim</span></tt></a></p>
+</div>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="11%" />
+<col width="18%" />
+<col width="71%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>profile</td>
+<td><a class="reference internal" href="ambient.html#ambient.Profile" title="ambient.Profile"><tt class="xref py py-obj docutils literal"><span class="pre">ambient.Profile</span></tt></a></td>
+<td>Ambient CTD data</td>
+</tr>
+<tr class="row-even"><td>p</td>
+<td><a class="reference internal" href="../spm/stratified_plume_model.ModelParams.html#stratified_plume_model.ModelParams" title="stratified_plume_model.ModelParams"><tt class="xref py py-obj docutils literal"><span class="pre">ModelParams</span></tt></a></td>
+<td>Container for the fixed model parameters</td>
+</tr>
+<tr class="row-odd"><td>sim_stored</td>
+<td>bool</td>
+<td>Flag indicating whether or not a simulation result is stored in the
+object memory</td>
+</tr>
+<tr class="row-even"><td>particles</td>
+<td>list</td>
+<td>List of <a class="reference internal" href="../spm/stratified_plume_model.Particle.html#stratified_plume_model.Particle" title="stratified_plume_model.Particle"><tt class="xref py py-obj docutils literal"><span class="pre">Particle</span></tt></a> objects describing each dispersed phase in the
+simulation</td>
+</tr>
+<tr class="row-odd"><td>np</td>
+<td>int</td>
+<td>Number of dispersed phase <a class="reference internal" href="../spm/stratified_plume_model.Particle.html#stratified_plume_model.Particle" title="stratified_plume_model.Particle"><tt class="xref py py-obj docutils literal"><span class="pre">Particle</span></tt></a> objects</td>
+</tr>
+<tr class="row-even"><td>z</td>
+<td>float</td>
+<td>Release depth (m)</td>
+</tr>
+<tr class="row-odd"><td>R</td>
+<td>float</td>
+<td>Radius of the release point (m)</td>
+</tr>
+<tr class="row-even"><td>delta_z</td>
+<td>float</td>
+<td>Maximum step size to take in the storage of the simulation solution
+(m)</td>
+</tr>
+<tr class="row-odd"><td>z0</td>
+<td>float</td>
+<td>Depth location of the starting point of the plume solution (m)</td>
+</tr>
+<tr class="row-even"><td>y0</td>
+<td>ndarray</td>
+<td>Initial values of the inner plume state space</td>
+</tr>
+<tr class="row-odd"><td>chem_names</td>
+<td>list</td>
+<td>List of chemical parameters to track for the dissolution</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="../spm/stratified_plume_model.Model.load_sim.html#stratified_plume_model.Model.load_sim" title="stratified_plume_model.Model.load_sim"><tt class="xref py py-obj docutils literal"><span class="pre">load_sim</span></tt></a>(fname)</td>
+<td>Load in a saved simulation result file for post-processing</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../spm/stratified_plume_model.Model.plot_all_variables.html#stratified_plume_model.Model.plot_all_variables" title="stratified_plume_model.Model.plot_all_variables"><tt class="xref py py-obj docutils literal"><span class="pre">plot_all_variables</span></tt></a>(fig)</td>
+<td>Here is some text for the manual.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="../spm/stratified_plume_model.Model.plot_state_space.html#stratified_plume_model.Model.plot_state_space" title="stratified_plume_model.Model.plot_state_space"><tt class="xref py py-obj docutils literal"><span class="pre">plot_state_space</span></tt></a>(fig)</td>
+<td>Plot the simulation state space</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../spm/stratified_plume_model.Model.save_sim.html#stratified_plume_model.Model.save_sim" title="stratified_plume_model.Model.save_sim"><tt class="xref py py-obj docutils literal"><span class="pre">save_sim</span></tt></a>(fname,&nbsp;profile_path,&nbsp;profile_info)</td>
+<td>Save the current simulation results</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="../spm/stratified_plume_model.Model.save_txt.html#stratified_plume_model.Model.save_txt" title="stratified_plume_model.Model.save_txt"><tt class="xref py py-obj docutils literal"><span class="pre">save_txt</span></tt></a>(base_name,&nbsp;profile_path,&nbsp;profile_info)</td>
+<td>Save the state space in ascii text format for exporting</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../spm/stratified_plume_model.Model.simulate.html#stratified_plume_model.Model.simulate" title="stratified_plume_model.Model.simulate"><tt class="xref py py-obj docutils literal"><span class="pre">simulate</span></tt></a>(particles,&nbsp;z,&nbsp;R[,&nbsp;maxit,&nbsp;toler,&nbsp;...])</td>
+<td>Simulate the plume dynamics from given initial conditions</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="stratified_plume_model.ModelParams">
+<em class="property">class </em><tt class="descclassname">stratified_plume_model.</tt><tt class="descname">ModelParams</tt><big>(</big><em>profile</em><big>)</big><a class="reference internal" href="../_modules/stratified_plume_model.html#ModelParams"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stratified_plume_model.ModelParams" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fixed model parameters for the stratified plume model</p>
+<p>This class stores the set of model parameters that should not be adjusted
+by the user and that are needed by the stratified plume model.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>profile</strong> : <a class="reference internal" href="ambient.html#ambient.Profile" title="ambient.Profile"><tt class="xref py py-obj docutils literal"><span class="pre">ambient.Profile</span></tt></a> object</p>
+<blockquote class="last">
+<div><p>The ambient CTD object used by the simulation.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>This object inherits the <a class="reference internal" href="../sbm/single_bubble_model.ModelParams.html#single_bubble_model.ModelParams" title="single_bubble_model.ModelParams"><tt class="xref py py-obj docutils literal"><span class="pre">single_bubble_model.ModelParams</span></tt></a> object, which
+defines the attribute <em class="xref py py-obj">rho_r</em>.</p>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="6%" />
+<col width="84%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>rho_r</td>
+<td>float</td>
+<td>Reference density (kg/m^3) evaluated at mid-depth of the water body.</td>
+</tr>
+<tr class="row-even"><td>alpha_1</td>
+<td>float</td>
+<td>entrainment coefficient from the ambient fluid to the inner plume</td>
+</tr>
+<tr class="row-odd"><td>alpha_2</td>
+<td>float</td>
+<td>entrainment coefficient from the inner plume to the outer plume</td>
+</tr>
+<tr class="row-even"><td>alpha_3</td>
+<td>float</td>
+<td>entrainment coefficient from the ambient fluid to the outer plume</td>
+</tr>
+<tr class="row-odd"><td>lambda_2</td>
+<td>float</td>
+<td>spreading rate of dissolved constituents</td>
+</tr>
+<tr class="row-even"><td>epsilon</td>
+<td>float</td>
+<td>continuous peeling parameter (see Crounse 2000)</td>
+</tr>
+<tr class="row-odd"><td>c1</td>
+<td>float</td>
+<td>coefficient for counterflow entrainment model</td>
+</tr>
+<tr class="row-even"><td>c2</td>
+<td>float</td>
+<td>coefficient for counterflow entrainment model</td>
+</tr>
+<tr class="row-odd"><td>fe</td>
+<td>float</td>
+<td>extra entrainment factor when the inner plume hits the free
+surface</td>
+</tr>
+<tr class="row-even"><td>gamma_i</td>
+<td>float</td>
+<td>momentum amplification factor for inner plume (see Milgram 1983)</td>
+</tr>
+<tr class="row-odd"><td>gamma_o</td>
+<td>float</td>
+<td>momentum amplification factor for outer plume</td>
+</tr>
+<tr class="row-even"><td>Fr_0</td>
+<td>float</td>
+<td>initial plume Froude number (see Wueest et al. 1992)</td>
+</tr>
+<tr class="row-odd"><td>Fro_0</td>
+<td>float</td>
+<td>initial plume Froude number for outer plume segments</td>
+</tr>
+<tr class="row-even"><td>nwidths</td>
+<td>float</td>
+<td>average size of detraining eddies as a fraction of the plume
+half-width</td>
+</tr>
+<tr class="row-odd"><td>naverage</td>
+<td>float</td>
+<td>number of previous outer plume solutions to average</td>
+</tr>
+<tr class="row-even"><td>g</td>
+<td>float</td>
+<td>acceleration of gravity (m/s^2)</td>
+</tr>
+<tr class="row-odd"><td>Ru</td>
+<td>float</td>
+<td>universal ideal gas constant (J/(kg K))</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="stratified_plume_model.Particle">
+<em class="property">class </em><tt class="descclassname">stratified_plume_model.</tt><tt class="descname">Particle</tt><big>(</big><em>dbm_particle</em>, <em>m0</em>, <em>T0</em>, <em>nb0</em>, <em>lambda_1</em>, <em>P</em>, <em>Sa</em>, <em>Ta</em>, <em>K=1.0</em>, <em>K_T=1.0</em>, <em>fdis=1e-06</em><big>)</big><a class="reference internal" href="../_modules/stratified_plume_model.html#Particle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stratified_plume_model.Particle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Interface to the <a class="reference internal" href="dbm.html#module-dbm" title="dbm"><tt class="xref py py-obj docutils literal"><span class="pre">dbm</span></tt></a> module and container for the model parameters</p>
+<p>As in the <a class="reference internal" href="../sbm/single_bubble_model.Particle.html#single_bubble_model.Particle" title="single_bubble_model.Particle"><tt class="xref py py-obj docutils literal"><span class="pre">single_bubble_model.Particle</span></tt></a> class, this object provides a
+uniform interface to the <a class="reference internal" href="dbm.html#module-dbm" title="dbm"><tt class="xref py py-obj docutils literal"><span class="pre">dbm</span></tt></a> module objects and captures the 
+particle-specific model parameters.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>dbm_particle</strong> : <a class="reference internal" href="dbm.html#dbm.FluidParticle" title="dbm.FluidParticle"><tt class="xref py py-obj docutils literal"><span class="pre">dbm.FluidParticle</span></tt></a> or <a class="reference internal" href="dbm.html#dbm.InsolubleParticle" title="dbm.InsolubleParticle"><tt class="xref py py-obj docutils literal"><span class="pre">dbm.InsolubleParticle</span></tt></a> object</p>
+<blockquote>
+<div><p>Object describing the particle properties and behavior</p>
+</div></blockquote>
+<p><strong>m0</strong> : ndarray</p>
+<blockquote>
+<div><p>Initial masses of the components of the <a class="reference internal" href="dbm.html#module-dbm" title="dbm"><tt class="xref py py-obj docutils literal"><span class="pre">dbm</span></tt></a> particle object (kg)</p>
+</div></blockquote>
+<p><strong>T0</strong> : float</p>
+<blockquote>
+<div><p>Initial temperature of the of <a class="reference internal" href="dbm.html#module-dbm" title="dbm"><tt class="xref py py-obj docutils literal"><span class="pre">dbm</span></tt></a> particle object (K)</p>
+</div></blockquote>
+<p><strong>nb0</strong> : float</p>
+<blockquote>
+<div><p>Initial number flux of particles at the release (&#8211;)</p>
+</div></blockquote>
+<p><strong>K</strong> : float, default = 1.</p>
+<blockquote>
+<div><p>Mass transfer reduction factor (&#8211;).</p>
+</div></blockquote>
+<p><strong>K_T</strong> : float, default = 1.</p>
+<blockquote>
+<div><p>Heat transfer reduction factor (&#8211;).</p>
+</div></blockquote>
+<p><strong>fdis</strong> : float, default = 0.01</p>
+<blockquote>
+<div><p>Fraction of the initial total mass (&#8211;) remaining when the particle 
+should be considered dissolved.</p>
+</div></blockquote>
+<p><strong>lambda_1</strong> : float</p>
+<blockquote>
+<div><p>spreading rate of the dispersed phase in a plume (&#8211;)</p>
+</div></blockquote>
+<p><strong>P</strong> : float</p>
+<blockquote>
+<div><p>Local pressure (Pa)</p>
+</div></blockquote>
+<p><strong>Sa</strong> : float</p>
+<blockquote>
+<div><p>Local salinity surrounding the particle (psu)</p>
+</div></blockquote>
+<p><strong>Ta</strong> : float</p>
+<blockquote class="last">
+<div><p>Local temperature surrounding the particle (K)</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition-see-also admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="../sbm/single_bubble_model.Particle.html#single_bubble_model.Particle" title="single_bubble_model.Particle"><tt class="xref py py-obj docutils literal"><span class="pre">single_bubble_model.Particle</span></tt></a></p>
+</div>
+<p class="rubric">Notes</p>
+<p>This object inherits the <a class="reference internal" href="../sbm/single_bubble_model.Particle.html#single_bubble_model.Particle" title="single_bubble_model.Particle"><tt class="xref py py-obj docutils literal"><span class="pre">single_bubble_model.Particle</span></tt></a> object, which
+defines the attributes: <a class="reference internal" href="../scripts/sbm/particle.html#module-particle" title="particle"><tt class="xref py py-obj docutils literal"><span class="pre">particle</span></tt></a>, <em class="xref py py-obj">composition</em>, <em class="xref py py-obj">m0</em>, <em class="xref py py-obj">T0</em>, <em class="xref py py-obj">cp</em>, 
+<em class="xref py py-obj">K</em>, <em class="xref py py-obj">K_T</em>, <em class="xref py py-obj">fdis</em>, and <em class="xref py py-obj">diss_indices</em> and the methods
+<a class="reference internal" href="../sbm/single_bubble_model.Particle.properties.html#single_bubble_model.Particle.properties" title="single_bubble_model.Particle.properties"><tt class="xref py py-obj docutils literal"><span class="pre">single_bubble_model.Particle.properties</span></tt></a>, and 
+<a class="reference internal" href="../sbm/single_bubble_model.Particle.diameter.html#single_bubble_model.Particle.diameter" title="single_bubble_model.Particle.diameter"><tt class="xref py py-obj docutils literal"><span class="pre">single_bubble_model.Particle.diameter</span></tt></a>.</p>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="9%" />
+<col width="41%" />
+<col width="50%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>particle</td>
+<td><a class="reference internal" href="dbm.html#dbm.FluidParticle" title="dbm.FluidParticle"><tt class="xref py py-obj docutils literal"><span class="pre">dbm.FluidParticle</span></tt></a> or <a class="reference internal" href="dbm.html#dbm.InsolubleParticle" title="dbm.InsolubleParticle"><tt class="xref py py-obj docutils literal"><span class="pre">dbm.InsolubleParticle</span></tt></a> object</td>
+<td>Stores the <em class="xref py py-obj">dbm_particle</em> object passed to <em class="xref py py-obj">__init__()</em>.</td>
+</tr>
+<tr class="row-even"><td>composition</td>
+<td>str list</td>
+<td>Copy of the <em class="xref py py-obj">composition</em> attribute of the <em class="xref py py-obj">dbm_particle</em> object.</td>
+</tr>
+<tr class="row-odd"><td>m0</td>
+<td>ndarray</td>
+<td>Initial masses (kg) of the particle components</td>
+</tr>
+<tr class="row-even"><td>T0</td>
+<td>float</td>
+<td>Initial temperature (K) of the particle</td>
+</tr>
+<tr class="row-odd"><td>cp</td>
+<td>float</td>
+<td>Heat capacity at constant pressure (J/(kg K)) of the particle.</td>
+</tr>
+<tr class="row-even"><td>K</td>
+<td>float</td>
+<td>Mass transfer reduction factor (&#8211;)</td>
+</tr>
+<tr class="row-odd"><td>K_T</td>
+<td>float</td>
+<td>Heat transfer reduction factor (&#8211;)</td>
+</tr>
+<tr class="row-even"><td>fdis</td>
+<td>float</td>
+<td>Fraction of initial mass remaining as total dissolution (&#8211;)</td>
+</tr>
+<tr class="row-odd"><td>diss_indices</td>
+<td>ndarray bool</td>
+<td>Indices of m0 that are non-zero.</td>
+</tr>
+<tr class="row-even"><td>nb0</td>
+<td>float</td>
+<td>Initial number flux of particles at the release (&#8211;)</td>
+</tr>
+<tr class="row-odd"><td>lambda_1</td>
+<td>float</td>
+<td>Spreading rate of the dispersed phase in a plume (&#8211;)</td>
+</tr>
+<tr class="row-even"><td>m</td>
+<td>ndarray</td>
+<td>Current masses of the particle components (kg)</td>
+</tr>
+<tr class="row-odd"><td>T</td>
+<td>float</td>
+<td>Current temperature of the particle (K)</td>
+</tr>
+<tr class="row-even"><td>us</td>
+<td>float</td>
+<td>Slip velocity (m/s)</td>
+</tr>
+<tr class="row-odd"><td>rho_p</td>
+<td>float</td>
+<td>Particle density (kg/m^3)</td>
+</tr>
+<tr class="row-even"><td>A</td>
+<td>float</td>
+<td>Particle surface area (m^2)</td>
+</tr>
+<tr class="row-odd"><td>Cs</td>
+<td>ndarray</td>
+<td>Solubility of each dissolving component in the particle (kg/m^3)</td>
+</tr>
+<tr class="row-even"><td>beta</td>
+<td>ndarray</td>
+<td>Mass transfer coefficients (m/s)</td>
+</tr>
+<tr class="row-odd"><td>beta_T</td>
+<td>float</td>
+<td>Heat transfer coefficient (m/s)</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="../spm/stratified_plume_model.Particle.diameter.html#stratified_plume_model.Particle.diameter" title="stratified_plume_model.Particle.diameter"><tt class="xref py py-obj docutils literal"><span class="pre">diameter</span></tt></a>(m,&nbsp;T,&nbsp;P,&nbsp;Sa,&nbsp;Ta)</td>
+<td>Compute the diameter of a particle from mass and density</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../spm/stratified_plume_model.Particle.properties.html#stratified_plume_model.Particle.properties" title="stratified_plume_model.Particle.properties"><tt class="xref py py-obj docutils literal"><span class="pre">properties</span></tt></a>(m,&nbsp;T,&nbsp;P,&nbsp;Sa,&nbsp;Ta)</td>
+<td>Return the particle properties from the discrete bubble model</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="../spm/stratified_plume_model.Particle.update.html#stratified_plume_model.Particle.update" title="stratified_plume_model.Particle.update"><tt class="xref py py-obj docutils literal"><span class="pre">update</span></tt></a>(m,&nbsp;T,&nbsp;P,&nbsp;Sa,&nbsp;Ta)</td>
+<td>Store the instantaneous values of the particle properties</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="stratified_plume_model.InnerPlume">
+<em class="property">class </em><tt class="descclassname">stratified_plume_model.</tt><tt class="descname">InnerPlume</tt><big>(</big><em>z0</em>, <em>y0</em>, <em>profile</em>, <em>particles</em>, <em>p</em>, <em>chem_names</em><big>)</big><a class="reference internal" href="../_modules/stratified_plume_model.html#InnerPlume"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stratified_plume_model.InnerPlume" title="Permalink to this definition">¶</a></dt>
+<dd><p>Manages the inner plume state space and derived variables</p>
+<p>Manages storage and calculation of the derived variables for the inner
+plume as a function of the state space.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>z0</strong> : float</p>
+<blockquote>
+<div><p>Starting depth (m) of the inner plume</p>
+</div></blockquote>
+<p><strong>y0</strong> : ndarray</p>
+<blockquote>
+<div><p>Initial conditions for the inner plume.</p>
+</div></blockquote>
+<p><strong>profile</strong> : <a class="reference internal" href="ambient.html#ambient.Profile" title="ambient.Profile"><tt class="xref py py-obj docutils literal"><span class="pre">ambient.Profile</span></tt></a> object</p>
+<blockquote>
+<div><p>The ambient CTD object used by the simulation.</p>
+</div></blockquote>
+<p><strong>particles</strong> : list of <a class="reference internal" href="../spm/stratified_plume_model.Particle.html#stratified_plume_model.Particle" title="stratified_plume_model.Particle"><tt class="xref py py-obj docutils literal"><span class="pre">Particle</span></tt></a> objects</p>
+<blockquote>
+<div><p>List of <a class="reference internal" href="../spm/stratified_plume_model.Particle.html#stratified_plume_model.Particle" title="stratified_plume_model.Particle"><tt class="xref py py-obj docutils literal"><span class="pre">Particle</span></tt></a> objects containing the dispersed phase local
+conditions and behavior.</p>
+</div></blockquote>
+<p><strong>p</strong> : <a class="reference internal" href="../spm/stratified_plume_model.ModelParams.html#stratified_plume_model.ModelParams" title="stratified_plume_model.ModelParams"><tt class="xref py py-obj docutils literal"><span class="pre">ModelParams</span></tt></a> object</p>
+<blockquote>
+<div><p>Object containing the fixed model parameters for the stratified 
+plume model.</p>
+</div></blockquote>
+<p><strong>chem_names</strong> : str list</p>
+<blockquote class="last">
+<div><p>List of chemical names to track for the dissolution.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="11%" />
+<col width="17%" />
+<col width="72%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>z0</td>
+<td>float</td>
+<td>Starting depth (m) of the inner plume</td>
+</tr>
+<tr class="row-even"><td>y0</td>
+<td>ndarray</td>
+<td>Initial conditions for the inner plume</td>
+</tr>
+<tr class="row-odd"><td>chem_names</td>
+<td>str lit</td>
+<td>List of chemical names to track for the dissolution</td>
+</tr>
+<tr class="row-even"><td>len</td>
+<td>int</td>
+<td>Number of variables in the state space vector y</td>
+</tr>
+<tr class="row-odd"><td>nchems</td>
+<td>int</td>
+<td>Number of chemical names to track for the dissolution</td>
+</tr>
+<tr class="row-even"><td>np</td>
+<td>int</td>
+<td>Number of dispersed phase particle objects</td>
+</tr>
+<tr class="row-odd"><td>z</td>
+<td>float</td>
+<td>Current value of the depth (m)</td>
+</tr>
+<tr class="row-even"><td>y</td>
+<td>ndarray</td>
+<td>Current value of the state space vector</td>
+</tr>
+<tr class="row-odd"><td>Q</td>
+<td>float</td>
+<td>Continuous phase volume flux (m^3/s)</td>
+</tr>
+<tr class="row-even"><td>J</td>
+<td>float</td>
+<td>Continuous phase kinematic momentum flux (m^4/s^2)</td>
+</tr>
+<tr class="row-odd"><td>S</td>
+<td>float</td>
+<td>Plume salinity flux (psu m^3/s)</td>
+</tr>
+<tr class="row-even"><td>H</td>
+<td>float</td>
+<td>Continuous phase heat flux (J/s)</td>
+</tr>
+<tr class="row-odd"><td>M_p</td>
+<td>dict of ndarrays</td>
+<td>For integer key: the total mass fluxes (kg/s) of each component in a
+particle.</td>
+</tr>
+<tr class="row-even"><td>H_p</td>
+<td>ndarray</td>
+<td>Total heat flux for each particle (J/s)</td>
+</tr>
+<tr class="row-odd"><td>C</td>
+<td>ndarray</td>
+<td>Mass flux of dissolved components (kg/s)</td>
+</tr>
+<tr class="row-even"><td>Ta</td>
+<td>float</td>
+<td>Ambient temperature outside the plume (K)</td>
+</tr>
+<tr class="row-odd"><td>Sa</td>
+<td>float</td>
+<td>Ambient salinity outside the plume (psu)</td>
+</tr>
+<tr class="row-even"><td>P</td>
+<td>float</td>
+<td>Local pressure (Pa)</td>
+</tr>
+<tr class="row-odd"><td>rho_a</td>
+<td>float</td>
+<td>Ambient density outside the plume (kg/m^3)</td>
+</tr>
+<tr class="row-even"><td>ca</td>
+<td>ndarray</td>
+<td>Ambient concentrations outside the plume (kg/m^3)</td>
+</tr>
+<tr class="row-odd"><td>u</td>
+<td>float</td>
+<td>Velocity of the continuous phase fluid (m/s)</td>
+</tr>
+<tr class="row-even"><td>b</td>
+<td>float</td>
+<td>Plume half-width (m)</td>
+</tr>
+<tr class="row-odd"><td>s</td>
+<td>float</td>
+<td>Salinity of the plume fluid (psu)</td>
+</tr>
+<tr class="row-even"><td>T</td>
+<td>float</td>
+<td>Temperature of the plume fluid (K)</td>
+</tr>
+<tr class="row-odd"><td>c</td>
+<td>ndarray</td>
+<td>Concentrations of the dissolved components in the plume fluid
+(kg/m^3)</td>
+</tr>
+<tr class="row-even"><td>rho</td>
+<td>float</td>
+<td>Density of the continuous phase inside the plume (kg/m^3)</td>
+</tr>
+<tr class="row-odd"><td>xi</td>
+<td>ndarray</td>
+<td>Void fraction of each particle object (&#8211;)</td>
+</tr>
+<tr class="row-even"><td>fb</td>
+<td>ndarray</td>
+<td>Buoyant force of each particle object (kg/m^3)</td>
+</tr>
+<tr class="row-odd"><td>Xi</td>
+<td>float</td>
+<td>Total void fraction in the plume (&#8211;)</td>
+</tr>
+<tr class="row-even"><td>Fb</td>
+<td>float</td>
+<td>Total buoyant force of all particles in the plume (??)</td>
+</tr>
+<tr class="row-odd"><td>Ep</td>
+<td>float</td>
+<td>Local peeling flux (m^2/s)</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="../spm/stratified_plume_model.InnerPlume.update.html#stratified_plume_model.InnerPlume.update" title="stratified_plume_model.InnerPlume.update"><tt class="xref py py-obj docutils literal"><span class="pre">update</span></tt></a>(z,&nbsp;y,&nbsp;particles,&nbsp;profile,&nbsp;p)</td>
+<td>Update the <a class="reference internal" href="../spm/stratified_plume_model.InnerPlume.html#stratified_plume_model.InnerPlume" title="stratified_plume_model.InnerPlume"><tt class="xref py py-obj docutils literal"><span class="pre">InnerPlume</span></tt></a> object with the current local conditions</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="stratified_plume_model.OuterPlume">
+<em class="property">class </em><tt class="descclassname">stratified_plume_model.</tt><tt class="descname">OuterPlume</tt><big>(</big><em>z0</em>, <em>y0</em>, <em>profile</em>, <em>p</em>, <em>chem_names</em>, <em>bi</em><big>)</big><a class="reference internal" href="../_modules/stratified_plume_model.html#OuterPlume"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stratified_plume_model.OuterPlume" title="Permalink to this definition">¶</a></dt>
+<dd><p>Manages the outer plume state space and derived variables</p>
+<p>Manages storage and calculation of the derived variables for the outer
+plume as a function of the state space.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>z0</strong> : float</p>
+<blockquote>
+<div><p>Initial depth (m) of the outer plume</p>
+</div></blockquote>
+<p><strong>y0</strong> : ndarray</p>
+<blockquote>
+<div><p>Initial values for the outer plume state space.</p>
+</div></blockquote>
+<p><strong>profile</strong> : <a class="reference internal" href="ambient.html#ambient.Profile" title="ambient.Profile"><tt class="xref py py-obj docutils literal"><span class="pre">ambient.Profile</span></tt></a> object</p>
+<blockquote>
+<div><p>The ambient CTD object used by the simulation.</p>
+</div></blockquote>
+<p><strong>p</strong> : <a class="reference internal" href="../spm/stratified_plume_model.ModelParams.html#stratified_plume_model.ModelParams" title="stratified_plume_model.ModelParams"><tt class="xref py py-obj docutils literal"><span class="pre">ModelParams</span></tt></a> object</p>
+<blockquote>
+<div><p>Object containing the fixed model parameters for the stratified 
+plume model.</p>
+</div></blockquote>
+<p><strong>chem_names</strong> : str list</p>
+<blockquote>
+<div><p>List of chemical names to track for the dissolution.</p>
+</div></blockquote>
+<p><strong>bi</strong> : float</p>
+<blockquote class="last">
+<div><p>Half-width of the inner plume (m)</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="42%" />
+<col width="6%" />
+<col width="52%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>chem_names</td>
+<td>str list</td>
+<td>List is dissolved chemical species to track</td>
+</tr>
+<tr class="row-even"><td>len</td>
+<td>int</td>
+<td>Number of dependent state space variables</td>
+</tr>
+<tr class="row-odd"><td>nchems</td>
+<td>int</td>
+<td>Number of chemical species to track for the dissolution</td>
+</tr>
+<tr class="row-even"><td>z</td>
+<td>float</td>
+<td>Current value of the depth (m)</td>
+</tr>
+<tr class="row-odd"><td>y</td>
+<td>ndarray</td>
+<td>Current value of the state space vector</td>
+</tr>
+<tr class="row-even"><td>Q</td>
+<td>float</td>
+<td>Volume flux of outer plume fluid (m^3/s)</td>
+</tr>
+<tr class="row-odd"><td>J</td>
+<td>float</td>
+<td>Momentum flux of outer plume fluid (m^3/s)</td>
+</tr>
+<tr class="row-even"><td>S</td>
+<td>float</td>
+<td>Salinity flux in the outer plume (psu m^3/s)</td>
+</tr>
+<tr class="row-odd"><td>H</td>
+<td>float</td>
+<td>Heat flux in the outer plume (J/s)</td>
+</tr>
+<tr class="row-even"><td>C</td>
+<td>ndarray</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>Mass flux of dissolved species in the outer plume (kg/s)</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>Ta</td>
+<td>float</td>
+<td>Ambient temperature outside the plume (K)</td>
+</tr>
+<tr class="row-odd"><td>Sa</td>
+<td>float</td>
+<td>Ambient salinity outside the plume (psu)</td>
+</tr>
+<tr class="row-even"><td>P</td>
+<td>float</td>
+<td>Local pressure (Pa)</td>
+</tr>
+<tr class="row-odd"><td>rho_a</td>
+<td>float</td>
+<td>Ambient density outside the plume (kg/m^3)</td>
+</tr>
+<tr class="row-even"><td>ca</td>
+<td>ndarray</td>
+<td>Ambient concentrations outside the plume (kg/m^3)</td>
+</tr>
+<tr class="row-odd"><td>u</td>
+<td>float</td>
+<td>Velocity of the outer plume (m/s)</td>
+</tr>
+<tr class="row-even"><td>b</td>
+<td>float</td>
+<td>Half-width of the outer plume (m)</td>
+</tr>
+<tr class="row-odd"><td>s</td>
+<td>float</td>
+<td>Salinity of the outer plume continuous phase fluid (psu)</td>
+</tr>
+<tr class="row-even"><td>T</td>
+<td>float</td>
+<td>Temperature of the outer plume continous phase fluid (K)</td>
+</tr>
+<tr class="row-odd"><td>c</td>
+<td>ndarray</td>
+<td>Concentration of dissolved species in the outer plume fluid (kg/m^2)</td>
+</tr>
+<tr class="row-even"><td>rho</td>
+<td>float</td>
+<td>Density of the outer plume continuous phase fluid (kg/m^3)</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="../spm/stratified_plume_model.OuterPlume.update.html#stratified_plume_model.OuterPlume.update" title="stratified_plume_model.OuterPlume.update"><tt class="xref py py-obj docutils literal"><span class="pre">update</span></tt></a>(z,&nbsp;y,&nbsp;profile,&nbsp;p,&nbsp;bi)</td>
+<td>Update the <a class="reference internal" href="../spm/stratified_plume_model.OuterPlume.html#stratified_plume_model.OuterPlume" title="stratified_plume_model.OuterPlume"><tt class="xref py py-obj docutils literal"><span class="pre">OuterPlume</span></tt></a> object with the current local conditions</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-functions">
+<h2>Module Functions<a class="headerlink" href="#module-functions" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="../spm/stratified_plume_model.inner_main.html#stratified_plume_model.inner_main" title="stratified_plume_model.inner_main"><tt class="xref py py-obj docutils literal"><span class="pre">inner_main</span></tt></a>(yi,&nbsp;yo,&nbsp;particles,&nbsp;profile,&nbsp;p,&nbsp;...)</td>
+<td>Manage the integration of the inner plume</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../spm/stratified_plume_model.outer_main.html#stratified_plume_model.outer_main" title="stratified_plume_model.outer_main"><tt class="xref py py-obj docutils literal"><span class="pre">outer_main</span></tt></a>(yi,&nbsp;yo,&nbsp;particles,&nbsp;profile,&nbsp;p,&nbsp;...)</td>
+<td>Manage the integration of the outer plume segments</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="../spm/stratified_plume_model.err_check.html#stratified_plume_model.err_check" title="stratified_plume_model.err_check"><tt class="xref py py-obj docutils literal"><span class="pre">err_check</span></tt></a>(zi,&nbsp;yi,&nbsp;zo,&nbsp;yo,&nbsp;zi_old,&nbsp;yi_old,&nbsp;...)</td>
+<td>Computes the error between two solutions of the state space.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../spm/stratified_plume_model.particle_from_Q.html#stratified_plume_model.particle_from_Q" title="stratified_plume_model.particle_from_Q"><tt class="xref py py-obj docutils literal"><span class="pre">particle_from_Q</span></tt></a>(profile,&nbsp;z0,&nbsp;dbm_particle,&nbsp;...)</td>
+<td>Create a <a class="reference internal" href="../spm/stratified_plume_model.Particle.html#stratified_plume_model.Particle" title="stratified_plume_model.Particle"><tt class="xref py py-obj docutils literal"><span class="pre">Particle</span></tt></a> object from the volume flux of the dispersed phase</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="../spm/stratified_plume_model.plot_state_space.html#stratified_plume_model.plot_state_space" title="stratified_plume_model.plot_state_space"><tt class="xref py py-obj docutils literal"><span class="pre">plot_state_space</span></tt></a>(zi,&nbsp;yi,&nbsp;zo,&nbsp;yo,&nbsp;yi_local,&nbsp;...)</td>
+<td>Plot the state space for interrogation during model convergence</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../spm/stratified_plume_model.plot_all_variables.html#stratified_plume_model.plot_all_variables" title="stratified_plume_model.plot_all_variables"><tt class="xref py py-obj docutils literal"><span class="pre">plot_all_variables</span></tt></a>(zi,&nbsp;yi,&nbsp;zo,&nbsp;yo,&nbsp;yi_local,&nbsp;...)</td>
+<td>Plot the complete variable suite for model validation and interpretation</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="module-functions-in-simp">
+<h2>Module Functions in <tt class="xref py py-obj docutils literal"><span class="pre">simp</span></tt><a class="headerlink" href="#module-functions-in-simp" title="Permalink to this headline">¶</a></h2>
+<p>The numerical work of the <a class="reference internal" href="#module-stratified_plume_model" title="stratified_plume_model"><tt class="xref py py-obj docutils literal"><span class="pre">stratified_plume_model</span></tt></a> is segregated into the
+<tt class="xref py py-obj docutils literal"><span class="pre">simp</span></tt> module with the idea that in the future this module could be moved to
+Fortran in order to have a stand-alone solution.  The functions contained
+in this module are detailed in the following.</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="../spm/simp.derivs_inner.html#simp.derivs_inner" title="simp.derivs_inner"><tt class="xref py py-obj docutils literal"><span class="pre">derivs_inner</span></tt></a>(z,&nbsp;y,&nbsp;yi,&nbsp;yo,&nbsp;particles,&nbsp;...)</td>
+<td>Calculate the derivatives for the system of ODEs for the inner plume</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../spm/simp.derivs_outer.html#simp.derivs_outer" title="simp.derivs_outer"><tt class="xref py py-obj docutils literal"><span class="pre">derivs_outer</span></tt></a>(z,&nbsp;y,&nbsp;yi,&nbsp;yo,&nbsp;particles,&nbsp;...)</td>
+<td>Calculate the derivatives for the system of ODEs for the outer plume</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="../spm/simp.calculate.html#simp.calculate" title="simp.calculate"><tt class="xref py py-obj docutils literal"><span class="pre">calculate</span></tt></a>(yi,&nbsp;yo,&nbsp;particles,&nbsp;profile,&nbsp;p,&nbsp;...)</td>
+<td>Integrate an inner or outer plume segment from <em class="xref py py-obj">z0</em> to <em class="xref py py-obj">zf</em></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../spm/simp.correct_temperature.html#simp.correct_temperature" title="simp.correct_temperature"><tt class="xref py py-obj docutils literal"><span class="pre">correct_temperature</span></tt></a>(r,&nbsp;particles,&nbsp;yi)</td>
+<td>Make sure the correct temperature is stored in the state space solution</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="../spm/simp.bf_average.html#simp.bf_average" title="simp.bf_average"><tt class="xref py py-obj docutils literal"><span class="pre">bf_average</span></tt></a>(particles,&nbsp;rho,&nbsp;g,&nbsp;rho_r,&nbsp;parm)</td>
+<td>Compute a buoyancy-flux-weighted average of <em class="xref py py-obj">parm</em></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../spm/simp.cp_model.html#simp.cp_model" title="simp.cp_model"><tt class="xref py py-obj docutils literal"><span class="pre">cp_model</span></tt></a>(epsilon,&nbsp;particles,&nbsp;rho_a,&nbsp;rho,&nbsp;g,&nbsp;...)</td>
+<td>Continuous peeling model of Crounse (2000)</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="../spm/simp.main_ic.html#simp.main_ic" title="simp.main_ic"><tt class="xref py py-obj docutils literal"><span class="pre">main_ic</span></tt></a>(profile,&nbsp;particles,&nbsp;p,&nbsp;z0,&nbsp;R)</td>
+<td>Compute the initial conditions for the inner plume state space</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../spm/simp.flux_ic.html#simp.flux_ic" title="simp.flux_ic"><tt class="xref py py-obj docutils literal"><span class="pre">flux_ic</span></tt></a>(profile,&nbsp;particles,&nbsp;p,&nbsp;z0,&nbsp;R)</td>
+<td>Initial volume and momentum flux for the inner plume</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="../spm/simp.wuest_ic.html#simp.wuest_ic" title="simp.wuest_ic"><tt class="xref py py-obj docutils literal"><span class="pre">wuest_ic</span></tt></a>(u_0,&nbsp;particles,&nbsp;lambda_1,&nbsp;...)</td>
+<td>Compute the initial velocity of entrained ambient fluid</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../spm/simp.outer_surf.html#simp.outer_surf" title="simp.outer_surf"><tt class="xref py py-obj docutils literal"><span class="pre">outer_surf</span></tt></a>(yi,&nbsp;p)</td>
+<td>Compute the initial condition for the outer plume at the sea surface</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="../spm/simp.outer_dis.html#simp.outer_dis" title="simp.outer_dis"><tt class="xref py py-obj docutils literal"><span class="pre">outer_dis</span></tt></a>(yi,&nbsp;particles,&nbsp;profile,&nbsp;p,&nbsp;...)</td>
+<td>Compute the initial condition for the outer plume at the DMPR</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../spm/simp.outer_cpic.html#simp.outer_cpic" title="simp.outer_cpic"><tt class="xref py py-obj docutils literal"><span class="pre">outer_cpic</span></tt></a>(yi,&nbsp;yo,&nbsp;particles,&nbsp;profile,&nbsp;p,&nbsp;...)</td>
+<td>Compute the initial condition for the outer plume at depth</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="../spm/simp.outer_fr.html#simp.outer_fr" title="simp.outer_fr"><tt class="xref py py-obj docutils literal"><span class="pre">outer_fr</span></tt></a>(u_0,&nbsp;Q,&nbsp;bi,&nbsp;rho_a,&nbsp;rho,&nbsp;g,&nbsp;Fr_0)</td>
+<td>Compute the outer plume initial width and velocity</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../contents.html">
+              <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../contents.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Overview of Stratified Plume Model Module</a><ul>
+<li><a class="reference internal" href="#stratified-plume-model">Stratified Plume Model</a><ul>
+<li><a class="reference internal" href="#notes">Notes</a></li>
+<li><a class="reference internal" href="#see-also">See Also</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#class-objects">Class Objects</a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-functions">Module Functions</a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-functions-in-simp">Module Functions in <tt class="docutils literal"><span class="pre">simp</span></tt></a><ul>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../sbm/single_bubble_model.plot_state_space.html"
+                        title="previous chapter">single_bubble_model.plot_state_space</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/modules/spm.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<ul class="this-page-menu">
+  <li><a href="/numpy/docs/numpy-docs/modules/spm.rst">Edit page</a></li>
+</ul>
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../sbm/single_bubble_model.plot_state_space.html" title="single_bubble_model.plot_state_space"
+             >previous</a> |</li>
+<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+
+          <li><a href="reference.html" >Reference</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Scott A. Socolofsky.
+      Last updated on Sep 19, 2013.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

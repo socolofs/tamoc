@@ -1,0 +1,300 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>single_bubble_model.Model &mdash; Texas A&amp;M Oilspill Calculator v0.1 Manual</title>
+    
+    <link rel="stylesheet" href="../_static/scipy.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../index.html" />
+    <link rel="up" title="Reference" href="../modules/reference.html" />
+    <link rel="next" title="single_bubble_model.Model.load_sim" href="single_bubble_model.Model.load_sim.html" />
+    <link rel="prev" title="single_bubble_model.plot_state_space" href="single_bubble_model.plot_state_space.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="single_bubble_model.Model.load_sim.html" title="single_bubble_model.Model.load_sim"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="single_bubble_model.plot_state_space.html" title="single_bubble_model.plot_state_space"
+             accesskey="P">previous</a> |</li>
+<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+
+          <li><a href="../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="single-bubble-model-model">
+<h1>single_bubble_model.Model<a class="headerlink" href="#single-bubble-model-model" title="Permalink to this headline">¶</a></h1>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">September 19, 2013</td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="single_bubble_model.Model">
+<em class="property">class </em><tt class="descclassname">single_bubble_model.</tt><tt class="descname">Model</tt><big>(</big><em>profile=None</em>, <em>simfile=None</em><big>)</big><a class="reference internal" href="../_modules/single_bubble_model.html#Model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#single_bubble_model.Model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Master class object for controlling and post-processing the simulation</p>
+<p>This is the main program interface, and the only object or function in 
+this module that the user should call.  At instantiation, the model 
+parameters and the ambient water column data are organized.  For a given
+simulation, the user passes a <a class="reference internal" href="../modules/dbm.html#module-dbm" title="dbm"><tt class="xref py py-obj docutils literal"><span class="pre">dbm</span></tt></a> particle object and its initial 
+conditions (e.g., mass, temperature, location) to the <a class="reference internal" href="single_bubble_model.Model.simulate.html#single_bubble_model.Model.simulate" title="single_bubble_model.Model.simulate"><tt class="xref py py-obj docutils literal"><span class="pre">simulate</span></tt></a> method,
+and the object computes the trajectory and plots the resulting path and
+particle properties.  The simulation results can be stored to and loaded
+from a netCDF file using the <a class="reference internal" href="single_bubble_model.Model.save_sim.html#single_bubble_model.Model.save_sim" title="single_bubble_model.Model.save_sim"><tt class="xref py py-obj docutils literal"><span class="pre">save_sim</span></tt></a> and <a class="reference internal" href="single_bubble_model.Model.load_sim.html#single_bubble_model.Model.load_sim" title="single_bubble_model.Model.load_sim"><tt class="xref py py-obj docutils literal"><span class="pre">load_sim</span></tt></a> methods.  An 
+ascii table of data for the state space for reading into other programs 
+(e.g., Matlab) can be output using the <a class="reference internal" href="single_bubble_model.Model.save_txt.html#single_bubble_model.Model.save_txt" title="single_bubble_model.Model.save_txt"><tt class="xref py py-obj docutils literal"><span class="pre">save_txt</span></tt></a> method.  The object
+can only store simulation results in its attribute variables for one 
+simulation at a time.  Each time a new simulation is run or a past 
+simulation results file is loaded, the current simulation (if present) is
+overwritten.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>profile</strong> : <a class="reference internal" href="../modules/ambient.html#ambient.Profile" title="ambient.Profile"><tt class="xref py py-obj docutils literal"><span class="pre">ambient.Profile</span></tt></a> object, default = None</p>
+<blockquote>
+<div><p>An object containing the ambient CTD data and associated methods.  
+The netCDF dataset stored in the <a class="reference internal" href="../modules/ambient.html#ambient.Profile" title="ambient.Profile"><tt class="xref py py-obj docutils literal"><span class="pre">ambient.Profile</span></tt></a> object may be open 
+or closed at instantiation.  If open, the initializer will close the 
+file since this model does not support changing the ambient data once 
+initialized.</p>
+</div></blockquote>
+<p><strong>simfile: str, default = None</strong> :</p>
+<blockquote class="last">
+<div><p>File name of a netCDF file containing the results of a previous 
+simulation run.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition-see-also admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="single_bubble_model.Model.simulate.html#single_bubble_model.Model.simulate" title="single_bubble_model.Model.simulate"><tt class="xref py py-obj docutils literal"><span class="pre">simulate</span></tt></a>, <a class="reference internal" href="single_bubble_model.Model.save_sim.html#single_bubble_model.Model.save_sim" title="single_bubble_model.Model.save_sim"><tt class="xref py py-obj docutils literal"><span class="pre">save_sim</span></tt></a>, <a class="reference internal" href="single_bubble_model.Model.load_sim.html#single_bubble_model.Model.load_sim" title="single_bubble_model.Model.load_sim"><tt class="xref py py-obj docutils literal"><span class="pre">load_sim</span></tt></a></p>
+</div>
+<p class="rubric">Notes</p>
+<p>The <a class="reference internal" href="#single_bubble_model.Model" title="single_bubble_model.Model"><tt class="xref py py-obj docutils literal"><span class="pre">Model</span></tt></a> object will be initialized either with the <a class="reference external" href="http://docs.python.org/library/profile.html#profile" title="(in Python v2.7)"><tt class="xref py py-obj docutils literal"><span class="pre">profile</span></tt></a> data 
+making it read to start a new simulation or with the results of a previous
+simulation stored in <em class="xref py py-obj">simfile</em>.</p>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="23%" />
+<col width="67%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>profile</td>
+<td><a class="reference internal" href="../modules/ambient.html#ambient.Profile" title="ambient.Profile"><tt class="xref py py-obj docutils literal"><span class="pre">ambient.Profile</span></tt></a> object</td>
+<td>Ambient CTD data for the model simulation</td>
+</tr>
+<tr class="row-even"><td>p</td>
+<td><a class="reference internal" href="single_bubble_model.ModelParams.html#single_bubble_model.ModelParams" title="single_bubble_model.ModelParams"><tt class="xref py py-obj docutils literal"><span class="pre">ModelParams</span></tt></a> object</td>
+<td>Set of model parameters not adjustable by the user</td>
+</tr>
+<tr class="row-odd"><td>sim_stored</td>
+<td>bool</td>
+<td>Flag indicating whether or not simulation results exist in the object
+namespace</td>
+</tr>
+<tr class="row-even"><td>particle</td>
+<td><a class="reference internal" href="single_bubble_model.Particle.html#single_bubble_model.Particle" title="single_bubble_model.Particle"><tt class="xref py py-obj docutils literal"><span class="pre">Particle</span></tt></a> object</td>
+<td>Interface to the <a class="reference internal" href="../modules/dbm.html#module-dbm" title="dbm"><tt class="xref py py-obj docutils literal"><span class="pre">dbm</span></tt></a> module and container for particle-specific
+parameters</td>
+</tr>
+<tr class="row-odd"><td>t</td>
+<td>ndarray</td>
+<td>Times (s) associated with the state space</td>
+</tr>
+<tr class="row-even"><td>y</td>
+<td>ndarray</td>
+<td>State space along the trajectory of the particle</td>
+</tr>
+<tr class="row-odd"><td>z0</td>
+<td>float</td>
+<td>The release depth (m)</td>
+</tr>
+<tr class="row-even"><td>de</td>
+<td>float</td>
+<td>Initial diameter of the particle (m)</td>
+</tr>
+<tr class="row-odd"><td>yk</td>
+<td>ndarray</td>
+<td>Initial mole fractions of each chemical component (&#8211;)</td>
+</tr>
+<tr class="row-even"><td>T0</td>
+<td>float, optional</td>
+<td>Initial temperature (K) of the particle at release</td>
+</tr>
+<tr class="row-odd"><td>K</td>
+<td>float, default = 1.</td>
+<td>Mass transfer reduction factor (&#8211;)</td>
+</tr>
+<tr class="row-even"><td>K_T</td>
+<td>float, default = 1.</td>
+<td>Heat transfer reduction factor (&#8211;)</td>
+</tr>
+<tr class="row-odd"><td>fdis</td>
+<td>float, default = 1.e-6</td>
+<td>Remainder fractin that turns off dissolution for each component (&#8211;)</td>
+</tr>
+<tr class="row-even"><td>delta_t</td>
+<td>float, default = 0.1 s</td>
+<td>Maximum time step to use (s) in the simulation output</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="single_bubble_model.Model.load_sim.html#single_bubble_model.Model.load_sim" title="single_bubble_model.Model.load_sim"><tt class="xref py py-obj docutils literal"><span class="pre">load_sim</span></tt></a>(fname)</td>
+<td>Load in a saved simulation result file for post-processing</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="single_bubble_model.Model.post_process.html#single_bubble_model.Model.post_process" title="single_bubble_model.Model.post_process"><tt class="xref py py-obj docutils literal"><span class="pre">post_process</span></tt></a>([fig])</td>
+<td>Plot the simulation state space and key interrogation parameters</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="single_bubble_model.Model.save_sim.html#single_bubble_model.Model.save_sim" title="single_bubble_model.Model.save_sim"><tt class="xref py py-obj docutils literal"><span class="pre">save_sim</span></tt></a>(fname,&nbsp;profile_path,&nbsp;profile_info)</td>
+<td>Save the current simulation results</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="single_bubble_model.Model.save_txt.html#single_bubble_model.Model.save_txt" title="single_bubble_model.Model.save_txt"><tt class="xref py py-obj docutils literal"><span class="pre">save_txt</span></tt></a>(fname,&nbsp;profile_path,&nbsp;profile_info)</td>
+<td>Save the state space in ascii text format for exporting</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="single_bubble_model.Model.simulate.html#single_bubble_model.Model.simulate" title="single_bubble_model.Model.simulate"><tt class="xref py py-obj docutils literal"><span class="pre">simulate</span></tt></a>(particle,&nbsp;z0,&nbsp;de,&nbsp;yk[,&nbsp;T0,&nbsp;K,&nbsp;K_T,&nbsp;...])</td>
+<td>Simulate the trajectory of a particle from given initial conditions</td>
+</tr>
+</tbody>
+</table>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="single_bubble_model.Model.simulate.html#single_bubble_model.Model.simulate" title="single_bubble_model.Model.simulate"><tt class="xref py py-obj docutils literal"><span class="pre">Model.simulate</span></tt></a>(particle,&nbsp;z0,&nbsp;de,&nbsp;yk[,&nbsp;T0,&nbsp;...])</td>
+<td>Simulate the trajectory of a particle from given initial conditions</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="single_bubble_model.Model.save_sim.html#single_bubble_model.Model.save_sim" title="single_bubble_model.Model.save_sim"><tt class="xref py py-obj docutils literal"><span class="pre">Model.save_sim</span></tt></a>(fname,&nbsp;profile_path,&nbsp;profile_info)</td>
+<td>Save the current simulation results</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="single_bubble_model.Model.save_txt.html#single_bubble_model.Model.save_txt" title="single_bubble_model.Model.save_txt"><tt class="xref py py-obj docutils literal"><span class="pre">Model.save_txt</span></tt></a>(fname,&nbsp;profile_path,&nbsp;profile_info)</td>
+<td>Save the state space in ascii text format for exporting</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="single_bubble_model.Model.load_sim.html#single_bubble_model.Model.load_sim" title="single_bubble_model.Model.load_sim"><tt class="xref py py-obj docutils literal"><span class="pre">Model.load_sim</span></tt></a>(fname)</td>
+<td>Load in a saved simulation result file for post-processing</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="single_bubble_model.Model.post_process.html#single_bubble_model.Model.post_process" title="single_bubble_model.Model.post_process"><tt class="xref py py-obj docutils literal"><span class="pre">Model.post_process</span></tt></a>([fig])</td>
+<td>Plot the simulation state space and key interrogation parameters</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../contents.html">
+              <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
+            </a></p>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="single_bubble_model.plot_state_space.html"
+                        title="previous chapter">single_bubble_model.plot_state_space</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="single_bubble_model.Model.load_sim.html"
+                        title="next chapter">single_bubble_model.Model.load_sim</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/sbm/single_bubble_model.Model.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<ul class="this-page-menu">
+  <li><a href="/numpy/docs/numpy-docs/sbm/single_bubble_model.Model.rst">Edit page</a></li>
+</ul>
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="single_bubble_model.Model.load_sim.html" title="single_bubble_model.Model.load_sim"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="single_bubble_model.plot_state_space.html" title="single_bubble_model.plot_state_space"
+             >previous</a> |</li>
+<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+
+          <li><a href="../modules/reference.html" >Reference</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Scott A. Socolofsky.
+      Last updated on Sep 19, 2013.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

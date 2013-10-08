@@ -1,0 +1,106 @@
+########
+Glossary
+########
+
+:Release: |version|
+:Date: |today|
+
+Here, we describe several terms used in the Texas A&M Oilspill Calculator 
+``TAMOC`` package.  For terms related to the Python programming language, 
+please see http://python.org/ or https://www.enthought.com/.  For information
+on the numerical Python packages NumPy and SciPy, please see http://www.numpy.org/ and http://www.scipy.org/.
+
+Terms
+=====
+
+* *Ambient* -- Refers to the fluid surrounding a bubble, drop, or plume.  
+  For the ``TAMOC`` package, this is usually seawater, but it could also be
+  freshwater.  Properties of the ambient fluid are computed using the 
+  module `seawater`.
+
+
+* *Continuous Phase* -- The general term referring to the bulk fluid (e.g.,
+  water or air) that is the host for one or more particulate, or dispersed,
+  phases (e.g., bubbles, drops, or solid particles).
+
+
+* *CTD Profile* -- A vertical profile of ambient seawater properties, usually
+  containing conductivity (salinity), temperature, depth, and other chemical
+  constituents, such as oxygen, fluorescence, etc.
+
+
+* *Discrete Bubble Model (DBM)* -- The model proposed by McGinnis et al.
+  (2006) to account for bubble/droplet-scale processes. One bubble, droplet or
+  particle is tracked and all fluxes in and out of the fluid particle are
+  evaluated, primarily from correlations in Clift et al. (1978). These fluxes
+  are then applied uniformly to all other fluid particles at the same location
+  with identical properties that make up the total flux of multiphase
+  components. It is possible to have multiple size classes to approximate a
+  particle size distribution, but each particle within a given bin of the
+  distribution and at the same location will have the same properties.
+
+
+* *Dispersed Phase* -- The general term referring the fluid particles (e.g.,
+  bubbles, drops, or solid particles) dispersed, or spread out, in another
+  continuous fluid phase (e.g., water or air).
+
+
+* *Fluid Particle* -- The general term for a dispersed phase particle of
+  liquid or gas; a collective term for bubbles and drops.
+
+
+* *Intrusion* -- A horizontal layer forming at a level of neutral buoyancy and
+  that is squeezed into the layer by buoyancy forces. In certain contexts,
+  especially the far field, an intrusion may be referred to as a plume, but
+  this usage of the word plume has a different technical meaning than the mean
+  of plume in the ``TAMOC`` package; hence, we use the term intrusion
+  exclusively for horizontal layers of fluid at neutral buoyancy.
+
+
+* *Momentum Jet* -- A plume that has significant momentum originating from the
+  leak exit conditions.
+
+
+* *Nearfield* -- The region of a leak plume where vertical momentum is 
+  affected by buoyancy.  Typically much less than one kilometer radius from 
+  the centerline of a plume.
+
+
+* *Peng-Robinson Equation of State* -- One of several cubic equations of state
+  to account for non-ideal fluid behavior. It was developed particularly with
+  the goal of estimating liquid densities from standard chemical and
+  thermodynamic properties (e.g., molecular weight, critical point temperature
+  and pressure, accentric factor, etc.). The Peng-Robinson equation of state
+  provides the *Z*-factor for the compressibility in the ideal gas law to
+  estimate the density and the fugacity coefficients to estimate the chemical
+  activity, needed to establish solubility.
+
+
+* *Plume* -- Term referring vertically-rising cloud of dispersed phase
+  particles and entrained ambient fluid, similar in appearance to the plume of
+  smoke rising from a chimney. Momentum in a plume is dominated by buoyancy
+  effects, here caused either by the drag of the dispersed phase particles or
+  the negative buoyancy of the entrained ambient seawater.
+
+
+* *Single Bubble Model* -- A numerical model to predict the rise of a single
+  fluid particle through quiescent or flowing ambient fluid. This model uses
+  the discrete bubble model to predict the fluid particle fate and computes
+  the trajectory by the superposition of the rise velocity and the ambient
+  currents. In the single bubble model, there is no collective buoyancy that
+  induces a vertical velocity of the fluid phase; for that case, a plume model
+  is needed (e.g., the stratified integral multiphase plume model ``SIMP``).
+
+
+* *Slip Velocity* -- Taken as the terminal rise velocity of a fluid particle
+  in quiescent ambient conditions.  This is used to determine the net drag
+  force on the water column due to a collection of fluid particles and to 
+  track the movement of fluid particles through the water column.  Turbulence
+  is known to alter the quiescent terminal rise velocity; this effect is not
+  accounted for in the current ``TAMOC`` methods.
+
+
+
+
+
+

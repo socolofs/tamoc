@@ -1,0 +1,205 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>simp.wuest_ic &mdash; Texas A&amp;M Oilspill Calculator v0.1 Manual</title>
+    
+    <link rel="stylesheet" href="../_static/scipy.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../index.html" />
+    <link rel="up" title="Reference" href="../modules/reference.html" />
+    <link rel="next" title="simp.outer_surf" href="simp.outer_surf.html" />
+    <link rel="prev" title="simp.flux_ic" href="simp.flux_ic.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="simp.outer_surf.html" title="simp.outer_surf"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="simp.flux_ic.html" title="simp.flux_ic"
+             accesskey="P">previous</a> |</li>
+<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+
+          <li><a href="../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="simp-wuest-ic">
+<h1>simp.wuest_ic<a class="headerlink" href="#simp-wuest-ic" title="Permalink to this headline">¶</a></h1>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">September 11, 2013</td>
+</tr>
+</tbody>
+</table>
+<dl class="function">
+<dt id="simp.wuest_ic">
+<tt class="descclassname">simp.</tt><tt class="descname">wuest_ic</tt><big>(</big><em>u_0</em>, <em>particles</em>, <em>lambda_1</em>, <em>lambda_ave</em>, <em>us</em>, <em>rho_p</em>, <em>rho</em>, <em>Q</em>, <em>R</em>, <em>g</em>, <em>Fr_0</em><big>)</big><a class="reference internal" href="../_modules/simp.html#wuest_ic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simp.wuest_ic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the initial velocity of entrained ambient fluid</p>
+<p>Computes the initial velocity of the entrained ambient fluid following 
+the method in Wueest et al. (1992).  This method is implicit; thus, an 
+initial guess for the velocity and a root-finding approach is required.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>u_0</strong> : float</p>
+<blockquote>
+<div><p>Initial guess for the entrained fluid velocity (m/s)</p>
+</div></blockquote>
+<p><strong>particles</strong> : list of <em class="xref py py-obj">Particle</em> objects</p>
+<blockquote>
+<div><p>List of <em class="xref py py-obj">Particle</em> objects containing the dispersed phase initial
+conditions</p>
+</div></blockquote>
+<p><strong>lambda_1</strong> : ndarray</p>
+<blockquote>
+<div><p>Spreading rate of the each dispersed phase particle in a plume (&#8211;)</p>
+</div></blockquote>
+<p><strong>lambda_ave</strong> : float</p>
+<blockquote>
+<div><p>Buoyancy flux averaged value of lambda_1 (&#8211;)</p>
+</div></blockquote>
+<p><strong>us</strong> : ndarray</p>
+<blockquote>
+<div><p>Slip velocity of each of the dispersed phase particles (m/s)</p>
+</div></blockquote>
+<p><strong>rho_p</strong> : ndarray</p>
+<blockquote>
+<div><p>Density of each of the dispersed phase particles (kg/m^3)</p>
+</div></blockquote>
+<p><strong>rho</strong> : float</p>
+<blockquote>
+<div><p>Density of the local ambient continuous phase fluid (kg/m^3)</p>
+</div></blockquote>
+<p><strong>Q</strong> : ndarray</p>
+<blockquote>
+<div><p>Total volume flux of particles for each dispersed phase (m^3/s)</p>
+</div></blockquote>
+<p><strong>R</strong> : float</p>
+<blockquote>
+<div><p>Radius of the release port (m)</p>
+</div></blockquote>
+<p><strong>g</strong> : float</p>
+<blockquote>
+<div><p>Acceleration of gravity (m/s^2)</p>
+</div></blockquote>
+<p><strong>Fr_0</strong> : float</p>
+<blockquote>
+<div><p>Desired initial plume Froude number (&#8211;)</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>u</strong> : float</p>
+<blockquote class="last">
+<div><p>The converged value of the entrained fluid velocity in m/s at the 
+release location in order to achieve the specified value of Fr_0.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../contents.html">
+              <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
+            </a></p>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="simp.flux_ic.html"
+                        title="previous chapter">simp.flux_ic</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="simp.outer_surf.html"
+                        title="next chapter">simp.outer_surf</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/spm/simp.wuest_ic.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<ul class="this-page-menu">
+  <li><a href="/numpy/docs/numpy-docs/spm/simp.wuest_ic.rst">Edit page</a></li>
+</ul>
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="simp.outer_surf.html" title="simp.outer_surf"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="simp.flux_ic.html" title="simp.flux_ic"
+             >previous</a> |</li>
+<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+
+          <li><a href="../modules/reference.html" >Reference</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Scott A. Socolofsky.
+      Last updated on Sep 11, 2013.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

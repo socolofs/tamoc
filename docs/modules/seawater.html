@@ -1,0 +1,181 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Overview of the Seawater Module &mdash; Texas A&amp;M Oilspill Calculator v0.1 Manual</title>
+    
+    <link rel="stylesheet" href="../_static/scipy.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../index.html" />
+    <link rel="up" title="Reference" href="reference.html" />
+    <link rel="next" title="seawater.density" href="../seawater/seawater.density.html" />
+    <link rel="prev" title="dbm.gas_liq_eq" href="../dbm/dbm.gas_liq_eq.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../seawater/seawater.density.html" title="seawater.density"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../dbm/dbm.gas_liq_eq.html" title="dbm.gas_liq_eq"
+             accesskey="P">previous</a> |</li>
+<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+
+          <li><a href="reference.html" accesskey="U">Reference</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="overview-of-the-seawater-module">
+<h1>Overview of the Seawater Module<a class="headerlink" href="#overview-of-the-seawater-module" title="Permalink to this headline">¶</a></h1>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">September 11, 2013</td>
+</tr>
+</tbody>
+</table>
+<span class="target" id="module-seawater"></span><div class="section" id="equations-of-state-for-seawater">
+<h2>Equations of State for Seawater<a class="headerlink" href="#equations-of-state-for-seawater" title="Permalink to this headline">¶</a></h2>
+<p>This module provides a few simple equations of state that can be used for
+seawater.  Some are very good (e.g., density) and others are just taken from 
+tables in the Handbook of Physics and Chemistry for pure water (e.g., surface
+tension).  Eventually, these should be replaced with routines from the 
+official seawater equation of state.</p>
+</div>
+<div class="section" id="module-functions">
+<h2>Module Functions<a class="headerlink" href="#module-functions" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="../seawater/seawater.density.html#seawater.density" title="seawater.density"><tt class="xref py py-obj docutils literal"><span class="pre">seawater.density</span></tt></a>(T,&nbsp;S,&nbsp;P)</td>
+<td>Computes the density of seawater from Gill (1982)</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../seawater/seawater.mu.html#seawater.mu" title="seawater.mu"><tt class="xref py py-obj docutils literal"><span class="pre">seawater.mu</span></tt></a>(T)</td>
+<td>Compute the viscosity of seawater</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="../seawater/seawater.sigma.html#seawater.sigma" title="seawater.sigma"><tt class="xref py py-obj docutils literal"><span class="pre">seawater.sigma</span></tt></a>(T)</td>
+<td>Compute the surface tension of seawater</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../seawater/seawater.cp.html#seawater.cp" title="seawater.cp"><tt class="xref py py-obj docutils literal"><span class="pre">seawater.cp</span></tt></a>()</td>
+<td>Compute the heat capacity of seawater at constant pressure</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="../seawater/seawater.k.html#seawater.k" title="seawater.k"><tt class="xref py py-obj docutils literal"><span class="pre">seawater.k</span></tt></a>()</td>
+<td>Compute the thermal conductivity of seawater</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../contents.html">
+              <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../contents.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Overview of the Seawater Module</a><ul>
+<li><a class="reference internal" href="#equations-of-state-for-seawater">Equations of State for Seawater</a></li>
+<li><a class="reference internal" href="#module-functions">Module Functions</a><ul>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../dbm/dbm.gas_liq_eq.html"
+                        title="previous chapter">dbm.gas_liq_eq</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../seawater/seawater.density.html"
+                        title="next chapter">seawater.density</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/modules/seawater.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<ul class="this-page-menu">
+  <li><a href="/numpy/docs/numpy-docs/modules/seawater.rst">Edit page</a></li>
+</ul>
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../seawater/seawater.density.html" title="seawater.density"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../dbm/dbm.gas_liq_eq.html" title="dbm.gas_liq_eq"
+             >previous</a> |</li>
+<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+
+          <li><a href="reference.html" >Reference</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Scott A. Socolofsky.
+      Last updated on Sep 11, 2013.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

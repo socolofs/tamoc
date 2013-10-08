@@ -1,0 +1,43 @@
+v0.1.2, September 19, 2013 --
+   . Moved octant import to the functions that require it.  
+   . Added `from copy import copy` to `single_bubble_model.py`
+   . Added test for insoluble particles to ./test/test_sbm.py
+   . Changed tests for ./test/test_spm.py to avoid instability in outer plume 
+     initial conditions and to reduce the number of iterations for the full 
+     plume simulations.  This was required since different versions of numpy
+     and scipy were getter slightly different results after multiple 
+     iterations:  not for the overall solution, but very small errors in 
+     heights lead to measureable differences in output at identical heights.
+     This is a result of the adaptive time step stiff solver and iteration.
+v0.1.1, September 11, 2013 -- 
+   . Updated the `spm_test.py` file with a complete test suite.
+   . Added a plotting method for the complete suite of model variables in the
+     Stratified Plume Model.
+   . Updated the documentation with a few missing functions.
+   . Includes the following bug fixes:
+      . Fixed plotting methods in the single bubble model and stratified plume
+        model when an inert particle (which has one component) clashed with 
+        the modeled dissolved concentrations (which has zero components).
+      . Set the temperature of the fluid surrounding a particle in the inner 
+        plume equal to the temperature of the inner plume (once heat transfer
+        is complete).  Previously, this was set equal to the ambient 
+        temperature.
+      . Changed the temperature correction in the `simp` module to reflect
+        the temperature of the inner plume instead of the ambient temperature
+        when heat transfer is complete.
+v0.1.0, August 20, 2013 -- 
+   Initial release including the stratified plume model.  Also includes:
+      . Fixed pressure correction for Henry's coefficients to be based on 
+        the total pressure at depth instead of the partial pressure of each
+        species.
+      . Changed the `ambient.Profile` object so that it removes any 
+        unstable parts of the density profile.  
+      . Small changes to the single bubble model so that both the single
+        bubble model and the stratified plume model have parallel 
+        programming architecture and behavior.  
+v0.0.3, July 31, 2013 -- 
+   Initial release including the ambient module and single bubble model
+v0.0.2, July 8, 2013 -- 
+   Initial release including the discrete bubble model
+v0.0.1, July 1, 2013 -- 
+   Development beta testing

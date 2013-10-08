@@ -1,0 +1,78 @@
+######################################
+Chemical Properties Users Guide
+######################################
+
+:Release: |version|
+:Date: |today|
+
+Examples
+========
+
+This is a very straight-forward script. It's main purpose is to load in the
+chemical property data in ``./data/ChemData.csv`` and to store that data in a
+Python dictionary, available to other programs. Within ``TAMOC`` this script
+is generally not used by the user; rather, the class objects, methods, and
+functions in the `dbm` module provides a fluid interface to these databases.
+
+To load the data, simply import the script and optionally assign a new 
+namespace for storing the databases::
+
+>> import chemical_properties as chem
+
+After import, two new dictionaries will be created, one with the properties 
+(called `chem.data`) and another with the units (called `chem.units`).  The 
+`chem.data` dictionary is double-nested, with the first set of keys choosing
+a chemical component, and the second set of keys choosing a particular 
+property.
+
+As an example::
+
+   >> chem.data.keys()
+   ['benzene',
+    'n-decane',
+    'nitrogen',
+    '3-methylpentane',
+    'hydrogen',
+    'neohexane',
+    'carbon_monoxide',
+    'n-butane',
+    'carbon_dioxide',
+    'ethylbenzene',
+    'isopentane',
+    'isobutane',
+    'propane',
+    'n-heptane',
+    'water',
+    '2-methylpentane',
+    'n-pentane',
+    'toluene',
+    'n-hexane',
+    'neopentane',
+    'oxygen',
+    'hydrogen_sulfide',
+    'argon',
+    '2-3-dimethylbutane',
+    'ethane',
+    'sulfure_dioxide',
+    'methane']
+
+Focusing on the nested dictionary for one of these keys, we have::
+
+   >> chem.data['oxygen'].keys()
+   ['B', 'dH_solR', 'dE', 'M', 'Pc', 'nu_bar', 'kh_0', 'omega', 'Tc']
+
+To access the value for one of these keys, just use the double-nested 
+index::
+
+   >>> chem.data['oxygen']['M']    # Molecular weight
+   0.031998800000000001
+
+The `chem.units` database provides access to the units of each of these 
+variables.  Because the units are independent of the chemical, the units
+database only includes the second dictionary of keys::
+
+   >>> chem.units.keys()
+   ['Pc', 'nu_bar', 'Compound', 'kh_0', 'omega', 'B', 'dE', 'M', 'Tc', 'dH_solR']
+   >>> chem.units['M']
+   '(kg/mol)'
+
