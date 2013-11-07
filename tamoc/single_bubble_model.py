@@ -815,8 +815,9 @@ class Particle(object):
         mathematical operations (e.g., divide by zero).
         
         """
-        # Turn off heat transfer when at equilibrium
-        if np.abs(Ta - T) < 0.1:
+        # Turn off heat transfer when at equilibrium.  This will be a 
+        # persistent change, so it only has to happen once.
+        if self.K_T > 0. and np.abs(Ta - T) < 0.1:
             self.K_T = 0.
         
         # Use the right temperature

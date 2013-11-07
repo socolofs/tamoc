@@ -1,5 +1,5 @@
 """
-SINTEF
+Sintef
 ======
 
 Evaluate initial bubble and droplet sizes from the SINTEF model
@@ -92,8 +92,6 @@ def modified_We_model(D, rho_gas, m_gas, mu_gas, sigma_gas, rho_oil, m_oil,
     
     # Get the volume flow rates of gas and oil
     Q_gas = np.sum(m_gas) / rho_gas
-    print m_gas
-    print rho_gas
     Q_oil = np.sum(m_oil) / rho_oil
     
     # Get the void-fraction adjusted velocity Un
@@ -128,6 +126,14 @@ def modified_We_model(D, rho_gas, m_gas, mu_gas, sigma_gas, rho_oil, m_oil,
     # Return the bubble and droplet sizes
     return (de_gas, de_oil)
 
+
+# Provide tool to estimate the maximum stable particle size
+def de_max(sigma, rho_p, rho):
+    """
+    Calculate the maximum stable particle size
+    
+    """
+    return 4. * np.sqrt(sigma / (9.81 * (rho - rho_p)))
 
 def de_50(U, D, rho_p, mu_p, sigma, rho):
     """
@@ -174,14 +180,12 @@ def de_50(U, D, rho_p, mu_p, sigma, rho):
     We = rho_p * U**2 * D / sigma
     Vi = mu_p * U / sigma
     
-    # Provide tool to estimate the maximum stable particle size
-    def de_max(sigma, rho_p):
-        return 4. * np.sqrt(sigma / (9.81 * (rho - rho_p)))
-    
     if We > 350.:
         # Atomization...use the SINTEF model.
-        A = 24.8
-        B = 0.08
+        #A = 24.8
+        #B = 0.08
+        A = 15.
+        B = 0.8
         
         # Solve for the volume mean diameter from the implicit equation
         def residual(dp):
@@ -207,9 +211,71 @@ def de_50(U, D, rho_p, mu_p, sigma, rho):
         de = 1.2 * D
     
     # Require the diameter to be less than the maximum stable size
-    dmax = de_max(sigma, rho_p)
+    dmax = de_max(sigma, rho_p, rho)
     if de > dmax:
         de = dmax
     
     # Return the result
     return de
+
+def rosin_rammler(nbins, d50, md, sigma, rho_p, rho):
+    """
+    Return the volume size distribution from the Rosin Rammler distribution
+    
+    Returns the fluid particle diameters in the selected number of bins on
+    a volume basis from the Rosin Rammler distribution with parameters 
+    k = -ln(0.5) and alpha = 1.8.  
+    
+    Parameters
+    ----------
+    
+    Returns
+    -------
+    
+    References
+    ----------
+    Johansen, Brandvik, and Farooq (2013), "Droplet breakup in subsea oil
+    releases - Part 2: Predictions of droplet size distributions with and 
+    without injection of chemical dispersants." Marine Pollution Bulletin,
+    73: 327-335.  doi:10.1016/j.marpolbul.2013.04.012.
+    
+    """
+    # Compute the maximum stable particle diameter
+    dmax = de_max(sigma, rho_p, rho)
+    
+    # Define the parameters of the distribution
+    k = -np.log(0.5)
+    alpha = 1.8
+    
+    # Get the de/d50 ratio for the edges of each bin in the distribution 
+    # using a log-spacing
+    bin_edges = np.logspace(-1, 1, nbins + 1)
+    
+    # Find the logarithmic average location of the center of each bin
+    bin_centers = np.zeros(len(bin_edges) - 1)
+    
+    for i in range(len(bin_centers)):
+        bin_centers[i] = np.exp(np.log(bin_edges[i]) + 
+                         (np.log(bin_edges[i+1]) - np.log(bin_edges[i])) / 2.)
+    
+    # Get the cumulative volume fraction within each bin
+    Vn = 1. - np.exp(-k * bin_edges**alpha)
+    
+    # Get the actual volume fraction within each bin
+    V_frac = np.zeros(len(bin_centers))
+    for i in range(len(bin_edges) - 1):
+        V_frac[i] = Vn[i+1] - Vn[i]
+    V_frac += (1.0 - np.sum(V_frac)) / nbins
+    
+    # Compute the actual diameters of each particle
+    de = d50 * bin_centers
+    for i in range(len(de)):
+        if de[i] > dmax:
+            de[i] = dmax
+    
+    # Compute the mass fraction for each diameter
+    md = V_frac * md
+    
+    # Return the particle size distribution
+    return (de, md)
+

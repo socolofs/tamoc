@@ -104,7 +104,7 @@ for chemical in data:
     if units['Pc'].find('psia') >= 0:
         data[chemical]['Pc'] = data[chemical]['Pc'] * 6894.76
     
-    if units['Tc'].find('R') >= 0:
+    if units['Tc'].find('F') >= 0:
         data[chemical]['Tc'] = (data[chemical]['Tc'] - 32.) * 5. / 9. + 273.15
     
     if units['kh_0'].find('mol/dm^3 atm') >= 0:

@@ -57,7 +57,8 @@ bin_files = ['./bin/dbm/air_eos.py',
              './bin/spm/blowout.py',
              './bin/spm/lake_bub.py',
              './bin/spm/lake_part.py',
-             './bin/spm/spm_file_io.py']
+             './bin/spm/spm_file_io.py',
+             './bin/params/scales.py']
 
 # Define the external Fortran sources
 ext_dbm_f = Extension(name = 'dbm_f', 

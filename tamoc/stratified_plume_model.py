@@ -169,6 +169,7 @@ class Model(object):
         # Store the initial conditions in the inner plume object
         self.yi_local = InnerPlume(z0, y0, self.profile, self.particles, 
                                    self.p, self.chem_names)
+        
         self.yo_local = OuterPlume(z0, np.zeros(4 + self.yi_local.nchems), 
                                    self.profile, self.p, self.chem_names, 
                                    self.yi_local.b)
@@ -221,6 +222,10 @@ class Model(object):
             self.sim_stored = True
             if plots:
                 self.plot_state_space(iter)
+            
+            # Restart heat transfer
+            for i in range(len(self.particles)):
+                self.particles[i].K_T = self.K_T0[i]
     
     def save_sim(self, fname, profile_path, profile_info):
         """
@@ -985,7 +990,10 @@ class Particle(single_bubble_model.Particle):
         
         # Update the variables with their currrent values
         self.m = m
-        self.T = T
+        if self.K_T == 0:
+            self.T = Ta
+        else:
+            self.T = T
         if np.sum(self.m) > 0.:
             self.us,  self.rho_p,  self.A, self.Cs, self.beta, self.beta_T = \
                 self.properties(m, T, P, Sa, Ta)

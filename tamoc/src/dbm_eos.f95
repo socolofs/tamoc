@@ -217,13 +217,18 @@ subroutine z_pr(nc, T, P, mass, Mol_wt, Pc, Tc, omega, delta, &
     
     ! Extract the correct z-factors
     z_max = 0.0D0
-    z_min = 1.0D0
     do i = 1, 3
         if (aimag(z_roots(i)) == 0.0) then
             if (real(z_roots(i)) > z_max) then
                 z_max = real(z_roots(i))
             end if
-            if (real(z_roots(i)) < z_min) then
+        end if
+    end do
+    z_min = z_max
+    do i = 1, 3
+        if (aimag(z_roots(i)) == 0.0) then
+            if ((real(z_roots(i)) < z_min) .and. &
+              & (real(z_roots(i)) > 0.0D0)) then
                 z_min = real(z_roots(i))
             end if
         end if

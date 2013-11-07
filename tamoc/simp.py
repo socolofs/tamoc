@@ -81,6 +81,7 @@ def derivs_inner(z, y, yi, yo, particles, profile, p, neighbor):
     
     # Update the inner plume object with the corrent solution
     yi.update(z, y, particles, profile, p)
+    print particles[0].T
     
     # Update the outer plume object at the current depth
     if z < np.min(neighbor.x):
@@ -320,7 +321,7 @@ def calculate(yi, yo, particles, profile, p, neighbor, derivs, z0, y0, zf,
     
     # Integrate to zf unless the solution stops naturally earlier
     k = 0
-    psteps = 15.
+    psteps = 30.
     stop = False
     while r.successful() and not stop:
         
@@ -407,13 +408,17 @@ def correct_temperature(r, particles, yi):
         Returns the original ODE object with the corrected solution.
     
     """
-    # Find the values in the solution where the heat is stored
+    # Get the temperature of the ambient water in the inner plume
     T = yi.T
+    
+    # Find the heat conservation equation in the inner plume state space
     idx = 4
     for i in range(len(particles)):
-        idx += len(particles[i].composition)
-        r.y[idx] = np.sum(particles[i].m) * particles[i].nb0 * \
-                   particles[i].cp * T
+        idx += particles[i].particle.nc
+        if particles[i].K_T == 0.:
+            # Heat transfer is off, set temperature to ambient
+            r.y[idx] = np.sum(particles[i].m) * particles[i].nb0 * \
+                       particles[i].cp * T
         idx += 1
     
     # Return the corrected solution

@@ -108,10 +108,11 @@ class Scales(object):
         for i in range(len(self.particles)):
             m0 = self.particles[i].m0
             T0 = self.particles[i].T0
-            us[i], rho_p[i]= self.particles[i].properties(m0, T0, P, Sa, 
-                                                          Ta)[0:2]
             m_p[i] = np.sum(m0) * self.particles[i].nb0
-            B_p[i] = (rho - rho_p[i]) / rho * 9.81 * (m_p[i] / rho_p[i])
+            if m_p[i] > 0.:
+                us[i], rho_p[i]= self.particles[i].properties(m0, T0, P, Sa, 
+                                                               Ta)[0:2]
+                B_p[i] = (rho - rho_p[i]) / rho * 9.81 * (m_p[i] / rho_p[i])
         
         # Select the correct slip velocity
         u_slip = us[0]
@@ -286,7 +287,7 @@ class Scales(object):
             return self.h_S(z0, us) - h_P
         
         # Return the critical crossflow velocity
-        return fsolve(residual, 0.1)
+        return fsolve(residual, 0.05)
     
 
 
