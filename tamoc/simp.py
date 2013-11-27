@@ -81,7 +81,6 @@ def derivs_inner(z, y, yi, yo, particles, profile, p, neighbor):
     
     # Update the inner plume object with the corrent solution
     yi.update(z, y, particles, profile, p)
-    print particles[0].T
     
     # Update the outer plume object at the current depth
     if z < np.min(neighbor.x):
