@@ -110,9 +110,15 @@ class Scales(object):
             T0 = self.particles[i].T0
             m_p[i] = np.sum(m0) * self.particles[i].nb0
             if m_p[i] > 0.:
+                # Particles exist, get properties
                 us[i], rho_p[i]= self.particles[i].properties(m0, T0, P, Sa, 
                                                                Ta)[0:2]
                 B_p[i] = (rho - rho_p[i]) / rho * 9.81 * (m_p[i] / rho_p[i])
+            else:
+                # Particles dissolved, set to ambient conditions
+                us[i] = 0.
+                rho_p[i] = rho
+                B_p[i] = 0.
         
         # Select the correct slip velocity
         u_slip = us[0]

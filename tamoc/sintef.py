@@ -204,7 +204,7 @@ def de_50(U, D, rho_p, mu_p, sigma, rho):
             return dp - A * (We / (1. + B * Vi * dp**(1./3.)))**(-3./5.)
         
         # Find the gas and liquid fraction for the mixture
-        dp = fsolve(residual, 0.5)
+        dp = fsolve(residual, 5.)
         de = dp * D
     else:
         # Sinuous wave breakup...use the pipe diameter

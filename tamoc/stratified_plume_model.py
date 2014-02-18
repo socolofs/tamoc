@@ -989,6 +989,9 @@ class Particle(single_bubble_model.Particle):
                 m = np.array(m)
         
         # Update the variables with their currrent values
+        # TODO:  This looks suspicious.  Follow the temperature using print 
+        # statements throughout the solution and try to understand exactly 
+        # what needs to be inserted here in terms of temperature.
         self.m = m
         if self.K_T == 0:
             self.T = Ta
