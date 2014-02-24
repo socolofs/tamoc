@@ -629,15 +629,15 @@ def test_profile_deeper():
     assert_approx_equal(S1, S0, significant=6)
     assert_approx_equal(P1, P0, significant=6)
     assert_approx_equal(o21, o20, significant=6)
-    assert z1.shape[0] == z0.shape[0] + 1
-    assert_array_almost_equal(z1[:-1], z0)
+    assert z1.shape[0] == z0.shape[0] + 50
+    assert_array_almost_equal(z1[:-50], z0)
     assert z1[-1] == 2500.
     # Note that the buoyancy frequency shifts very slightly because density
     # is not linearly proportional to salinity.  Nonetheless, the results are
     # close to what we want, so this method of extending the profile works
     # adequately.
-    N = ctd.buoyancy_frequency(1529.789, h=0.01 * 1529.789 / 2500.)
-    assert_approx_equal(N, 0.00061522547610685734, significant=6)
+    N = ctd.buoyancy_frequency(1500.)
+    assert_approx_equal(N, 0.0006377576016247663, significant=6)
     N = ctd.buoyancy_frequency(2500.)
-    assert_approx_equal(N, 0.00061384896575343659, significant=6)
+    assert_approx_equal(N, 0.0006146292892002274, significant=6)
 

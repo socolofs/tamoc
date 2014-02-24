@@ -592,6 +592,25 @@ class Profile(object):
             return (rho_1 - rho)
         S = fsolve(residual, S)
         
+        # Create an array of data to append at the bottom of the original
+        # profild data
+        z_0 = self.z_max
+        S_0 = self.y[-1,1]
+        z_1 = z_new
+        S_1 = S
+        dz = (z_1 - z_0) / 50.
+        z_new = np.arange(z_0, z_1+dz, dz)
+        z_new[-1] = z_1
+        y_new = np.zeros((z_new.shape[0], self.y.shape[1]))
+        y_new[:,0] = self.y[-1,0]
+        y_new[:,1] = (S_1 - S_0) / (z_1 - z_0) * (z_new - z_0) + S_0
+        y_new[:,2:] = self.y[-1,2:]
+        # Get the right pressure
+        for i in range(len(z_new)-1):
+            y_new[i+1,2] = y_new[i,2] + seawater.density(y_new[i,0], 
+                           y_new[i,1], y_new[i,2]) * 9.81 * (z_new[i+1] - 
+                           z_new[i])
+        
         if self.nc_open is True:
             # Get the netCDF attributes not already stored in self.z and 
             # self.y
@@ -604,21 +623,18 @@ class Profile(object):
             self.nc.close()
             
             # Create the new netCDF file.
-            extention_text = ': extended from %g to %g' % (self.z_max, z_new)
+            extention_text = ': extended from %g to %g' % (self.z_max, z_1)
             source = source + extention_text + ' on date ' + ctime()
             self.nc = create_nc_db(nc_name, summary, source, sea_name, p_lat, 
                                    p_lon, p_time)
             
             # Fill the netCDF file with the extended profile.
-            y_new = self.y[-1,:]
-            y_new[1] = S
-            self.y = np.vstack((self.y, y_new))
-            self.z = np.hstack((self.z, z_new))
+            self.y = np.vstack((self.y, y_new[1:,:]))
+            self.z = np.hstack((self.z, z_new[1:]))
             data = np.hstack((np.atleast_2d(self.z).transpose(), self.y))
             var_symbols = [self.ztsp[0]] + self.f_names
             var_units = ['m'] + self.get_units(self.f_names)
             comments = ['extended'] * len(var_symbols)
-            data[:,3] = compute_pressure(data[:,0], data[:,1], data[:,2], 0)
             self.nc = fill_nc_db(self.nc, data, var_symbols, var_units, 
                                  comments, z_col=0)
             

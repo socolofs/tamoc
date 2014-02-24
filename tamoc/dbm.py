@@ -906,12 +906,6 @@ class FluidParticle(FluidMixture):
         # Compute the slip velocity
         us = self.slip_velocity(m, T, P, Sa, Ta)
         
-        # Check hydrate stability
-        K_hyd = 1.
-        T_hyd = self.hydrate_stability(m, P)
-        if T < T_hyd:
-            K_hyd = 1.0
-        
         # Compute the appropriate mass transfer coefficients
         if shape == 1:
             beta = dbm_f.xfer_sphere(de, us, rho, mu, self.diffusivity(Ta))
@@ -920,7 +914,7 @@ class FluidParticle(FluidMixture):
         else:
             beta = dbm_f.xfer_spherical_cap(de, us, rho, rho_p, mu, 
                                             self.diffusivity(Ta))
-        return K_hyd * beta
+        return beta
     
     def heat_transfer(self, m, T, P, Sa, Ta):
         """

@@ -2,7 +2,7 @@
 Single Bubble Model
 ===================
 
-Simulate the trajectory of a particle rising throught the water column
+Simulate the trajectory of a particle rising through the water column
 
 This module defines the classes, methods, and functions necessary to simulate
 the rise of a single particle (bubble, droplet or solid particle) through the
@@ -806,6 +806,8 @@ class Particle(object):
                 effective mass transfer coefficient(s) (m/s)
             K_T * beta_T : float
                 effective heat transfer coefficient (m/s)
+            T : float
+                temperature of the particle (K)
         
         Notes
         -----
@@ -844,7 +846,6 @@ class Particle(object):
                     # The whole particle has dissolved
                     us = 0.0
                     rho_p = seawater.density(Ta, Sa, P)
-            
         
         else:
             # Get the particle properties
@@ -852,10 +853,9 @@ class Particle(object):
                 self.particle.return_all(m[0], T, P, Sa, Ta)
             beta = np.array([])
             Cs = np.array([])
-            K_hyd = 1.
         
         # Return the particle properties
-        return (us, rho_p, A, Cs, self.K * beta, self.K_T * beta_T)
+        return (us, rho_p, A, Cs, self.K * beta, self.K_T * beta_T, T)
     
     def diameter(self, m, T, P, Sa, Ta):
         """
@@ -1039,7 +1039,7 @@ def derivs(t, y, profile, particle, p):
     C = profile.get_values(z, particle.composition)
     
     # Get the particle properties
-    (us, rho_p, A, Cs, beta, beta_T) = particle.properties(m, T, P, Sa, Ta)
+    (us, rho_p, A, Cs, beta, beta_T, T) = particle.properties(m, T, P, Sa, Ta)
     
     # Advection
     yp[0] = -us
@@ -1208,11 +1208,12 @@ def plot_state_space(profile, particle, p, t, y, fig):
     P = np.zeros(t.shape)
     Sa = np.zeros(t.shape)
     N = np.zeros(t.shape)
+    T_fun = np.zeros(t.shape)
     for i in range(len(t)):
         Ta[i], Sa[i], P[i] = profile.get_values(z[i], ['temperature', 
                              'salinity', 'pressure'])
         N[i] = profile.buoyancy_frequency(z[i], h=0.005)
-        (us[i], rho_p[i], A[i], Cs_local, beta_local, beta_T) = \
+        (us[i], rho_p[i], A[i], Cs_local, beta_local, beta_T, T_fun[i]) = \
             particle.properties(m[i,:], T[i], P[i], Sa[i], Ta[i])
         if len(Cs_local) > 0:
             Cs[i,:] = Cs_local
@@ -1302,6 +1303,7 @@ def plot_state_space(profile, particle, p, t, y, fig):
     ax4 = plt.subplot(224)
     plt.tight_layout()
     ax4.plot(T, z)
+    ax4.plot(T_fun, z)
     ax4.plot(Ta, z)
     ax4.set_xlabel('Temperature (K)')
     ax4.invert_yaxis()

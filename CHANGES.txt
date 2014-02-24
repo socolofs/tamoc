@@ -1,4 +1,10 @@
-v0.1.3, --
+v0.1.3, February 24, 2013 -- 
+   . Updated the test cases for test_ambient, test_dbm_object, test_dbm, and
+     test_sbm to reflect the other changes in this update.
+   . Added temperature as an output from the sbm.particle.update method so 
+     that temperature is consistently handled throughout the simulation.
+   . Updated the ambient.extend_profile_deeper method so that the correct
+     pressure is computed for the extended region of the profile.
    . Fixed a bug in the Fortran files so that the Peng-Robinson equation of 
      state module can always find the correct, non-negative minimum and 
      maximum roots.  Previously, the minimum root was assumed to be less than

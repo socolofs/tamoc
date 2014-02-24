@@ -160,7 +160,8 @@ def test_particle_obj():
     assert bub_obj.diss_indices[-1] == False
     
     # Check if the values returned by the `properties` method match the input
-    (us, rho_p, A, Cs, beta, beta_T) = bub_obj.properties(m0, T, P, Sa, Ta)
+    (us, rho_p, A, Cs, beta, beta_T, T_ans) = bub_obj.properties(m0, T, P, 
+        Sa, Ta)
     us_ans = bub.slip_velocity(m0, T, P, Sa, Ta)
     rho_p_ans = bub.density(m0, T, P)
     A_ans = bub.surface_area(m0, T, P, Sa, Ta)
@@ -173,25 +174,29 @@ def test_particle_obj():
     assert_array_almost_equal(Cs, Cs_ans, decimal=6)
     assert_array_almost_equal(beta, beta_ans, decimal=6)
     assert beta_T == beta_T_ans
+    assert T == T_ans
     
     # Check that dissolution shuts down correctly
     m_dis = np.array([m0[0]*1e-10, m0[1]*1e-8, m0[2]*1e-3, 1.5e-5])
-    (us, rho_p, A, Cs, beta, beta_T) = bub_obj.properties(m_dis, T, P, Sa, Ta)
+    (us, rho_p, A, Cs, beta, beta_T, T_ans) = bub_obj.properties(m_dis, T, P, 
+        Sa, Ta)
     assert beta[0] == 0.
     assert beta[1] == 0.
     assert beta[2] > 0.
     assert beta[3] > 0.
     m_dis = np.array([m0[0]*1e-10, m0[1]*1e-8, m0[2]*1e-7, 1.5e-16])
-    (us, rho_p, A, Cs, beta, beta_T) = bub_obj.properties(m_dis, T, P, Sa, Ta)
+    (us, rho_p, A, Cs, beta, beta_T, T_ans) = bub_obj.properties(m_dis, T, P, 
+        Sa, Ta)
     assert np.sum(beta[0:-1]) == 0.
     assert us == 0.
     assert rho_p == seawater.density(Ta, Sa, P)
     
     # Check that heat transfer shuts down correctly
-    (us, rho_p, A, Cs, beta, beta_T) = bub_obj.properties(m_dis, Ta, P, Sa, 
-                                                          Ta)
+    (us, rho_p, A, Cs, beta, beta_T, T_ans) = bub_obj.properties(m_dis, Ta, P, 
+        Sa, Ta)
     assert beta_T == 0.
-    (us, rho_p, A, Cs, beta, beta_T) = bub_obj.properties(m_dis, T, P, Sa, Ta)
+    (us, rho_p, A, Cs, beta, beta_T, T_ans) = bub_obj.properties(m_dis, T, P, 
+        Sa, Ta)
     assert beta_T == 0.
     
     # Check the value returned by the `diameter` method
@@ -206,8 +211,8 @@ def test_particle_obj():
     drop_obj = single_bubble_model.Particle(drop, m0, T, K, fdis=fdis, K_T=Kt)
     
     # Check if the values returned by the `properties` method match the input
-    (us, rho_p, A, Cs, beta, beta_T) = drop_obj.properties(np.array([m0]), T, 
-                                       P, Sa, Ta)
+    (us, rho_p, A, Cs, beta, beta_T, T_ans) = drop_obj.properties(np.array([m0]), 
+        T, P, Sa, Ta)
     us_ans = drop.slip_velocity(m0, T, P, Sa, Ta)
     rho_p_ans = drop.density(T, P, Sa, Ta)
     A_ans = drop.surface_area(m0, T, P, Sa, Ta)
@@ -218,11 +223,11 @@ def test_particle_obj():
     assert beta_T == beta_T_ans
     
     # Check that heat transfer shuts down correctly
-    (us, rho_p, A, Cs, beta, beta_T) = drop_obj.properties(m_dis, Ta, P, Sa, 
-                                                           Ta)
+    (us, rho_p, A, Cs, beta, beta_T, T_ans) = drop_obj.properties(m_dis, Ta, P, 
+        Sa, Ta)
     assert beta_T == 0.
-    (us, rho_p, A, Cs, beta, beta_T) = drop_obj.properties(m_dis, T, P, Sa, 
-                                                           Ta)
+    (us, rho_p, A, Cs, beta, beta_T, T_ans) = drop_obj.properties(m_dis, T, P, 
+        Sa, Ta)
     assert beta_T == 0.
     
     # Check the value returned by the `diameter` method
@@ -340,10 +345,10 @@ def test_simulation():
     assert sbm.y.shape[0] == 651
     assert sbm.y.shape[1] == 6
     assert sbm.t.shape[0] == 651
-    assert_approx_equal(sbm.t[-1], 6300.808514596312, significant = 6)
-    assert_array_almost_equal(sbm.y[-1,:], np.array([5.90022523e+02,
-        4.01362835e-14, 6.57436229e-15, -3.59498210e-13, -5.48755745e-14,  
-        -2.15995508e-07]), decimal = 6)
+    assert_approx_equal(sbm.t[-1], 6298.9835849176, significant = 6)
+    assert_array_almost_equal(sbm.y[-1,:], np.array([5.90015259e+02,
+        4.01612022e-14, 6.68098538e-15, -1.88847481e-13, -5.19893164e-14,  
+        -1.13968383e-07]), decimal = 6)
     
     # Write the output files
     sbm.save_sim('./output/sbm_data.nc', './test_bm54.nc', 
@@ -376,19 +381,19 @@ def test_simulation():
     assert sbm.y.shape[0] == 651
     assert sbm.y.shape[1] == 6
     assert sbm.t.shape[0] == 651
-    assert_approx_equal(sbm.t[-1], 6300.80851459631, significant = 6)
-    assert_array_almost_equal(sbm.y[-1,:], np.array([5.90022523e+02,
-        4.01362835e-14, 6.57436229e-15, -3.59498210e-13, -5.48755745e-14,  
-        -2.15995508e-07]), decimal = 6)
+    assert_approx_equal(sbm.t[-1], 6298.9835849176, significant = 6)
+    assert_array_almost_equal(sbm.y[-1,:], np.array([5.90015259e+02,
+        4.01612022e-14, 6.68098538e-15, -1.88847481e-13, -5.19893164e-14,  
+        -1.13968383e-07]), decimal = 6)
     
     # Load the data in the txt file and check the solution
     data = np.loadtxt('./output/sbm_data.txt')
     assert data.shape[0] == 651
     assert data.shape[1] == 7
-    assert_approx_equal(data[-1,0], 6300.80851459631, significant = 6)
-    assert_array_almost_equal(data[-1,1:], np.array([5.90022523e+02,
-        4.01362835e-14, 6.57436229e-15, -3.59498210e-13, -5.48755745e-14,  
-        -2.15995508e-07]), decimal = 6)
+    assert_approx_equal(data[-1,0], 6298.9835849176, significant = 6)
+    assert_array_almost_equal(data[-1,1:], np.array([5.90015259e+02,
+        4.01612022e-14, 6.68098538e-15, -1.88847481e-13, -5.19893164e-14,  
+        -1.13968383e-07]), decimal = 6)
     
     # Create an inert particle that is compressible
     oil = dbm.InsolubleParticle(True, True, rho_p=840.)
