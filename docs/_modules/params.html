@@ -1,0 +1,387 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>params &mdash; Texas A&amp;M Oilspill Calculator v0.1 Manual</title>
+    
+    <link rel="stylesheet" href="../_static/scipy.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+
+          <li><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for params</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Params Module</span>
+<span class="sd">=============</span>
+
+<span class="sd">Calculate the governing scales and determine the appropriate simulation model</span>
+
+<span class="sd">This module calculates the governing non-dimensional parameters defined in </span>
+<span class="sd">papers by Socolofsky and Adams (2002, 2005) and Socolofsky et al. (2011) and</span>
+<span class="sd">uses this information to recommend the appropriate simulation model.  </span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="c"># S. Socolofsky, October 2013, Texas A&amp;M University &lt;socolofs@tamu.edu&gt;.</span>
+
+<span class="kn">from</span> <span class="nn">tamoc</span> <span class="kn">import</span> <span class="n">seawater</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">fsolve</span>
+
+<div class="viewcode-block" id="Scales"><a class="viewcode-back" href="../modules/params.html#params.Scales">[docs]</a><span class="k">class</span> <span class="nc">Scales</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the characteristic scales for a ``TAMOC`` simulation</span>
+<span class="sd">    </span>
+<span class="sd">    Compute the governing non-dimensional parameters defined in Socolofsky</span>
+<span class="sd">    and Adams (2002, 2005) to provide guidance on model selection for the </span>
+<span class="sd">    ``TAMOC`` modeling suite.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    profile : `ambient.Profile` object</span>
+<span class="sd">        Ambient CTD data for the model simulation</span>
+<span class="sd">    particles : list</span>
+<span class="sd">        List of `stratified_plume_model.Particle` objects that define all of </span>
+<span class="sd">        the dispersed phases in the simulation</span>
+<span class="sd">    </span>
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    profile : `ambient.Profile` object</span>
+<span class="sd">        Ambient CTD data for the model simulation</span>
+<span class="sd">    particles : list</span>
+<span class="sd">        List of `stratified_plume_model.Particle` objects for the simulation</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">particles</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Scales</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+        
+        <span class="c"># Store the ambient profile data and close any open netCDF files</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">profile</span> <span class="o">=</span> <span class="n">profile</span>
+        <span class="n">profile</span><span class="o">.</span><span class="n">close_nc</span><span class="p">()</span>
+        
+        <span class="c"># Store the dispersed phase particles</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">particles</span> <span class="o">=</span> <span class="n">particles</span>
+    
+<div class="viewcode-block" id="Scales.get_variables"><a class="viewcode-back" href="../params/params.Scales.get_variables.html#params.Scales.get_variables">[docs]</a>    <span class="k">def</span> <span class="nf">get_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z0</span><span class="p">,</span> <span class="n">u_inf</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the governing variables at a given depth</span>
+<span class="sd">        </span>
+<span class="sd">        Compute the governing variables B (kinematic buoyancy flux), N </span>
+<span class="sd">        (buoyancy frequency) and u_slip (dispersed-phase slip velocity) at </span>
+<span class="sd">        the given depth and cross-flow velocity.  These are the main </span>
+<span class="sd">        ingredients to each of the scales calculations.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        z0 : float</span>
+<span class="sd">            Depth to evaluate the governing variables (m)</span>
+<span class="sd">        u_inf : float</span>
+<span class="sd">            Magnitude of the local ambient cross-flow velocity (m/s)</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        A tuble containing the governing variables:</span>
+<span class="sd">            B : float</span>
+<span class="sd">                Total kinematic buoyancy flux of all dispersed phases </span>
+<span class="sd">                together (m^4/s^3)</span>
+<span class="sd">            N : float</span>
+<span class="sd">                Local value of the ambient buoyancy frequency (1/s)</span>
+<span class="sd">            u_slip : float</span>
+<span class="sd">                Slip velocity of the dispersed phase containing the greatest</span>
+<span class="sd">                buoyancy flux (m/s)</span>
+<span class="sd">            u_inf : float</span>
+<span class="sd">                Magnitude of the local ambient cross-flow velocity (m/s)</span>
+<span class="sd">                TODO (S. Socolofsky, October 2013): Eventually, this should</span>
+<span class="sd">                be read from the ambient CTD data and removed as an input to</span>
+<span class="sd">                this method.</span>
+<span class="sd">        </span>
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        When more than one dispersed phase particle is present, the slip </span>
+<span class="sd">        velocity used as the governing variables is the value for the </span>
+<span class="sd">        dispersed phase particle that has the greatest effect on the dynamics</span>
+<span class="sd">        of the plume.  This particle is the one for which the buoyancy flux</span>
+<span class="sd">        is highest.  The governing variables, B, on the other hand is the </span>
+<span class="sd">        total buoyancy flux of all dispersed phase particles combined.  This </span>
+<span class="sd">        is consistent with the way the governing parameters have been used </span>
+<span class="sd">        in papers by Socolofsky and Adams (e.g., Socolofsky et al. 2011).</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Get the ambient data from the CTD profile</span>
+        <span class="n">Ta</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">P</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="n">z0</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;temperature&#39;</span><span class="p">,</span> <span class="s">&#39;salinity&#39;</span><span class="p">,</span>
+                                            <span class="s">&#39;pressure&#39;</span><span class="p">])</span>
+        <span class="n">rho</span> <span class="o">=</span> <span class="n">seawater</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">Ta</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
+        
+        <span class="c"># Compute the properties of each dispersed-phase particle</span>
+        <span class="n">us</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">))</span>
+        <span class="n">rho_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">))</span>
+        <span class="n">m_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">))</span>
+        <span class="n">B_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">)):</span>
+            <span class="n">m0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">m0</span>
+            <span class="n">T0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">T0</span>
+            <span class="n">m_p</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">m0</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">nb0</span>
+            <span class="k">if</span> <span class="n">m_p</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">0.</span><span class="p">:</span>
+                <span class="n">us</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">rho_p</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">properties</span><span class="p">(</span><span class="n">m0</span><span class="p">,</span> <span class="n">T0</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> 
+                                                               <span class="n">Ta</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span>
+                <span class="n">B_p</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">rho</span> <span class="o">-</span> <span class="n">rho_p</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">/</span> <span class="n">rho</span> <span class="o">*</span> <span class="mf">9.81</span> <span class="o">*</span> <span class="p">(</span><span class="n">m_p</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="n">rho_p</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        
+        <span class="c"># Select the correct slip velocity</span>
+        <span class="n">u_slip</span> <span class="o">=</span> <span class="n">us</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">B_p</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">B_p</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+                <span class="n">u_slip</span> <span class="o">=</span> <span class="n">us</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+        
+        <span class="c"># Compute the total buoyancy flux</span>
+        <span class="n">B</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">B_p</span><span class="p">)</span>
+        
+        <span class="c"># Get the ambient buoyancy frequency</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">buoyancy_frequency</span><span class="p">(</span><span class="n">z0</span><span class="p">)</span>
+        
+        <span class="c"># Return the governing parameters</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">u_slip</span><span class="p">,</span> <span class="n">u_inf</span><span class="p">)</span>
+    </div>
+<div class="viewcode-block" id="Scales.h_T"><a class="viewcode-back" href="../params/params.Scales.h_T.html#params.Scales.h_T">[docs]</a>    <span class="k">def</span> <span class="nf">h_T</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the trap height for the lowest intrusion</span>
+<span class="sd">        </span>
+<span class="sd">        Compute the intrusion layer height above the bottom for the lowest</span>
+<span class="sd">        intrusion based on the correlations in Socolofsky and Adams (2005).</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        z0 : float</span>
+<span class="sd">            Depth to evaluate the trap height (m)</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        h_T : float</span>
+<span class="sd">            Plume trap height for the first intrusion measured in height </span>
+<span class="sd">            above the bottom (m)</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Get the governing variables</span>
+        <span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">u_slip</span><span class="p">,</span> <span class="n">u_inf</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_variables</span><span class="p">(</span><span class="n">z0</span><span class="p">,</span> <span class="mf">0.</span><span class="p">)</span>
+        
+        <span class="c"># Compute U_N</span>
+        <span class="n">U_N</span> <span class="o">=</span> <span class="n">u_slip</span> <span class="o">/</span> <span class="p">(</span><span class="n">B</span> <span class="o">*</span> <span class="n">N</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="mf">4.</span><span class="p">)</span>
+        
+        <span class="c"># Compute the correlation equation</span>
+        <span class="k">return</span> <span class="mf">2.9</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">U_N</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="mf">28.09</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">B</span> <span class="o">/</span> <span class="n">N</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="mf">4.</span><span class="p">)</span>
+    </div>
+<div class="viewcode-block" id="Scales.h_P"><a class="viewcode-back" href="../params/params.Scales.h_P.html#params.Scales.h_P">[docs]</a>    <span class="k">def</span> <span class="nf">h_P</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the peel height for the lowest intrusion</span>
+<span class="sd">        </span>
+<span class="sd">        Compute the height above the bottom for the peeling region that forms</span>
+<span class="sd">        the lowest intrusion based on the correlations in Socolofsky and Adams </span>
+<span class="sd">        (2005).</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        z0 : float</span>
+<span class="sd">            Depth to evaluate the trap height (m)</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        h_P : float</span>
+<span class="sd">            Plume peel height for the first intrusion measured in height </span>
+<span class="sd">            above the bottom (m)</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Get the governing variables</span>
+        <span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">u_slip</span><span class="p">,</span> <span class="n">u_inf</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_variables</span><span class="p">(</span><span class="n">z0</span><span class="p">,</span> <span class="mf">0.</span><span class="p">)</span>
+        
+        <span class="c"># Compute U_N</span>
+        <span class="n">U_N</span> <span class="o">=</span> <span class="n">u_slip</span> <span class="o">/</span> <span class="p">(</span><span class="n">B</span> <span class="o">*</span> <span class="n">N</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="mf">4.</span><span class="p">)</span>
+        
+        <span class="c"># Compute the correlation equation</span>
+        <span class="k">return</span> <span class="mf">5.2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">U_N</span> <span class="o">-</span> <span class="mf">1.8</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="mf">10.24</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">B</span> <span class="o">/</span> <span class="n">N</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="mf">4.</span><span class="p">)</span>
+    </div>
+<div class="viewcode-block" id="Scales.h_S"><a class="viewcode-back" href="../params/params.Scales.h_S.html#params.Scales.h_S">[docs]</a>    <span class="k">def</span> <span class="nf">h_S</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z0</span><span class="p">,</span> <span class="n">u_inf</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the cross-flow separation height</span>
+<span class="sd">        </span>
+<span class="sd">        Compute the height above the bottom where the cross-flow causes </span>
+<span class="sd">        separation of the entrained plume fluid from the plume based on the</span>
+<span class="sd">        correlation in Socolofsky and Adams (2002).</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        z0 : float</span>
+<span class="sd">            Depth to evaluate the trap height (m)</span>
+<span class="sd">        u_inf : float</span>
+<span class="sd">            Magnitude of the local ambient cross-flow velocity (m/s)</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        h_S : float</span>
+<span class="sd">            Cross-flow separation height measured in height above the bottom </span>
+<span class="sd">            (m)</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Get the governing variables</span>
+        <span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">u_slip</span><span class="p">,</span> <span class="n">u_inf</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_variables</span><span class="p">(</span><span class="n">z0</span><span class="p">,</span> <span class="n">u_inf</span><span class="p">)</span>
+        
+        <span class="c"># Compute the correlation equation</span>
+        <span class="k">return</span> <span class="mf">5.1</span> <span class="o">*</span> <span class="n">B</span> <span class="o">/</span> <span class="p">(</span><span class="n">u_inf</span> <span class="o">*</span> <span class="n">u_slip</span><span class="o">**</span><span class="mf">2.4</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="mf">0.88</span><span class="p">)</span>
+    </div>
+<div class="viewcode-block" id="Scales.lambda_1"><a class="viewcode-back" href="../params/params.Scales.lambda_1.html#params.Scales.lambda_1">[docs]</a>    <span class="k">def</span> <span class="nf">lambda_1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z0</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the spreading ratio of particle n at the given depth</span>
+<span class="sd">        </span>
+<span class="sd">        Compute the spreading ratio lambda_1 for particle n at the given </span>
+<span class="sd">        depth z0 from the correlation equations in Socolofsky and Adams </span>
+<span class="sd">        (2005).</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        z0 : float</span>
+<span class="sd">            Depth to evaluate the trap height (m)</span>
+<span class="sd">        n : int</span>
+<span class="sd">            Index to the self.Particle object for which the spreading ratio</span>
+<span class="sd">            should be calculated</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        lambda_1 : float</span>
+<span class="sd">            Dispersed-phase spreading ratio lambda_1 for the selected </span>
+<span class="sd">            dispersed-phase particle.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Get the governing variables</span>
+        <span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">u_slip</span><span class="p">,</span> <span class="n">u_inf</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_variables</span><span class="p">(</span><span class="n">z0</span><span class="p">,</span> <span class="mf">0.</span><span class="p">)</span>
+        
+        <span class="c"># Compute the slip velocity for the selected dispersed-phase particle</span>
+        <span class="n">Ta</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">P</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="n">z0</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;temperature&#39;</span><span class="p">,</span> <span class="s">&#39;salinity&#39;</span><span class="p">,</span>
+                                            <span class="s">&#39;pressure&#39;</span><span class="p">])</span>
+        <span class="n">u_slip</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">properties</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">m0</span><span class="p">,</span> 
+                                              <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">T0</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> 
+                                              <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        
+        <span class="c"># Compute the particle value of U_N</span>
+        <span class="n">U_N</span> <span class="o">=</span> <span class="n">u_slip</span> <span class="o">/</span> <span class="p">(</span><span class="n">B</span> <span class="o">*</span> <span class="n">N</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="mf">4.</span><span class="p">)</span>
+        
+        <span class="c"># Get the spreading ratio</span>
+        <span class="k">return</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="mf">0.19</span> <span class="o">*</span> <span class="n">U_N</span><span class="o">**</span><span class="p">(</span><span class="mf">0.61</span><span class="p">)</span>
+    </div>
+<div class="viewcode-block" id="Scales.u_inf_crit"><a class="viewcode-back" href="../params/params.Scales.u_inf_crit.html#params.Scales.u_inf_crit">[docs]</a>    <span class="k">def</span> <span class="nf">u_inf_crit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Determine the critical cross-flow velocity</span>
+<span class="sd">        </span>
+<span class="sd">        Calculate the critical value of the cross-flow velocity for which </span>
+<span class="sd">        the peel height matches the cross-flos separation height.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        z0 : float</span>
+<span class="sd">            Depth to evaluate the trap height (m)</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        u_inf_crit : float</span>
+<span class="sd">            Crossflow velocity for which h_P = h_S</span>
+<span class="sd">        </span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Get h_P, which is independent of the crossflow velocity</span>
+        <span class="n">h_P</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">h_P</span><span class="p">(</span><span class="n">z0</span><span class="p">)</span>
+        
+        <span class="c"># Define an objective function for root finding</span>
+        <span class="k">def</span> <span class="nf">residual</span><span class="p">(</span><span class="n">us</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Residual for use in root finding to find u_inf_crit</span>
+<span class="sd">            </span>
+<span class="sd">            Returns the difference h_S - h_P, which should be zero at the </span>
+<span class="sd">            critical cross-flow velocity.</span>
+<span class="sd">            </span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">h_S</span><span class="p">(</span><span class="n">z0</span><span class="p">,</span> <span class="n">us</span><span class="p">)</span> <span class="o">-</span> <span class="n">h_P</span>
+        
+        <span class="c"># Return the critical crossflow velocity</span>
+        <span class="k">return</span> <span class="n">fsolve</span><span class="p">(</span><span class="n">residual</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">)</span>
+    
+</pre></div></div></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../contents.html">
+              <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
+            </a></p>
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+
+          <li><a href="index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Scott A. Socolofsky.
+      Last updated on Feb 25, 2014.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

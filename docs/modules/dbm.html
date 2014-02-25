@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.1',
+        VERSION:     '0.1.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -58,7 +58,7 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">September 11, 2013</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">February 25, 2014</td>
 </tr>
 </tbody>
 </table>
@@ -216,22 +216,25 @@ full matrix of zeros.</p>
 <tr class="row-even"><td><a class="reference internal" href="../dbm/dbm.FluidMixture.fugacity.html#dbm.FluidMixture.fugacity" title="dbm.FluidMixture.fugacity"><tt class="xref py py-obj docutils literal"><span class="pre">fugacity</span></tt></a>(m,&nbsp;T,&nbsp;P)</td>
 <td>Compute the gas and liquid fugacity (Pa) of a fluid mixture at the</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="../dbm/dbm.FluidMixture.mass_frac.html#dbm.FluidMixture.mass_frac" title="dbm.FluidMixture.mass_frac"><tt class="xref py py-obj docutils literal"><span class="pre">mass_frac</span></tt></a>(n)</td>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">hydrate_stability</span></tt>(m,&nbsp;P)</td>
+<td>Compute the hydrate formation temperature at the given pressure</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../dbm/dbm.FluidMixture.mass_frac.html#dbm.FluidMixture.mass_frac" title="dbm.FluidMixture.mass_frac"><tt class="xref py py-obj docutils literal"><span class="pre">mass_frac</span></tt></a>(n)</td>
 <td>Calculate the mass fraction (&#8211;) from the number of moles of each  component in a mixture.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="../dbm/dbm.FluidMixture.masses.html#dbm.FluidMixture.masses" title="dbm.FluidMixture.masses"><tt class="xref py py-obj docutils literal"><span class="pre">masses</span></tt></a>(n)</td>
+<tr class="row-odd"><td><a class="reference internal" href="../dbm/dbm.FluidMixture.masses.html#dbm.FluidMixture.masses" title="dbm.FluidMixture.masses"><tt class="xref py py-obj docutils literal"><span class="pre">masses</span></tt></a>(n)</td>
 <td>Convert the moles of each component in a mixture to their masses (kg).</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="../dbm/dbm.FluidMixture.mol_frac.html#dbm.FluidMixture.mol_frac" title="dbm.FluidMixture.mol_frac"><tt class="xref py py-obj docutils literal"><span class="pre">mol_frac</span></tt></a>(m)</td>
+<tr class="row-even"><td><a class="reference internal" href="../dbm/dbm.FluidMixture.mol_frac.html#dbm.FluidMixture.mol_frac" title="dbm.FluidMixture.mol_frac"><tt class="xref py py-obj docutils literal"><span class="pre">mol_frac</span></tt></a>(m)</td>
 <td>Calcualte the mole fraction (&#8211;) from the masses of each component in  a mixture.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="../dbm/dbm.FluidMixture.moles.html#dbm.FluidMixture.moles" title="dbm.FluidMixture.moles"><tt class="xref py py-obj docutils literal"><span class="pre">moles</span></tt></a>(m)</td>
+<tr class="row-odd"><td><a class="reference internal" href="../dbm/dbm.FluidMixture.moles.html#dbm.FluidMixture.moles" title="dbm.FluidMixture.moles"><tt class="xref py py-obj docutils literal"><span class="pre">moles</span></tt></a>(m)</td>
 <td>Convert the masses of each component in a mixture to their moles  (mol).</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="../dbm/dbm.FluidMixture.partial_pressures.html#dbm.FluidMixture.partial_pressures" title="dbm.FluidMixture.partial_pressures"><tt class="xref py py-obj docutils literal"><span class="pre">partial_pressures</span></tt></a>(m,&nbsp;P)</td>
+<tr class="row-even"><td><a class="reference internal" href="../dbm/dbm.FluidMixture.partial_pressures.html#dbm.FluidMixture.partial_pressures" title="dbm.FluidMixture.partial_pressures"><tt class="xref py py-obj docutils literal"><span class="pre">partial_pressures</span></tt></a>(m,&nbsp;P)</td>
 <td>Compute the partial pressure (Pa) of each component in a mixture.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="../dbm/dbm.FluidMixture.solubility.html#dbm.FluidMixture.solubility" title="dbm.FluidMixture.solubility"><tt class="xref py py-obj docutils literal"><span class="pre">solubility</span></tt></a>(m,&nbsp;T,&nbsp;P,&nbsp;Sa)</td>
+<tr class="row-odd"><td><a class="reference internal" href="../dbm/dbm.FluidMixture.solubility.html#dbm.FluidMixture.solubility" title="dbm.FluidMixture.solubility"><tt class="xref py py-obj docutils literal"><span class="pre">solubility</span></tt></a>(m,&nbsp;T,&nbsp;P,&nbsp;Sa)</td>
 <td>Compute the solubility (kg/m^3) of each component of a mixture in both gas and liquid dissolving into seawater.</td>
 </tr>
 </tbody>
@@ -321,40 +324,43 @@ full matrix of zeros.</p>
 <tr class="row-even"><td><a class="reference internal" href="../dbm/dbm.FluidParticle.heat_transfer.html#dbm.FluidParticle.heat_transfer" title="dbm.FluidParticle.heat_transfer"><tt class="xref py py-obj docutils literal"><span class="pre">heat_transfer</span></tt></a>(m,&nbsp;T,&nbsp;P,&nbsp;Sa,&nbsp;Ta)</td>
 <td>Compute the heat transfer coefficient (m/s) for a fluid particle</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="../dbm/dbm.FluidParticle.mass_frac.html#dbm.FluidParticle.mass_frac" title="dbm.FluidParticle.mass_frac"><tt class="xref py py-obj docutils literal"><span class="pre">mass_frac</span></tt></a>(n)</td>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">hydrate_stability</span></tt>(m,&nbsp;P)</td>
+<td>Compute the hydrate formation temperature at the given pressure</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../dbm/dbm.FluidParticle.mass_frac.html#dbm.FluidParticle.mass_frac" title="dbm.FluidParticle.mass_frac"><tt class="xref py py-obj docutils literal"><span class="pre">mass_frac</span></tt></a>(n)</td>
 <td>Calculate the mass fraction (&#8211;) from the number of moles of each  component in a mixture.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="../dbm/dbm.FluidParticle.mass_transfer.html#dbm.FluidParticle.mass_transfer" title="dbm.FluidParticle.mass_transfer"><tt class="xref py py-obj docutils literal"><span class="pre">mass_transfer</span></tt></a>(m,&nbsp;T,&nbsp;P,&nbsp;Sa,&nbsp;Ta)</td>
+<tr class="row-odd"><td><a class="reference internal" href="../dbm/dbm.FluidParticle.mass_transfer.html#dbm.FluidParticle.mass_transfer" title="dbm.FluidParticle.mass_transfer"><tt class="xref py py-obj docutils literal"><span class="pre">mass_transfer</span></tt></a>(m,&nbsp;T,&nbsp;P,&nbsp;Sa,&nbsp;Ta)</td>
 <td>Compute the mass transfer coefficients (m/s) for each component in a</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="../dbm/dbm.FluidParticle.masses.html#dbm.FluidParticle.masses" title="dbm.FluidParticle.masses"><tt class="xref py py-obj docutils literal"><span class="pre">masses</span></tt></a>(n)</td>
+<tr class="row-even"><td><a class="reference internal" href="../dbm/dbm.FluidParticle.masses.html#dbm.FluidParticle.masses" title="dbm.FluidParticle.masses"><tt class="xref py py-obj docutils literal"><span class="pre">masses</span></tt></a>(n)</td>
 <td>Convert the moles of each component in a mixture to their masses (kg).</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="../dbm/dbm.FluidParticle.masses_by_diameter.html#dbm.FluidParticle.masses_by_diameter" title="dbm.FluidParticle.masses_by_diameter"><tt class="xref py py-obj docutils literal"><span class="pre">masses_by_diameter</span></tt></a>(de,&nbsp;T,&nbsp;P,&nbsp;yk)</td>
+<tr class="row-odd"><td><a class="reference internal" href="../dbm/dbm.FluidParticle.masses_by_diameter.html#dbm.FluidParticle.masses_by_diameter" title="dbm.FluidParticle.masses_by_diameter"><tt class="xref py py-obj docutils literal"><span class="pre">masses_by_diameter</span></tt></a>(de,&nbsp;T,&nbsp;P,&nbsp;yk)</td>
 <td>Find the masses (kg) of each component in a particle with equivalent  spherical diameter <em class="xref py py-obj">de</em> and mole fractions <em class="xref py py-obj">yk</em>.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="../dbm/dbm.FluidParticle.mol_frac.html#dbm.FluidParticle.mol_frac" title="dbm.FluidParticle.mol_frac"><tt class="xref py py-obj docutils literal"><span class="pre">mol_frac</span></tt></a>(m)</td>
+<tr class="row-even"><td><a class="reference internal" href="../dbm/dbm.FluidParticle.mol_frac.html#dbm.FluidParticle.mol_frac" title="dbm.FluidParticle.mol_frac"><tt class="xref py py-obj docutils literal"><span class="pre">mol_frac</span></tt></a>(m)</td>
 <td>Calcualte the mole fraction (&#8211;) from the masses of each component in  a mixture.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="../dbm/dbm.FluidParticle.moles.html#dbm.FluidParticle.moles" title="dbm.FluidParticle.moles"><tt class="xref py py-obj docutils literal"><span class="pre">moles</span></tt></a>(m)</td>
+<tr class="row-odd"><td><a class="reference internal" href="../dbm/dbm.FluidParticle.moles.html#dbm.FluidParticle.moles" title="dbm.FluidParticle.moles"><tt class="xref py py-obj docutils literal"><span class="pre">moles</span></tt></a>(m)</td>
 <td>Convert the masses of each component in a mixture to their moles  (mol).</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="../dbm/dbm.FluidParticle.partial_pressures.html#dbm.FluidParticle.partial_pressures" title="dbm.FluidParticle.partial_pressures"><tt class="xref py py-obj docutils literal"><span class="pre">partial_pressures</span></tt></a>(m,&nbsp;P)</td>
+<tr class="row-even"><td><a class="reference internal" href="../dbm/dbm.FluidParticle.partial_pressures.html#dbm.FluidParticle.partial_pressures" title="dbm.FluidParticle.partial_pressures"><tt class="xref py py-obj docutils literal"><span class="pre">partial_pressures</span></tt></a>(m,&nbsp;P)</td>
 <td>Compute the partial pressure (Pa) of each component in a mixture.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="../dbm/dbm.FluidParticle.particle_shape.html#dbm.FluidParticle.particle_shape" title="dbm.FluidParticle.particle_shape"><tt class="xref py py-obj docutils literal"><span class="pre">particle_shape</span></tt></a>(m,&nbsp;T,&nbsp;P,&nbsp;Sa,&nbsp;Ta)</td>
+<tr class="row-odd"><td><a class="reference internal" href="../dbm/dbm.FluidParticle.particle_shape.html#dbm.FluidParticle.particle_shape" title="dbm.FluidParticle.particle_shape"><tt class="xref py py-obj docutils literal"><span class="pre">particle_shape</span></tt></a>(m,&nbsp;T,&nbsp;P,&nbsp;Sa,&nbsp;Ta)</td>
 <td>Determine the shape of a fluid particle from the properties of the  particle and surrounding fluid.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="../dbm/dbm.FluidParticle.return_all.html#dbm.FluidParticle.return_all" title="dbm.FluidParticle.return_all"><tt class="xref py py-obj docutils literal"><span class="pre">return_all</span></tt></a>(m,&nbsp;T,&nbsp;P,&nbsp;Sa,&nbsp;Ta)</td>
+<tr class="row-even"><td><a class="reference internal" href="../dbm/dbm.FluidParticle.return_all.html#dbm.FluidParticle.return_all" title="dbm.FluidParticle.return_all"><tt class="xref py py-obj docutils literal"><span class="pre">return_all</span></tt></a>(m,&nbsp;T,&nbsp;P,&nbsp;Sa,&nbsp;Ta)</td>
 <td>Compute all of the dynamic properties of the bubble in an efficient manner (e.g., minimizing replicate calls to functions).</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="../dbm/dbm.FluidParticle.slip_velocity.html#dbm.FluidParticle.slip_velocity" title="dbm.FluidParticle.slip_velocity"><tt class="xref py py-obj docutils literal"><span class="pre">slip_velocity</span></tt></a>(m,&nbsp;T,&nbsp;P,&nbsp;Sa,&nbsp;Ta)</td>
+<tr class="row-odd"><td><a class="reference internal" href="../dbm/dbm.FluidParticle.slip_velocity.html#dbm.FluidParticle.slip_velocity" title="dbm.FluidParticle.slip_velocity"><tt class="xref py py-obj docutils literal"><span class="pre">slip_velocity</span></tt></a>(m,&nbsp;T,&nbsp;P,&nbsp;Sa,&nbsp;Ta)</td>
 <td>Compute the slip velocity (m/s) of a fluid particle.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="../dbm/dbm.FluidParticle.solubility.html#dbm.FluidParticle.solubility" title="dbm.FluidParticle.solubility"><tt class="xref py py-obj docutils literal"><span class="pre">solubility</span></tt></a>(m,&nbsp;T,&nbsp;P,&nbsp;Sa)</td>
+<tr class="row-even"><td><a class="reference internal" href="../dbm/dbm.FluidParticle.solubility.html#dbm.FluidParticle.solubility" title="dbm.FluidParticle.solubility"><tt class="xref py py-obj docutils literal"><span class="pre">solubility</span></tt></a>(m,&nbsp;T,&nbsp;P,&nbsp;Sa)</td>
 <td>Compute the solubility (kg/m^3) of each component of a particle into  seawater for the phase given by <em class="xref py py-obj">fp_type</em>.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="../dbm/dbm.FluidParticle.surface_area.html#dbm.FluidParticle.surface_area" title="dbm.FluidParticle.surface_area"><tt class="xref py py-obj docutils literal"><span class="pre">surface_area</span></tt></a>(m,&nbsp;T,&nbsp;P,&nbsp;Sa,&nbsp;Ta)</td>
+<tr class="row-odd"><td><a class="reference internal" href="../dbm/dbm.FluidParticle.surface_area.html#dbm.FluidParticle.surface_area" title="dbm.FluidParticle.surface_area"><tt class="xref py py-obj docutils literal"><span class="pre">surface_area</span></tt></a>(m,&nbsp;T,&nbsp;P,&nbsp;Sa,&nbsp;Ta)</td>
 <td>Compute the surface area (m^2) of a fluid particle.</td>
 </tr>
 </tbody>
@@ -574,8 +580,8 @@ instantiation.</p>
     </div>
     <div class="footer">
         &copy; Copyright 2013, Scott A. Socolofsky.
-      Last updated on Sep 11, 2013.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+      Last updated on Feb 25, 2014.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>
 </html>

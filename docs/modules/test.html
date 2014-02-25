@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.1',
+        VERSION:     '0.1.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -56,7 +56,7 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">September 19, 2013</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">February 25, 2014</td>
 </tr>
 </tbody>
 </table>
@@ -148,6 +148,29 @@ means the programs and their interfaces are working as expected, not that they
 have been validated against measurements.</p>
 </div>
 </div>
+<div class="section" id="module-test_spm">
+<span id="test-spm-py"></span><h2>test_spm.py<a class="headerlink" href="#module-test_spm" title="Permalink to this headline">¶</a></h2>
+<p>Unit tests for the <a class="reference internal" href="spm.html#module-stratified_plume_model" title="stratified_plume_model"><tt class="xref py py-obj docutils literal"><span class="pre">stratified_plume_model</span></tt></a> module of <tt class="docutils literal"><span class="pre">TAMOC</span></tt></p>
+<p>Provides testing of the objects, methods and functions defined in the 
+<a class="reference internal" href="spm.html#module-stratified_plume_model" title="stratified_plume_model"><tt class="xref py py-obj docutils literal"><span class="pre">stratified_plume_model</span></tt></a> module of <tt class="docutils literal"><span class="pre">TAMOC</span></tt>.  This module uses the <a class="reference internal" href="ambient.html#module-ambient" title="ambient"><tt class="xref py py-obj docutils literal"><span class="pre">ambient</span></tt></a>
+module to control ambient data and the <a class="reference internal" href="dbm.html#module-dbm" title="dbm"><tt class="xref py py-obj docutils literal"><span class="pre">dbm</span></tt></a> module to predict particle
+behavior.  These tests check the behavior of the object, the results of
+the simulations, and the read/write algorithms.</p>
+<p>The ambient data used here are from the <em class="xref py py-obj">ctd_BM54.cnv</em> dataset, stored as:</p>
+<div class="highlight-python"><pre>./test/output/test_BM54.nc</pre>
+</div>
+<p>This netCDF file is written by the <tt class="xref py py-obj docutils literal"><span class="pre">test_ambient.test_from_ctd</span></tt> function, 
+which is run in the following as needed to ensure the dataset is available.</p>
+<div class="section" id="id3">
+<h3>Notes<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<p>All of the tests defined herein check the general behavior of each of the
+programmed function&#8211;this is not a comparison against measured data. The
+results of the hand calculations entered below as sample solutions have been
+ground-truthed for their reasonableness. However, passing these tests only
+means the programs and their interfaces are working as expected, not that they
+have been validated against measurements.</p>
+</div>
+</div>
 </div>
 
 
@@ -173,6 +196,10 @@ have been validated against measurements.</p>
 </li>
 <li><a class="reference internal" href="#module-test_sbm">test_sbm.py</a><ul>
 <li><a class="reference internal" href="#id2">Notes</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-test_spm">test_spm.py</a><ul>
+<li><a class="reference internal" href="#id3">Notes</a></li>
 </ul>
 </li>
 </ul>
@@ -224,8 +251,8 @@ have been validated against measurements.</p>
     </div>
     <div class="footer">
         &copy; Copyright 2013, Scott A. Socolofsky.
-      Last updated on Sep 19, 2013.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+      Last updated on Feb 25, 2014.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>
 </html>

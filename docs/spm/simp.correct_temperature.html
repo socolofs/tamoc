@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.1',
+        VERSION:     '0.1.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -62,20 +62,21 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">September 11, 2013</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">February 25, 2014</td>
 </tr>
 </tbody>
 </table>
 <dl class="function">
 <dt id="simp.correct_temperature">
-<tt class="descclassname">simp.</tt><tt class="descname">correct_temperature</tt><big>(</big><em>r</em>, <em>particles</em>, <em>yi</em><big>)</big><a class="reference internal" href="../_modules/simp.html#correct_temperature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simp.correct_temperature" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">simp.</tt><tt class="descname">correct_temperature</tt><big>(</big><em>r</em>, <em>yi</em>, <em>particles</em>, <em>profile</em>, <em>p</em><big>)</big><a class="reference internal" href="../_modules/simp.html#correct_temperature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simp.correct_temperature" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make sure the correct temperature is stored in the state space solution</p>
-<p>When the dispersed phase particles equilibrate to their surround 
+<p>When the dispersed phase particles equilibrate to their surrounding 
 temperature, heat transfer is turned off by the methods in 
-<a class="reference internal" href="stratified_plume_model.Particle.html#stratified_plume_model.Particle" title="stratified_plume_model.Particle"><tt class="xref py py-obj docutils literal"><span class="pre">stratified_plume_model.Particle</span></tt></a>.  This is needed to prevent numerical
+<a class="reference internal" href="../sbm/single_bubble_model.Particle.html#single_bubble_model.Particle" title="single_bubble_model.Particle"><tt class="xref py py-obj docutils literal"><span class="pre">single_bubble_model.Particle</span></tt></a>.  This is needed to prevent numerical
 oscillations as the particles become small.  Unfortunately, it is not as
-easy to make the numerical solution obtain the correct result.</p>
-<p>Once heat transfer is turned off, all of the model methods uses the 
+easy to make the numerical solution output the correct result once 
+particle temperature effectively stops being a state space variable.</p>
+<p>Once heat transfer is turned off, all of the model methods use the 
 correct temperature (e.g., the ambient temperature) in all of the 
 equations coupled to the heat transfer equation and in all equations 
 involving particle temperature.</p>
@@ -98,20 +99,30 @@ heat yielding the ambient temperature for the particle temperature.</p>
 <div><p>ODE solution containing the currect values of the state space (e.g., 
 <em class="xref py py-obj">r.y</em>).</p>
 </div></blockquote>
+<p><strong>yi</strong> : <em class="xref py py-obj">InnerPlume</em></p>
+<blockquote>
+<div><p>Object for manipulating the inner plume state space</p>
+</div></blockquote>
 <p><strong>particles</strong> : list of <em class="xref py py-obj">Particle</em> objects</p>
 <blockquote>
 <div><p>List of <em class="xref py py-obj">Particle</em> objects containing the dispersed phase local
 conditions and behavior.</p>
 </div></blockquote>
-<p><strong>yi</strong> : <em class="xref py py-obj">InnerPlume</em></p>
+<p><strong>profile</strong> : <a class="reference internal" href="../modules/ambient.html#ambient.Profile" title="ambient.Profile"><tt class="xref py py-obj docutils literal"><span class="pre">ambient.Profile</span></tt></a> object</p>
 <blockquote>
-<div><p>Object for manipulating the inner plume state space</p>
+<div><p>The ambient CTD object used by the simulation.</p>
+</div></blockquote>
+<p><strong>p</strong> : <em class="xref py py-obj">ModelParams</em> object</p>
+<blockquote>
+<div><p>Object containing the fixed model parameters for the stratified 
+plume model.</p>
 </div></blockquote>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>r</strong> : <tt class="xref py py-obj docutils literal"><span class="pre">scipy.integrate.ode</span></tt> object</p>
 <blockquote class="last">
-<div><p>Returns the original ODE object with the corrected solution.</p>
+<div><p>Returns the original ODE object with the corrected solution stored
+in the public x and y.</p>
 </div></blockquote>
 </td>
 </tr>
@@ -182,8 +193,8 @@ conditions and behavior.</p>
     </div>
     <div class="footer">
         &copy; Copyright 2013, Scott A. Socolofsky.
-      Last updated on Sep 11, 2013.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+      Last updated on Feb 25, 2014.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>
 </html>

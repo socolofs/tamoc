@@ -1,0 +1,223 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Overview of Params Module &mdash; Texas A&amp;M Oilspill Calculator v0.1 Manual</title>
+    
+    <link rel="stylesheet" href="../_static/scipy.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../index.html" />
+    <link rel="up" title="Reference" href="reference.html" />
+    <link rel="prev" title="simp.outer_fr" href="../spm/simp.outer_fr.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../spm/simp.outer_fr.html" title="simp.outer_fr"
+             accesskey="P">previous</a> |</li>
+<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+
+          <li><a href="reference.html" accesskey="U">Reference</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="overview-of-params-module">
+<h1>Overview of Params Module<a class="headerlink" href="#overview-of-params-module" title="Permalink to this headline">¶</a></h1>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">February 25, 2014</td>
+</tr>
+</tbody>
+</table>
+<span class="target" id="module-params"></span><div class="section" id="params-module">
+<h2>Params Module<a class="headerlink" href="#params-module" title="Permalink to this headline">¶</a></h2>
+<p>Calculate the governing scales and determine the appropriate simulation model</p>
+<p>This module calculates the governing non-dimensional parameters defined in 
+papers by Socolofsky and Adams (2002, 2005) and Socolofsky et al. (2011) and
+uses this information to recommend the appropriate simulation model.</p>
+</div>
+<div class="section" id="class-objects">
+<h2>Class Objects<a class="headerlink" href="#class-objects" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="params.Scales">
+<em class="property">class </em><tt class="descclassname">params.</tt><tt class="descname">Scales</tt><big>(</big><em>profile</em>, <em>particles</em><big>)</big><a class="reference internal" href="../_modules/params.html#Scales"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#params.Scales" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the characteristic scales for a <tt class="docutils literal"><span class="pre">TAMOC</span></tt> simulation</p>
+<p>Compute the governing non-dimensional parameters defined in Socolofsky
+and Adams (2002, 2005) to provide guidance on model selection for the 
+<tt class="docutils literal"><span class="pre">TAMOC</span></tt> modeling suite.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>profile</strong> : <a class="reference internal" href="ambient.html#ambient.Profile" title="ambient.Profile"><tt class="xref py py-obj docutils literal"><span class="pre">ambient.Profile</span></tt></a> object</p>
+<blockquote>
+<div><p>Ambient CTD data for the model simulation</p>
+</div></blockquote>
+<p><strong>particles</strong> : list</p>
+<blockquote class="last">
+<div><p>List of <a class="reference internal" href="../spm/stratified_plume_model.Particle.html#stratified_plume_model.Particle" title="stratified_plume_model.Particle"><tt class="xref py py-obj docutils literal"><span class="pre">stratified_plume_model.Particle</span></tt></a> objects that define all of 
+the dispersed phases in the simulation</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="9%" />
+<col width="24%" />
+<col width="67%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>profile</td>
+<td><a class="reference internal" href="ambient.html#ambient.Profile" title="ambient.Profile"><tt class="xref py py-obj docutils literal"><span class="pre">ambient.Profile</span></tt></a> object</td>
+<td>Ambient CTD data for the model simulation</td>
+</tr>
+<tr class="row-even"><td>particles</td>
+<td>list</td>
+<td>List of <a class="reference internal" href="../spm/stratified_plume_model.Particle.html#stratified_plume_model.Particle" title="stratified_plume_model.Particle"><tt class="xref py py-obj docutils literal"><span class="pre">stratified_plume_model.Particle</span></tt></a> objects for the simulation</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="../params/params.Scales.get_variables.html#params.Scales.get_variables" title="params.Scales.get_variables"><tt class="xref py py-obj docutils literal"><span class="pre">get_variables</span></tt></a>(z0,&nbsp;u_inf)</td>
+<td>Compute the governing variables at a given depth</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../params/params.Scales.h_P.html#params.Scales.h_P" title="params.Scales.h_P"><tt class="xref py py-obj docutils literal"><span class="pre">h_P</span></tt></a>(z0)</td>
+<td>Compute the peel height for the lowest intrusion</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="../params/params.Scales.h_S.html#params.Scales.h_S" title="params.Scales.h_S"><tt class="xref py py-obj docutils literal"><span class="pre">h_S</span></tt></a>(z0,&nbsp;u_inf)</td>
+<td>Compute the cross-flow separation height</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../params/params.Scales.h_T.html#params.Scales.h_T" title="params.Scales.h_T"><tt class="xref py py-obj docutils literal"><span class="pre">h_T</span></tt></a>(z0)</td>
+<td>Compute the trap height for the lowest intrusion</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="../params/params.Scales.lambda_1.html#params.Scales.lambda_1" title="params.Scales.lambda_1"><tt class="xref py py-obj docutils literal"><span class="pre">lambda_1</span></tt></a>(z0,&nbsp;n)</td>
+<td>Compute the spreading ratio of particle n at the given depth</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../params/params.Scales.u_inf_crit.html#params.Scales.u_inf_crit" title="params.Scales.u_inf_crit"><tt class="xref py py-obj docutils literal"><span class="pre">u_inf_crit</span></tt></a>(z0)</td>
+<td>Determine the critical cross-flow velocity</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-functions">
+<h2>Module Functions<a class="headerlink" href="#module-functions" title="Permalink to this headline">¶</a></h2>
+<p>There are currently no additional functions in this module.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../contents.html">
+              <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../contents.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Overview of Params Module</a><ul>
+<li><a class="reference internal" href="#params-module">Params Module</a></li>
+<li><a class="reference internal" href="#class-objects">Class Objects</a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-functions">Module Functions</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../spm/simp.outer_fr.html"
+                        title="previous chapter">simp.outer_fr</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/modules/params.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<ul class="this-page-menu">
+  <li><a href="/numpy/docs/numpy-docs/modules/params.rst">Edit page</a></li>
+</ul>
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../spm/simp.outer_fr.html" title="simp.outer_fr"
+             >previous</a> |</li>
+<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+
+          <li><a href="reference.html" >Reference</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Scott A. Socolofsky.
+      Last updated on Feb 25, 2014.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

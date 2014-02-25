@@ -1,0 +1,376 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>sintef &mdash; Texas A&amp;M Oilspill Calculator v0.1 Manual</title>
+    
+    <link rel="stylesheet" href="../_static/scipy.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+
+          <li><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for sintef</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">SINTEF</span>
+<span class="sd">======</span>
+
+<span class="sd">Evaluate initial bubble and droplet sizes from the SINTEF model</span>
+
+<span class="sd">This module applies the modified Weber number model of SINTEF with corrections</span>
+<span class="sd">for the presence of oil and gas together to estimate the volume mean diameters</span>
+<span class="sd">of oil and gas at the end of the break-up region.</span>
+
+<span class="sd">Notes </span>
+<span class="sd">----- </span>
+<span class="sd">The empirical coefficients A and B were obtained from Tower Basin experiments</span>
+<span class="sd">of oil into water with and without dispersant.  These experiments had small</span>
+<span class="sd">exit diameters (generally 1.5 mm or less) and large relative momentum length</span>
+<span class="sd">scales l_M/D &gt;&gt; 1.  The corrections for the presence of gas in oil (both a </span>
+<span class="sd">void fraction corrections and buoyancy correction) are theoretical, and any</span>
+<span class="sd">affect these corrections may have on the parameters A and B has not yet been</span>
+<span class="sd">studied in detail.  </span>
+
+<span class="sd">References</span>
+<span class="sd">----------</span>
+<span class="sd">Brandvik, P.J., Johansen, O., Farooq, U., Angell, G., and Leirvik, F. (2012),</span>
+<span class="sd">&quot;Sub-surface oil releases--Experimental study of droplet distributions and </span>
+<span class="sd">different dispersant injection techniques.  A scaled experimental approach</span>
+<span class="sd">using the SINTEF Tower Basin.&quot;  Draft report, prepared by SINTEF Materials</span>
+<span class="sd">and Chemistry, Aug. 2012.</span>
+
+<span class="sd">Johansen, O., Brandvik, P.J. and Farooq, U. (2012), &quot;Droplet breakup in subsea</span>
+<span class="sd">oil releases--Part 2: Prediction of droplet size distributions with and </span>
+<span class="sd">without injection of chemical dispersants.&quot;  Marine Pollution Bulletin. </span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="c"># S. Socolofsky, September 2013, Texas A&amp;M University &lt;socolofs@tamu.edu&gt;.</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">copy</span>
+<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">fsolve</span>
+
+<div class="viewcode-block" id="modified_We_model"><a class="viewcode-back" href="../sintef/sintef.modified_We_model.html#sintef.modified_We_model">[docs]</a><span class="k">def</span> <span class="nf">modified_We_model</span><span class="p">(</span><span class="n">D</span><span class="p">,</span> <span class="n">rho_gas</span><span class="p">,</span> <span class="n">m_gas</span><span class="p">,</span> <span class="n">mu_gas</span><span class="p">,</span> <span class="n">sigma_gas</span><span class="p">,</span> <span class="n">rho_oil</span><span class="p">,</span> <span class="n">m_oil</span><span class="p">,</span> 
+                      <span class="n">mu_oil</span><span class="p">,</span> <span class="n">sigma_oil</span><span class="p">,</span> <span class="n">rho</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the initial oil droplet and gas bubble sizes from the SINTEF model</span>
+<span class="sd">    </span>
+<span class="sd">    Apply the SINTEF modified Weber number model to estimate the initial </span>
+<span class="sd">    oil and gas particle sizes.  This function calculates the adjusted exit</span>
+<span class="sd">    velocity based on a void fraction and buoyancy adjustment per the method</span>
+<span class="sd">    suggested by SINTEF.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    D : float</span>
+<span class="sd">        Diameter of the release point (m)</span>
+<span class="sd">    rho_gas : float</span>
+<span class="sd">        In-situ density of the gas (kg/m^3)</span>
+<span class="sd">    m_gas : ndarray</span>
+<span class="sd">        Array of mass fluxes for each component of the gas object (kg/s)</span>
+<span class="sd">    mu_gas : float</span>
+<span class="sd">        Dynamic viscosity of gas (Pa s)</span>
+<span class="sd">    sigma_gas : float</span>
+<span class="sd">        Interfacial tension between gas and seawater (N/m)</span>
+<span class="sd">    rho_oil : float</span>
+<span class="sd">        In-situ density of the oil</span>
+<span class="sd">    m_oil : ndarray</span>
+<span class="sd">        Array of mass fluxes for each component of the oil object (kg/s)</span>
+<span class="sd">    mu_oil : float</span>
+<span class="sd">        Dynamic viscosity of oil (Pa s)</span>
+<span class="sd">    sigma_oil : float</span>
+<span class="sd">        Interfacial tension between oil and seawater (N/m)</span>
+<span class="sd">    rho : float</span>
+<span class="sd">        Density of the continuous phase fluid (kg/m^3)</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    A tuple containing:</span>
+<span class="sd">        de_gas : float</span>
+<span class="sd">            The volume mean diameter of the gas bubbles (m)</span>
+<span class="sd">        de_oil : float</span>
+<span class="sd">            The volume mean diameter of the oil droplets (m)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># Make sure the masses are in arrays</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">m_gas</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">m_gas</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">m_gas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">m_gas</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">m_gas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">m_gas</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">m_oil</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">m_oil</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">m_oil</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">m_oil</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">m_oil</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">m_oil</span><span class="p">)</span>
+    
+    <span class="c"># Get the volume flow rates of gas and oil</span>
+    <span class="n">Q_gas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">m_gas</span><span class="p">)</span> <span class="o">/</span> <span class="n">rho_gas</span>
+    <span class="n">Q_oil</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">m_oil</span><span class="p">)</span> <span class="o">/</span> <span class="n">rho_oil</span>
+    
+    <span class="c"># Get the void-fraction adjusted velocity Un</span>
+    <span class="k">if</span> <span class="n">Q_oil</span> <span class="o">==</span> <span class="mf">0.</span><span class="p">:</span>
+        <span class="c"># This is gas only</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="n">Un</span> <span class="o">=</span> <span class="mf">4.</span> <span class="o">*</span> <span class="n">Q_gas</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">D</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c"># This is either oil only or oil and gas</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">Q_gas</span> <span class="o">/</span> <span class="p">(</span><span class="n">Q_gas</span> <span class="o">+</span> <span class="n">Q_oil</span><span class="p">)</span>
+        <span class="n">Un</span> <span class="o">=</span> <span class="mf">4.</span> <span class="o">*</span> <span class="n">Q_oil</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">D</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">n</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="mf">2.</span><span class="p">)</span>
+    
+    <span class="c"># Get the densimetric Froude number</span>
+    <span class="n">Fr</span> <span class="o">=</span> <span class="n">Un</span> <span class="o">/</span> <span class="p">(</span><span class="mf">9.81</span> <span class="o">*</span> <span class="p">(</span><span class="n">rho</span> <span class="o">-</span> <span class="n">rho_oil</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">n</span><span class="p">)</span> <span class="o">-</span> <span class="n">rho_gas</span> <span class="o">*</span> <span class="n">n</span><span class="p">)</span> <span class="o">/</span> \
+         <span class="n">rho</span> <span class="o">*</span> <span class="n">D</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="mf">2.</span><span class="p">)</span>
+    
+    <span class="c"># Compute the final characteristic velocity to use in the model</span>
+    <span class="n">Uc</span> <span class="o">=</span> <span class="n">Un</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">+</span> <span class="mf">1.</span><span class="o">/</span><span class="n">Fr</span><span class="p">)</span>
+    
+    <span class="c"># Compute the gas volume mean droplet size</span>
+    <span class="k">if</span> <span class="n">Q_gas</span> <span class="o">&gt;</span> <span class="mf">0.</span><span class="p">:</span>
+        <span class="n">de_gas</span> <span class="o">=</span> <span class="n">de_50</span><span class="p">(</span><span class="n">Uc</span><span class="p">,</span> <span class="n">D</span><span class="p">,</span> <span class="n">rho_gas</span><span class="p">,</span> <span class="n">mu_gas</span><span class="p">,</span> <span class="n">sigma_gas</span><span class="p">,</span> <span class="n">rho</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">de_gas</span> <span class="o">=</span> <span class="bp">None</span>
+    
+    <span class="c"># Compute the oil volume mean droplet size</span>
+    <span class="k">if</span> <span class="n">Q_oil</span> <span class="o">&gt;</span> <span class="mf">0.</span><span class="p">:</span>
+        <span class="n">de_oil</span> <span class="o">=</span> <span class="n">de_50</span><span class="p">(</span><span class="n">Uc</span><span class="p">,</span> <span class="n">D</span><span class="p">,</span> <span class="n">rho_oil</span><span class="p">,</span> <span class="n">mu_oil</span><span class="p">,</span> <span class="n">sigma_oil</span><span class="p">,</span> <span class="n">rho</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">de_oil</span> <span class="o">=</span> <span class="bp">None</span>
+    
+    <span class="c"># Return the bubble and droplet sizes</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">de_gas</span><span class="p">,</span> <span class="n">de_oil</span><span class="p">)</span>
+
+
+<span class="c"># Provide tool to estimate the maximum stable particle size</span></div>
+<div class="viewcode-block" id="de_max"><a class="viewcode-back" href="../sintef/sintef.de_max.html#sintef.de_max">[docs]</a><span class="k">def</span> <span class="nf">de_max</span><span class="p">(</span><span class="n">sigma</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">rho</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the maximum stable particle size</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="mf">4.</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">sigma</span> <span class="o">/</span> <span class="p">(</span><span class="mf">9.81</span> <span class="o">*</span> <span class="p">(</span><span class="n">rho</span> <span class="o">-</span> <span class="n">rho_p</span><span class="p">)))</span>
+</div>
+<div class="viewcode-block" id="de_50"><a class="viewcode-back" href="../sintef/sintef.de_50.html#sintef.de_50">[docs]</a><span class="k">def</span> <span class="nf">de_50</span><span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="n">D</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">mu_p</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">rho</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Predict the volume mean diameter from a modified Weber number model</span>
+<span class="sd">    </span>
+<span class="sd">    Calculates the SINTEF modified Weber number model for the volume mean </span>
+<span class="sd">    diameter of a blowout release.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    U : float</span>
+<span class="sd">        Effective exit velocity after void fraction and buoyancy correction </span>
+<span class="sd">        of the phase undergoing breakup (m/s)</span>
+<span class="sd">    D : float</span>
+<span class="sd">        Diameter of the discharge (m)</span>
+<span class="sd">    rho_p : float</span>
+<span class="sd">        Density of the phase undergoing breakup (kg/m^3)</span>
+<span class="sd">    mu_p : float</span>
+<span class="sd">        Dynamic viscosity of the phase undergoing breakup (Pa s)</span>
+<span class="sd">    sigma : float</span>
+<span class="sd">        Interfacial tension between the phase undergoing breakup and the </span>
+<span class="sd">        ambient receiving continuous phase (N/m)</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    de_50 : float</span>
+<span class="sd">        The volume mean diameter of the phase undergoing breakup</span>
+<span class="sd">    </span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    This function first checks the We number.  If the We is less than the </span>
+<span class="sd">    critical value of 350 required for atomization, then the fluid particle </span>
+<span class="sd">    diameter is estimated as 1.2 D.  Otherwise, the SINTEF modified We number </span>
+<span class="sd">    model is used.  In both cases, the resulting particle diameter is compared</span>
+<span class="sd">    to the maximum stable particle size per Clif et al. (1978) of </span>
+<span class="sd">        </span>
+<span class="sd">        d_max = 4 (sigma/ (g (rho - rho_p)))^(1/2).  </span>
+<span class="sd">        </span>
+<span class="sd">    The function returns the lesser of the estimated particle size or the </span>
+<span class="sd">    maximum stable particle size.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># Compute the non-dimensional constants</span>
+    <span class="n">We</span> <span class="o">=</span> <span class="n">rho_p</span> <span class="o">*</span> <span class="n">U</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">D</span> <span class="o">/</span> <span class="n">sigma</span>
+    <span class="n">Vi</span> <span class="o">=</span> <span class="n">mu_p</span> <span class="o">*</span> <span class="n">U</span> <span class="o">/</span> <span class="n">sigma</span>
+    
+    <span class="k">if</span> <span class="n">We</span> <span class="o">&gt;</span> <span class="mf">350.</span><span class="p">:</span>
+        <span class="c"># Atomization...use the SINTEF model.</span>
+        <span class="c">#A = 24.8</span>
+        <span class="c">#B = 0.08</span>
+        <span class="n">A</span> <span class="o">=</span> <span class="mf">15.</span>
+        <span class="n">B</span> <span class="o">=</span> <span class="mf">0.8</span>
+        
+        <span class="c"># Solve for the volume mean diameter from the implicit equation</span>
+        <span class="k">def</span> <span class="nf">residual</span><span class="p">(</span><span class="n">dp</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Compute the residual of the SINTEF modified Weber number model</span>
+<span class="sd">            </span>
+<span class="sd">            Evaluate the residual of the non-dimensional diameter dp = de_50 / D</span>
+<span class="sd">            for the SINTEF droplet break-up model.</span>
+<span class="sd">            </span>
+<span class="sd">            Input variables are:</span>
+<span class="sd">                We, Vi, A, B = constant and inherited from above</span>
+<span class="sd">                dp = Non-dimensional diameter de_50 / D (--)</span>
+<span class="sd">            </span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="c"># Compute the non-dimensional diameter and return the residual</span>
+            <span class="k">return</span> <span class="n">dp</span> <span class="o">-</span> <span class="n">A</span> <span class="o">*</span> <span class="p">(</span><span class="n">We</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">+</span> <span class="n">B</span> <span class="o">*</span> <span class="n">Vi</span> <span class="o">*</span> <span class="n">dp</span><span class="o">**</span><span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="mf">3.</span><span class="p">)))</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mf">3.</span><span class="o">/</span><span class="mf">5.</span><span class="p">)</span>
+        
+        <span class="c"># Find the gas and liquid fraction for the mixture</span>
+        <span class="n">dp</span> <span class="o">=</span> <span class="n">fsolve</span><span class="p">(</span><span class="n">residual</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
+        <span class="n">de</span> <span class="o">=</span> <span class="n">dp</span> <span class="o">*</span> <span class="n">D</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c"># Sinuous wave breakup...use the pipe diameter</span>
+        <span class="n">de</span> <span class="o">=</span> <span class="mf">1.2</span> <span class="o">*</span> <span class="n">D</span>
+    
+    <span class="c"># Require the diameter to be less than the maximum stable size</span>
+    <span class="n">dmax</span> <span class="o">=</span> <span class="n">de_max</span><span class="p">(</span><span class="n">sigma</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">rho</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">de</span> <span class="o">&gt;</span> <span class="n">dmax</span><span class="p">:</span>
+        <span class="n">de</span> <span class="o">=</span> <span class="n">dmax</span>
+    
+    <span class="c"># Return the result</span>
+    <span class="k">return</span> <span class="n">de</span>
+</div>
+<div class="viewcode-block" id="rosin_rammler"><a class="viewcode-back" href="../sintef/sintef.rosin_rammler.html#sintef.rosin_rammler">[docs]</a><span class="k">def</span> <span class="nf">rosin_rammler</span><span class="p">(</span><span class="n">nbins</span><span class="p">,</span> <span class="n">d50</span><span class="p">,</span> <span class="n">md</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">rho</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the volume size distribution from the Rosin Rammler distribution</span>
+<span class="sd">    </span>
+<span class="sd">    Returns the fluid particle diameters in the selected number of bins on</span>
+<span class="sd">    a volume basis from the Rosin Rammler distribution with parameters </span>
+<span class="sd">    k = -ln(0.5) and alpha = 1.8.  </span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    </span>
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    Johansen, Brandvik, and Farooq (2013), &quot;Droplet breakup in subsea oil</span>
+<span class="sd">    releases - Part 2: Predictions of droplet size distributions with and </span>
+<span class="sd">    without injection of chemical dispersants.&quot; Marine Pollution Bulletin,</span>
+<span class="sd">    73: 327-335.  doi:10.1016/j.marpolbul.2013.04.012.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># Compute the maximum stable particle diameter</span>
+    <span class="n">dmax</span> <span class="o">=</span> <span class="n">de_max</span><span class="p">(</span><span class="n">sigma</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">rho</span><span class="p">)</span>
+    
+    <span class="c"># Define the parameters of the distribution</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+    <span class="n">alpha</span> <span class="o">=</span> <span class="mf">1.8</span>
+    
+    <span class="c"># Get the de/d50 ratio for the edges of each bin in the distribution </span>
+    <span class="c"># using a log-spacing</span>
+    <span class="n">bin_edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">nbins</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    
+    <span class="c"># Find the logarithmic average location of the center of each bin</span>
+    <span class="n">bin_centers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bin_edges</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bin_centers</span><span class="p">)):</span>
+        <span class="n">bin_centers</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">bin_edges</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">+</span> 
+                         <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">bin_edges</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">bin_edges</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span> <span class="o">/</span> <span class="mf">2.</span><span class="p">)</span>
+    
+    <span class="c"># Get the cumulative volume fraction within each bin</span>
+    <span class="n">Vn</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">k</span> <span class="o">*</span> <span class="n">bin_edges</span><span class="o">**</span><span class="n">alpha</span><span class="p">)</span>
+    
+    <span class="c"># Get the actual volume fraction within each bin</span>
+    <span class="n">V_frac</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bin_centers</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bin_edges</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">V_frac</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">Vn</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">Vn</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+    <span class="n">V_frac</span> <span class="o">+=</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">V_frac</span><span class="p">))</span> <span class="o">/</span> <span class="n">nbins</span>
+    
+    <span class="c"># Compute the actual diameters of each particle</span>
+    <span class="n">de</span> <span class="o">=</span> <span class="n">d50</span> <span class="o">*</span> <span class="n">bin_centers</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">de</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">de</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">dmax</span><span class="p">:</span>
+            <span class="n">de</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">dmax</span>
+    
+    <span class="c"># Compute the mass fraction for each diameter</span>
+    <span class="n">md</span> <span class="o">=</span> <span class="n">V_frac</span> <span class="o">*</span> <span class="n">md</span>
+    
+    <span class="c"># Return the particle size distribution</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">md</span><span class="p">)</span>
+</pre></div></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../contents.html">
+              <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
+            </a></p>
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+
+          <li><a href="index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Scott A. Socolofsky.
+      Last updated on Feb 25, 2014.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
