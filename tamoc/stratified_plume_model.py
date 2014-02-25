@@ -823,7 +823,7 @@ class ModelParams(single_bubble_model.ModelParams):
     g : float
         acceleration of gravity (m/s^2)
     Ru : float
-        universal ideal gas constant (J/(kg K))
+        universal ideal gas constant (J/(mol K))
     
     Notes
     -----
@@ -2360,6 +2360,7 @@ def plot_all_variables(zi, yi, zo, yo, yi_local, yo_local, particles,
         ax1.invert_yaxis()
         ax1.grid(True)
         
+        # Slip velocity
         ax2 = plt.subplot(332)
         ax2.plot(us[:,i]*100., zi)
         ax2.set_xlabel('us (cm)')
@@ -2367,6 +2368,7 @@ def plot_all_variables(zi, yi, zo, yo, yi_local, yo_local, particles,
         ax2.invert_yaxis()
         ax2.grid(True)
         
+        # Surface area
         ax3 = plt.subplot(333)
         ax3.plot(A[:,i]*100.**2, zi)
         ax3.set_xlabel('A (cm^2)')
@@ -2374,6 +2376,7 @@ def plot_all_variables(zi, yi, zo, yo, yi_local, yo_local, particles,
         ax3.invert_yaxis()
         ax3.grid(True)
         
+        # Temperature
         ax4 = plt.subplot(334)
         ax4.plot(Tp[:,i] - 273.15, zi)
         ax4.plot(Ti - 273.15, zi)
@@ -2383,6 +2386,7 @@ def plot_all_variables(zi, yi, zo, yo, yi_local, yo_local, particles,
         ax4.invert_yaxis()
         ax4.grid(True)
         
+        # Density
         ax5 = plt.subplot(335)
         ax5.plot(rho_p[:,i], zi)
         ax5.set_xlabel('rho_p (kg/m^3)')
@@ -2390,6 +2394,7 @@ def plot_all_variables(zi, yi, zo, yo, yi_local, yo_local, particles,
         ax5.invert_yaxis()
         ax5.grid(True)
         
+        # Beta_T
         ax6 = plt.subplot(336)
         ax6.plot(beta_T[:,i], zi)
         ax6.set_xlabel('beta_T (m/s)')
@@ -2397,6 +2402,7 @@ def plot_all_variables(zi, yi, zo, yo, yi_local, yo_local, particles,
         ax6.invert_yaxis()
         ax6.grid(True)
         
+        # Mp
         ax7 = plt.subplot(337)
         ax7.plot(Mp[:,i,:]/1.e6, zi)
         ax7.set_xlabel('mp (mg)')
@@ -2405,6 +2411,7 @@ def plot_all_variables(zi, yi, zo, yo, yi_local, yo_local, particles,
         ax7.invert_yaxis()
         ax7.grid(True)
         
+        # Cs
         ax8 = plt.subplot(338)
         ax8.plot(Cs[:,i,:], zi)
         ax8.set_xlabel('Cs (kg/m^3)')
@@ -2412,6 +2419,7 @@ def plot_all_variables(zi, yi, zo, yo, yi_local, yo_local, particles,
         ax8.invert_yaxis()
         ax8.grid(True)
         
+        # Beta
         ax9 = plt.subplot(339)
         ax9.plot(beta[:,i,:], zi)
         ax9.set_xlabel('beta (m/s)')

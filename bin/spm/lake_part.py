@@ -49,7 +49,7 @@ if __name__ == '__main__':
     de = 0.01
     lambda_1 = 0.7
     particles.append(stratified_plume_model.particle_from_Q(lake, z0, sphere, 
-                   1., Q_N,  de, lambda_1))
+                     1., Q_N,  de, lambda_1, 273.15 + 20.))
     
     # Initialize a simulation
     R = 6.5 / 2.

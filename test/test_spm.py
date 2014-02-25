@@ -180,16 +180,16 @@ def check_sim(particles, R, maxit, toler, delta_z, spm):
     for i in range(len(ans)):
         assert_approx_equal(spm.yi[0,i], ans[i], significant=6)
     assert spm.zi[-1] <= 0.
-    ans = np.array([2.82934077e+00, 1.71527556e+00, 1.02449059e+02, 
-                    3.64556560e+09, 1.83142734e-02, 0.00000000e+00, 
-                    0.00000000e+00, 1.14436767e+04, 5.00000000e+01, 
-                    3.12425081e+07, 2.04289992e-02, 0.00000000e+00, 
+    ans = np.array([2.87171653e+00, 1.72264208e+00, 1.03991993e+02, 
+                    3.69960772e+09, 1.83310520e-02, 0.00000000e+00, 
+                    0.00000000e+00, 1.14524321e+04, 5.00000000e+01, 
+                    3.12377928e+07, 2.07546277e-02, 0.00000000e+00, 
                     0.00000000e+00])
     for i in range(len(ans)):
         assert_approx_equal(spm.yi[-1,i], ans[i], significant=6)
     assert spm.zo[0] == 0.
-    ans = np.array([-3.03750672e+00, 5.75139203e-02, -1.09961857e+02, 
-                    -3.91550782e+09, -2.18474096e-02, -0.00000000e+00, 
+    ans = np.array([-3.07044570e+00, 5.88605346e-02, -1.11163926e+02, 
+                    -3.95732919e+09, -2.21068478e-02, -0.00000000e+00,
                     -0.00000000e+00])
     for i in range(len(ans)):
         assert_approx_equal(spm.yo[0,i], ans[i], significant=6)
