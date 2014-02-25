@@ -1,4 +1,15 @@
-v0.1.3, February 24, 2013 -- 
+v0.1.3, February 25, 2013 -- 
+   . Replaced delDiss (the dissolution of species j summed over all particles) 
+     on line 144 with a new variable delDiss_p (the dissolution of species j 
+     summed over a single particle) in the heat transfer equation for each 
+     individual particle.  The old version double-counts heat loss from the  
+     particle as a result of dissolution when more than one particle in the 
+     solution is dissolving.
+   . Changed simp.py line 130ff so that yp[idx] is used (the dissolution of
+     species j for particle i) instead of delDiss[j] (the dissolution of
+     species j summed over all particles).  The old version double-counts
+     heat of solution when more than one particle in the solution is 
+     dissolving.
    . Updated the test cases for test_ambient, test_dbm_object, test_dbm, and
      test_sbm to reflect the other changes in this update.
    . Added temperature as an output from the sbm.particle.update method so 

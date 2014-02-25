@@ -115,6 +115,8 @@ def derivs_inner(z, y, yi, yo, particles, profile, p, neighbor):
     # Track the mass dissolving into the continuous phase
     delDiss = np.zeros(yi.nchems)
     for i in range(yi.np):
+        delDiss_p = np.zeros(yi.nchems)
+        
         if particles[i].particle.issoluble:
             for j in range(yi.nchems):
                 
@@ -123,10 +125,10 @@ def derivs_inner(z, y, yi, yo, particles, profile, p, neighbor):
                             particles[i].us) * particles[i].beta[j] * 
                             (particles[i].Cs[j] - yi.c[j]))
                 delDiss[j] += yp[idx]
+                delDiss_p[j] += yp[idx]
                 
                 # Update continuous phase temperature with heat of solution
-                yp[3] = yp[3] + delDiss[j] * \
-                        particles[i].particle.dH_solR[j] * p.Ru / \
+                yp[3] += yp[idx] * particles[i].particle.dH_solR[j] * p.Ru / \
                         particles[i].particle.M[j]
                 idx += 1
             
@@ -139,11 +141,11 @@ def derivs_inner(z, y, yi, yo, particles, profile, p, neighbor):
         yp[idx] = -particles[i].A * particles[i].nb0 / (yi.u + 
                   particles[i].us) * particles[i].rho_p * particles[i].cp * \
                   particles[i].beta_T * (particles[i].T - yi.T) + \
-                  np.sum(delDiss) * particles[i].cp * particles[i].T
+                  np.sum(delDiss_p) * particles[i].cp * particles[i].T
         
         # Take the heat leaving the particle and put it in the continuous 
         # phase fluid
-        yp[3] = yp[3] - yp[idx] 
+        yp[3] -= yp[idx] 
         idx += 1
     
     # Conservation equations for the dissolved constituents.
@@ -333,9 +335,9 @@ def calculate(yi, yo, particles, profile, p, neighbor, derivs, z0, y0, zf,
         
         # Store the results
         if derivs == derivs_inner:
-            # Check the particle temperatures as heat transfer switches off
-            yi.update(r.t, r.y, particles, profile, p)
-            r = correct_temperature(r, particles, yi)
+            # Store the correct temperature for the particles after heat 
+            # transfer turns off
+            r = correct_temperature(r, yi, particles, profile, p)
         z.append(r.t)
         y.append(r.y)
         k += 1
@@ -363,17 +365,18 @@ def calculate(yi, yo, particles, profile, p, neighbor, derivs, z0, y0, zf,
         print '    Depth:  %g (m), k: %d' % (z[-1], k)
     return (z, y)
 
-def correct_temperature(r, particles, yi):
+def correct_temperature(r, yi, particles, profile, p):
     """
     Make sure the correct temperature is stored in the state space solution
     
-    When the dispersed phase particles equilibrate to their surround 
+    When the dispersed phase particles equilibrate to their surrounding 
     temperature, heat transfer is turned off by the methods in 
-    `stratified_plume_model.Particle`.  This is needed to prevent numerical
+    `single_bubble_model.Particle`.  This is needed to prevent numerical
     oscillations as the particles become small.  Unfortunately, it is not as
-    easy to make the numerical solution obtain the correct result.  
+    easy to make the numerical solution output the correct result once 
+    particle temperature effectively stops being a state space variable.  
     
-    Once heat transfer is turned off, all of the model methods uses the 
+    Once heat transfer is turned off, all of the model methods use the 
     correct temperature (e.g., the ambient temperature) in all of the 
     equations coupled to the heat transfer equation and in all equations 
     involving particle temperature.  
@@ -395,29 +398,40 @@ def correct_temperature(r, particles, yi):
     r : `scipy.integrate.ode` object
         ODE solution containing the currect values of the state space (e.g., 
         `r.y`).
+    yi : `InnerPlume`
+        Object for manipulating the inner plume state space
     particles : list of `Particle` objects
         List of `Particle` objects containing the dispersed phase local
         conditions and behavior.
-    yi : `InnerPlume`
-        Object for manipulating the inner plume state space
+    profile : `ambient.Profile` object
+        The ambient CTD object used by the simulation.
+    p : `ModelParams` object
+        Object containing the fixed model parameters for the stratified 
+        plume model.
     
     Returns
     -------
     r : `scipy.integrate.ode` object
-        Returns the original ODE object with the corrected solution.
+        Returns the original ODE object with the corrected solution stored
+        in the public x and y.
     
     """
-    # Get the temperature of the ambient water in the inner plume
-    T = yi.T
+    # Update the inner plume state space with the current solution.  This 
+    # will set the correct particle temperature in the attributes 
+    # yi.particles[].T.  If heat transfer is still turned on, the answer will
+    # be the value computed from the state space r.x and r.y; if heat 
+    # transfer is turned off, the answer will be the ambient fluid
+    # temperature (e.g., Ti).
+    yi.update(r.x, r.y, particles, profile, p)
     
-    # Find the heat conservation equation in the inner plume state space
+    # Find the heat conservation equation in the inner plume state space and
+    # replace the heat with the correct value so that r.y always yields the
+    # particle temperature determined above.
     idx = 4
     for i in range(len(particles)):
         idx += particles[i].particle.nc
-        if particles[i].K_T == 0.:
-            # Heat transfer is off, set temperature to ambient
-            r.y[idx] = np.sum(particles[i].m) * particles[i].nb0 * \
-                       particles[i].cp * T
+        r.y[idx] = np.sum(particles[i].m) * particles[i].nb0 * \
+                       particles[i].cp * particles[i].T
         idx += 1
     
     # Return the corrected solution

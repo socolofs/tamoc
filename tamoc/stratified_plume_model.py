@@ -955,8 +955,6 @@ class Particle(single_bubble_model.Particle):
         
         # Set the local masses and temperature to their initial values
         self.update(m0, T0, P, Sa, Ta)
-        self.m0 = copy(self.m)
-        self.T0 = copy(self.T0)
     
     def update(self, m, T, P, Sa, Ta):
         """
@@ -989,17 +987,10 @@ class Particle(single_bubble_model.Particle):
                 m = np.array(m)
         
         # Update the variables with their currrent values
-        # TODO:  This looks suspicious.  Follow the temperature using print 
-        # statements throughout the solution and try to understand exactly 
-        # what needs to be inserted here in terms of temperature.
         self.m = m
-        if self.K_T == 0:
-            self.T = Ta
-        else:
-            self.T = T
         if np.sum(self.m) > 0.:
-            self.us,  self.rho_p,  self.A, self.Cs, self.beta, self.beta_T = \
-                self.properties(m, T, P, Sa, Ta)
+            self.us,  self.rho_p,  self.A, self.Cs, self.beta, \
+                self.beta_T, self.T = self.properties(m, T, P, Sa, Ta)
         else:
             self.us = 0.
             self.rho_p = seawater.density(Ta, Sa, P)
@@ -1007,6 +998,7 @@ class Particle(single_bubble_model.Particle):
             self.Cs = np.zeros(len(self.composition))
             self.beta = np.zeros(len(self.composition))
             self.beta_T = 0.
+            self.T = Ta
         
 
 class InnerPlume(object):
