@@ -422,7 +422,7 @@ def correct_temperature(r, yi, particles, profile, p):
     # be the value computed from the state space r.x and r.y; if heat 
     # transfer is turned off, the answer will be the ambient fluid
     # temperature (e.g., Ti).
-    yi.update(r.x, r.y, particles, profile, p)
+    yi.update(r.t, r.y, particles, profile, p)
     
     # Find the heat conservation equation in the inner plume state space and
     # replace the heat with the correct value so that r.y always yields the
