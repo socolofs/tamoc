@@ -1,5 +1,5 @@
 """
-Extend a Profile's CTD data to deeper depths
+Extend a profile's CTD data to deeper depths
 ============================================
 
 Use the TAMOC ambient module to open a Profile object, compute some buoyancy

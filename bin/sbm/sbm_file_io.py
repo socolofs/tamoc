@@ -1,5 +1,5 @@
 """
-Single Bubble Model:  File Input/Output
+Single Bubble Model:  File input/output
 =======================================
 
 Use the ``TAMOC`` `single_bubble_model` to analyze results of previous 

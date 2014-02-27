@@ -1,5 +1,5 @@
 """
-Equilibrium Partitioning
+Equilibrium partitioning
 ========================
 
 Use the ``TAMOC`` `dbm` to compute the equilibrium partitioning between 

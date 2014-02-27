@@ -1,5 +1,5 @@
 """
-Stratified Plume Model:  File Input/Output
+Stratified Plume Model:  File input/output
 ==========================================
 
 Use the ``TAMOC`` `stratified_plume_model` to analyze results of previous 

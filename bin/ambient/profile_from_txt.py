@@ -1,5 +1,5 @@
 """ 
-Create a Profile from arbitrary ASCII text files
+Create a profile from arbitrary ASCII text files
 ================================================
 
 Script profile_from_txt

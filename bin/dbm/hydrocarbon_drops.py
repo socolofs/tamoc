@@ -1,5 +1,5 @@
 """
-Liquid Fluid Particles
+Liquid fluid particles
 ======================
 
 Use the ``TAMOC`` ``DBM`` to specify a droplet containing liquid hydrocarbons 

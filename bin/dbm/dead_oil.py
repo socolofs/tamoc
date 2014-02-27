@@ -1,5 +1,5 @@
 """
-Insoluble Fluid Particles
+Insoluble fluid particles
 =========================
 
 Use the ``TAMOC`` ``DBM`` to specify an oil droplet that cannot dissolve 

@@ -1,5 +1,5 @@
 """
-Gas Fluid Particles
+Gas fluid particles
 ===================
 
 Use the ``TAMOC`` ``DBM`` to specify a natural gas bubble that can dissolve 

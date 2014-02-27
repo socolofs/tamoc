@@ -1,3 +1,19 @@
+"""
+Params Module:  Compute characteristic scales of a plume model
+==============================================================
+
+Use the ``TAMOC`` module `params` to compute the characteristic length and
+velocity scales of a plume simulation.  These empirical scales are taken 
+from Socolofsky and Adams (2002 and 2005). 
+
+This simulation uses the ambient data stored in the file
+`./test/output/test_BM54.nc`. This dataset is created by the test files in the
+`./test` directory. Please be sure that all of the tests pass using ``py.test
+-v`` at the command prompt before trying to run this simulation.
+
+"""
+# S. Socolofsky, February 2014, Texas A&M University <socolofs@tamu.edu>.
+
 from tamoc import ambient
 from tamoc import dbm
 from tamoc import stratified_plume_model
@@ -60,10 +76,20 @@ if __name__ == '__main__':
     # Compute the governing scales
     case = params.Scales(ctd, disp_phases)
     
-    print case.get_variables(z0, 0.15)
-    print 'h_T = %f (m)' % case.h_T(z0)
-    print 'h_P = %f (m)' % case.h_P(z0)
-    print 'h_S = %f (m)' % case.h_S(z0, 0.15)
-    print 'lambda_1 = %f (--)' % case.lambda_1(z0, 0)
-    print 'ua_crit = %f (m/s)' % case.u_inf_crit(z0)
+    (B, N, u_slip, u_inf) = case.get_variables(z0, 0.15)
+    print 'Plume parameters:'
+    print '   z   = %f (m)' % z0
+    print '   B   = %f (m^4/s^3)' % B
+    print '   N   = %f (s^(-1))' % N
+    print '   u_s = %f (m/s)' % u_slip
+    print '   u_a = %f (m/s)\n' % u_inf
+    
+    print 'Plume empirical scales:'
+    print '   h_T = %f (m)' % case.h_T(z0)
+    print '   h_P = %f (m)' % case.h_P(z0)
+    print '   h_S = %f (m)' % case.h_S(z0, 0.15)
+    print '   lambda_1 = %f (--)\n' % case.lambda_1(z0, 0)
+    
+    print 'Critical cross-flow velocity:'
+    print '   ua_crit = %f (m/s)' % case.u_inf_crit(z0)
 

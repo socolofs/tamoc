@@ -1,5 +1,5 @@
 """
-Single Bubble Model:  Inert Particles
+Single Bubble Model:  Inert particles
 =====================================
 
 Use the ``TAMOC`` `single_bubble_model` to simulate the trajectory of an inert

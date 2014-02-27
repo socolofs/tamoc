@@ -1,5 +1,5 @@
 """
-Create a Profile from an ASCII CTD datafile
+Create a profile from an ASCII CTD datafile
 ===========================================
 
 Use the TAMOC ambient module to create profiles in netCDF format for use by 

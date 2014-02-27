@@ -197,7 +197,6 @@ def check_sim(particles, R, maxit, toler, delta_z, spm):
     assert_array_almost_equal(spm.yo[-1,:], 
         np.array([0., 0., 0., 0., 0., 0., 0.]), 
         decimal=6)
-    pass
 
 # ----------------------------------------------------------------------------
 # Unit Tests

@@ -1,5 +1,5 @@
 """ 
-Create a Profile object from a `numpy.ndarray` of data
+Create a profile object from a `numpy.ndarray` of data
 ======================================================
 
 Use the TAMOC ambient module to create profiles in netCDF format for use by

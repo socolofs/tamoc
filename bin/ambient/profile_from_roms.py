@@ -1,5 +1,5 @@
 """
-Create a Profile from ROMS model output netCDF files
+Create a profile from ROMS model output netCDF files
 ====================================================
 
 Use the TAMOC ambient module to create profiles in netCDF format for use by

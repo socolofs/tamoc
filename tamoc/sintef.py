@@ -91,9 +91,15 @@ def modified_We_model(D, rho_gas, m_gas, mu_gas, sigma_gas, rho_oil, m_oil,
             m_oil = np.array(m_oil)
     
     # Get the volume flow rates of gas and oil
-    Q_gas = np.sum(m_gas) / rho_gas
-    Q_oil = np.sum(m_oil) / rho_oil
-    
+    if np.sum(m_gas) >0.:
+        Q_gas = np.sum(m_gas) / rho_gas
+    else:
+        Q_gas = 0.
+    if np.sum(m_oil) >0.:
+        Q_oil = np.sum(m_oil) / rho_oil
+    else:
+        Q_oil = 0.
+        
     # Get the void-fraction adjusted velocity Un
     if Q_oil == 0.:
         # This is gas only
@@ -131,6 +137,26 @@ def modified_We_model(D, rho_gas, m_gas, mu_gas, sigma_gas, rho_oil, m_oil,
 def de_max(sigma, rho_p, rho):
     """
     Calculate the maximum stable particle size
+    
+    Predicts the maximum stable particle size per Clift et al. (1978) via 
+    the equation:
+    
+    d_max = 4. * np.sqrt(sigma / (g (rho - rho_p)))
+    
+    Parameters
+    ----------
+    sigma : float
+        Interfacial tension between the phase undergoing breakup and the 
+        ambient receiving continuous phase (N/m)
+    rho_p : float
+        Density of the phase undergoing breakup (kg/m^3)
+    rho : float
+        Density of the ambient receiving continuous phase (kg/m^3) 
+    
+    Returns
+    -------
+    d_max : float
+        Maximum stable particle size (m)
     
     """
     return 4. * np.sqrt(sigma / (9.81 * (rho - rho_p)))
@@ -204,7 +230,7 @@ def de_50(U, D, rho_p, mu_p, sigma, rho):
             return dp - A * (We / (1. + B * Vi * dp**(1./3.)))**(-3./5.)
         
         # Find the gas and liquid fraction for the mixture
-        dp = fsolve(residual, 5.)
+        dp = fsolve(residual, 5.)[0]
         de = dp * D
     else:
         # Sinuous wave breakup...use the pipe diameter
@@ -218,7 +244,7 @@ def de_50(U, D, rho_p, mu_p, sigma, rho):
     # Return the result
     return de
 
-def rosin_rammler(nbins, d50, md, sigma, rho_p, rho):
+def rosin_rammler(nbins, d50, md_total, sigma, rho_p, rho):
     """
     Return the volume size distribution from the Rosin Rammler distribution
     
@@ -228,9 +254,34 @@ def rosin_rammler(nbins, d50, md, sigma, rho_p, rho):
     
     Parameters
     ----------
+    nbins : int
+        Desired number of size bins in the particle volume size distribution
+    d50 : float
+        Volume mean particle diameter (m)
+    md_total : float
+        Total particle mass flux (kg/s)
+    sigma : float
+        Interfacial tension between the phase undergoing breakup and the 
+        ambient receiving continuous phase (N/m)
+    rho_p : float
+        Density of the phase undergoing breakup (kg/m^3)
+    rho : float
+        Density of the ambient receiving continuous phase (kg/m^3) 
     
     Returns
     -------
+    de : ndarray
+        Array of particle sizes at the center of each bin in the distribution
+        (m)
+    md : ndarray
+        Total mass flux of particles corresponding to each bin (kg/s)
+    
+    Notes
+    -----
+    This method computes the un-truncated volume size distribution from the
+    Rosin-Rammler distribution and then enforces that all particle sizes
+    be less than the maximum stable size by moving mass in larger sizes to 
+    the maximum stable size bin.  
     
     References
     ----------
@@ -269,12 +320,19 @@ def rosin_rammler(nbins, d50, md, sigma, rho_p, rho):
     
     # Compute the actual diameters of each particle
     de = d50 * bin_centers
-    for i in range(len(de)):
-        if de[i] > dmax:
-            de[i] = dmax
     
     # Compute the mass fraction for each diameter
-    md = V_frac * md
+    md = V_frac * md_total
+    
+    # Truncate the distribution at the maximum stable droplet size
+    imax = -1
+    for i in range(len(de)):
+        if de[i] > dmax:
+            if imax < 0:
+                imax = i
+                de[i] = dmax
+            md[imax] += md[i]
+            md[i] = 0.
     
     # Return the particle size distribution
     return (de, md)

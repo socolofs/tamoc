@@ -42,6 +42,9 @@ class Scales(object):
     """
     def __init__(self, profile, particles):
         super(Scales, self).__init__()
+        # Check the data type of the inputs and fix if necessary
+        if not isinstance(particles, list):
+            particles = [particles]
         
         # Store the ambient profile data and close any open netCDF files
         self.profile = profile
@@ -264,7 +267,7 @@ class Scales(object):
         Determine the critical cross-flow velocity
         
         Calculate the critical value of the cross-flow velocity for which 
-        the peel height matches the cross-flos separation height.
+        the peel height matches the cross-flow separation height.
         
         Parameters
         ----------
@@ -293,7 +296,7 @@ class Scales(object):
             return self.h_S(z0, us) - h_P
         
         # Return the critical crossflow velocity
-        return fsolve(residual, 0.05)
+        return fsolve(residual, 0.05)[0]
     
 
 
