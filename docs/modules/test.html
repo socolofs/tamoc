@@ -56,7 +56,7 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">February 27, 2014</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">March 12, 2014</td>
 </tr>
 </tbody>
 </table>
@@ -187,6 +187,29 @@ means the programs and their interfaces are working as expected, not that they
 have been validated against measurements.</p>
 </div>
 </div>
+<div class="section" id="module-test_params">
+<span id="test-params-py"></span><h2>test_params.py<a class="headerlink" href="#module-test_params" title="Permalink to this headline">¶</a></h2>
+<p>Unit tests for the <a class="reference internal" href="params.html#module-params" title="params"><tt class="xref py py-obj docutils literal"><span class="pre">params</span></tt></a> module of <tt class="docutils literal"><span class="pre">TAMOC</span></tt></p>
+<p>Provides testing of all of the classes and methods in the <a class="reference internal" href="params.html#module-params" title="params"><tt class="xref py py-obj docutils literal"><span class="pre">params</span></tt></a> module.
+This module uses the <a class="reference internal" href="ambient.html#module-ambient" title="ambient"><tt class="xref py py-obj docutils literal"><span class="pre">ambient</span></tt></a> module to control ambient data and the <a class="reference internal" href="dbm.html#module-dbm" title="dbm"><tt class="xref py py-obj docutils literal"><span class="pre">dbm</span></tt></a>
+module to predict particle behavior. These tests check the behavior of the
+<a class="reference internal" href="params.html#params.Scales" title="params.Scales"><tt class="xref py py-obj docutils literal"><span class="pre">params.Scales</span></tt></a> object and the results of its methods.</p>
+<p>The ambient data used here are from the <em class="xref py py-obj">ctd_BM54.cnv</em> dataset, stored as:</p>
+<div class="highlight-python"><pre>./test/output/test_BM54.nc</pre>
+</div>
+<p>This netCDF file is written by the <tt class="xref py py-obj docutils literal"><span class="pre">test_ambient.test_from_ctd</span></tt> function, 
+which is run in the following test script as needed to ensure the dataset is 
+available.</p>
+<div class="section" id="id5">
+<h3>Notes<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<p>All of the tests defined herein check the general behavior of each of the
+programmed functions&#8211;this is not a comparison against measured data. The
+results of the hand calculations entered below as sample solutions have been
+ground-truthed for their reasonableness. However, passing these tests only
+means the programs and their interfaces are working as expected, not that they
+have been validated against measurements.</p>
+</div>
+</div>
 </div>
 
 
@@ -220,6 +243,10 @@ have been validated against measurements.</p>
 </li>
 <li><a class="reference internal" href="#module-test_sintef">test_sintef.py</a><ul>
 <li><a class="reference internal" href="#id4">Notes</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-test_params">test_params.py</a><ul>
+<li><a class="reference internal" href="#id5">Notes</a></li>
 </ul>
 </li>
 </ul>
@@ -271,8 +298,8 @@ have been validated against measurements.</p>
     </div>
     <div class="footer">
         &copy; Copyright 2013, Scott A. Socolofsky.
-      Last updated on Feb 27, 2014.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+      Last updated on Mar 12, 2014.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>
 </html>

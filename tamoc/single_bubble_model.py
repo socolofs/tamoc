@@ -988,7 +988,7 @@ def calculate_path(profile, particle, p, y0, delta_t):
     t = np.array(t)
     y = np.array(y)
     rows = y[:,0] >= 0
-    t = t[rows,:]
+    t = t[rows]
     y = y[rows,:] 
     
     # Return the solution

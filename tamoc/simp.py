@@ -350,6 +350,9 @@ def calculate(yi, yo, particles, profile, p, neighbor, derivs, z0, y0, zf,
             # Check if the momentum went negative
             if y[-1][1] < 0.:
                 stop = True
+            # Check if the progress stopped
+            if z[-1] == z[-2]:
+                stop = True
     
     # Convert solution to numpy arrays.
     z = np.array(z)
@@ -357,7 +360,7 @@ def calculate(yi, yo, particles, profile, p, neighbor, derivs, z0, y0, zf,
     
     # Remove any part of the solution with a negative momentum
     rows = y[:,1] >= 0
-    z = z[rows,:]
+    z = z[rows]
     y = y[rows,:]
     
     # Return the solution
@@ -960,7 +963,7 @@ def outer_cpic(yi, yo, particles, profile, p, neighbor, z_0):
                 p.alpha_2 * (-u)) + 2. * np.pi * b * p.alpha_3 * (-u) + yi.Ep
         
         # Check whether this outer plume segment will be viable
-        if dQdz > 0:
+        if dQdz > 0 or Q > 0 or np.isnan(Q):
             # This outer plume segment is not viable
             flag = False
             z0 = np.array([z_0, z_lower])

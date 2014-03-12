@@ -296,7 +296,7 @@ class Scales(object):
             return self.h_S(z0, us) - h_P
         
         # Return the critical crossflow velocity
-        return fsolve(residual, 0.05)[0]
+        return fsolve(residual, 0.0001)[0]
     
 
 
