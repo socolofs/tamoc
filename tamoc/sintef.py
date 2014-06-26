@@ -331,8 +331,9 @@ def rosin_rammler(nbins, d50, md_total, sigma, rho_p, rho):
             if imax < 0:
                 imax = i
                 de[i] = dmax
-            md[imax] += md[i]
-            md[i] = 0.
+            else:
+                md[imax] += md[i]
+                md[i] = 0.
     
     # Return the particle size distribution
     return (de, md)

@@ -1,3 +1,15 @@
+v0.1.5, March 12, 2014 --
+   . Changed the bubble force in the inner plume object for the stratified 
+     plume model with bubbles dissolve.  The original code has a weak bubble 
+     force with the bubble density is set to the plume density and the bubble
+     buoyancy is with respect to the ambient density.  A new if-statement
+     replaces "if self.fb[i] == 0." with if the current particle density is
+     equal to the local water density, then self.fb and self.xi are both 
+     zero.  This is inserted on line 1199.  All test cases still pass.
+   . Changed sintef.rosin_rammler() function so that when the size 
+     distribution becomes larger than the maximum stable particle size no
+     mass is lost by the distribution truncation.  Added else statement on 
+     line 334.
 v0.1.4, March 12, 2014 --
    . Created the new test cases test_sintef and test_params.
    . Added examples for using the sintef and params modules to the ./bin 

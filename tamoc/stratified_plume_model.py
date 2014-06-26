@@ -1194,9 +1194,11 @@ class InnerPlume(object):
                 self.fb[i] = particles[i].lambda_1**2 * self.xi[i] * \
                              (self.rho_a - particles[i].rho_p)
                 
-                # Force void fraction to zero if bubbles have dissolved
-                if self.fb[i] == 0.:
+                # Force void fraction and bubble force to zero if bubbles 
+                # have dissolved
+                if self.rho == particles[i].rho_p:
                     self.xi[i] = 0.
+                    self.fb[i] = 0.
             
             # Compute the net void fraction and buoyancy flux
             self.Xi = np.sum(self.xi)
@@ -1796,7 +1798,7 @@ def particle_from_mb0(profile, z0, dbm_particle, yk, mb0, de, lambda_1,
         Mass transfer reduction factor (--).
     K_T : float, default = 1.
         Heat transfer reduction factor (--).
-    fdis : float, default = 0.01
+    fdis : float, default = 1.e-6
         Fraction of the initial total mass (--) remaining when the particle 
         should be considered dissolved.
     
