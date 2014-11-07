@@ -297,6 +297,4 @@ class Scales(object):
         
         # Return the critical crossflow velocity
         return fsolve(residual, 0.0001)[0]
-    
-
 

@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.1.4',
+        VERSION:     '0.1.6',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -52,7 +52,7 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">February 26, 2014</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">November 07, 2014</td>
 </tr>
 </tbody>
 </table>
@@ -111,19 +111,29 @@ particles and entrained ambient fluid, similar in appearance to the plume of
 smoke rising from a chimney. Momentum in a plume is dominated by buoyancy
 effects, here caused either by the drag of the dispersed phase particles or
 the negative buoyancy of the entrained ambient seawater.</li>
-<li><em>Single Bubble Model</em> &#8211; A numerical model to predict the rise of a single
-fluid particle through quiescent or flowing ambient fluid. This model uses
-the discrete bubble model to predict the fluid particle fate and computes
-the trajectory by the superposition of the rise velocity and the ambient
-currents. In the single bubble model, there is no collective buoyancy that
-induces a vertical velocity of the fluid phase; for that case, a plume model
-is needed (e.g., the stratified integral multiphase plume model <tt class="docutils literal"><span class="pre">SIMP</span></tt>).</li>
+<li><em>Single Bubble Model (SBM)</em> &#8211; A numerical model to predict the rise of a
+single fluid particle through quiescent or flowing ambient fluid. This model
+uses the discrete bubble model to predict the fluid particle fate and
+computes the trajectory by the superposition of the rise velocity and the
+ambient currents. In the single bubble model, there is no collective
+buoyancy that induces a vertical velocity of the fluid phase; for that case,
+a plume model is needed (e.g., the stratified plume model).</li>
 <li><em>Slip Velocity</em> &#8211; Taken as the terminal rise velocity of a fluid particle
 in quiescent ambient conditions.  This is used to determine the net drag
 force on the water column due to a collection of fluid particles and to
 track the movement of fluid particles through the water column.  Turbulence
 is known to alter the quiescent terminal rise velocity; this effect is not
 accounted for in the current <tt class="docutils literal"><span class="pre">TAMOC</span></tt> methods.</li>
+<li><em>Stratified Plume Model (SPM)</em> &#8211; A numerical model to predict the dynamics
+of a multiphase plume rising in a stagnant stratified ambient fluid. This
+model uses the discrete bubble model to predict the fluid particle fate and
+computes the trajectory by solving the integral plume conservation equations
+for a double plume integral model, as in Socolofsky et al. (2008).</li>
+<li><em>Bent Plume Model (BPM)</em> &#8211; A numerical model to predict the dynamics
+of a multiphase plume rising in a flowing ambient fluid. This
+model uses the discrete bubble model to predict the fluid particle fate and
+computes the trajectory by solving the integral plume conservation equations
+for a Lagrangian plume model, as in Lee and Cheung (1990).</li>
 </ul>
 </div>
 </div>
@@ -183,8 +193,8 @@ accounted for in the current <tt class="docutils literal"><span class="pre">TAMO
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2013, Scott A. Socolofsky.
-      Last updated on Mar 12, 2014.
+        &copy; Copyright 2014, Scott A. Socolofsky.
+      Last updated on Nov 07, 2014.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>

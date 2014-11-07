@@ -1,0 +1,173 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>lmp.flux_to_velocity &mdash; Texas A&amp;M Oilspill Calculator v0.1 Manual</title>
+    
+    <link rel="stylesheet" href="../_static/scipy.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1.6',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../index.html" />
+    <link rel="up" title="Reference" href="../modules/reference.html" />
+    <link rel="next" title="profile_from_ctd" href="../scripts/ambient/profile_from_ctd.html" />
+    <link rel="prev" title="lmp.zfe_volume_flux" href="lmp.zfe_volume_flux.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../scripts/ambient/profile_from_ctd.html" title="profile_from_ctd"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="lmp.zfe_volume_flux.html" title="lmp.zfe_volume_flux"
+             accesskey="P">previous</a> |</li>
+<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+
+          <li><a href="../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="lmp-flux-to-velocity">
+<h1>lmp.flux_to_velocity<a class="headerlink" href="#lmp-flux-to-velocity" title="Permalink to this headline">¶</a></h1>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">November 07, 2014</td>
+</tr>
+</tbody>
+</table>
+<dl class="function">
+<dt id="lmp.flux_to_velocity">
+<tt class="descclassname">lmp.</tt><tt class="descname">flux_to_velocity</tt><big>(</big><em>Q</em>, <em>A</em>, <em>phi</em>, <em>theta</em><big>)</big><a class="reference internal" href="../_modules/lmp.html#flux_to_velocity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lmp.flux_to_velocity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert fluid flow rate to three-component velocity</p>
+<p>Computes the three-component velocity (u, v, w) along the Cartesian 
+directions (x, y, depth) from the flow rate, cross-sectional area, and the
+orientation (phi and theta).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>Q</strong> : Volume flux of continuous phase fluid at the discharge (m^3/s)</p>
+<p><strong>A</strong> : Cross-sectional area of the discharge (M^2)</p>
+<p><strong>phi</strong> : float</p>
+<blockquote>
+<div><p>Vertical angle from the horizontal for the discharge orientation 
+(rad in range +/- pi/2)</p>
+</div></blockquote>
+<p><strong>theta</strong> : float</p>
+<blockquote>
+<div><p>Horizontal angle from the x-axis for the discharge orientation.  
+The x-axis is taken in the direction of the ambient current.  
+(rad in range 0 to 2 pi)</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>Uj</strong> : ndarray</p>
+<blockquote class="last">
+<div><p>Vector of the three-component velocity of continous phase fluid in 
+the jet (u, v, w) in the Cartesian direction (x, y, depth)</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../contents.html">
+              <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
+            </a></p>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="lmp.zfe_volume_flux.html"
+                        title="previous chapter">lmp.zfe_volume_flux</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../scripts/ambient/profile_from_ctd.html"
+                        title="next chapter">profile_from_ctd</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/bpm/lmp.flux_to_velocity.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<ul class="this-page-menu">
+  <li><a href="/numpy/docs/numpy-docs/bpm/lmp.flux_to_velocity.rst">Edit page</a></li>
+</ul>
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../scripts/ambient/profile_from_ctd.html" title="profile_from_ctd"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="lmp.zfe_volume_flux.html" title="lmp.zfe_volume_flux"
+             >previous</a> |</li>
+<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+
+          <li><a href="../modules/reference.html" >Reference</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Scott A. Socolofsky.
+      Last updated on Nov 07, 2014.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

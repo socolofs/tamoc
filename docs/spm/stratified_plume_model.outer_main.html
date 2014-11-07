@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.4',
+        VERSION:     '0.1.6',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -62,7 +62,7 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">March 12, 2014</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">November 07, 2014</td>
 </tr>
 </tbody>
 </table>
@@ -86,10 +86,10 @@ the state space variables.</p>
 <div><p>Object containing the outer plume state space and methods to extract
 the state space variables.</p>
 </div></blockquote>
-<p><strong>particles</strong> : list of <a class="reference internal" href="stratified_plume_model.Particle.html#stratified_plume_model.Particle" title="stratified_plume_model.Particle"><tt class="xref py py-obj docutils literal"><span class="pre">Particle</span></tt></a> objects</p>
+<p><strong>particles</strong> : list of <a class="reference internal" href="../modules/disp_phases.html#dispersed_phases.PlumeParticle" title="dispersed_phases.PlumeParticle"><tt class="xref py py-obj docutils literal"><span class="pre">dispersed_phases.PlumeParticle</span></tt></a> objects</p>
 <blockquote>
-<div><p>List of <a class="reference internal" href="stratified_plume_model.Particle.html#stratified_plume_model.Particle" title="stratified_plume_model.Particle"><tt class="xref py py-obj docutils literal"><span class="pre">Particle</span></tt></a> objects containing the dispersed phase local
-conditions and behavior.</p>
+<div><p>List of <a class="reference internal" href="../modules/disp_phases.html#dispersed_phases.PlumeParticle" title="dispersed_phases.PlumeParticle"><tt class="xref py py-obj docutils literal"><span class="pre">dispersed_phases.PlumeParticle</span></tt></a> objects containing the 
+dispersed phase local conditions and behavior.</p>
 </div></blockquote>
 <p><strong>profile</strong> : <a class="reference internal" href="../modules/ambient.html#ambient.Profile" title="ambient.Profile"><tt class="xref py py-obj docutils literal"><span class="pre">ambient.Profile</span></tt></a> object</p>
 <blockquote>
@@ -148,7 +148,7 @@ fluid is inadequate to overcome the upward drag of the inner plume, then
 the outer plume is said to be &#8220;not viable,&#8221; and the algorithm attemps to
 do this again with the next <em class="xref py py-obj">nwidths</em> of detrained water.  Once the 
 outer plume segment becomes viable, those initial conditions are passed
-to the <a class="reference internal" href="simp.calculate.html#simp.calculate" title="simp.calculate"><tt class="xref py py-obj docutils literal"><span class="pre">simp.calculate</span></tt></a> function, and the outer plume is integrated to
+to the <a class="reference internal" href="smp.calculate.html#smp.calculate" title="smp.calculate"><tt class="xref py py-obj docutils literal"><span class="pre">smp.calculate</span></tt></a> function, and the outer plume is integrated to
 neutral buoyancy.  This succession of steps repeats until the bottom of
 the inner plume is reached.</p>
 <p>When dissolution in the inner plume is large enough that the detained 
@@ -222,8 +222,8 @@ always stops at the sea bottom.</p>
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2013, Scott A. Socolofsky.
-      Last updated on Mar 12, 2014.
+        &copy; Copyright 2014, Scott A. Socolofsky.
+      Last updated on Nov 07, 2014.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>

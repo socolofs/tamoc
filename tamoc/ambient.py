@@ -779,27 +779,12 @@ def create_nc_db(nc_file, summary, source, sea_name, p_lat, p_lon, p_time):
     >>> nc.close()
     
     """
+    from tamoc import model_share
     # Create the netCDF dataset object
-    nc = Dataset(nc_file, 'w', format='NETCDF4_CLASSIC')
-    
-    # Set the global attributes
-    nc.Conventions = 'CF-1.6'
-    nc.Metadata_Conventions = 'Unidata Dataset Discovery v1.0'
-    nc.featureType = 'profile'
-    nc.cdm_data_type = 'Profile'
-    nc.nodc_template_version = 'NODC_NetCDF_Profile_Orthogonal_Template_v1.0'
-    nc.standard_name_vocabulary = 'CF-1.6'
-    nc.title = 'Profile created by TAMOC.ambient for use in the TAMOC' + \
-               ' modeling suite'
-    nc.summary = summary
-    nc.source = source
+    title = 'Profile created by TAMOC.ambient for use in the TAMOC ' + \
+            'modeling suite'
+    nc = model_share.tamoc_nc_file(nc_file, title, summary, source)
     nc.sea_name = sea_name
-    nc.creator_name = 'Scott A. Socolofsky via tamoc.ambient.create_nc_db.py'
-    nc.creator_url = 'https://ceprofs.civil.tamu.edu/ssocolofsky/'
-    nc.creator_email = 'socolofs@tamu.edu'
-    nc.date_created = datetime.today().isoformat(' ')
-    nc.date_modified = datetime.today().isoformat(' ')
-    nc.history = 'Creation'
     
     # Create variables for the dimensions
     z = nc.createDimension('z', None)

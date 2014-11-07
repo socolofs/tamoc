@@ -10,7 +10,9 @@ water column. The ambient water properties are provided through the
 `ambient.Profile` class object, which contains a netCDF4-classic dataset of
 CTD data and the needed interpolation methods. The `dbm` class objects
 `dbm.FluidParticle` and `dbm.InsolubleParticle` report the properties and
-behavior of the particle during the simulation.
+behavior of the particle during the simulation. An interface to the `dbm`
+objects is provided by the Particle class objects defined in
+`dispersed_phases`.
 
 Notes
 -----
@@ -46,17 +48,17 @@ by::
 
 and for the heat of solution, using::
 
-    d H / dt = sum (d (m_i) /dt * dH_solR * Ru / M)
+    d H / dt = sum (d (m_i) /dt * dH_solR_i * Ru / M_i)
 
 where `dH_solR` is the enthalpy of solution divided by the universal gas 
-constant (`Ru`) and `M` is the molecular weight of constituent `i`.
+constant (`Ru`) and `M_i` is the molecular weight of constituent `i`.
 
 When the particle becomes very small, the heat transfer and dissolution 
 become unstable, leading to rapid oscillations in the predicted particle 
 temperature.  To avoid this problem, this module accounts for heat transfer
 until the particle temperature reaches equilibrium with the seawater (which
 happens very quickly).  Thereafter, the particle is assumed to be equal to 
-the temperature of the ambient water.  
+the temperature of the ambient water.
 
 The equations for heat and mass transfer and for slip velocity are
 discontinuous at the boundaries between particle shapes (e.g., ellipsoid and
@@ -64,20 +66,23 @@ spherical cap, etc.), and this can sometimes lead to the solution getting
 stuck at the shape transition. The convergence criteria for the ODE solver are
 set at an optimal compromise for accuracy and for allowing a diverse range of
 particles to be simulated. Nonetheless, there are situations where these
-discontinuities may still break the solution. 
+discontinuities may still break the solution.
 
 Finally, if the diameter of a fluid particle is observed to rapidly increase, 
 this is usually associated with a phase change from liquid to gas.  The
 diagnostic plots help to identify these effects by plotting the state space
 together with several descriptive variables, including diameter, density, 
-and shape.  
+and shape.  However, there is no mechanism in this module to allow a droplet 
+to break up into multiple bubbles.
 
 """
-# S. Socolofsky, July 2013, Texas A&M University <socolofs@tamu.edu>.
+# S. Socolofsky, November 2014, Texas A&M University <socolofs@tamu.edu>.
 
-from tamoc import dbm
-from tamoc import ambient
+from tamoc import model_share
 from tamoc import seawater
+from tamoc import ambient
+from tamoc import dbm
+from tamoc import dispersed_phases
 
 from netCDF4 import Dataset
 from datetime import datetime
@@ -131,7 +136,7 @@ class Model(object):
     sim_stored : bool
         Flag indicating whether or not simulation results exist in the object
         namespace
-    particle : `Particle` object
+    particle : `dispersed_phases.SingleParticle` object
         Interface to the `dbm` module and container for particle-specific 
         parameters
     t : ndarray
@@ -140,6 +145,10 @@ class Model(object):
         State space along the trajectory of the particle
     z0 : float
         The release depth (m)
+    x0 : float, default = 0.
+        The release x-coordinate (m)
+    y0 : float, default = 0.
+        The release y-coordinate (m)
     de : float
         Initial diameter of the particle (m)
     yk : ndarray
@@ -151,7 +160,7 @@ class Model(object):
     K_T : float, default = 1.
         Heat transfer reduction factor (--)
     fdis : float, default = 1.e-6
-        Remainder fractin that turns off dissolution for each component (--)
+        Remainder fraction that turns off dissolution for each component (--)
     delta_t : float, default = 0.1 s
         Maximum time step to use (s) in the simulation output   
     
@@ -162,8 +171,8 @@ class Model(object):
     Notes
     -----
     The `Model` object will be initialized either with the `profile` data 
-    making it read to start a new simulation or with the results of a previous
-    simulation stored in `simfile`.
+    making it ready to start a new simulation or with the results of a 
+    previous simulation stored in `simfile`.
     
     """
     def __init__(self, profile=None, simfile=None):
@@ -181,7 +190,7 @@ class Model(object):
             self.p = ModelParams(self.profile)
             self.sim_stored = False
     
-    def simulate(self, particle, z0, de, yk, T0=None, K=1., K_T=1., 
+    def simulate(self, particle, X0, de, yk, T0=None, K=1., K_T=1., 
                  fdis=1.e-6, delta_t=0.1):
         """
         Simulate the trajectory of a particle from given initial conditions
@@ -194,8 +203,9 @@ class Model(object):
         ----------
         particle : `dbm.FluidParticle` or `dbm.InsolubleParticle` object
             Object describing the properties and behavior of the particle.
-        z0 : float
-            The release depth (m) of the particle in the simulation
+        X0 : float or ndarray
+            The release localtion (x0, y0, z0) depth (m) of the particle in 
+            the simulation.  If float, x0 = y0 = 0 is assumed.
         de : float
             Initial diameter of the particle (m)
         yk : ndarray
@@ -234,6 +244,13 @@ class Model(object):
         change during simulation.
         
         """
+        # Check the initial position and make it an array.
+        if not isinstance(X0, np.ndarray):
+            if not isinstance(X0, list):
+                X0 = np.array([0., 0., X0])
+            else:
+                X0 = np.array(X0)
+        
         # Make sure yk is an ndarray
         if not isinstance(yk, np.ndarray):
             if not isinstance(yk, list):
@@ -251,7 +268,9 @@ class Model(object):
         
         # Save the input variables since they may be modified during the
         # simulation
-        self.z0 = z0
+        self.x0 = X0[0]
+        self.y0 = X0[1]
+        self.z0 = X0[2]
         self.de = de
         self.yk = yk
         self.T0 = T0
@@ -261,7 +280,7 @@ class Model(object):
         self.delta_t = delta_t
         
         # Get the initial conditions for the simulation run
-        (self.particle, y0) = sbm_ic(self.profile, particle, z0, de, yk, T0, 
+        (self.particle, y0) = sbm_ic(self.profile, particle, X0, de, yk, T0, 
                                      K, K_T, fdis)
         
         # Open the simulation module
@@ -310,104 +329,48 @@ class Model(object):
             return
         
         # Create the netCDF dataset object
-        nc = Dataset(fname, 'w', format='NETCDF4_CLASSIC')
-        
-        # Set the global attributes
-        nc.Conventions = 'TAMOC Single Bubble Model'
-        nc.Metadata_Conventions = 'TAMOC Python Module'
-        nc.featureType = 'profile'
-        nc.cdm_data_type = 'Profile'
-        nc.nodc_template_version = 'NODC_NetCDF_Profile_Orthogonal_Template_v1.0'
-        nc.title = 'Simulation results for the TAMOC Single Bubble Model'
-        nc.summary = profile_path
-        nc.source = profile_info
-        nc.date_created = datetime.today().isoformat(' ')
-        nc.date_modified = datetime.today().isoformat(' ')
-        nc.history = 'Creation'
-        nc.composition = ' '.join(self.particle.composition)
+        title = 'Simulation results for the TAMOC Single Bubble Model'
+        nc = model_share.tamoc_nc_file(fname, title, profile_path, profile_info)
         
         # Create variables for the dimensions
         z = nc.createDimension('z', None)
         p = nc.createDimension('profile', 1)
-        nchems = nc.createDimension('nchems', len(self.particle.composition))
+        ns = nc.createDimension('ns', len(self.y[0,:]))
         
         # Store the dbm particle object instantiation variables
-        if self.particle.particle.issoluble:
-            nc.issoluble = 'True'
-            fp_type = nc.createVariable('fp_type', 'i4', ('profile',))
-            fp_type.long_name = 'fluid phase (0: gas, 1: liquid)'
-            fp_type.standard_name = 'fp_type'
-            fp_type.units = 'nondimensional'
-            fp_type[0] = self.particle.particle.fp_type
-        else:
-            nc.issoluble = 'False'
-            if self.particle.particle.isfluid:
-                nc.isfluid = 'True'
-            else:
-                nc.isfluid = 'False'
-            if self.particle.particle.iscompressible:
-                nc.iscompressible = 'True'
-            else:
-                nc.iscompressible = 'False'
-            rho_p = nc.createVariable('rho_p', 'f8', ('profile',))
-            rho_p.long_name = 'particle density'
-            rho_p.standard_name = 'rho_p'
-            rho_p.units = 'kg/m^3'
-            rho_p[0] = self.particle.particle.rho_p
-            gamma = nc.createVariable('gamma', 'f8', ('profile',))
-            gamma.long_name = 'API Gravity'
-            gamma.standard_name = 'gamma'
-            gamma.units = 'deg API'
-            gamma[0] = self.particle.particle.gamma
-            beta = nc.createVariable('beta', 'f8', ('profile',))
-            beta.long_name = 'thermal expansion coefficient'
-            beta.standard_name = 'beta'
-            beta.units = 'Pa^(-1)'
-            beta[0] = self.particle.particle.beta
-            co = nc.createVariable('co', 'f8', ('profile',))
-            co.long_name = 'isothermal compressibility coefficient'
-            co.standard_name = 'co'
-            co.units = 'K^(-1)'
-            co[0] = self.particle.particle.co
+        dispersed_phases.save_particle_to_nc_file(nc, 
+            self.particle.composition, self.particle, self.K_T)
         
-        # Create the time variable
-        time = nc.createVariable('t', 'f8', ('z',))
-        time.long_name = 'time coordinate'
-        time.standard_name = 'time'
-        time.units = 'seconds since release'
-        time.axis = 'T'
-        time[:] = self.t
+        # Store the solution independent variable
+        t = nc.createVariable('t', 'f8', ('z',))
+        t.long_name = 'time coordinate'
+        t.standard_name = 'time'
+        t.units = 'seconds since release'
+        t.axis = 'T'
+        t[:] = self.t
         
-        # Create the depth variable
-        z = nc.createVariable('z', 'f8', ('z',))
-        z.long_name = 'depth below the water surface'
-        z.standard_name = 'depth'
-        z.units = 'm'
-        z.axis = 'Z'
-        z.positive = 'down'
-        z.valid_min = np.min(self.y)
-        z.valid_max = np.max(self.y)
-        z[:] = self.y[:,0]
+        # Store the solution state space...position
+        y = nc.createVariable('y', 'f8', ('z', 'ns',))
+        y.long_name = 'solution state space'
+        y.standard_name = 'y'
+        y.units = 'variable'
+        y.coordinate = 't'
+        for i in range(len(nc.dimensions['ns'])):
+            y[0:len(self.t),i] = self.y[:,i]
         
-        # Create variables for the chemical components
-        for i in range(len(self.particle.composition)):
-            chem = nc.createVariable(self.particle.composition[i], 'f8', 
-                                     ('z',))
-            chem.long_name = join(self.particle.composition[i].split('_'))
-            chem.standard_name = capwords(chem.long_name)
-            chem.units = 'kg'
-            chem.coordinate = 'time'
-            chem[:] = self.y[:,i+1]
+        # Store the model initial conditions
+        x0 = nc.createVariable('x0', 'f8', ('profile',))
+        x0.long_name = 'release depth'
+        x0.standard_name = 'z0'
+        x0.units = 'm'
+        x0[0] = self.x0
         
-        # Create a variable for the heat
-        h = nc.createVariable('h', 'f8', ('z',))
-        h.long_name = 'heat content'
-        h.standard_name = 'heat'
-        h.units = 'J'
-        h.coordinate = 'time'
-        h[:] = self.y[:,-1]
+        y0 = nc.createVariable('y0', 'f8', ('profile',))
+        y0.long_name = 'release depth'
+        y0.standard_name = 'z0'
+        y0.units = 'm'
+        y0[0] = self.y0
         
-        # Store the model attributes
         z0 = nc.createVariable('z0', 'f8', ('profile',))
         z0.long_name = 'release depth'
         z0.standard_name = 'z0'
@@ -425,33 +388,6 @@ class Model(object):
         yk.standard_name = 'yk'
         yk.units = 'mole fraction'
         yk[:] = self.yk
-        
-        T0 = nc.createVariable('T0', 'f8', ('profile',))
-        T0.long_name = 'initial temperature'
-        T0.standard_name = 'T0'
-        T0.units = 'K'
-        if self.T0 is None:
-            T0[0] = self.profile.get_values(self.z0, 'temperature')
-        else:
-            T0[0] = self.T0
-        
-        K = nc.createVariable('K', 'f8', ('profile',))
-        K.long_name = 'mass transfer reduction factor'
-        K.standard_name = 'K'
-        K.units = 'nondimensional'
-        K[0] = self.K
-        
-        K_T = nc.createVariable('K_T', 'f8', ('profile',))
-        K_T.long_name = 'heat transfer reduction factor'
-        K_T.standard_name = 'K_T'
-        K_T.units = 'nondimensional'
-        K_T[0] = self.K_T
-        
-        fdis = nc.createVariable('fdis', 'f8', ('profile',))
-        fdis.long_name = 'dissolution criteria'
-        fdis.standard_name = 'fdis'
-        fdis.units = 'nondimensional'
-        fdis[0] = self.fdis
         
         delta_t = nc.createVariable('delta_t', 'f8', ('profile',))
         delta_t.long_name = 'maximum simulation output time step'
@@ -507,11 +443,13 @@ class Model(object):
         p_list.append('\n')
         p_list.append('Column Descriptions:\n')
         p_list.append('    0:  Time in s\n')
-        p_list.append('    1:  Depth in m\n')
+        p_list.append('    1:  x-coordinate in m\n')
+        p_list.append('    2:  y-coordinate in m\n')
+        p_list.append('    3:  Depth in m\n')
         for i in range(len(self.particle.composition)):
             p_list.append('    %d:  Mass of %s in particle in kg\n' % \
-                          (i+2, self.particle.composition[i]))
-        p_list.append('    %d: Heat content (m_p * cp * T) in J' % (i+3))
+                          (i+4, self.particle.composition[i]))
+        p_list.append('    %d: Heat content (m_p * cp * T) in J' % (i+5))
         p_list.append('\n')
         p_list.append('Ambient Profile: %s' % (profile_path))
         p_list.append('Ambient Info:    %s' % (profile_info))
@@ -552,51 +490,34 @@ class Model(object):
         nc = Dataset(fname)
         
         # Try to open the profile data
-        try:
-            nc_path = os.path.normpath(os.path.join(os.getcwd(), \
-                                       os.path.dirname(fname)))
-            prf_path = os.path.normpath(os.path.join(nc_path, nc.summary))
-            amb_data = Dataset(prf_path)
-            self.profile = ambient.Profile(amb_data, chem_names='all')
-            self.profile.close_nc()
+        self.profile = model_share.profile_from_model_savefile(nc, fname)
+        if self.profile is not None:
             self.p = ModelParams(self.profile)
-        except RuntimeError:
-            message = ['File not found: %s' % prf_path]
-            message.append(' ... Continuing without profile data')
-            warn(''.join(message))
-        
-        # Create the DBM model particle object
-        composition = nc.composition.split()
-        if nc.issoluble == 'True':
-            particle = dbm.FluidParticle(composition, 
-                nc.variables['fp_type'][0])
         else:
-            if nc.isfluid == 'True':
-                isfluid = True
-            else:
-                isfluid = False
-            if nc.iscompressible == 'True':
-                iscompressible = True
-            else:
-                iscompressible = False
-            particle = dbm.InsolubleParticle(isfluid, iscompressible, 
-                rho_p=nc.variables['rho_p'][0], 
-                gamma=nc.variables['gamma'][0], 
-                beta=nc.variables['beta'][0], 
-                co=nc.variables['co'][0])
+            self.p = None
+        
+        # Load in the dispersed_phases.Particle object
+        self.particle = \
+            dispersed_phases.load_particle_from_nc_file(nc, 0)[0][0]
         
         # Extract the state space data
         self.t = nc.variables['t'][:]
-        z = nc.variables['z'][:]
-        m = np.zeros((len(self.t), len(particle.composition)))
-        for i in range(len(particle.composition)):
-            m[:,i] = nc.variables[particle.composition[i]][:]
-        h = nc.variables['h'][:]
-        self.y = np.hstack((np.atleast_2d(z).transpose(), m, 
-                            np.atleast_2d(h).transpose()))
+        ns = len(nc.dimensions['ns'])
+        self.y = np.zeros((len(self.t), ns))
+        for i in range(ns):
+            self.y[:,i] = nc.variables['y'][0:len(self.t), i]
         
         # Extract the initial conditions
         self.z0 = nc.variables['z0'][0]
+        try:
+            self.x0 = nc.variables['x0'][0]
+        except KeyError:
+            self.x0 = 0.
+        try:
+            self.y0 = nc.variables['y0'][0]
+        except KeyError:
+            self.y0 = 0.
+        self.X0 = np.array([self.x0, self.y0, self.z0])
         self.de = nc.variables['de'][0]
         self.yk = nc.variables['yk'][:]
         self.T0 = nc.variables['T0'][0]
@@ -604,10 +525,6 @@ class Model(object):
         self.K_T = nc.variables['K_T'][0]
         self.fdis = nc.variables['fdis'][0]
         self.delta_t = nc.variables['delta_t'][0]
-        
-        # Reload the Particle object
-        self.particle = Particle(particle, m[0,1:-1], self.T0, self.K, 
-                                 self.K_T, self.fdis)
         
         # Close the netCDF dataset
         nc.close()
@@ -658,6 +575,10 @@ class ModelParams(object):
     ----------
     rho_r : float
         Reference density (kg/m^3) evaluated at mid-depth of the water body.
+    g : float
+        Acceleration of gravity (m/s^2)
+    Ru : float
+        Ideal gas constant (J/mol/K)
     
     """
     def __init__(self, profile):
@@ -668,230 +589,10 @@ class ModelParams(object):
         T, S, P = profile.get_values(z_ave, ['temperature', 'salinity', 
                                      'pressure'])
         self.rho_r = seawater.density(T, S, P)
-    
-
-class Particle(object):
-    """
-    Interface to the `dbm` module and container for model parameters
-    
-    This class provides a uniform interface to the `dbm` module objects and
-    methods and stores the particle-specific model parameters.  Because the
-    methods for `dbm.FluidParticle` and `dbm.InsolubleParticle` sometimes have 
-    different inputs and different outputs, there needs to be a method to 
-    support these interface differences in a single location.  This object
-    solves that problem by providing a single interface and uniform outputs
-    for the particle properties needed by the single bubble model.  This also
-    affords a convenient place to store the particle-specific model 
-    parameters and behavior, such as mass transfer reduction factor, etc., 
-    turning off heat transfer once the particle matches the ambient 
-    temperature and turning off the particle buoyancy once the particle is
-    dissolved.
-    
-    Parameters
-    ----------
-    dbm_particle : `dbm.FluidParticle` or `dbm.InsolubleParticle` object
-        Object describing the particle properties and behavior
-    m0 : ndarray
-        Initial masses of the components of the `dbm` particle object (kg)
-    T0 : float
-        Initial temperature of the of `dbm` particle object (K)
-    K : float, default = 1.
-        Mass transfer reduction factor (--).
-    K_T : float, default = 1.
-        Heat transfer reduction factor (--).
-    fdis : float, default = 0.01
-        Fraction of the initial total mass (--) remaining when the particle 
-        should be considered dissolved.
-    
-    Attributes
-    ----------
-    particle : `dbm.FluidParticle` or `dbm.InsolubleParticle` object
-        Stores the `dbm_particle` object passed to `__init__()`.
-    composition : str list
-        Copy of the `composition` attribute of the `dbm_particle` object.
-    m0 : ndarray
-        Initial masses (kg) of the particle components
-    T0 : float
-        Initial temperature (K) of the particle
-    cp : float
-        Heat capacity at constant pressure (J/(kg K)) of the particle.
-    K : float
-        Mass transfer reduction factor (--)
-    K_T : float
-        Heat transfer reduction factor (--)
-    fdis : float
-        Fraction of initial mass remaining as total dissolution (--)
-    diss_indices : ndarray bool
-        Indices of m0 that are non-zero.
-    
-    Notes
-    -----
-    This object only provides an interface to the `return_all` and 
-    `diameter` methods of the `dbm` module objects.  The intent is to be as 
-    fast as possible while providing a single location for the necessary 
-    `if`-statements needed to select between soluble and insoluble particle 
-    methods and facilitate turning heat transfer and dissolution on and off
-    as necessary at the simulation progresses.  
-    
-    Dissolution is turned off component by component as each components mass
-    becomes fdis times smaller than the initial mass.  Once all of the initial
-    components have been turned off, the particle is assumed to have a 
-    density equation to the ambient water and a slip velocity of zero.
-    
-    Heat transfer is turned off once the particle comes within 0.1 K of the
-    ambient temperature.  Thereafter, the temperature is forced to track 
-    the ambient temperature.
-    
-    """
-    def __init__(self, dbm_particle, m0, T0, K=1., K_T=1., fdis=1.e-6):
-        super(Particle, self).__init__()
         
-        # Make sure the masses are in a numpy array
-        if not isinstance(m0, np.ndarray):
-            if not isinstance(m0, list):
-                m0 = np.array([m0])
-            else:
-                m0 = np.array(m0)
-        
-        # Store the input parameters
-        self.particle = dbm_particle
-        self.composition = dbm_particle.composition
-        self.m0 = m0
-        self.T0 = T0
-        self.cp = seawater.cp() * 0.5
-        
-        # Store the particle-specific model parameters
-        self.K = K
-        self.K_T = K_T
-        self.fdis = fdis
-        
-        # Store parameters to track the dissolution of the initial masses
-        self.diss_indices = self.m0 > 0
-    
-    def properties(self, m, T, P, Sa, Ta):
-        """
-        Return the particle properties from the discrete bubble model
-        
-        Provides a single interface to the `return_all` methods of the fluid 
-        and insoluble particle objects defined in the `dbm` module.  
-        This method also applies the particle-specific model parameters to 
-        adjust the mass and heat transfer and determine the dissolution state.
-        
-        Parameters
-        ----------
-        m : float
-             mass of the particle (kg)
-        T : float
-             particle temperature (K)
-        P : float
-            particle pressure (Pa)
-        Sa : float
-            salinity of ambient seawater (psu)
-        Ta : float
-            temperature of ambient seawater (K)
-        
-        Returns
-        -------
-        A tuple containing:
-            
-            us : float
-                slip velocity (m/s)
-            rho_p : float
-                particle density (kg/m^3)
-            A : float 
-                surface area (m^2)
-            Cs : ndarray, size (nc)
-                solubility (kg/m^3)
-            K * beta : ndarray, size (nc)
-                effective mass transfer coefficient(s) (m/s)
-            K_T * beta_T : float
-                effective heat transfer coefficient (m/s)
-            T : float
-                temperature of the particle (K)
-        
-        Notes
-        -----
-        For insoluble particles, `Cs` and `beta` are undefined.  This method
-        returns values for these variables that will result in no 
-        dissolution and will also protect model simulations from undefined
-        mathematical operations (e.g., divide by zero).
-        
-        """
-        # Turn off heat transfer when at equilibrium.  This will be a 
-        # persistent change, so it only has to happen once.
-        if self.K_T > 0. and np.abs(Ta - T) < 0.1:
-            self.K_T = 0.
-        
-        # Use the right temperature
-        if self.K_T == 0.:
-            T = Ta
-        
-        # Distinguish between soluble and insoluble particles
-        if self.particle.issoluble:
-            
-            # Get the DBM results
-            m[m<0] = 0.   # stop oscillations at small mass
-            shape, de, rho_p, us, A, Cs, beta, beta_T = \
-                self.particle.return_all(m, T, P, Sa, Ta)
-            
-            # Turn off dissolution for "dissolved" components
-            frac_diss = m[self.diss_indices] / self.m0[self.diss_indices]
-            beta[frac_diss < self.fdis] = 0.
-            
-            # Shut down bubble forces when particles fully dissolve
-            if np.sum(beta[self.diss_indices]) == 0.:
-                # Injected chemicals have dissolved
-                if np.sum(m[self.diss_indices]) > \
-                    np.sum(m[~self.diss_indices]):
-                    # The whole particle has dissolved
-                    us = 0.0
-                    rho_p = seawater.density(Ta, Sa, P)
-        
-        else:
-            # Get the particle properties
-            shape, de, rho_p, us, A, beta_T = \
-                self.particle.return_all(m[0], T, P, Sa, Ta)
-            beta = np.array([])
-            Cs = np.array([])
-        
-        # Return the particle properties
-        return (us, rho_p, A, Cs, self.K * beta, self.K_T * beta_T, T)
-    
-    def diameter(self, m, T, P, Sa, Ta):
-        """
-        Compute the diameter of a particle from mass and density
-        
-        Computes the diameter of a particle using the methods in the `dbm`
-        module.  This method is used in the post-processor of the `Model`
-        object, but not in the actual simulation.  
-        
-        Parameters
-        ----------
-        m : float
-             mass of the particle (kg)
-        T : float
-             particle temperature (K)
-        P : float
-            particle pressure (Pa)
-        Sa : float
-            salinity of ambient seawater (psu)
-        Ta : float
-            temperature of ambient seawater (K)
-        
-        Returns
-        -------
-        de : float
-            diameter of the particle (m)
-        
-        """
-        # Distinguish between soluble and insoluble particles
-        if self.particle.issoluble:
-            de = self.particle.diameter(m, T, P)
-        else:
-            de = self.particle.diameter(m, T, P, Sa, Ta)
-        
-        # Return the diameter
-        return de
+        # Store some physical constants
+        self.g = 9.81
+        self.Ru = 8.314510  
 
 
 # ----------------------------------------------------------------------------
@@ -909,7 +610,7 @@ def calculate_path(profile, particle, p, y0, delta_t):
     ----------
     profile : `ambient.Profile` object
         Ambient CTD data for the model simulation
-    particle : `Particle` object
+    particle : `LagrangianParticle` object
         Object describing the properties and behavior of the particle.
     p : `ModelParams` object
         Collection of model parameters passed to `derivs`.
@@ -963,7 +664,7 @@ def calculate_path(profile, particle, p, y0, delta_t):
         # Print progress to the screen
         if np.remainder(np.float(k), psteps) == 0.:
             print '    Depth:  %g (m), t:  %g (s), k: %d' % \
-                (r.y[0], t[-1], k)
+                (r.y[2], t[-1], k)
         
         # Perform one step of the integration
         r.integrate(t[-1] + delta_t, step=True)
@@ -971,8 +672,8 @@ def calculate_path(profile, particle, p, y0, delta_t):
         # Store the results
         if particle.K_T == 0:
             # Make the state-space heat correct
-            Ta = profile.get_values(r.y[0], 'temperature')
-            r.y[-1] = np.sum(r.y[1:-1]) * particle.cp * Ta
+            Ta = profile.get_values(r.y[2], 'temperature')
+            r.y[-1] = np.sum(r.y[3:-1]) * particle.cp * Ta
         t.append(r.t)
         y.append(r.y)
         k += 1
@@ -980,20 +681,20 @@ def calculate_path(profile, particle, p, y0, delta_t):
         # Evaluate stop criteria
         if r.successful():
             # Check if bubble dissolved (us = 0) or reached the free surface
-            us = - (y[-2][0] - y[-1][0]) / (t[-2] - t[-1])
-            if r.y[0] <= profile.z_min or us <= 0.:
+            us = - (y[-2][2] - y[-1][2]) / (t[-2] - t[-1])
+            if r.y[2] <= profile.z_min or us <= 0.:
                 stop = True
     
     # Remove any negative depths due to overshooting the free surface
     t = np.array(t)
     y = np.array(y)
-    rows = y[:,0] >= 0
+    rows = y[:,2] >= 0
     t = t[rows]
     y = y[rows,:] 
     
     # Return the solution
     print '    Depth:  %g (m), t:  %g (s), k: %d' % \
-        (y[-1,0], t[-1], k)
+        (y[-1,2], t[-1], k)
     return (t, y)
 
 
@@ -1015,7 +716,7 @@ def derivs(t, y, profile, particle, p):
         (J)
     profile : `ambient.Profile` object
         Ambient CTD data for the model simulation
-    particle : `Particle` object
+    particle : `LagrangianParticle` object
         Object describing the properties and behavior of the particle.
     p : `ModelParams` object
         Object containing the model parameters
@@ -1030,36 +731,39 @@ def derivs(t, y, profile, particle, p):
     yp = np.zeros(y.shape)
     
     # Extract the state space variables for speed and ease of reading code
-    z = y[0]
-    m = y[1:-1]
+    z = y[2]
+    m = y[3:-1]
     T = y[-1] / (np.sum(m) * particle.cp)
     
     # Get the ambient profile data
     Ta, Sa, P = profile.get_values(z, ['temperature', 'salinity', 'pressure'])
+    ua, va, wa = profile.get_values(z, ['ua', 'va', 'wa'])
     C = profile.get_values(z, particle.composition)
     
     # Get the particle properties
     (us, rho_p, A, Cs, beta, beta_T, T) = particle.properties(m, T, P, Sa, Ta)
     
     # Advection
-    yp[0] = -us
+    #yp[0] = 0.
+    #yp[1] = 0.
+    yp[2] = -us
     
     # Dissolution
     if len(Cs) > 0:
-        yp[1:-1] = - A * beta[:] * (Cs[:] - C[:])
+        yp[3:-1] = - A * beta[:] * (Cs[:] - C[:])
     
     # Account for heat transfer (ignore heat of solution since it is 
     # negligible in the beginning as the particle approaches equilibrium)
     yp[-1] =  - rho_p * particle.cp * A * beta_T * (T - Ta)
     
     # Account for heat lost due to decrease in mass
-    yp[-1] += particle.cp * np.sum(yp[1:-1]) * T
+    yp[-1] += particle.cp * np.sum(yp[3:-1]) * T
     
     # Return the derivatives
     return yp
 
 
-def sbm_ic(profile, particle, z0, de, yk, T0, K, K_T, fdis):
+def sbm_ic(profile, particle, X0, de, yk, T0, K, K_T, fdis):
     """
     Set the initial conditions for a single bubble model simulation
     
@@ -1072,8 +776,8 @@ def sbm_ic(profile, particle, z0, de, yk, T0, K, K_T, fdis):
         Ambient CTD data for the model simulation
     particle : `dbm.FluidParticle` or `dbm.InsolubleParticle` object
         Object describing the properties and behavior of the particle.
-    z0 : float
-        The release depth (m) of the particle in the simulation
+    X0 : ndarray
+        The release location (x, y, y) in m of the particle in the simulation
     de : float
         Initial diameter of the particle (m)
     yk : ndarray
@@ -1096,9 +800,9 @@ def sbm_ic(profile, particle, z0, de, yk, T0, K, K_T, fdis):
     
     Return
     ------
-    particle : `Particle` object
-        A `Particle` object containing a unified interface to the `dbm`
-        module and the particle-specific model parameters (e.g., mass 
+    particle : `LagrangianParticle` object
+        A `LagrangianParticle` object containing a unified interface to the 
+        `dbm` module and the particle-specific model parameters (e.g., mass 
         transfer reduction factor, etc.)
     y0 : ndarray
         Model state space at the release point.  Includes the current depth 
@@ -1120,32 +824,16 @@ def sbm_ic(profile, particle, z0, de, yk, T0, K, K_T, fdis):
     passed to this function.
     
     """
-    # Make sure the mole fractions are in an array
-    if not isinstance(yk, np.ndarray):
-        if not isinstance(yk, list):
-            yk = np.array([yk])
-        else:
-            yk = np.array(yk)
+    # Get the particle initial conditions from the dispersed_phases module
+    m0, T0, nb0, P, Sa, Ta = dispersed_phases.initial_conditions(profile, 
+        X0[2], particle, yk, None, 0, de, T0)
     
-    # Get the ambient conditions
-    Ta, Sa, P = profile.get_values(z0, ['temperature', 'salinity', 
-                                   'pressure'])
-                                   
-    # Determine the temperature to pass to the integration
-    if T0 is None or K_T == 0.:
-        T0 = copy(Ta)
-    
-    # Get the initial masses and density of the particle
-    if particle.issoluble:
-        m0 = particle.masses_by_diameter(de, T0, P, yk)
-    else:
-        m0 = particle.mass_by_diameter(de, T0, P, Sa, Ta)
-    
-    # Initialize a Particle object
-    particle = Particle(particle, m0, T0, K, K_T, fdis)
+    # Initialize a LagrangianParticle object
+    particle = dispersed_phases.SingleParticle(particle, m0, T0, K, K_T, 
+               fdis)
     
     # Assemble the state space
-    y0 = np.hstack((z0, m0, T0 * np.sum(m0) * particle.cp))
+    y0 = np.hstack((X0, m0, T0 * np.sum(m0) * particle.cp))
     
     # Return the particle object and the state space
     return (particle, y0)
@@ -1166,7 +854,7 @@ def plot_state_space(profile, particle, p, t, y, fig):
     ----------
     profile : `ambient.Profile` object
         Ambient CTD data for the model simulation
-    particle : `Particle` object
+    particle : `LagrangianParticle` object
         Object describing the properties and behavior of the particle.
     p : `ModelParams` object
         Collection of model parameters passed to `derivs`.
@@ -1175,7 +863,7 @@ def plot_state_space(profile, particle, p, t, y, fig):
         particle
     y : ndarray
         State space along the trajectory of the particle.  The state space
-        includes the depth (m), masses (kg) of the particle components, and 
+        includes the location (m), masses (kg) of the particle components, and 
         the particle heat content (J).  Each variable is contained in a 
         separate column of `y`.
     fig : int
@@ -1191,10 +879,12 @@ def plot_state_space(profile, particle, p, t, y, fig):
     
     """
     # Extract the state space variables
-    z = y[:,0]
-    m = y[:,1:-1]
+    xi = y[:,0]
+    yi = y[:,1]
+    zi = y[:,2]
+    m = y[:,3:-1]
     T = np.array([y[i,-1] / (np.sum(m[i,:]) * particle.cp) 
-                 for i in range(len(z))])
+                 for i in range(len(zi))])
     
     # Compute the diameter and save the ambient temperature
     rho_p = np.zeros(t.shape)
@@ -1210,9 +900,9 @@ def plot_state_space(profile, particle, p, t, y, fig):
     N = np.zeros(t.shape)
     T_fun = np.zeros(t.shape)
     for i in range(len(t)):
-        Ta[i], Sa[i], P[i] = profile.get_values(z[i], ['temperature', 
+        Ta[i], Sa[i], P[i] = profile.get_values(zi[i], ['temperature', 
                              'salinity', 'pressure'])
-        N[i] = profile.buoyancy_frequency(z[i], h=0.005)
+        N[i] = profile.buoyancy_frequency(zi[i], h=0.005)
         (us[i], rho_p[i], A[i], Cs_local, beta_local, beta_T, T_fun[i]) = \
             particle.properties(m[i,:], T[i], P[i], Sa[i], Ta[i])
         if len(Cs_local) > 0:
@@ -1228,8 +918,7 @@ def plot_state_space(profile, particle, p, t, y, fig):
     
     # Depth
     ax1 = plt.subplot(221)
-    plt.tight_layout()
-    ax1.plot(z, t)
+    ax1.plot(zi, t)
     ax1.set_xlabel('Depth (m)')
     ax1.set_ylabel('Time (s)')
     ax1.locator_params(tight=True, nbins=6)
@@ -1237,7 +926,6 @@ def plot_state_space(profile, particle, p, t, y, fig):
     
     # Slip Velocity
     ax2 = plt.subplot(222)
-    plt.tight_layout()
     ax2.plot(us, t)
     ax2.set_xlabel('Slip velocity (m/s)')
     ax2.locator_params(tight=True, nbins=6)
@@ -1245,7 +933,6 @@ def plot_state_space(profile, particle, p, t, y, fig):
     
     # Masses
     ax3 = plt.subplot(223)
-    plt.tight_layout()
     ax3.semilogx(m, t)
     ax3.set_xlabel('Component masses (kg)')
     ax3.locator_params(axis='y', tight=True, nbins=6)
@@ -1254,7 +941,6 @@ def plot_state_space(profile, particle, p, t, y, fig):
     
     # Heat
     ax4 = plt.subplot(224)
-    plt.tight_layout()
     ax4.semilogx(y[:,-1], t)
     ax4.set_xlabel('Heat (J)')
     ax4.locator_params(axis='y', tight=True, nbins=6)
@@ -1269,8 +955,7 @@ def plot_state_space(profile, particle, p, t, y, fig):
     
     # Diameter
     ax1 = plt.subplot(221)
-    plt.tight_layout()
-    ax1.semilogx(de * 1000, z)
+    ax1.semilogx(de * 1000, zi)
     ax1.set_xlabel('Diameter (mm)')
     ax1.set_ylabel('Depth (m)')
     ax1.locator_params(axis='y', tight=True, nbins=6)
@@ -1280,8 +965,7 @@ def plot_state_space(profile, particle, p, t, y, fig):
     
     # Shape
     ax2 = plt.subplot(222)
-    plt.tight_layout()
-    ax2.plot(shape, z)
+    ax2.plot(shape, zi)
     ax2.set_xlabel('Shape (--)')
     ax2.set_xlim((0, 4))
     ax2.invert_yaxis()
@@ -1291,8 +975,7 @@ def plot_state_space(profile, particle, p, t, y, fig):
     
     # Density
     ax3 = plt.subplot(223)
-    plt.tight_layout()
-    ax3.plot(rho_p, z)
+    ax3.plot(rho_p, zi)
     ax3.set_xlabel('Density (kg)')
     ax3.set_ylabel('Depth (m)')
     ax3.invert_yaxis()
@@ -1301,10 +984,9 @@ def plot_state_space(profile, particle, p, t, y, fig):
     
     # Temperature
     ax4 = plt.subplot(224)
-    plt.tight_layout()
-    ax4.plot(T, z)
-    ax4.plot(T_fun, z)
-    ax4.plot(Ta, z)
+    ax4.plot(T, zi)
+    ax4.plot(T_fun, zi)
+    ax4.plot(Ta, zi)
     ax4.set_xlabel('Temperature (K)')
     ax4.invert_yaxis()
     ax4.locator_params(tight=True, nbins=6)
@@ -1318,8 +1000,7 @@ def plot_state_space(profile, particle, p, t, y, fig):
     
     # Masses
     ax1 = plt.subplot(221)
-    plt.tight_layout()
-    ax1.semilogx(m, z)
+    ax1.semilogx(m, zi)
     ax1.set_xlabel('Component masses (kg)')
     ax1.set_ylabel('Depth (m)')
     ax1.locator_params(axis='y', tight=True, nbins=6)
@@ -1329,8 +1010,7 @@ def plot_state_space(profile, particle, p, t, y, fig):
     
     # Solubility
     ax2 = plt.subplot(222)
-    plt.tight_layout()
-    ax2.plot(Cs, z)
+    ax2.plot(Cs, zi)
     ax2.set_xlabel('Solubility (kg/m^3)')
     ax2.locator_params(tight=True, nbins=6)
     ax2.invert_yaxis()
@@ -1338,8 +1018,7 @@ def plot_state_space(profile, particle, p, t, y, fig):
     
     # Mass transfer coefficient
     ax3 = plt.subplot(223)
-    plt.tight_layout()
-    ax3.plot(beta, z)
+    ax3.plot(beta, zi)
     ax3.set_xlabel('Mass transfer (m/s)')
     ax3.invert_yaxis()
     ax3.locator_params(tight=True, nbins=6)
@@ -1348,8 +1027,7 @@ def plot_state_space(profile, particle, p, t, y, fig):
     
     # Area
     ax4 = plt.subplot(224)
-    plt.tight_layout()
-    ax4.semilogx(A, z)
+    ax4.semilogx(A, zi)
     ax4.set_xlabel('Surface area (m^2)')
     ax4.locator_params(axis='y', tight=True, nbins=6)
     #ax4.xaxis.set_major_locator(mpl.ticker.LogLocator(base=1e2))
@@ -1364,8 +1042,7 @@ def plot_state_space(profile, particle, p, t, y, fig):
     
     # CTD Temperature
     ax1 = plt.subplot(221)
-    plt.tight_layout()
-    ax1.plot(Ta - 273.15, z)
+    ax1.plot(Ta - 273.15, zi)
     ax1.set_xlabel('Temperature (deg C)')
     ax1.set_ylabel('Depth (m)')
     ax1.locator_params(tight=True, nbins=6)
@@ -1373,16 +1050,14 @@ def plot_state_space(profile, particle, p, t, y, fig):
     ax1.grid(True)
     
     ax2 = plt.subplot(222)
-    plt.tight_layout()
-    ax2.plot(Sa, z)
+    ax2.plot(Sa, zi)
     ax2.set_xlabel('Salinity (psu)')
     ax2.locator_params(tight=True, nbins=6)
     ax2.invert_yaxis()
     ax2.grid(True)
     
     ax3 = plt.subplot(223)
-    plt.tight_layout()
-    ax3.plot(P, z)
+    ax3.plot(P, zi)
     ax3.set_xlabel('Pressure (Pa)')
     ax3.set_ylabel('Depth (m)')
     ax3.locator_params(tight=True, nbins=6)
@@ -1390,11 +1065,11 @@ def plot_state_space(profile, particle, p, t, y, fig):
     ax3.grid(True)
     
     ax4= plt.subplot(224)
-    plt.tight_layout()
-    ax4.plot(N, z)
+    ax4.plot(N, zi)
     ax4.set_xlabel('Buoyancy Frequency (1/s)')
     ax4.locator_params(tight=True, nbins=6)
     ax4.invert_yaxis()
     ax4.grid(True)
     
     plt.show()
+

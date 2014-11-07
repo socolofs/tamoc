@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.4',
+        VERSION:     '0.1.6',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -27,7 +27,7 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../index.html" />
     <link rel="up" title="Reference" href="reference.html" />
-    <link rel="prev" title="sintef.rosin_rammler" href="../sintef/sintef.rosin_rammler.html" /> 
+    <link rel="prev" title="params.Scales.u_inf_crit" href="../params/params.Scales.u_inf_crit.html" /> 
   </head>
   <body>
     <div class="related">
@@ -37,7 +37,7 @@
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="../sintef/sintef.rosin_rammler.html" title="sintef.rosin_rammler"
+          <a href="../params/params.Scales.u_inf_crit.html" title="params.Scales.u_inf_crit"
              accesskey="P">previous</a> |</li>
 <li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
 
@@ -58,7 +58,7 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">March 12, 2014</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">November 07, 2014</td>
 </tr>
 </tbody>
 </table>
@@ -71,7 +71,9 @@ water column. The ambient water properties are provided through the
 <a class="reference internal" href="ambient.html#ambient.Profile" title="ambient.Profile"><tt class="xref py py-obj docutils literal"><span class="pre">ambient.Profile</span></tt></a> class object, which contains a netCDF4-classic dataset of
 CTD data and the needed interpolation methods. The <a class="reference internal" href="dbm.html#module-dbm" title="dbm"><tt class="xref py py-obj docutils literal"><span class="pre">dbm</span></tt></a> class objects
 <a class="reference internal" href="dbm.html#dbm.FluidParticle" title="dbm.FluidParticle"><tt class="xref py py-obj docutils literal"><span class="pre">dbm.FluidParticle</span></tt></a> and <a class="reference internal" href="dbm.html#dbm.InsolubleParticle" title="dbm.InsolubleParticle"><tt class="xref py py-obj docutils literal"><span class="pre">dbm.InsolubleParticle</span></tt></a> report the properties and
-behavior of the particle during the simulation.</p>
+behavior of the particle during the simulation. An interface to the <a class="reference internal" href="dbm.html#module-dbm" title="dbm"><tt class="xref py py-obj docutils literal"><span class="pre">dbm</span></tt></a>
+objects is provided by the Particle class objects defined in
+<a class="reference internal" href="disp_phases.html#module-dispersed_phases" title="dispersed_phases"><tt class="xref py py-obj docutils literal"><span class="pre">dispersed_phases</span></tt></a>.</p>
 <div class="section" id="notes">
 <h3>Notes<a class="headerlink" href="#notes" title="Permalink to this headline">¶</a></h3>
 <p>This model solves for the trajectory <em class="xref py py-obj">vec(x)</em> by the simple transport 
@@ -102,10 +104,10 @@ by:</p>
 <div class="highlight-python"><pre>d H / dt = cp * d (m_p) / dt * T        # Note d (m_p) / dt &lt; 0</pre>
 </div>
 <p>and for the heat of solution, using:</p>
-<div class="highlight-python"><pre>d H / dt = sum (d (m_i) /dt * dH_solR * Ru / M)</pre>
+<div class="highlight-python"><pre>d H / dt = sum (d (m_i) /dt * dH_solR_i * Ru / M_i)</pre>
 </div>
 <p>where <em class="xref py py-obj">dH_solR</em> is the enthalpy of solution divided by the universal gas 
-constant (<em class="xref py py-obj">Ru</em>) and <em class="xref py py-obj">M</em> is the molecular weight of constituent <em class="xref py py-obj">i</em>.</p>
+constant (<em class="xref py py-obj">Ru</em>) and <em class="xref py py-obj">M_i</em> is the molecular weight of constituent <em class="xref py py-obj">i</em>.</p>
 <p>When the particle becomes very small, the heat transfer and dissolution 
 become unstable, leading to rapid oscillations in the predicted particle 
 temperature.  To avoid this problem, this module accounts for heat transfer
@@ -123,7 +125,8 @@ discontinuities may still break the solution.</p>
 this is usually associated with a phase change from liquid to gas.  The
 diagnostic plots help to identify these effects by plotting the state space
 together with several descriptive variables, including diameter, density, 
-and shape.</p>
+and shape.  However, there is no mechanism in this module to allow a droplet 
+to break up into multiple bubbles.</p>
 </div>
 </div>
 <div class="section" id="class-objects">
@@ -172,15 +175,15 @@ simulation run.</p>
 <p class="last"><a class="reference internal" href="../sbm/single_bubble_model.Model.simulate.html#single_bubble_model.Model.simulate" title="single_bubble_model.Model.simulate"><tt class="xref py py-obj docutils literal"><span class="pre">simulate</span></tt></a>, <a class="reference internal" href="../sbm/single_bubble_model.Model.save_sim.html#single_bubble_model.Model.save_sim" title="single_bubble_model.Model.save_sim"><tt class="xref py py-obj docutils literal"><span class="pre">save_sim</span></tt></a>, <a class="reference internal" href="../sbm/single_bubble_model.Model.load_sim.html#single_bubble_model.Model.load_sim" title="single_bubble_model.Model.load_sim"><tt class="xref py py-obj docutils literal"><span class="pre">load_sim</span></tt></a></p>
 </div>
 <p class="rubric">Notes</p>
-<p>The <a class="reference internal" href="../sbm/single_bubble_model.Model.html#single_bubble_model.Model" title="single_bubble_model.Model"><tt class="xref py py-obj docutils literal"><span class="pre">Model</span></tt></a> object will be initialized either with the <a class="reference external" href="http://docs.python.org/library/profile.html#profile" title="(in Python v2.7)"><tt class="xref py py-obj docutils literal"><span class="pre">profile</span></tt></a> data 
-making it read to start a new simulation or with the results of a previous
-simulation stored in <em class="xref py py-obj">simfile</em>.</p>
+<p>The <a class="reference internal" href="../sbm/single_bubble_model.Model.html#single_bubble_model.Model" title="single_bubble_model.Model"><tt class="xref py py-obj docutils literal"><span class="pre">Model</span></tt></a> object will be initialized either with the <a class="reference external" href="http://docs.python.org/library/profile.html#module-profile" title="(in Python v2.7)"><tt class="xref py py-obj docutils literal"><span class="pre">profile</span></tt></a> data 
+making it ready to start a new simulation or with the results of a 
+previous simulation stored in <em class="xref py py-obj">simfile</em>.</p>
 <p class="rubric">Attributes</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="10%" />
-<col width="23%" />
-<col width="67%" />
+<col width="8%" />
+<col width="34%" />
+<col width="58%" />
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td>profile</td>
@@ -197,7 +200,7 @@ simulation stored in <em class="xref py py-obj">simfile</em>.</p>
 namespace</td>
 </tr>
 <tr class="row-even"><td>particle</td>
-<td><a class="reference internal" href="../sbm/single_bubble_model.Particle.html#single_bubble_model.Particle" title="single_bubble_model.Particle"><tt class="xref py py-obj docutils literal"><span class="pre">Particle</span></tt></a> object</td>
+<td><a class="reference internal" href="disp_phases.html#dispersed_phases.SingleParticle" title="dispersed_phases.SingleParticle"><tt class="xref py py-obj docutils literal"><span class="pre">dispersed_phases.SingleParticle</span></tt></a> object</td>
 <td>Interface to the <a class="reference internal" href="dbm.html#module-dbm" title="dbm"><tt class="xref py py-obj docutils literal"><span class="pre">dbm</span></tt></a> module and container for particle-specific
 parameters</td>
 </tr>
@@ -212,6 +215,14 @@ parameters</td>
 <tr class="row-odd"><td>z0</td>
 <td>float</td>
 <td>The release depth (m)</td>
+</tr>
+<tr class="row-even"><td>x0</td>
+<td>float, default = 0.</td>
+<td>The release x-coordinate (m)</td>
+</tr>
+<tr class="row-odd"><td>y0</td>
+<td>float, default = 0.</td>
+<td>The release y-coordinate (m)</td>
 </tr>
 <tr class="row-even"><td>de</td>
 <td>float</td>
@@ -235,7 +246,7 @@ parameters</td>
 </tr>
 <tr class="row-odd"><td>fdis</td>
 <td>float, default = 1.e-6</td>
-<td>Remainder fractin that turns off dissolution for each component (&#8211;)</td>
+<td>Remainder fraction that turns off dissolution for each component (&#8211;)</td>
 </tr>
 <tr class="row-even"><td>delta_t</td>
 <td>float, default = 0.1 s</td>
@@ -262,7 +273,7 @@ parameters</td>
 <tr class="row-even"><td><a class="reference internal" href="../sbm/single_bubble_model.Model.save_txt.html#single_bubble_model.Model.save_txt" title="single_bubble_model.Model.save_txt"><tt class="xref py py-obj docutils literal"><span class="pre">save_txt</span></tt></a>(fname,&nbsp;profile_path,&nbsp;profile_info)</td>
 <td>Save the state space in ascii text format for exporting</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="../sbm/single_bubble_model.Model.simulate.html#single_bubble_model.Model.simulate" title="single_bubble_model.Model.simulate"><tt class="xref py py-obj docutils literal"><span class="pre">simulate</span></tt></a>(particle,&nbsp;z0,&nbsp;de,&nbsp;yk[,&nbsp;T0,&nbsp;K,&nbsp;K_T,&nbsp;...])</td>
+<tr class="row-odd"><td><a class="reference internal" href="../sbm/single_bubble_model.Model.simulate.html#single_bubble_model.Model.simulate" title="single_bubble_model.Model.simulate"><tt class="xref py py-obj docutils literal"><span class="pre">simulate</span></tt></a>(particle,&nbsp;X0,&nbsp;de,&nbsp;yk[,&nbsp;T0,&nbsp;K,&nbsp;K_T,&nbsp;...])</td>
 <td>Simulate the trajectory of a particle from given initial conditions</td>
 </tr>
 </tbody>
@@ -299,131 +310,13 @@ by the user and that are needed by the single bubble model.</p>
 <td>float</td>
 <td>Reference density (kg/m^3) evaluated at mid-depth of the water body.</td>
 </tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="class">
-<dt id="single_bubble_model.Particle">
-<em class="property">class </em><tt class="descclassname">single_bubble_model.</tt><tt class="descname">Particle</tt><big>(</big><em>dbm_particle</em>, <em>m0</em>, <em>T0</em>, <em>K=1.0</em>, <em>K_T=1.0</em>, <em>fdis=1e-06</em><big>)</big><a class="reference internal" href="../_modules/single_bubble_model.html#Particle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#single_bubble_model.Particle" title="Permalink to this definition">¶</a></dt>
-<dd><p>Interface to the <a class="reference internal" href="dbm.html#module-dbm" title="dbm"><tt class="xref py py-obj docutils literal"><span class="pre">dbm</span></tt></a> module and container for model parameters</p>
-<p>This class provides a uniform interface to the <a class="reference internal" href="dbm.html#module-dbm" title="dbm"><tt class="xref py py-obj docutils literal"><span class="pre">dbm</span></tt></a> module objects and
-methods and stores the particle-specific model parameters.  Because the
-methods for <a class="reference internal" href="dbm.html#dbm.FluidParticle" title="dbm.FluidParticle"><tt class="xref py py-obj docutils literal"><span class="pre">dbm.FluidParticle</span></tt></a> and <a class="reference internal" href="dbm.html#dbm.InsolubleParticle" title="dbm.InsolubleParticle"><tt class="xref py py-obj docutils literal"><span class="pre">dbm.InsolubleParticle</span></tt></a> sometimes have 
-different inputs and different outputs, there needs to be a method to 
-support these interface differences in a single location.  This object
-solves that problem by providing a single interface and uniform outputs
-for the particle properties needed by the single bubble model.  This also
-affords a convenient place to store the particle-specific model 
-parameters and behavior, such as mass transfer reduction factor, etc., 
-turning off heat transfer once the particle matches the ambient 
-temperature and turning off the particle buoyancy once the particle is
-dissolved.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>dbm_particle</strong> : <a class="reference internal" href="dbm.html#dbm.FluidParticle" title="dbm.FluidParticle"><tt class="xref py py-obj docutils literal"><span class="pre">dbm.FluidParticle</span></tt></a> or <a class="reference internal" href="dbm.html#dbm.InsolubleParticle" title="dbm.InsolubleParticle"><tt class="xref py py-obj docutils literal"><span class="pre">dbm.InsolubleParticle</span></tt></a> object</p>
-<blockquote>
-<div><p>Object describing the particle properties and behavior</p>
-</div></blockquote>
-<p><strong>m0</strong> : ndarray</p>
-<blockquote>
-<div><p>Initial masses of the components of the <a class="reference internal" href="dbm.html#module-dbm" title="dbm"><tt class="xref py py-obj docutils literal"><span class="pre">dbm</span></tt></a> particle object (kg)</p>
-</div></blockquote>
-<p><strong>T0</strong> : float</p>
-<blockquote>
-<div><p>Initial temperature of the of <a class="reference internal" href="dbm.html#module-dbm" title="dbm"><tt class="xref py py-obj docutils literal"><span class="pre">dbm</span></tt></a> particle object (K)</p>
-</div></blockquote>
-<p><strong>K</strong> : float, default = 1.</p>
-<blockquote>
-<div><p>Mass transfer reduction factor (&#8211;).</p>
-</div></blockquote>
-<p><strong>K_T</strong> : float, default = 1.</p>
-<blockquote>
-<div><p>Heat transfer reduction factor (&#8211;).</p>
-</div></blockquote>
-<p><strong>fdis</strong> : float, default = 0.01</p>
-<blockquote class="last">
-<div><p>Fraction of the initial total mass (&#8211;) remaining when the particle 
-should be considered dissolved.</p>
-</div></blockquote>
-</td>
-</tr>
-</tbody>
-</table>
-<p class="rubric">Notes</p>
-<p>This object only provides an interface to the <em class="xref py py-obj">return_all</em> and 
-<a class="reference internal" href="../sbm/single_bubble_model.Particle.diameter.html#single_bubble_model.Particle.diameter" title="single_bubble_model.Particle.diameter"><tt class="xref py py-obj docutils literal"><span class="pre">diameter</span></tt></a> methods of the <a class="reference internal" href="dbm.html#module-dbm" title="dbm"><tt class="xref py py-obj docutils literal"><span class="pre">dbm</span></tt></a> module objects.  The intent is to be as 
-fast as possible while providing a single location for the necessary 
-<em class="xref py py-obj">if</em>-statements needed to select between soluble and insoluble particle 
-methods and facilitate turning heat transfer and dissolution on and off
-as necessary at the simulation progresses.</p>
-<p>Dissolution is turned off component by component as each components mass
-becomes fdis times smaller than the initial mass.  Once all of the initial
-components have been turned off, the particle is assumed to have a 
-density equation to the ambient water and a slip velocity of zero.</p>
-<p>Heat transfer is turned off once the particle comes within 0.1 K of the
-ambient temperature.  Thereafter, the temperature is forced to track 
-the ambient temperature.</p>
-<p class="rubric">Attributes</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="9%" />
-<col width="41%" />
-<col width="50%" />
-</colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td>particle</td>
-<td><a class="reference internal" href="dbm.html#dbm.FluidParticle" title="dbm.FluidParticle"><tt class="xref py py-obj docutils literal"><span class="pre">dbm.FluidParticle</span></tt></a> or <a class="reference internal" href="dbm.html#dbm.InsolubleParticle" title="dbm.InsolubleParticle"><tt class="xref py py-obj docutils literal"><span class="pre">dbm.InsolubleParticle</span></tt></a> object</td>
-<td>Stores the <em class="xref py py-obj">dbm_particle</em> object passed to <em class="xref py py-obj">__init__()</em>.</td>
-</tr>
-<tr class="row-even"><td>composition</td>
-<td>str list</td>
-<td>Copy of the <em class="xref py py-obj">composition</em> attribute of the <em class="xref py py-obj">dbm_particle</em> object.</td>
-</tr>
-<tr class="row-odd"><td>m0</td>
-<td>ndarray</td>
-<td>Initial masses (kg) of the particle components</td>
-</tr>
-<tr class="row-even"><td>T0</td>
+<tr class="row-even"><td>g</td>
 <td>float</td>
-<td>Initial temperature (K) of the particle</td>
+<td>Acceleration of gravity (m/s^2)</td>
 </tr>
-<tr class="row-odd"><td>cp</td>
+<tr class="row-odd"><td>Ru</td>
 <td>float</td>
-<td>Heat capacity at constant pressure (J/(kg K)) of the particle.</td>
-</tr>
-<tr class="row-even"><td>K</td>
-<td>float</td>
-<td>Mass transfer reduction factor (&#8211;)</td>
-</tr>
-<tr class="row-odd"><td>K_T</td>
-<td>float</td>
-<td>Heat transfer reduction factor (&#8211;)</td>
-</tr>
-<tr class="row-even"><td>fdis</td>
-<td>float</td>
-<td>Fraction of initial mass remaining as total dissolution (&#8211;)</td>
-</tr>
-<tr class="row-odd"><td>diss_indices</td>
-<td>ndarray bool</td>
-<td>Indices of m0 that are non-zero.</td>
-</tr>
-</tbody>
-</table>
-<p class="rubric">Methods</p>
-<table border="1" class="longtable docutils">
-<colgroup>
-<col width="10%" />
-<col width="90%" />
-</colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="../sbm/single_bubble_model.Particle.diameter.html#single_bubble_model.Particle.diameter" title="single_bubble_model.Particle.diameter"><tt class="xref py py-obj docutils literal"><span class="pre">diameter</span></tt></a>(m,&nbsp;T,&nbsp;P,&nbsp;Sa,&nbsp;Ta)</td>
-<td>Compute the diameter of a particle from mass and density</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="../sbm/single_bubble_model.Particle.properties.html#single_bubble_model.Particle.properties" title="single_bubble_model.Particle.properties"><tt class="xref py py-obj docutils literal"><span class="pre">properties</span></tt></a>(m,&nbsp;T,&nbsp;P,&nbsp;Sa,&nbsp;Ta)</td>
-<td>Return the particle properties from the discrete bubble model</td>
+<td>Ideal gas constant (J/mol/K)</td>
 </tr>
 </tbody>
 </table>
@@ -444,7 +337,7 @@ the ambient temperature.</p>
 <tr class="row-even"><td><a class="reference internal" href="../sbm/single_bubble_model.derivs.html#single_bubble_model.derivs" title="single_bubble_model.derivs"><tt class="xref py py-obj docutils literal"><span class="pre">derivs</span></tt></a>(t,&nbsp;y,&nbsp;profile,&nbsp;particle,&nbsp;p)</td>
 <td>Compute the RHS of the ODE for the trajectory of a single particle</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="../sbm/single_bubble_model.sbm_ic.html#single_bubble_model.sbm_ic" title="single_bubble_model.sbm_ic"><tt class="xref py py-obj docutils literal"><span class="pre">sbm_ic</span></tt></a>(profile,&nbsp;particle,&nbsp;z0,&nbsp;de,&nbsp;yk,&nbsp;T0,&nbsp;K,&nbsp;...)</td>
+<tr class="row-odd"><td><a class="reference internal" href="../sbm/single_bubble_model.sbm_ic.html#single_bubble_model.sbm_ic" title="single_bubble_model.sbm_ic"><tt class="xref py py-obj docutils literal"><span class="pre">sbm_ic</span></tt></a>(profile,&nbsp;particle,&nbsp;X0,&nbsp;de,&nbsp;yk,&nbsp;T0,&nbsp;K,&nbsp;...)</td>
 <td>Set the initial conditions for a single bubble model simulation</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="../sbm/single_bubble_model.plot_state_space.html#single_bubble_model.plot_state_space" title="single_bubble_model.plot_state_space"><tt class="xref py py-obj docutils literal"><span class="pre">plot_state_space</span></tt></a>(profile,&nbsp;particle,&nbsp;p,&nbsp;t,&nbsp;y,&nbsp;fig)</td>
@@ -482,8 +375,8 @@ the ambient temperature.</p>
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="../sintef/sintef.rosin_rammler.html"
-                        title="previous chapter">sintef.rosin_rammler</a></p>
+  <p class="topless"><a href="../params/params.Scales.u_inf_crit.html"
+                        title="previous chapter">params.Scales.u_inf_crit</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="../_sources/modules/sbm.txt"
@@ -518,7 +411,7 @@ the ambient temperature.</p>
           <a href="../genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="../sintef/sintef.rosin_rammler.html" title="sintef.rosin_rammler"
+          <a href="../params/params.Scales.u_inf_crit.html" title="params.Scales.u_inf_crit"
              >previous</a> |</li>
 <li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
 
@@ -526,8 +419,8 @@ the ambient temperature.</p>
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2013, Scott A. Socolofsky.
-      Last updated on Mar 12, 2014.
+        &copy; Copyright 2014, Scott A. Socolofsky.
+      Last updated on Nov 07, 2014.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>

@@ -1,0 +1,53 @@
+###################################
+Overview of Bent Plume Model Module
+###################################
+
+:Release: |version|
+:Date: |today|
+
+.. currentmodule:: bent_plume_model
+
+.. automodule:: bent_plume_model
+
+Class Objects
+=============
+
+.. autoclass:: Model
+
+.. autoclass:: ModelParams
+
+.. autoclass:: Particle
+
+.. autoclass:: LagElement
+
+
+Module Functions
+================
+
+.. autosummary::
+   :toctree: ../spm
+
+   plot_state_space
+   plot_all_variables
+   width_projection
+
+Module Functions in `lmp` 
+==========================
+
+The numerical work of the `bent_plume_model` is segregated into the `lmp`
+module to keep the numerical solution separate from the model interface. The
+functions contained in this module are detailed in the following.
+
+.. currentmodule:: lmp
+
+.. autosummary::
+   :toctree: ../bpm
+
+   derivs
+   calculate
+   entrainment
+   local_coords
+   main_ic
+   bent_plume_ic
+   zfe_volume_flux
+   flux_to_velocity

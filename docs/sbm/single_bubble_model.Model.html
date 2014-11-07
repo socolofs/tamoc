@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.4',
+        VERSION:     '0.1.6',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -62,7 +62,7 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">March 12, 2014</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">November 07, 2014</td>
 </tr>
 </tbody>
 </table>
@@ -110,15 +110,15 @@ simulation run.</p>
 <p class="last"><a class="reference internal" href="single_bubble_model.Model.simulate.html#single_bubble_model.Model.simulate" title="single_bubble_model.Model.simulate"><tt class="xref py py-obj docutils literal"><span class="pre">simulate</span></tt></a>, <a class="reference internal" href="single_bubble_model.Model.save_sim.html#single_bubble_model.Model.save_sim" title="single_bubble_model.Model.save_sim"><tt class="xref py py-obj docutils literal"><span class="pre">save_sim</span></tt></a>, <a class="reference internal" href="single_bubble_model.Model.load_sim.html#single_bubble_model.Model.load_sim" title="single_bubble_model.Model.load_sim"><tt class="xref py py-obj docutils literal"><span class="pre">load_sim</span></tt></a></p>
 </div>
 <p class="rubric">Notes</p>
-<p>The <a class="reference internal" href="#single_bubble_model.Model" title="single_bubble_model.Model"><tt class="xref py py-obj docutils literal"><span class="pre">Model</span></tt></a> object will be initialized either with the <a class="reference external" href="http://docs.python.org/library/profile.html#profile" title="(in Python v2.7)"><tt class="xref py py-obj docutils literal"><span class="pre">profile</span></tt></a> data 
-making it read to start a new simulation or with the results of a previous
-simulation stored in <em class="xref py py-obj">simfile</em>.</p>
+<p>The <a class="reference internal" href="#single_bubble_model.Model" title="single_bubble_model.Model"><tt class="xref py py-obj docutils literal"><span class="pre">Model</span></tt></a> object will be initialized either with the <a class="reference external" href="http://docs.python.org/library/profile.html#module-profile" title="(in Python v2.7)"><tt class="xref py py-obj docutils literal"><span class="pre">profile</span></tt></a> data 
+making it ready to start a new simulation or with the results of a 
+previous simulation stored in <em class="xref py py-obj">simfile</em>.</p>
 <p class="rubric">Attributes</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="10%" />
-<col width="23%" />
-<col width="67%" />
+<col width="8%" />
+<col width="34%" />
+<col width="58%" />
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td>profile</td>
@@ -135,7 +135,7 @@ simulation stored in <em class="xref py py-obj">simfile</em>.</p>
 namespace</td>
 </tr>
 <tr class="row-even"><td>particle</td>
-<td><a class="reference internal" href="single_bubble_model.Particle.html#single_bubble_model.Particle" title="single_bubble_model.Particle"><tt class="xref py py-obj docutils literal"><span class="pre">Particle</span></tt></a> object</td>
+<td><a class="reference internal" href="../modules/disp_phases.html#dispersed_phases.SingleParticle" title="dispersed_phases.SingleParticle"><tt class="xref py py-obj docutils literal"><span class="pre">dispersed_phases.SingleParticle</span></tt></a> object</td>
 <td>Interface to the <a class="reference internal" href="../modules/dbm.html#module-dbm" title="dbm"><tt class="xref py py-obj docutils literal"><span class="pre">dbm</span></tt></a> module and container for particle-specific
 parameters</td>
 </tr>
@@ -150,6 +150,14 @@ parameters</td>
 <tr class="row-odd"><td>z0</td>
 <td>float</td>
 <td>The release depth (m)</td>
+</tr>
+<tr class="row-even"><td>x0</td>
+<td>float, default = 0.</td>
+<td>The release x-coordinate (m)</td>
+</tr>
+<tr class="row-odd"><td>y0</td>
+<td>float, default = 0.</td>
+<td>The release y-coordinate (m)</td>
 </tr>
 <tr class="row-even"><td>de</td>
 <td>float</td>
@@ -173,7 +181,7 @@ parameters</td>
 </tr>
 <tr class="row-odd"><td>fdis</td>
 <td>float, default = 1.e-6</td>
-<td>Remainder fractin that turns off dissolution for each component (&#8211;)</td>
+<td>Remainder fraction that turns off dissolution for each component (&#8211;)</td>
 </tr>
 <tr class="row-even"><td>delta_t</td>
 <td>float, default = 0.1 s</td>
@@ -200,7 +208,7 @@ parameters</td>
 <tr class="row-even"><td><a class="reference internal" href="single_bubble_model.Model.save_txt.html#single_bubble_model.Model.save_txt" title="single_bubble_model.Model.save_txt"><tt class="xref py py-obj docutils literal"><span class="pre">save_txt</span></tt></a>(fname,&nbsp;profile_path,&nbsp;profile_info)</td>
 <td>Save the state space in ascii text format for exporting</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="single_bubble_model.Model.simulate.html#single_bubble_model.Model.simulate" title="single_bubble_model.Model.simulate"><tt class="xref py py-obj docutils literal"><span class="pre">simulate</span></tt></a>(particle,&nbsp;z0,&nbsp;de,&nbsp;yk[,&nbsp;T0,&nbsp;K,&nbsp;K_T,&nbsp;...])</td>
+<tr class="row-odd"><td><a class="reference internal" href="single_bubble_model.Model.simulate.html#single_bubble_model.Model.simulate" title="single_bubble_model.Model.simulate"><tt class="xref py py-obj docutils literal"><span class="pre">simulate</span></tt></a>(particle,&nbsp;X0,&nbsp;de,&nbsp;yk[,&nbsp;T0,&nbsp;K,&nbsp;K_T,&nbsp;...])</td>
 <td>Simulate the trajectory of a particle from given initial conditions</td>
 </tr>
 </tbody>
@@ -211,7 +219,7 @@ parameters</td>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="single_bubble_model.Model.simulate.html#single_bubble_model.Model.simulate" title="single_bubble_model.Model.simulate"><tt class="xref py py-obj docutils literal"><span class="pre">Model.simulate</span></tt></a>(particle,&nbsp;z0,&nbsp;de,&nbsp;yk[,&nbsp;T0,&nbsp;...])</td>
+<tr class="row-odd"><td><a class="reference internal" href="single_bubble_model.Model.simulate.html#single_bubble_model.Model.simulate" title="single_bubble_model.Model.simulate"><tt class="xref py py-obj docutils literal"><span class="pre">Model.simulate</span></tt></a>(particle,&nbsp;X0,&nbsp;de,&nbsp;yk[,&nbsp;T0,&nbsp;...])</td>
 <td>Simulate the trajectory of a particle from given initial conditions</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="single_bubble_model.Model.save_sim.html#single_bubble_model.Model.save_sim" title="single_bubble_model.Model.save_sim"><tt class="xref py py-obj docutils literal"><span class="pre">Model.save_sim</span></tt></a>(fname,&nbsp;profile_path,&nbsp;profile_info)</td>
@@ -292,8 +300,8 @@ parameters</td>
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2013, Scott A. Socolofsky.
-      Last updated on Mar 12, 2014.
+        &copy; Copyright 2014, Scott A. Socolofsky.
+      Last updated on Nov 07, 2014.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>

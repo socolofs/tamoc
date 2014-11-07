@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.4',
+        VERSION:     '0.1.6',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -58,18 +58,18 @@
 <span class="sd">depth coordinate values, and adjust parameter units to standard units. It also</span>
 <span class="sd">defines functions and classes to store the measured CTD data in</span>
 <span class="sd">netCDF4-classic format following NODC guidelines and to manipulate the data</span>
-<span class="sd">for use by simulation models in TAMOC. These manipulations include</span>
+<span class="sd">for use by simulation models in ``TAMOC``. These manipulations include</span>
 <span class="sd">interpolation methods, the ability to add or remove data from the database,</span>
 <span class="sd">including the addition of synthetic data when needed, and to extend a profile</span>
 <span class="sd">to deeper depths using a rational means of maintaining the stratification</span>
 <span class="sd">structure.</span>
 
 <span class="sd">These methods are particularly useful to rapidly create ambient profile </span>
-<span class="sd">databases for use by TAMOC and for archiving data obtained from arbitrary </span>
+<span class="sd">databases for use by ``TAMOC`` and for archiving data obtained from arbitrary </span>
 <span class="sd">formats in standard format netCDF4-classic files.  These methods also allow</span>
-<span class="sd">seemless coupling of TAMOC simulation modules with general ocean circulation</span>
-<span class="sd">models or Lagrangian particle tracking models that store their seawater </span>
-<span class="sd">properties data in netCDF format.</span>
+<span class="sd">seemless coupling of ``TAMOC`` simulation modules with general ocean </span>
+<span class="sd">circulation models or Lagrangian particle tracking models that store their </span>
+<span class="sd">seawater properties data in netCDF format.</span>
 
 <span class="sd">See Also</span>
 <span class="sd">--------</span>
@@ -94,27 +94,25 @@
 
 <span class="sd">`numpy.genfromtxt` : </span>
 <span class="sd">    The most advanced numpy method to read data from a file. Includes the</span>
-<span class="sd">    capabilities in `np.loadtxt`, but also allows for missing data, data</span>
+<span class="sd">    capabilities in `numpy.loadtxt`, but also allows for missing data, data</span>
 <span class="sd">    flags, and multiple methods to replace missing data or flags.</span>
 
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="c"># S. Socolofsky, July 2013, Texas A&amp;M University &lt;socolofs@tamu.edu&gt;.</span>
 
-<span class="kn">import</span> <span class="nn">seawater</span>
+<span class="kn">from</span> <span class="nn">tamoc</span> <span class="kn">import</span> <span class="n">seawater</span>
 
 <span class="kn">from</span> <span class="nn">netCDF4</span> <span class="kn">import</span> <span class="n">Dataset</span>
 <span class="kn">from</span> <span class="nn">netCDF4</span> <span class="kn">import</span> <span class="n">num2date</span><span class="p">,</span> <span class="n">date2num</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">ctime</span>
-<span class="kn">import</span> <span class="nn">octant.roms</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="kn">import</span> <span class="n">interp1d</span>
 <span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">fsolve</span>
 <span class="kn">from</span> <span class="nn">string</span> <span class="kn">import</span> <span class="n">join</span><span class="p">,</span> <span class="n">capwords</span>
-<span class="kn">from</span> <span class="nn">warnings</span> <span class="kn">import</span> <span class="n">warn</span>
-
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">copy</span>
 
 <div class="viewcode-block" id="Profile"><a class="viewcode-back" href="../modules/ambient.html#ambient.Profile">[docs]</a><span class="k">class</span> <span class="nc">Profile</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -142,7 +140,7 @@
 <span class="sd">    chem_names : str list, optional</span>
 <span class="sd">        Names of the chemicals (e.g., those constituents in addition to z, T, </span>
 <span class="sd">        S, P) in the netCDF dataset that should be accessible through the </span>
-<span class="sd">        ``self.get_values`` interpolation method or the ``self.get_units`` </span>
+<span class="sd">        `self.get_values` interpolation method or the `self.get_units` </span>
 <span class="sd">        interrogator.  If `chem_names` = &#39;all&#39;, then all variables in the </span>
 <span class="sd">        netCDF file except for &#39;time&#39;, &#39;lat&#39;, &#39;lon&#39;, and the strings in </span>
 <span class="sd">        `ztsp` will be loaded as ambient chemical data.</span>
@@ -150,7 +148,7 @@
 <span class="sd">        The interpolation dataset is a subset of the complete raw dataset </span>
 <span class="sd">        stored in the netCDF file.  err sets the acceptable level of </span>
 <span class="sd">        relative error using linear interpolation expected of the </span>
-<span class="sd">        ``self.get_values`` method.  This value is passed to the ``coarsen`` </span>
+<span class="sd">        `self.get_values` method.  This value is passed to the `coarsen` </span>
 <span class="sd">        function to provide an optimal interpolation dataset.</span>
 <span class="sd">    </span>
 <span class="sd">    Attributes</span>
@@ -173,11 +171,11 @@
 <span class="sd">    </span>
 <span class="sd">    See Also </span>
 <span class="sd">    --------</span>
-<span class="sd">    netCDF4, create_nc_db, fill_nc_db</span>
+<span class="sd">    netCDF4, create_nc_db, fill_nc_db, coarsen, chemical_properties</span>
 <span class="sd">    </span>
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
-<span class="sd">    &gt;&gt;&gt; bm54 = Profile(&#39;./Profiles/test_BM54.nc&#39;, chem_names=&#39;all&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; bm54 = Profile(&#39;./test/output/test_BM54.nc&#39;, chem_names=&#39;all&#39;)</span>
 <span class="sd">    &gt;&gt;&gt; print bm54.nc.variables.keys()</span>
 <span class="sd">    [&#39;time&#39;, &#39;lat&#39;, &#39;lon&#39;, &#39;z&#39;, &#39;temperature&#39;, &#39;salinity&#39;, &#39;pressure&#39;, </span>
 <span class="sd">    &#39;T&#39;, &#39;wetlab_fluorescence&#39;, &#39;S&#39;, &#39;density&#39;, &#39;oxygen&#39;]</span>
@@ -232,8 +230,9 @@
 <span class="sd">        Extract the raw data from the netCDF dataset using the required</span>
 <span class="sd">        variables T, S, and P plus any variables requested by the user through</span>
 <span class="sd">        `self.chem_names` and store the resulting data in z and y.  Coarsen</span>
-<span class="sd">        the raw dataset to the level specified by `self.err` and put the </span>
-<span class="sd">        resulting reduced dataset into the interpolation function `f`.</span>
+<span class="sd">        the raw dataset to the level specified by `self.err` using the </span>
+<span class="sd">        `coursen` function and put the resulting reduced dataset into the </span>
+<span class="sd">        interpolation function `f`.</span>
 <span class="sd">        </span>
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
@@ -241,7 +240,7 @@
 <span class="sd">        `y`, `f_names`, `f_units`, and `f`.</span>
 <span class="sd">        </span>
 <span class="sd">        This method is called by the object initializer and by the object </span>
-<span class="sd">        append method.  It should not be called directly by the user.</span>
+<span class="sd">        append method.  *It should not be called directly by the user*.</span>
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nc_open</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
@@ -261,6 +260,7 @@
             <span class="c"># Create the interpolation function </span>
             <span class="n">db</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">atleast_2d</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">))</span>
             <span class="n">db</span> <span class="o">=</span> <span class="n">coarsen</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">err</span><span class="p">)</span>
+            <span class="n">db</span> <span class="o">=</span> <span class="n">stabilize</span><span class="p">(</span><span class="n">db</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">f</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="n">db</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">db</span><span class="p">[:,</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">transpose</span><span class="p">())</span>
             
             <span class="c"># Set the valid range of the interpolator</span>
@@ -321,7 +321,8 @@
             
             <span class="c"># Add the new chemicals to the chem variables</span>
             <span class="k">for</span> <span class="n">constituent</span> <span class="ow">in</span> <span class="n">var_symbols</span><span class="p">:</span>
-                <span class="c"># Make sure the dependent variable is never listed as a chemical</span>
+                <span class="c"># Make sure the dependent variable is never listed as a </span>
+                <span class="c"># chemical</span>
                 <span class="k">if</span> <span class="n">constituent</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ztsp</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">chem_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">constituent</span><span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">nchems</span> <span class="o">+=</span> <span class="mi">1</span>
@@ -334,67 +335,87 @@
     </div>
 <div class="viewcode-block" id="Profile.get_values"><a class="viewcode-back" href="../ambient/ambient.Profile.get_values.html#ambient.Profile.get_values">[docs]</a>    <span class="k">def</span> <span class="nf">get_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">names</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Return values for the variables listed in names interpolated to the</span>
-<span class="sd">        depth given by z</span>
+<span class="sd">        Return values for the variables listed in `names` interpolated to the</span>
+<span class="sd">        depth given by `z`</span>
 <span class="sd">        </span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        z : float or ndarray</span>
-<span class="sd">            Depth(s) at which data are desired.  The value of z must lie </span>
-<span class="sd">            between the valid_min and valid_max values of z in the netCDF </span>
-<span class="sd">            dataset.  Otherwise, the interp1d object raises an error.</span>
+<span class="sd">            Depth(s) at which data are desired.  If the value of `z` lies </span>
+<span class="sd">            outside the `valid_min` or `valid_max` values of `z` in the </span>
+<span class="sd">            netCDF dataset, the values at the nearest boundary are returned.</span>
 <span class="sd">        names : string list</span>
-<span class="sd">            List of variable names (T, S, P or entries in chem_names) for </span>
-<span class="sd">            which the interpolated data are desired.</span>
+<span class="sd">            List of variable names (e.g., temperature, oxygen, etc.) for </span>
+<span class="sd">            which the interpolated data are desired.  If the parameter name</span>
+<span class="sd">            is not present in the database, a value of zero is returned.</span>
 <span class="sd">        </span>
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        yp : float or ndarray, shape(z.shape[0], len(names))</span>
+<span class="sd">        yp : ndarray</span>
 <span class="sd">            An array of values sorted in the same order as `names` and </span>
-<span class="sd">            interpolated at the depth given by z.  If z is a scalar and </span>
-<span class="sd">            `names` has one entry, the return value is a float; otherwise, </span>
-<span class="sd">            the return value is an array.  </span>
-<span class="sd">        </span>
-<span class="sd">        Notes</span>
-<span class="sd">        -----</span>
-<span class="sd">        TODO (S. Socolofsky, 7/12/2013): Catch the range error when the </span>
-<span class="sd">        interpolation falls outside the data range of z and provide an </span>
-<span class="sd">        extrapolated result.</span>
-<span class="sd">        </span>
-<span class="sd">        TODO (S. Socolofsky, 7/17/2013): Return a concentration of fill_value </span>
-<span class="sd">        if a parameter name is requested that is not part of the database.</span>
+<span class="sd">            interpolated at the depth(s) given by `z`.  If `z` is a row </span>
+<span class="sd">            vector, `yp` contains `z` in the first column and the other </span>
+<span class="sd">            variables in the adjacent columns.</span>
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c"># Make sure names is a list</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">names</span><span class="p">]</span>
         
-        <span class="c"># Select the indices of the dependent variables to return</span>
-        <span class="n">cols</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">f_names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">]</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cols</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">cols</span> <span class="o">=</span> <span class="n">cols</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        
-        <span class="c"># Allow z to be a scalar or vector</span>
+        <span class="c"># Make sure z is an array</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-            <span class="c"># z is a scalar, f(z) is a row vector</span>
-            <span class="n">ans</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">(</span><span class="n">z</span><span class="p">)[</span><span class="n">cols</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">z</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+        
+        <span class="c"># Catch the out of range error.  This should only occur when an ODE</span>
+        <span class="c"># solver gets close to the boundary; thus, it is acceptable to revert</span>
+        <span class="c"># to the solution at the boundary</span>
+        <span class="n">z</span><span class="p">[</span><span class="n">z</span><span class="o">&lt;</span><span class="bp">self</span><span class="o">.</span><span class="n">z_min</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">z_min</span>
+        <span class="n">z</span><span class="p">[</span><span class="n">z</span><span class="o">&gt;</span><span class="bp">self</span><span class="o">.</span><span class="n">z_max</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">z_max</span>
+        
+        <span class="c"># Get the columns in the output where the interpolated data will go</span>
+        <span class="n">ans_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> 
+                    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">f_names</span><span class="p">]</span>
+        
+        <span class="k">if</span> <span class="n">ans_cols</span><span class="p">:</span>
+            <span class="c"># Get the names of these interpolated data</span>
+            <span class="n">i_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">names</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">ans_cols</span><span class="p">]</span>
+
+            <span class="c"># Get the columns in the interpolation dataset where these names </span>
+            <span class="c"># are located</span>
+            <span class="n">i_cols</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">f_names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">i_names</span><span class="p">]</span>
+            
+            <span class="c"># Interpolate the data and insert into the output array</span>
             <span class="k">if</span> <span class="n">z</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="c"># f(z) will be a row vector</span>
-                <span class="n">ans</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">(</span><span class="n">z</span><span class="p">)[</span><span class="n">cols</span><span class="p">]</span>
+                <span class="n">ans</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">))</span>
+                <span class="n">interp_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">(</span><span class="n">z</span><span class="p">)[</span><span class="n">i_cols</span><span class="p">]</span>
+                <span class="n">ans</span><span class="p">[</span><span class="n">ans_cols</span><span class="p">]</span> <span class="o">=</span> <span class="n">interp_data</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="c"># f(z) will be a 2d matrix</span>
-                <span class="n">ans</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">(</span><span class="n">z</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">()[:,</span><span class="n">cols</span><span class="p">]</span>
+                <span class="n">ans</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">z</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">)))</span>
+                <span class="n">interp_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">(</span><span class="n">z</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">()[:,</span><span class="n">i_cols</span><span class="p">]</span>
+                <span class="n">ans</span><span class="p">[:,</span><span class="n">ans_cols</span><span class="p">]</span> <span class="o">=</span> <span class="n">interp_data</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># Return the appropriately shaped zeros matrix</span>
+            <span class="k">if</span> <span class="n">z</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">ans</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ans</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">z</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">)))</span>
+        
+        <span class="c"># Always return a ndarray         </span>
         <span class="k">return</span> <span class="n">ans</span>
     </div>
 <div class="viewcode-block" id="Profile.get_units"><a class="viewcode-back" href="../ambient/ambient.Profile.get_units.html#ambient.Profile.get_units">[docs]</a>    <span class="k">def</span> <span class="nf">get_units</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Return a list of units for the variables in names</span>
+<span class="sd">        Return a list of units for the variables in `names`</span>
 <span class="sd">        </span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">       names : string list</span>
-<span class="sd">            List of variable names (T, S, P or entries in chem_names) for </span>
+<span class="sd">            List of variable names (T, S, P or entries in `chem_names`) for </span>
 <span class="sd">            which the units are desired.</span>
 <span class="sd">        </span>
 <span class="sd">        Returns</span>
@@ -423,17 +444,17 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculate the local buoyancy frequency</span>
 <span class="sd">        </span>
-<span class="sd">        Calculate the buoyancy frequency at the depth z, optionally using </span>
-<span class="sd">        the length-scale dz to obtain smooth results.  This calculation uses</span>
+<span class="sd">        Calculate the buoyancy frequency at the depth `z`, optionally using </span>
+<span class="sd">        the length-scale `h` to obtain smooth results.  This calculation uses</span>
 <span class="sd">        the in-situ pressure at the depth z as a constant so that the effect</span>
 <span class="sd">        of compressibility is removed.  </span>
 <span class="sd">        </span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        z : float or ndarray</span>
-<span class="sd">            Depth(s) (m) at which data are desired.  The value of z must lie </span>
-<span class="sd">            between the valid_min and valid_max values of z in the netCDF </span>
-<span class="sd">            dataset.</span>
+<span class="sd">            Depth(s) (m) at which data are desired.  The value of `z` must lie </span>
+<span class="sd">            between the `valid_min` and `valid_max` values of `z` in the </span>
+<span class="sd">            netCDF dataset.</span>
 <span class="sd">        h : float, default value is 0.01</span>
 <span class="sd">            Fraction of the water depth (--) to use as the length-scale in a </span>
 <span class="sd">            finite-difference approximation to the density gradient.</span>
@@ -446,14 +467,14 @@
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
 <span class="sd">        ValueError : </span>
-<span class="sd">            The input value of `z` must be between the valid_min and valid_max</span>
-<span class="sd">            values of the depth variable of the netCDF dataset.  If it is </span>
-<span class="sd">            outside this range, a ValueError is raised.</span>
+<span class="sd">            The input value of `z` must be between the `valid_min` and </span>
+<span class="sd">            `valid_max` values of the depth variable of the netCDF dataset.  </span>
+<span class="sd">            If it is outside this range, a `ValueError` is raised.</span>
 <span class="sd">        ValueError : </span>
 <span class="sd">            The parameter `h` must be between zero and one; otherwise, the </span>
 <span class="sd">            length-scale of the finite difference approximation will be </span>
 <span class="sd">            greater than the water depth.  If `h` is outside this range, a </span>
-<span class="sd">            ValueError is raised.</span>
+<span class="sd">            `ValueError` is raised.</span>
 <span class="sd">        </span>
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
@@ -620,6 +641,25 @@
             <span class="k">return</span> <span class="p">(</span><span class="n">rho_1</span> <span class="o">-</span> <span class="n">rho</span><span class="p">)</span>
         <span class="n">S</span> <span class="o">=</span> <span class="n">fsolve</span><span class="p">(</span><span class="n">residual</span><span class="p">,</span> <span class="n">S</span><span class="p">)</span>
         
+        <span class="c"># Create an array of data to append at the bottom of the original</span>
+        <span class="c"># profild data</span>
+        <span class="n">z_0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">z_max</span>
+        <span class="n">S_0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">z_1</span> <span class="o">=</span> <span class="n">z_new</span>
+        <span class="n">S_1</span> <span class="o">=</span> <span class="n">S</span>
+        <span class="n">dz</span> <span class="o">=</span> <span class="p">(</span><span class="n">z_1</span> <span class="o">-</span> <span class="n">z_0</span><span class="p">)</span> <span class="o">/</span> <span class="mf">50.</span>
+        <span class="n">z_new</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">z_0</span><span class="p">,</span> <span class="n">z_1</span><span class="o">+</span><span class="n">dz</span><span class="p">,</span> <span class="n">dz</span><span class="p">)</span>
+        <span class="n">z_new</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">z_1</span>
+        <span class="n">y_new</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">z_new</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="n">y_new</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">y_new</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">S_1</span> <span class="o">-</span> <span class="n">S_0</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">z_1</span> <span class="o">-</span> <span class="n">z_0</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">z_new</span> <span class="o">-</span> <span class="n">z_0</span><span class="p">)</span> <span class="o">+</span> <span class="n">S_0</span>
+        <span class="n">y_new</span><span class="p">[:,</span><span class="mi">2</span><span class="p">:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">:]</span>
+        <span class="c"># Get the right pressure</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">z_new</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+            <span class="n">y_new</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">y_new</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">seawater</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">y_new</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> 
+                           <span class="n">y_new</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">y_new</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">2</span><span class="p">])</span> <span class="o">*</span> <span class="mf">9.81</span> <span class="o">*</span> <span class="p">(</span><span class="n">z_new</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> 
+                           <span class="n">z_new</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nc_open</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
             <span class="c"># Get the netCDF attributes not already stored in self.z and </span>
             <span class="c"># self.y</span>
@@ -632,16 +672,14 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">nc</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
             
             <span class="c"># Create the new netCDF file.</span>
-            <span class="n">extention_text</span> <span class="o">=</span> <span class="s">&#39;: extended from </span><span class="si">%g</span><span class="s"> to </span><span class="si">%g</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">z_max</span><span class="p">,</span> <span class="n">z_new</span><span class="p">)</span>
+            <span class="n">extention_text</span> <span class="o">=</span> <span class="s">&#39;: extended from </span><span class="si">%g</span><span class="s"> to </span><span class="si">%g</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">z_max</span><span class="p">,</span> <span class="n">z_1</span><span class="p">)</span>
             <span class="n">source</span> <span class="o">=</span> <span class="n">source</span> <span class="o">+</span> <span class="n">extention_text</span> <span class="o">+</span> <span class="s">&#39; on date &#39;</span> <span class="o">+</span> <span class="n">ctime</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">nc</span> <span class="o">=</span> <span class="n">create_nc_db</span><span class="p">(</span><span class="n">nc_name</span><span class="p">,</span> <span class="n">summary</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">sea_name</span><span class="p">,</span> <span class="n">p_lat</span><span class="p">,</span> 
                                    <span class="n">p_lon</span><span class="p">,</span> <span class="n">p_time</span><span class="p">)</span>
             
             <span class="c"># Fill the netCDF file with the extended profile.</span>
-            <span class="n">y_new</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,:]</span>
-            <span class="n">y_new</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">S</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">y_new</span><span class="p">))</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="n">z_new</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">y_new</span><span class="p">[</span><span class="mi">1</span><span class="p">:,:]))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="n">z_new</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">atleast_2d</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">))</span>
             <span class="n">var_symbols</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">ztsp</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">f_names</span>
             <span class="n">var_units</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;m&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_units</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f_names</span><span class="p">)</span>
@@ -663,10 +701,10 @@
 <span class="sd">        Because the raw profile data are stored in a netCDF file, a pipe is </span>
 <span class="sd">        open to the file source whenever this attribute of the object is in </span>
 <span class="sd">        use.  Once the interpolation function is built with the complete </span>
-<span class="sd">        dataset needed for a TAMOC simulation (e.g., once calls to ``append``</span>
+<span class="sd">        dataset needed for a TAMOC simulation (e.g., once calls to `append`</span>
 <span class="sd">        are not longer needed), the netCDF dataset does not need to remain </span>
 <span class="sd">        available.  This method closes the netCDF dataset file and tells</span>
-<span class="sd">        the `Profile` object that the file is close.  All methods that do not</span>
+<span class="sd">        the `Profile` object that the file is closed.  All methods that do not</span>
 <span class="sd">        directly read or write data to the netCDF file will continue to work.</span>
 <span class="sd">        If the object is no longer used, the Python garbage collector will</span>
 <span class="sd">        eventually find it and remove it from memory.        </span>
@@ -720,12 +758,12 @@
 <span class="sd">    p_time : </span>
 <span class="sd">        Time the profile was taken in seconds since 1970-01-01 00:00:00 0:00</span>
 <span class="sd">        following a julian calendar.  See Examples section for how to create</span>
-<span class="sd">        this variable using Python&#39;s datetime module and the netCDF4 modules</span>
-<span class="sd">        date2num and num2date.</span>
+<span class="sd">        this variable using Python&#39;s `datetime` module and the netCDF4 modules</span>
+<span class="sd">        `netCDF4.date2num` and `netCDF4.num2date`.</span>
 <span class="sd">    </span>
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    nc : netCDF4 Dataset object</span>
+<span class="sd">    nc : `netCDF4.Dataset` object</span>
 <span class="sd">        An object that contains the empty database ready to input profile data</span>
 <span class="sd">    </span>
 <span class="sd">    Notes</span>
@@ -737,7 +775,7 @@
 <span class="sd">    </span>
 <span class="sd">    NODC recommends using a netCDF4-classic data format, which does not </span>
 <span class="sd">    support groups.  This works well for this dataset, so we implement this</span>
-<span class="sd">    data format here.  The documentation for the Python netCDF4 package</span>
+<span class="sd">    data format here.  The documentation for the Python `netCDF4` package</span>
 <span class="sd">    here https://code.google.com/p/netcdf4-python/ uses groups throughout </span>
 <span class="sd">    the tutorial.  The classic format is equivalent to having the single </span>
 <span class="sd">    group `root_grp`.  </span>
@@ -750,7 +788,7 @@
 <span class="sd">    --------</span>
 <span class="sd">    &gt;&gt;&gt; from datetime import datetime, timedelta</span>
 <span class="sd">    &gt;&gt;&gt; from netCDF4 import num2date, date2num</span>
-<span class="sd">    &gt;&gt;&gt; nc_file = &#39;test.nc&#39;</span>
+<span class="sd">    &gt;&gt;&gt; nc_file = &#39;./test/output/test.nc&#39;</span>
 <span class="sd">    &gt;&gt;&gt; summary = &#39;Test file&#39;</span>
 <span class="sd">    &gt;&gt;&gt; source = &#39;None&#39;</span>
 <span class="sd">    &gt;&gt;&gt; sea_name = &#39;No Sea Name&#39;</span>
@@ -790,27 +828,12 @@
 <span class="sd">    &gt;&gt;&gt; nc.close()</span>
 <span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">tamoc</span> <span class="kn">import</span> <span class="n">model_share</span>
     <span class="c"># Create the netCDF dataset object</span>
-    <span class="n">nc</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">(</span><span class="n">nc_file</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="s">&#39;NETCDF4_CLASSIC&#39;</span><span class="p">)</span>
-    
-    <span class="c"># Set the global attributes</span>
-    <span class="n">nc</span><span class="o">.</span><span class="n">Conventions</span> <span class="o">=</span> <span class="s">&#39;CF-1.6&#39;</span>
-    <span class="n">nc</span><span class="o">.</span><span class="n">Metadata_Conventions</span> <span class="o">=</span> <span class="s">&#39;Unidata Dataset Discovery v1.0&#39;</span>
-    <span class="n">nc</span><span class="o">.</span><span class="n">featureType</span> <span class="o">=</span> <span class="s">&#39;profile&#39;</span>
-    <span class="n">nc</span><span class="o">.</span><span class="n">cdm_data_type</span> <span class="o">=</span> <span class="s">&#39;Profile&#39;</span>
-    <span class="n">nc</span><span class="o">.</span><span class="n">nodc_template_version</span> <span class="o">=</span> <span class="s">&#39;NODC_NetCDF_Profile_Orthogonal_Template_v1.0&#39;</span>
-    <span class="n">nc</span><span class="o">.</span><span class="n">standard_name_vocabulary</span> <span class="o">=</span> <span class="s">&#39;CF-1.6&#39;</span>
-    <span class="n">nc</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="s">&#39;Profile created by TAMOC.ambient for use in the TAMOC&#39;</span> <span class="o">+</span> \
-               <span class="s">&#39; modeling suite&#39;</span>
-    <span class="n">nc</span><span class="o">.</span><span class="n">summary</span> <span class="o">=</span> <span class="n">summary</span>
-    <span class="n">nc</span><span class="o">.</span><span class="n">source</span> <span class="o">=</span> <span class="n">source</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="s">&#39;Profile created by TAMOC.ambient for use in the TAMOC &#39;</span> <span class="o">+</span> \
+            <span class="s">&#39;modeling suite&#39;</span>
+    <span class="n">nc</span> <span class="o">=</span> <span class="n">model_share</span><span class="o">.</span><span class="n">tamoc_nc_file</span><span class="p">(</span><span class="n">nc_file</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">summary</span><span class="p">,</span> <span class="n">source</span><span class="p">)</span>
     <span class="n">nc</span><span class="o">.</span><span class="n">sea_name</span> <span class="o">=</span> <span class="n">sea_name</span>
-    <span class="n">nc</span><span class="o">.</span><span class="n">creator_name</span> <span class="o">=</span> <span class="s">&#39;Scott A. Socolofsky via tamoc.ambient.create_nc_db.py&#39;</span>
-    <span class="n">nc</span><span class="o">.</span><span class="n">creator_url</span> <span class="o">=</span> <span class="s">&#39;https://ceprofs.civil.tamu.edu/ssocolofsky/&#39;</span>
-    <span class="n">nc</span><span class="o">.</span><span class="n">creator_email</span> <span class="o">=</span> <span class="s">&#39;socolofs@tamu.edu&#39;</span>
-    <span class="n">nc</span><span class="o">.</span><span class="n">date_created</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(</span><span class="s">&#39; &#39;</span><span class="p">)</span>
-    <span class="n">nc</span><span class="o">.</span><span class="n">date_modified</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(</span><span class="s">&#39; &#39;</span><span class="p">)</span>
-    <span class="n">nc</span><span class="o">.</span><span class="n">history</span> <span class="o">=</span> <span class="s">&#39;Creation&#39;</span>
     
     <span class="c"># Create variables for the dimensions</span>
     <span class="n">z</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createDimension</span><span class="p">(</span><span class="s">&#39;z&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
@@ -893,11 +916,11 @@
 <span class="sd">    var_symbols : string list</span>
 <span class="sd">        List of string symbol names (e.g., T, S, P, etc.) in the same order as </span>
 <span class="sd">        the columns in the data array.  For chemical properties, use the </span>
-<span class="sd">        key name in the chemical_properties.py database.</span>
+<span class="sd">        key name in the `chemical_properties` database.</span>
 <span class="sd">    var_units : string list</span>
-<span class="sd">        List of units associated with each variable in the var_symbols list.</span>
+<span class="sd">        List of units associated with each variable in the `var_symbols` list.</span>
 <span class="sd">    comments : string list</span>
-<span class="sd">        List of comments associated with each variable in the var_symbols</span>
+<span class="sd">        List of comments associated with each variable in the `var_symbols`</span>
 <span class="sd">        list.  As a minimum, this list should include the indications </span>
 <span class="sd">        &#39;measured&#39; or &#39;derived&#39; or some similar indication of the source of</span>
 <span class="sd">        the data.</span>
@@ -907,8 +930,8 @@
 <span class="sd">    </span>
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    nc : netCDF4 data object</span>
-<span class="sd">        Returns the updated netCDF4 database with the data and metadata </span>
+<span class="sd">    nc : `netCDF4.Dataset` object</span>
+<span class="sd">        Returns the updated netCDF4 dataset with the data and metadata </span>
 <span class="sd">        included.</span>
 <span class="sd">    </span>
 <span class="sd">    Raises</span>
@@ -916,26 +939,27 @@
 <span class="sd">    ValueError : </span>
 <span class="sd">        The input data array must always include a column of depths.  If the</span>
 <span class="sd">        input array contains a single column and the netCDF database already</span>
-<span class="sd">        has a z array, a ValueError is raised since it would appear the </span>
-<span class="sd">        user is trying to replace the existing z data in the netCDF database.</span>
-<span class="sd">        If such an action is required, build a new netCDF database from </span>
-<span class="sd">        scratch with the correct depth data.</span>
+<span class="sd">        has a depth array, a `ValueError` is raised since it would appear the </span>
+<span class="sd">        user is trying to replace the existing depth data in the netCDF </span>
+<span class="sd">        database.  If such an action is required, build a new netCDF database </span>
+<span class="sd">        from scratch with the correct depth data.</span>
 <span class="sd">    </span>
 <span class="sd">    ValueError : </span>
 <span class="sd">        This function checks whether the units supplied by the user in the </span>
-<span class="sd">        list var_units match those expected by the database.  If not, a </span>
-<span class="sd">        ValueError is raised with a message indicating which units are </span>
+<span class="sd">        list `var_units` match those expected by the database.  If not, a </span>
+<span class="sd">        `ValueError` is raised with a message indicating which units are </span>
 <span class="sd">        incompatible.</span>
 <span class="sd">    </span>
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
-<span class="sd">    Symbol names in the TAMOC modeling suite are z (depth, positive down</span>
-<span class="sd">    from the sea surface), T, S, P, and chemical names from the </span>
-<span class="sd">    chemical_properties.py database (see ./data/ChemData.csv).  Other names </span>
-<span class="sd">    will be treated exactly like the chemical names, but will likely either</span>
-<span class="sd">    be unused by the TAMOC modeling suite or generate errors when a different</span>
-<span class="sd">    symbol is expected.  Hence, it is the responsibility of the user to </span>
-<span class="sd">    ensure that all symbol names are correct when this function is called.</span>
+<span class="sd">    Symbol names in the ``TAMOC`` modeling suite are `z` (depth, positive down</span>
+<span class="sd">    from the sea surface), `temperature`, `salinity`, `pressure`, and chemical</span>
+<span class="sd">    names from the `chemical_properties` database (see </span>
+<span class="sd">    ``./data/ChemData.csv``).  Other names will be treated exactly like the </span>
+<span class="sd">    chemical names, but will likely either be unused by the ``TAMOC`` modeling</span>
+<span class="sd">    suite or generate errors when a different symbol is expected.  Hence, it </span>
+<span class="sd">    is the responsibility of the user to ensure that all symbol names are </span>
+<span class="sd">    correct when this function is called.</span>
 <span class="sd">    </span>
 <span class="sd">    See Also</span>
 <span class="sd">    --------</span>
@@ -943,7 +967,7 @@
 <span class="sd">    </span>
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
-<span class="sd">    &gt;&gt;&gt; ds = Dataset(&#39;./Profiles/test_ds.nc&#39;, &#39;a&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; ds = Dataset(&#39;./test/output/test_ds.nc&#39;, &#39;a&#39;)</span>
 <span class="sd">    &gt;&gt;&gt; z = ds.variables[&#39;z&#39;]</span>
 <span class="sd">    &gt;&gt;&gt; zp = np.array([z.valid_min, z.valid_max])  # Depth range</span>
 <span class="sd">    &gt;&gt;&gt; yp = np.array([9.15, 5.20]) / 1000         # Synthetic data</span>
@@ -1127,21 +1151,21 @@
 
 <div class="viewcode-block" id="get_nc_db_from_roms"><a class="viewcode-back" href="../ambient/ambient.get_nc_db_from_roms.html#ambient.get_nc_db_from_roms">[docs]</a><span class="k">def</span> <span class="nf">get_nc_db_from_roms</span><span class="p">(</span><span class="n">nc_roms</span><span class="p">,</span> <span class="n">nc_file</span><span class="p">,</span> <span class="n">t_idx</span><span class="p">,</span> <span class="n">j_idx</span><span class="p">,</span> <span class="n">i_idx</span><span class="p">,</span> <span class="n">chem_names</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Create a netCDF4-classic dataset ready to use with TAMOC simulation </span>
+<span class="sd">    Create a netCDF4-classic dataset ready to use with ``TAMOC`` simulation </span>
 <span class="sd">    models from ROMS netCDF output.</span>
 <span class="sd">    </span>
 <span class="sd">    Some of the model variable names used in ROMS are different from those</span>
 <span class="sd">    recommended for CTD data by NODC.  Moreover, ROMS output usually includes</span>
-<span class="sd">    results at many horizonal grid locations; whereas, the TAMOC models</span>
+<span class="sd">    results at many horizonal grid locations; whereas, the ``TAMOC`` models</span>
 <span class="sd">    expect to have profile data for a single (lat, lon) location.  This </span>
 <span class="sd">    function translates the ROMS output at a specified point to a netCDF </span>
-<span class="sd">    file in the format required by TAMOC.</span>
+<span class="sd">    file in the format required by ``TAMOC``.</span>
 <span class="sd">    </span>
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    nc_roms : netCDF4 dataset object, file path or string</span>
 <span class="sd">        File name (supplied as a path or string) to the ROMS output that will</span>
-<span class="sd">        be used to create a TAMOC ambient profile.</span>
+<span class="sd">        be used to create a ``TAMOC`` ambient profile.</span>
 <span class="sd">    nc_file : file path or string</span>
 <span class="sd">        File name (supplied as a path or string) to use to create the netCDF</span>
 <span class="sd">        database.</span>
@@ -1157,13 +1181,13 @@
 <span class="sd">    </span>
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    nc : netCDF4 Dataset object</span>
-<span class="sd">        An object that contains the empty database ready to input profile data</span>
+<span class="sd">    nc : `netCDF4.Dataset` object</span>
+<span class="sd">        An object that contains the new netCDF dataset object/</span>
 <span class="sd">    </span>
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
 <span class="sd">    The author of this module (S. Socolofsky) is not a ROMS expert.  Variable</span>
-<span class="sd">    names assumed present in ROMS were those in the netCDF extracted from</span>
+<span class="sd">    names assumed present in ROMS were those in the netCDF file extracted from</span>
 <span class="sd">    http://barataria.tamu.edu:8080/.  </span>
 <span class="sd">    </span>
 <span class="sd">    TODO (S. Socolofsky 7/12/2013): Determine whether other ROMS simulations</span>
@@ -1180,15 +1204,17 @@
 <span class="sd">    </span>
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
-<span class="sd">    &gt;&gt;&gt; nc_roms = &#39;http://barataria.tamu.edu:8080/thredds/dodsC/&#39; + \</span>
-<span class="sd">                  &#39;ROMS_Daily/08122012/ocean_his_08122012_24.nc&#39;)</span>
-<span class="sd">    &gt;&gt;&gt; nc_file = &#39;test_roms.nc&#39;</span>
+<span class="sd">    &gt;&gt;&gt; nc_roms = &#39;http://barataria.tamu.edu:8080/thredds/dodsC/&#39; + \\</span>
+<span class="sd">                  &#39;ROMS_Daily/08122012/ocean_his_08122012_24.nc&#39;</span>
+<span class="sd">    &gt;&gt;&gt; nc_file = &#39;./test/output/test_roms.nc&#39;</span>
 <span class="sd">    &gt;&gt;&gt; t_idx = 0</span>
 <span class="sd">    &gt;&gt;&gt; j_idx = 400</span>
 <span class="sd">    &gt;&gt;&gt; i_idx = 420</span>
 <span class="sd">    &gt;&gt;&gt; chem_names = [&#39;dye_01&#39;, &#39;dye_02&#39;]</span>
 <span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">octant.roms</span>
+    
     <span class="c"># Open the ROMS netCDF dataset and get global attributes</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nc_roms</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nc_roms</span><span class="p">,</span> <span class="nb">unicode</span><span class="p">):</span>
         <span class="n">source</span> <span class="o">=</span> <span class="n">nc_roms</span>
@@ -1268,7 +1294,7 @@
     <span class="k">return</span> <span class="p">(</span><span class="n">nc_tamoc</span><span class="p">,</span> <span class="n">nc_roms</span><span class="p">)</span>
 
 </div>
-<div class="viewcode-block" id="extract_profile"><a class="viewcode-back" href="../ambient/ambient.extract_profile.html#ambient.extract_profile">[docs]</a><span class="k">def</span> <span class="nf">extract_profile</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">z_col</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">z_start</span><span class="o">=</span><span class="mi">50</span><span class="p">):</span>
+<div class="viewcode-block" id="extract_profile"><a class="viewcode-back" href="../ambient/ambient.extract_profile.html#ambient.extract_profile">[docs]</a><span class="k">def</span> <span class="nf">extract_profile</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">z_col</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">z_start</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">p_col</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">P_atm</span><span class="o">=</span><span class="mf">101325.</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Function to extract a CTD profile with monotonically increasing depth</span>
 <span class="sd">    </span>
@@ -1282,8 +1308,8 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    data : ndarray</span>
-<span class="sd">        Contains the complete CTD dataset in np.array format.  All columns </span>
-<span class="sd">        will be preserved; only the depth column will be used to make </span>
+<span class="sd">        Contains the complete CTD dataset in `numpy.array` format.  All </span>
+<span class="sd">        columns will be preserved; only the depth column will be used to make </span>
 <span class="sd">        decisions.</span>
 <span class="sd">    z_col : integer, default is 0</span>
 <span class="sd">        Column number of the column containing the depth data.  The first </span>
@@ -1293,15 +1319,24 @@
 <span class="sd">        profile.  If a depth reversal is found below this value, the profile</span>
 <span class="sd">        will be assumed to end there.  The top of the profile will be either</span>
 <span class="sd">        the first row of data or the lowest row of data containing a reversal</span>
-<span class="sd">        for which z &lt; z_start.</span>
+<span class="sd">        for which `z` &lt; `z_start`.</span>
+<span class="sd">    p_col : integer, default is None</span>
+<span class="sd">        Column number of the column containing the pressure data.  If the</span>
+<span class="sd">        profile is artificially extended to the free surface, the pressure</span>
+<span class="sd">        must approach atmospheric pressure.</span>
+<span class="sd">    P_amt : float, default is 101325</span>
+<span class="sd">        Value for atmospheric pressure.  This function does not do any unit</span>
+<span class="sd">        conversion, so if the pressure units passed to this function are not</span>
+<span class="sd">        Pa or the pressure is different than standard atmospheric pressure, </span>
+<span class="sd">        then the correct value should be specified.</span>
 <span class="sd">    </span>
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
-<span class="sd">    If the start of the profile is found to occur below z = 0, then a row will</span>
-<span class="sd">    be added to the top of the profile with depth z = 0 and all other values</span>
-<span class="sd">    equal to their value on the next row of the profile.  This is generally </span>
-<span class="sd">    needed by interpolation methods in the TAMOC simulation suite that require</span>
-<span class="sd">    data throughout the water column.</span>
+<span class="sd">    If the start of the profile is found to occur below `z` = 0, then a row </span>
+<span class="sd">    will be added to the top of the profile with depth `z` = 0 and all other </span>
+<span class="sd">    values equal to their value on the next row of the profile.  This is </span>
+<span class="sd">    generally needed by interpolation methods in the ``TAMOC`` simulation </span>
+<span class="sd">    suite that require data throughout the water column.</span>
 <span class="sd">    </span>
 <span class="sd">    This function is for use in creating a CTD data array before it is </span>
 <span class="sd">    added to a netCDF dataset.  Once the depths have been added to a netCDF </span>
@@ -1333,6 +1368,8 @@
         <span class="n">ctd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">end</span><span class="o">-</span><span class="n">start</span><span class="o">+</span><span class="mi">2</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
         <span class="n">ctd</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">start</span><span class="p">,:]</span>
         <span class="n">ctd</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="n">z_col</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="k">if</span> <span class="n">p_col</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">ctd</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="n">p_col</span><span class="p">]</span> <span class="o">=</span> <span class="n">P_atm</span>
         <span class="n">ctd</span><span class="p">[</span><span class="mi">1</span><span class="p">:,:]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">ctd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">end</span><span class="o">-</span><span class="n">start</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
@@ -1347,17 +1384,17 @@
 <span class="sd">    Reduce the size of a raw database for interpolation</span>
 <span class="sd">    </span>
 <span class="sd">    Removes rows from the raw input database so that linear interpolation </span>
-<span class="sd">    between rows in the new dataset recover the original data within a </span>
-<span class="sd">    relative error given by err.  </span>
+<span class="sd">    between rows in the new dataset recovers the original data within a </span>
+<span class="sd">    relative error given by `err`.  </span>
 <span class="sd">    </span>
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    raw : ndarray, shape(:,:)</span>
-<span class="sd">        An array of data with the independent variable (usually depth, z) </span>
+<span class="sd">        An array of data with the independent variable (usually depth) </span>
 <span class="sd">        in the first column and the dependent variable(s) in the remaining</span>
 <span class="sd">        columns.  Note that the first column is always ignored.  </span>
 <span class="sd">    err : float</span>
-<span class="sd">        The acceptable level of relative error for linear interpolation in </span>
+<span class="sd">        The acceptable level of relative error for linear interpolation </span>
 <span class="sd">        between rows in the output database</span>
 <span class="sd">    </span>
 <span class="sd">    Returns</span>
@@ -1421,7 +1458,59 @@
     
     <span class="c"># Return the reduced dataset</span>
     <span class="k">return</span> <span class="n">data</span>
+
+</div>
+<div class="viewcode-block" id="stabilize"><a class="viewcode-back" href="../ambient/ambient.stabilize.html#ambient.stabilize">[docs]</a><span class="k">def</span> <span class="nf">stabilize</span><span class="p">(</span><span class="n">raw</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Force the density profile to be stable or neutral</span>
+<span class="sd">    </span>
+<span class="sd">    Remove all reversals in the density profile so that it is monotonically</span>
+<span class="sd">    increasing from the surface.  This function is based on the potential</span>
+<span class="sd">    density so that we obtain an absolutely stable or neutral profile.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    raw : ndarray</span>
+<span class="sd">        An array of data organized the depth, temperature, salinity, and </span>
+<span class="sd">        pressure in the first four columns of the matrix.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    data : ndarray, shape(:,:)</span>
+<span class="sd">        A new array of data with the rows removed that would have produced an </span>
+<span class="sd">        unstable profile.</span>
+<span class="sd">    </span>
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    Profile.build_interpolator</span>
+<span class="sd">    </span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    This function would not normally be called directly, but rather is used</span>
+<span class="sd">    by the `Profile.build_interpolator` method to ensure that the dataset</span>
+<span class="sd">    used in the interpolator is neutrally stable.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># Start by assuming all rows with depth equal to or greater than zero </span>
+    <span class="c"># should be returned.</span>
+    <span class="n">rows</span> <span class="o">=</span> <span class="n">raw</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mf">0.</span>
     
+    <span class="c"># Potential density is computed at atmospheric pressure here</span>
+    <span class="n">Pa</span> <span class="o">=</span> <span class="mf">101325.</span>
+    
+    <span class="c"># Check the density gradient to each adjacent row and remove the unstable</span>
+    <span class="c"># rows</span>
+    <span class="n">rho_old</span> <span class="o">=</span> <span class="n">seawater</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">raw</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">raw</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span> <span class="n">Pa</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">raw</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">rho</span> <span class="o">=</span> <span class="n">seawater</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">raw</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">raw</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span> <span class="n">Pa</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">rho</span> <span class="o">&lt;</span> <span class="n">rho_old</span><span class="p">:</span>
+            <span class="n">rows</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">rho_old</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="n">rho</span><span class="p">)</span>
+    
+    <span class="c"># Return the acceptable rows</span>
+    <span class="k">return</span> <span class="n">raw</span><span class="p">[</span><span class="n">rows</span><span class="p">,:]</span>
+
 </div>
 <div class="viewcode-block" id="compute_pressure"><a class="viewcode-back" href="../ambient/ambient.compute_pressure.html#ambient.compute_pressure">[docs]</a><span class="k">def</span> <span class="nf">compute_pressure</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">fs_loc</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -1431,33 +1520,34 @@
 <span class="sd">    given by the temperature and salinity profiles and the seawater equation </span>
 <span class="sd">    of state in `seawater.density`.  The depth coordinate can be either </span>
 <span class="sd">    positive or negative, and the free surface can be located either in the </span>
-<span class="sd">    first index to the z-array (`fs_loc` = 0) or the last row of the z-array </span>
-<span class="sd">    (`fs_loc` = -1).  The data are returned in the same order as the input.</span>
+<span class="sd">    first index to the `z`-array (`fs_loc` = 0) or the last row of the </span>
+<span class="sd">    `z`-array (`fs_loc` = -1).  The data are returned in the same order as the </span>
+<span class="sd">    input.</span>
 <span class="sd">    </span>
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    z : ndarray</span>
 <span class="sd">        Array of depths in meters.</span>
 <span class="sd">    T : ndarray</span>
-<span class="sd">        Array of temperatures (K) at the corresponding depths in z.</span>
+<span class="sd">        Array of temperatures (K) at the corresponding depths in `z`.</span>
 <span class="sd">    S : ndarray</span>
-<span class="sd">        Array of salinities (psu) at the corresponding depth in z.</span>
+<span class="sd">        Array of salinities (psu) at the corresponding depth in `z`.</span>
 <span class="sd">    fs_loc : integer (0 or -1)</span>
-<span class="sd">        Index to the location of the free-surface in the z-array.  0 </span>
-<span class="sd">        corresponds to the first element of z, -1 corresponds to the last </span>
+<span class="sd">        Index to the location of the free-surface in the `z`-array.  0 </span>
+<span class="sd">        corresponds to the first element of `z`, -1 corresponds to the last </span>
 <span class="sd">        element.</span>
 <span class="sd">    </span>
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    P : ndarray</span>
-<span class="sd">        Array of pressures (Pa) at the corresponding depth in z.</span>
+<span class="sd">        Array of pressures (Pa) at the corresponding depth in `z`.</span>
 <span class="sd">    </span>
 <span class="sd">    Notes</span>
-<span class="sd">    _____</span>
+<span class="sd">    -----</span>
 <span class="sd">    TAMOC requires the pressure as an input since seawater is compressible </span>
 <span class="sd">    over modest ocean depths.  In order to avoid having to integrate the </span>
-<span class="sd">    pressure over the depth anytime the density is needed, TAMOC expects the</span>
-<span class="sd">    pressures to have been computed a priori.  </span>
+<span class="sd">    pressure over the depth anytime the density is needed, ``TAMOC`` expects </span>
+<span class="sd">    the pressures to have been computed *a priori*.  </span>
 <span class="sd">    </span>
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
@@ -1539,7 +1629,7 @@
 <span class="sd">    a unique unit.  That is, one-dimensional arrays are assumed to be rows</span>
 <span class="sd">    with the number of columns equal to the number of values.  If a single </span>
 <span class="sd">    column of data must be converted, you may pass</span>
-<span class="sd">    `np.atleast_2d(data).transpose()`.  </span>
+<span class="sd">    `numpy.atleast_2d(data).transpose()`.  </span>
 <span class="sd">    </span>
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
@@ -1617,7 +1707,7 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Read data from a text file.</span>
 <span class="sd">    </span>
-<span class="sd">    Read all of the data in a text file `fname` with &#39;*&#39; or &#39;#&#39; as comment</span>
+<span class="sd">    Read all of the data in a text file `fname` with `*` or `#` as comment</span>
 <span class="sd">    characters.  Data are assumed to be sparated by spaces.  </span>
 <span class="sd">    </span>
 <span class="sd">    Parameters</span>
@@ -1632,22 +1722,21 @@
 <span class="sd">    </span>
 <span class="sd">    See Also</span>
 <span class="sd">    --------</span>
-<span class="sd">    When possible, import text data using:</span>
-<span class="sd">    </span>
-<span class="sd">    numpy.fromfile : Read data from a simple text file in single table format.  </span>
+<span class="sd">    numpy.fromfile : Read data from a simple text file in single table format.</span>
 <span class="sd">        Similar to the Matlab `load` function.  Does not support comments or </span>
 <span class="sd">        skipped lines.  Works for text or binary files.</span>
 <span class="sd">    </span>
-<span class="sd">    numpy.loadtxt : A more sophisticated method to read data from a text file.  </span>
+<span class="sd">    numpy.loadtxt : A more sophisticated method to read data from a text file.</span>
 <span class="sd">        This method can handle multiple data types (e.g., strings, floats, and</span>
 <span class="sd">        integers together), can perform transformation on the data (e.g., date</span>
 <span class="sd">        format to a date object), and can unpack to a tuple of variables.  One</span>
 <span class="sd">        limitation is that all rows must have the same number of columns and </span>
 <span class="sd">        there is no method to handle missing data.</span>
 <span class="sd">    </span>
-<span class="sd">    numpy.genfromtext : The most advanced numpy method to read data from a file.</span>
-<span class="sd">        Includes the capabilities in `np.loadtxt`, but also allows for missing </span>
-<span class="sd">        data, data flags, and multiple methods to replace missing data or flags.</span>
+<span class="sd">    numpy.genfromtext : The most advanced numpy method to read data from a </span>
+<span class="sd">        file. Includes the capabilities in `np.loadtxt`, but also allows for </span>
+<span class="sd">        missing data, data flags, and multiple methods to replace missing data </span>
+<span class="sd">        or flags.</span>
 <span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c"># Read all the data from the file</span>
@@ -1709,8 +1798,8 @@
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2013, Scott A. Socolofsky.
-      Last updated on Mar 12, 2014.
+        &copy; Copyright 2014, Scott A. Socolofsky.
+      Last updated on Nov 07, 2014.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>

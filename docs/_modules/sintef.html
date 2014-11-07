@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.4',
+        VERSION:     '0.1.6',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -48,7 +48,7 @@
             
   <h1>Source code for sintef</h1><div class="highlight"><pre>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">SINTEF</span>
+<span class="sd">Sintef</span>
 <span class="sd">======</span>
 
 <span class="sd">Evaluate initial bubble and droplet sizes from the SINTEF model</span>
@@ -140,9 +140,15 @@
             <span class="n">m_oil</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">m_oil</span><span class="p">)</span>
     
     <span class="c"># Get the volume flow rates of gas and oil</span>
-    <span class="n">Q_gas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">m_gas</span><span class="p">)</span> <span class="o">/</span> <span class="n">rho_gas</span>
-    <span class="n">Q_oil</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">m_oil</span><span class="p">)</span> <span class="o">/</span> <span class="n">rho_oil</span>
-    
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">m_gas</span><span class="p">)</span> <span class="o">&gt;</span><span class="mf">0.</span><span class="p">:</span>
+        <span class="n">Q_gas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">m_gas</span><span class="p">)</span> <span class="o">/</span> <span class="n">rho_gas</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">Q_gas</span> <span class="o">=</span> <span class="mf">0.</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">m_oil</span><span class="p">)</span> <span class="o">&gt;</span><span class="mf">0.</span><span class="p">:</span>
+        <span class="n">Q_oil</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">m_oil</span><span class="p">)</span> <span class="o">/</span> <span class="n">rho_oil</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">Q_oil</span> <span class="o">=</span> <span class="mf">0.</span>
+        
     <span class="c"># Get the void-fraction adjusted velocity Un</span>
     <span class="k">if</span> <span class="n">Q_oil</span> <span class="o">==</span> <span class="mf">0.</span><span class="p">:</span>
         <span class="c"># This is gas only</span>
@@ -180,6 +186,26 @@
 <div class="viewcode-block" id="de_max"><a class="viewcode-back" href="../sintef/sintef.de_max.html#sintef.de_max">[docs]</a><span class="k">def</span> <span class="nf">de_max</span><span class="p">(</span><span class="n">sigma</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">rho</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate the maximum stable particle size</span>
+<span class="sd">    </span>
+<span class="sd">    Predicts the maximum stable particle size per Clift et al. (1978) via </span>
+<span class="sd">    the equation:</span>
+<span class="sd">    </span>
+<span class="sd">    d_max = 4. * np.sqrt(sigma / (g (rho - rho_p)))</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    sigma : float</span>
+<span class="sd">        Interfacial tension between the phase undergoing breakup and the </span>
+<span class="sd">        ambient receiving continuous phase (N/m)</span>
+<span class="sd">    rho_p : float</span>
+<span class="sd">        Density of the phase undergoing breakup (kg/m^3)</span>
+<span class="sd">    rho : float</span>
+<span class="sd">        Density of the ambient receiving continuous phase (kg/m^3) </span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    d_max : float</span>
+<span class="sd">        Maximum stable particle size (m)</span>
 <span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="mf">4.</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">sigma</span> <span class="o">/</span> <span class="p">(</span><span class="mf">9.81</span> <span class="o">*</span> <span class="p">(</span><span class="n">rho</span> <span class="o">-</span> <span class="n">rho_p</span><span class="p">)))</span>
@@ -231,8 +257,8 @@
     
     <span class="k">if</span> <span class="n">We</span> <span class="o">&gt;</span> <span class="mf">350.</span><span class="p">:</span>
         <span class="c"># Atomization...use the SINTEF model.</span>
-        <span class="c">#A = 24.8</span>
-        <span class="c">#B = 0.08</span>
+        <span class="c"># A = 24.8</span>
+        <span class="c"># B = 0.08</span>
         <span class="n">A</span> <span class="o">=</span> <span class="mf">15.</span>
         <span class="n">B</span> <span class="o">=</span> <span class="mf">0.8</span>
         
@@ -253,7 +279,7 @@
             <span class="k">return</span> <span class="n">dp</span> <span class="o">-</span> <span class="n">A</span> <span class="o">*</span> <span class="p">(</span><span class="n">We</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">+</span> <span class="n">B</span> <span class="o">*</span> <span class="n">Vi</span> <span class="o">*</span> <span class="n">dp</span><span class="o">**</span><span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="mf">3.</span><span class="p">)))</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mf">3.</span><span class="o">/</span><span class="mf">5.</span><span class="p">)</span>
         
         <span class="c"># Find the gas and liquid fraction for the mixture</span>
-        <span class="n">dp</span> <span class="o">=</span> <span class="n">fsolve</span><span class="p">(</span><span class="n">residual</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
+        <span class="n">dp</span> <span class="o">=</span> <span class="n">fsolve</span><span class="p">(</span><span class="n">residual</span><span class="p">,</span> <span class="mf">5.</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">de</span> <span class="o">=</span> <span class="n">dp</span> <span class="o">*</span> <span class="n">D</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="c"># Sinuous wave breakup...use the pipe diameter</span>
@@ -267,7 +293,7 @@
     <span class="c"># Return the result</span>
     <span class="k">return</span> <span class="n">de</span>
 </div>
-<div class="viewcode-block" id="rosin_rammler"><a class="viewcode-back" href="../sintef/sintef.rosin_rammler.html#sintef.rosin_rammler">[docs]</a><span class="k">def</span> <span class="nf">rosin_rammler</span><span class="p">(</span><span class="n">nbins</span><span class="p">,</span> <span class="n">d50</span><span class="p">,</span> <span class="n">md</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">rho</span><span class="p">):</span>
+<div class="viewcode-block" id="rosin_rammler"><a class="viewcode-back" href="../sintef/sintef.rosin_rammler.html#sintef.rosin_rammler">[docs]</a><span class="k">def</span> <span class="nf">rosin_rammler</span><span class="p">(</span><span class="n">nbins</span><span class="p">,</span> <span class="n">d50</span><span class="p">,</span> <span class="n">md_total</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">rho</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return the volume size distribution from the Rosin Rammler distribution</span>
 <span class="sd">    </span>
@@ -277,9 +303,34 @@
 <span class="sd">    </span>
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
+<span class="sd">    nbins : int</span>
+<span class="sd">        Desired number of size bins in the particle volume size distribution</span>
+<span class="sd">    d50 : float</span>
+<span class="sd">        Volume mean particle diameter (m)</span>
+<span class="sd">    md_total : float</span>
+<span class="sd">        Total particle mass flux (kg/s)</span>
+<span class="sd">    sigma : float</span>
+<span class="sd">        Interfacial tension between the phase undergoing breakup and the </span>
+<span class="sd">        ambient receiving continuous phase (N/m)</span>
+<span class="sd">    rho_p : float</span>
+<span class="sd">        Density of the phase undergoing breakup (kg/m^3)</span>
+<span class="sd">    rho : float</span>
+<span class="sd">        Density of the ambient receiving continuous phase (kg/m^3) </span>
 <span class="sd">    </span>
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
+<span class="sd">    de : ndarray</span>
+<span class="sd">        Array of particle sizes at the center of each bin in the distribution</span>
+<span class="sd">        (m)</span>
+<span class="sd">    md : ndarray</span>
+<span class="sd">        Total mass flux of particles corresponding to each bin (kg/s)</span>
+<span class="sd">    </span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    This method computes the un-truncated volume size distribution from the</span>
+<span class="sd">    Rosin-Rammler distribution and then enforces that all particle sizes</span>
+<span class="sd">    be less than the maximum stable size by moving mass in larger sizes to </span>
+<span class="sd">    the maximum stable size bin.  </span>
 <span class="sd">    </span>
 <span class="sd">    References</span>
 <span class="sd">    ----------</span>
@@ -318,12 +369,20 @@
     
     <span class="c"># Compute the actual diameters of each particle</span>
     <span class="n">de</span> <span class="o">=</span> <span class="n">d50</span> <span class="o">*</span> <span class="n">bin_centers</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">de</span><span class="p">)):</span>
-        <span class="k">if</span> <span class="n">de</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">dmax</span><span class="p">:</span>
-            <span class="n">de</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">dmax</span>
     
     <span class="c"># Compute the mass fraction for each diameter</span>
-    <span class="n">md</span> <span class="o">=</span> <span class="n">V_frac</span> <span class="o">*</span> <span class="n">md</span>
+    <span class="n">md</span> <span class="o">=</span> <span class="n">V_frac</span> <span class="o">*</span> <span class="n">md_total</span>
+    
+    <span class="c"># Truncate the distribution at the maximum stable droplet size</span>
+    <span class="n">imax</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">de</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">de</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">dmax</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">imax</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">imax</span> <span class="o">=</span> <span class="n">i</span>
+                <span class="n">de</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">dmax</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">md</span><span class="p">[</span><span class="n">imax</span><span class="p">]</span> <span class="o">+=</span> <span class="n">md</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">md</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.</span>
     
     <span class="c"># Return the particle size distribution</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">md</span><span class="p">)</span>
@@ -368,8 +427,8 @@
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2013, Scott A. Socolofsky.
-      Last updated on Mar 12, 2014.
+        &copy; Copyright 2014, Scott A. Socolofsky.
+      Last updated on Nov 07, 2014.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>

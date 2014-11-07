@@ -1,0 +1,219 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>dispersed_phases.initial_conditions &mdash; Texas A&amp;M Oilspill Calculator v0.1 Manual</title>
+    
+    <link rel="stylesheet" href="../_static/scipy.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1.6',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../index.html" />
+    <link rel="up" title="Reference" href="../modules/reference.html" />
+    <link rel="next" title="dispersed_phases.save_particle_to_nc_file" href="dispersed_phases.save_particle_to_nc_file.html" />
+    <link rel="prev" title="dispersed_phases.PlumeParticle.update" href="dispersed_phases.PlumeParticle.update.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="dispersed_phases.save_particle_to_nc_file.html" title="dispersed_phases.save_particle_to_nc_file"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="dispersed_phases.PlumeParticle.update.html" title="dispersed_phases.PlumeParticle.update"
+             accesskey="P">previous</a> |</li>
+<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+
+          <li><a href="../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="dispersed-phases-initial-conditions">
+<h1>dispersed_phases.initial_conditions<a class="headerlink" href="#dispersed-phases-initial-conditions" title="Permalink to this headline">¶</a></h1>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">November 07, 2014</td>
+</tr>
+</tbody>
+</table>
+<dl class="function">
+<dt id="dispersed_phases.initial_conditions">
+<tt class="descclassname">dispersed_phases.</tt><tt class="descname">initial_conditions</tt><big>(</big><em>profile</em>, <em>z0</em>, <em>dbm_particle</em>, <em>yk</em>, <em>q</em>, <em>q_type</em>, <em>de</em>, <em>T0=None</em><big>)</big><a class="reference internal" href="../_modules/dispersed_phases.html#initial_conditions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dispersed_phases.initial_conditions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define standard initial conditions for a PlumeParticle from flow rate</p>
+<p>Returns the standard variables describing a particle as needed to 
+initializae a PlumeParticle object from specification of the dispersed phase
+flow rate.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>profile</strong> : <a class="reference internal" href="../modules/ambient.html#ambient.Profile" title="ambient.Profile"><tt class="xref py py-obj docutils literal"><span class="pre">ambient.Profile</span></tt></a> object</p>
+<blockquote>
+<div><p>The ambient CTD object used by the simulation.</p>
+</div></blockquote>
+<p><strong>z0</strong> : float</p>
+<blockquote>
+<div><p>Depth of the release point (m)</p>
+</div></blockquote>
+<p><strong>dbm_particle</strong> : <a class="reference internal" href="../modules/dbm.html#dbm.FluidParticle" title="dbm.FluidParticle"><tt class="xref py py-obj docutils literal"><span class="pre">dbm.FluidParticle</span></tt></a> or <a class="reference internal" href="../modules/dbm.html#dbm.InsolubleParticle" title="dbm.InsolubleParticle"><tt class="xref py py-obj docutils literal"><span class="pre">dbm.InsolubleParticle</span></tt></a> object</p>
+<blockquote>
+<div><p>Object describing the particle properties and behavior</p>
+</div></blockquote>
+<p><strong>yk</strong> : ndarray</p>
+<blockquote>
+<div><p>Vector of mol fractions of each component of the dispersed phase 
+particle.  If the particle is a <a class="reference internal" href="../modules/dbm.html#dbm.InsolubleParticle" title="dbm.InsolubleParticle"><tt class="xref py py-obj docutils literal"><span class="pre">dbm.InsolubleParticle</span></tt></a>, then yk 
+should be equal to one.</p>
+</div></blockquote>
+<p><strong>q</strong> : float</p>
+<blockquote>
+<div><p>Flux of the dispersed phase, either as the volume flux (m^3/s) at 
+standard conditions, defined as 0 deg C and 1 bar, or as mass flux 
+(kg/s).</p>
+</div></blockquote>
+<p><strong>q_type</strong> : int</p>
+<blockquote>
+<div><p>Determines the type of flux units.  0: we want the mass of a single 
+particle (hence q = None since it is currently unknown), 1: q is 
+volume flux, 2: q is mass flux</p>
+</div></blockquote>
+<p><strong>de</strong> : float</p>
+<blockquote>
+<div><p>Initial diameter (m) of the particle</p>
+</div></blockquote>
+<p><strong>T0</strong> : float, default = None</p>
+<blockquote>
+<div><p>Initial temperature of the of <a class="reference internal" href="../modules/dbm.html#module-dbm" title="dbm"><tt class="xref py py-obj docutils literal"><span class="pre">dbm</span></tt></a> particle object (K).  If None, 
+then T0 is set equal to the ambient temperature.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>m0</strong> : ndarray</p>
+<blockquote>
+<div><p>Initial masses of the components of one particle in the <a class="reference internal" href="../modules/dbm.html#module-dbm" title="dbm"><tt class="xref py py-obj docutils literal"><span class="pre">dbm</span></tt></a> 
+particle object (kg)</p>
+</div></blockquote>
+<p><strong>T0</strong> : float</p>
+<blockquote>
+<div><p>Initial temperature of the of <a class="reference internal" href="../modules/dbm.html#module-dbm" title="dbm"><tt class="xref py py-obj docutils literal"><span class="pre">dbm</span></tt></a> particle object (K)</p>
+</div></blockquote>
+<p><strong>nb0</strong> : float</p>
+<blockquote>
+<div><p>Initial number flux of particles at the release (&#8211;)</p>
+</div></blockquote>
+<p><strong>P</strong> : float</p>
+<blockquote>
+<div><p>Local pressure (Pa)</p>
+</div></blockquote>
+<p><strong>Sa</strong> : float</p>
+<blockquote>
+<div><p>Local salinity surrounding the particle (psu)</p>
+</div></blockquote>
+<p><strong>Ta</strong> : float</p>
+<blockquote class="last">
+<div><p>Local temperature surrounding the particle (K)</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../contents.html">
+              <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
+            </a></p>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="dispersed_phases.PlumeParticle.update.html"
+                        title="previous chapter">dispersed_phases.PlumeParticle.update</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="dispersed_phases.save_particle_to_nc_file.html"
+                        title="next chapter">dispersed_phases.save_particle_to_nc_file</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/disp_phases/dispersed_phases.initial_conditions.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<ul class="this-page-menu">
+  <li><a href="/numpy/docs/numpy-docs/disp_phases/dispersed_phases.initial_conditions.rst">Edit page</a></li>
+</ul>
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="dispersed_phases.save_particle_to_nc_file.html" title="dispersed_phases.save_particle_to_nc_file"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="dispersed_phases.PlumeParticle.update.html" title="dispersed_phases.PlumeParticle.update"
+             >previous</a> |</li>
+<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+
+          <li><a href="../modules/reference.html" >Reference</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Scott A. Socolofsky.
+      Last updated on Nov 07, 2014.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

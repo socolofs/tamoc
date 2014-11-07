@@ -26,10 +26,11 @@ have been validated against measurements.
 """
 # S. Socolofsky, July 2013, Texas A&M University <socolofs@tamu.edu>.
 
+from tamoc import seawater
 from tamoc import ambient
 import test_ambient
 from tamoc import dbm
-from tamoc import seawater
+from tamoc import dispersed_phases
 from tamoc import single_bubble_model 
 
 from netCDF4 import Dataset
@@ -143,8 +144,9 @@ def test_particle_obj():
     bub = dbm.FluidParticle(composition)
     m0 = bub.masses_by_diameter(de, T, P, yk)
     
-    # Create a `Particle` object
-    bub_obj = single_bubble_model.Particle(bub, m0, T, K, fdis=fdis, K_T=Kt)
+    # Create a `SingleParticle` object
+    bub_obj = dispersed_phases.SingleParticle(bub, m0, T, K, fdis=fdis, 
+              K_T=Kt)
     
     # Check if the initial attributes are correct
     for i in range(len(composition)):
@@ -208,11 +210,12 @@ def test_particle_obj():
     m0 = drop.mass_by_diameter(de, T, P, Sa, Ta)
     
     # Create a `Particle` object
-    drop_obj = single_bubble_model.Particle(drop, m0, T, K, fdis=fdis, K_T=Kt)
+    drop_obj = dispersed_phases.SingleParticle(drop, m0, T, K, fdis=fdis, 
+               K_T=Kt)
     
     # Check if the values returned by the `properties` method match the input
-    (us, rho_p, A, Cs, beta, beta_T, T_ans) = drop_obj.properties(np.array([m0]), 
-        T, P, Sa, Ta)
+    (us, rho_p, A, Cs, beta, beta_T, T_ans) = drop_obj.properties(
+        np.array([m0]), T, P, Sa, Ta)
     us_ans = drop.slip_velocity(m0, T, P, Sa, Ta)
     rho_p_ans = drop.density(T, P, Sa, Ta)
     A_ans = drop.surface_area(m0, T, P, Sa, Ta)
@@ -257,13 +260,15 @@ def test_ic():
     fdis = 1.e-4
     
     # Get the initial conditions
-    (bub_obj, y0) = single_bubble_model.sbm_ic(profile, bub, z0, de, yk, T0, 
-                                               K, K_T, fdis)
+    (bub_obj, y0) = single_bubble_model.sbm_ic(profile, bub, 
+                    np.array([0., 0., z0]), de, yk, T0, K, K_T, fdis)
     
     # Check the initial condition values
-    assert y0[0] == z0
-    assert y0[-1] == T0 * np.sum(y0[1:-1]) * seawater.cp() * 0.5
-    assert_approx_equal(bub.diameter(y0[1:-1], T0, P), de, significant=6)
+    assert y0[0] == 0.
+    assert y0[1] == 0.
+    assert y0[2] == z0
+    assert y0[-1] == T0 * np.sum(y0[3:-1]) * seawater.cp() * 0.5
+    assert_approx_equal(bub.diameter(y0[3:-1], T0, P), de, significant=6)
     
     # Check the bub_obj parameters
     for i in range(len(composition)):
@@ -342,13 +347,13 @@ def test_simulation():
     sbm.simulate(bub, z0, de, mol_frac, T0, K_T=1, fdis=1e-8, delta_t=10.)
     
     # Check the solution
-    assert sbm.y.shape[0] == 651
-    assert sbm.y.shape[1] == 6
-    assert sbm.t.shape[0] == 651
-    assert_approx_equal(sbm.t[-1], 6298.9835849176, significant = 6)
-    assert_array_almost_equal(sbm.y[-1,:], np.array([5.90015259e+02,
-        4.01612022e-14, 6.68098538e-15, -1.88847481e-13, -5.19893164e-14,  
-        -1.13968383e-07]), decimal = 6)
+    assert sbm.y.shape[0] == 648
+    assert sbm.y.shape[1] == 8
+    assert sbm.t.shape[0] == 648
+    assert_approx_equal(sbm.t[-1], 6305.222361664904, significant = 6)
+    assert_array_almost_equal(sbm.y[-1,:], np.array([0., 0., 5.89985688e+02, 
+          4.42348444e-14, 6.30572634e-15, -3.99406408e-14, -6.33469333e-14,  
+          -3.09879545e-08]), decimal = 6)
     
     # Write the output files
     sbm.save_sim('./output/sbm_data.nc', './test_bm54.nc', 
@@ -378,22 +383,22 @@ def test_simulation():
     assert Pp == P
     
     # Check that the results are still correct
-    assert sbm.y.shape[0] == 651
-    assert sbm.y.shape[1] == 6
-    assert sbm.t.shape[0] == 651
-    assert_approx_equal(sbm.t[-1], 6298.9835849176, significant = 6)
-    assert_array_almost_equal(sbm.y[-1,:], np.array([5.90015259e+02,
-        4.01612022e-14, 6.68098538e-15, -1.88847481e-13, -5.19893164e-14,  
-        -1.13968383e-07]), decimal = 6)
+    assert sbm.y.shape[0] == 648
+    assert sbm.y.shape[1] == 8
+    assert sbm.t.shape[0] == 648
+    assert_approx_equal(sbm.t[-1], 6305.222361664904, significant = 6)
+    assert_array_almost_equal(sbm.y[-1,:], np.array([0., 0., 5.89985688e+02, 
+          4.42348444e-14, 6.30572634e-15, -3.99406408e-14, -6.33469333e-14,  
+          -3.09879545e-08]), decimal = 6)
     
     # Load the data in the txt file and check the solution
     data = np.loadtxt('./output/sbm_data.txt')
-    assert data.shape[0] == 651
-    assert data.shape[1] == 7
-    assert_approx_equal(data[-1,0], 6298.9835849176, significant = 6)
-    assert_array_almost_equal(data[-1,1:], np.array([5.90015259e+02,
-        4.01612022e-14, 6.68098538e-15, -1.88847481e-13, -5.19893164e-14,  
-        -1.13968383e-07]), decimal = 6)
+    assert data.shape[0] == 648
+    assert data.shape[1] == 9
+    assert_approx_equal(data[-1,0], 6305.222361664904, significant = 6)
+    assert_array_almost_equal(data[-1,1:], np.array([0., 0., 5.89985688e+02, 
+          4.42348444e-14, 6.30572634e-15, -3.99406408e-14, -6.33469333e-14,  
+          -3.09879545e-08]), decimal = 6)
     
     # Create an inert particle that is compressible
     oil = dbm.InsolubleParticle(True, True, rho_p=840.)
@@ -406,7 +411,7 @@ def test_simulation():
     
     # Simulate the trajectory through the water column and plot the results
     sbm.simulate(oil, z0, de, mol_frac, T0, K_T=1, delta_t=10.)
-    ans = np.array([4.02112491e-02, 1.26136097e-02, 7.93013390e+03])
+    ans = np.array([0., 0., 1.26493576e+00, 1.26136097e-02, 7.93013390e+03])
     for i in range(3):
         assert_approx_equal(sbm.y[-1,i], ans[i], significant = 6)
     

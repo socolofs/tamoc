@@ -1,0 +1,208 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>stratified_plume_model.particle_from_mb0 &mdash; Texas A&amp;M Oilspill Calculator v0.1 Manual</title>
+    
+    <link rel="stylesheet" href="../_static/scipy.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1.6',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../index.html" />
+    <link rel="up" title="Reference" href="../modules/reference.html" />
+    <link rel="next" title="stratified_plume_model.plot_state_space" href="stratified_plume_model.plot_state_space.html" />
+    <link rel="prev" title="stratified_plume_model.particle_from_Q" href="stratified_plume_model.particle_from_Q.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="stratified_plume_model.plot_state_space.html" title="stratified_plume_model.plot_state_space"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="stratified_plume_model.particle_from_Q.html" title="stratified_plume_model.particle_from_Q"
+             accesskey="P">previous</a> |</li>
+<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+
+          <li><a href="../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="stratified-plume-model-particle-from-mb0">
+<h1>stratified_plume_model.particle_from_mb0<a class="headerlink" href="#stratified-plume-model-particle-from-mb0" title="Permalink to this headline">¶</a></h1>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">November 07, 2014</td>
+</tr>
+</tbody>
+</table>
+<dl class="function">
+<dt id="stratified_plume_model.particle_from_mb0">
+<tt class="descclassname">stratified_plume_model.</tt><tt class="descname">particle_from_mb0</tt><big>(</big><em>profile</em>, <em>z0</em>, <em>dbm_particle</em>, <em>yk</em>, <em>mb0</em>, <em>de</em>, <em>lambda_1</em>, <em>T0=None</em>, <em>K=1.0</em>, <em>K_T=1.0</em>, <em>fdis=1e-06</em><big>)</big><a class="reference internal" href="../_modules/stratified_plume_model.html#particle_from_mb0"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stratified_plume_model.particle_from_mb0" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a <a class="reference internal" href="../modules/disp_phases.html#dispersed_phases.PlumeParticle" title="dispersed_phases.PlumeParticle"><tt class="xref py py-obj docutils literal"><span class="pre">dispersed_phases.PlumeParticle</span></tt></a> object from the mass flux</p>
+<p>Returns a <a class="reference internal" href="../modules/disp_phases.html#dispersed_phases.PlumeParticle" title="dispersed_phases.PlumeParticle"><tt class="xref py py-obj docutils literal"><span class="pre">dispersed_phases.PlumeParticle</span></tt></a> object given the particle 
+attributes and the initial total mass flux at the source.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>profile</strong> : <a class="reference internal" href="../modules/ambient.html#ambient.Profile" title="ambient.Profile"><tt class="xref py py-obj docutils literal"><span class="pre">ambient.Profile</span></tt></a> object</p>
+<blockquote>
+<div><p>The ambient CTD object used by the simulation</p>
+</div></blockquote>
+<p><strong>z0</strong> : float</p>
+<blockquote>
+<div><p>Depth of the release point (m)</p>
+</div></blockquote>
+<p><strong>dbm_particle</strong> : <a class="reference internal" href="../modules/dbm.html#dbm.FluidParticle" title="dbm.FluidParticle"><tt class="xref py py-obj docutils literal"><span class="pre">dbm.FluidParticle</span></tt></a> or <a class="reference internal" href="../modules/dbm.html#dbm.InsolubleParticle" title="dbm.InsolubleParticle"><tt class="xref py py-obj docutils literal"><span class="pre">dbm.InsolubleParticle</span></tt></a> object</p>
+<blockquote>
+<div><p>Object describing the particle properties and behavior</p>
+</div></blockquote>
+<p><strong>yk</strong> : ndarray</p>
+<blockquote>
+<div><p>Vector of mol fractions of each component of the dispersed phase 
+particle.  If the particle is a <a class="reference internal" href="../modules/dbm.html#dbm.InsolubleParticle" title="dbm.InsolubleParticle"><tt class="xref py py-obj docutils literal"><span class="pre">dbm.InsolubleParticle</span></tt></a>, then yk 
+should be equal to one.</p>
+</div></blockquote>
+<p><strong>mb0</strong> : float</p>
+<blockquote>
+<div><p>Mass flux (kg/s) of all particle components together at the release 
+points</p>
+</div></blockquote>
+<p><strong>de</strong> : float</p>
+<blockquote>
+<div><p>Initial diameter (m) of the particle</p>
+</div></blockquote>
+<p><strong>lambda_1</strong> : float</p>
+<blockquote>
+<div><p>Spreading rate of the dispersed phase in a plume (&#8211;)</p>
+</div></blockquote>
+<p><strong>T0</strong> : float, default = None</p>
+<blockquote>
+<div><p>Initial temperature of the of <a class="reference internal" href="../modules/dbm.html#module-dbm" title="dbm"><tt class="xref py py-obj docutils literal"><span class="pre">dbm</span></tt></a> particle object (K).  If None, 
+then T0 is set equal to the ambient temperature.</p>
+</div></blockquote>
+<p><strong>K</strong> : float, default = 1.</p>
+<blockquote>
+<div><p>Mass transfer reduction factor (&#8211;).</p>
+</div></blockquote>
+<p><strong>K_T</strong> : float, default = 1.</p>
+<blockquote>
+<div><p>Heat transfer reduction factor (&#8211;).</p>
+</div></blockquote>
+<p><strong>fdis</strong> : float, default = 1.e-6</p>
+<blockquote>
+<div><p>Fraction of the initial total mass (&#8211;) remaining when the particle 
+should be considered dissolved.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>particle</strong> : dispersed_phases.PlumeParticle object</p>
+<blockquote class="last">
+<div><p>A <a class="reference internal" href="../modules/disp_phases.html#dispersed_phases.PlumeParticle" title="dispersed_phases.PlumeParticle"><tt class="xref py py-obj docutils literal"><span class="pre">dispersed_phases.PlumeParticle</span></tt></a> object containing the initial 
+conditions for the given particle in the simulation</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../contents.html">
+              <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
+            </a></p>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="stratified_plume_model.particle_from_Q.html"
+                        title="previous chapter">stratified_plume_model.particle_from_Q</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="stratified_plume_model.plot_state_space.html"
+                        title="next chapter">stratified_plume_model.plot_state_space</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/spm/stratified_plume_model.particle_from_mb0.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<ul class="this-page-menu">
+  <li><a href="/numpy/docs/numpy-docs/spm/stratified_plume_model.particle_from_mb0.rst">Edit page</a></li>
+</ul>
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="stratified_plume_model.plot_state_space.html" title="stratified_plume_model.plot_state_space"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="stratified_plume_model.particle_from_Q.html" title="stratified_plume_model.particle_from_Q"
+             >previous</a> |</li>
+<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+
+          <li><a href="../modules/reference.html" >Reference</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Scott A. Socolofsky.
+      Last updated on Nov 07, 2014.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

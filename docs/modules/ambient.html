@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.4',
+        VERSION:     '0.1.6',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -58,7 +58,7 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">February 26, 2014</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">November 07, 2014</td>
 </tr>
 </tbody>
 </table>
@@ -86,7 +86,7 @@ seawater properties data in netCDF format.</p>
 <dl class="docutils">
 <dt><tt class="xref py py-obj docutils literal"><span class="pre">netCDF4</span></tt> <span class="classifier-delimiter">:</span> <span class="classifier"></span></dt>
 <dd>Package for creating and manipulating netCDF datasets</dd>
-<dt><a class="reference external" href="http://docs.python.org/library/datetime.html#datetime" title="(in Python v2.7)"><tt class="xref py py-obj docutils literal"><span class="pre">datetime</span></tt></a> <span class="classifier-delimiter">:</span> <span class="classifier"></span></dt>
+<dt><a class="reference external" href="http://docs.python.org/library/datetime.html#module-datetime" title="(in Python v2.7)"><tt class="xref py py-obj docutils literal"><span class="pre">datetime</span></tt></a> <span class="classifier-delimiter">:</span> <span class="classifier"></span></dt>
 <dd>Package to create and manipute dates</dd>
 <dt><tt class="xref py py-obj docutils literal"><span class="pre">numpy.fromfile</span></tt> :</dt>
 <dd>Read data from a simple text file in single table format. Similar to the
@@ -255,28 +255,31 @@ in <em class="xref py py-obj">chem_names</em>.</td>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="../ambient/ambient.create_nc_db.html#ambient.create_nc_db" title="ambient.create_nc_db"><tt class="xref py py-obj docutils literal"><span class="pre">ambient.create_nc_db</span></tt></a>(nc_file,&nbsp;summary,&nbsp;...)</td>
+<tr class="row-odd"><td><a class="reference internal" href="../ambient/ambient.create_nc_db.html#ambient.create_nc_db" title="ambient.create_nc_db"><tt class="xref py py-obj docutils literal"><span class="pre">create_nc_db</span></tt></a>(nc_file,&nbsp;summary,&nbsp;source,&nbsp;...)</td>
 <td>Create an empty netCDF4-classic dataset to store ambient data</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="../ambient/ambient.fill_nc_db.html#ambient.fill_nc_db" title="ambient.fill_nc_db"><tt class="xref py py-obj docutils literal"><span class="pre">ambient.fill_nc_db</span></tt></a>(nc,&nbsp;data,&nbsp;var_symbols,&nbsp;...)</td>
+<tr class="row-even"><td><a class="reference internal" href="../ambient/ambient.fill_nc_db.html#ambient.fill_nc_db" title="ambient.fill_nc_db"><tt class="xref py py-obj docutils literal"><span class="pre">fill_nc_db</span></tt></a>(nc,&nbsp;data,&nbsp;var_symbols,&nbsp;var_units,&nbsp;...)</td>
 <td>Add data to a netCDF4-classic ambient profile dataset</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="../ambient/ambient.get_nc_db_from_roms.html#ambient.get_nc_db_from_roms" title="ambient.get_nc_db_from_roms"><tt class="xref py py-obj docutils literal"><span class="pre">ambient.get_nc_db_from_roms</span></tt></a>(nc_roms,&nbsp;...)</td>
+<tr class="row-odd"><td><a class="reference internal" href="../ambient/ambient.get_nc_db_from_roms.html#ambient.get_nc_db_from_roms" title="ambient.get_nc_db_from_roms"><tt class="xref py py-obj docutils literal"><span class="pre">get_nc_db_from_roms</span></tt></a>(nc_roms,&nbsp;nc_file,&nbsp;t_idx,&nbsp;...)</td>
 <td>Create a netCDF4-classic dataset ready to use with <tt class="docutils literal"><span class="pre">TAMOC</span></tt> simulation</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="../ambient/ambient.extract_profile.html#ambient.extract_profile" title="ambient.extract_profile"><tt class="xref py py-obj docutils literal"><span class="pre">ambient.extract_profile</span></tt></a>(data[,&nbsp;z_col,&nbsp;...])</td>
+<tr class="row-even"><td><a class="reference internal" href="../ambient/ambient.extract_profile.html#ambient.extract_profile" title="ambient.extract_profile"><tt class="xref py py-obj docutils literal"><span class="pre">extract_profile</span></tt></a>(data[,&nbsp;z_col,&nbsp;z_start,&nbsp;...])</td>
 <td>Function to extract a CTD profile with monotonically increasing depth</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="../ambient/ambient.compute_pressure.html#ambient.compute_pressure" title="ambient.compute_pressure"><tt class="xref py py-obj docutils literal"><span class="pre">ambient.compute_pressure</span></tt></a>(z,&nbsp;T,&nbsp;S,&nbsp;fs_loc)</td>
-<td>Compute the pressure profile by integrating the density</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="../ambient/ambient.coarsen.html#ambient.coarsen" title="ambient.coarsen"><tt class="xref py py-obj docutils literal"><span class="pre">ambient.coarsen</span></tt></a>(raw[,&nbsp;err])</td>
+<tr class="row-odd"><td><a class="reference internal" href="../ambient/ambient.coarsen.html#ambient.coarsen" title="ambient.coarsen"><tt class="xref py py-obj docutils literal"><span class="pre">coarsen</span></tt></a>(raw[,&nbsp;err])</td>
 <td>Reduce the size of a raw database for interpolation</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="../ambient/ambient.convert_units.html#ambient.convert_units" title="ambient.convert_units"><tt class="xref py py-obj docutils literal"><span class="pre">ambient.convert_units</span></tt></a>(data,&nbsp;units)</td>
+<tr class="row-even"><td><a class="reference internal" href="../ambient/ambient.stabilize.html#ambient.stabilize" title="ambient.stabilize"><tt class="xref py py-obj docutils literal"><span class="pre">stabilize</span></tt></a>(raw)</td>
+<td>Force the density profile to be stable or neutral</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="../ambient/ambient.compute_pressure.html#ambient.compute_pressure" title="ambient.compute_pressure"><tt class="xref py py-obj docutils literal"><span class="pre">compute_pressure</span></tt></a>(z,&nbsp;T,&nbsp;S,&nbsp;fs_loc)</td>
+<td>Compute the pressure profile by integrating the density</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../ambient/ambient.convert_units.html#ambient.convert_units" title="ambient.convert_units"><tt class="xref py py-obj docutils literal"><span class="pre">convert_units</span></tt></a>(data,&nbsp;units)</td>
 <td>Convert the values in data to standard units</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="../ambient/ambient.load_raw.html#ambient.load_raw" title="ambient.load_raw"><tt class="xref py py-obj docutils literal"><span class="pre">ambient.load_raw</span></tt></a>(fname)</td>
+<tr class="row-odd"><td><a class="reference internal" href="../ambient/ambient.load_raw.html#ambient.load_raw" title="ambient.load_raw"><tt class="xref py py-obj docutils literal"><span class="pre">load_raw</span></tt></a>(fname)</td>
 <td>Read data from a text file.</td>
 </tr>
 </tbody>
@@ -355,8 +358,8 @@ in <em class="xref py py-obj">chem_names</em>.</td>
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2013, Scott A. Socolofsky.
-      Last updated on Mar 12, 2014.
+        &copy; Copyright 2014, Scott A. Socolofsky.
+      Last updated on Nov 07, 2014.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>

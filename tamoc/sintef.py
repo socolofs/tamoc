@@ -208,8 +208,8 @@ def de_50(U, D, rho_p, mu_p, sigma, rho):
     
     if We > 350.:
         # Atomization...use the SINTEF model.
-        #A = 24.8
-        #B = 0.08
+        # A = 24.8
+        # B = 0.08
         A = 15.
         B = 0.8
         

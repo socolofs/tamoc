@@ -23,18 +23,32 @@ ambient.py
    ../ambient/ambient.create_nc_db
    ../ambient/ambient.fill_nc_db
    ../ambient/ambient.get_nc_db_from_roms
-   ../ambient/ambient.compute_pressure
-   ../ambient/ambient.convert_units
    ../ambient/ambient.extract_profile
    ../ambient/ambient.coarsen
+   ../ambient/ambient.stabilize
+   ../ambient/ambient.compute_pressure
+   ../ambient/ambient.convert_units
    ../ambient/ambient.load_raw
+
+seawater.py
+===========
+
+.. toctree::
+   :maxdepth: 1
+
+   seawater
+   ../seawater/seawater.density
+   ../seawater/seawater.mu
+   ../seawater/seawater.sigma
+   ../seawater/seawater.k
+   ../seawater/seawater.cp
 
 chemical_properties.py
 ======================
 
 .. toctree::
    :maxdepth: 1
-   
+
    chem
    ../chem/ChemData_ReadMe
 
@@ -43,7 +57,7 @@ dbm.py
 
 .. toctree::
    :maxdepth: 1
-   
+
    dbm
    ../dbm/dbm.FluidMixture
    ../dbm/dbm.FluidMixture.masses
@@ -80,19 +94,27 @@ dbm.py
    ../dbm/dbm.equilibrium
    ../dbm/dbm.gas_liq_eq
    
-seawater.py
-===========
+
+dispersed_phases.py
+===================
 
 .. toctree::
    :maxdepth: 1
 
-   seawater
-   ../seawater/seawater.density
-   ../seawater/seawater.mu
-   ../seawater/seawater.sigma
-   ../seawater/seawater.cp
-   ../seawater/seawater.k
-   
+   disp_phases
+   ../disp_phases/dispersed_phases.SingleParticle
+   ../disp_phases/dispersed_phases.SingleParticle.properties
+   ../disp_phases/dispersed_phases.SingleParticle.diameter
+   ../disp_phases/dispersed_phases.PlumeParticle
+   ../disp_phases/dispersed_phases.PlumeParticle.update
+   ../disp_phases/dispersed_phases.initial_conditions
+   ../disp_phases/dispersed_phases.save_particle_to_nc_file
+   ../disp_phases/dispersed_phases.load_particle_from_nc_file
+   ../disp_phases/dispersed_phases.zfe_volume_flux
+   ../disp_phases/dispersed_phases.wuest_ic
+   ../disp_phases/dispersed_phases.bf_average
+   ../disp_phases/dispersed_phases.get_chem_names
+   ../disp_phases/dispersed_phases.particles_state_space
 
 sintef.py
 =========
@@ -105,6 +127,20 @@ sintef.py
    ../sintef/sintef.de_max
    ../sintef/sintef.de_50
    ../sintef/sintef.rosin_rammler
+
+params.py
+=========
+
+.. toctree::
+   :maxdepth: 1
+
+   params
+   ../params/params.Scales.get_variables
+   ../params/params.Scales.h_T
+   ../params/params.Scales.h_P
+   ../params/params.Scales.h_S
+   ../params/params.Scales.lambda_1
+   ../params/params.Scales.u_inf_crit
 
 single_bubble_model.py
 ======================
@@ -120,9 +156,6 @@ single_bubble_model.py
    ../sbm/single_bubble_model.Model.load_sim
    ../sbm/single_bubble_model.Model.post_process
    ../sbm/single_bubble_model.ModelParams
-   ../sbm/single_bubble_model.Particle
-   ../sbm/single_bubble_model.Particle.properties
-   ../sbm/single_bubble_model.Particle.diameter
    ../sbm/single_bubble_model.calculate_path
    ../sbm/single_bubble_model.derivs
    ../sbm/single_bubble_model.sbm_ic
@@ -143,10 +176,6 @@ stratified_plume_model.py
    ../spm/stratified_plume_model.Model.plot_state_space
    ../spm/stratified_plume_model.Model.plot_all_variables
    ../spm/stratified_plume_model.ModelParams
-   ../spm/stratified_plume_model.Particle
-   ../spm/stratified_plume_model.Particle.update
-   ../spm/stratified_plume_model.Particle.properties
-   ../spm/stratified_plume_model.Particle.diameter
    ../spm/stratified_plume_model.InnerPlume
    ../spm/stratified_plume_model.InnerPlume.update
    ../spm/stratified_plume_model.OuterPlume
@@ -155,35 +184,50 @@ stratified_plume_model.py
    ../spm/stratified_plume_model.outer_main
    ../spm/stratified_plume_model.err_check
    ../spm/stratified_plume_model.particle_from_Q
+   ../spm/stratified_plume_model.particle_from_mb0
    ../spm/stratified_plume_model.plot_state_space
    ../spm/stratified_plume_model.plot_all_variables
-   ../spm/simp.derivs_inner
-   ../spm/simp.derivs_outer
-   ../spm/simp.calculate
-   ../spm/simp.correct_temperature
-   ../spm/simp.bf_average
-   ../spm/simp.cp_model
-   ../spm/simp.main_ic
-   ../spm/simp.flux_ic
-   ../spm/simp.wuest_ic
-   ../spm/simp.outer_surf
-   ../spm/simp.outer_dis
-   ../spm/simp.outer_cpic
-   ../spm/simp.outer_fr
+   ../spm/smp.derivs_inner
+   ../spm/smp.derivs_outer
+   ../spm/smp.calculate
+   ../spm/smp.correct_temperature
+   ../spm/smp.cp_model
+   ../spm/smp.main_ic
+   ../spm/smp.inner_plume_ic
+   ../spm/smp.outer_surf
+   ../spm/smp.outer_dis
+   ../spm/smp.outer_cpic
+   ../spm/smp.outer_fr
 
-params.py
-=========
+bent_plume_model.py
+=========================
 
 .. toctree::
    :maxdepth: 1
 
-   params
-   ../params/params.Scales.get_variables
-   ../params/params.Scales.h_T
-   ../params/params.Scales.h_P
-   ../params/params.Scales.h_S
-   ../params/params.Scales.lambda_1
-   ../params/params.Scales.u_inf_crit
+   bpm
+   ../bpm/bent_plume_model.Model
+   ../bpm/bent_plume_model.Model.simulate
+   ../bpm/bent_plume_model.Model.save_sim
+   ../bpm/bent_plume_model.Model.save_txt
+   ../bpm/bent_plume_model.Model.load_sim
+   ../bpm/bent_plume_model.Model.plot_state_space
+   ../bpm/bent_plume_model.Model.plot_all_variables
+   ../bpm/bent_plume_model.ModelParams
+   ../bpm/bent_plume_model.Particle
+   ../bpm/bent_plume_model.Particle.track
+   ../bpm/bent_plume_model.LagElement
+   ../bpm/bent_plume_model.plot_state_space
+   ../bpm/bent_plume_model.plot_all_variables
+   ../bpm/bent_plume_model.width_projection
+   ../bpm/lmp.derivs
+   ../bpm/lmp.calculate
+   ../bpm/lmp.entrainment
+   ../bpm/lmp.local_coords
+   ../bpm/lmp.main_ic
+   ../bpm/lmp.bent_plume_ic
+   ../bpm/lmp.zfe_volume_flux
+   ../bpm/lmp.flux_to_velocity
 
 Script files in ``./bin``
 =========================
@@ -193,7 +237,7 @@ Working with Ambient Data
 
 .. toctree::
    :maxdepth: 1
-   
+
    ../scripts/ambient/profile_from_ctd
    ../scripts/ambient/profile_from_lab
    ../scripts/ambient/profile_from_txt
@@ -205,25 +249,36 @@ Using the Discrete Bubble Model
 
 .. toctree::
    :maxdepth: 1
-   
+
    ../scripts/dbm/air_eos
    ../scripts/dbm/co2_eos
    ../scripts/dbm/dead_oil
    ../scripts/dbm/gas_bubbles
    ../scripts/dbm/hydrocarbon_drops
+   ../scripts/dbm/equilibrium
 
 Using the Sintef Bubble/Droplet Size Distribution Model
 -------------------------------------------------------
 
-There are no scripts currently available for this module.  These will be 
-included in a later release.
+.. toctree::
+   :maxdepth: 1
+
+   ../scripts/sintef/particle_size_distribution
+
+Using the Params Module to Estimate Plume Scales
+------------------------------------------------
+
+.. toctree::
+   :maxdepth: 1
+   
+   ../scripts/params/scales
 
 Running the Single Particle Model
 ---------------------------------
 
 .. toctree::
    :maxdepth: 1
-   
+
    ../scripts/sbm/bubble
    ../scripts/sbm/drop
    ../scripts/sbm/particle
@@ -240,8 +295,10 @@ Running the Stratified Plume Model
    ../scripts/spm/blowout
    ../scripts/spm/spm_file_io
 
-Using the Params Module to Estimate Plume Scales
-------------------------------------------------
+Running the Bent Plume Model
+----------------------------
 
-There are no scripts currently available for this module.  These will be 
-included in a later release.
+.. toctree::
+   :maxdepth: 1
+
+   ../scripts/bpm/buoyant_jet

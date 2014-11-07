@@ -1,3 +1,41 @@
+v0.1.6, November, 2014 --
+   . Added new module bent_plume_model to simulate a single- or multiphase 
+     plume in a crossflow.  The single-phase version is based on Lee and 
+     Cheung (1990).  The multiphase version updates that model with the 
+     multiphase dynamics as implemented in the stratified_plume_model.  The
+     dispersed phase is tracked using an analytical function; particles leave
+     the plume when they move outside the plume half-width.
+   . Added new module dispersed_phases to handle all Particle objects within
+     the TAMOC modeling suite.  This moves the single_bubble_model.Particle
+     and stratified_plume_model.Particle object into the new module.  Also, 
+     moved particle-related helper functions (e.g., particle_from_Q) to the
+     new module.  This centralizes all particle dynamics to a single module.
+     The new version of the model is fully backward compatible with the 
+     original ./bin example files.  Because the unit tests directly access
+     module objects and methods that the user would not normally address, 
+     the ./test files have been updated slightly to point at the new locations
+     of the dispersed_phases objects and functions.
+   . Consolidated the save/load functions for particles into the 
+     dispersed_phases module.  The save and load methods for the 
+     single_bubble_model were poorly done.  These have been upgraded to match
+     the methods used in the stratified_plume_model.  As a result, the new
+     load_sim function is not compatible with output from the 
+     single_bubble_model from previous versions of the TAMOC suite.
+   . Added three-dimensional position to the single_bubble_model and the 
+     capability for the bubble to be transported by a three-dimensional
+     ambient current.  These changes are fully backward-compatible with the
+     ./bin examples.  The dimensions of the state space changed, and the 
+     appropriate changes had to be included in the ./test unit tests that 
+     check individual members of the state space.
+   . Renamed the numerical solutions to the stratified_plume_model and the 
+     bent_plume_model from simp.py to smp.py and from limp.py to lmp.py.
+   . Added a new module model_share.py that contains functionality shared by
+     all models and not already available in an appropriate location.  For 
+     this release, the model_share module writes the header to the netCDF 
+     output files and loads an ambient.Profile object based on information
+     read from the netCDF output file.
+   . Updated the documentation for the new model structure and included 
+     documentation of the full modeling suite.
 v0.1.5, March 12, 2014 --
    . Changed the bubble force in the inner plume object for the stratified 
      plume model with bubbles dissolve.  The original code has a weak bubble 

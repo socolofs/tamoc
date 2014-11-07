@@ -1,0 +1,221 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>lmp.calculate &mdash; Texas A&amp;M Oilspill Calculator v0.1 Manual</title>
+    
+    <link rel="stylesheet" href="../_static/scipy.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1.6',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../index.html" />
+    <link rel="up" title="Reference" href="../modules/reference.html" />
+    <link rel="next" title="lmp.entrainment" href="lmp.entrainment.html" />
+    <link rel="prev" title="lmp.derivs" href="lmp.derivs.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="lmp.entrainment.html" title="lmp.entrainment"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="lmp.derivs.html" title="lmp.derivs"
+             accesskey="P">previous</a> |</li>
+<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+
+          <li><a href="../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="lmp-calculate">
+<h1>lmp.calculate<a class="headerlink" href="#lmp-calculate" title="Permalink to this headline">¶</a></h1>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">November 07, 2014</td>
+</tr>
+</tbody>
+</table>
+<dl class="function">
+<dt id="lmp.calculate">
+<tt class="descclassname">lmp.</tt><tt class="descname">calculate</tt><big>(</big><em>t0</em>, <em>q0</em>, <em>q0_local</em>, <em>profile</em>, <em>p</em>, <em>particles</em>, <em>derivs</em>, <em>dt_max</em>, <em>sd_max</em><big>)</big><a class="reference internal" href="../_modules/lmp.html#calculate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lmp.calculate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Integrate an the Lagrangian plume solution</p>
+<p>Compute the solution tracking along the centerline of the plume until 
+the plume reaches the water surface, reaches a neutral buoyancy level 
+within the intrusion layer, or propagates a given maximum number of
+nozzle diameters downstream.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>t0</strong> : float</p>
+<blockquote>
+<div><p>Initial time (s)</p>
+</div></blockquote>
+<p><strong>q0</strong> : ndarray</p>
+<blockquote>
+<div><p>Initial values of the state space vector</p>
+</div></blockquote>
+<p><strong>q0_local</strong> : <a class="reference internal" href="../modules/bpm.html#bent_plume_model.LagElement" title="bent_plume_model.LagElement"><tt class="xref py py-obj docutils literal"><span class="pre">bent_plume_model.LagElement</span></tt></a></p>
+<blockquote>
+<div><p>Object containing the numerical solution at the initial condition</p>
+</div></blockquote>
+<p><strong>profile</strong> : <a class="reference internal" href="../modules/ambient.html#ambient.Profile" title="ambient.Profile"><tt class="xref py py-obj docutils literal"><span class="pre">ambient.Profile</span></tt></a> object</p>
+<blockquote>
+<div><p>The ambient CTD object used by the simulation.</p>
+</div></blockquote>
+<p><strong>p</strong> : <em class="xref py py-obj">ModelParams</em> object</p>
+<blockquote>
+<div><p>Object containing the fixed model parameters for the bent
+plume model.</p>
+</div></blockquote>
+<p><strong>particles</strong> : list of <em class="xref py py-obj">Particle</em> objects</p>
+<blockquote>
+<div><p>List of <a class="reference internal" href="../modules/bpm.html#bent_plume_model.Particle" title="bent_plume_model.Particle"><tt class="xref py py-obj docutils literal"><span class="pre">bent_plume_model.Particle</span></tt></a> objects containing the dispersed 
+phase local conditions and behavior.</p>
+</div></blockquote>
+<p><strong>derivs</strong> : function handle</p>
+<blockquote>
+<div><p>Pointer to the function where the derivatives of the ODE system are
+stored.  Should be <a class="reference internal" href="lmp.derivs.html#lmp.derivs" title="lmp.derivs"><tt class="xref py py-obj docutils literal"><span class="pre">lmp.derivs</span></tt></a>.</p>
+</div></blockquote>
+<p><strong>dt_max</strong> : float</p>
+<blockquote>
+<div><p>Maximum step size to use in the simulation (s).  The ODE solver 
+in <a class="reference internal" href="#lmp.calculate" title="lmp.calculate"><tt class="xref py py-obj docutils literal"><span class="pre">calculate</span></tt></a> is set up with adaptive step size integration, so 
+this value determines the largest step size in the output data, but 
+not the numerical stability of the calculation.</p>
+</div></blockquote>
+<p><strong>sd_max</strong> : float</p>
+<blockquote>
+<div><p>Maximum number of nozzle diameters to compute along the plume 
+centerline (s/D)_max.  This is the only stop criteria that is user-
+selectable.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>t</strong> : ndarray</p>
+<blockquote>
+<div><p>Vector of times when the plume solution is obtained (s).</p>
+</div></blockquote>
+<p><strong>y</strong> : ndarray</p>
+<blockquote>
+<div><p>Matrix of the plume state space solutions.  Each row corresponds to
+a time in <em class="xref py py-obj">t</em>.</p>
+</div></blockquote>
+<p><strong>sp</strong> : ndarray</p>
+<blockquote class="last">
+<div><p>Matrix of the positions of all the particles in <em class="xref py py-obj">particles</em>.  Each
+row corresponds to a time in <em class="xref py py-obj">t</em>.  Each particle has three columns
+in <em class="xref py py-obj">sp</em>, one each for (x, y, z) position.  When the particle reaches
+the edge of the plume, it is no longer tracked; hence, its position
+remains constant for the remainder of the plume integration.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition-see-also admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="lmp.derivs.html#lmp.derivs" title="lmp.derivs"><tt class="xref py py-obj docutils literal"><span class="pre">derivs</span></tt></a>, <tt class="xref py py-obj docutils literal"><span class="pre">bent_plume_mode.Model</span></tt></p>
+</div>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../contents.html">
+              <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
+            </a></p>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="lmp.derivs.html"
+                        title="previous chapter">lmp.derivs</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="lmp.entrainment.html"
+                        title="next chapter">lmp.entrainment</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/bpm/lmp.calculate.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<ul class="this-page-menu">
+  <li><a href="/numpy/docs/numpy-docs/bpm/lmp.calculate.rst">Edit page</a></li>
+</ul>
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="lmp.entrainment.html" title="lmp.entrainment"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="lmp.derivs.html" title="lmp.derivs"
+             >previous</a> |</li>
+<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+
+          <li><a href="../modules/reference.html" >Reference</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Scott A. Socolofsky.
+      Last updated on Nov 07, 2014.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

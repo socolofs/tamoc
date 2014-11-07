@@ -10,7 +10,8 @@ effects of crossflows are negligible. The ambient water properties are
 provided through an `ambient.Profile` class object, which contains a
 netCDF4-classic dataset of CTD data and the needed interpolation methods. The
 `dbm` class objects `dbm.FluidParticle` and `dbm.InsolubleParticle` report the
-properties of the dispersed phase during the simulation.
+properties of the dispersed phase during the simulation, and these methods 
+are provided to the model through the objects defined in `dispersed_phases`.  
 
 Notes 
 ----- 
@@ -24,19 +25,21 @@ Detrainment to for subsurface intrusions follows the approach in Crounse
 See Also
 --------
 `single_bubble_model` : Tracks the trajectory of a single bubble, drop or 
-    particle through the water column.  The numerical solution, including
-    the various object types and their functionality, used here follows the
+    particle through the water column.  The numerical solution used here, 
+    including the various object types and their functionality, follows the
     pattern in the `single_bubble_model`.  The main difference is the more
     complex state space and governing equations.
 
 """
-# S. Socolofsky, August 2013, Texas A&M University <socolofs@tamu.edu>.
+# S. Socolofsky, November 2014, Texas A&M University <socolofs@tamu.edu>.
 
-from tamoc import dbm
-from tamoc import ambient
+from tamoc import model_share
 from tamoc import seawater
+from tamoc import ambient
+from tamoc import dbm
+from tamoc import dispersed_phases
 from tamoc import single_bubble_model
-from tamoc import simp
+from tamoc import smp
 
 from netCDF4 import Dataset
 from datetime import datetime
@@ -70,33 +73,53 @@ class Model(object):
     ----------
     profile : `ambient.Profile`
         Ambient CTD data
+    got_profile : bool
+        Flag indicating whether or not the profile object was successfully
+        loaded into the `Model` object memory.\
     p : `ModelParams`
         Container for the fixed model parameters
     sim_stored : bool
         Flag indicating whether or not a simulation result is stored in the 
         object memory
     particles : list 
-        List of `Particle` objects describing each dispersed phase in the 
-        simulation
-    np : int
-        Number of dispersed phase `Particle` objects
-    z : float
-        Release depth (m)
+        List of `dispersed_phases.PlumeParticle` objects describing each 
+        dispersed phase in the simulation
+    K_T0 : ndarray
+        Array of the initial values of K_T for each of the dispersed phase
+        particles.  Since this solution is iterative, heat transfer needs
+        to be re-initialized at the start of each iteration, and thus, it is
+        not sufficient to rely on the value of K_T stored inside the 
+        `particles` list.
     R : float
         Radius of the release point (m)
+    maxit : float
+        Maximum number of iterations allowed in the interative solution
+    toler : float
+        Relative error sufficient to consider the iterative solution to have
+        converged
     delta_z : float
         Maximum step size to take in the storage of the simulation solution
         (m)
-    z0 : float
-        Depth location of the starting point of the plume solution (m)
-    y0 : ndarray
-        Initial values of the inner plume state space 
     chem_names : list
         List of chemical parameters to track for the dissolution
-    
+    zi : ndarray
+        Array of depths for the inner plume solution (m)
+    yi : ndarray
+        Array of state space values computed for the inner plume solution
+    zo : ndarray
+        Array of depths for the outer plume solution (m)
+    yo : ndarray
+        Array of state space values computed for the outer plume solution
+    yi_local : `InnerPlume` object
+        Object that translates the `yi` state space into the comprehensive 
+        list of derived variables.
+    yo_local : `OuterPlume` object
+        Object that translates the `yo` state space into the comprehensive 
+        list of derived variables.
+   
     See Also
     --------
-    simulate, save_sim, load_sim
+    simulate, save_sim, load_sim, plot_state_space, plot_all_variables
     
     """
     def __init__(self, profile=None, simfile=None):
@@ -129,9 +152,9 @@ class Model(object):
         
         Parameters
         ----------
-        particles : list of `Particle` objects
-            List of `Particle` objects containing the dispersed phase initial
-            conditions
+        particles : list of `dispersed_phases.PlumeParticle` objects
+            List of `dispersed_phases.PlumeParticle` objects containing the 
+            dispersed phase initial conditions
         z : float
             Depth of the release port (m)
         R : float
@@ -163,7 +186,7 @@ class Model(object):
         self.delta_z = delta_z
         
         # Get the initial conditions for the simulation run
-        z0, y0, self.chem_names = simp.main_ic(self.profile, self.particles,  
+        z0, y0, self.chem_names = smp.main_ic(self.profile, self.particles,  
                                               self.p, z, self.R)
         
         # Store the initial conditions in the inner plume object
@@ -184,6 +207,7 @@ class Model(object):
                    np.zeros((2, 4 + self.yo_local.nchems)).transpose())
         
         print '\n-- TEXAS A&M OIL-SPILL CALCULATOR (TAMOC) --\n'
+        print '-- Stratified Plume Model                 --\n'
         while iter < self.maxit and np.abs(ea) > self.toler:
             
             # Store old solutions to check for convergence
@@ -240,14 +264,14 @@ class Model(object):
         fname : str
             File name of the file to write
         profile_path : str
-            String stating the file path relative to the directory where
-            the output will be saved to the ambient profile data.  
+            String stating the file path to the ambient profile data relative 
+            to the directory where `fname` will be saved.  
         profile_info : str
-            Text describing the ambient profile data.
+            Single line of text describing the ambient profile data.
         
         See Also
         --------
-        single_bubble_model.Model.save_sim
+        dispersed_phases.save_particle_to_nc_file
         
         Notes
         -----
@@ -260,10 +284,6 @@ class Model(object):
         `profile_info` variable provides additional descriptive information 
         so that the ambient data can be identified if they have been moved.
         
-        This method performs the same function as the 
-        `single_bubble_model.Model.save_sim` method, but with slightly different 
-        variables and variable dimensions.  
-        
         """
         if self.sim_stored is False:
             print 'No simulation results to store...'
@@ -271,33 +291,19 @@ class Model(object):
             return
         
         # Create the netCDF dataset object
-        nc = Dataset(fname, 'w', format='NETCDF4_CLASSIC')
-        
-        # Set the global attributes
-        nc.Conventions = 'TAMOC Stratified Plume Model'
-        nc.Metadata_Conventions = 'TAMOC Python Module'
-        nc.featureType = 'profile'
-        nc.cdm_data_type = 'Profile'
-        nc.nodc_template_version = 'NODC_NetCDF_Profile_Orthogonal_Template_v1.0'
-        nc.title = 'Simulation results for the TAMOC Stratified Plume Model'
-        nc.summary = profile_path
-        nc.source = profile_info
-        nc.date_created = datetime.today().isoformat(' ')
-        nc.date_modified = datetime.today().isoformat(' ')
-        nc.history = 'Creation'
-        nc.composition = ' '.join(self.chem_names)
+        title = 'Simulation results for the TAMOC Stratified Plume Model'
+        nc = model_share.tamoc_nc_file(fname, title, profile_path, profile_info)
         
         # Create variables for the dimensions
         z = nc.createDimension('z', None)
         p = nc.createDimension('profile', 2)
         nsi = nc.createDimension('nsi', len(self.yi_local.y0))
         nso = nc.createDimension('nso', len(self.yo_local.y0))
-        if len(self.chem_names) > 0:
-            nchems = nc.createDimension('nchems', len(self.chem_names))
-        else:
-            nchems = nc.createDimension('nchems', 1)
-        nparticles = nc.createDimension('nparticles', len(self.particles))
         params = nc.createDimension('params', 1)
+        
+        # Create variables for the dispersed_phases.PlumeParticle objects
+        dispersed_phases.save_particle_to_nc_file(nc, self.chem_names, 
+            self.particles, self.K_T0)
         
         # Create the independent variables (depth for inner and outer plumes)
         z = nc.createVariable('z', 'f8', ('z', 'profile',))
@@ -328,167 +334,39 @@ class Model(object):
         for i in range(len(nc.dimensions['nso'])):
             yo[0:len(self.zo),i] = self.yo[:,i]
         
-        # Create variables for the Particle objects
-        issoluble = nc.createVariable('issoluble', 'i4', ('nparticles',))
-        issoluble.long_name = 'solubility (0: false, 1: true)'
-        issoluble.standard_name = 'issoluble'
-        issoluble.units = 'boolean'
-        
-        isfluid = nc.createVariable('isfluid', 'i4', ('nparticles',))
-        isfluid.long_name = 'Fluid status (0: false, 1: true)'
-        isfluid.standard_name = 'isfluid'
-        isfluid.units = 'boolean'
-        
-        iscompressible = nc.createVariable('iscompressible', 'i4', 
-                                           ('nparticles',))
-        iscompressible.long_name = 'Compressibility (0: false, 1: true)'
-        iscompressible.standard_name = 'iscompressible'
-        iscompressible.units = 'boolean'
-        
-        fp_type = nc.createVariable('fp_type', 'i4', ('nparticles',))
-        fp_type.long_name = 'fluid phase (0: gas, 1: liquid, 2: solid)'
-        fp_type.standard_name = 'fp_type'
-        fp_type.units = 'nondimensional'
-        
-        rho_p = nc.createVariable('rho_p', 'f8', ('nparticles',))
-        rho_p.long_name = 'particle density'
-        rho_p.standard_name = 'rho_p'
-        rho_p.units = 'kg/m^3'
-        
-        gamma = nc.createVariable('gamma', 'f8', ('nparticles',))
-        gamma.long_name = 'API Gravity'
-        gamma.standard_name = 'gamma'
-        gamma.units = 'deg API'
-        
-        beta = nc.createVariable('beta', 'f8', ('nparticles',))
-        beta.long_name = 'thermal expansion coefficient'
-        beta.standard_name = 'beta'
-        beta.units = 'Pa^(-1)'
-        
-        co = nc.createVariable('co', 'f8', ('nparticles',))
-        co.long_name = 'isothermal compressibility coefficient'
-        co.standard_name = 'co'
-        co.units = 'K^(-1)'
-        
-        z0 = nc.createVariable('z0', 'f8', ('nparticles'))
-        z0.long_name = 'release depth'
-        z0.standard_name = 'z0'
-        z0.units = 'm'
-        
-        m0 = nc.createVariable('m0', 'f8', ('nparticles', 'nchems'))
-        m0.long_name = 'initial mass flux'
-        m0.standard_name = 'm0'
-        m0.units = 'kg/s'
-        
-        T0 = nc.createVariable('T0', 'f8', ('nparticles'))
-        T0.long_name = 'initial temperature'
-        T0.standard_name = 'T0'
-        T0.units = 'K'
-        
-        nb0 = nc.createVariable('nb0', 'f8', ('nparticles'))
-        nb0.long_name = 'initial bubble number flux'
-        nb0.standard_name = 'nb0'
-        nb0.units = 's^(-1)'
-        
-        lambda_1 = nc.createVariable('lambda_1', 'f8', ('nparticles'))
-        lambda_1.long_name = 'bubble spreading ratio'
-        lambda_1.standard_name = 'lambda_1'
-        lambda_1.units = 'nondimensional'
-        
-        K = nc.createVariable('K', 'f8', ('nparticles',))
-        K.long_name = 'mass transfer reduction factor'
-        K.standard_name = 'K'
-        K.units = 'nondimensional'
-        
-        K_T = nc.createVariable('K_T', 'f8', ('nparticles',))
-        K_T.long_name = 'heat transfer reduction factor'
-        K_T.standard_name = 'K_T'
-        K_T.units = 'nondimensional'
-        
-        fdis = nc.createVariable('fdis', 'f8', ('nparticles',))
-        fdis.long_name = 'dissolution criteria'
-        fdis.standard_name = 'fdis'
-        fdis.units = 'nondimensional'
-        
-        for i in range(len(self.particles)):
-            
-            # Store the variables needed to create dbm particle objects
-            if self.particles[i].particle.issoluble:
-                issoluble[i] = 1
-                isfluid[i] = 1
-                iscompressible[i] = 1
-                fp_type[i] = self.particles[i].particle.fp_type
-                m0[i,:] = self.particles[i].m0
-                rho_p[i] = -1.
-                gamma[i] = -1.
-                beta[i] = -1.
-                co[i] = -1.
-            else:
-                issoluble[i] = 0
-                if self.particles[i].particle.isfluid:
-                    isfluid[i] = 1
-                else:
-                    isfluid[i] = 0
-                if self.particles[i].particle.iscompressible:
-                    iscompressible[i] = 1
-                else:
-                    iscompressible[i] = 0
-                fp_type[i] = 3
-                m0[i,0] = self.particles[i].m0
-                rho_p[i] = self.particles[i].particle.rho_p
-                gamma[i] = self.particles[i].particle.gamma
-                beta[i] = self.particles[i].particle.beta
-                co[i] = self.particles[i].particle.co
-            
-            # Store the variables needed to create Particle objects
-            z0[i] = np.max(self.zi)
-            T0[i] = self.particles[i].T0
-            nb0[i] = self.particles[i].nb0
-            lambda_1[i] = self.particles[i].lambda_1
-            K[i] = self.particles[i].K
-            K_T[i] = self.K_T0[i]
-            fdis[i] = self.particles[i].fdis
-        
         # Store the remaining variables needed to define this simulation
         R = nc.createVariable('R', 'f8', ('params',))
         R.long_name = 'radius of the release point'
         R.standard_name = 'R'
         R.units = 'm'
         R[0] = self.R
-        
         Ta_p, Sa_p, P_p = self.profile.get_values(np.max(self.zi), 
                           ['temperature', 'salinity', 'pressure'])
-        
         Ta = nc.createVariable('Ta', 'f8', ('params',))
         Ta.long_name = 'ambient temperature at the release point'
         Ta.standard_name = 'Ta'
         Ta.units = 'K'
         Ta[0] = Ta_p
-        
         Sa = nc.createVariable('Sa', 'f8', ('params',))
         Sa.long_name = 'ambient salinity at the release point'
         Sa.standard_name = 'Sa'
         Sa.units = 'psu'
         Sa[0] = Sa_p
-        
         P = nc.createVariable('P', 'f8', ('params',))
         P.long_name = 'ambient pressure at the release point'
         P.standard_name = 'P'
         P.units = 'Pa'
         P[0] = P_p
-        
         maxit = nc.createVariable('maxit', 'f8', ('params',))
         maxit.long_name = 'maximum allowable number of iterations'
         maxit.standard_name = 'maxit'
         maxit.units = 'nondimensional'
         maxit[0] = self.maxit
-        
         toler = nc.createVariable('toler', 'f8', ('params',))
         toler.long_name = 'relative error tolerance for convergence'
         toler.standard_name = 'toler'
         toler.units = 'nondimensional'
         toler[0] = self.toler
-        
         delta_z = nc.createVariable('delta_z', 'f8', ('params',))
         delta_z.long_name = 'maximum step size in output'
         delta_z.standard_name = 'delta_z'
@@ -512,19 +390,19 @@ class Model(object):
         
         Parameters
         ----------
-        fname : str
+        base_name : str
             Base file name for the output file.  This method appends 'inner'
             and 'outer' to the inner and outer solutions upstream of the 
             dot-extension.
         profile_path : str
-            String stating the file path relative to the directory where
-            the output will be saved to the ambient profile data.  
+            String stating the file path to the ambient profile data relative 
+            to the directory where `fname` will be saved.  
         profile_info : str
-            Text describing the ambient profile data.
+            Single line of text describing the ambient profile data.
         
         See Also
         --------
-        single_bubble_model.Model.save_txt
+        bent_plume_model.Model.save_txt, single_bubble_model.Model.save_txt
         
         Notes
         -----
@@ -542,7 +420,7 @@ class Model(object):
         """
         if self.sim_stored is False:
             print 'No simulation results to store...'
-            print 'Saved nothing to netCDF file.\n'
+            print 'Saved nothing to text file.\n'
             return
         
         # Create the header string that contains the column descriptions
@@ -625,7 +503,7 @@ class Model(object):
         
         See Also
         --------
-        single_bubble_model.Model.load_sim
+        save_sim
         
         Notes
         -----
@@ -635,64 +513,25 @@ class Model(object):
         steps of loading the `Model` object attributes will be performed.
         
         This method performs the same function as the 
-        `single_bubble_model.Model.load_sim` method, but with slightly different 
-        variables and variable dimensions.  
+        `single_bubble_model.Model.load_sim` method, but with slightly 
+        different variables and variable dimensions.  
         
         """
         # Open the netCDF dataset object containing the simulation results
         nc = Dataset(fname)
         
-        # Try to open the profile data
-        try:
-            nc_path = os.path.normpath(os.path.join(os.getcwd(), \
-                                       os.path.dirname(fname)))
-            prf_path = os.path.normpath(os.path.join(nc_path, nc.summary))
-            amb_data = Dataset(prf_path)
-            self.profile = ambient.Profile(amb_data, chem_names='all')
-            self.profile.close_nc()
+        # Try to get the profile data
+        self.profile = model_share.profile_from_model_savefile(nc, fname)
+        if self.profile is not None:
             self.p = ModelParams(self.profile)
             self.got_profile = True
-        except RuntimeError:
-            message = ['File not found: %s' % prf_path]
-            message.append(' ... Continuing without profile data')
-            warn(''.join(message))
+        else:
+            self.p = None
             self.got_profile = False
         
-        # Create the Particle objects
-        self.chem_names = nc.composition.split()
-        self.particles = []
-        for i in range(len(nc.dimensions['nparticles'])):
-            
-            # Create the dbm object
-            if nc.variables['issoluble'][i] == 1:
-                particle = dbm.FluidParticle(self.chem_names, 
-                    fp_type=nc.variables['fp_type'][i])
-                m0 = nc.variables['m0'][i,:]
-            else:
-                if nc.variables['isfluid'][i] == 1:
-                    isfluid = True
-                else:
-                    isfluid = False
-                if nc.variables['iscompressible'][i] == 1:
-                    iscompressible = True
-                else:
-                    iscompressible = False
-                particle = dbm.InsolubleParticle(isfluid, iscompressible, 
-                    rho_p=nc.variables['rho_p'][i], 
-                    gamma=nc.variables['gamma'][i], 
-                    beta=nc.variables['beta'][i], 
-                    co=nc.variables['co'][i])
-                m0 = nc.variables['m0'][i,0]
-            
-            # Create the Particle object
-            particle  = Particle(particle, m0, nc.variables['T0'][i], 
-                nc.variables['nb0'][i], nc.variables['lambda_1'][i], 
-                nc.variables['P'][0], nc.variables['Sa'][0], 
-                nc.variables['Ta'][0], nc.variables['K'][i], 
-                nc.variables['K_T'][i], nc.variables['fdis'][i])
-            
-            # Add this particle to the particles list
-            self.particles.append(particle)
+        # Create the dispersed_phases.PlumeParticle objects
+        self.particles, self.chem_names = \
+            dispersed_phases.load_particle_from_nc_file(nc, 1)
         
         # Create the remaining model attributes
         nzi = nc.variables['z'].n_inner
@@ -739,11 +578,11 @@ class Model(object):
         
         See Also
         --------
-        plot_state_space
+        plot_all_variables
         
         """
         if self.sim_stored is False:
-            print 'No simulation results to plot...'
+            print 'No simulation results available to plot...'
             print 'Plotting nothing.\n'
             return
         
@@ -756,13 +595,24 @@ class Model(object):
     
     def plot_all_variables(self, fig):
         """
-        Here is some text for the manual.
+        Plot a comprehensive suite of simulation results
         
-        Here is the rest of the text.
+        Generate a comprehensive suite of graphs showing the state and 
+        derived variables along with ambient profile data in order to 
+        view the model output for detailed analysis.
+        
+        Parameters
+        ----------
+        fig : int
+            Number of the figure window in which to draw the plot
+        
+        See Also
+        --------
+        plot_state_space
         
         """
         if self.sim_stored is False:
-            print 'No simulation results to plot...'
+            print 'No simulation results available to plot...'
             print 'Plotting nothing.\n'
             return
         
@@ -851,155 +701,7 @@ class ModelParams(single_bubble_model.ModelParams):
         self.Fro_0 = 0.1
         self.nwidths = 1
         self.naverage = 1
-        self.g = 9.81
-        self.Ru = 8.314510        
-    
 
-class Particle(single_bubble_model.Particle):
-    """
-    Interface to the `dbm` module and container for the model parameters
-    
-    As in the `single_bubble_model.Particle` class, this object provides a
-    uniform interface to the `dbm` module objects and captures the 
-    particle-specific model parameters.
-    
-    Parameters
-    ----------
-    dbm_particle : `dbm.FluidParticle` or `dbm.InsolubleParticle` object
-        Object describing the particle properties and behavior
-    m0 : ndarray
-        Initial masses of the components of the `dbm` particle object (kg)
-    T0 : float
-        Initial temperature of the of `dbm` particle object (K)
-    nb0 : float
-        Initial number flux of particles at the release (--)
-    K : float, default = 1.
-        Mass transfer reduction factor (--).
-    K_T : float, default = 1.
-        Heat transfer reduction factor (--).
-    fdis : float, default = 0.01
-        Fraction of the initial total mass (--) remaining when the particle 
-        should be considered dissolved.
-    lambda_1 : float 
-        spreading rate of the dispersed phase in a plume (--)
-    P : float
-        Local pressure (Pa)
-    Sa : float
-        Local salinity surrounding the particle (psu)
-    Ta : float
-        Local temperature surrounding the particle (K)
-    
-    Attributes
-    ----------
-    particle : `dbm.FluidParticle` or `dbm.InsolubleParticle` object
-        Stores the `dbm_particle` object passed to `__init__()`.
-    composition : str list
-        Copy of the `composition` attribute of the `dbm_particle` object.
-    m0 : ndarray
-        Initial masses (kg) of the particle components
-    T0 : float
-        Initial temperature (K) of the particle
-    cp : float
-        Heat capacity at constant pressure (J/(kg K)) of the particle.
-    K : float
-        Mass transfer reduction factor (--)
-    K_T : float
-        Heat transfer reduction factor (--)
-    fdis : float
-        Fraction of initial mass remaining as total dissolution (--)
-    diss_indices : ndarray bool
-        Indices of m0 that are non-zero.
-    nb0 : float
-        Initial number flux of particles at the release (--)
-    lambda_1 : float 
-        Spreading rate of the dispersed phase in a plume (--)
-    m : ndarray
-        Current masses of the particle components (kg)
-    T : float
-        Current temperature of the particle (K)
-    us : float
-        Slip velocity (m/s)
-    rho_p : float
-        Particle density (kg/m^3)
-    A : float
-        Particle surface area (m^2)
-    Cs : ndarray
-        Solubility of each dissolving component in the particle (kg/m^3)
-    beta : ndarray
-        Mass transfer coefficients (m/s)
-    beta_T : float
-        Heat transfer coefficient (m/s)
-    
-    See Also
-    --------
-    single_bubble_model.Particle
-    
-    Notes
-    -----
-    This object inherits the `single_bubble_model.Particle` object, which
-    defines the attributes: `particle`, `composition`, `m0`, `T0`, `cp`, 
-    `K`, `K_T`, `fdis`, and `diss_indices` and the methods
-    `single_bubble_model.Particle.properties`, and 
-    `single_bubble_model.Particle.diameter`.
-    
-    """
-    def __init__(self, dbm_particle, m0, T0, nb0, lambda_1, P, Sa, Ta, 
-                 K=1., K_T=1., fdis=1.e-6):
-        super(Particle, self).__init__(dbm_particle, m0, T0, K, K_T, fdis)
-        
-        # Store the input variables related to the particle description
-        self.nb0 = nb0
-        
-        # Store the model parameters
-        self.lambda_1 = lambda_1
-        
-        # Set the local masses and temperature to their initial values
-        self.update(m0, T0, P, Sa, Ta)
-    
-    def update(self, m, T, P, Sa, Ta):
-        """
-        Store the instantaneous values of the particle properties
-        
-        During the simulation, it is often helpful to keep the state space
-        variables for each particle stored within the particle, especially
-        since each particle type (soluble or insoluble) can have different
-        sizes of arrays for m.
-        
-        Parameters
-        ----------
-        m : ndarray
-            Current masses (kg) of the particle components
-        T : float
-            Current temperature (K) of the particle
-        P : float
-            Local pressure (Pa)
-        Sa : float
-            Local salinity surrounding the particle (psu)
-        Ta : float
-            Local temperature surrounding the particle (K)       
-        
-        """
-        # Make sure the masses are in a numpy array
-        if not isinstance(m, np.ndarray):
-            if not isinstance(m, list):
-                m = np.array([m])
-            else:
-                m = np.array(m)
-        
-        # Update the variables with their currrent values
-        self.m = m
-        if np.sum(self.m) > 0.:
-            self.us,  self.rho_p,  self.A, self.Cs, self.beta, \
-                self.beta_T, self.T = self.properties(m, T, P, Sa, Ta)
-        else:
-            self.us = 0.
-            self.rho_p = seawater.density(Ta, Sa, P)
-            self.A = 0.
-            self.Cs = np.zeros(len(self.composition))
-            self.beta = np.zeros(len(self.composition))
-            self.beta_T = 0.
-            self.T = Ta
-        
 
 class InnerPlume(object):
     """
@@ -1016,9 +718,9 @@ class InnerPlume(object):
         Initial conditions for the inner plume.
     profile : `ambient.Profile` object
         The ambient CTD object used by the simulation.
-    particles : list of `Particle` objects
-        List of `Particle` objects containing the dispersed phase local
-        conditions and behavior.
+    particles : list of `dispersed_phases.PlumeParticle` objects
+        List of `dispersed_phases.PlumeParticle` objects containing the 
+        dispersed phase local conditions and behavior.
     p : `ModelParams` object
         Object containing the fixed model parameters for the stratified 
         plume model.
@@ -1120,20 +822,14 @@ class InnerPlume(object):
             Local depth (m)
         y : ndarray
             Local values of the inner plume state space
-        particles : list of `Particle` objects
-            List of `Particle` objects containing the dispersed phase local
-            conditions and behavior.
+        particles : list of `dispersed_phases.PlumeParticle` objects
+            List of `dispersed_phaes.PlumeParticle` objects containing the 
+            dispersed phase local conditions and behavior.
         profile : `ambient.Profile` object
             The ambient CTD object used by the simulation.
         p : `ModelParams` object
             Object containing the fixed model parameters for the stratified 
             plume model.
-        
-        Notes
-        -----
-        This method writes the `InnerPlume` object attributes `z`, `y`, `Q`, 
-        `J`, `S`, `H`, `M_p`, `H_p`, `C`, `Ta`, `Sa`, `P`, `rho_a`, `ca`, 
-        `u`, `b`, `s`, `T`, `c`, `rho`, `xi`, `fb`, `Xi`, `Fb`, and `Ep`.
         
         """
         # Save the current state space 
@@ -1205,7 +901,7 @@ class InnerPlume(object):
             self.Fb = np.sum(self.fb)
             
             # Get the peeling flux
-            self.Ep = simp.cp_model(p.epsilon, particles, self.rho_a, 
+            self.Ep = smp.cp_model(p.epsilon, particles, self.rho_a, 
                                     self.rho, p.g, p.rho_r, self.b, self.u)
         else:
             # There is no inner plume or the momentum is reversing
@@ -1397,9 +1093,9 @@ def inner_main(yi, yo, particles, profile, p, neighbor, delta_z):
     yo : `OuterPlume` object
         Object containing the outer plume state space and methods to extract
         the state space variables
-    particles : list of `Particle` objects
-        List of `Particle` objects containing the dispersed phase local
-        conditions and behavior.
+    particles : list of `dispersed_phases.PlumeParticle` objects
+        List of `dispersed_phases.PlumeParticle` objects containing the 
+        dispersed phase local conditions and behavior.
     profile : `ambient.Profile` object
         The ambient CTD object used by the simulation.
     p : `ModelParams` object
@@ -1440,8 +1136,8 @@ def inner_main(yi, yo, particles, profile, p, neighbor, delta_z):
     yo.update(yo.z0, yo.y0, profile, p, yi.b)
     
     # Integrate up the inner plume using the double plume integral model
-    z, y = simp.calculate(yi, yo, particles, profile, p, neighbor, 
-                          simp.derivs_inner, yi.z, yi.y, 0., -1., delta_z)
+    z, y = smp.calculate(yi, yo, particles, profile, p, neighbor, 
+                          smp.derivs_inner, yi.z, yi.y, 0., -1., delta_z)
     
     print '  Done with inner plume calculations...'
     
@@ -1466,9 +1162,9 @@ def outer_main(yi, yo, particles, profile, p, neighbor, delta_z):
     yo : `OuterPlume` object
         Object containing the outer plume state space and methods to extract
         the state space variables.
-    particles : list of `Particle` objects
-        List of `Particle` objects containing the dispersed phase local
-        conditions and behavior.
+    particles : list of `dispersed_phases.PlumeParticle` objects
+        List of `dispersed_phases.PlumeParticle` objects containing the 
+        dispersed phase local conditions and behavior.
     profile : `ambient.Profile` object
         The ambient CTD object used by the simulation.
     p : `ModelParams` object
@@ -1512,7 +1208,7 @@ def outer_main(yi, yo, particles, profile, p, neighbor, delta_z):
     the outer plume is said to be "not viable," and the algorithm attemps to
     do this again with the next `nwidths` of detrained water.  Once the 
     outer plume segment becomes viable, those initial conditions are passed
-    to the `simp.calculate` function, and the outer plume is integrated to
+    to the `smp.calculate` function, and the outer plume is integrated to
     neutral buoyancy.  This succession of steps repeats until the bottom of
     the inner plume is reached.
     
@@ -1529,11 +1225,11 @@ def outer_main(yi, yo, particles, profile, p, neighbor, delta_z):
     if yi.z <= 0.:
         # The inner plume hit the free surface
         yi.update(0., neighbor(0.), particles, profile, p)
-        z0, y0 = simp.outer_surf(yi, p)
+        z0, y0 = smp.outer_surf(yi, p)
     else:
         # The inner plume stopped because it fully dissolved
         z_0 = yi.z
-        z0, y0 = simp.outer_dis(yi, particles, profile, p, neighbor, z_0)
+        z0, y0 = smp.outer_dis(yi, particles, profile, p, neighbor, z_0)
     
     # Initialize the outer plume object with these initial conditions
     yi.update(z0, neighbor(z0), particles, profile, p)
@@ -1541,8 +1237,8 @@ def outer_main(yi, yo, particles, profile, p, neighbor, delta_z):
     
     # Integrate down the first outer plume segment
     print '\n    Top outer plume...'       
-    z, y = simp.calculate(yi, yo, particles, profile, p, neighbor,
-                          simp.derivs_outer, yo.z, yo.y, profile.z_max, 1., 
+    z, y = smp.calculate(yi, yo, particles, profile, p, neighbor,
+                          smp.derivs_outer, yo.z, yo.y, profile.z_max, 1., 
                           delta_z)
     
     # Start building the complete solution for the outer plume
@@ -1560,7 +1256,7 @@ def outer_main(yi, yo, particles, profile, p, neighbor, delta_z):
     while z_depth < z_source:
         
         # Get the initial conditions for the next outer plume segment
-        z0, y0, flag = simp.outer_cpic(yi, yo, particles, profile, p, 
+        z0, y0, flag = smp.outer_cpic(yi, yo, particles, profile, p, 
                                        neighbor, z_depth)
         
         # Integrate the outer plume if it is viable
@@ -1574,8 +1270,8 @@ def outer_main(yi, yo, particles, profile, p, neighbor, delta_z):
             yo.update(z0, y0, profile, p, yi.b)
             
             # Integrate down the this outer plume segment
-            z, y = simp.calculate(yi, yo, particles, profile, p, neighbor,
-                                  simp.derivs_outer, yo.z, yo.y, 
+            z, y = smp.calculate(yi, yo, particles, profile, p, neighbor,
+                                  smp.derivs_outer, yo.z, yo.y, 
                                   profile.z_max, 1., delta_z)
         
         else:
@@ -1632,9 +1328,9 @@ def err_check(zi, yi, zo, yo, zi_old, yi_old, zo_old, yo_old, yi_local,
     yo_local : `OuterPlume` object
         Object containing the outer plume state space and methods to extract
         the state space variables
-    particles : list of `Particle` objects
-        List of `Particle` objects containing the dispersed phase local
-        conditions and behavior.
+    particles : list of `dispersed_phases.PlumeParticle` objects
+        List of `dispersed_phases.PlumeParticle` objects containing the 
+        dispersed phase local conditions and behavior.
     profile : `ambient.Profile` object
         The ambient CTD object used by the simulation.
     p : `ModelParams` object
@@ -1671,7 +1367,7 @@ def err_check(zi, yi, zo, yo, zi_old, yi_old, zo_old, yo_old, yi_local,
     ea.append(Qtop_ea)
     
     # TODO (S. Socolofsky, August 4, 2013): Build in the capability to find
-    # and counter intrusion layers.  
+    # and count intrusion layers.  
     ea = np.array(ea)
     
     return np.max(ea)
@@ -1681,12 +1377,12 @@ def err_check(zi, yi, zo, yo, zi_old, yi_old, zo_old, yo_old, yi_local,
 # ----------------------------------------------------------------------------
 
 def particle_from_Q(profile, z0, dbm_particle, yk, Q_N, de, lambda_1, T0=None, 
-                    K=1., K_T=1., fdis=1.e-6):
+                    x0=0., y0=0., K=1., K_T=1., fdis=1.e-6):
     """
-    Create a `Particle` object from the volume flux of the dispersed phase
+    Create a `dispersed_phases.PlumeParticle` object from volume flux
     
-    Returns a `Particle` object given the particle attributes and the initial
-    total volume flux at standard conditions.  
+    Returns a `dispered_phases.PlumeParticle` object given the particle 
+    attributes and the initial total volume flux at standard conditions.  
     
     Parameters
     ----------
@@ -1720,57 +1416,27 @@ def particle_from_Q(profile, z0, dbm_particle, yk, Q_N, de, lambda_1, T0=None,
     
     Returns
     -------
-    particle : Particle object
-        A `Particle` object containing the initial conditions for the given
-        particle in the simulation
+    particle : dispersed_phases.PlumeParticle object
+        A `dispersed_phases.PlumeParticle` object containing the initial 
+        conditions for the given particle in the simulation
     
     """
-    # Make sure yk is an array
-    if not isinstance(yk, np.ndarray):
-        if not isinstance(yk, list):
-            yk = np.array([yk])
-        else:
-            yk = np.array(yk)
-    
-    # Get the ambient conditions at the release
-    Ta, Sa, P = profile.get_values(z0, ['temperature', 'salinity', 
-                                        'pressure'])
-    
-    # Get the particle temperature
-    if T0 is None:
-        T0 = copy(Ta)
-    
-    # Compute the density at standard and in situ conditions
-    if dbm_particle.issoluble:
-        mf = dbm_particle.mass_frac(yk)
-        rho_N = dbm_particle.density(mf, 273.15, 1.e5)
-        rho_p = dbm_particle.density(mf, T0, P)
-    else:
-        mf = 1.
-        rho_N = dbm_particle.density(273.15, 1.e5, 0., 273.15)
-        rho_p = dbm_particle.density(T0, P, Sa, Ta)
-    
-    # Compute the total mass flux
-    m_dot = Q_N * rho_N
-    
-    # Get the source volume flux and particle number flux
-    Q = m_dot / rho_p
-    nb0 = Q / (np.pi * de**3 / 6.)
-    
-    # Get the initial particle mass(es)
-    m0 = m_dot / nb0 * mf
+    # Convert the flow rate and diameter to the state variables of a 
+    # dispersed_phases.PlumeParticle object
+    m0, T0, nb0, P, Sa, Ta = dispersed_phases.initial_conditions(
+        profile, z0, dbm_particle, yk, Q_N, 1, de, T0)
     
     # Create the particle object
-    return Particle(dbm_particle, m0, T0, nb0, lambda_1, P, Sa, Ta, K, K_T, 
-                    fdis)
+    return dispersed_phases.PlumeParticle(dbm_particle, m0, T0, nb0, lambda_1,
+                                          P, Sa, Ta, K, K_T, fdis)
 
 def particle_from_mb0(profile, z0, dbm_particle, yk, mb0, de, lambda_1, 
                       T0=None, K=1., K_T=1., fdis=1.e-6):
     """
-    Create a `Particle` object from the mass flux of the dispersed phase
+    Create a `dispersed_phases.PlumeParticle` object from the mass flux 
     
-    Returns a `Particle` object given the particle attributes and the initial
-    total mass flux at the source.
+    Returns a `dispersed_phases.PlumeParticle` object given the particle 
+    attributes and the initial total mass flux at the source.
     
     Parameters
     ----------
@@ -1804,44 +1470,19 @@ def particle_from_mb0(profile, z0, dbm_particle, yk, mb0, de, lambda_1,
     
     Returns
     -------
-    particle : Particle object
-        A `Particle` object containing the initial conditions for the given
-        particle in the simulation
+    particle : dispersed_phases.PlumeParticle object
+        A `dispersed_phases.PlumeParticle` object containing the initial 
+        conditions for the given particle in the simulation
     
     """
-    # Make sure yk is an array
-    if not isinstance(yk, np.ndarray):
-        if not isinstance(yk, list):
-            yk = np.array([yk])
-        else:
-            yk = np.array(yk)
-    
-    # Get the ambient conditions at the release
-    Ta, Sa, P = profile.get_values(z0, ['temperature', 'salinity', 
-                                        'pressure'])
-    
-    # Get the particle temperature
-    if T0 is None:
-        T0 = copy(Ta)
-    
-    # Compute the density at in situ conditions
-    if dbm_particle.issoluble:
-        mf = dbm_particle.mass_frac(yk)
-        rho_p = dbm_particle.density(mf, T0, P)
-    else:
-        mf = 1.
-        rho_p = dbm_particle.density(T0, P, Sa, Ta)
-    
-    # Get the source volume flux and particle number flux
-    Q = mb0 / rho_p
-    nb0 = Q / (np.pi * de**3 / 6.)
-    
-    # Get the initial particle mass(es)
-    m0 = mb0 / nb0 * mf
+    # Convert the mass flux and diameter to the state variables of a 
+    # dispersed_phases.PlumeParticle object
+    m0, T0, nb0, P, Sa, Ta = dispersed_phases.initial_conditions(
+        profile, z0, dbm_particle, yk, mb0, 2, de, T0)
     
     # Create the particle object
-    return Particle(dbm_particle, m0, T0, nb0, lambda_1, P, Sa, Ta, K, K_T, 
-                    fdis)
+    return dispersed_phases.PlumeParticle(dbm_particle, m0, T0, nb0, lambda_1,
+                                          P, Sa, Ta, K, K_T, fdis)
 
 def plot_state_space(zi, yi, zo, yo, yi_local, yo_local, particles, profile, 
                      p, fig):
@@ -1868,9 +1509,9 @@ def plot_state_space(zi, yi, zo, yo, yi_local, yo_local, particles, profile,
         Inner plume object for extracting variables from the state space.
     yo_local : `OuterPlume` object
         Outer plume object for extracting variables from the state space.
-    particles : list of `Particle` objects
-        List of `Particle` objects containing the dispersed phase local
-        conditions and behavior.
+    particles : list of `dispersed_phases.PlumeParticle` objects
+        List of `dispersed_phases.PlumeParticle` objects containing the 
+        dispersed phase local conditions and behavior.
     profile : `ambient.Profile` object
         The ambient CTD object used by the simulation.
     p : `ModelParams` object
@@ -1974,9 +1615,9 @@ def plot_all_variables(zi, yi, zo, yo, yi_local, yo_local, particles,
         Inner plume object for extracting variables from the state space.
     yo_local : `OuterPlume` object
         Outer plume object for extracting variables from the state space.
-    particles : list of `Particle` objects
-        List of `Particle` objects containing the dispersed phase local
-        conditions and behavior.
+    particles : list of `dispersed_phases.PlumeParticle` objects
+        List of `dispersed_phases.PlumeParticle` objects containing the 
+        dispersed phase local conditions and behavior.
     profile : `ambient.Profile` object
         The ambient CTD object used by the simulation.
     p : `ModelParams` object

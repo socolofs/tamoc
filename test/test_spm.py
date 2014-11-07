@@ -26,10 +26,11 @@ have been validated against measurements.
 """
 # S. Socolofsky, August 2013, Texas A&M University <socolofs@tamu.edu>.
 
+from tamoc import seawater
 from tamoc import ambient
 import test_sbm
-from tamoc import seawater
 from tamoc import dbm
+from tamoc import dispersed_phases
 from tamoc import stratified_plume_model
 from tamoc import simp
 
@@ -73,8 +74,8 @@ def get_sim_data():
     -------
     profile : `ambient.Profile` object
         Return a profile object from the BM54 CTD data
-    particles : list of `Particle` objects
-        List of `Particle` objects containing the dispersed phase initial
+    particles : list of `PlumeParticle` objects
+        List of `PlumeParticle` objects containing the dispersed phase initial
         conditions
     z : float
         Depth of the release port (m)
@@ -140,8 +141,8 @@ def check_sim(particles, R, maxit, toler, delta_z, spm):
     
     Parameters
     ----------
-    particles : list of `Particle` objects
-        List of `Particle` objects containing the dispersed phase initial
+    particles : list of `PlumeParticle` objects
+        List of `PlumeParticle` objects containing the dispersed phase initial
         conditions
     R : float
         Radius of the release port (m)
@@ -239,9 +240,9 @@ def test_modelparams_obj():
 
 def test_particle_obj():
     """
-    Test the object behavior for the `Particle` object
+    Test the object behavior for the `PlumeParticle` object
     
-    Test the instantiation and attribute data for the `Particle` object of 
+    Test the instantiation and attribute data for the `PlumeParticle` object of 
     the `stratified_plume_model` module.
     
     """
@@ -263,9 +264,9 @@ def test_particle_obj():
     nb0 = 1.e5
     m0 = bub.masses_by_diameter(de, T, P, yk)
     
-    # Create a `Particle` object
-    bub_obj = stratified_plume_model.Particle(bub, m0, T, nb0, lambda_1, P, 
-                                              Sa, Ta, K, Kt, fdis)
+    # Create a `PlumeParticle` object
+    bub_obj = dispersed_phases.PlumeParticle(bub, m0, T, nb0, lambda_1, P, 
+                                             Sa, Ta, K, Kt, fdis)
     
     # Check if the initialized attributes are correct
     for i in range(len(composition)):
@@ -304,8 +305,8 @@ def test_particle_obj():
     # Check functionality of insoluble particle 
     drop = dbm.InsolubleParticle(isfluid=True, iscompressible=True)
     m0 = drop.mass_by_diameter(de, T, P, Sa, Ta)
-    drop_obj = stratified_plume_model.Particle(drop, m0, T, nb0, lambda_1, P,
-                                               Sa, Ta, K, fdis=fdis, K_T=Kt)
+    drop_obj = dispersed_phases.PlumeParticle(drop, m0, T, nb0, 
+               lambda_1, P, Sa, Ta, K, fdis=fdis, K_T=Kt)
     assert len(drop_obj.composition) == 1
     assert drop_obj.composition[0] == 'inert'
     assert_array_almost_equal(drop_obj.m0, m0, decimal=6)

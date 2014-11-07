@@ -12,6 +12,21 @@ size distributions from source flow conditions.
 For typical usage, please see the ./bin directory of the source distribution
 for various example scripts.
 
+Version 0.1.6 : Added a new simulation module for plumes in crossflow:  the
+                bent_plume_model.py.  Refactored some of the code for the 
+                original model suite to make it more general and to reuse it
+                in the bent_plume_model.  Added example files and unit tests
+                for the new modules, and updated the documentation to reflect
+                all model changes.
+Version 0.1.5 : Fixed a small bug in the way the bubble force is handled 
+                after the particle dissolves.  Fixed a bug to retain mass
+                conservation for a bubble size distribution using the 
+                sintef.rosin_rammler() function.
+Version 0.1.4 : Added script for the the sintef and params modules to the 
+                ./bin examples directory and the /test unit tests.  Improved
+                the stability of the model by added a few new checks during
+                and before calculation.  Updated the unit tests to make them
+                more platform and numpy-version independent.
 Version 0.1.3 : Removed some of the debugging catches in the iteration so that
                 solutions always fully converge and fixed a few bugs.  See 
                 CHANGES.txt for full details.  Added the sintef.py module for
