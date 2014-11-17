@@ -125,6 +125,9 @@ class Model(object):
     particles : list of `Particle` objects
         List of `Particle` objects describing each dispersed phase in the 
         simulation
+    track : bool
+        Flag indicating whether or not to track the particle through 
+        the water column using the `single_bubble_model`.
     dt_max : float
         Maximum step size to take in the storage of the simulation solution
         (s)
@@ -173,7 +176,7 @@ class Model(object):
             self.sim_stored = False
     
     def simulate(self, X, D, Vj, phi_0, theta_0, Sj, Tj, cj, tracers, 
-                 particles=[], dt_max=60., sd_max=350.):
+                 particles=[], track=False, dt_max=60., sd_max=350.):
         """
         Simulate the plume dynamics from given initial conditions
         
@@ -216,9 +219,9 @@ class Model(object):
         particles : list of `Particle` objects
             List of `Particle` objects describing each dispersed phase in the 
             simulation
-        K_T0 : ndarray
-            Save the initial values of K_T for the particles so that these 
-            values will be saved when the solution is saved
+        track : bool
+            Flag indicating whether or not to track the particle through 
+            the water column using the `single_bubble_model`.
         dt_max : float
             Maximum step size to take in the storage of the simulation 
             solution (s)
@@ -257,6 +260,7 @@ class Model(object):
         self.particles = particles
         self.K_T0 = np.array([self.particles[i].K_T for i in 
                               range(len(self.particles))])
+        self.track = track
         self.dt_max = dt_max
         self.sd_max = sd_max
         
@@ -276,6 +280,13 @@ class Model(object):
         self.t, self.q, self.sp = lmp.calculate(t0, q0, self.q_local,
             self.profile, self.p, self.particles, lmp.derivs, 
             self.dt_max, self.sd_max)
+        
+        # Track the particles
+        if track:
+            for i in range(len(self.particles)):
+                print '\nTracking Particle %d of %d:' % \
+                    (i+1, len(self.particles))
+                particles[i].run_sbm(self.profile)
         
         # Update the status of the solution
         self.sim_stored = True
@@ -445,6 +456,14 @@ class Model(object):
         cj.standard_name = 'cj'
         cj.units = 'nondimensional'
         cj[0] = self.cj
+        track = nc.createVariable('track', 'i4', ('params',))
+        track.long_name = 'SBM Status (0: false, 1: true)'
+        track.standard_name = 'track'
+        track.units = 'boolean'
+        if self.track:
+            track[0] = 1
+        else:
+            track[0] = 0
         dt_max = nc.createVariable('dt_max', 'f8', ('params',))
         dt_max.long_name = 'Simulation maximum duration'
         dt_max.standard_name = 'dt_max'
@@ -603,6 +622,10 @@ class Model(object):
         self.Sj = nc.variables['Sj'][0]
         self.Tj = nc.variables['Tj'][0]
         self.cj = nc.variables['cj'][0]
+        if nc.variables['track'][0] == 1:
+            self.track = True
+        else:
+            self.track = False
         self.dt_max = nc.variables['dt_max'][0]
         self.sd_max = nc.variables['sd_max'][0]
         
@@ -666,7 +689,8 @@ class Model(object):
         
         # Plot the results
         print 'Plotting the state space...'
-        plot_state_space(self.t, self.q, self.sp, self.particles, fig)
+        plot_state_space(self.t, self.q, self.sp, self.particles, 
+            fig)
         print 'Done.\n'
 
     def plot_all_variables(self, fig):
@@ -695,7 +719,8 @@ class Model(object):
         # Plot the results
         print 'Plotting the full variable suite...'
         plot_all_variables(self.t, self.q, self.sp, self.q_local, 
-                           self.profile, self.p, self.particles, fig)
+                           self.profile, self.p, self.particles, self.track, 
+                           fig)
         print 'Done.\n'
 
 
@@ -1025,6 +1050,60 @@ class Particle(dispersed_phases.PlumeParticle):
             # Check if the particle exited the plume
             if np.sqrt(chi[1]**2 + chi[2]**2) > q1_local.b:
                 self.integrate = False
+    
+    def outside(self, Ta, Sa, Pa):
+        """
+        Remove the effect of particles if they are outside the plume
+        
+        Sets all of the particle properties that generate forces or 
+        dissolution to zero effect if the particle is outside the plume.
+        
+        Parameters
+        ----------
+        Ta : float
+            Local temperature surrounding the particle (K)
+        Sa : float
+            Local salinity surrounding the particle (psu)
+        Pa : float
+            Local pressure (Pa)
+        
+        """
+        self.us = 0.
+        self.rho_p = seawater.density(Ta, Sa, Pa)
+        self.A = 0.
+        self.Cs = np.zeros(len(self.composition))
+        self.beta = np.zeros(len(self.composition))
+        self.beta_T = 0.
+        self.T = Ta
+    
+    def run_sbm(self, profile):
+        """
+        Set up and run the `single_bubble_model` to track outside plume
+        
+        Continues the simulation of the particle outside the plume using 
+        the `single_bubble_model`.  The object containing the simulation 
+        and simulation results will be added to the attributes of this 
+        Particle object.
+        
+        Parameters
+        ----------
+        profile : `ambient.Profile` object
+            Ambient CTD data for the model simulation
+        
+        """
+        # Create the simulation object
+        self.sbm = single_bubble_model.Model(profile)
+        
+        # Create the inputs to the sbm.simulate method
+        X0 = np.array([self.x, self.y, self.z])
+        Ta, Sa, P = profile.get_values(X0[2], ['temperature', 'salinity', 
+                    'pressure'])
+        de = self.diameter(self.m, self.T, P, Sa, Ta)
+        yk = self.particle.mol_frac(self.m)
+        
+        # Run the simulation
+        self.sbm.simulate(self.particle, X0, de, yk, self.T, self.K, self.K_T, 
+                          self.fdis)
 
 
 # ----------------------------------------------------------------------------
@@ -1336,8 +1415,12 @@ class LagElement(object):
             if not particles[i].integrate:
                 self.mp[i] = 0.
                 self.fb[i] = 0.
+            
+            # Stop the dissolution once the particle is outside the plume
+            if not particles[i].integrate:
+                particles[i].outside(self.Ta, self.Sa, self.Pa)
         
-        # Compute the net particle mass and buoyance force
+        # Compute the net particle mass and buoyant force
         self.Mp = np.sum(self.mp)
         self.Fb = np.sum(self.fb) * p.g / self.rho_a
 
@@ -1426,7 +1509,8 @@ def plot_state_space(t, q, sp, particles, fig):
     plt.draw()
 
 
-def plot_all_variables(t, q, sp, q_local, profile, p, particles, fig):
+def plot_all_variables(t, q, sp, q_local, profile, p, particles, tracked, 
+    fig):
     """
     Plot a comprehensive suite of simulation results
     
@@ -1454,6 +1538,9 @@ def plot_all_variables(t, q, sp, q_local, profile, p, particles, fig):
     particles : list of `Particle` objects
         List of `Particle` objects describing each dispersed phase in the 
         simulation
+    tracked : bool
+        Flag indicating whether or not the `single_bubble_model` was run to 
+        track the particles.
     fig : int
         Number of the figure window in which to draw the plot
     
@@ -1539,6 +1626,8 @@ def plot_all_variables(t, q, sp, q_local, profile, p, particles, fig):
     for i in range(len(particles)):
         ax1.plot(particles[i].x, particles[i].z, 'o')
         ax1.plot(sp[:,i*3], sp[:,i*3+2], '.:')
+        if tracked:
+            ax1.plot(particles[i].sbm.y[:,0], particles[i].sbm.y[:,2], '.:')
     ax1.invert_yaxis()
     ax1.set_xlabel('x (m)')
     ax1.set_ylabel('z (m)')
@@ -1551,7 +1640,9 @@ def plot_all_variables(t, q, sp, q_local, profile, p, particles, fig):
     ax2.plot(y + y2, z + z2, 'b--')
     for i in range(len(particles)):
         ax2.plot(particles[i].y, particles[i].z, 'o')
-        ax2.plot(sp[:,i*3+1], sp[:,i*3+2], ':')
+        ax2.plot(sp[:,i*3+1], sp[:,i*3+2], '.:')
+        if tracked:
+            ax2.plot(particles[i].sbm.y[:,1], particles[i].sbm.y[:,2], '.:')
     ax2.invert_yaxis()
     ax2.set_xlabel('y (m)')
     ax2.set_ylabel('z (m)')
@@ -1564,7 +1655,9 @@ def plot_all_variables(t, q, sp, q_local, profile, p, particles, fig):
     ax3.plot(x + x2, y + y2, 'b--')
     for i in range(len(particles)):
         ax3.plot(particles[i].x, particles[i].y, 'o')
-        ax3.plot(sp[:,i*3], sp[:,i*3+1], ':')
+        ax3.plot(sp[:,i*3], sp[:,i*3+1], '.:')
+        if tracked:
+            ax3.plot(particles[i].sbm.y[:,0], particles[i].sbm.y[:,1], '.:')
     ax3.set_xlabel('x (m)')
     ax3.set_ylabel('y (m)')
     ax3.grid(b=True, which='major', color='0.5', linestyle='-')

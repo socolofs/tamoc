@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.6',
+        VERSION:     '0.1.7',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -58,7 +58,7 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">November 07, 2014</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">November 17, 2014</td>
 </tr>
 </tbody>
 </table>
@@ -414,8 +414,14 @@ should be considered dissolved.</p>
 <tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">diameter</span></tt>(m,&nbsp;T,&nbsp;P,&nbsp;Sa,&nbsp;Ta)</td>
 <td>Compute the diameter of a particle from mass and density</td>
 </tr>
-<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">properties</span></tt>(m,&nbsp;T,&nbsp;P,&nbsp;Sa,&nbsp;Ta)</td>
+<tr class="row-even"><td><a class="reference internal" href="../bpm/bent_plume_model.Particle.outside.html#bent_plume_model.Particle.outside" title="bent_plume_model.Particle.outside"><tt class="xref py py-obj docutils literal"><span class="pre">outside</span></tt></a>(Ta,&nbsp;Sa,&nbsp;Pa)</td>
+<td>Remove the effect of particles if they are outside the plume</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">properties</span></tt>(m,&nbsp;T,&nbsp;P,&nbsp;Sa,&nbsp;Ta)</td>
 <td>Return the particle properties from the discrete bubble model</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../bpm/bent_plume_model.Particle.run_sbm.html#bent_plume_model.Particle.run_sbm" title="bent_plume_model.Particle.run_sbm"><tt class="xref py py-obj docutils literal"><span class="pre">run_sbm</span></tt></a>(profile)</td>
+<td>Set up and run the <a class="reference internal" href="sbm.html#module-single_bubble_model" title="single_bubble_model"><tt class="xref py py-obj docutils literal"><span class="pre">single_bubble_model</span></tt></a> to track outside plume</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="../bpm/bent_plume_model.Particle.track.html#bent_plume_model.Particle.track" title="bent_plume_model.Particle.track"><tt class="xref py py-obj docutils literal"><span class="pre">track</span></tt></a>(q0_local,&nbsp;q1_local,&nbsp;md,&nbsp;dt)</td>
 <td>Track a particle for one time step of the numerical solution</td>
@@ -889,7 +895,7 @@ functions contained in this module are detailed in the following.</p>
     </div>
     <div class="footer">
         &copy; Copyright 2014, Scott A. Socolofsky.
-      Last updated on Nov 07, 2014.
+      Last updated on Nov 17, 2014.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>

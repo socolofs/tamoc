@@ -284,7 +284,8 @@ class Model(object):
                                      K, K_T, fdis)
         
         # Open the simulation module
-        print '\n-- TEXAS A&M OIL-SPILL CALCULATOR (TAMOC) --\n'
+        print '\n-- TEXAS A&M OIL-SPILL CALCULATOR (TAMOC) --'
+        print '-- Single Bubble Model                    --\n'
         
         # Calculate the trajectory
         print 'Calculate the trajectory...'
@@ -744,9 +745,9 @@ def derivs(t, y, profile, particle, p):
     (us, rho_p, A, Cs, beta, beta_T, T) = particle.properties(m, T, P, Sa, Ta)
     
     # Advection
-    #yp[0] = 0.
-    #yp[1] = 0.
-    yp[2] = -us
+    yp[0] = ua
+    yp[1] = va
+    yp[2] = -us - wa
     
     # Dissolution
     if len(Cs) > 0:

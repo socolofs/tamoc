@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>params.Scales.h_P &mdash; Texas A&amp;M Oilspill Calculator v0.1 Manual</title>
+    <title>bent_plume_model.Particle.run_sbm &mdash; Texas A&amp;M Oilspill Calculator v0.1 Manual</title>
     
     <link rel="stylesheet" href="../_static/scipy.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -26,9 +26,8 @@
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../index.html" />
-    <link rel="up" title="Reference" href="../modules/reference.html" />
-    <link rel="next" title="params.Scales.h_S" href="params.Scales.h_S.html" />
-    <link rel="prev" title="params.Scales.h_T" href="params.Scales.h_T.html" /> 
+    <link rel="up" title="bent_plume_model.Particle" href="bent_plume_model.Particle.html" />
+    <link rel="next" title="bent_plume_model.Particle.track" href="bent_plume_model.Particle.track.html" /> 
   </head>
   <body>
     <div class="related">
@@ -38,14 +37,12 @@
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="params.Scales.h_S.html" title="params.Scales.h_S"
+          <a href="bent_plume_model.Particle.track.html" title="bent_plume_model.Particle.track"
              accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="params.Scales.h_T.html" title="params.Scales.h_T"
-             accesskey="P">previous</a> |</li>
 <li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
 
-          <li><a href="../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
+          <li><a href="../modules/reference.html" >Reference</a> &raquo;</li>
+          <li><a href="bent_plume_model.Particle.html" accesskey="U">bent_plume_model.Particle</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -54,39 +51,23 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="params-scales-h-p">
-<h1>params.Scales.h_P<a class="headerlink" href="#params-scales-h-p" title="Permalink to this headline">¶</a></h1>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">November 17, 2014</td>
-</tr>
-</tbody>
-</table>
+  <div class="section" id="bent-plume-model-particle-run-sbm">
+<h1>bent_plume_model.Particle.run_sbm<a class="headerlink" href="#bent-plume-model-particle-run-sbm" title="Permalink to this headline">¶</a></h1>
 <dl class="method">
-<dt id="params.Scales.h_P">
-<tt class="descclassname">Scales.</tt><tt class="descname">h_P</tt><big>(</big><em>z0</em><big>)</big><a class="reference internal" href="../_modules/params.html#Scales.h_P"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#params.Scales.h_P" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute the peel height for the lowest intrusion</p>
-<p>Compute the height above the bottom for the peeling region that forms
-the lowest intrusion based on the correlations in Socolofsky and Adams 
-(2005).</p>
+<dt id="bent_plume_model.Particle.run_sbm">
+<tt class="descclassname">Particle.</tt><tt class="descname">run_sbm</tt><big>(</big><em>profile</em><big>)</big><a class="headerlink" href="#bent_plume_model.Particle.run_sbm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set up and run the <a class="reference internal" href="../modules/sbm.html#module-single_bubble_model" title="single_bubble_model"><tt class="xref py py-obj docutils literal"><span class="pre">single_bubble_model</span></tt></a> to track outside plume</p>
+<p>Continues the simulation of the particle outside the plume using 
+the <a class="reference internal" href="../modules/sbm.html#module-single_bubble_model" title="single_bubble_model"><tt class="xref py py-obj docutils literal"><span class="pre">single_bubble_model</span></tt></a>.  The object containing the simulation 
+and simulation results will be added to the attributes of this 
+Particle object.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>z0</strong> : float</p>
-<blockquote>
-<div><p>Depth to evaluate the trap height (m)</p>
-</div></blockquote>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>h_P</strong> : float</p>
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>profile</strong> : <a class="reference internal" href="../modules/ambient.html#ambient.Profile" title="ambient.Profile"><tt class="xref py py-obj docutils literal"><span class="pre">ambient.Profile</span></tt></a> object</p>
 <blockquote class="last">
-<div><p>Plume peel height for the first intrusion measured in height 
-above the bottom (m)</p>
+<div><p>Ambient CTD data for the model simulation</p>
 </div></blockquote>
 </td>
 </tr>
@@ -105,19 +86,16 @@ above the bottom (m)</p>
             <p class="logo"><a href="../contents.html">
               <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
             </a></p>
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="params.Scales.h_T.html"
-                        title="previous chapter">params.Scales.h_T</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="params.Scales.h_S.html"
-                        title="next chapter">params.Scales.h_S</a></p>
+  <p class="topless"><a href="bent_plume_model.Particle.track.html"
+                        title="next chapter">bent_plume_model.Particle.track</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
-    <li><a href="../_sources/params/params.Scales.h_P.txt"
+    <li><a href="../_sources/bpm/bent_plume_model.Particle.run_sbm.txt"
            rel="nofollow">Show Source</a></li>
   </ul>
 <ul class="this-page-menu">
-  <li><a href="/numpy/docs/numpy-docs/params/params.Scales.h_P.rst">Edit page</a></li>
+  <li><a href="/numpy/docs/numpy-docs/bpm/bent_plume_model.Particle.run_sbm.rst">Edit page</a></li>
 </ul>
 
 <div id="searchbox" style="display: none">
@@ -145,14 +123,12 @@ above the bottom (m)</p>
           <a href="../genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="params.Scales.h_S.html" title="params.Scales.h_S"
+          <a href="bent_plume_model.Particle.track.html" title="bent_plume_model.Particle.track"
              >next</a> |</li>
-        <li class="right" >
-          <a href="params.Scales.h_T.html" title="params.Scales.h_T"
-             >previous</a> |</li>
 <li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
 
-          <li><a href="../modules/reference.html" >Reference</a> &raquo;</li> 
+          <li><a href="../modules/reference.html" >Reference</a> &raquo;</li>
+          <li><a href="bent_plume_model.Particle.html" >bent_plume_model.Particle</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

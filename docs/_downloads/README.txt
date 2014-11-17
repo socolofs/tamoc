@@ -12,6 +12,11 @@ size distributions from source flow conditions.
 For typical usage, please see the ./bin directory of the source distribution
 for various example scripts.
 
+Version 0.1.7 : Added the capability for the bent_plume_model.py to continue
+                to track particles outside the plume using the 
+                single_bubble_model.py.  Fixed a bug where particles outside
+                the plume continued to dissolve and add mass to the 
+                bent_plume_model.
 Version 0.1.6 : Added a new simulation module for plumes in crossflow:  the
                 bent_plume_model.py.  Refactored some of the code for the 
                 original model suite to make it more general and to reuse it
