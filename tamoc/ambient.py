@@ -145,7 +145,7 @@ class Profile(object):
         
         # Get the appropriate netCDF dataset object
         if isinstance(nc, str) or isinstance(nc, unicode):
-            nc = Dataset(nc)
+            nc = Dataset(nc, 'a')
         
         # Mark the netCDF file as open
         self.nc_open = True

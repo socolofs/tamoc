@@ -58,7 +58,10 @@ bin_files = ['./bin/dbm/air_eos.py',
              './bin/spm/lake_bub.py',
              './bin/spm/lake_part.py',
              './bin/spm/spm_file_io.py',
-             './bin/params/scales.py']
+             './bin/sintef/particle_size_distribution.py',
+             './bin/params/scales.py',
+             './bin/bpm/blowout.py',
+             './bin/bpm/bpm_example.py']
 
 # Define the external Fortran sources
 ext_dbm_f = Extension(name = 'dbm_f', 
@@ -74,7 +77,7 @@ if __name__ == '__main__':
     
     setup(
         name = 'TAMOC',
-        version = '0.1.7',
+        version = '0.1.8',
         description = 'Texas A&M Oilspill Calculator',
         long_description = open('README.txt').read(),
         license = 'LICENSE.txt',

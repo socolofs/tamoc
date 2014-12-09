@@ -332,7 +332,8 @@ class Model(object):
         
         # Create the netCDF dataset object
         title = 'Simulation results for the TAMOC Bent Plume Model'
-        nc = model_share.tamoc_nc_file(fname, title, profile_path, profile_info)
+        nc = model_share.tamoc_nc_file(fname, title, profile_path, 
+            profile_info)
         
         # Create variables for the dimensions
         t = nc.createDimension('t', None)
@@ -768,7 +769,6 @@ class ModelParams(single_bubble_model.ModelParams):
         super(ModelParams, self).__init__(profile)
         
         # Set the model parameters to the values in Lee and Cheung (1990)
-        self.alpha = 1.756
         self.alpha_1 = 0.057
         self.alpha_2 = 0.544
         
@@ -833,6 +833,12 @@ class Particle(dispersed_phases.PlumeParticle):
         Current position of the `Particle` object in the y-direction (m)
     z : float
         Current position of the `Particle` object in the z-direction (m)
+    integrate : bool
+        Flag indicating whether or not this particle is inside the bent
+        plume model and should be integrated
+    b_local : float
+        Width of the bent plume model at the location where the particle 
+        exited the plume.
     particle : `dbm.FluidParticle` or `dbm.InsolubleParticle` object
         Stores the `dbm_particle` object passed to at creation.
     composition : str list
@@ -1050,6 +1056,7 @@ class Particle(dispersed_phases.PlumeParticle):
             # Check if the particle exited the plume
             if np.sqrt(chi[1]**2 + chi[2]**2) > q1_local.b:
                 self.integrate = False
+                self.b_local = q1_local.b
     
     def outside(self, Ta, Sa, Pa):
         """

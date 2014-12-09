@@ -276,13 +276,13 @@ def calculate(t0, q0, q0_local, profile, p, particles, derivs,
             # Progressed far along the plume centerline
             stop = True
         if k >= 50000:
-            # Completed 2000 time steps
+            # Stop after specified number of iterations
             stop = True
         if q[-1][9] <= 0.:
             # Reached a location above the free surface
             stop = True
-        if t[-1] == t[-2]:
-            # Progress of the time-stepping has halted
+        if q[-1][10] == q[-2][10]:
+            # Progress of motion of the plume has stopped
             stop = True
     
     # Convert solution to numpy arrays
@@ -332,64 +332,72 @@ def entrainment(q0_local, q1_local, p):
     element.  
     
     """
-    # Jet entrainment coefficient
-    alpha_j = np.sqrt(2.) * p.alpha_1
+    # Gaussian model jet entrainment coefficient
+    alpha_j = p.alpha_1
     
-    # Plume entrainment coefficient
+    # Gaussian model plume entrainment coefficient
     if q1_local.rho_a == q1_local.rho:
+        # This is a pure jet
         alpha_p = 0.
     else:
-        F1 = p.alpha * np.abs(q1_local.V - q1_local.ua * q1_local.cos_p * 
+        # This is a plume; compute the densimetric Gaussian Froude number
+        F1 = 2. * np.abs(q1_local.V - q1_local.ua * q1_local.cos_p * 
              q1_local.cos_t) / np.sqrt(p.g * np.abs(q1_local.rho_a - 
-             q1_local.rho) / q1_local.rho_a * q1_local.b)
-        alpha_p = np.sqrt(2.) * p.alpha_2 * q1_local.sin_p / F1**2
+             q1_local.rho) * (1. + 1.2**2) / 1.2**2 / q1_local.rho_a * 
+             q1_local.b / np.sqrt(2.))
+        
+        # Follow Figure 13 in Jirka (2004)
+        if np.abs(F1**2 / q1_local.sin_p) > p.alpha_2 / 0.028:
+            alpha_p = - np.sign(q1_local.rho_a - q1_local.rho) * p.alpha_2 * \
+                      q1_local.sin_p / F1**2
+        else:
+            alpha_p = - (0.083 - p.alpha_1) / (p.alpha_2 / 0.028) * F1**2 / \
+                      q1_local.sin_p * np.sign(q1_local.rho_a - q1_local.rho)
+        
+    # Compute the total shear entrainment coefficient for the top-hat model
+    alpha_s = np.sqrt(2.) * (alpha_j + alpha_p) * 2. * q1_local.V / \
+              (np.abs(q1_local.V - q1_local.ua * q1_local.cos_p * 
+              q1_local.cos_t) + q1_local.V)
     
-    # Total shear entrainment coefficient
-    alpha_s = (alpha_j + alpha_p) / (1. + 5. * q1_local.ua * q1_local.cos_p * 
-              q1_local.cos_t / np.abs(q1_local.V - q1_local.ua * 
-              q1_local.cos_p * q1_local.cos_t))
-    
-    # Total shear entrainment
+    # Total shear entrainment (kg/s)
     md_s = q1_local.rho_a * np.abs(q1_local.V - q1_local.ua * 
            q1_local.cos_p * q1_local.cos_t) * alpha_s * ( 2. * np.pi * 
            q1_local.b * q1_local.h)
          
-    # Total area for projected area entrainment (forced entrainment)
+    # Compute the projected area entrainment terms...first, the crossflow 
+    # projected onto the plume centerline
     a1 = 2. * q1_local.b * np.sqrt(q1_local.sin_p**2 + q1_local.sin_t**2 - 
          q1_local.sin_p**2 * q1_local.sin_t**2) * q1_local.h
     if q1_local.s == q0_local.s:
         a2 = 0.
         a3 = 0.
     else:
+        # Second, correction for plume expansion
         a2 = np.pi * q1_local.b * (q1_local.b - q0_local.b) / (q1_local.s - 
              q0_local.s) * q1_local.h * q1_local.cos_p * q1_local.cos_t
+        # Third, correction for plume curvature
         a3 = np.pi * q1_local.b**2 / 2. * (q1_local.cos_p * 
              q1_local.cos_t - q0_local.cos_p * q0_local.cos_t) / (q1_local.s 
              - q0_local.s) * q1_local.h
     
-    # Total forced entrainment
+    # Get the total projected area for the forced entraiment
     if np.abs(q1_local.v) <= 1.e-9 and np.abs(q1_local.w) <= 1.e-9:
-        # Jet is in co-flow, so Lee and Cheung should integrate all the way
-        # around the jet for a2 
-        A = a1 + 2. * a2 + a3
+        # Jet is in co-flow, shear entrainment model takes care of this case
+        # by itself
+        A = 0.
     else:
-        # The jet is inclined to the flow, and the Lee and Cheugn derivation
-        # is completely correct
+        # Compute the regular forced entrainment model
         A = a1 + a2 + a3
+    
+    # Total forced entrainment (kg/s)
     md_f = q1_local.rho_a * q1_local.ua * A
     
-    # Choose the maximum of the two options
+    # Obtain the total entrainment using the maximum hypothesis from Lee and 
+    # Cheung (1990)
     if md_s > md_f:
         md = md_s
     else:
         md = md_f
-    
-    # If the flow is pure, co-flowing momentum jet, then it should be the sum.
-    if alpha_p <= 1.e-12:
-        # This is a momentum jet
-        if np.abs(q1_local.v) <= 1.e-9 and np.abs(q1_local.w) <= 1.e-9:
-            # This is a co-flowing momentum jet.  
-            md = md_s + md_f
     
     # Return the entrainment rate
     return md

@@ -13,6 +13,8 @@ uses this information to recommend the appropriate simulation model.
 
 from tamoc import seawater
 
+from datetime import datetime
+
 import numpy as np
 from scipy.optimize import fsolve
 
@@ -52,6 +54,60 @@ class Scales(object):
         
         # Store the dispersed phase particles
         self.particles = particles
+    
+    def simulate(self, z_0, u_inf):
+        """
+        docstring for simulate
+        
+        """
+        # Get the empirical model parameters
+        (B, N, u_slip, u_inf) = self.get_variables(z_0, u_inf)
+        
+        # Report the results of the calculations to the screen
+        print '\n-- TEXAS A&M OIL-SPILL CALCULATOR (TAMOC) --'
+        print '-- Empirical Plume Model                  --\n'
+        epm_soln = []
+        epm_soln.append('Model Parameters:\n\n')
+        epm_soln.append('   z       = %f (m)\n' % z_0)
+        epm_soln.append('   B       = %f (m^4/s^3)\n' % B)
+        epm_soln.append('   N       = %f (s^(-1))\n' % N)
+        epm_soln.append('   u_slip  = %f (m/s)\n' % u_slip)
+        epm_soln.append('   ua      = %f (m/s)\n\n' % u_inf)
+        epm_soln.append('Model Solution:\n\n')
+        epm_soln.append('   h_T     = %f (m)\n' % self.h_T(z_0))
+        epm_soln.append('   h_P     = %f (m)\n' % self.h_P(z_0))
+        epm_soln.append('   h_S     = %f (m)\n' % self.h_S(z_0, u_inf))
+        epm_soln.append('   ua_crit = %f (m/s)\n' % self.u_inf_crit(z_0))
+        print ''.join(epm_soln)
+    
+    def save_txt(self, z0, u_inf, base_name, profile_path, profile_info):
+        """
+        Save the results to a text file
+        
+        """
+        # Create the header information
+        p_list = ['Empirical Plume Model ASCII output File \n']
+        p_list.append('Created: ' + datetime.today().isoformat(' ') + '\n')
+        p_list.append('Simulation based on CTD data in:\n')
+        p_list.append(profile_path)
+        p_list.append('\n')
+        p_list.append(profile_info)
+        p_list.append('\n\n')
+        p_list.append('Row Descriptions:\n')
+        p_list.append('    0: release depth (m)\n')
+        p_list.append('    1: trap height h_T (m)\n')
+        p_list.append('    2: peel height h_P (m)\n')
+        p_list.append('    3: separation height h_S (m)\n')
+        p_list.append('    4: critical crossflow u_inf_crit (m/s)\n')
+        header = ''.join(p_list)
+        
+        # Assemble and write the solution data
+        data = np.array([z0, self.h_T(z0), self.h_P(z0), self.h_S(z0, u_inf), 
+               self.u_inf_crit(z0)])
+        print data
+        np.savetxt(base_name + '.txt', data)
+        with open(base_name + '_header.txt', 'w') as dat_file:
+            dat_file.write(header)
     
     def get_variables(self, z0, u_inf):
         """
