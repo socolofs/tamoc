@@ -46,6 +46,7 @@ from tamoc import chemical_properties as chem
 from tamoc import dbm_f
 from tamoc import seawater
 
+import os
 import numpy as np
 from scipy.optimize import fsolve
 
@@ -88,8 +89,8 @@ class FluidMixture(object):
         Acentric factors (--)
     kh_0 : ndarray, size (nc)
         Henry's law constants at 298.15 K and 101325 Pa (kg/(m^3 Pa))
-    dH_solR : ndarray, size (nc)
-        Enthalpies of solution / Ru (K)
+    neg_dH_solR : ndarray, size (nc)
+        The negative of the enthalpies of solution / Ru (K).
     nu_bar : ndarray, size (nc)
         Partial molar volumes at infinite dilution (m^3/mol)
     B : ndarray, size (nc)
@@ -111,7 +112,8 @@ class FluidMixture(object):
            [ 1.24260911]])
     
     """
-    def __init__(self, composition, delta=None):
+    def __init__(self, composition, delta=None, user_data={}, 
+                 delta_groups=None):
         super(FluidMixture, self).__init__()
         
         # Check the data type of the inputs and fix if necessary
@@ -129,39 +131,80 @@ class FluidMixture(object):
         else:
             self.delta = delta
         
-        # Initialize the chemical composition variables
+        # Store all of the chemical data
+        self.chem_db = chem.data
+        
+        # Initialize the chemical composition variables used in TAMOC
         self.M = np.zeros(self.nc)
         self.Pc = np.zeros(self.nc)
         self.Tc = np.zeros(self.nc)
+        self.Vc = np.zeros(self.nc)
+        self.Tb = np.zeros(self.nc)
+        self.Vb = np.zeros(self.nc)
         self.omega = np.zeros(self.nc)
         self.kh_0 = np.zeros(self.nc)
-        self.dH_solR = np.zeros(self.nc)
+        self.neg_dH_solR = np.zeros(self.nc)
         self.nu_bar = np.zeros(self.nc)
         self.B = np.zeros(self.nc)
         self.dE = np.zeros(self.nc)
         
         # Fill the chemical composition variables from the chem database
         for i in range(self.nc):
-            self.M[i] = chem.data[composition[i]]['M']
-            self.Pc[i] = chem.data[composition[i]]['Pc']
-            self.Tc[i] = chem.data[composition[i]]['Tc']
-            self.omega[i] = chem.data[composition[i]]['omega']
-            self.kh_0[i] = chem.data[composition[i]]['kh_0']
-            self.dH_solR[i] = chem.data[composition[i]]['dH_solR']
-            if chem.data[composition[i]]['nu_bar'] < 0.:
-                self.nu_bar[i] = 33.e-6
+            if composition[i] in user_data:
+                # Get the properties from the user-specified dataset
+                properties = user_data[composition[i]]
             else:
-                self.nu_bar[i] = chem.data[composition[i]]['nu_bar']
+                # Get the properties from the default dataset supplied with 
+                # TAMOC
+                if composition[i] in chem.data:
+                    properties = chem.data[composition[i]]
+                else:
+                    print '\nERROR:  %s is not in the ' % composition[i] + \
+                          'Chemical Properties database\n' 
             
-            if chem.data[composition[i]]['B'] < 0.:
+            # Store the properties in the object attributes
+            self.M[i] = properties['M']
+            self.Pc[i] = properties['Pc']
+            self.Tc[i] = properties['Tc']
+            self.Vc[i] = properties['Vc']
+            self.Tb[i] = properties['Tb']
+            self.Vb[i] = properties['Vb']
+            self.omega[i] = properties['omega']
+            self.kh_0[i] = properties['kh_0']
+            self.neg_dH_solR[i] = properties['-dH_solR']
+            if properties['nu_bar'] < 0.:
+                # Use empirical equation from Jonas Gros
+                self.nu_bar[i] = (1.148236984 * self.M[i] + 6.789136822) \
+                                 / 100.**3
+            else:
+                self.nu_bar[i] = properties['nu_bar']
+            
+            if properties['B'] < 0.:
                 self.B[i] = 5.0 * 1.e-2 / 100.**2.
             else:
                 self.B[i] = chem.data[composition[i]]['B']
             
-            if chem.data[composition[i]]['dE'] < 0.:
+            if properties['dE'] < 0.:
                 self.dE[i] = 4000. / 0.238846
             else:
                 self.dE[i] = chem.data[composition[i]]['dE']
+        
+        # If we are using group contribution method (Privat and Jaubert 2012) 
+        # for the binary interaction matrix, then we must import Aij and Bij
+        if delta_groups is not None:
+            self.calc_delta = 1
+            self.delta_groups = delta_groups
+            aij_file = os.path.join(os.path.realpath(os.path.join(os.getcwd(), 
+                       os.path.dirname(__file__), 'data')),'Aij.csv')
+            bij_file = os.path.join(os.path.realpath(os.path.join(os.getcwd(), 
+                       os.path.dirname(__file__), 'data')),'Bij.csv')
+            self.Aij = np.loadtxt(aij_file, delimiter=',') * 1.e6 # Pa
+            self.Bij = np.loadtxt(bij_file, delimiter=',') * 1.e6 # Pa
+        else:
+            self.calc_delta = -1
+            self.delta_groups = np.zeros((self.nc, 15))
+            self.Aij = np.zeros((15, 15))
+            self.Bij = np.zeros((15, 15))
         
         # Specify that adequate information is contained in the object to 
         # run the solubility methods
@@ -291,8 +334,9 @@ class FluidMixture(object):
         Uses the Fortran subroutines in ``./src/dbm_eos.f95``.
         
         """
-        return dbm_f.density(T, P, m, self.M, self.Pc, self.Tc, self.omega, 
-                             self.delta)
+        return dbm_f.density(T, P, m, self.M, self.Pc, self.Tc, self.Vc, 
+                             self.omega, self.delta, self.Aij, self.Bij, 
+                             self.delta_groups, self.calc_delta)
     
     def fugacity(self, m, T, P):
         """
@@ -320,7 +364,87 @@ class FluidMixture(object):
         
         """
         return dbm_f.fugacity(T, P, m, self.M, self.Pc, self.Tc, self.omega, 
-                              self.delta)
+                              self.delta, self.Aij, self.Bij, 
+                              self.delta_groups, self.calc_delta)
+    
+    def viscosity(self, m, T, P):
+        """
+        Computes the dynamic viscosity of the gas/liquid mixture.
+        
+        Computes the dynamic viscosity of gas and liquid using correlation 
+        equations in McCain (1990).  
+        
+        Parameters
+        ----------
+        m : ndarray, size (nc)
+            masses of each component in a mixture (kg)
+        T : float
+            mixture temperature (K)
+        P : float
+            mixture pressure (Pa)
+        
+        Returns
+        -------
+        mu_p : ndarray, size (2)
+            dynamic viscosity for gas (row 1) and liquid (row 2) (Pa s)
+        
+        """
+        # Compute the items that are not available in the Fortran region
+        rho_w = seawater.density(273.15 + 15., 0., 101325.)
+        if self.nc > 1:
+            (m0, xi0, K0) = self.equilibrium(m, 273.15 + 15., 101325.)
+            m_o = m0[1,:]
+            m_g = m0[0,:]
+            
+        else:
+            m_o = m
+            m_g = m
+        
+        # Return the viscosity
+        return dbm_f.viscosity(T, P, m, self.M, self.Pc, self.Tc, self.Vc, 
+                               self.omega, self.delta, self.Aij, self.Bij, 
+                               self.delta_groups, self.calc_delta, rho_w, 
+                               m_g, m_o)
+    
+    def interface_tension(self, m, T, S, P):
+        """
+        Computes the interfacial tension between gas/liquid and water
+        
+        Computes the interfacial tension between the gas and liquid phases of the
+        mixture and water.  This is not the gas-liquid interfacial tension. This
+        method uses equations in Danesh (1998).
+        
+        Parameters
+        ----------
+        m : ndarray, size (nc)
+            masses of each component in a mixture (kg)
+        T : float
+            mixture temperature (K)
+        P : float
+            mixture pressure (Pa)
+        
+        Returns
+        -------
+        sigma_p : ndarray, size (2)
+            interfacial tension for gas (row 1) and liquid (row 2) (N/m)
+        
+        """
+        # Compute the local density of water
+        rho_w = seawater.density(T, S, P)
+        
+        # Compute the density of the mixture phases
+        rho_p = FluidMixture.density(self, m, T, P)
+        
+        # Get the density difference in g/cm^3
+        delta_rho = (rho_w - rho_p) / 1000.
+        
+        # Compute the pseudo critical temperature using mole fractions as 
+        # weights
+        xi = self.mol_frac(m)
+        Tc = np.sum(self.Tc * xi)
+        
+        # Return the Interfacial tension
+        return 0.111 * delta_rho**1.024 * (T / Tc)**(-1.25) 
     
     def equilibrium(self, m, T, P):
         """
@@ -360,7 +484,8 @@ class FluidMixture(object):
         """
         # Get the mole fractions and K-factors at equilibrium
         (xi, K) = equilibrium(m, T, P, self.M, self.Pc, self.Tc, 
-                              self.omega, self.delta)
+                              self.omega, self.delta, self.Aij, self.Bij, 
+                              self.delta_groups, self.calc_delta)
         
         # Get the total moles of each molecule (both phases together)
         n_tot = self.moles(m)
@@ -418,7 +543,8 @@ class FluidMixture(object):
         """
         # Compute the Henry's law coefficients using the temperature of the
         # seawater
-        kh = dbm_f.kh_insitu(T, P, Sa, self.kh_0, self.dH_solR, self.nu_bar)
+        kh = dbm_f.kh_insitu(T, P, Sa, self.kh_0, self.neg_dH_solR, 
+                             self.nu_bar, self.M)
         
         # Compute the mixture fugacity using the temperature of the mixture
         f = FluidMixture.fugacity(self, m, T, P)
@@ -429,7 +555,7 @@ class FluidMixture(object):
         Cs[1,:] = dbm_f.sw_solubility(f[1,:], kh)
         return Cs
     
-    def diffusivity(self, Ta):
+    def diffusivity(self, Ta, Sa, P):
         """
         Compute the diffusivity (m^2/s) of each component of a mixture into 
         seawater at the given temperature.
@@ -440,6 +566,10 @@ class FluidMixture(object):
             masses of each component in a mixture (kg)
         Ta : float
             temperature of ambient seawater (K)
+        Sa : float
+            salinity of ambient seawater (psu)
+        P : float
+            pressure of ambient seawater (Pa)
         
         Returns
         -------
@@ -452,7 +582,11 @@ class FluidMixture(object):
         Uses the Fortran subroutines in ``./src/dbm_eos.f95``.
         
         """
-        return dbm_f.diffusivity(Ta, self.B, self.dE)
+        # Compute the viscosity of seawater
+        mu = seawater.mu(Ta, Sa, P)
+        
+        # Return the diffusivities
+        return dbm_f.diffusivity(mu, self.Vb)
     
     def hydrate_stability(self, m, P):
         """
@@ -577,8 +711,10 @@ class FluidParticle(FluidMixture):
     0.22197023589052
     
     """
-    def __init__(self, composition, fp_type=0., delta=None):
-        super(FluidParticle, self).__init__(composition, delta)
+    def __init__(self, composition, fp_type=0., delta=None, user_data={},
+                 delta_groups=None):
+        super(FluidParticle, self).__init__(composition, delta, user_data,
+                                            delta_groups)
         
         # Store the input variables
         self.fp_type = fp_type
@@ -636,6 +772,64 @@ class FluidParticle(FluidMixture):
         
         """
         return FluidMixture.fugacity(self, m, T, P)[self.fp_type, :]
+    
+    def viscosity(self, m, T, P):
+        """
+        Computes the dynamic viscosity of the fluid in the phase given by 
+        `fp_type`
+        
+        Parameters
+        ----------
+        m : ndarray, size (nc)
+            masses of each component in a mixture (kg)
+        T : float
+            mixture temperature (K)
+        P : float
+            mixture pressure (Pa)
+        
+        Returns
+        -------
+        mu_p : float
+            dynamic viscosity (Pa s)
+        
+        Notes
+        -----
+        Uses the density method in the `FluidMixture` object, but only returns
+        the value for the phase given by `fp_type`.
+        
+        """
+        return FluidMixture.viscosity(self, m, T, P)[self.fp_type, 0]
+    
+    def interface_tension(self, m, T, S, P):
+        """
+        Computes the interfacial tension between the particle and water
+        
+        Computes the interfacial tension between the particle and water.  This
+        method uses equations in Danesh (1998).
+        
+        Parameters
+        ----------
+        m : ndarray, size (nc)
+            masses of each component in the particle (kg)
+        T : float
+            particle temperature (K)
+        S : float
+            salinity of the ambient seawter (psu)
+        P : float
+            particle pressure (Pa)
+        
+        Returns
+        -------
+        sigma_p : float
+            interfacial tension (N/m)
+        
+        Notes
+        -----
+        Uses the density method in the `FluidMixture` object, but only returns
+        the value for the phase given by `fp_type`.
+        
+        """
+        return FluidMixture.interface_tension(self, m, T, S, P)[self.fp_type, 0]
     
     def solubility(self, m, T, P, Sa):
         """
@@ -762,6 +956,8 @@ class FluidParticle(FluidMixture):
                 ambient seawater density (kg/m^3)
             mu : float
                 ambient seawater dynamic viscosity (Pa s)
+            mu_p : float
+                dispersed phase dynamic viscosity (Pa s)
             sigma : float
                 interfacial tension (N/m)
         
@@ -779,14 +975,15 @@ class FluidParticle(FluidMixture):
         de = self.diameter(m, T, P)
         rho_p = self.density(m, T, P)
         rho = seawater.density(Ta, Sa, P)
-        mu = seawater.mu(Ta)
-        sigma = seawater.sigma(T)
+        mu = seawater.mu(Ta, Sa, P)
+        mu_p = self.viscosity(m, T, P)
+        sigma = self.interface_tension(m, T, Sa, P)
         
         shape = dbm_f.particle_shape(de, rho_p, rho, mu, sigma)
         
-        return (shape, de, rho_p, rho, mu, sigma)
+        return (shape, de, rho_p, rho, mu_p, mu, sigma)
     
-    def slip_velocity(self, m, T, P, Sa, Ta):
+    def slip_velocity(self, m, T, P, Sa, Ta, status=-1):
         """
         Compute the slip velocity (m/s) of a fluid particle.
         
@@ -802,6 +999,9 @@ class FluidParticle(FluidMixture):
             salinity of ambient seawater (psu)
         Ta : float
             temperature of ambient seawater (K)
+        status : int
+            flag indicating whether the particle is clean (status = 1) or
+            dirty (status = -1).  Default value is -1.
         
         Returns
         -------
@@ -814,13 +1014,13 @@ class FluidParticle(FluidMixture):
         
         """
         # Get the particle properties
-        shape, de, rho_p, rho, mu, sigma = \
+        shape, de, rho_p, rho, mu_p, mu, sigma = \
              self.particle_shape(m, T, P, Sa, Ta)
         
         if shape == 1:
             us = dbm_f.us_sphere(de, rho_p, rho, mu)
         elif shape == 2:
-            us = dbm_f.us_ellipsoid(de, rho_p, rho, mu, sigma)
+            us = dbm_f.us_ellipsoid(de, rho_p, rho, mu_p, mu, sigma, status)
         else:
             us = dbm_f.us_spherical_cap(de, rho_p, rho)
         
@@ -854,7 +1054,7 @@ class FluidParticle(FluidMixture):
         
         """
         # Get the particle properties
-        shape, de, rho_p, rho, mu, sigma = \
+        shape, de, rho_p, rho, mu_p, mu, sigma = \
              self.particle_shape(m, T, P, Sa, Ta)
         
         if shape == 3:
@@ -868,7 +1068,7 @@ class FluidParticle(FluidMixture):
         
         return A
     
-    def mass_transfer(self, m, T, P, Sa, Ta):
+    def mass_transfer(self, m, T, P, Sa, Ta, status=-1):
         """
         Compute the mass transfer coefficients (m/s) for each component in a 
         fluid particle
@@ -885,6 +1085,9 @@ class FluidParticle(FluidMixture):
             salinity of ambient seawater (psu)
         Ta : float
             temperature of ambient seawater (K)
+        status : int
+            flag indicating whether the particle is clean (status = 1) or
+            dirty (status = -1).  Default value is -1.
         
         Returns
         -------
@@ -894,29 +1097,31 @@ class FluidParticle(FluidMixture):
         
         Notes
         -----
-        Uses the Fortran subroutines in ``./src/dbm_eos.f95``.  This method
+        Uses the Fortran subroutines in ``./src/dbm_phys.f95``.  This method
         checks for hydrate stability and returns a reduced mass transfer 
         coefficient when hydrate shells are predicted to be present.
         
         """
         # Get the particle properties
-        shape, de, rho_p, rho, mu, sigma = \
+        shape, de, rho_p, rho, mu_p, mu, sigma = \
              self.particle_shape(m, T, P, Sa, Ta)
         
         # Compute the slip velocity
         us = self.slip_velocity(m, T, P, Sa, Ta)
         
+        # Get the diffusivities
+        D = self.diffusivity(Ta, Sa, P)
+        
         # Compute the appropriate mass transfer coefficients
         if shape == 1:
-            beta = dbm_f.xfer_sphere(de, us, rho, mu, self.diffusivity(Ta))
+            beta = dbm_f.xfer_sphere(de, us, rho, mu, D)
         elif shape == 2:
-            beta = dbm_f.xfer_ellipsoid(de, us, rho, mu, self.diffusivity(Ta))
+            beta = dbm_f.xfer_ellipsoid(de, us, rho, mu, D, status)
         else:
-            beta = dbm_f.xfer_spherical_cap(de, us, rho, rho_p, mu, 
-                                            self.diffusivity(Ta))
+            beta = dbm_f.xfer_spherical_cap(de, us, rho, rho_p, mu, D, status)
         return beta
     
-    def heat_transfer(self, m, T, P, Sa, Ta):
+    def heat_transfer(self, m, T, P, Sa, Ta, status=-1):
         """
         Compute the heat transfer coefficient (m/s) for a fluid particle
         
@@ -932,6 +1137,9 @@ class FluidParticle(FluidMixture):
             salinity of ambient seawater (psu)
         Ta : float
             temperature of ambient seawater (K)
+        status : int
+            flag indicating whether the particle is clean (status = 1) or
+            dirty (status = -1).  Default value is -1.
         
         Returns
         -------
@@ -944,7 +1152,7 @@ class FluidParticle(FluidMixture):
         
         """
         # Get the particle properties
-        shape, de, rho_p, rho, mu, sigma = \
+        shape, de, rho_p, rho, mu_p, mu, sigma = \
              self.particle_shape(m, T, P, Sa, Ta)
         
         # Get the thermal conductivity of seawater
@@ -959,13 +1167,13 @@ class FluidParticle(FluidMixture):
         if shape == 1:
             beta = dbm_f.xfer_sphere(de, us, rho, mu, k)
         elif shape == 2:
-            beta = dbm_f.xfer_ellipsoid(de, us, rho, mu, k)
+            beta = dbm_f.xfer_ellipsoid(de, us, rho, mu, k, status)
         else:
-            beta = dbm_f.xfer_spherical_cap(de, us, rho, rho_p, mu, k)
+            beta = dbm_f.xfer_spherical_cap(de, us, rho, rho_p, mu, k, status)
         
         return beta
     
-    def return_all(self, m, T, P, Sa, Ta):
+    def return_all(self, m, T, P, Sa, Ta, status=-1):
         """
         Compute all of the dynamic properties of the bubble in an efficient
         manner (e.g., minimizing replicate calls to functions).
@@ -987,6 +1195,9 @@ class FluidParticle(FluidMixture):
             salinity of ambient seawater (psu)
         Ta : float
             temperature of ambient seawater (K)
+        status : int
+            flag indicating whether the particle is clean (status = 1) or
+            dirty (status = -1).  Default value is -1.
         
         Returns
         -------
@@ -1018,21 +1229,28 @@ class FluidParticle(FluidMixture):
         """
         # Ambient properties of seawater
         rho = seawater.density(Ta, Sa, P)
-        mu = seawater.mu(Ta)
-        sigma = seawater.sigma(T)
-        D = dbm_f.diffusivity(Ta, self.B, self.dE)
+        mu = seawater.mu(Ta, Sa, P)
+        sigma = self.interface_tension(m, T, Sa, P)
+        D = dbm_f.diffusivity(mu, self.Vb)
         k = seawater.k()
         
         # Particle density, equivalent diameter and shape
-        rho_p = dbm_f.density(T, P, m, self.M, self.Pc, self.Tc, self.omega, 
-                             self.delta)[self.fp_type, 0]
+        rho_p = dbm_f.density(T, P, m, self.M, self.Pc, self.Tc, self.Vc, 
+                              self.omega, self.delta, self.Aij, self.Bij, 
+                              self.delta_groups, 
+                              self.calc_delta)[self.fp_type, 0]
         de = (6.0 * np.sum(m) / (np.pi * rho_p))**(1.0/3.0)
         shape = dbm_f.particle_shape(de, rho_p, rho, mu, sigma)
         
+        # Other particle properties
+        mu_p = 0.001 # self.viscosity(m, T, P)
+                
         # Solubility
         f = dbm_f.fugacity(T, P, m, self.M, self.Pc, self.Tc, self.omega, 
-                           self.delta)
-        kh = dbm_f.kh_insitu(T, P, Sa, self.kh_0, self.dH_solR, self.nu_bar)
+                           self.delta, self.Aij, self.Bij, 
+                           self.delta_groups, self.calc_delta)
+        kh = dbm_f.kh_insitu(T, P, Sa, self.kh_0, self.neg_dH_solR, 
+                             self.nu_bar, self.M)
         Cs = dbm_f.sw_solubility(f[self.fp_type,:], kh)
         
         # Check hydrate stability
@@ -1048,16 +1266,17 @@ class FluidParticle(FluidMixture):
             beta = dbm_f.xfer_sphere(de, us, rho, mu, D)
             beta_T = dbm_f.xfer_sphere(de, us, rho, mu, k)[0]
         elif shape == 2:
-            us = dbm_f.us_ellipsoid(de, rho_p, rho, mu, sigma)
+            us = dbm_f.us_ellipsoid(de, rho_p, rho, mu_p, mu, sigma, status)
             A = np.pi * de**2
-            beta = dbm_f.xfer_ellipsoid(de, us, rho, mu, D)
-            beta_T = dbm_f.xfer_ellipsoid(de, us, rho, mu, k)[0]
+            beta = dbm_f.xfer_ellipsoid(de, us, rho, mu, D, status)
+            beta_T = dbm_f.xfer_ellipsoid(de, us, rho, mu, k, status)[0]
         else:
             us = dbm_f.us_spherical_cap(de, rho_p, rho)
             theta_w = dbm_f.theta_w_sc(de, us, rho, mu)
             A = dbm_f.surface_area_sc(de, theta_w)
-            beta = dbm_f.xfer_spherical_cap(de, us, rho, rho_p, mu, D)
-            beta_T = dbm_f.xfer_spherical_cap(de, us, rho, rho_p, mu, k)[0]
+            beta = dbm_f.xfer_spherical_cap(de, us, rho, rho_p, mu, D, status)
+            beta_T = dbm_f.xfer_spherical_cap(de, us, rho, rho_p, mu, k, 
+                                              status)[0]
         
         return (shape, de, rho_p, us, A, Cs, K_hyd * beta, beta_T)
     
@@ -1193,6 +1412,62 @@ class InsolubleParticle(object):
         
         return rho_p
     
+    def viscosity(self, T):
+        """
+        Computes the dynamic viscosity of the liquid if applicable.
+        
+        Computes the dynamic viscosity of gas and liquid using correlation 
+        equations in McCain (1990).  
+        
+        Parameters
+        ----------
+        T : float
+            mixture temperature (K)
+        
+        Returns
+        -------
+        mu_p : ndarray, size (2)
+            dynamic viscosity (Pa s)
+        
+        """
+        if self.isfluid:
+            # Use equation B-53 for dead oil in McCain (1990)
+            TF = (T - 273.15) * 9.0 / 5.0 + 32.0
+            mu = (10. ** (10. ** (1.8653 - 0.025086 * self.gamma - 
+                 0.5644 * np.log10(TF))) - 1.0) / 1000.
+        else:
+            # Particle is solid; thus, viscosity is infinite
+            mu = np.inf
+        
+        return mu
+    
+    def interface_tension(self, T):
+        """
+        Computes the interfacial tension between the particle and water
+        
+        Computes the interfacial tension between the particle and water.  For an
+        insoluble particle, we do not know much about the interfacial tension.
+        This method currently uses the air-water interfacial tension for lack of
+        anything better.
+        
+        Parameters
+        ----------
+        T : float
+            particle temperature (K)
+        
+        Returns
+        -------
+        sigma_p : float
+            interfacial tension (N/m)
+        
+        Notes
+        -----
+        Returns the air-water interfacial tension for lack of any better
+        knowledge about this compound
+        
+        """
+        return seawater.sigma(T)
+    
     def mass_by_diameter(self, de, T, P, Sa, Ta):
         """
         Compute the mass (kg) of an inert fluid particle with equivalent 
@@ -1275,6 +1550,8 @@ class InsolubleParticle(object):
                 ambient seawater density (kg/m^3)
             mu : float
                 ambient seawater dynamic viscosity (Pa s)
+            mu_p : float
+                dispersed phase dynamic viscosity (Pa s)
             sigma : float
                 interfacial tension (N/m)
         
@@ -1292,8 +1569,9 @@ class InsolubleParticle(object):
         de = self.diameter(m, T, P, Sa, Ta)
         rho_p = self.density(T, P, Sa, Ta)
         rho = seawater.density(Ta, Sa, P)
-        mu = seawater.mu(Ta)
-        sigma = seawater.sigma(T)
+        mu = seawater.mu(Ta, Sa, P)
+        mu_p = self.viscosity(T)
+        sigma = self.interface_tension(T)
         
         # Compute the particle shape
         if self.isfluid:
@@ -1301,9 +1579,9 @@ class InsolubleParticle(object):
         else:
             shape = 4
         
-        return (shape, de, rho_p, rho, mu, sigma)
+        return (shape, de, rho_p, rho, mu_p, mu, sigma)
     
-    def slip_velocity(self, m, T, P, Sa, Ta):
+    def slip_velocity(self, m, T, P, Sa, Ta, status=-1):
         """
         Compute the slip velocity (m/s) of an inert fluid particle.
         
@@ -1319,6 +1597,9 @@ class InsolubleParticle(object):
             salinity of ambient seawater (psu)
         Ta : float
             temperature of ambient seawater (K)
+        status : int
+            flag indicating whether the particle is clean (status = 1) or
+            dirty (status = -1).  Default value is -1.
         
         Returns
         -------
@@ -1331,13 +1612,13 @@ class InsolubleParticle(object):
         
         """
         # Get the particle properties
-        shape, de, rho_p, rho, mu, sigma = \
+        shape, de, rho_p, rho, mu_p, mu, sigma = \
              self.particle_shape(m, T, P, Sa, Ta)
         
         if shape == 1 or shape == 4:
             us = dbm_f.us_sphere(de, rho_p, rho, mu)
         elif shape == 2:
-            us = dbm_f.us_ellipsoid(de, rho_p, rho, mu, sigma)
+            us = dbm_f.us_ellipsoid(de, rho_p, rho, mu_p, mu, sigma, status)
         else:
             us = dbm_f.us_spherical_cap(de, rho_p, rho)
         
@@ -1371,7 +1652,7 @@ class InsolubleParticle(object):
         
         """
         # Get the particle properties
-        shape, de, rho_p, rho, mu, sigma = \
+        shape, de, rho_p, rho, mu_p, mu, sigma = \
              self.particle_shape(m, T, P, Sa, Ta)
         
         if shape == 3:
@@ -1385,7 +1666,7 @@ class InsolubleParticle(object):
         
         return A
     
-    def heat_transfer(self, m, T, P, Sa, Ta):
+    def heat_transfer(self, m, T, P, Sa, Ta, status=-1):
         """
         Compute the heat transfer coefficients (m/s) for an inert fluid 
         particle.
@@ -1402,6 +1683,9 @@ class InsolubleParticle(object):
             salinity of ambient seawater (psu)
         Ta : float
             temperature of ambient seawater (K)
+        status : int
+            flag indicating whether the particle is clean (status = 1) or
+            dirty (status = -1).  Default value is -1.
         
         Returns
         -------
@@ -1414,7 +1698,7 @@ class InsolubleParticle(object):
         
        """
         # Get the particle properties
-        shape, de, rho_p, rho, mu, sigma = \
+        shape, de, rho_p, rho, mu_p, mu, sigma = \
              self.particle_shape(m, T, P, Sa, Ta)
         
         # Get the thermal conductivity of seawater
@@ -1429,13 +1713,13 @@ class InsolubleParticle(object):
         if shape == 1 or shape == 4:
             beta = dbm_f.xfer_sphere(de, us, rho, mu, k)
         elif shape == 2:
-            beta = dbm_f.xfer_ellipsoid(de, us, rho, mu, k)
+            beta = dbm_f.xfer_ellipsoid(de, us, rho, mu, k, status)
         else:
-            beta = dbm_f.xfer_spherical_cap(de, us, rho, rho_p, mu, k)
+            beta = dbm_f.xfer_spherical_cap(de, us, rho, rho_p, mu, k, status)
         
         return beta
     
-    def return_all(self, m, T, P, Sa, Ta):
+    def return_all(self, m, T, P, Sa, Ta, status=-1):
         """
         Compute all of the dynamic properties of an inert fluid particle in 
         an efficient manner (e.g., minimizing replicate calls to functions).
@@ -1457,6 +1741,9 @@ class InsolubleParticle(object):
             salinity of ambient seawater (psu)
         Ta : float
             temperature of ambient seawater (K)
+        status : int
+            flag indicating whether the particle is clean (status = 1) or
+            dirty (status = -1).  Default value is -1.
         
         Returns
         -------
@@ -1481,8 +1768,8 @@ class InsolubleParticle(object):
         """
         # Ambient properties of seawater
         rho = seawater.density(Ta, Sa, P)
-        mu = seawater.mu(Ta)
-        sigma = seawater.sigma(T)
+        mu = seawater.mu(Ta, Sa, P)
+        sigma = self.interface_tension(T)
         k = seawater.k()
         
         # Particle density, equivalent diameter and shape
@@ -1493,20 +1780,24 @@ class InsolubleParticle(object):
         else:
             shape = 4
         
+        # Other particle properties
+        mu_p = self.viscosity(T)
+        
         # Shape-specific properties
         if shape == 1 or shape == 4:
             us = dbm_f.us_sphere(de, rho_p, rho, mu)
             A = np.pi * de**2
             beta_T = dbm_f.xfer_sphere(de, us, rho, mu, k)[0]
         elif shape == 2:
-            us = dbm_f.us_ellipsoid(de, rho_p, rho, mu, sigma)
+            us = dbm_f.us_ellipsoid(de, rho_p, rho, mu_p, mu, sigma, status)
             A = np.pi * de**2
-            beta_T = dbm_f.xfer_ellipsoid(de, us, rho, mu, k)[0]
+            beta_T = dbm_f.xfer_ellipsoid(de, us, rho, mu, k, status)[0]
         else:
             us = dbm_f.us_spherical_cap(de, rho_p, rho)
             theta_w = dbm_f.theta_w_sc(de, us, rho, mu)
             A = dbm_f.surface_area_sc(de, theta_w)
-            beta_T = dbm_f.xfer_spherical_cap(de, us, rho, rho_p, mu, k)[0]
+            beta_T = dbm_f.xfer_spherical_cap(de, us, rho, rho_p, mu, 
+                                              k, status)[0]
         
         return (shape, de, rho_p, us, A, beta_T)
     
@@ -1515,7 +1806,8 @@ class InsolubleParticle(object):
 # Functions used by classes to compute gas/liquid equilibrium of a mixture
 # ----------------------------------------------------------------------------
 
-def equilibrium(m_0, T, P, M, Pc, Tc, omega, delta):
+def equilibrium(m_0, T, P, M, Pc, Tc, omega, delta, Aij, Bij, delta_groups, 
+                calc_delta):
     """
     Compute the equilibrium composition of a mixture using the P-R EOS
     
@@ -1587,12 +1879,15 @@ def equilibrium(m_0, T, P, M, Pc, Tc, omega, delta):
         xi = gas_liq_eq(m_0, M, K)
         
         # Get tha gas and liquid fugacities for the current composition
-        f_gas = dbm_f.fugacity(T, P, xi[0,:]*M, M, Pc, Tc, omega, delta)[0,:]
-        f_liq = dbm_f.fugacity(T, P, xi[1,:]*M, M, Pc, Tc, omega, delta)[1,:]
+        f_gas = dbm_f.fugacity(T, P, xi[0,:]*M, M, Pc, Tc, omega, delta, 
+                               Aij, Bij, delta_groups, calc_delta)[0,:]
+        f_liq = dbm_f.fugacity(T, P, xi[1,:]*M, M, Pc, Tc, omega, delta, 
+                               Aij, Bij, delta_groups, calc_delta)[1,:]
         
         # Update K using K = (phi_liq / phi_gas)
         
         K_new = (f_liq / (xi[1,:] * P)) / (f_gas / (xi[0,:] * P))
+        K_new[np.isnan(K_new)] = 0.
         
         # Calculate the cost function
         return K_new
@@ -1606,7 +1901,7 @@ def equilibrium(m_0, T, P, M, Pc, Tc, omega, delta):
     while eps > tol:
         K = K_0[:]
         K_0 = find_K(K)
-        eps = np.sum((K - K_0)**2 / (K * K_0))
+        eps = np.nansum((K - K_0)**2 / (K * K_0))
     
     # Return the optimized mixture composition
     return (gas_liq_eq(m_0, M, K), K)
@@ -1669,7 +1964,7 @@ def gas_liq_eq(m, M, K):
         return (1. - np.sum(zj / (1. + ng * (K - 1.))))
     
     # Find the gas and liquid fraction for the mixture
-    ng = fsolve(residual, 0.5)
+    ng = fsolve(residual, 0.7)
     nl = 1. - ng
     
     # Return the mixture composition

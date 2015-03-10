@@ -72,7 +72,7 @@ if __name__ == '__main__':
     # Echo the properties of the bubble to the screen
     print '\nBasic bubbles properties:  \n'
     print '   de = %g (m)' % (ng.diameter(m, T, P))
-    shape, de, rho_p, rho, mu, sigma = ng.particle_shape(m, T, P, Sa, Ta)
+    shape, de, rho_p, rho, mu_p, mu, sigma = ng.particle_shape(m, T, P, Sa, Ta)
     print '   shape = %g (1: Sphere, 2: Ellipsoid, 3: Spherical Cap)' \
         % shape
     print '   us = %g (m/s)' % (ng.slip_velocity(m, T, P, Sa, Ta))

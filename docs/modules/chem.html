@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.7',
+        VERSION:     '0.1.9',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -27,7 +27,7 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../index.html" />
     <link rel="up" title="Reference" href="reference.html" />
-    <link rel="next" title="Sources of Data in ChemData.csv" href="../chem/ChemData_ReadMe.html" />
+    <link rel="next" title="chemical_properties.load_data" href="../chem/chemical_properties.load_data.html" />
     <link rel="prev" title="seawater.cp" href="../seawater/seawater.cp.html" /> 
   </head>
   <body>
@@ -38,7 +38,7 @@
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="../chem/ChemData_ReadMe.html" title="Sources of Data in ChemData.csv"
+          <a href="../chem/chemical_properties.load_data.html" title="chemical_properties.load_data"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="../seawater/seawater.cp.html" title="seawater.cp"
@@ -62,7 +62,7 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">November 17, 2014</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">March 10, 2015</td>
 </tr>
 </tbody>
 </table>
@@ -91,10 +91,13 @@ value of each variable:</p>
 <blockquote class="last">
 <div>M : molecular weight (kg/mol)
 Pc : pressure at the critical point (Pa)
-Tc : temperatue at the critical point (K)
+Tc : temperature at the critical point (K)
+Vc : molar volume at the critical point (m^3/mol)
+Tb : boiling point (K)
+Vb : molar volume at the boiling point (m^3/mol)
 omega : acentric factor (&#8211;)
 kh_0 : Henry&#8217;s law constant at 298.15 K (kg/(m^3 Pa))
-dH_solR : enthalpy of solution / R (K)
+-dH_solR : negative of the enthalpy of solution / R (K)
 nu_bar : specific volume at infinite dilution (m^3/mol)
 B : diffusivity model coefficient (m^2/s)
 dE : diffusivity model coefficient (J/mol)</div></blockquote>
@@ -119,6 +122,20 @@ each variable.</dd>
 </pre></div>
 </div>
 </div>
+</div>
+<div class="section" id="module-functions">
+<h2>Module Functions<a class="headerlink" href="#module-functions" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="../chem/chemical_properties.load_data.html#chemical_properties.load_data" title="chemical_properties.load_data"><tt class="xref py py-obj docutils literal"><span class="pre">load_data</span></tt></a>(fname)</td>
+<td>Load a chemical properties file into memory</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="input-data-documentation">
 <h2>Input Data Documentation<a class="headerlink" href="#input-data-documentation" title="Permalink to this headline">¶</a></h2>
@@ -159,6 +176,9 @@ package usually imports using:</p>
 <li><a class="reference internal" href="#examples">Examples</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#module-functions">Module Functions</a><ul>
+</ul>
+</li>
 <li><a class="reference internal" href="#input-data-documentation">Input Data Documentation</a></li>
 </ul>
 </li>
@@ -168,8 +188,8 @@ package usually imports using:</p>
   <p class="topless"><a href="../seawater/seawater.cp.html"
                         title="previous chapter">seawater.cp</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="../chem/ChemData_ReadMe.html"
-                        title="next chapter">Sources of Data in ChemData.csv</a></p>
+  <p class="topless"><a href="../chem/chemical_properties.load_data.html"
+                        title="next chapter">chemical_properties.load_data</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="../_sources/modules/chem.txt"
@@ -204,7 +224,7 @@ package usually imports using:</p>
           <a href="../genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="../chem/ChemData_ReadMe.html" title="Sources of Data in ChemData.csv"
+          <a href="../chem/chemical_properties.load_data.html" title="chemical_properties.load_data"
              >next</a> |</li>
         <li class="right" >
           <a href="../seawater/seawater.cp.html" title="seawater.cp"
@@ -216,7 +236,7 @@ package usually imports using:</p>
     </div>
     <div class="footer">
         &copy; Copyright 2014, Scott A. Socolofsky.
-      Last updated on Nov 17, 2014.
+      Last updated on Mar 10, 2015.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>

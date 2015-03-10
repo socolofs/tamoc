@@ -33,7 +33,8 @@ end module EOS_Constants
 ! Peng-Robinson Equations of State for Density and Fugacity
 ! ----------------------------------------------------------------------------
 
-subroutine density(nc, T, P, mass, Mol_wt, Pc, Tc, omega, delta, &
+subroutine density(nc, T, P, mass, Mol_wt, Pc, Tc, Vc, omega, delta, Aij, & 
+    &              Bij, delta_groups, calc_delta, &
     &              rho)
     
     ! 
@@ -51,8 +52,16 @@ subroutine density(nc, T, P, mass, Mol_wt, Pc, Tc, omega, delta, &
     !     Mol_wt = array of molecular weights for each component (kg/mol)
     !     Pc = array of critical point pressures for each component (Pa)
     !     Tc = array of critical point temperatures for each component (K)
+    !     Vc = array of critical point molar volumes for each component 
+    !          (m^3/mol)
     !     omega = array of Pitzer acentric factors for each component (--)
     !     delta = matrix of binary interaction coefficients (--)
+    !     Aij = group contribution matrix A in Privat and Jaubert (2012) (Pa)
+    !     Bij = group contribution matrix B in Privat and Jaubert (2012) (Pa)
+    !     delta_groups = group contribution numbers (normalized) for each 
+    !         component in the mixture (--)
+    !     calc_groups = flag indicating whether or not delta_groups has 
+    !         been provided (1 = yes, -1 = no)
     ! 
     ! Output variable is:
     !     rho = numpy array of the density [gas, liquid] of the mixture (kg/m^3)
@@ -65,30 +74,42 @@ subroutine density(nc, T, P, mass, Mol_wt, Pc, Tc, omega, delta, &
     implicit none
     
     ! Declare the input and output variable types
-    integer, intent(in) :: nc
+    integer, intent(in) :: nc, calc_delta
     real(kind = DP), intent(in) :: T, P
-    real(kind = DP), intent(in), dimension(nc) :: mass, Mol_wt, Pc, Tc, &
+    real(kind = DP), intent(in), dimension(nc) :: mass, Mol_wt, Pc, Tc, Vc, &
                                                 & omega
+    real(kind = DP), intent(in), dimension(nc, 15) :: delta_groups
+    real(kind = DP), intent(in), dimension(15, 15) :: Aij, Bij
     real(kind = DP), intent(in), dimension(nc, nc) :: delta
     real(kind = DP), intent(out), dimension(2, 1) :: rho
     
     ! Declare the variables internal to the function
     real(kind = DP) :: A, B, R
-    real(kind = DP), dimension(2, 1) :: z
-    real(kind = DP), dimension(nc) :: Ap, Bp, yk
+    real(kind = DP), dimension(2, 1) :: z, nu
+    real(kind = DP), dimension(nc) :: Ap, Bp, yk, vt
     
     ! Get the z-factor using the Peng-Robinson equation of state
-    call z_pr(nc, T, P, mass, Mol_wt, Pc, Tc, omega, delta, &
+    call z_pr(nc, T, P, mass, Mol_wt, Pc, Tc, omega, delta, Aij, Bij, &
+        &     delta_groups, calc_delta, & 
         &     z, A, B, Ap, Bp, yk)
     
+    ! Convert the masses to mole fraction
+    call mole_fraction(nc, mass, Mol_wt, yk)
+    
+    ! Compute the volume translation coefficient
+    call volume_trans(nc, T, P, mass, Mol_wt, Pc, Tc, Vc, vt)
+    
+    ! Compute the molar volume
+    nu = z * Ru * T / P - sum(yk(:) * vt(:))
+    
     ! Compute and return the density
-    R = Ru * sum(mass(:) / Mol_wt(:)) / sum(mass(:))
-    rho = P / (z * R * T)
+    rho = 1.0D0 / nu * sum(yk(:) * Mol_wt(:))
 
 end subroutine density
 
 
-subroutine fugacity(nc, T, P, mass, Mol_wt, Pc, Tc, omega, delta, &
+subroutine fugacity(nc, T, P, mass, Mol_wt, Pc, Tc, omega, delta, Aij, Bij, &
+    &               delta_groups, calc_delta, &
     &               fug)
     
     ! 
@@ -109,6 +130,12 @@ subroutine fugacity(nc, T, P, mass, Mol_wt, Pc, Tc, omega, delta, &
     !     Tc = array of critical point temperatures for each component (K)
     !     omega = array of Pitzer acentric factors for each component (--)
     !     delta = matrix of binary interaction coefficients (--)
+    !     Aij = group contribution matrix A in Privat and Jaubert (2012) (Pa)
+    !     Bij = group contribution matrix B in Privat and Jaubert (2012) (Pa)
+    !     delta_groups = group contribution numbers (normalized) for each 
+    !         component in the mixture (--)
+    !     calc_groups = flag indicating whether or not delta_groups has 
+    !         been provided (1 = yes, -1 = no)
     ! 
     ! Output variable is:
     !     fug = array of the fugacities [gas, liquid] of the mixture (Pa)
@@ -123,10 +150,12 @@ subroutine fugacity(nc, T, P, mass, Mol_wt, Pc, Tc, omega, delta, &
     implicit none
     
     ! Declare the input and output variable types
-    integer, intent(in) :: nc
+    integer, intent(in) :: nc, calc_delta
     real(kind = DP), intent(in) :: T, P
     real(kind = DP), intent(in), dimension(nc) :: mass, Mol_wt, Pc, Tc, &
                                                 & omega
+    real(kind = DP), intent(in), dimension(nc, 15) :: delta_groups
+    real(kind = DP), intent(in), dimension(15, 15) :: Aij, Bij
     real(kind = DP), intent(in), dimension(nc, nc) :: delta
     real(kind = DP), intent(out), dimension(2, nc) :: fug
     
@@ -137,7 +166,8 @@ subroutine fugacity(nc, T, P, mass, Mol_wt, Pc, Tc, omega, delta, &
     real(kind = DP), dimension(nc) :: Ap, Bp, yk
     
     ! Get the z-factor using the Peng-Robinson equation of state
-    call z_pr(nc, T, P, mass, Mol_wt, Pc, Tc, omega, delta, &
+    call z_pr(nc, T, P, mass, Mol_wt, Pc, Tc, omega, delta, Aij, Bij, &
+        &     delta_groups, calc_delta, &
         &     z, A, B, Ap, Bp, yk)
     
     do i = 1, 2
@@ -150,7 +180,73 @@ subroutine fugacity(nc, T, P, mass, Mol_wt, Pc, Tc, omega, delta, &
 end subroutine fugacity
 
 
-subroutine z_pr(nc, T, P, mass, Mol_wt, Pc, Tc, omega, delta, &
+subroutine volume_trans(nc, T, P, mass, Mol_wt, Pc, Tc, Vc, &
+    &                   vt)
+    
+    ! 
+    ! Computes the volume translation parameter to correct the density
+    ! 
+    ! Computes the volume translation parameter to correct the density from
+    ! the Peng-Robinson Equation of State based on Lin and Duan (2005), 
+    ! "Empirical correction to the Peng-Robinson equation of state for the
+    ! saturated region," Fluid Phase Equilibria, 233: 194-203.  The volume
+    ! translation parameter has a value for each component in the mixture.
+    ! 
+    ! Input Variables are:
+    !     nc = number of components in the mixture
+    !     T = temperature (K)
+    !     P = pressure (Pa)
+    !     Pc = array of critical point pressures for each component (Pa)
+    !     Tc = array of critical point temperatures for each component (K)
+    !     Vc = array of critical point molar volumes for each component 
+    !          (m^3/mol)
+    !     mass = array of masses for each component in the mixture (kg)
+    !     Mol_wt = array of molecular weights for each component (kg/mol)
+    ! 
+    ! Output variable is:
+    !     vt = volume translation parameter (m^3/mol)
+    ! 
+    ! S. Socolofsky
+    ! December 2014
+    ! 
+    
+    use EOS_Constants
+    implicit none
+    
+    ! Declare the input and output variable types
+    integer, intent(in) :: nc
+    real(kind = DP), intent(in) :: T, P
+    real(kind = DP), intent(in), dimension(nc) :: mass, Mol_wt, Pc, Tc, Vc
+    real(kind = DP), intent(out), dimension(nc) :: vt
+    
+    ! Declare the variables internal to the function
+    real(kind = DP), dimension(nc) :: Zc, beta, gamma, f_Tr, cc
+    
+    ! Compute the compressibility factor (--) for each component of the 
+    ! mixture
+    Zc = Pc(:) * Vc(:) / (Ru * Tc(:))
+    
+    ! Calculate the parameters in the Lin and Duan (2005) paper:  beta is 
+    ! from equation (12)
+    beta = -2.8431D0 * exp(-64.2184D0 * (0.3074D0 - Zc(:))) + 0.1735D0
+    
+    ! and gamma is from Equation (13)
+    gamma = -99.2558D0 + 301.6201D0 * Zc(:)
+    
+    ! Account for the temperature dependence (equation 10)
+    f_Tr = beta(:) + (1.0D0 - beta(:)) * exp(gamma(:) * abs(1.0D0-Tc(:) / T))
+    
+    ! Compute the volume translation for the critical point (equation 9)
+    cc = (0.3074D0 - Zc(:)) * Ru * Tc(:) / Pc(:)
+    
+    ! Finally, the volume translation at the given state is (equation 8)
+    vt = f_Tr * cc
+
+end subroutine volume_trans
+
+
+subroutine z_pr(nc, T, P, mass, Mol_wt, Pc, Tc, omega, delta, Aij, Bij, &
+    &           delta_groups, calc_delta, &
     &           z, A, B, Ap, Bp, yk)
     
     ! 
@@ -176,6 +272,12 @@ subroutine z_pr(nc, T, P, mass, Mol_wt, Pc, Tc, omega, delta, &
     !     Tc = array of critical point temperatures for each component (K)
     !     omega = array of Pitzer acentric factors for each component (--)
     !     delta = matrix of binary interaction coefficients (--)
+    !     Aij = group contribution matrix A in Privat and Jaubert (2012) (Pa)
+    !     Bij = group contribution matrix B in Privat and Jaubert (2012) (Pa)
+    !     delta_groups = group contribution numbers (normalized) for each 
+    !         component in the mixture (--)
+    !     calc_groups = flag indicating whether or not delta_groups has 
+    !         been provided (1 = yes, -1 = no)
     ! 
     ! Output variables are:
     !     z = array of the z-factor (gas, liquid) for the mixture (--)
@@ -189,11 +291,13 @@ subroutine z_pr(nc, T, P, mass, Mol_wt, Pc, Tc, omega, delta, &
     implicit none
     
     ! Declare the input and output variable types
-    integer, intent(in) :: nc
+    integer, intent(in) :: nc, calc_delta
     real(kind = DP), intent(in) :: T, P
     real(kind = DP), intent(in), dimension(nc) :: mass, Mol_wt, Pc, Tc, &
                                                 & omega
     real(kind = DP), intent(in), dimension(nc, nc) :: delta
+    real(kind = DP), intent(in), dimension(nc, 15) :: delta_groups
+    real(kind = DP), intent(in), dimension(15, 15) :: Aij, Bij
     real(kind = DP), intent(out) :: A, B
     real(kind = DP), intent(out), dimension(2, 1) :: z
     real(kind = DP), intent(out), dimension(nc) :: Ap, Bp, yk
@@ -205,7 +309,8 @@ subroutine z_pr(nc, T, P, mass, Mol_wt, Pc, Tc, omega, delta, &
     complex(kind = DP), dimension(3) :: z_roots
     
     ! Compute the coefficients of the polynomial for z-factor
-    call coefs(nc, T, P, mass, Mol_wt, Pc, Tc, omega, delta, &
+    call coefs(nc, T, P, mass, Mol_wt, Pc, Tc, omega, delta, Aij, Bij, &
+        &      delta_groups, calc_delta, &
         &      A, B, Ap, Bp, yk)
     p_coefs(1) = 1.0D0
     p_coefs(2) = B - 1.0D0
@@ -241,7 +346,8 @@ subroutine z_pr(nc, T, P, mass, Mol_wt, Pc, Tc, omega, delta, &
 end subroutine z_pr
 
 
-subroutine coefs(nc, T, P, mass, Mol_wt, Pc, Tc, omega, delta, &
+subroutine coefs(nc, T, P, mass, Mol_wt, Pc, Tc, omega, delta_in, Aij, Bij, &
+    &            delta_groups, calc_delta, &
     &            A, B, Ap, Bp, yk)
     
     ! 
@@ -261,6 +367,12 @@ subroutine coefs(nc, T, P, mass, Mol_wt, Pc, Tc, omega, delta, &
     !     Tc = array of critical point temperatures for each component (K)
     !     omega = array of Pitzer acentric factors for each component (--)
     !     delta = matrix of binary interaction coefficients (--)
+    !     Aij = group contribution matrix A in Privat and Jaubert (2012) (Pa)
+    !     Bij = group contribution matrix B in Privat and Jaubert (2012) (Pa)
+    !     delta_groups = group contribution numbers (normalized) for each 
+    !         component in the mixture (--)
+    !     calc_groups = flag indicating whether or not delta_groups has 
+    !         been provided (1 = yes, -1 = no)
     ! 
     ! Output variables are:
     !     A = aT coefficient in P-R EOS
@@ -276,33 +388,75 @@ subroutine coefs(nc, T, P, mass, Mol_wt, Pc, Tc, omega, delta, &
     implicit none
     
     ! Declare the input and output variable types
-    integer, intent(in) :: nc
+    integer, intent(in) :: nc, calc_delta
     real(kind = DP), intent(in) :: T, P
     real(kind = DP), intent(in), dimension(nc) :: mass, Mol_wt, Pc, Tc, &
                                                 & omega
-    real(kind = DP), intent(in), dimension(nc, nc) :: delta
+    real(kind = DP), intent(in), dimension(nc, 15) :: delta_groups
+    real(kind = DP), intent(in), dimension(15, 15) :: Aij, Bij
+    real(kind = DP), intent(in), dimension(nc, nc) :: delta_in
     real(kind = DP), intent(out) :: A, B
     real(kind = DP), intent(out), dimension(nc) :: Ap, Bp, yk
     
     ! Declare the variables internal to the function
-    integer :: i, j
-    real(kind = DP) :: bd, aT
+    integer :: i, j, k, l
+    real(kind = DP) :: bd, aT, sum_term, sum1
     real(kind = DP), dimension(nc) :: mu, alpha, aTk, bk
+    real(kind = DP), dimension(nc, nc) :: delta
     
     ! Convert the masses to mole fraction
     call mole_fraction(nc, mass, Mol_wt, yk)
     
-    ! Compute the coefficient values for each gas in the mixture
-    mu = 0.37464D0 + 1.54226D0 * omega(:) - 0.26992D0 * omega(:)**2
+    ! Compute the coefficient values for each gas in the mixture.  Use the 
+    ! modified Peng-Robinson (1978) equations for mu
+    do i = 1, nc
+        if (omega(i) > 0.49D0) then
+            mu(i) = 0.379642D0 + 1.48503D0 * omega(i) - 0.1644D0 * &
+                  & omega(i)**2 + 0.016667D0 * omega(i)**3
+        else
+            mu(i) = 0.37464D0 + 1.54226D0 * omega(i) - 0.26992D0 * omega(i)**2
+        end if
+    end do
     alpha = (1.0D0 + mu(:) * (1.0D0 - (T / Tc(:))**(1.0D0/2.0D0)))**2
     aTk = 0.45724D0 * Ru**2 * Tc(:)**2 / Pc(:) * alpha(:)
     bk = 0.07780D0 * Ru * Tc(:) / Pc(:)
     
+    ! Initialize the output vector for delta to the input values
+    delta(:,:) = delta_in(:,:)
+    
+    ! Get the temperature-dependent binary interaction coefficients (if 
+    ! the user provided the group contributions)
+    if (calc_delta > 0) then
+        do j = 2, nc
+            do i = 1, j-1
+                sum1 = 0.0D0
+                do l = 1, 15
+                    do k = 1, 15
+                        sum_term =  (delta_groups(i,k) - & 
+                                 & delta_groups(j,k)) * (delta_groups(i,l) - &
+                                 & delta_groups(j,l)) * Aij(k, l) * &
+                                 & (298.15D0 / T) ** (Bij(k,l) / Aij(k,l) - &
+                                 & 1.0D0)
+                        if (.not. isnan(sum_term)) then
+                            sum1 = sum1 + sum_term
+                        end if
+                    end do
+                end do
+                
+                delta(i, j) = - (0.5D0 * sum1 + (sqrt(aTk(i)) / bk(i) - &
+                            & sqrt(aTk(j)) / bk(j)) ** 2) / & 
+                            & (2.0D0 * sqrt(aTk(i) * aTk(j)) / &
+                            & (bk(i) * bk(j)))
+                delta(j, i) = delta(i,j)
+            end do
+        end do
+    end if
+    
     ! Use the mixing rules in McCain (1990)
     bd = sum(yk(:) * bk(:))
     aT = 0.0D0
-    do i = 1, nc
-        do j = 1, nc
+    do j = 1, nc
+        do i = 1, nc
             aT = aT + yk(i) * yk(j) * (aTk(i) * aTk(j))**(1.0D0/2.0D0) * &
                & (1.0D0 - delta(i,j))
         end do
@@ -361,10 +515,146 @@ end subroutine mole_fraction
 
 
 ! ----------------------------------------------------------------------------
+! Other Fluid Properties (viscosity, surface tension, etc...)
+! ----------------------------------------------------------------------------
+
+subroutine viscosity(nc, T, P, mass, Mol_wt, Pc, Tc, Vc, omega, delta, Aij, &
+    &                Bij, delta_groups, calc_delta, rho_w, m_g, m_o, &
+    &                mu)
+    
+    ! Compute the viscosity of a petroleum fluid
+    !
+    ! Computes the dynamic viscosity of a hydrocarbon fluid.  For the gas 
+    ! phase, equation B-26 in McCain (1990) is used.  For the liquid phase, 
+    ! the dead oil viscosity is computed from equation B-53 in McCain (1990).
+    ! If the oil contains some gas, then the gas-oil ratio is evaluated and
+    ! the saturated oil viscosity is computed from equation B-54 in McCain
+    ! (1990).  If the pressure is above the bubble-point pressure, the 
+    ! saturated oil viscosity will be an over-estimate.  However, this 
+    ! amount of over-estimate is likely within the range of a factor of 2.
+    ! It is already observed that these equations can deviate for dead oil
+    ! by a factor of up to 10 (e.g., pure benzene); hence, this function 
+    ! returns the saturated oil viscosity in the case that gas is present 
+    ! dissolved in the liquid phase.
+    !
+    ! Input Variables are:
+    !     nc = number of components in the mixture
+    !     T = temperature (K)
+    !     P = pressure (Pa)
+    !     mass = array of masses for each component in the mixture (kg)
+    !     Mol_wt = array of molecular weights for each component (kg/mol)
+    !     Pc = array of critical point pressures for each component (Pa)
+    !     Tc = array of critical point temperatures for each component (K)
+    !     Vc = array of critical point molar volumes for each component 
+    !          (m^3/mol)
+    !     omega = array of Pitzer acentric factors for each component (--)
+    !     delta = matrix of binary interaction coefficients (--)
+    !     Aij = group contribution matrix A in Privat and Jaubert (2012) (Pa)
+    !     Bij = group contribution matrix B in Privat and Jaubert (2012) (Pa)
+    !     delta_groups = group contribution numbers (normalized) for each 
+    !         component in the mixture (--)
+    !     calc_groups = flag indicating whether or not delta_groups has 
+    !         been provided (1 = yes, -1 = no)
+    !     rho_w = density of seawater (kg/m^3)
+    !     m_g = array of masses for each component in the gas phase at 
+    !           equilibrium under standard conditions (15 deg C, 1 atm) (kg)
+    !     m_o = array of masses for each component in the oil phase at
+    !           equilibrium under standard conditions (15 deg C, 1 atm) (kg)
+    ! 
+    ! Output variable is:
+    !     mu = array containing the gas and liquid phase viscosities for the
+    !          mixture (Pa s)
+    ! 
+    ! S. Socolofsky
+    ! June 2013
+    ! 
+    
+    use EOS_Constants
+    implicit none
+    
+    ! Declare the input and output variable types
+    integer, intent(in) :: nc, calc_delta
+    real(kind = DP), intent(in) :: T, P, rho_w
+    real(kind = DP), intent(in), dimension(nc) :: mass, Mol_wt, Pc, Tc, Vc, &
+                                                & omega, m_g, m_o
+    real(kind = DP), intent(in), dimension(15, 15) :: Aij, Bij                                            
+    real(kind = DP), intent(in), dimension(nc, 15) :: delta_groups
+    real(kind = DP), intent(in), dimension(nc, nc) :: delta
+    real(kind = DP), intent(out), dimension(2, 1) :: mu
+    
+    ! Declare the variables internal to the function
+    real(kind = DP) :: Ma, TR, api, A, B, C, mu_g, TF, mu_oD, Vo, Vg, Rs, mu_o
+    real(kind = DP), dimension(nc) :: xi
+    real(kind = DP), dimension(2, 1) :: rho_p
+    
+    ! Compute the density of each phase of the mixture
+    call density(nc, T, P, mass, Mol_wt, Pc, Tc, Vc, omega, delta, Aij, &
+        &        Bij, delta_groups, calc_delta, rho_p)
+    
+    ! Start with the viscosity of the gas phase.  Compute the apparent 
+    ! molecular weight of the gas.  See equation 3-35 on page 102.
+    call mole_fraction(nc, mass, Mol_wt, xi)
+    Ma = sum(xi(:) * Mol_wt(:))
+    
+    ! Compute the coefficients A, B, C from equations B-27 to B-29 on 
+    ! pages 514-515.
+    TR = (T - 273.15D0) * 9.0D0/5.0D0 + 491.67D0
+    A = (9.379D0 + 0.01607D0 * Ma) * TR**1.5D0 / (209.2D0 + 19.26D0 * Ma + TR)
+    B = 3.448D0 + 986.4D0 / TR + 0.01009D0 * Ma
+    C = 2.447D0 - 0.2224D0 * B
+    
+    ! Get the dynamic viscosity of gas from equation B-26 on page 514.
+    mu_g = A * 1.0D-7 * exp(B * (rho_p(1,1) / 1000.0D0)**C)
+    
+    ! Next, compute the viscosity of the liquid phase.  We start by 
+    ! computing the dead oil viscosity.  Get the equilibrium composition.
+    call density(nc, 273.15D0 + 15.0D0, 101325.0D0, m_o, Mol_wt, Pc, Tc, & 
+        &        Vc, omega, delta, Aij, Bij, delta_groups, calc_delta, &
+        &        rho_p)
+    api = 141.5D0 /(rho_p(2,1) / rho_w) - 131.5D0
+    
+    ! Compute the dead oil viscosity from equation B-53 (dead oil) on 
+    ! page 523.
+    TF = (T - 273.15D0) * 9.0D0 / 5.0D0 + 32.0D0
+    mu_oD = 10.0D0 ** (10.0D0 ** (1.8653D0 - 0.025086D0 * api - &
+          & 0.5644D0 * log10(TF))) - 1.0D0
+    
+    ! Adjust to a live oil viscosity if needed
+    if (nc > 1) then
+        
+        ! Get the solution gas-oil ratio of the liquid
+        Vo = sum(m_o(:)) / rho_p(2,1) * 6.2898D0
+        call density(nc, 273.15D0 + 15.0D0, 101325.0D0, m_g, Mol_wt, Pc, Tc, & 
+            &        Vc, omega, delta, Aij, Bij, delta_groups, calc_delta, & 
+            &        rho_p)
+        Vg = sum(m_g(:)) / rho_p(1,1) * 35.31466672D0        
+        Rs = Vg / Vo
+        
+        ! Compute the live oil viscosity from equations B-54 to B-56 on 
+        ! pages 523-524.  This equation is for oil at saturation with 
+        ! gas.  If under-saturated, viscosity could be higher by factor
+        ! of 2 or less for reasonable pressures over bubble point 
+        ! pressure.
+        A = 10.715D0 * (Rs + 100.0D0) ** (-0.515D0)
+        B = 5.44D0 * (Rs + 150.0D0) ** (-0.338D0)
+        mu_o = A * mu_oD ** B / 1000.0D0
+        
+    else
+        mu_o = mu_oD / 1000.0D0
+    end if
+    
+    ! Build the output array
+    mu(1,1) = mu_g
+    mu(2,1) = mu_o
+    
+end subroutine viscosity
+
+
+! ----------------------------------------------------------------------------
 ! Modified Henry's Law for Solubility Calculations
 ! ----------------------------------------------------------------------------
 
-subroutine kh_insitu(T, P, S, kh_0, dH_solR, nu_bar, nc, &
+subroutine kh_insitu(T, P, S, kh_0, dH_solR, nu_bar, Mol_wt, nc, &
     &                kh)
     
     ! 
@@ -386,12 +676,11 @@ subroutine kh_insitu(T, P, S, kh_0, dH_solR, nu_bar, nc, &
     ! Input variables are:
     !     T = temperature (K)
     !     P = pressure (Pa)
-    !     S = salinity (psu)
-    !     mass = array of masses for each component in the mixture (kg)
-    !     Mol_wt = array of molecular weights for each component (kg/mol)    
+    !     S = salinity (psu)   
     !     kh_0 = Henry's Law constant at 298.15 K (kg/(m^3 Pa))
     !     dH_solR = enthalpy of solution / R (K)
     !     nu_bar = partial molar volume at infinite dilution (m^3/mol)
+    !     Mol_wt = array of molecular weights for each component (kg/mol) 
     ! 
     ! Returns an array of Henry's law coefficients (kg/(m^3 Pa))
     ! 
@@ -405,24 +694,38 @@ subroutine kh_insitu(T, P, S, kh_0, dH_solR, nu_bar, nc, &
     ! Declare the input and output variable types
     integer, intent(in) :: nc
     real(kind = DP), intent(in) :: T, P, S
-    real(kind = DP), intent(in), dimension(nc) :: kh_0, dH_solR, nu_bar
+    real(kind = DP), intent(in), dimension(nc) :: kh_0, dH_solR, nu_bar, &
+                                                & Mol_wt
     real(kind = DP), intent(out), dimension(nc) :: kh
     
     ! Declare the variables internal to the function 
+    integer :: i
     real(kind = DP), parameter :: P_ATM = 101325.0D0
+    real(kind = DP), parameter :: M_SEA = 68.35D0
+    real(kind = DP), dimension(nc) :: Ksalt
     
-    ! Adjust from STP to ambient temperature
-    kh(:) = kh_0(:) * exp(dH_solR(:) * (1.0D0 / T - 1.0D0 / 298.15D0))
-    
-    ! Adjust to the ambient pressure
-    kh(:) =  kh(:) * exp((P_ATM - P) * nu_bar(:) / (RU * T))
-    
-    ! Adjust for the salting out effect of salinity.  Note that this specific
-    ! equation was derived for CO2 and that we use it here assuming the 
-    ! effect is similar for all gases.  This is consistent with McGinnis 
-    ! et al. (2006).
-    kh(:) = kh(:) * exp(S * (0.027766D0 - 0.025888D0 * T / 100.0D0 + &
-          & 0.0050578D0 * (T / 100.0D0)**2))
+    do i = 1, nc
+        
+        if (kh_0(i) < 0.0D0) then
+            ! These are low solubility compounds for which we do not know 
+            ! the solubility...set kh to zero.
+            kh(i) = 0.0D0
+        
+        else
+            ! Adjust from STP to ambient temperature
+            kh(i) = kh_0(i) * exp(dH_solR(i) * (1.0D0 / T - 1.0D0 / 298.15D0))
+            
+            ! Adjust to the ambient pressure
+            kh(i) =  kh(i) * exp((P_ATM - P) * nu_bar(i) / (RU * T))
+            
+            ! Adjust for the salting out effect of salinity.  Use the empirical 
+            ! equation for the Setschenow constant given by Jonas.    
+            Ksalt(i) = -1.162D0 * Mol_wt(i) + 2553.4D0 * nu_bar(i) + 0.090255D0
+            kh(i) = kh(i) * 10.0D0 ** (-S / M_SEA * Ksalt(i))
+            
+        end if
+        
+    end do
     
 end subroutine kh_insitu
 
@@ -462,26 +765,24 @@ subroutine sw_solubility(f, kh, nc, &
 end subroutine sw_solubility
 
 
-subroutine diffusivity(T, B, dE, nc, &
+subroutine diffusivity(mu, Vb, nc, &
     &                  D)
     
     ! 
     ! Compute the diffusivity of each component in a mixture into seawater
     ! 
     ! Computes the diffusivity of each component in a fluid mixture into 
-    ! seawater at the given temperature.  The calculation is from Wise and 
-    ! Houghton (1966) for slightly soluble gases in water at 10 and 60 deg C.
-    ! Data in the paper are presented for H2, O2, N2, air, He, Ar, CH4, C2H6, 
-    ! C3H8, and n-C4H10.  
+    ! seawater at the given temperature.  The calculation is from Hayduk and
+    ! Laudie (1974), AIChE J., vol. 20, pp. 611-615.
     ! 
     ! Input variables are:
-    !     T = temperature of the ambient seawater (K)
-    !     B, dE = fit parameters from Wise and Houghton
+    !     mu = viscosity of seawater at the ambient conditions (Pa s)
+    !     Vb = molar volume of each compound at its boiling point (m^3/mol)
     ! 
     ! Returns an array of diffusivities (m^2/s) for each component into water.
     ! 
     ! S. Socolofsky
-    ! July 2013
+    ! February 2015
     !
     
     use EOS_Constants
@@ -489,11 +790,27 @@ subroutine diffusivity(T, B, dE, nc, &
     
     ! Declare the input and output variable types
     integer, intent(in) :: nc
-    real(kind = DP), intent(in) :: T
-    real(kind = DP), intent(in), dimension(nc) :: B, dE
+    real(kind = DP), intent(in) :: mu
+    real(kind = DP), intent(in), dimension(nc) :: Vb
     real(kind = DP), intent(out), dimension(nc) :: D
     
-    D(:) = B(:) * exp(-dE(:) / (RU * T))
+    ! Declare the internal variables
+    integer :: i
+    
+    do i = 1, nc
+        
+        if (Vb(i) < 0.0D0) then
+            ! For some insoluble compounds, we do not know the inputs...
+            ! set diffusivity to zero
+            D(i) = 0.0D0
+            
+        else
+            ! Use the Hayduk and Laudie formula
+            D(i) = 13.26D-9 / ((mu * 1.0D3)**1.14D0 * (Vb(i) * 1.0D6)**0.589D0)
+        
+        end if
+    
+    end do
     
 end subroutine diffusivity
 

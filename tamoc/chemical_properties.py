@@ -26,10 +26,13 @@ data : dict
        
        M : molecular weight (kg/mol)
        Pc : pressure at the critical point (Pa)
-       Tc : temperatue at the critical point (K)
+       Tc : temperature at the critical point (K)
+       Vc : molar volume at the critical point (m^3/mol)
+       Tb : boiling point (K)
+       Vb : molar volume at the boiling point (m^3/mol)
        omega : acentric factor (--)
        kh_0 : Henry's law constant at 298.15 K (kg/(m^3 Pa))
-       dH_solR : enthalpy of solution / R (K)
+       -dH_solR : negative of the enthalpy of solution / R (K)
        nu_bar : specific volume at infinite dilution (m^3/mol)
        B : diffusivity model coefficient (m^2/s)
        dE : diffusivity model coefficient (J/mol)
@@ -56,77 +59,126 @@ Examples
 import numpy as np
 import os
 
-# Set up counters to keep track of what has been and has not been read
-readnames = -1
-data = {}
 
-# Figure out the path to the ChemData.csv file
-__location__ = os.path.realpath(os.path.join(os.getcwd(), 
-                                os.path.dirname(__file__), 'data'))
-
-# Read in and parse the data from the chemistry data file.
-with open(os.path.join(__location__,'ChemData.csv')) as datfile:
-    for line in datfile:
-        entries = line.strip().split(',')
-        
-        # Remove blank RHS column (Excel randomly includes extra columns)
-        if len(entries[len(entries)-1]) is 0:
-            entries = entries[0:len(entries)-1]
-        
-        # Identify and store the data
-        if line.find('%') >= 0:
-            # This is a header line
+def load_data(fname):
+    """
+    Load a chemical properties file into memory
+    
+    Reads in a chemical properties file, creates a dictionary of the columns
+    in the file, and performs some units conversions as necessary to have the
+    data in SI mks units.  
+    
+    Parameters
+    ----------
+    fname : str
+        file name (with relative path as necessary) where the chemical 
+        property data is stored
+    
+    Returns
+    -------
+    data : dict
+        dictionary of the properties for each column in the data file
+    units : dict
+        corresponding dictionary of units for each property in data
+    
+    Notes
+    -----
+    This function is used by the `dbm` module to load in the default chemical
+    data in ./tamoc/data/chemdata.csv.  This function can also be called by
+    the user to read in a user-specified file of chemical data present in any
+    storage location.
+    
+    """
+    # Set up counters to keep track of what has been and has not been read
+    readnames = -1
+    data = {}
+    
+    # Read in and parse the data from the chemistry data file.
+    with open(fname) as datfile:
+        for line in datfile:
             
-            if line.find('(') >= 0:
-                # This line contains the units
-                header_units = line.strip().split(',')
+            entries = line.strip().split(',')
+            
+            # Remove blank RHS column (Excel randomly includes extra columns)
+            if len(entries[len(entries)-1]) is 0:
+                entries = entries[0:len(entries)-1]
+            
+            # Identify and store the data
+            if line.find('%') >= 0:
+                # This is a header line
                 
-            elif (len(entries[1]) > 0) and(readnames < 0):
-                # This line contains the variable names
-                header_keys = line.strip().split(',')
-                readnames = 1
+                if line.find('(') >= 0:
+                    # This line contains the units
+                    header_units = line.strip().split(',')
+                
+                elif (len(entries[1]) > 0) and(readnames < 0):
+                    # This line contains the variable names
+                    header_keys = line.strip().split(',')
+                    readnames = 1
+                
+            else:
+                # This is a data line
+                data[entries[0]] = {header_keys[i] : np.float64(entries[i])
+                        for i in range(1, len(entries))}
             
-        else:
-            # This is a data line
-            data[entries[0]] = {header_keys[i] : np.float64(entries[i])
-                    for i in range(1, len(entries))}
+    # Add the units to the dictionary
+    units = {header_keys[i] : header_units[i]
+             for i in range(len(header_units) - 1)}
+    
+    # Convert to SI units.  If you add a new unit to the file ChemData.csv, 
+    # then you should include a check for it here.
+    for chemical in data:
+        for variable in units:
+            if units[variable].find('g/mol') >= 0:
+                data[chemical][variable] = data[chemical][variable] / 1000.
+            
+            if units[variable].find('psia') >= 0:
+                data[chemical][variable] = data[chemical][variable] * 6894.76
+            
+            if units[variable].find('F') >= 0:
+                data[chemical][variable] = (data[chemical][variable] - 32.) * \
+                                           5. / 9. + 273.15
+            
+            if units[variable].find('mol/dm^3 atm') >= 0:
+                data[chemical][variable] = (data[chemical][variable] * \
+                                           1000. / 101325. * \
+                                           data[chemical]['M'])
+            
+            if units[variable].find('mm^2/sec') >= 0:
+                data[chemical][variable] = data[chemical][variable] / 1000.**2
+            
+            if units[variable].find('cal/mol') >= 0:
+                data[chemical][variable] = data[chemical][variable] / 0.238846
+    
+    # Now that all the data are converted, store the correct units.  Only set
+    # the units of checked above.  If the user has other data in the table, 
+    # leave the units alone.
+    units[header_keys[0]] = '(--)'
+    units[header_keys[1]] = '(kg/mol)'
+    units[header_keys[2]] = '(Pa)'
+    units[header_keys[3]] = '(K)'
+    units[header_keys[4]] = '(m^3/mol)'
+    units[header_keys[5]] = '(K)'
+    units[header_keys[6]] = '(m^3/mol)'
+    units[header_keys[6]] = '(--)'
+    units[header_keys[7]] = '(kg/m^3 Pa)'
+    units[header_keys[8]] = '(K)'
+    units[header_keys[9]] = '(m^3/mol)'
+    units[header_keys[10]] = '(m^2/s)'
+    units[header_keys[11]] = '(J/mol)'
+    
+    return (data, units)
 
-# Add the units to the dictionary
-units = {header_keys[i] : header_units[i]
-         for i in range(len(header_units) - 1)}
 
-# Convert to SI units.  If you add a new unit to the file ChemData.csv, then 
-# you should include a check for it here.
-for chemical in data:
-    if units['M'].find('g/mol') >= 0:
-        data[chemical]['M'] = data[chemical]['M'] / 1000.
+if __name__ == 'tamoc.chemical_properties':
+    # Get the relative path to the ./tamoc/data directory
+    __location__ = os.path.realpath(os.path.join(os.getcwd(), 
+                                    os.path.dirname(__file__), 'data'))
     
-    if units['Pc'].find('psia') >= 0:
-        data[chemical]['Pc'] = data[chemical]['Pc'] * 6894.76
+    # Create the full relative path to the default data in ChemData.csv
+    fname = os.path.join(__location__,'ChemData.csv')
     
-    if units['Tc'].find('F') >= 0:
-        data[chemical]['Tc'] = (data[chemical]['Tc'] - 32.) * 5. / 9. + 273.15
-    
-    if units['kh_0'].find('mol/dm^3 atm') >= 0:
-        data[chemical]['kh_0'] = (data[chemical]['kh_0'] * 1000. / 101325. *
-                                  data[chemical]['M'])
-    
-    if units['B'].find('cm^2/sec') >= 0:
-        data[chemical]['B'] = data[chemical]['B'] * 1.e-2 / 100.**2
-    
-    if units['dE'].find('cal/mol') >= 0:
-        data[chemical]['dE'] = data[chemical]['dE'] / 0.238846
-    
+    # Load in the default data and their units
+    data, units = load_data(fname)
 
-# Now that all the data are converted, store the correct units
-units = {header_keys[0]: '(--)', 
-         header_keys[1]: '(kg/mol)', 
-         header_keys[2] : '(Pa)', 
-         header_keys[3] : '(K)', 
-         header_keys[4] : '(--)', 
-         header_keys[5] : '(kg/m^3 Pa)', 
-         header_keys[6] : '(K)',
-         header_keys[7] : '(m^3/mol)',
-         header_keys[8] : '(m^2/s)',
-         header_keys[9] : '(J/mol)'}
 

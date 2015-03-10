@@ -175,12 +175,13 @@ class Model(object):
     previous simulation stored in `simfile`.
     
     """
-    def __init__(self, profile=None, simfile=None):
+    def __init__(self, profile=None, simfile=None, user_data={}, 
+                 delta_groups=None):
         super(Model, self).__init__()
         
         if profile is None:
             # Create a Model object from a saved file
-            self.load_sim(simfile)
+            self.load_sim(simfile, user_data, delta_groups)
         else:
             # Create a new Model object
             self.profile = profile
@@ -466,7 +467,7 @@ class Model(object):
         # Otherwise:
         np.savetxt(fname, data)
     
-    def load_sim(self, fname):
+    def load_sim(self, fname, user_data={}, delta_groups=None):
         """
         Load in a saved simulation result file for post-processing
         
@@ -499,7 +500,8 @@ class Model(object):
         
         # Load in the dispersed_phases.Particle object
         self.particle = \
-            dispersed_phases.load_particle_from_nc_file(nc, 0)[0][0]
+            dispersed_phases.load_particle_from_nc_file(nc, 0, 
+                user_data=user_data, delta_groups=delta_groups)[0][0]
         
         # Extract the state space data
         self.t = nc.variables['t'][:]
@@ -658,7 +660,7 @@ def calculate_path(profile, particle, p, y0, delta_t):
     
     # Integrate to the free surface (profile.z_min)
     k = 0
-    psteps = 250.
+    psteps = 1.
     stop = False
     while r.successful() and not stop:
         

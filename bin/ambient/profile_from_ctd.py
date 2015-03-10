@@ -88,7 +88,7 @@ if __name__ == '__main__':
     nc = ambient.fill_nc_db(nc, profile, var_names, units, comments, z_col)
     
     # Create an ambient.Profile object for this dataset
-    bm54 = ambient.Profile(nc, chem_names=['oxygen'])
+    bm54 = ambient.Profile(nc, chem_names=['oxygen'], err=0.00001)
     
     # Close the netCDF dataset
     bm54.nc.close()
@@ -102,11 +102,17 @@ if __name__ == '__main__':
     z = np.linspace(bm54.nc.variables['z'].valid_min, 
                     bm54.nc.variables['z'].valid_max, 250)
     rho = np.zeros(z.shape)
+    T = np.zeros(z.shape)
+    S = np.zeros(z.shape)
+    C = np.zeros(z.shape)
+    O2 = np.zeros(z.shape)
     tsp = bm54.get_values(z, ['temperature', 'salinity', 'pressure'])
     for i in range(len(z)):
         rho[i] = seawater.density(tsp[i,0], tsp[i,1], tsp[i,2])
+        T[i], S[i], C[i], O2[i] = bm54.get_values(z[i], ['temperature', 
+            'salinity', 'wetlab_fluorescence', 'oxygen'])
     
-    fig = plt.figure()
+    fig = plt.figure(1)
     ax1 = plt.subplot(121)
     ax1.plot(rho, z)
     ax1.set_xlabel('Density (kg/m^3)')
@@ -124,6 +130,46 @@ if __name__ == '__main__':
     ax2.set_title('Measured data')
     
     plt.show()
+    
+    plt.figure(2)
+    plt.clf()
+    plt.show()
+    
+    ax1 = plt.subplot(131)
+    ax1.plot(C*1.e6, z, '-', label='Fluorescence (g/m^3)')
+    ax1.set_xlabel('CTD component values')
+    ax1.set_ylabel('Depth (m)')
+    ax1.set_ylim([800, 1500])
+    ax1.set_xlim([0, 40])
+    ax1.invert_yaxis()        
+    ax1.locator_params(tight=True, nbins=6)
+    ax1.legend(loc='upper right', prop={'size':10})
+    ax1.grid(True)
+    
+    ax2 = plt.subplot(132)
+    ax2.plot(T - 273.15, z, '-', label='Temperature (deg C)')
+    ax2.plot(O2*1.e3, z, '--', label='Oxygen (g/m^3)')
+    ax2.set_xlabel('CTD component values')
+    ax2.set_ylabel('Depth (m)')
+    ax2.set_ylim([800, 1500])
+    ax2.set_xlim([0, 8])
+    ax2.invert_yaxis()        
+    ax2.locator_params(tight=True, nbins=6)
+    ax2.legend(loc='upper right', prop={'size':10})
+    ax2.grid(True)
+    
+    ax3 = plt.subplot(133)
+    ax3.plot(S, z, '-', label='Salinity (psu)')
+    ax3.set_xlabel('CTD component values')
+    ax3.set_ylabel('Depth (m)')
+    ax3.set_ylim([800, 1500])
+    ax3.set_xlim([34.5, 35])
+    ax3.invert_yaxis()        
+    ax3.locator_params(tight=True, nbins=6)
+    ax3.legend(loc='upper right', prop={'size':10})
+    ax3.grid(True)
+    
+    plt.draw()
     
     # Close the netCDF dataset
     bm54.nc.close()

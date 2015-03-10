@@ -70,19 +70,23 @@ def density(T, S, P):
     
     return rho_sw_0 / (1 - P / K)
 
-def mu(T):
+def mu(T, S, P):
     """
     Compute the viscosity of seawater
     
-    Evaluates the viscosity of seawater as a function of temperature per 
-    data in the CRC handbook and fit following methods in Leifer et al. 
-    (2000).  Note that Leifer et al. (2000) present an equation that must
-    have a typo.  
+    Evaluates the viscosity of seawater as a function of temperature, 
+    salinity, and pressure.  The equation accounting for temperature and 
+    salinity is from Sharqawy et al. (2010).  The pressure correction is 
+    from McCain (1990), equation B-75 on page 528. 
     
     Parameters
     ----------
     T : float
         temperature (K)
+    S : float
+        salinity (psu)
+    P : float
+        pressure (Pa)
     
     Returns
     -------
@@ -90,8 +94,30 @@ def mu(T):
         dynamic viscosity of seawater (Pa s)
     
     """
+    # The following equations use Temperature in deg C
     T = T - 273.15
-    return 0.01 * np.exp(0.00022034 * T**2  - 0.033565 * T - 1.7193)
+    
+    # Get the fit coefficients
+    a = np.array([1.5700386464E-01, 6.4992620050E+01, -9.1296496657E+01,
+                  4.2844324477E-05, 1.5409136040E+00, 1.9981117208E-02,
+                  -9.5203865864E-05, 7.9739318223E+00, -7.5614568881E-02,
+                  4.7237011074E-04])
+                  
+    # Compute the viscosity of pure water at given temperature
+    mu_w = a[3] + 1./(a[0] * (T + a[1])**2 + a[2])
+    
+    # Correct for salinity
+    S = S / 1000.
+    A = a[4] + a[5] * T + a[6] * T**2
+    B = a[7] + a[8] * T + a[9] * T**2
+    mu_0 = mu_w * (1. + A * S + B * S**2)
+    
+    # And finally for pressure
+    P = P * 0.00014503773800721815
+    mu = mu_0 * (0.9994 + 4.0295e-5 * P + 3.1062e-9 * P**2)
+    
+    # Return the in situ dynamic viscosity
+    return mu
 
 def sigma(T):
     """

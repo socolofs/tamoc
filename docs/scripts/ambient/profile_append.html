@@ -1,0 +1,189 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>profile_append &mdash; Texas A&amp;M Oilspill Calculator v0.1 Manual</title>
+    
+    <link rel="stylesheet" href="../../_static/scipy.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../../index.html" />
+    <link rel="up" title="Ambient Module Users Guide" href="../../ambient/guide.html" />
+    <link rel="next" title="Seawater Module Users Guide" href="../../seawater/guide.html" />
+    <link rel="prev" title="profile_extending" href="profile_extending.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../seawater/guide.html" title="Seawater Module Users Guide"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="profile_extending.html" title="profile_extending"
+             accesskey="P">previous</a> |</li>
+<li><a href="../../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+
+          <li><a href="../../ambient/guide.html" accesskey="U">Ambient Module Users Guide</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="profile-append">
+<h1>profile_append<a class="headerlink" href="#profile-append" title="Permalink to this headline">¶</a></h1>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">March 10, 2015</td>
+</tr>
+</tbody>
+</table>
+<span class="target" id="module-profile_append"></span><div class="section" id="append-data-to-an-existing-ctd-profile-dataset">
+<h2>Append data to an existing CTD Profile dataset<a class="headerlink" href="#append-data-to-an-existing-ctd-profile-dataset" title="Permalink to this headline">¶</a></h2>
+<p>Use the TAMOC ambient module to append data to a CTD Profile object that has
+already been created as in the other examples in this ./bin director. This
+file demonstrates working with the data from the R/V Brooks McCall at Station
+BM 54 on May 30, 2010, stored in the file /Raw_Data/ctd_BM54.cnv.</p>
+<p>In this example, we compute a typical nitrogen profile and append that data 
+to the data in the CTD dataset.</p>
+<div class="section" id="notes">
+<h3>Notes<a class="headerlink" href="#notes" title="Permalink to this headline">¶</a></h3>
+<p>Much of the input data in the script (e.g., columns to extract, column names,
+lat and lon location data, date and time, etc.) is read by the user manually
+from the header file of the CTD text file. These data are then hand-coded in
+the script text. While it would be straightforward to automate this process
+for a given format of CTD files, this step is left to the user to customize to
+their own data sets.</p>
+</div>
+<div class="section" id="requires">
+<h3>Requires<a class="headerlink" href="#requires" title="Permalink to this headline">¶</a></h3>
+<p>This script reads data from the text file:</p>
+<div class="highlight-python"><pre>../../tamoc/data/ctd_BM54.cnv</pre>
+</div>
+</div>
+<div class="section" id="returns">
+<h3>Returns<a class="headerlink" href="#returns" title="Permalink to this headline">¶</a></h3>
+<p>This script generates an <a class="reference internal" href="../../modules/ambient.html#ambient.Profile" title="ambient.Profile"><tt class="xref py py-obj docutils literal"><span class="pre">ambient.Profile</span></tt></a> object, whose netCDF file is 
+written to the file:</p>
+<div class="highlight-python"><pre>../../test/output/BM54.nc</pre>
+</div>
+<dl class="function">
+<dt id="profile_append.get_ctd_profile">
+<tt class="descclassname">profile_append.</tt><tt class="descname">get_ctd_profile</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/profile_append.html#get_ctd_profile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#profile_append.get_ctd_profile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load the ASCII CTD Data into an &#8216;ambient.Profile&#8217; object.</p>
+<p>This function performs the steps in ./profile_from_ctd.py to read in the
+CTD data and create a Profile object.  This is the data set that will be
+used to demonstrate how to append data to a Profiile object.</p>
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../contents.html">
+              <img class="logo" src="../../_static/logo_holder.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../../contents.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">profile_append</a><ul>
+<li><a class="reference internal" href="#append-data-to-an-existing-ctd-profile-dataset">Append data to an existing CTD Profile dataset</a><ul>
+<li><a class="reference internal" href="#notes">Notes</a></li>
+<li><a class="reference internal" href="#requires">Requires</a></li>
+<li><a class="reference internal" href="#returns">Returns</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="profile_extending.html"
+                        title="previous chapter">profile_extending</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../../seawater/guide.html"
+                        title="next chapter">Seawater Module Users Guide</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../../_sources/scripts/ambient/profile_append.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<ul class="this-page-menu">
+  <li><a href="/numpy/docs/numpy-docs/scripts/ambient/profile_append.rst">Edit page</a></li>
+</ul>
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../seawater/guide.html" title="Seawater Module Users Guide"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="profile_extending.html" title="profile_extending"
+             >previous</a> |</li>
+<li><a href="../../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+
+          <li><a href="../../ambient/guide.html" >Ambient Module Users Guide</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Scott A. Socolofsky.
+      Last updated on Mar 10, 2015.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

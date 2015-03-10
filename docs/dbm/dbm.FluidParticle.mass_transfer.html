@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.7',
+        VERSION:     '0.1.9',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -62,13 +62,13 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">November 17, 2014</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">March 10, 2015</td>
 </tr>
 </tbody>
 </table>
 <dl class="method">
 <dt id="dbm.FluidParticle.mass_transfer">
-<tt class="descclassname">FluidParticle.</tt><tt class="descname">mass_transfer</tt><big>(</big><em>m</em>, <em>T</em>, <em>P</em>, <em>Sa</em>, <em>Ta</em><big>)</big><a class="reference internal" href="../_modules/dbm.html#FluidParticle.mass_transfer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dbm.FluidParticle.mass_transfer" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">FluidParticle.</tt><tt class="descname">mass_transfer</tt><big>(</big><em>m</em>, <em>T</em>, <em>P</em>, <em>Sa</em>, <em>Ta</em>, <em>status=-1</em><big>)</big><a class="reference internal" href="../_modules/dbm.html#FluidParticle.mass_transfer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dbm.FluidParticle.mass_transfer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the mass transfer coefficients (m/s) for each component in a 
 fluid particle</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -95,6 +95,11 @@ fluid particle</p>
 <blockquote>
 <div><p>temperature of ambient seawater (K)</p>
 </div></blockquote>
+<p><strong>status</strong> : int</p>
+<blockquote>
+<div><p>flag indicating whether the particle is clean (status = 1) or
+dirty (status = -1).  Default value is -1.</p>
+</div></blockquote>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>beta</strong> : ndarray, size (nc)</p>
@@ -107,7 +112,7 @@ fluid particle</p>
 </tbody>
 </table>
 <p class="rubric">Notes</p>
-<p>Uses the Fortran subroutines in <tt class="docutils literal"><span class="pre">./src/dbm_eos.f95</span></tt>.  This method
+<p>Uses the Fortran subroutines in <tt class="docutils literal"><span class="pre">./src/dbm_phys.f95</span></tt>.  This method
 checks for hydrate stability and returns a reduced mass transfer 
 coefficient when hydrate shells are predicted to be present.</p>
 </dd></dl>
@@ -175,7 +180,7 @@ coefficient when hydrate shells are predicted to be present.</p>
     </div>
     <div class="footer">
         &copy; Copyright 2014, Scott A. Socolofsky.
-      Last updated on Nov 17, 2014.
+      Last updated on Mar 10, 2015.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>

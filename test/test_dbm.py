@@ -37,258 +37,197 @@ from numpy.testing import *
 # ----------------------------------------------------------------------------
 # Helper functions
 # ----------------------------------------------------------------------------
+def base_state():
+    """
+    docstring for base_state
+    
+    """
+    # Choose a thermodynamic state and composition
+    T = 273.15 + 15.
+    S = 0.0
+    P = 101325. + 9.81 * 1000. * 10.
+    composition = ['nitrogen', 'oxygen', 'argon', 'carbon_dioxide']
+    yk = np.array([0.78084, 0.20946, 0.009340, 0.00036])
+    
+    # List the physical constants that should be in the ChemData 
+    # database
+    Mol_wt = np.array([0.0280134, 0.0319988, 0.039948, 0.0440098])
+    Pc = np.array([3399806.156, 5042827.464, 4870458.464, 7384287.96 ])
+    Tc = np.array([126.2, 154.57777778, 150.81666667, 304.21111111])
+    Vc = np.array([9.01E-05, 7.34E-05, 7.46E-05, 0.00009407])
+    Vb = np.array([0.0000348, 0.0000279, 0.00002856, 0.0000312])
+    omega = np.array([0.0372, 0.0216, -0.004, 0.2667])
+    delta = np.zeros((4,4))
+    kh_0 = np.array([1.74176580e-07, 4.10544683e-07, 5.51958549e-07,
+                     1.47676605e-05])
+    neg_dH_solR = np.array([1300., 1650., 1300., 2400.])
+    nu_bar = np.array([3.30000000e-05, 3.20000000e-05,
+                       (1.148236984 * Mol_wt[2] + 6.789136822) / 100.**3,
+                       (1.148236984 * Mol_wt[3] + 6.789136822) / 100.**3])
+    Aij = np.zeros((15,15))
+    Bij = np.zeros((15,15))
+    delta_groups = np.zeros((4,15))
+    calc_delta = -1
+    
+    # Give the properties of seawater at this state
+    rho = 999.194667977339
+    mu = 0.0011383697567284897
+    
+    # Give the particle properties that should come back from the dbm_f
+    # and dbm object function calls
+    rho_p = 2.4134439756593822
+    Cs = np.array([0.03147573, 0.02070961, 0.00119322, 0.00139008])
+    sigma = 0.041867956509938173
+    
+    # At seawater salinity:
+    S_S = 35.
+    rho_S = 1026.0612427871006
+    mu_S = 0.001220538626793113
+    
+    # Give the particle properties that should come back from the dbm_f
+    # and dbm object function calls
+    rho_p_S = 2.4134439756593822
+    Cs_S = np.array([0.02662437, 0.01766666, 0.00111003, 0.00130037])
+    sigma_S = 0.043023891486130381
+    
+    # Also, give the fortran function answers for this state
+    mu_p = 1.5251718291651688e-05
+    D = np.array([1.41380766e-09, 1.61034760e-09, 1.58832336e-09,
+         1.50772956e-09])
+    D_S = np.array([1.30582388e-09, 1.48735249e-09, 1.46701043e-09,
+         1.39257222e-09])
+    
+    return (T, S, P, composition, yk, Mol_wt, Pc, Tc, Vc, Vb, omega, delta,
+            kh_0, neg_dH_solR, nu_bar, Aij, Bij, delta_groups, calc_delta, 
+            rho, mu, rho_p, Cs, sigma, S_S, rho_S, mu_S, rho_p_S, Cs_S, 
+            sigma_S, mu_p, D, D_S)
 
-def slip_velocity(de, rho_p, rho, sigma, mu, Eo, M, H, shape, us, Re):
-    """
-    Test the governing parameters, shape, and slip velocity calculations in 
-    the fortran file dbm_phys.f95.
-    
-    """
-    
-    # Test eotvos()
-    Eo_calc = dbm_f.eotvos(de, rho_p, rho, sigma) 
-    assert_approx_equal(Eo_calc, Eo, significant = 6)
-    
-    # Test morton()
-    M_calc = dbm_f.morton(rho_p, rho, mu, sigma)
-    assert_approx_equal(M_calc, M, significant = 6)
-    
-    # Test h_parameter()
-    H_calc = dbm_f.h_parameter(Eo, M, mu)
-    assert_approx_equal(H_calc, H, significant = 6)
-    
-    # Test particle_shape()
-    shape_names = {1: 'sphere', 2: 'ellipsoid', 3:'spherical_cap'}
-    shape_calc = dbm_f.particle_shape(de, rho_p, rho, mu, sigma)
-    assert shape_names[shape_calc] == shape
-    
-    if shape_calc == 1:
-        # Test us_sphere()
-        us_calc = dbm_f.us_sphere(de, rho_p, rho, mu)
-        assert_approx_equal(us_calc, us, significant = 6)
-        
-    elif shape_calc == 2:
-        # Test us_ellipsoid()
-        us_calc = dbm_f.us_ellipsoid(de, rho_p, rho, mu, sigma)
-        assert_approx_equal(us_calc, us, significant = 6)
-    
-    else:
-        # Test us_spherical_cap()
-        us_calc = dbm_f.us_spherical_cap(de, rho_p, rho)
-        assert_approx_equal(us_calc, us, significant = 6)
-    
-    # Test reynolds()
-    Re_calc = dbm_f.reynolds(de, us, rho, mu)
-    assert_approx_equal(Re_calc, Re, significant = 6)
 
-def mass_transfer(de, rho_p, rho, sigma, mu, D, theta_w, area, beta):
+def particle_obj_funcs(obj, mass, yk, Mol_wt, fp_type, T, P, Sa, Ta, rho_p, 
+                       us, A, Cs, beta, beta_T, de, shape, sigma):
     """
-    Test the mass transfer calculations in the fortran file 
-    dbm_phys.f95.  Note that heat transfer calls the same function; thus, 
-    it does not have to be tested separately.  
-    
-    """
-    
-    # Get the shape and make the appropriate calculations
-    shape = dbm_f.particle_shape(de, rho_p, rho, mu, sigma)
-    
-    if shape == 1:
-        # Test xfer_sphere()
-        us = dbm_f.us_sphere(de, rho_p, rho, mu)
-        beta_calc = dbm_f.xfer_sphere(de, us, rho, mu, D)
-        for i in range(len(beta_calc)):
-            assert_approx_equal(beta_calc[i], beta[i], significant = 6)
-        
-        area_calc = dbm_f.surface_area_sphere(de)
-        assert_approx_equal(area_calc, np.pi * de**2, significant = 6)        
-    
-    elif shape == 2:
-        # Test xfer_ellipsoid()
-        us = dbm_f.us_ellipsoid(de, rho_p, rho, mu, sigma)
-        beta_calc = dbm_f.xfer_ellipsoid(de, us, rho, mu, D)
-        for i in range(len(beta_calc)):
-            assert_approx_equal(beta_calc[i], beta[i], significant = 6)
-        
-        area_calc = dbm_f.surface_area_sphere(de)
-        assert_approx_equal(area_calc, np.pi * de**2, significant = 6)
-    
-    else:
-        # Test xfer_spherical_cap()
-        us = dbm_f.us_spherical_cap(de, rho_p, rho)
-        beta_calc = dbm_f.xfer_spherical_cap(de, us, rho, rho_p, mu, D)
-        for i in range(len(beta_calc)):
-            assert_approx_equal(beta_calc[i], beta[i], significant = 6)
-        
-        # Test theta_w_calc()
-        theta_w_calc = dbm_f.theta_w_sc(de, us, rho, mu)
-        assert_approx_equal(theta_w_calc, theta_w, significant = 6)
-        
-        # Test surface_area_sc()
-        area_calc = dbm_f.surface_area_sc(de, theta_w_calc)
-        assert_approx_equal(area_calc, area, significant = 6)
-
-def density(T, P, mass, Mol_wt, Pc, Tc, omega, delta, rho):
-    """
-    Test the functions for computing the mixture density in the fortran 
-    file dbm_eos.f95.
-    
-    """
-    
-    # Test density()
-    rho_calc = dbm_f.density(T, P, mass, Mol_wt, Pc, Tc, omega, delta)[0]
-    assert_approx_equal(rho_calc, rho, significant = 6)
-    
-    rho_calc = dbm_f.density(T, P, mass, Mol_wt, Pc, Tc, omega, delta)[1]
-    assert_approx_equal(rho_calc, rho, significant = 6)
-
-def fugacity(T, P, mass, Mol_wt, Pc, Tc, omega, delta, f):
-    """
-    Test the functions for computing the mixture fugacity in the fortran 
-    file dbm_eos.f95
-    
-    """
-    
-    # Test fugacity()
-    f_calc = dbm_f.fugacity(T, P, mass, Mol_wt, Pc, Tc, omega, delta)
-    for i in range(len(mass)):
-        for j in range(2):
-            assert_approx_equal(f_calc[j,i], f[j,i], significant = 6)
-
-def solubility(T, P, S, mass, Mol_wt, Pc, Tc, omega, delta, kh_0, dH_solR, 
-               nu_bar, Cs):
-    """
-    Test the functions for computing the solubility of a mixture from the
-    gas phase into seawater in the fortran file dbm_eos.f95
-    
-    """
-    
-    # Test sw_solubility()
-    f = dbm_f.fugacity(T, P, mass, Mol_wt, Pc, Tc, omega, delta)
-    kh = dbm_f.kh_insitu(T, P, S, kh_0, dH_solR, nu_bar)
-    Cs_calc = dbm_f.sw_solubility(f[0,:], kh)
-    for i in range(len(mass)):
-        assert_approx_equal(Cs_calc[i], Cs[i], significant = 6)
-
-def mixture_obj_funcs(dbm_obj, m, T, P, S, T_m, mk, y, yk, rho_m, fug, D, Cs):
-    """
-    Test that the methods defined for a FluidMixture return the correct 
+    Test that the methods defined for a FluidParticle return the correct 
     results as passed through the above list.
     
     """
-    m_calc = dbm_obj.masses(y)
-    assert_array_almost_equal(m_calc, m, decimal = 4)
-    mk_calc = dbm_obj.mass_frac(y)
-    assert_array_almost_equal(mk_calc, mk, decimal = 4)
-    y_calc = dbm_obj.moles(m)
-    assert_array_almost_equal(y_calc, y, decimal = 4)
-    yk_calc = dbm_obj.mol_frac(m)
-    assert_array_almost_equal(yk_calc, yk, decimal = 4)
-    Pk_calc = dbm_obj.partial_pressures(m, P)
-    assert_array_almost_equal(Pk_calc, P * yk, decimal = 4)
-    rho_m_calc = dbm_obj.density(m, T, P)
-    assert_approx_equal(rho_m_calc[0], rho_m, significant = 6)
-    assert_approx_equal(rho_m_calc[1], rho_m, significant = 6)
-    fug_calc = dbm_obj.fugacity(m, T, P)
-    assert_array_almost_equal(fug_calc, fug, decimal = 4)
-    Cs_calc = dbm_obj.solubility(m, T, P, S)
-    assert_array_almost_equal(Cs_calc[0,:], Cs, decimal = 4)
-    assert_array_almost_equal(Cs_calc[1,:], Cs, decimal = 4)    
-    D_calc = dbm_obj.diffusivity(T)
-    assert_array_almost_equal(D_calc, D, decimal = 4)
-
-def particle_obj_funcs(dbm_obj, m, T, P, S, T_m, mk, y, yk, rho_p, fug, D, 
-                       Cs, de, us, shape, A, beta, beta_T):
-    """
-    Test that the methods defined for a FluidMixture return the correct 
-    results as passed through the above list.
+    # Compute some of the composition data
+    y = mass / Mol_wt
+    mf = mass / np.sum(mass)
     
-    """
-    m_calc = dbm_obj.masses(y)
-    assert_array_almost_equal(m_calc, m, decimal = 4)
+    # Test the particle composition data
+    assert_array_almost_equal(mass, obj.masses(y), decimal = 4)
+    assert_array_almost_equal(mf, obj.mass_frac(y), decimal = 4)
+    assert_array_almost_equal(y, obj.moles(mass), decimal = 4)
+    assert_array_almost_equal(yk, obj.mol_frac(mass), decimal = 4)
+    assert_array_almost_equal(P * yk, obj.partial_pressures(mass, P), 
+        decimal = 4)
     
-    mk_calc = dbm_obj.mass_frac(y)
-    assert_array_almost_equal(mk_calc, mk, decimal = 4)
+    # Test the particle attributes
+    assert_approx_equal(rho_p, obj.density(mass, T, P), significant = 6)
+    assert_approx_equal(us, obj.slip_velocity(mass, T, P, Sa, Ta), 
+        significant = 6)
+    assert_approx_equal(A, obj.surface_area(mass, T, P, Sa, Ta), 
+        significant = 6)
+    assert_array_almost_equal(Cs, obj.solubility(mass, T, P, Sa), 
+        decimal = 4)
+    assert_array_almost_equal(beta, obj.mass_transfer(mass, T, P, Sa, Ta), 
+        decimal = 4)
+    assert_array_almost_equal(beta_T, obj.heat_transfer(mass, T, P, Sa, Ta), 
+        decimal = 4)
+    assert_approx_equal(de, obj.diameter(mass, T, P), significant = 6)
+    assert_array_almost_equal(mass, obj.masses_by_diameter(de, T, P, yk), 
+        decimal = 4)
+    assert_approx_equal(sigma, obj.interface_tension(mass, T, Sa, P), 
+        significant = 6)
     
-    y_calc = dbm_obj.moles(m)
-    assert_array_almost_equal(y_calc, y, decimal = 4)
-    
-    yk_calc = dbm_obj.mol_frac(m)
-    assert_array_almost_equal(yk_calc, yk, decimal = 4)
-    
-    Pk_calc = dbm_obj.partial_pressures(m, P)
-    assert_array_almost_equal(Pk_calc, P * yk, decimal = 4)
-    
-    rho_p_calc = dbm_obj.density(m, T, P)
-    assert_approx_equal(rho_p_calc, rho_p, significant = 6)
-    
-    fug_calc = dbm_obj.fugacity(m, T, P)
-    assert_array_almost_equal(fug_calc, fug[0,:], decimal = 4)
-    
-    Cs_calc = dbm_obj.solubility(m, T, P, S)
-    assert_array_almost_equal(Cs_calc, Cs, decimal = 4)
-    
-    D_calc = dbm_obj.diffusivity(T)
-    assert_array_almost_equal(D_calc, D, decimal = 4)
-    
-    m_calc = dbm_obj.masses_by_diameter(de, T, P, yk)
-    assert_array_almost_equal(m_calc, m, decimal = 4)
-    
-    de_calc = dbm_obj.diameter(m, T, P)
-    assert_approx_equal(de_calc, de, significant = 6)
-    
-    us_calc = dbm_obj.slip_velocity(m, T, P, S, T)
-    assert_approx_equal(us_calc, us, significant = 6)
-    
-    shape_calc, de_x, rho_p_x, rho_x, mu_x, sigma_x = \
-        dbm_obj.particle_shape(m, T, P, S, T)
-    assert shape_calc == shape
-    
-    A_calc = dbm_obj.surface_area(m, T, P, S, T)
-    assert_approx_equal(A_calc, A, significant = 6)
-    
-    beta_calc = dbm_obj.mass_transfer(m, T, P, S, T)
-    assert_array_almost_equal(beta_calc, beta, decimal = 4)
-    
-    beta_T_calc = dbm_obj.heat_transfer(m, T, P, S, T)
-    assert_array_almost_equal(beta_T_calc, beta_T, decimal = 4)
-    
+    # Test that the return_all function agrees with the above
     shape_c, de_c, rho_p_c, us_c, A_c, Cs_c, beta_c, beta_T_c = \
-        dbm_obj.return_all(m, T, P, S, T)
-    assert shape_c == shape_calc
-    assert de_c == de_calc
-    assert rho_p_c == rho_p_calc
-    assert us_c == us_calc
-    assert A_c == A_calc
-    assert_array_equal(Cs_c, Cs_calc)
-    assert_array_equal(beta_c, beta_calc)
-    assert_array_equal(beta_T_c, beta_T_calc)
+        obj.return_all(mass, T, P, Sa, Ta)
+    assert_approx_equal(rho_p, rho_p_c, significant = 6)
+    assert_approx_equal(us, us_c, significant = 6)
+    assert_approx_equal(A, A_c, significant = 6)
+    assert_array_almost_equal(Cs, Cs_c, decimal = 4)
+    assert_array_almost_equal(beta, beta_c, decimal = 4)
+    assert_array_almost_equal(beta_T, beta_T_c, decimal = 4)
+    assert_approx_equal(de, de_c, significant = 6)
+    assert_approx_equal(shape_c, shape, significant = 6)
+
+
+def particle_fortran_funcs(mass, T, P, Sa, Ta, Mol_wt, fp_type, Pc, Tc, Vc, 
+                           Vb, omega, delta, kh_0, neg_dH_solR, nu_bar, Aij, 
+                           Bij, delta_groups, calc_delta, rho, mu, sigma, 
+                           shape, rho_p, us, A, Cs, beta, beta_T, de, mu_p, 
+                           D):
+    """
+    Test that the methods defined for in dbm_f are consistent with how they
+    are used in the FluidParticle objects.
+    """
+    # Test the items in dbm_eos
+    assert_approx_equal(rho_p, dbm_f.density(T, P, mass, Mol_wt, Pc, Tc, Vc, 
+        omega, delta, Aij, Bij, delta_groups, calc_delta)[fp_type, 0], 
+        significant = 6)
+    if fp_type == 0:
+        m_g = mass
+        m_o = np.zeros(len(mass))
+    else:
+        m_g = np.zeros(len(mass))
+        m_o = mass
+    assert_approx_equal(mu_p, dbm_f.viscosity(T, P, mass, Mol_wt, Pc, Tc, Vc, 
+        omega, delta, Aij, Bij, delta_groups, calc_delta, rho, m_g, 
+        m_o)[fp_type,0], significant = 6)
+    f = dbm_f.fugacity(T, P, mass, Mol_wt, Pc, Tc, omega, delta, Aij, Bij,
+        delta_groups, calc_delta)[fp_type, :]
+    kh = dbm_f.kh_insitu(T, P, Sa, kh_0, neg_dH_solR, nu_bar, 
+        Mol_wt)
+    assert_array_almost_equal(Cs, dbm_f.sw_solubility(f, kh), decimal = 4)
+    assert_array_almost_equal(D, dbm_f.diffusivity(mu, Vb), decimal = 4)
+    
+    # Test the items in dbm_phys
+    assert_approx_equal(shape, dbm_f.particle_shape(de, rho_p, rho, mu, 
+        sigma))
+    if shape == 1:
+        assert_approx_equal(us, dbm_f.us_sphere(de, rho_p, rho, mu), 
+            significant = 6)
+        assert_approx_equal(A, dbm_f.surface_area_sphere(de), 
+            significant = 6)
+        assert_array_almost_equal(beta, dbm_f.xfer_sphere(de, us, rho, mu, 
+            D), decimal = 4)
+    elif shape == 2:
+        assert_approx_equal(us, dbm_f.us_ellipsoid(de, rho_p, rho, mu_p, 
+            mu, sigma, -1), significant = 6)
+        assert_approx_equal(A, dbm_f.surface_area_sphere(de), 
+            significant = 6)
+        assert_array_almost_equal(beta, dbm_f.xfer_ellipsoid(de, us, rho, mu, 
+            D, -1), decimal = 4)
+    else:
+        assert_approx_equal(us, dbm_f.us_spherical_cap(de, rho_p, rho), 
+            significant = 6)
+        theta_w = dbm_f.theta_w_sc(de, us, rho, mu)
+        assert_array_almost_equal(A, dbm_f.surface_area_sc(de, theta_w), 
+            decimal = 4)
+        assert_array_almost_equal(beta, dbm_f.xfer_spherical_cap(de, us, rho, 
+            rho_p, mu, D, -1), decimal = 4)
+
 
 def inert_obj_funcs(oil, T, P, Sa, Ta, rho_p, de, m, shape, us, A, beta_T):
     """
     Test that the methods defined for an inert fluid particle return the 
     correct results as passed through the above list.
     """
-    rho_p_calc = oil.density(T, P, Sa, Ta)
-    assert_approx_equal(rho_p_calc, rho_p, significant = 6)
-    
-    de_calc = oil.diameter(m, T, P, Sa, Ta)
-    assert_approx_equal(de_calc, de, significant = 6)
-    
-    m_calc = oil.mass_by_diameter(de, T, P, Sa, Ta)
-    assert_approx_equal(m_calc, m, significant = 6)
-    
-    shape_calc, de_x, rho_p_x, rho_x, mu_x, sigma_x = \
+    assert_approx_equal(oil.density(T, P, Sa, Ta), rho_p, significant = 5)
+    assert_approx_equal(oil.diameter(m, T, P, Sa, Ta), de, significant = 5)
+    assert_approx_equal(oil.mass_by_diameter(de, T, P, Sa, Ta), m,
+        significant = 5)
+    shape_calc, de_x, rho_p_x, rho_x, mu_p_x, mu_x, sigma_x = \
         oil.particle_shape(m, T, P, Sa, Ta)
-    assert_approx_equal(shape_calc, shape, significant = 6)
-    
-    us_calc = oil.slip_velocity(m, T, P, Sa, Ta)
-    assert_approx_equal(us_calc, us, significant = 6)
-    
-    A_calc = oil.surface_area(m, T, P, Sa, Ta)
-    assert_approx_equal(A_calc, A, significant = 6)
-    
-    beta_T_calc = oil.heat_transfer(m, T, P, Sa, Ta)
-    assert_approx_equal(beta_T_calc, beta_T, significant = 6)
+    assert_approx_equal(shape_calc, shape, significant = 5)
+    assert_approx_equal(oil.slip_velocity(m, T, P, Sa, Ta), us, 
+        significant = 5)
+    assert_approx_equal(oil.surface_area(m, T, P, Sa, Ta), A, 
+        significant = 5)
+    assert_approx_equal(oil.heat_transfer(m, T, P, Sa, Ta), beta_T, 
+        significant = 5)
+
 
 # ----------------------------------------------------------------------------
 # Unit Tests
@@ -296,277 +235,168 @@ def inert_obj_funcs(oil, T, P, Sa, Ta, rho_p, de, m, shape, us, A, beta_T):
 
 def test_sphere():
     """
-    This function sets up the parameters for a spherical air bubble in water
-    and runs through the full suite of tests defined in:
-        slip_velocity()
-        mass_transfer()
-        density()
-        fugacity()
-        solubility()
-        mixture_obj_funcs()
+    This function tests the dbm object function and dbm_f fortran functions
+    for the properties of a FluidParticle with spherical shape for air.
         
     """
-    # Set up the input parameters for the dbm_f functions
+    # Set the variable inputs that may change is physical properties are 
+    # updated.
     de = 0.0001
-    rho_p = 1.32138841912
-    rho = 998.257215941
-    sigma = 0.07275
-    mu = 0.00100012110033
-    D = np.array([2.50541350979e-09, 2.22998583836e-09, 2.22596225609e-09,
-                  5.18756387566e-09])
-    T = 293.15
-    P = 111117.85929002732
-    S = 0.0
-    mass = np.array([5.22489199e-13, 1.60097383e-13, 8.91233206e-15,
-                  3.78443750e-16])
-    Mol_wt = np.array([0.0280134, 0.0319988, 0.039948, 0.0440098])
-    Pc = np.array([3399806.156, 5042827.464, 4870458.464, 7384287.96 ])
-    Tc = np.array([126.2, 154.57777778, 150.81666667, 304.21111111])
-    omega = np.array([0.0372, 0.0216, -0.004, 0.2667])
-    delta = np.zeros((4,4))
-    kh_0 = np.array([1.74176580e-07, 4.10544683e-07, 5.51958549e-07,
-                     1.47676605e-05])
-    dH_solR = np.array([1300., 1650., 1300., 2400.])
-    nu_bar = np.array([3.30000000e-05, 3.20000000e-05, 3.30000000e-05,
-                       3.30000000e-05])
+    mass = np.array([9.54298064e-13, 2.92409150e-13, 1.62778891e-14,
+         6.91206898e-16])
+    fp_type = 0
     
-    # Specify the correct outputs for the governing variables, shape, and 
-    # slip velocity
-    Eo = 0.00134432
-    M = 2.55013e-11
-    Re = 0.51401578378930768
-    H = 0.0669038
-    shape = 'sphere'
-    us = 0.0051497552239961834
-    theta_w = np.NaN
-    area = np.NaN
-    beta = np.array([0.00016578604765643502, 0.00015249575958119796, 
-                     0.00015229853037034425, 0.00028089050557286602])
-    beta_T = 0.003755119084887344
-    fug = np.array([[8.67166530e+04, 2.32493850e+04, 1.03670859e+03,
-                     3.98301694e+01], 
-                    [8.67166530e+04,2.32493850e+04, 1.03670859e+03,
-                     3.98301694e+01]])
-    Cs = np.array([0.016267937144682276, 0.010488404509247566, 
-                   0.000616315915439951, 0.0006746724569526987])
+    # Choose a thermodynamic state and composition
+    T, S, P, composition, yk, Mol_wt, Pc, Tc, Vc, Vb, omega, delta, \
+        kh_0, neg_dH_solR, nu_bar, Aij, Bij, delta_groups, calc_delta, \
+        rho, mu, rho_p, Cs, sigma, S_S, rho_S, mu_S, rho_p_S, Cs_S, \
+        sigma_S, mu_p, D, D_S = base_state()
     
-    # Test whether the slip velocity functions produce the correct outputs
-    slip_velocity(de, rho_p, rho, sigma, mu, Eo, M, H, shape, us, Re)
+    # Give the particle properties that should come back from the dbm_f
+    # and dbm object function calls
+    shape = 1
+    us = 0.004577842585916999
+    A = 3.1415926535897971e-08
+    beta = np.array([0.00010476, 0.00011496, 0.00011383, 0.00010968])
+    beta_T = 0.0036452675476792199
     
-    # Test whether the mass transfer functions produce the correct outputs
-    mass_transfer(de, rho_p, rho, sigma, mu, D, theta_w, area, beta)
+    # Give the particle properties that should come back from the dbm_f
+    # and dbm object function calls
+    shape_S = 1
+    us_S = 0.004399537153901552
+    A_S = 3.1415926535897971e-08
+    beta_S = np.array([9.73341217e-05, 1.06801788e-04, 1.05756862e-04,
+        1.01899623e-04])
+    beta_T_S = 0.0036098354093047798
+        
+    # Perform the tests on the dbm_object
+    bub = dbm.FluidParticle(['nitrogen', 'oxygen', 'argon', 'carbon_dioxide'],
+                            fp_type=fp_type)
+    particle_obj_funcs(bub, mass, yk, Mol_wt, fp_type, T, P, S, T, rho_p, 
+        us, A, Cs, beta, beta_T, de, shape, sigma)
+    particle_obj_funcs(bub, mass, yk, Mol_wt, fp_type, T, P, S_S, T, rho_p_S, 
+        us_S, A_S, Cs_S, beta_S, beta_T_S, de, shape, sigma_S)
     
-    # Test whether the density calculations are correct
-    density(T, P, mass, Mol_wt, Pc, Tc, omega, delta, rho_p)
-    
-    # Test whether the fugacity calculations are correct
-    fugacity(T, P, mass, Mol_wt, Pc, Tc, omega, delta, fug)
-    
-    # Test whether the solubility calculations are correct
-    solubility(T, P, S, mass, Mol_wt, Pc, Tc, omega, delta, kh_0, dH_solR, 
-               nu_bar, Cs)
-    S = 35.
-    Cs = np.array([0.013819958114035266, 0.008910122389559611, 
-                   0.0005235734587752693, 0.0005731485819440912])
-    solubility(T, P, S, mass, Mol_wt, Pc, Tc, omega, delta, kh_0, dH_solR, 
-               nu_bar, Cs)
-    
-    # Test function wrapping in the dbm objects
-    air = dbm.FluidMixture(['nitrogen', 'oxygen', 'argon', 'carbon_dioxide'])
-    S = 0.
-    Cs = np.array([0.0162892182087, 0.0104929588798, 0.000616406296083,
-                   0.000674762281553])
-    mk = mass / np.sum(mass)
-    y = mass / Mol_wt
-    yk = y / np.sum(y)
-    mixture_obj_funcs(air, mass, T, P, S, T, mk, y, yk, rho_p, fug, D, Cs)
-    
-    bub = dbm.FluidParticle(['nitrogen', 'oxygen', 'argon', 'carbon_dioxide'])
-    A = np.pi * de**2
-    particle_obj_funcs(bub, mass, T, P, S, T, mk, y, yk, rho_p, fug, D, Cs, 
-                       de, us, 1, A, beta, beta_T)
+    # Check the implementation of the dbm_f functions
+    particle_fortran_funcs(mass, T, P, S, T, Mol_wt, fp_type, Pc, Tc, Vc, Vb,
+        omega, delta, kh_0, neg_dH_solR, nu_bar, Aij, Bij, delta_groups, 
+        calc_delta, rho, mu, sigma, shape, rho_p, us, A, Cs, beta, beta_T, de, 
+        mu_p, D)
+    particle_fortran_funcs(mass, T, P, S_S, T, Mol_wt, fp_type, Pc, Tc, Vc, 
+        Vb, omega, delta, kh_0, neg_dH_solR, nu_bar, Aij, Bij, delta_groups, 
+        calc_delta, rho_S, mu_S, sigma_S, shape, rho_p_S, us_S, A_S, Cs_S, 
+        beta_S, beta_T_S, de, mu_p, D_S)
+
 
 def test_ellipsoid():
+    """    
+    This function tests the dbm object function and dbm_f fortran functions
+    for the properties of a FluidParticle with ellipsoidal shape for air.
+    
     """
-    This function sets up the parameters for an ellipsoidal air bubble in 
-    water and runs through the full suite of tests defined in:
-        slip_velocity()
-        mass_transfer()
-        density()
-        fugacity()
-        solubility()
-        
-    """
-    # Set up the input parameters for the dbm_f functions
+    # Set the variable inputs that may change is physical properties are 
+    # updated.
     de = 0.00055
-    rho_p = 1.32138841912
-    rho = 998.257215941
-    sigma = 0.07275
-    mu = 0.00100012110033
-    D = np.array([2.50541350979e-09, 2.22998583836e-09, 2.22596225609e-09,
-                  5.18756387566e-09])
-    T = 293.15
-    P = 111117.85929002732
-    S = 0.
-    mass = np.array([8.69291405e-11, 2.66362021e-11, 1.48278925e-12,
-                     6.29635790e-14])
-    Mol_wt = np.array([0.0280134, 0.0319988, 0.039948, 0.0440098])
-    Pc = np.array([3399806.156, 5042827.464, 4870458.464, 7384287.96 ])
-    Tc = np.array([126.2, 154.57777778, 150.81666667, 304.21111111])
-    omega = np.array([0.0372, 0.0216, -0.004, 0.2667])
-    delta = np.zeros((4,4))
-    kh_0 = np.array([1.74176580e-07, 4.10544683e-07, 5.51958549e-07,
-                     1.47676605e-05])
-    dH_solR = np.array([1300., 1650., 1300., 2400.])
-    nu_bar = np.array([3.30000000e-05, 3.20000000e-05, 3.30000000e-05,
-                       3.30000000e-05])
+    mass = np.array([1.58771340e-10, 4.86495724e-11, 2.70823380e-12,
+        1.14999548e-13])
+    fp_type = 0
     
-    # Specify the correct outputs for the governing variables, shape, and 
-    # slip velocity
-    Eo = 0.0406657
-    M = 2.55013e-11
-    Re = 28.255026439940735
-    H = 2.02384
-    shape = 'ellipsoid'
-    us = 0.051468695427127696
-    theta_w = np.NaN
-    area = np.NaN
-    beta = np.array([0.000136620688077, 0.000126254013204, 0.000126099657194,
-                     0.0002239804085])
-    beta_T = 0.0022538521067439303
-    fug = np.array([[8.67166530e+04, 2.32493850e+04, 1.03670859e+03,
-                     3.98301694e+01], 
-                    [8.67166530e+04,2.32493850e+04, 1.03670859e+03,
-                     3.98301694e+01]])
-    Cs = np.array([0.016267937144682276, 0.010488404509247566, 
-                   0.000616315915439951, 0.0006746724569526987])
+    # Choose a thermodynamic state and composition
+    T, S, P, composition, yk, Mol_wt, Pc, Tc, Vc, Vb, omega, delta, \
+        kh_0, neg_dH_solR, nu_bar, Aij, Bij, delta_groups, calc_delta, \
+        rho, mu, rho_p, Cs, sigma, S_S, rho_S, mu_S, rho_p_S, Cs_S, \
+        sigma_S, mu_p, D, D_S = base_state()
     
-    # Test whether the functions produce the correct outputs
-    slip_velocity(de, rho_p, rho, sigma, mu, Eo, M, H, shape, us, Re)
+    # Give the particle properties that should come back from the dbm_f
+    # and dbm object function calls
+    shape = 2
+    us = 0.05804555824029885
+    A = 9.5033177634981476e-07
+    beta = np.array([9.63820529e-05, 1.05243807e-04, 1.04268705e-04,
+         1.00662939e-04])
+    beta_T = 0.0023334608244318946
     
-    # Test whether the mass transfer functions produce the correct outputs
-    mass_transfer(de, rho_p, rho, sigma, mu, D, theta_w, area, beta)
+    # Give the particle properties that should come back from the dbm_f
+    # and dbm object function calls
+    shape_S = 2
+    us_S = 0.05617970068171841
+    A_S = 9.5033177634981476e-07
+    beta_S = np.array([8.98720185e-05, 9.81341071e-05, 9.72249954e-05,
+         9.38632381e-05])
+    beta_T_S = 0.0022993044435189757
     
-    # Test whether the density calculations are correct
-    density(T, P, mass, Mol_wt, Pc, Tc, omega, delta, rho_p)
+    # Perform the tests on the dbm_object
+    bub = dbm.FluidParticle(['nitrogen', 'oxygen', 'argon', 'carbon_dioxide'],
+                            fp_type=fp_type)
+    particle_obj_funcs(bub, mass, yk, Mol_wt, fp_type, T, P, S, T, rho_p, 
+        us, A, Cs, beta, beta_T, de, shape, sigma)
+    particle_obj_funcs(bub, mass, yk, Mol_wt, fp_type, T, P, S_S, T, rho_p_S, 
+        us_S, A_S, Cs_S, beta_S, beta_T_S, de, shape, sigma_S)
     
-    # Test whether the fugacity calculations are correct
-    fugacity(T, P, mass, Mol_wt, Pc, Tc, omega, delta, fug)
-    
-    # Test whether the solubility calculations are correct
-    solubility(T, P, S, mass, Mol_wt, Pc, Tc, omega, delta, kh_0, dH_solR, 
-               nu_bar, Cs)
-    S = 35.
-    Cs = np.array([0.013819958114035266, 0.008910122389559611, 
-                   0.0005235734587752693, 0.0005731485819440912])
-    solubility(T, P, S, mass, Mol_wt, Pc, Tc, omega, delta, kh_0, dH_solR, 
-               nu_bar, Cs)
-               
-    # Test function wrapping in the dbm objects
-    air = dbm.FluidMixture(['nitrogen', 'oxygen', 'argon', 'carbon_dioxide'])
-    S = 0.
-    Cs = np.array([0.016267937144552966, 0.0104929588798, 0.000616406296083,
-                   0.000674762281553])
-    mk = mass / np.sum(mass)
-    y = mass / Mol_wt
-    yk = y / np.sum(y)
-    mixture_obj_funcs(air, mass, T, P, S, T, mk, y, yk, rho_p, fug, D, Cs) 
-    
-    bub = dbm.FluidParticle(['nitrogen', 'oxygen', 'argon', 'carbon_dioxide'])
-    A = np.pi * de**2
-    particle_obj_funcs(bub, mass, T, P, S, T, mk, y, yk, rho_p, fug, D, Cs, 
-                       de, us, 2, A, beta, beta_T)
+    # Check the implementation of the dbm_f functions
+    particle_fortran_funcs(mass, T, P, S, T, Mol_wt, fp_type, Pc, Tc, Vc, Vb,
+        omega, delta, kh_0, neg_dH_solR, nu_bar, Aij, Bij, delta_groups, 
+        calc_delta, rho, mu, sigma, shape, rho_p, us, A, Cs, beta, beta_T, de, 
+        mu_p, D)
+    particle_fortran_funcs(mass, T, P, S_S, T, Mol_wt, fp_type, Pc, Tc, Vc, 
+        Vb, omega, delta, kh_0, neg_dH_solR, nu_bar, Aij, Bij, delta_groups, 
+        calc_delta, rho_S, mu_S, sigma_S, shape, rho_p_S, us_S, A_S, Cs_S, 
+        beta_S, beta_T_S, de, mu_p, D_S)
+
 
 def test_spherical_cap():
-    """
-    This function sets up the parameters for a spherical cap air bubble in 
-    water and runs through the full suite of tests defined in:
-        slip_velocity()
-        mass_transfer()
-        density()
-        fugacity()
-        solubility()
+    """    
+    This function tests the dbm object function and dbm_f fortran functions
+    for the properties of a FluidParticle with spherical cap shape for air.
     
     """
-    # Set up the input parameters for the dbm_f functions
+    # Set the variable inputs that may change is physical properties are 
+    # updated.
     de = 0.0123
-    rho_p = 1.32138841912
-    rho = 998.257215941
-    sigma = 0.07275
-    mu = 0.00100012110033
-    D = np.array([2.50541350979e-09, 2.22998583836e-09, 2.22596225609e-09,
-                  5.18756387566e-09])
-    T = 293.15
-    P = 111117.85929002732
-    S = 0.
-    mass = np.array([9.72282909e-07, 2.97919937e-07, 1.65846646e-08,
-                     7.04233487e-10])
-    Mol_wt = np.array([0.0280134, 0.0319988, 0.039948, 0.0440098])
-    Pc = np.array([3399806.156, 5042827.464, 4870458.464, 7384287.96 ])
-    Tc = np.array([126.2, 154.57777778, 150.81666667, 304.21111111])
-    omega = np.array([0.0372, 0.0216, -0.004, 0.2667])
-    delta = np.zeros((4,4))
-    kh_0 = np.array([1.74176580e-07, 4.10544683e-07, 5.51958549e-07,
-                     1.47676605e-05])
-    dH_solR = np.array([1300., 1650., 1300., 2400.])
-    nu_bar = np.array([3.30000000e-05, 3.20000000e-05, 3.30000000e-05,
-                       3.30000000e-05])
+    mass = np.array([1.77582178e-06,   5.44134538e-07,   3.02909866e-08,
+        1.28624411e-09])
+    fp_type = 0
     
-    # Specify the correct outputs for the governing variables, shape, and 
-    # slip velocity
-    Eo = 20.3382
-    M = 2.55013e-11
-    Re = 3030.1491966325693
-    H = 1012.19
-    shape = 'spherical_cap'
-    us = 0.24681356947709357
-    theta_w = 0.872665369958
-    area = 0.00080418635487435703
-    beta = np.array([0.000196449205412, 0.000185336783495, 0.000185169505644,
-                     0.000282678187328])
-    beta_T = 0.0014996399347451304
-    fug = np.array([[8.67166530e+04, 2.32493850e+04, 1.03670859e+03,
-                     3.98301694e+01], 
-                    [8.67166530e+04,2.32493850e+04, 1.03670859e+03,
-                     3.98301694e+01]])
-    Cs = np.array([0.016267937144682276, 0.010488404509247566, 
-                   0.000616315915439951, 0.0006746724569526987])
+    # Choose a thermodynamic state and composition
+    T, S, P, composition, yk, Mol_wt, Pc, Tc, Vc, Vb, omega, delta, \
+        kh_0, neg_dH_solR, nu_bar, Aij, Bij, delta_groups, calc_delta, \
+        rho, mu, rho_p, Cs, sigma, S_S, rho_S, mu_S, rho_p_S, Cs_S, \
+        sigma_S, mu_p, D, D_S = base_state()
     
-    # Test whether the functions produce the correct outputs
-    slip_velocity(de, rho_p, rho, sigma, mu, Eo, M, H, shape, us, Re)
+    # Give the particle properties that should come back from the dbm_f
+    # and dbm object function calls
+    shape = 3
+    us = 0.24667863159698525
+    A = 0.0008041858466133534
+    beta = np.array([0.00014753, 0.00015745, 0.00015637, 0.00015235])
+    beta_T = 0.0014992308847738718
     
-    # Test whether the mass transfer functions produce the correct outputs
-    mass_transfer(de, rho_p, rho, sigma, mu, D, theta_w, area, beta)
+    # Give the particle properties that should come back from the dbm_f
+    # and dbm object function calls
+    shape_S = 3
+    us_S = 0.2466864509540198
+    A_S = 0.0008041855794805891
+    beta_S = np.array([0.00014179, 0.00015132, 0.00015029, 0.00014642])
+    beta_T_S = 0.0014992551443339481
     
-    # Test whether the density calculations are correct
-    density(T, P, mass, Mol_wt, Pc, Tc, omega, delta, rho_p)
+    # Perform the tests on the dbm_object
+    bub = dbm.FluidParticle(['nitrogen', 'oxygen', 'argon', 'carbon_dioxide'],
+                            fp_type=fp_type)
+    particle_obj_funcs(bub, mass, yk, Mol_wt, fp_type, T, P, S, T, rho_p, 
+        us, A, Cs, beta, beta_T, de, shape, sigma)
+    particle_obj_funcs(bub, mass, yk, Mol_wt, fp_type, T, P, S_S, T, rho_p_S, 
+        us_S, A_S, Cs_S, beta_S, beta_T_S, de, shape, sigma_S)
     
-    # Test whether the fugacity calculations are correct
-    fugacity(T, P, mass, Mol_wt, Pc, Tc, omega, delta, fug)
-    
-    # Test whether the solubility calculations are correct
-    solubility(T, P, S, mass, Mol_wt, Pc, Tc, omega, delta, kh_0, dH_solR, 
-               nu_bar, Cs)
-    S = 35.
-    Cs = np.array([0.013819958114035266, 0.008910122389559611, 
-                   0.0005235734587752693, 0.0005731485819440912])
-    solubility(T, P, S, mass, Mol_wt, Pc, Tc, omega, delta, kh_0, dH_solR, 
-               nu_bar, Cs)
-    
-    # Test function wrapping in the dbm objects
-    air = dbm.FluidMixture(['nitrogen', 'oxygen', 'argon', 'carbon_dioxide'])
-    S = 0.
-    Cs = np.array([0.0162892182087, 0.0104929588798, 0.000616406296083,
-                   0.000674762281553])
-    mk = mass / np.sum(mass)
-    y = mass / Mol_wt
-    yk = y / np.sum(y)
-    mixture_obj_funcs(air, mass, T, P, S, T, mk, y, yk, rho_p, fug, D, Cs)
-    
-    bub = dbm.FluidParticle(['nitrogen', 'oxygen', 'argon', 'carbon_dioxide'])
-    A = area
-    particle_obj_funcs(bub, mass, T, P, S, T, mk, y, yk, rho_p, fug, D, Cs, 
-                       de, us, 3, A, beta, beta_T)
+    # Check the implementation of the dbm_f functions
+    particle_fortran_funcs(mass, T, P, S, T, Mol_wt, fp_type, Pc, Tc, Vc, Vb,
+        omega, delta, kh_0, neg_dH_solR, nu_bar, Aij, Bij, delta_groups, 
+        calc_delta, rho, mu, sigma, shape, rho_p, us, A, Cs, beta, beta_T, de, 
+        mu_p, D)
+    particle_fortran_funcs(mass, T, P, S_S, T, Mol_wt, fp_type, Pc, Tc, Vc, 
+        Vb, omega, delta, kh_0, neg_dH_solR, nu_bar, Aij, Bij, delta_groups, 
+        calc_delta, rho_S, mu_S, sigma_S, shape, rho_p_S, us_S, A_S, Cs_S, 
+        beta_S, beta_T_S, de, mu_p, D_S)
+
 
 def test_rigid():
     """
@@ -595,9 +425,9 @@ def test_rigid():
     de = 0.001
     m = 4.86946861306418e-07
     shape = 1
-    us = 0.018979716423733476
+    us = 0.01790261590633024
     A = 3.1415926535897963e-06
-    beta_T = 0.0010500339198291767
+    beta_T = 0.0010203677324986025
     inert_obj_funcs(oil, T, P, Sa, Ta, 930., de, m, shape, us, A, beta_T)
     
     # Test a default oil-like particle
@@ -606,9 +436,9 @@ def test_rigid():
     de = 0.001
     m = 4.5690115248484099e-07
     shape = 1
-    us = 0.022759095242958018
+    us = 0.02280639990893376
     A = 3.1415926535897963e-06
-    beta_T = 0.0011171386749182551
+    beta_T = 0.0011182300061811947
     inert_obj_funcs(oil, T, 101325., 0., Ta, rho_p, de, m, shape, us, A, 
                     beta_T)
     
@@ -617,9 +447,9 @@ def test_rigid():
     de = 0.001
     m = 4.86946861306418e-07
     shape = 4
-    us = 0.018979716423733476
+    us = 0.01790261590633024
     A = 3.1415926535897963e-06
-    beta_T = 0.0010500339198291767
+    beta_T = 0.0010203677324986025
     inert_obj_funcs(oil, T, P, Sa, Ta, 930., de, m, shape, us, A, beta_T)
     
     # Test a user-defined oil-like particle
@@ -629,11 +459,12 @@ def test_rigid():
     de = 0.02
     m = 0.0037250010220082142
     shape = 2
-    us = 0.13492474667673468
+    us = 0.1361647139897591
     A = 0.0012566370614359179
-    beta_T = 0.00042971102013021731
+    beta_T = 0.0004238770877049575
     inert_obj_funcs(oil, T, P, Sa, Ta, rho_p, de, m, shape, us, A, 
                     beta_T)
+
 
 def test_cubic_solver():
     """
@@ -649,6 +480,7 @@ def test_cubic_solver():
     r_calc = np.sort(dbm_f.cubic_roots(p))
     for i in range(3):
         assert_approx_equal(r_calc[i], r[i], significant = 6)
+
 
 def test_equilibrium():
     """
@@ -679,4 +511,4 @@ def test_equilibrium():
     assert_array_almost_equal(xi, xi_ans, decimal=6)
     K_ans = np.array([3.61962584, 0.24764217, 0.00374003])
     assert_array_almost_equal(K, K_ans, decimal=6)
-
+    

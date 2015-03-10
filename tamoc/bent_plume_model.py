@@ -284,9 +284,10 @@ class Model(object):
         # Track the particles
         if track:
             for i in range(len(self.particles)):
-                print '\nTracking Particle %d of %d:' % \
-                    (i+1, len(self.particles))
-                particles[i].run_sbm(self.profile)
+                if particles[i].integrate is False and particles[i].z > 0.:
+                    print '\nTracking Particle %d of %d:' % \
+                        (i+1, len(self.particles))
+                    particles[i].run_sbm(self.profile)
         
         # Update the status of the solution
         self.sim_stored = True
@@ -771,6 +772,7 @@ class ModelParams(single_bubble_model.ModelParams):
         # Set the model parameters to the values in Lee and Cheung (1990)
         self.alpha_1 = 0.057
         self.alpha_2 = 0.544
+        self.gamma = 1.10
         
         # Set some of the multiphase plume model parameters
         self.Fr_0 = 1.6
@@ -827,6 +829,8 @@ class Particle(dispersed_phases.PlumeParticle):
     
     Attributes
     ----------
+    t : float
+        Current age of the 'Particle' object since its release (s)
     x : float
         Current position of the `Particle` object in the x-direction (m)
     y : float
@@ -892,6 +896,7 @@ class Particle(dispersed_phases.PlumeParticle):
         self.integrate = True
         
         # Store the initial particle locations
+        self.t = 0.
         self.x = x
         self.y = y
         self.z = z
@@ -1025,7 +1030,7 @@ class Particle(dispersed_phases.PlumeParticle):
             V = (q1_local.V + q0_local.V) / 2.
             
             # Get the rotation matrix to the local coordinate system (l,n,m)
-            A = lmp.local_coords(q0_local, q1_local, dt)
+            A = lmp.local_coords(q0_local, q1_local, ds)
             
             # Get the initial position of the particle in local coordinates
             chi_0 = np.dot(A, np.array([self.x - q0_local.x, self.y - 
@@ -1057,6 +1062,9 @@ class Particle(dispersed_phases.PlumeParticle):
             if np.sqrt(chi[1]**2 + chi[2]**2) > q1_local.b:
                 self.integrate = False
                 self.b_local = q1_local.b
+            
+            # Compute the particle age
+            self.t += delta_t[0]
     
     def outside(self, Ta, Sa, Pa):
         """
@@ -1106,7 +1114,10 @@ class Particle(dispersed_phases.PlumeParticle):
         Ta, Sa, P = profile.get_values(X0[2], ['temperature', 'salinity', 
                     'pressure'])
         de = self.diameter(self.m, self.T, P, Sa, Ta)
-        yk = self.particle.mol_frac(self.m)
+        if self.particle.issoluble:
+            yk = self.particle.mol_frac(self.m)
+        else:
+            yk = 1.
         
         # Run the simulation
         self.sbm.simulate(self.particle, X0, de, yk, self.T, self.K, self.K_T, 
@@ -1400,16 +1411,19 @@ class LagElement(object):
         # Get the particle characteristics
         self.mp = np.zeros(self.np)
         self.fb = np.zeros(self.np)
+        
         for i in range(self.np):
             # Update the particles with their current properties
-            particles[i].update(particles[i].m, self.Ta, self.Pa, 
-                self.Sa, self.Ta)
+            m_p = self.M_p[i] / particles[i].nb0
+            T_p = self.H_p[i] / (np.sum(self.M_p[i]) * particles[i].cp)
+            particles[i].update(m_p, T_p, self.Pa, self.Sa, self.Ta)
             
-            # Calculate the total mass of each particle
-            self.mp[i] = np.sum(particles[i].m) * particles[i].nb0
+            # Get the mass of particles following this Lagrangian element
+            self.mp[i] = np.sum(m_p) * particles[i].nbe
             
-            # Calculate the buoyant force of the current particle
-            self.fb[i] = (self.rho_a - particles[i].rho_p)
+            # Compute the buoyant force coming from this set of particles
+            self.fb[i] = self.rho / particles[i].rho_p * self.mp[i] * \
+                         (self.rho_a - particles[i].rho_p)
             
             # Force the particle mass and bubble force to zero if the bubble
             # have dissolved
@@ -1429,7 +1443,7 @@ class LagElement(object):
         
         # Compute the net particle mass and buoyant force
         self.Mp = np.sum(self.mp)
-        self.Fb = np.sum(self.fb) * p.g / self.rho_a
+        self.Fb = np.sum(self.fb)
 
 
 # ----------------------------------------------------------------------------
@@ -1634,7 +1648,9 @@ def plot_all_variables(t, q, sp, q_local, profile, p, particles, tracked,
         ax1.plot(particles[i].x, particles[i].z, 'o')
         ax1.plot(sp[:,i*3], sp[:,i*3+2], '.:')
         if tracked:
-            ax1.plot(particles[i].sbm.y[:,0], particles[i].sbm.y[:,2], '.:')
+            if particles[i].integrate is False and particles[i].z > 0.:
+                ax1.plot(particles[i].sbm.y[:,0], particles[i].sbm.y[:,2], 
+                         '.:')
     ax1.invert_yaxis()
     ax1.set_xlabel('x (m)')
     ax1.set_ylabel('z (m)')
@@ -1649,7 +1665,9 @@ def plot_all_variables(t, q, sp, q_local, profile, p, particles, tracked,
         ax2.plot(particles[i].y, particles[i].z, 'o')
         ax2.plot(sp[:,i*3+1], sp[:,i*3+2], '.:')
         if tracked:
-            ax2.plot(particles[i].sbm.y[:,1], particles[i].sbm.y[:,2], '.:')
+            if particles[i].integrate is False and particles[i].z > 0.:
+                ax2.plot(particles[i].sbm.y[:,1], particles[i].sbm.y[:,2], 
+                         '.:')
     ax2.invert_yaxis()
     ax2.set_xlabel('y (m)')
     ax2.set_ylabel('z (m)')
@@ -1664,7 +1682,9 @@ def plot_all_variables(t, q, sp, q_local, profile, p, particles, tracked,
         ax3.plot(particles[i].x, particles[i].y, 'o')
         ax3.plot(sp[:,i*3], sp[:,i*3+1], '.:')
         if tracked:
-            ax3.plot(particles[i].sbm.y[:,0], particles[i].sbm.y[:,1], '.:')
+            if particles[i].integrate is False and particles[i].z > 0.:
+                ax3.plot(particles[i].sbm.y[:,0], particles[i].sbm.y[:,1], 
+                         '.:')
     ax3.set_xlabel('x (m)')
     ax3.set_ylabel('y (m)')
     ax3.grid(b=True, which='major', color='0.5', linestyle='-')

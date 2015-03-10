@@ -371,7 +371,7 @@ subroutine us_sphere(de, rho_p, rho, mu, &
 end subroutine us_sphere
 
 
-subroutine us_ellipsoid(de, rho_p, rho, mu, sigma, &
+subroutine us_ellipsoid(de, rho_p, rho, mu_p, mu, sigma, status, &
     &                   u_slip)
     
     ! 
@@ -381,8 +381,11 @@ subroutine us_ellipsoid(de, rho_p, rho, mu, sigma, &
     !     de = equivalent spherical diameter (m)
     !     rho_p = dispersed phase density (kg/m^3)
     !     rho = continuous phase density (kg/m^3)
+    !     mu_p = dynamic viscosity of the dispersed phase (Pa s)
     !     mu = dynamic viscosity of the continuous phase (Pa s)
     !     sigma = interfacial tension (N/m)
+    !     status = flag indicating whether the interface is clean (status = 1)
+    !              or dirty (status = -1)
     ! 
     ! Returns the slip velocity (m/s) of an elliptical-wobbling fluid 
     ! particle per equation (7-4) and following in Clift et al. (1978) 
@@ -396,11 +399,12 @@ subroutine us_ellipsoid(de, rho_p, rho, mu, sigma, &
     implicit none
     
     ! Declare the input and output variable types
-    real(kind = DP), intent(in) :: de, rho_p, rho, mu, sigma
+    integer, intent(in) :: status
+    real(kind = DP), intent(in) :: de, rho_p, rho, mu_p, mu, sigma
     real(kind = DP), intent(out) :: u_slip
     
     ! Declare the variables internal to the subroutine
-    real(kind = DP) :: Eo, M, H, J, Re
+    real(kind = DP) :: Eo, M, H, J, Re, us_dirty, kappa, xi, gamma
     
     ! Calculate the non-dimensional variables
     call eotvos(de, rho_p, rho, sigma, Eo)
@@ -417,8 +421,21 @@ subroutine us_ellipsoid(de, rho_p, rho, mu, sigma, &
     ! Calculate the Reynolds number
     Re = M**(-0.149D0) * (J - 0.857D0)
     
-    ! Return the slip velocity
-    u_slip =  mu / (rho * de) * Re
+    ! Compute the dirty-bubble the slip velocity
+    us_dirty =  mu / (rho * de) * Re
+    
+    ! Return the correct slip velocity
+    if (status > 0) then
+        ! Compute the clean-bubble correction from Figure 7.7 and Eqn. 7-10 in 
+        ! Clift et al. (1978)
+        kappa = mu_p / mu
+        xi = Eo * (1.0D0 + 0.15D0 * kappa) / (1.0D0 + kappa)
+        gamma = 2.0D0 * exp( -(log10(Xi) + 0.6383D0)**2 / &
+              & (0.2598D0 + 0.2D0*(log10(Xi) + 1.0D0))**2 )
+        u_slip = us_dirty * (1.0D0 + gamma/(1.0D0 + kappa))
+    else
+        u_slip = us_dirty
+    end if
     
 end subroutine us_ellipsoid
 
@@ -459,8 +476,39 @@ end subroutine  us_spherical_cap
 ! Mass Transfer Coefficients
 ! ----------------------------------------------------------------------------
 
+subroutine xfer_johnson(de, us, D, nc, &
+    &                   beta)
+    
+    ! Compute the mass transfer coefficient for clean particles
+    ! 
+    ! Computes the mass transfer coefficient for clean particles given by 
+    ! equation (42) in Johnson et al. (1969), Canadian Journal of Chemical
+    ! Engineering, vol. 47, pp. 559-564.
+    ! 
+    ! Input variables:
+    !     de = equivalent spherical diameter (m)
+    !     us = slip velocity of the dispersed phase (m/s)
+    !     D = diffusion coefficients of the dispersed phase components in the
+    !         continuous phase fluid (m^2/s)
+    
+    use Phys_Constants
+    implicit none
+    
+    ! Declare the input and output variable types
+    integer, intent(in) :: nc
+    real(kind = DP), intent(in) :: de, us
+    real(kind = DP), intent(in), dimension(nc) :: D
+    real(kind = DP), intent(out), dimension(nc) :: beta
+    
+    ! Compute equation (42) in Johnson et al. (1969)
+    beta(:) = 1.13D0 * sqrt(D(:) * us * 100.0D0**3 / (0.45D0 + &
+            & 0.2D0 * de * 100.0D0)) / 100.0D0
+    
+end subroutine xfer_johnson
+
+
 subroutine xfer_sphere(de, us, rho, mu, D, nc, &
-    &             beta)
+    &                  beta)
     
     ! 
     ! Compute the mass transfer coefficients for a rigid sphere
@@ -472,7 +520,8 @@ subroutine xfer_sphere(de, us, rho, mu, D, nc, &
     ! 
     ! These equations may be used for fluid particles in contaminated systems
     ! when slight impurities result in the bubble or droplet having no 
-    ! internal circulations.
+    ! internal circulations.  Currently, this function uses these equations 
+    ! for all spherical particles.
     ! 
     ! Input variables:
     !     de = equivalent spherical diameter (m)
@@ -500,6 +549,7 @@ subroutine xfer_sphere(de, us, rho, mu, D, nc, &
     real(kind = DP), intent(out), dimension(nc) :: beta
     
     ! Declare the variables internal to the subroutine
+    integer :: i
     real(kind = DP) :: Re
     real(kind = DP), dimension(nc) :: Sc, Pe, Sh
     
@@ -509,14 +559,20 @@ subroutine xfer_sphere(de, us, rho, mu, D, nc, &
     call reynolds(de, us, rho, mu, Re)
     
     ! Compute the Sherwood Number
-    if (Re < 100) then
-        Sh(:) = 1.0D0 + (1.0D0 + 1.0D0 / Pe(:))**(1.0D0/3.0D0) * &
-              & Re**0.41D0 * Sc(:)**(1.0D0/3.0D0)
-    else if (Re < 2000) then
-        Sh(:) = 1.0D0 + 0.724D0 * Re**(0.48D0) * Sc(:)**(1.0D0/3.0D0)
-    else
-        Sh(:) = 1.0D0 + 0.425D0 * Re**0.55D0 * Sc(:)**(1.0D0/3.0D0)
-    end if
+    do i = 1, nc
+        if (D(i) > 0.0D0) then
+            if (Re < 100) then
+                Sh(i) = 1.0D0 + (1.0D0 + 1.0D0 / Pe(i))**(1.0D0/3.0D0) * &
+                    & Re**0.41D0 * Sc(i)**(1.0D0/3.0D0)
+            else if (Re < 2000) then
+                Sh(i) = 1.0D0 + 0.724D0 * Re**(0.48D0) * Sc(i)**(1.0D0/3.0D0)
+            else
+                Sh(i) = 1.0D0 + 0.425D0 * Re**0.55D0 * Sc(i)**(1.0D0/3.0D0)
+            end if
+        else
+            Sh(i) = 0.0D0
+        end if
+    end do
     
     ! Return the mass transfer coefficient
     beta(:) = Sh(:) * D(:) / de
@@ -524,7 +580,7 @@ subroutine xfer_sphere(de, us, rho, mu, D, nc, &
 end subroutine xfer_sphere
 
 
-subroutine xfer_ellipsoid(de, us, rho, mu, D, nc, &
+subroutine xfer_ellipsoid(de, us, rho, mu, D, status, nc, &
     &                     beta)
     
     ! 
@@ -534,7 +590,9 @@ subroutine xfer_ellipsoid(de, us, rho, mu, D, nc, &
     ! fluid particles (drops and bubbles), but indicates that in contaminanted
     ! liquids, the mass transfer is close to that of rigid particles (i.e.,
     ! there is no internal circulation due to the contamination).  Thus, this
-    ! subroutine currently returns the result for rigid spheres.
+    ! subroutine currently returns the result for rigid spheres if the 
+    ! particles are dirty.  For clean fluid particles, this function returns
+    ! the result from equation (42) in Johnson et al. (1969).
     ! 
     ! Input variables:
     !     de = equivalent spherical diameter (m)
@@ -543,6 +601,8 @@ subroutine xfer_ellipsoid(de, us, rho, mu, D, nc, &
     !     mu = dynamic viscosity of the continuous phase (Pa s)
     !     D = diffusion coefficients of the dispersed phase components in the
     !         continuous phase fluid (m^2/s)
+    !     status = flag indicating whether the interface is clean (status = 1)
+    !              or dirty (status = -1)
     !     nc = number of tracked dispersed phase chemical components
     ! 
     ! Returns the mass transfer coefficients (m/s) for each component in the
@@ -556,25 +616,31 @@ subroutine xfer_ellipsoid(de, us, rho, mu, D, nc, &
     implicit none
     
     ! Declare the input and output variable types
-    integer, intent(in) :: nc
+    integer, intent(in) :: status, nc
     real(kind = DP), intent(in) :: de, us, rho, mu
     real(kind = DP), intent(in), dimension(nc) :: D
     real(kind = DP), intent(out), dimension(nc) :: beta
     
-    call xfer_sphere(de, us, rho, mu, D, nc, beta)
+    ! Compute the correct mass transfer coefficients
+    if (status > 0) then
+        call xfer_johnson(de, us, D, nc, beta)
+    else
+        call xfer_sphere(de, us, rho, mu, D, nc, beta)
+    end if
     
 end subroutine xfer_ellipsoid
 
 
-subroutine xfer_spherical_cap(de, us, rho, rho_p, mu, D, nc, &
+subroutine xfer_spherical_cap(de, us, rho, rho_p, mu, D, status, nc, &
     &                         beta)
     
     ! 
     ! Compute the mass transfer coefficients for spherical cap fluid particles
     ! 
     ! Computes the mass transfer coefficient for spherical-cap bubbles or
-    ! droplets using equation (8-28) in Clift et al. (1978), p. 214.  Applies 
-    ! to most fluid particles of spherical-cap shape.
+    ! droplets.  If the particles are clean, it uses equation (42) in 
+    ! Johnson et al. (1969).  If the particles are dirty, it uses equation 
+    ! (8-28) in Clift et al. (1978), p. 214.  
     !
     ! Input variables:
     !     de = equivalent spherical diameter (m)
@@ -584,6 +650,8 @@ subroutine xfer_spherical_cap(de, us, rho, rho_p, mu, D, nc, &
     !     mu = dynamic viscosity of the continuous phase (Pa s)
     !     D = diffusion coefficients of the dispersed phase components in the
     !         continuous phase fluid (m^2/s)
+    !     status = flag indicating whether the interface is clean (status = 1)
+    !              or dirty (status = -1)    
     !     nc = number of tracked dispersed phase chemical components
     ! 
     ! Returns the mass transfer coefficients (m/s) for each component in the
@@ -597,7 +665,7 @@ subroutine xfer_spherical_cap(de, us, rho, rho_p, mu, D, nc, &
     implicit none
     
     ! Declare the input and output variable types
-    integer, intent(in) :: nc
+    integer, intent(in) :: status, nc
     real(kind = DP), intent(in) :: de, us, rho, rho_p, mu
     real(kind = DP), intent(in), dimension(nc) :: D
     real(kind = DP), intent(out), dimension(nc) :: beta
@@ -605,17 +673,27 @@ subroutine xfer_spherical_cap(de, us, rho, rho_p, mu, D, nc, &
     ! Declare the variables internal to the subroutine
     real(kind = DP) :: theta_w, A, Ae
     
-    ! Compute the wake angle for the partial sphere model (equation 8-1)
-    call theta_w_sc(de, us, rho, mu, theta_w)
+    ! Compute the correct mass transfer coefficients
+    if (status > 0) then
+        ! Use the Johnson et al. (1969) equation for clean bubbles
+        call xfer_johnson(de, us, D, nc, beta)
+        
+    else
+        ! Use the Clift et al. (1978) equation for spherical cap bubbles
+        ! Compute the wake angle for the partial sphere model (equation 8-1)
+        call theta_w_sc(de, us, rho, mu, theta_w)
+        
+        ! Compute the surface area of the spherical cap and equivalent sphere
+        call surface_area_sc(de, theta_w, A)
+        Ae = 4.0D0 * PI * (de / 2.0D0)**2
+        
+        ! Compute the mass transfer (equation 8-28)
+        beta = (1.25D0 * (G * (rho - rho_p) / rho)**(0.25D0) * sqrt(D(:)) / &
+             & de**(0.25D0)) * Ae / A
     
-    ! Compute the surface area of the spherical cap and equivalent sphere
-    call surface_area_sc(de, theta_w, A)
-    Ae = 4.0D0 * PI * (de / 2.0D0)**2
-    
-    ! Compute the mass transfer (equation 8-28)
-    beta = (1.25D0 * (G * (rho - rho_p) / rho)**(0.25D0) * sqrt(D(:)) / &
-         & de**(0.25D0)) * Ae / A
+    end if
     
 end subroutine xfer_spherical_cap
+
 
 ! End File: DBM_PHYS.f95

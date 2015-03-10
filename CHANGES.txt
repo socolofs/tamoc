@@ -1,4 +1,70 @@
-v0.1.8, December, 2014 --
+V0.1.9, February, 2015 --
+   . Updated the equations of state with several small improvements to make 
+     the code more flexible (requiring fewer inputs or more readily available
+     data), more accurate (small updates based on better parameterizations),
+     and more complete (clean and dirty bubbles, most all simplifying 
+     assumptions removed, and all parameter values included with the model).
+     These updates were suggested by Jonas Gros, ETH Lausanne, Switzerland, 
+     through his and Sam Arey's collaboration with the model.  Many thanks to
+     them for helping improve the chemistry simulations in the model.
+   . Added ./bin/ambient_append.py as an example of how to add new profile 
+     data to an existing ambient.Profile object.  
+   . Fixed several problems in the bent plume model.  Particle objects update
+     correctly now in the LagElement class, the initial conditions no longer
+     overwrite the initial particle mass flux, updated the particle tracking 
+     to know where the surface is located and not to track particles that 
+     never leave the plume, and fixed a mistake in local_coords where dt was
+     used instead of the correct value ds.
+   . Realized that in the bent plume model, dt is the travel time for the 
+     entrained water, so the dissolution and heat transfer equations for 
+     particles were wrong.  Solved this problem by passing dtp / ds from 
+     the previous timestep to the derivs function.  This appears to work.  
+     Also, added particle age to the tracking routine.
+   . Fixed the computation of the buoyant force of the bubbles in the bent
+     plume model for a multiphase plume.  Previous computation left out the
+     mass of the displaced water, which significantly under-predicted the 
+     buoyant force.  The current version of the model gives nearly identical
+     results to the stratified plume model in quiescent, unstratified 
+     conditions, with differences stemming from the fact that a Lagrangian 
+     model cannot accurately incorporate the lambda_1 and lambda_2 spreading
+     rates.
+   . Fixed the seawater equation for viscosity (T is in deg C, not K).
+   . Added clean particle empirical equations for slip velocity, mass 
+     transfer, and heat transfer based on equations in Clift et al. (1978)
+     and Johnson et al. (1969).  This is implemented in the dbm.py module; 
+     the default returned values are for dirty particles (e.g., no change
+     from previous model releases).
+   . Changed the equation used to compute the diffusivity in the dbm.py
+     module.  The new equation is from Hayduk and Laudie (1974) and 
+     depends on the viscosity of the continuous phase and the molar volume 
+     of the dispersed phase components at their boiling points.  These 
+     values are more readily available than the parameters needed by the 
+     previous equation for diffusivity.  This makes the model more flexible
+     to handle a wide array of compounds.
+   . Added new property to the dbm.py module:  viscosity.  These equations are
+     generally true for gas and liquid hydrocarbons.  Other immiscible
+     liquids would likely have large errors (e.g., water is off by three 
+     order of magnitude).  This is needed for the clean particle mass 
+     transfer equations; otherwise, it is not used by the model.
+   . Made the commands in the chemical_properties.py module into a function
+     so that they can be called with different ChemData.csv files.  Updated 
+     dbm.py to use the new function to automatically load the ChemData.csv
+     file that comes with TAMOC in the ./tamoc/data directory.  Also, added
+     the capability in dbm.py for the user to supply an alternate database
+     from another directory.  This new database will overwrite the data from
+     the ./tamoc/data directory if the same component is present in both;
+     otherwise, the new data is appended to create a larger database.  This
+     is particularly useful when the user needs to use a pseudocomponent 
+     model for a particular oil.
+   . Added the capability to compute the temperature-dependent binary 
+     interaction coefficients following Jaubert et al. 2005.  Two new files
+     were added to the ./data directory:  Aij and Bij contain the group
+     contribution method coefficients for the matrices A an B in the 
+     Jaubert et al. 2005 paper.  To use this method, the user must supply
+     a new input to the dbm object initializer called `delta_groups`, which
+     gives the fraction of each group contained in each compound in the 
+     mixture.  
+v0.1.8, December, 12, 2014 --
    . Added the capability for the params.Scale object to print out the 
      solution to the empirical model equations and to save the results to 
      the hard drive.

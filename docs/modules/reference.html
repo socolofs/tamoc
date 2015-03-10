@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.7',
+        VERSION:     '0.1.9',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -60,7 +60,7 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">November 17, 2014</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">March 10, 2015</td>
 </tr>
 </tbody>
 </table>
@@ -124,12 +124,17 @@
 <li class="toctree-l1"><a class="reference internal" href="../dbm/dbm.FluidMixture.partial_pressures.html">dbm.FluidMixture.partial_pressures</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../dbm/dbm.FluidMixture.density.html">dbm.FluidMixture.density</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../dbm/dbm.FluidMixture.fugacity.html">dbm.FluidMixture.fugacity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dbm/dbm.FluidMixture.viscosity.html">dbm.FluidMixture.viscosity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dbm/dbm.FluidMixture.interface_tension.html">dbm.FluidMixture.interface_tension</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../dbm/dbm.FluidMixture.equilibrium.html">dbm.FluidMixture.equilibrium</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../dbm/dbm.FluidMixture.solubility.html">dbm.FluidMixture.solubility</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../dbm/dbm.FluidMixture.diffusivity.html">dbm.FluidMixture.diffusivity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dbm/dbm.FluidMixture.hydrate_stability.html">dbm.FluidMixture.hydrate_stability</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../dbm/dbm.FluidParticle.html">dbm.FluidParticle</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../dbm/dbm.FluidParticle.density.html">dbm.FluidParticle.density</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../dbm/dbm.FluidParticle.fugacity.html">dbm.FluidParticle.fugacity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dbm/dbm.FluidParticle.viscosity.html">dbm.FluidParticle.viscosity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dbm/dbm.FluidParticle.interface_tension.html">dbm.FluidParticle.interface_tension</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../dbm/dbm.FluidParticle.solubility.html">dbm.FluidParticle.solubility</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../dbm/dbm.FluidParticle.masses_by_diameter.html">dbm.FluidParticle.masses_by_diameter</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../dbm/dbm.FluidParticle.diameter.html">dbm.FluidParticle.diameter</a></li>
@@ -138,9 +143,12 @@
 <li class="toctree-l1"><a class="reference internal" href="../dbm/dbm.FluidParticle.surface_area.html">dbm.FluidParticle.surface_area</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../dbm/dbm.FluidParticle.mass_transfer.html">dbm.FluidParticle.mass_transfer</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../dbm/dbm.FluidParticle.heat_transfer.html">dbm.FluidParticle.heat_transfer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dbm/dbm.FluidParticle.hydrate_stability.html">dbm.FluidParticle.hydrate_stability</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../dbm/dbm.FluidParticle.return_all.html">dbm.FluidParticle.return_all</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../dbm/dbm.InsolubleParticle.html">dbm.InsolubleParticle</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../dbm/dbm.InsolubleParticle.density.html">dbm.InsolubleParticle.density</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dbm/dbm.InsolubleParticle.viscosity.html">dbm.InsolubleParticle.viscosity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dbm/dbm.InsolubleParticle.interface_tension.html">dbm.InsolubleParticle.interface_tension</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../dbm/dbm.InsolubleParticle.mass_by_diameter.html">dbm.InsolubleParticle.mass_by_diameter</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../dbm/dbm.InsolubleParticle.diameter.html">dbm.InsolubleParticle.diameter</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../dbm/dbm.InsolubleParticle.particle_shape.html">dbm.InsolubleParticle.particle_shape</a></li>
@@ -311,6 +319,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../scripts/dbm/gas_bubbles.html">gas_bubbles</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../scripts/dbm/hydrocarbon_drops.html">hydrocarbon_drops</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../scripts/dbm/equilibrium.html">equilibrium</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts/dbm/equil_test.html">equil_test</a></li>
 </ul>
 </div>
 </div>
@@ -356,7 +365,8 @@
 <h3>Running the Bent Plume Model<a class="headerlink" href="#running-the-bent-plume-model" title="Permalink to this headline">¶</a></h3>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../scripts/bpm/buoyant_jet.html">buoyant_jet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts/bpm/bpm_example.html">bpm_example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts/bpm/bpm_blowout.html">bpm_blowout</a></li>
 </ul>
 </div>
 </div>
@@ -484,7 +494,7 @@
     </div>
     <div class="footer">
         &copy; Copyright 2014, Scott A. Socolofsky.
-      Last updated on Dec 09, 2014.
+      Last updated on Mar 10, 2015.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>

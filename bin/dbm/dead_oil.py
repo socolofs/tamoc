@@ -64,7 +64,7 @@ if __name__ == '__main__':
     # Echo the properties of the droplet to the screen
     print '\nBasic droplet properties:  \n'
     print '   de = %g (m)' % (oil.diameter(m, T, P, Sa, Ta))
-    shape, de, rho_p, rho, mu, sigma = oil.particle_shape(m, T, P, Sa, Ta)
+    shape, de, rho_p, rho, mu_p, mu, sigma = oil.particle_shape(m, T, P, Sa, Ta)
     print '   shape = %g (1: Sphere, 2: Ellipsoid, 3: Spherical Cap)' \
         % shape
     print '   us = %g (m/s)' % (oil.slip_velocity(m, T, P, Sa, Ta))

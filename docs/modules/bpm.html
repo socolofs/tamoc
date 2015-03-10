@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.7',
+        VERSION:     '0.1.9',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -58,7 +58,7 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">December 09, 2014</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">March 10, 2015</td>
 </tr>
 </tbody>
 </table>
@@ -314,101 +314,105 @@ should be considered dissolved.</p>
 <col width="50%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td>x</td>
+<tr class="row-odd"><td>t</td>
+<td>float</td>
+<td>Current age of the &#8216;Particle&#8217; object since its release (s)</td>
+</tr>
+<tr class="row-even"><td>x</td>
 <td>float</td>
 <td>Current position of the <a class="reference internal" href="#bent_plume_model.Particle" title="bent_plume_model.Particle"><tt class="xref py py-obj docutils literal"><span class="pre">Particle</span></tt></a> object in the x-direction (m)</td>
 </tr>
-<tr class="row-even"><td>y</td>
+<tr class="row-odd"><td>y</td>
 <td>float</td>
 <td>Current position of the <a class="reference internal" href="#bent_plume_model.Particle" title="bent_plume_model.Particle"><tt class="xref py py-obj docutils literal"><span class="pre">Particle</span></tt></a> object in the y-direction (m)</td>
 </tr>
-<tr class="row-odd"><td>z</td>
+<tr class="row-even"><td>z</td>
 <td>float</td>
 <td>Current position of the <a class="reference internal" href="#bent_plume_model.Particle" title="bent_plume_model.Particle"><tt class="xref py py-obj docutils literal"><span class="pre">Particle</span></tt></a> object in the z-direction (m)</td>
 </tr>
-<tr class="row-even"><td>integrate</td>
+<tr class="row-odd"><td>integrate</td>
 <td>bool</td>
 <td>Flag indicating whether or not this particle is inside the bent
 plume model and should be integrated</td>
 </tr>
-<tr class="row-odd"><td>b_local</td>
+<tr class="row-even"><td>b_local</td>
 <td>float</td>
 <td>Width of the bent plume model at the location where the particle
 exited the plume.</td>
 </tr>
-<tr class="row-even"><td>particle</td>
+<tr class="row-odd"><td>particle</td>
 <td><a class="reference internal" href="dbm.html#dbm.FluidParticle" title="dbm.FluidParticle"><tt class="xref py py-obj docutils literal"><span class="pre">dbm.FluidParticle</span></tt></a> or <a class="reference internal" href="dbm.html#dbm.InsolubleParticle" title="dbm.InsolubleParticle"><tt class="xref py py-obj docutils literal"><span class="pre">dbm.InsolubleParticle</span></tt></a> object</td>
 <td>Stores the <em class="xref py py-obj">dbm_particle</em> object passed to at creation.</td>
 </tr>
-<tr class="row-odd"><td>composition</td>
+<tr class="row-even"><td>composition</td>
 <td>str list</td>
 <td>Copy of the <em class="xref py py-obj">composition</em> attribute of the <em class="xref py py-obj">dbm_particle</em> object.</td>
 </tr>
-<tr class="row-even"><td>m0</td>
+<tr class="row-odd"><td>m0</td>
 <td>ndarray</td>
 <td>Initial masses (kg) of one particle for the particle components</td>
 </tr>
-<tr class="row-odd"><td>T0</td>
+<tr class="row-even"><td>T0</td>
 <td>float</td>
 <td>Initial temperature (K) of the particle</td>
 </tr>
-<tr class="row-even"><td>cp</td>
+<tr class="row-odd"><td>cp</td>
 <td>float</td>
 <td>Heat capacity at constant pressure (J/(kg K)) of the particle.</td>
 </tr>
-<tr class="row-odd"><td>K</td>
+<tr class="row-even"><td>K</td>
 <td>float</td>
 <td>Mass transfer reduction factor (&#8211;)</td>
 </tr>
-<tr class="row-even"><td>K_T</td>
+<tr class="row-odd"><td>K_T</td>
 <td>float</td>
 <td>Heat transfer reduction factor (&#8211;)</td>
 </tr>
-<tr class="row-odd"><td>fdis</td>
+<tr class="row-even"><td>fdis</td>
 <td>float</td>
 <td>Fraction of initial mass remaining as total dissolution (&#8211;)</td>
 </tr>
-<tr class="row-even"><td>diss_indices</td>
+<tr class="row-odd"><td>diss_indices</td>
 <td>ndarray bool</td>
 <td>Indices of m0 that are non-zero.</td>
 </tr>
-<tr class="row-odd"><td>nb0</td>
+<tr class="row-even"><td>nb0</td>
 <td>float</td>
 <td>Initial number flux of particles at the release (&#8211;)</td>
 </tr>
-<tr class="row-even"><td>lambda_1</td>
+<tr class="row-odd"><td>lambda_1</td>
 <td>float</td>
 <td>Spreading rate of the dispersed phase in a plume (&#8211;)</td>
 </tr>
-<tr class="row-odd"><td>m</td>
+<tr class="row-even"><td>m</td>
 <td>ndarray</td>
 <td>Current masses of the particle components (kg)</td>
 </tr>
-<tr class="row-even"><td>T</td>
+<tr class="row-odd"><td>T</td>
 <td>float</td>
 <td>Current temperature of the particle (K)</td>
 </tr>
-<tr class="row-odd"><td>us</td>
+<tr class="row-even"><td>us</td>
 <td>float</td>
 <td>Slip velocity (m/s)</td>
 </tr>
-<tr class="row-even"><td>rho_p</td>
+<tr class="row-odd"><td>rho_p</td>
 <td>float</td>
 <td>Particle density (kg/m^3)</td>
 </tr>
-<tr class="row-odd"><td>A</td>
+<tr class="row-even"><td>A</td>
 <td>float</td>
 <td>Particle surface area (m^2)</td>
 </tr>
-<tr class="row-even"><td>Cs</td>
+<tr class="row-odd"><td>Cs</td>
 <td>ndarray</td>
 <td>Solubility of each dissolving component in the particle (kg/m^3)</td>
 </tr>
-<tr class="row-odd"><td>beta</td>
+<tr class="row-even"><td>beta</td>
 <td>ndarray</td>
 <td>Mass transfer coefficients (m/s)</td>
 </tr>
-<tr class="row-even"><td>beta_T</td>
+<tr class="row-odd"><td>beta_T</td>
 <td>float</td>
 <td>Heat transfer coefficient (m/s)</td>
 </tr>
@@ -800,7 +804,7 @@ functions contained in this module are detailed in the following.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="../bpm/lmp.derivs.html#lmp.derivs" title="lmp.derivs"><tt class="xref py py-obj docutils literal"><span class="pre">derivs</span></tt></a>(t,&nbsp;q,&nbsp;q0_local,&nbsp;q1_local,&nbsp;profile,&nbsp;p,&nbsp;...)</td>
+<tr class="row-odd"><td><a class="reference internal" href="../bpm/lmp.derivs.html#lmp.derivs" title="lmp.derivs"><tt class="xref py py-obj docutils literal"><span class="pre">derivs</span></tt></a>(t,&nbsp;q,&nbsp;dtp_ds,&nbsp;q0_local,&nbsp;q1_local,&nbsp;...)</td>
 <td>Calculate the derivatives for the system of ODEs for a Lagrangian plume</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="../bpm/lmp.calculate.html#lmp.calculate" title="lmp.calculate"><tt class="xref py py-obj docutils literal"><span class="pre">calculate</span></tt></a>(t0,&nbsp;q0,&nbsp;q0_local,&nbsp;profile,&nbsp;p,&nbsp;...)</td>
@@ -809,7 +813,7 @@ functions contained in this module are detailed in the following.</p>
 <tr class="row-odd"><td><a class="reference internal" href="../bpm/lmp.entrainment.html#lmp.entrainment" title="lmp.entrainment"><tt class="xref py py-obj docutils literal"><span class="pre">entrainment</span></tt></a>(q0_local,&nbsp;q1_local,&nbsp;p)</td>
 <td>Compute the total shear and forced entrainment at one time step</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="../bpm/lmp.local_coords.html#lmp.local_coords" title="lmp.local_coords"><tt class="xref py py-obj docutils literal"><span class="pre">local_coords</span></tt></a>(q0_local,&nbsp;q1_local,&nbsp;dt)</td>
+<tr class="row-even"><td><a class="reference internal" href="../bpm/lmp.local_coords.html#lmp.local_coords" title="lmp.local_coords"><tt class="xref py py-obj docutils literal"><span class="pre">local_coords</span></tt></a>(q0_local,&nbsp;q1_local,&nbsp;ds)</td>
 <td>Compute the rotation matrix from (x, y, z)&#8217; to (l, n, m)</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="../bpm/lmp.main_ic.html#lmp.main_ic" title="lmp.main_ic"><tt class="xref py py-obj docutils literal"><span class="pre">main_ic</span></tt></a>(profile,&nbsp;particles,&nbsp;X,&nbsp;D,&nbsp;Vj,&nbsp;phi_0,&nbsp;...)</td>
@@ -905,7 +909,7 @@ functions contained in this module are detailed in the following.</p>
     </div>
     <div class="footer">
         &copy; Copyright 2014, Scott A. Socolofsky.
-      Last updated on Dec 09, 2014.
+      Last updated on Mar 10, 2015.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>

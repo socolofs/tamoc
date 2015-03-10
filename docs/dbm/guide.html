@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.7',
+        VERSION:     '0.1.9',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -60,7 +60,7 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">November 17, 2014</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">March 10, 2015</td>
 </tr>
 </tbody>
 </table>
@@ -78,6 +78,7 @@ code.</p>
 <li class="toctree-l1"><a class="reference internal" href="../scripts/dbm/co2_eos.html">co2_eos</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../scripts/dbm/dead_oil.html">dead_oil</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../scripts/dbm/equilibrium.html">equilibrium</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts/dbm/equil_test.html">equil_test</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../scripts/dbm/gas_bubbles.html">gas_bubbles</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../scripts/dbm/hydrocarbon_drops.html">hydrocarbon_drops</a></li>
 </ul>
@@ -97,7 +98,7 @@ taken as inputs to the methods. While mole could have been the fundamental
 unit for composition, mass is used in <tt class="docutils literal"><span class="pre">TAMOC</span></tt>.</p>
 <div class="section" id="mixture-equations-of-state">
 <h3>Mixture Equations of State<a class="headerlink" href="#mixture-equations-of-state" title="Permalink to this headline">¶</a></h3>
-<p>As in the scripts above for <a class="reference internal" href="../scripts/dbm/air_eos.html#module-air_eos" title="air_eos"><tt class="xref py py-obj docutils literal"><span class="pre">air_eos</span></tt></a> and <a class="reference internal" href="../scripts/dbm/co2_eos.html#module-co2_eos" title="co2_eos"><tt class="xref py py-obj docutils literal"><span class="pre">co2_eos</span></tt></a>, the <a class="reference internal" href="../modules/dbm.html#dbm.FluidMixture" title="dbm.FluidMixture"><tt class="xref py py-obj docutils literal"><span class="pre">dbm.FluidMixture</span></tt></a>
+<p>As in the scripts above for <a class="reference internal" href="../scripts/dbm/air_eos.html#module-air_eos" title="air_eos"><tt class="xref py py-obj docutils literal"><span class="pre">air_eos</span></tt></a> and <a class="reference internal" href="../scripts/dbm/co2_eos.html#module-co2_eos" title="co2_eos"><tt class="xref py py-obj docutils literal"><span class="pre">co2_eos</span></tt></a>, the <a class="reference internal" href="dbm.FluidMixture.html#dbm.FluidMixture" title="dbm.FluidMixture"><tt class="xref py py-obj docutils literal"><span class="pre">dbm.FluidMixture</span></tt></a>
 object provides an interface to the Peng-Robinson equation of state for any
 mixture of chemicals.</p>
 <p>As an example, consider a natural gas containing the following compounds with
@@ -107,7 +108,7 @@ given mole fractions in the mixture:</p>
 </pre></div>
 </div>
 <p>If the binary interaction coefficients are going to be taken as default, then
-we can initialize a <a class="reference internal" href="../modules/dbm.html#dbm.FluidMixture" title="dbm.FluidMixture"><tt class="xref py py-obj docutils literal"><span class="pre">dbm.FluidMixture</span></tt></a> object as follows:</p>
+we can initialize a <a class="reference internal" href="dbm.FluidMixture.html#dbm.FluidMixture" title="dbm.FluidMixture"><tt class="xref py py-obj docutils literal"><span class="pre">dbm.FluidMixture</span></tt></a> object as follows:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">dbm</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">gas</span> <span class="o">=</span> <span class="n">dbm</span><span class="o">.</span><span class="n">FluidMixture</span><span class="p">(</span><span class="n">composition</span><span class="p">)</span>
 </pre></div>
@@ -182,9 +183,9 @@ significant two-phase region of the thermodynamic space for this mixture.</p>
 <h3>Bubbles or Droplets<a class="headerlink" href="#bubbles-or-droplets" title="Permalink to this headline">¶</a></h3>
 <p>Bubbles and droplets in general require the same set of steps; here, we focus
 on a bubble with similar composition to the mixture studied above. Both
-bubbles and droplets are modeled by the <a class="reference internal" href="../modules/dbm.html#dbm.FluidParticle" title="dbm.FluidParticle"><tt class="xref py py-obj docutils literal"><span class="pre">dbm.FluidParticle</span></tt></a> object. The main
-differences between the <a class="reference internal" href="../modules/dbm.html#dbm.FluidParticle" title="dbm.FluidParticle"><tt class="xref py py-obj docutils literal"><span class="pre">dbm.FluidParticle</span></tt></a> and <a class="reference internal" href="../modules/dbm.html#dbm.FluidMixture" title="dbm.FluidMixture"><tt class="xref py py-obj docutils literal"><span class="pre">dbm.FluidMixture</span></tt></a> objects is
-that the <a class="reference internal" href="../modules/dbm.html#dbm.FluidParticle" title="dbm.FluidParticle"><tt class="xref py py-obj docutils literal"><span class="pre">dbm.FluidParticle</span></tt></a> can only have one phase (e.g., gas or liquid) and
+bubbles and droplets are modeled by the <a class="reference internal" href="dbm.FluidParticle.html#dbm.FluidParticle" title="dbm.FluidParticle"><tt class="xref py py-obj docutils literal"><span class="pre">dbm.FluidParticle</span></tt></a> object. The main
+differences between the <a class="reference internal" href="dbm.FluidParticle.html#dbm.FluidParticle" title="dbm.FluidParticle"><tt class="xref py py-obj docutils literal"><span class="pre">dbm.FluidParticle</span></tt></a> and <a class="reference internal" href="dbm.FluidMixture.html#dbm.FluidMixture" title="dbm.FluidMixture"><tt class="xref py py-obj docutils literal"><span class="pre">dbm.FluidMixture</span></tt></a> objects is
+that the <a class="reference internal" href="dbm.FluidParticle.html#dbm.FluidParticle" title="dbm.FluidParticle"><tt class="xref py py-obj docutils literal"><span class="pre">dbm.FluidParticle</span></tt></a> can only have one phase (e.g., gas or liquid) and
 also contains shape information so that concepts like rise velocity have
 meaning.</p>
 <p>If we consider the same mixture as above:</p>
@@ -361,7 +362,7 @@ be calculated:</p>
     </div>
     <div class="footer">
         &copy; Copyright 2014, Scott A. Socolofsky.
-      Last updated on Nov 17, 2014.
+      Last updated on Mar 10, 2015.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>

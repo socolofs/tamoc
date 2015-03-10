@@ -710,7 +710,8 @@ def save_particle_to_nc_file(nc, chem_names, particles, K_T0):
             particle_type[i] = 0
 
 
-def load_particle_from_nc_file(nc, particle_type, X0=None):
+def load_particle_from_nc_file(nc, particle_type, X0=None, user_data={}, 
+                               delta_groups=None):
     """
     Read the complete `particles` list from a netCDF output file
     
@@ -741,7 +742,8 @@ def load_particle_from_nc_file(nc, particle_type, X0=None):
         # Create the correct dbm object
         if nc.variables['issoluble'][i]:
             particle = dbm.FluidParticle(chem_names, 
-                fp_type=nc.variables['fp_type'][i])
+                fp_type=nc.variables['fp_type'][i], user_data=user_data, 
+                 delta_groups=delta_groups)
             m0 = nc.variables['m0'][i,:]
         else:
             if nc.variables['isfluid'][i]:

@@ -37,6 +37,10 @@ if __name__ == '__main__':
     rho_m = air.density(m, 273.15+15., 101325.)[0]
     print '\nStandard density of air is: %g (kg/m^3)' % rho_m
     
+    # Calculate the viscosity at standard conditions
+    mu = air.viscosity(m, 273.15+15., 101325.)[0]
+    print '\nStandard viscosity of air is: %g (Pa s)' % mu
+    
     # Calculate the density at deepwater ocean conditions
     rho_m = air.density(m, 273.15+4., 150.*1.e5)[0]
     print '\nDensity of air at 4 deg C and 150 bar is: %g (kg/m^3)' % rho_m

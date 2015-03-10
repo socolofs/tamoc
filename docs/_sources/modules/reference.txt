@@ -67,12 +67,17 @@ dbm.py
    ../dbm/dbm.FluidMixture.partial_pressures
    ../dbm/dbm.FluidMixture.density
    ../dbm/dbm.FluidMixture.fugacity
+   ../dbm/dbm.FluidMixture.viscosity
+   ../dbm/dbm.FluidMixture.interface_tension
    ../dbm/dbm.FluidMixture.equilibrium
    ../dbm/dbm.FluidMixture.solubility
    ../dbm/dbm.FluidMixture.diffusivity
+   ../dbm/dbm.FluidMixture.hydrate_stability
    ../dbm/dbm.FluidParticle
    ../dbm/dbm.FluidParticle.density
    ../dbm/dbm.FluidParticle.fugacity
+   ../dbm/dbm.FluidParticle.viscosity
+   ../dbm/dbm.FluidParticle.interface_tension
    ../dbm/dbm.FluidParticle.solubility
    ../dbm/dbm.FluidParticle.masses_by_diameter
    ../dbm/dbm.FluidParticle.diameter
@@ -81,9 +86,12 @@ dbm.py
    ../dbm/dbm.FluidParticle.surface_area
    ../dbm/dbm.FluidParticle.mass_transfer
    ../dbm/dbm.FluidParticle.heat_transfer
+   ../dbm/dbm.FluidParticle.hydrate_stability
    ../dbm/dbm.FluidParticle.return_all
    ../dbm/dbm.InsolubleParticle
    ../dbm/dbm.InsolubleParticle.density
+   ../dbm/dbm.InsolubleParticle.viscosity
+   ../dbm/dbm.InsolubleParticle.interface_tension
    ../dbm/dbm.InsolubleParticle.mass_by_diameter
    ../dbm/dbm.InsolubleParticle.diameter
    ../dbm/dbm.InsolubleParticle.particle_shape
@@ -256,6 +264,7 @@ Using the Discrete Bubble Model
    ../scripts/dbm/gas_bubbles
    ../scripts/dbm/hydrocarbon_drops
    ../scripts/dbm/equilibrium
+   ../scripts/dbm/equil_test
 
 Using the Sintef Bubble/Droplet Size Distribution Model
 -------------------------------------------------------
@@ -301,4 +310,6 @@ Running the Bent Plume Model
 .. toctree::
    :maxdepth: 1
 
-   ../scripts/bpm/buoyant_jet
+   ../scripts/bpm/bpm_example
+   ../scripts/bpm/bpm_blowout
+

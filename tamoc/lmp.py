@@ -15,7 +15,7 @@ import numpy as np
 from scipy import integrate
 from copy import deepcopy
 
-def derivs(t, q, q0_local, q1_local, profile, p, particles):
+def derivs(t, q, dtp_ds, q0_local, q1_local, profile, p, particles):
     """
     Calculate the derivatives for the system of ODEs for a Lagrangian plume
     
@@ -78,8 +78,8 @@ def derivs(t, q, q0_local, q1_local, profile, p, particles):
     # down (depth).
     qp[3] = md * q1_local.ua
     qp[4] = 0.
-    qp[5] = -q1_local.M * (q1_local.rho_a - q1_local.rho) / q1_local.rho_a \
-            * p.g - q1_local.Mp * q1_local.Fb
+    qp[5] = - p.g / (p.gamma * p.rho_r) * (q1_local.Fb + q1_local.M * 
+            (q1_local.rho_a - q1_local.rho))
     
     # Constant h/V thickeness to velocity ratio
     qp[6] = 0.
@@ -103,6 +103,11 @@ def derivs(t, q, q0_local, q1_local, profile, p, particles):
         # Track each particle's mass transfer separately
         dm_p = np.zeros(q1_local.nchems)
         
+        # Realize that the travel time for the particle is different from 
+        # that of the plume.  Compute the time adjustment.
+        if dtp_ds[i] == 0.:
+            dtp_ds[i] = 1. / q1_local.V
+        
         # Dissolution
         if particles[i].particle.issoluble:
             for j in range(q1_local.nchems):
@@ -110,11 +115,11 @@ def derivs(t, q, q0_local, q1_local, profile, p, particles):
                 # Conservation of particle mass for a single chemical j
                 qp[idx] = - particles[i].A * particles[i].nb0 * \
                           particles[i].beta[j] * (particles[i].Cs[j] - 
-                          q1_local.c_chems[j])
+                          q1_local.c_chems[j]) * dtp_ds[i] * q1_local.V
                 dm_p[j] = qp[idx]
                 
                 # Update continuous phase temperature with heat of solution
-                qp[2] += qp[idx] * particles[i].particle.dH_solR[j] * p.Ru / \
+                qp[2] += qp[idx] * particles[i].particle.neg_dH_solR[j] * p.Ru / \
                          particles[i].particle.M[j]
                 idx += 1
             
@@ -129,7 +134,7 @@ def derivs(t, q, q0_local, q1_local, profile, p, particles):
         # Heat transfer between the particle and the ambient
         qp[idx] = - particles[i].A * particles[i].nb0 * particles[i].rho_p * \
                   particles[i].cp * particles[i].beta_T * (particles[i].T - 
-                  q1_local.T) 
+                  q1_local.T) * dtp_ds[i] * q1_local.V
         
         # Heat loss due to mass loss by dissolution
         qp[idx] += np.sum(dm_p) * particles[i].cp * particles[i].T
@@ -224,16 +229,20 @@ def calculate(t0, q0, q0_local, profile, p, particles, derivs,
     # Create vectors (using the list data type) to store the solution
     t = [t0]
     q = [q0]
-    xp = []
+    xpi = []
+    tpi = []
     for i in range(len(particles)):
-        xp.append(particles[i].x)
-        xp.append(particles[i].y)
-        xp.append(particles[i].z)
-    sp = [xp]
+        xpi.append(particles[i].x)
+        xpi.append(particles[i].y)
+        xpi.append(particles[i].z)
+        tpi.append(particles[i].t)
+    sp = [xpi]
+    tp = [tpi]
+    dtp_ds = np.zeros(len(particles))
     
     # Integrate a finite number of time steps
     k = 0
-    psteps = 30.
+    psteps = 1.
     stop = False
     while r.successful() and not stop:
         
@@ -243,7 +252,7 @@ def calculate(t0, q0, q0_local, profile, p, particles, derivs,
                 (q[-1][10], t[-1], k)
         
         # Perform one step of the integration
-        r.set_f_params(q0_local, q1_local, profile, p, particles)
+        r.set_f_params(dtp_ds, q0_local, q1_local, profile, p, particles)
         r.integrate(t[-1] + dt_max, step=True)
         
         # Store the results
@@ -255,7 +264,12 @@ def calculate(t0, q0, q0_local, profile, p, particles, derivs,
         q1_local.update(t[-1], q[-1], profile, p, particles)
         q0_hold = deepcopy(q1_local)
         
+        # Find the displacement
+        ds = q1_local.s - q0_local.s
+        
         # Track the dispersed phase particles
+        xpi = []
+        tpi = []
         for i in range(len(particles)):
             
             # Track the particles through this Lagrangian element
@@ -263,12 +277,20 @@ def calculate(t0, q0, q0_local, profile, p, particles, derivs,
             particles[i].track(q0_local, q1_local, md, t[-1] - t[-2])
             
             # Store the particle positions
-            xp = []
-            for i in range(len(particles)):
-                xp.append(particles[i].x)
-                xp.append(particles[i].y)
-                xp.append(particles[i].z)
-            sp.append(xp)
+            xpi.append(particles[i].x)
+            xpi.append(particles[i].y)
+            xpi.append(particles[i].z)
+            tpi.append(particles[i].t)
+                
+            # Get the differential particle time step
+            dtp_ds[i] = (tpi[i] - tp[-1][i]) / ds
+            
+        sp.append(xpi)
+        tp.append(tpi)
+        
+        # Record the particle positions for this timestep
+        sp.append(xpi)
+        tp.append(tpi)
         k += 1
         
         # Evaluate the stop criteria
@@ -403,7 +425,7 @@ def entrainment(q0_local, q1_local, p):
     return md
 
 
-def local_coords(q0_local, q1_local, dt):
+def local_coords(q0_local, q1_local, ds):
     """
     Compute the rotation matrix from (x, y, z)' to (l, n, m)
     
@@ -423,9 +445,9 @@ def local_coords(q0_local, q1_local, dt):
         Object containing the numerical solution at the previous time step
     q1_local : `bent_plume_model.LagElement`
         Object containing the numerical solution at the current time step
-    dt : float
-        Time step between the solutions contained in `q0_local` and 
-        `q1_local`.
+    ds : float
+        Segment length along the centerline between the solutions contained 
+        in `q0_local` and `q1_local`.
     
     Returns
     -------
@@ -439,19 +461,19 @@ def local_coords(q0_local, q1_local, dt):
     
     """
     # Get the rate of angular rotation for the centerline
-    if dt < 1.e-12:
+    if ds < 1.e-12:
         phi_d = 0.
         theta_d = 0.
     else:
-        phi_d = (q1_local.phi - q0_local.phi) / dt
+        phi_d = (q1_local.phi - q0_local.phi) / ds
         if np.abs(q1_local.theta - q0_local.theta) > np.pi:
             # Angles are close to 0
             if q1_local.theta > np.pi:
-                theta_d = (q1_local.theta - (q0_local.theta + 2. * np.pi)) / dt
+                theta_d = (q1_local.theta - (q0_local.theta + 2. * np.pi)) / ds
             else:
-                theta_d = (q1_local.theta + 2.* np.pi - q0_local.theta) / dt
+                theta_d = (q1_local.theta + 2.* np.pi - q0_local.theta) / ds
         else:
-            theta_d = (q1_local.theta - q0_local.theta) / dt
+            theta_d = (q1_local.theta - q0_local.theta) / ds
     
     # Get the value of 1 / R = r
     r = np.sqrt(phi_d**2 + q1_local.cos_p**2 * theta_d**2)
@@ -647,7 +669,7 @@ def bent_plume_ic(profile, particles, Qj, A, D, X, phi_0, theta_0, Tj, Sj,
     
     # Set the dimensions of the initial Lagrangian plume element
     b = D / 2.
-    h = D / 2.
+    h = D / 5.
     
     # Measure the arc length along the plume
     s0 = 0.
@@ -667,13 +689,12 @@ def bent_plume_ic(profile, particles, Qj, A, D, X, phi_0, theta_0, Tj, Sj,
     # Compute the mass of jet discharge in the initial Lagrangian element
     Mj = Qj * dt * rho_j
     
-    # Get the actual number of particles for each particle object within the
-    # initial Lagrangian element
+    # Get the actual number of particles following this Lagrangian element
     for i in range(len(particles)):
-        particles[i].nb0 = particles[i].nb0 * dt
+        particles[i].nbe = particles[i].nb0 * dt
     
     # Get the velocity in the component directions
-    Uj = flux_to_velocity(Q, A, phi_0, theta_0)
+    Uj = flux_to_velocity(Qj, A, phi_0, theta_0)
     
     # Compute the magnitude of the exit velocity 
     V = np.sqrt(Uj[0]**2 + Uj[1]**2 + Uj[2]**2)

@@ -42,10 +42,12 @@ Topic :: Software Development :: Libraries :: Python Modules
 bin_files = ['./bin/dbm/air_eos.py',
              './bin/dbm/co2_eos.py',
              './bin/dbm/dead_oil.py',
-             './bin/dbm/equilibrium.py',
+             './bin/dbm/euilibrium.py'
+             './bin/dbm/equil_test.py',
              './bin/dbm/gas_bubbles.py',
              './bin/dbm/hydrocarbon_drops.py',
              './bin/ambient/profile_extending.py',
+             './bin/ambient/profile_append.py',
              './bin/ambient/profile_from_ctd.py',
              './bin/ambient/profile_from_lab.py',
              './bin/ambient/profile_from_roms.py',
@@ -60,7 +62,7 @@ bin_files = ['./bin/dbm/air_eos.py',
              './bin/spm/spm_file_io.py',
              './bin/sintef/particle_size_distribution.py',
              './bin/params/scales.py',
-             './bin/bpm/blowout.py',
+             './bin/bpm/bpm_blowout.py',
              './bin/bpm/bpm_example.py']
 
 # Define the external Fortran sources
@@ -77,7 +79,7 @@ if __name__ == '__main__':
     
     setup(
         name = 'TAMOC',
-        version = '0.1.8',
+        version = '0.1.9',
         description = 'Texas A&M Oilspill Calculator',
         long_description = open('README.txt').read(),
         license = 'LICENSE.txt',
