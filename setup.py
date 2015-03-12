@@ -42,7 +42,7 @@ Topic :: Software Development :: Libraries :: Python Modules
 bin_files = ['./bin/dbm/air_eos.py',
              './bin/dbm/co2_eos.py',
              './bin/dbm/dead_oil.py',
-             './bin/dbm/euilibrium.py'
+             './bin/dbm/equilibrium.py',
              './bin/dbm/equil_test.py',
              './bin/dbm/gas_bubbles.py',
              './bin/dbm/hydrocarbon_drops.py',
