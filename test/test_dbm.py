@@ -129,14 +129,14 @@ def particle_obj_funcs(obj, mass, yk, Mol_wt, fp_type, T, P, Sa, Ta, rho_p,
     assert_approx_equal(A, obj.surface_area(mass, T, P, Sa, Ta), 
         significant = 6)
     assert_array_almost_equal(Cs, obj.solubility(mass, T, P, Sa), 
-        decimal = 4)
+        decimal = 6)
     assert_array_almost_equal(beta, obj.mass_transfer(mass, T, P, Sa, Ta), 
-        decimal = 4)
+        decimal = 6)
     assert_array_almost_equal(beta_T, obj.heat_transfer(mass, T, P, Sa, Ta), 
-        decimal = 4)
+        decimal = 6)
     assert_approx_equal(de, obj.diameter(mass, T, P), significant = 6)
     assert_array_almost_equal(mass, obj.masses_by_diameter(de, T, P, yk), 
-        decimal = 4)
+        decimal = 6)
     assert_approx_equal(sigma, obj.interface_tension(mass, T, Sa, P), 
         significant = 6)
     
@@ -257,7 +257,7 @@ def test_sphere():
     shape = 1
     us = 0.004577842585916999
     A = 3.1415926535897971e-08
-    beta = np.array([0.00010476, 0.00011496, 0.00011383, 0.00010968])
+    beta = np.array([0.00014378, 0.0001575, 0.00015636, 0.00010176])
     beta_T = 0.0036452675476792199
     
     # Give the particle properties that should come back from the dbm_f
@@ -265,8 +265,8 @@ def test_sphere():
     shape_S = 1
     us_S = 0.004399537153901552
     A_S = 3.1415926535897971e-08
-    beta_S = np.array([9.73341217e-05, 1.06801788e-04, 1.05756862e-04,
-        1.01899623e-04])
+    beta_S = np.array([1.33569792e-04, 1.46304646e-04, 1.45253111e-04, 
+        9.45432234e-05])
     beta_T_S = 0.0036098354093047798
         
     # Perform the tests on the dbm_object
@@ -312,8 +312,8 @@ def test_ellipsoid():
     shape = 2
     us = 0.05804555824029885
     A = 9.5033177634981476e-07
-    beta = np.array([9.63820529e-05, 1.05243807e-04, 1.04268705e-04,
-         1.00662939e-04])
+    beta = np.array([1.29992173e-04, 1.41621961e-04, 1.40664954e-04, 
+        9.37579949e-05])
     beta_T = 0.0023334608244318946
     
     # Give the particle properties that should come back from the dbm_f
@@ -321,8 +321,8 @@ def test_ellipsoid():
     shape_S = 2
     us_S = 0.05617970068171841
     A_S = 9.5033177634981476e-07
-    beta_S = np.array([8.98720185e-05, 9.81341071e-05, 9.72249954e-05,
-         9.38632381e-05])
+    beta_S = np.array([1.21207086e-04, 1.32049245e-04, 1.31157059e-04, 
+        8.74255012e-05])
     beta_T_S = 0.0022993044435189757
     
     # Perform the tests on the dbm_object
@@ -368,7 +368,7 @@ def test_spherical_cap():
     shape = 3
     us = 0.24667863159698525
     A = 0.0008041858466133534
-    beta = np.array([0.00014753, 0.00015745, 0.00015637, 0.00015235])
+    beta = np.array([0.00018406, 0.00019608, 0.0001951, 0.00014455])
     beta_T = 0.0014992308847738718
     
     # Give the particle properties that should come back from the dbm_f
@@ -376,7 +376,7 @@ def test_spherical_cap():
     shape_S = 3
     us_S = 0.2466864509540198
     A_S = 0.0008041855794805891
-    beta_S = np.array([0.00014179, 0.00015132, 0.00015029, 0.00014642])
+    beta_S = np.array([0.00017689, 0.00018844, 0.0001875, 0.00013892])
     beta_T_S = 0.0014992551443339481
     
     # Perform the tests on the dbm_object

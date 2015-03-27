@@ -1,3 +1,13 @@
+V0.1.10, March, 2015 --
+   . Corrected the values for Vb in the ./data/ChemData.csv file.  These 
+     values are used to get a temperature-dependent diffusivity needed to 
+     compute the mass transfer coefficient for dissolution.  The values in 
+     version 0.1.9 were at standard conditions; whereas, the equations need
+     the molar volume at the boiling point.  Results from the model for 
+     light gases now agree much better with the old values using the B and dE
+     method.  
+   . Updated test cases to pass with corrected diffusivity and mass transfer
+     coefficient.  
 V0.1.9, February, 2015 --
    . Updated the equations of state with several small improvements to make 
      the code more flexible (requiring fewer inputs or more readily available

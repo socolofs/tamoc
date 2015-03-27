@@ -168,7 +168,11 @@ class FluidMixture(object):
             self.Tc[i] = properties['Tc']
             self.Vc[i] = properties['Vc']
             self.Tb[i] = properties['Tb']
-            self.Vb[i] = properties['Vb']
+            if properties['Vb'] < 0.:
+                # Use Tyn & Calus estimate in Poling et al. (2001)
+                self.Vb[i] = 0.285 * self.Vc[i]**1.048
+            else:
+                self.Vb[i] = properties['Vb']
             self.omega[i] = properties['omega']
             self.kh_0[i] = properties['kh_0']
             self.neg_dH_solR[i] = properties['-dH_solR']

@@ -1121,7 +1121,7 @@ class Particle(dispersed_phases.PlumeParticle):
         
         # Run the simulation
         self.sbm.simulate(self.particle, X0, de, yk, self.T, self.K, self.K_T, 
-                          self.fdis)
+                          self.fdis, 100000.)
 
 
 # ----------------------------------------------------------------------------

@@ -284,9 +284,6 @@ def calculate(t0, q0, q0_local, profile, p, particles, derivs,
                 
             # Get the differential particle time step
             dtp_ds[i] = (tpi[i] - tp[-1][i]) / ds
-            
-        sp.append(xpi)
-        tp.append(tpi)
         
         # Record the particle positions for this timestep
         sp.append(xpi)

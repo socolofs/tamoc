@@ -12,6 +12,16 @@ size distributions from source flow conditions.
 For typical usage, please see the ./bin directory of the source distribution
 for various example scripts.
 
+Version 0.1.9 : Made several minor changes to the equations of state per the
+                guidance of Jonas Gros.  These changes make the model much 
+                more robust for hydrocarbon mixtures.  The updates are minor
+                in that the results do not change markedly for the test 
+                cases already in previous versions of the model.  However, 
+                the changes provide major advantages for more difficult
+                cases, not demonstrated in the simple ./bin examples.
+Version 0.1.8 : Added print capability to the params.py module and upgraded
+                the shear entrainment model in the bent_plume_model.py 
+                to the entrainment equations in Jirka 2004.
 Version 0.1.7 : Added the capability for the bent_plume_model.py to continue
                 to track particles outside the plume using the 
                 single_bubble_model.py.  Fixed a bug where particles outside

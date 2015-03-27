@@ -347,13 +347,13 @@ def test_simulation():
     sbm.simulate(bub, z0, de, mol_frac, T0, K_T=1, fdis=1e-8, delta_t=10.)
     
     # Check the solution
-    assert sbm.y.shape[0] == 612
+    assert sbm.y.shape[0] == 752
     assert sbm.y.shape[1] == 8
-    assert sbm.t.shape[0] == 612
-    assert_approx_equal(sbm.t[-1], 5945.317576988495, significant = 6)
-    assert_array_almost_equal(sbm.y[-1,:], np.array([0.0, 0.0, 3.89314650e+02,
-        3.58773071e-14, 6.75720162e-15, -8.17439083e-14,
-        -9.39055630e-15, -2.87811692e-08]), decimal = 6)
+    assert sbm.t.shape[0] == 752
+    assert_approx_equal(sbm.t[-1], 7345.31899308, significant = 6)
+    assert_array_almost_equal(sbm.y[-1,:], np.array([0.00000000e+00, 
+        0.00000000e+00, 4.13813657e+02, 3.71079727e-14, 6.70523232e-15, 
+        -1.05414846e-13, -7.86629296e-15, -4.11600946e-08]), decimal = 6)
     
     # Write the output files
     sbm.save_sim('./output/sbm_data.nc', './test_bm54.nc', 
@@ -383,23 +383,22 @@ def test_simulation():
     assert Pp == P
     
     # Check that the results are still correct
-    assert sbm.y.shape[0] == 612
+    assert sbm.y.shape[0] == 752
     assert sbm.y.shape[1] == 8
-    assert sbm.t.shape[0] == 612
-    assert_approx_equal(sbm.t[-1], 5945.317576988495, significant = 6)
-    assert_array_almost_equal(sbm.y[-1,:], np.array([0.0, 0.0, 3.89314650e+02,
-        3.58773071e-14, 6.75720162e-15, -8.17439083e-14,
-        -9.39055630e-15, -2.87811692e-08]), decimal = 6)
+    assert sbm.t.shape[0] == 752
+    assert_approx_equal(sbm.t[-1], 7345.31899308, significant = 6)
+    assert_array_almost_equal(sbm.y[-1,:], np.array([0.00000000e+00, 
+        0.00000000e+00, 4.13813657e+02, 3.71079727e-14, 6.70523232e-15, 
+        -1.05414846e-13, -7.86629296e-15, -4.11600946e-08]), decimal = 6)
     
     # Load the data in the txt file and check the solution
-    data = np.loadtxt('./output/sbm_data.txt')
-    assert sbm.y.shape[0] == 612
+    assert sbm.y.shape[0] == 752
     assert sbm.y.shape[1] == 8
-    assert sbm.t.shape[0] == 612
-    assert_approx_equal(sbm.t[-1], 5945.317576988495, significant = 6)
-    assert_array_almost_equal(sbm.y[-1,:], np.array([0.0, 0.0, 3.89314650e+02,
-        3.58773071e-14, 6.75720162e-15, -8.17439083e-14,
-        -9.39055630e-15, -2.87811692e-08]), decimal = 6)
+    assert sbm.t.shape[0] == 752
+    assert_approx_equal(sbm.t[-1], 7345.31899308, significant = 6)
+    assert_array_almost_equal(sbm.y[-1,:], np.array([0.00000000e+00, 
+        0.00000000e+00, 4.13813657e+02, 3.71079727e-14, 6.70523232e-15, 
+        -1.05414846e-13, -7.86629296e-15, -4.11600946e-08]), decimal = 6)
     
     # Create an inert particle that is compressible
     oil = dbm.InsolubleParticle(True, True, rho_p=840.)
