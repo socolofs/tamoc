@@ -12,6 +12,11 @@ size distributions from source flow conditions.
 For typical usage, please see the ./bin directory of the source distribution
 for various example scripts.
 
+Version 0.1.10: Updated the values for Vb in the ./data/ChemData.csv file 
+                with their correct values.  Improves computation of 
+                diffusivity and mass transfer over Version 0.1.9, and gives
+                results similar to Version 0.1.8 and older that used a 
+                different method to estimate diffusivity.
 Version 0.1.9 : Made several minor changes to the equations of state per the
                 guidance of Jonas Gros.  These changes make the model much 
                 more robust for hydrocarbon mixtures.  The updates are minor
