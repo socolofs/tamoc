@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -16,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.10',
+        VERSION:     '0.1.11',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,12 +23,16 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../index.html" />
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../contents.html" />
     <link rel="next" title="profile_from_ctd" href="../scripts/ambient/profile_from_ctd.html" />
-    <link rel="prev" title="TAMOC Package Manual" href="../contents.html" /> 
+    <link rel="prev" title="TAMOC Package Manual" href="../contents.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -50,7 +52,7 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="ambient-module-users-guide">
 <h1>Ambient Module Users Guide<a class="headerlink" href="#ambient-module-users-guide" title="Permalink to this headline">¶</a></h1>
@@ -60,20 +62,20 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">March 27, 2015</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">June 03, 2015</td>
 </tr>
 </tbody>
 </table>
 <div class="section" id="scripts">
 <h2>Scripts<a class="headerlink" href="#scripts" title="Permalink to this headline">¶</a></h2>
 <p>A lot of the work to generate ambient CTD data and to put it into the
-appropriate format for use by <tt class="docutils literal"><span class="pre">TAMOC</span></tt> is a &#8216;hands on&#8217; process that is unique to
+appropriate format for use by <code class="docutils literal"><span class="pre">TAMOC</span></code> is a &#8216;hands on&#8217; process that is unique to
 each project. Many times, this work can be easily completed in an IPython
 interactive session using the tools supplied in this package.</p>
 <p>When many profiles of a similar format need to be processed, script files that
 iterate through these methods should be used. Sample scripts demonstrating use
-of the classes, methods, and functions in the <a class="reference internal" href="../modules/ambient.html#module-ambient" title="ambient"><tt class="xref py py-obj docutils literal"><span class="pre">ambient</span></tt></a> module are provided
-in the <tt class="docutils literal"><span class="pre">./bin</span></tt> directory of the distribution, and are summarized in the
+of the classes, methods, and functions in the <a class="reference internal" href="../modules/ambient.html#module-ambient" title="ambient"><code class="xref py py-obj docutils literal"><span class="pre">ambient</span></code></a> module are provided
+in the <code class="docutils literal"><span class="pre">./bin</span></code> directory of the distribution, and are summarized in the
 following.</p>
 <div class="toctree-wrapper compound">
 <ul>
@@ -90,14 +92,14 @@ following.</p>
 <h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
 <p>In each of these examples, the general process follows a similar sequence of
 steps. Here we demonstrate working with CTD data following some of the steps
-in the <a class="reference internal" href="../scripts/ambient/profile_from_ctd.html#module-profile_from_ctd" title="profile_from_ctd"><tt class="xref py py-obj docutils literal"><span class="pre">profile_from_ctd</span></tt></a> script given above.</p>
+in the <a class="reference internal" href="../scripts/ambient/profile_from_ctd.html#module-profile_from_ctd" title="profile_from_ctd"><code class="xref py py-obj docutils literal"><span class="pre">profile_from_ctd</span></code></a> script given above.</p>
 <div class="section" id="reading-in-ambient-data-files">
 <h3>Reading in Ambient Data Files<a class="headerlink" href="#reading-in-ambient-data-files" title="Permalink to this headline">¶</a></h3>
 <p>Read in some (or all) of the data. The first step will be to prepare a
-<tt class="xref py py-obj docutils literal"><span class="pre">numpy.ndarray</span></tt> of data that includes the depths coordinate. For this
-example, we read in selected columns from <tt class="docutils literal"><span class="pre">./data/ctd_BM54.cnv</span></tt>. We selected
-these columns by reading the <tt class="docutils literal"><span class="pre">.cnv</span></tt> file by hand. After changing
-directory to the <tt class="docutils literal"><span class="pre">./data/</span></tt> directory, we start an IPython session:</p>
+<code class="xref py py-obj docutils literal"><span class="pre">numpy.ndarray</span></code> of data that includes the depths coordinate. For this
+example, we read in selected columns from <code class="docutils literal"><span class="pre">./data/ctd_BM54.cnv</span></code>. We selected
+these columns by reading the <code class="docutils literal"><span class="pre">.cnv</span></code> file by hand. After changing
+directory to the <code class="docutils literal"><span class="pre">./data/</span></code> directory, we start an IPython session:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">cols</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">12</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">raw</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="s">&#39;ctd_BM54.cnv&#39;</span><span class="p">,</span> <span class="n">skiprows</span> <span class="o">=</span> <span class="mi">175</span><span class="p">,</span> <span class="n">usecols</span> <span class="o">=</span> <span class="n">cols</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">symbols</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;temperature&#39;</span><span class="p">,</span> <span class="s">&#39;pressure&#39;</span><span class="p">,</span> <span class="s">&#39;wetlab_fluorescence&#39;</span><span class="p">,</span> <span class="s">&#39;z&#39;</span><span class="p">,</span>
@@ -169,11 +171,11 @@ session using the stored netCDF profile data.</p>
 </div>
 </div>
 <div class="section" id="using-the-ambient-profile-object">
-<h3>Using the <a class="reference internal" href="../modules/ambient.html#ambient.Profile" title="ambient.Profile"><tt class="xref py py-obj docutils literal"><span class="pre">ambient.Profile</span></tt></a> Object<a class="headerlink" href="#using-the-ambient-profile-object" title="Permalink to this headline">¶</a></h3>
+<h3>Using the <a class="reference internal" href="../modules/ambient.html#ambient.Profile" title="ambient.Profile"><code class="xref py py-obj docutils literal"><span class="pre">ambient.Profile</span></code></a> Object<a class="headerlink" href="#using-the-ambient-profile-object" title="Permalink to this headline">¶</a></h3>
 <p>A profile object can be initialized either by passing the file-name of the
-netCDF dataset or by passing the <tt class="xref py py-obj docutils literal"><span class="pre">netCDF4.Dataset</span></tt> object itself.  If the
-variable names in the dataset match those used by <tt class="docutils literal"><span class="pre">TAMOC</span></tt>, the
-<a class="reference internal" href="../modules/ambient.html#ambient.Profile" title="ambient.Profile"><tt class="xref py py-obj docutils literal"><span class="pre">ambient.Profile</span></tt></a> class instantiation can extract all the information itself:</p>
+netCDF dataset or by passing the <code class="xref py py-obj docutils literal"><span class="pre">netCDF4.Dataset</span></code> object itself.  If the
+variable names in the dataset match those used by <code class="docutils literal"><span class="pre">TAMOC</span></code>, the
+<a class="reference internal" href="../modules/ambient.html#ambient.Profile" title="ambient.Profile"><code class="xref py py-obj docutils literal"><span class="pre">ambient.Profile</span></code></a> class instantiation can extract all the information itself:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">ctd_auto</span> <span class="o">=</span> <span class="n">ambient</span><span class="o">.</span><span class="n">Profile</span><span class="p">(</span><span class="s">&#39;../test/output/BM54.nc&#39;</span><span class="p">,</span> <span class="n">chem_names</span><span class="o">=</span><span class="s">&#39;all&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -184,7 +186,7 @@ for the chemicals to load, that may also be done:</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ctd_manual</span> <span class="o">=</span> <span class="n">ambient</span><span class="o">.</span><span class="n">Profile</span><span class="p">(</span><span class="s">&#39;../test/output/BM54.nc&#39;</span><span class="p">,</span> <span class="n">ztsp</span><span class="p">,</span> <span class="n">chem_names</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>If you prefer to open the netCDF file and pass the <tt class="xref py py-obj docutils literal"><span class="pre">netCDF4.Dataset</span></tt> object,
+<p>If you prefer to open the netCDF file and pass the <code class="xref py py-obj docutils literal"><span class="pre">netCDF4.Dataset</span></code> object,
 that works identically:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">netCDF4</span> <span class="kn">import</span> <span class="n">Dataset</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">nc</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">(</span><span class="s">&#39;../Profiles/BM54.nc&#39;</span><span class="p">)</span>
@@ -193,7 +195,7 @@ that works identically:</p>
 </div>
 <p>Occasionally, it is necessary simulate a problem nearby, where the depth is
 somewhat deeper than that in the measured profile, or in another region,
-where data are not available.  The <a class="reference internal" href="../modules/ambient.html#ambient.Profile" title="ambient.Profile"><tt class="xref py py-obj docutils literal"><span class="pre">ambient.Profile</span></tt></a> object provides a method
+where data are not available.  The <a class="reference internal" href="../modules/ambient.html#ambient.Profile" title="ambient.Profile"><code class="xref py py-obj docutils literal"><span class="pre">ambient.Profile</span></code></a> object provides a method
 to extend the profile to a deeper total depth while maintaining the
 stratification profile:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">ctd_auto</span><span class="o">.</span><span class="n">extend_profile_deeper</span><span class="p">(</span><span class="mf">2500.</span><span class="p">,</span> <span class="s">&#39;../test/output/BM54_deeper.nc&#39;</span><span class="p">)</span>
@@ -214,7 +216,7 @@ or script session:</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../contents.html">
               <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
@@ -222,14 +224,12 @@ or script session:</p>
   <h3><a href="../contents.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Ambient Module Users Guide</a><ul>
-<li><a class="reference internal" href="#scripts">Scripts</a><ul>
-</ul>
-</li>
+<li><a class="reference internal" href="#scripts">Scripts</a></li>
 <li><a class="reference internal" href="#examples">Examples</a><ul>
 <li><a class="reference internal" href="#reading-in-ambient-data-files">Reading in Ambient Data Files</a></li>
 <li><a class="reference internal" href="#preparing-the-netcdf-dataset">Preparing the netCDF Dataset</a></li>
 <li><a class="reference internal" href="#adding-data-to-the-netcdf-dataset">Adding Data to the netCDF Dataset</a></li>
-<li><a class="reference internal" href="#using-the-ambient-profile-object">Using the <tt class="docutils literal"><span class="pre">ambient.Profile</span></tt> Object</a></li>
+<li><a class="reference internal" href="#using-the-ambient-profile-object">Using the <code class="docutils literal"><span class="pre">ambient.Profile</span></code> Object</a></li>
 </ul>
 </li>
 </ul>
@@ -242,16 +242,18 @@ or script session:</p>
   <h4>Next topic</h4>
   <p class="topless"><a href="../scripts/ambient/profile_from_ctd.html"
                         title="next chapter">profile_from_ctd</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../_sources/ambient/guide.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/ambient/guide.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
 <ul class="this-page-menu">
   <li><a href="/numpy/docs/numpy-docs/ambient/guide.rst">Edit page</a></li>
 </ul>
 
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -269,26 +271,20 @@ or script session:</p>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="../scripts/ambient/profile_from_ctd.html" title="profile_from_ctd"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="../contents.html" title="TAMOC Package Manual"
-             >previous</a> |</li>
-<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
- 
-      </ul>
-    </div>
     <div class="footer">
-        &copy; Copyright 2015, Scott A. Socolofsky.
-      Last updated on Mar 27, 2015.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      &copy;2015, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      
+      |
+      <a href="../_sources/ambient/guide.txt"
+          rel="nofollow">Page source</a></li>
     </div>
+
+    
+
+    
   </body>
 </html>

@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -16,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.10',
+        VERSION:     '0.1.11',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,13 +23,17 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../index.html" />
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../contents.html" />
     <link rel="up" title="Reference" href="../modules/reference.html" />
     <link rel="next" title="bent_plume_model.Model.plot_state_space" href="bent_plume_model.Model.plot_state_space.html" />
-    <link rel="prev" title="bent_plume_model.Model.save_txt" href="bent_plume_model.Model.save_txt.html" /> 
+    <link rel="prev" title="bent_plume_model.Model.save_txt" href="bent_plume_model.Model.save_txt.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -45,29 +47,29 @@
              accesskey="P">previous</a> |</li>
 <li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
 
-          <li><a href="../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
+          <li class="nav-item nav-item-1"><a href="../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="bent-plume-model-model-load-sim">
 <h1>bent_plume_model.Model.load_sim<a class="headerlink" href="#bent-plume-model-model-load-sim" title="Permalink to this headline">¶</a></h1>
 <dl class="method">
 <dt id="bent_plume_model.Model.load_sim">
-<tt class="descclassname">Model.</tt><tt class="descname">load_sim</tt><big>(</big><em>fname</em><big>)</big><a class="reference internal" href="../_modules/bent_plume_model.html#Model.load_sim"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bent_plume_model.Model.load_sim" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">Model.</code><code class="descname">load_sim</code><span class="sig-paren">(</span><em>fname</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/bent_plume_model.py#L572"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/bent_plume_model.html#Model.load_sim"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bent_plume_model.Model.load_sim" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load in a saved simulation result file for post-processing</p>
-<p>Load in a saved simulation result file and rebuild the <a class="reference internal" href="../modules/bpm.html#bent_plume_model.Model" title="bent_plume_model.Model"><tt class="xref py py-obj docutils literal"><span class="pre">Model</span></tt></a>
+<p>Load in a saved simulation result file and rebuild the <a class="reference internal" href="../modules/bpm.html#bent_plume_model.Model" title="bent_plume_model.Model"><code class="xref py py-obj docutils literal"><span class="pre">Model</span></code></a>
 object attributes.  The input file must be in netCDF4-classic data 
 format.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>fname</strong> : str</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>fname</strong> : str</p>
 <blockquote class="last">
 <div><p>File name of the file to read</p>
 </div></blockquote>
@@ -75,15 +77,15 @@ format.</p>
 </tr>
 </tbody>
 </table>
-<div class="admonition-see-also admonition seealso">
+<div class="admonition seealso">
 <p class="first admonition-title">See also</p>
-<p class="last"><a class="reference internal" href="bent_plume_model.Model.save_sim.html#bent_plume_model.Model.save_sim" title="bent_plume_model.Model.save_sim"><tt class="xref py py-obj docutils literal"><span class="pre">save_sim</span></tt></a></p>
+<p class="last"><a class="reference internal" href="bent_plume_model.Model.save_sim.html#bent_plume_model.Model.save_sim" title="bent_plume_model.Model.save_sim"><code class="xref py py-obj docutils literal"><span class="pre">save_sim</span></code></a></p>
 </div>
 <p class="rubric">Notes</p>
 <p>This method will attempt to load the ambient profile data from the
 <em class="xref py py-obj">profile_path</em> attribute of the <em class="xref py py-obj">fname</em> netCDF file.  If the load 
 fails, a warning will be reported to the terminal, but the other 
-steps of loading the <a class="reference internal" href="../modules/bpm.html#bent_plume_model.Model" title="bent_plume_model.Model"><tt class="xref py py-obj docutils literal"><span class="pre">Model</span></tt></a> object attributes will be performed.</p>
+steps of loading the <a class="reference internal" href="../modules/bpm.html#bent_plume_model.Model" title="bent_plume_model.Model"><code class="xref py py-obj docutils literal"><span class="pre">Model</span></code></a> object attributes will be performed.</p>
 </dd></dl>
 
 </div>
@@ -92,7 +94,7 @@ steps of loading the <a class="reference internal" href="../modules/bpm.html#ben
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../contents.html">
               <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
@@ -103,16 +105,18 @@ steps of loading the <a class="reference internal" href="../modules/bpm.html#ben
   <h4>Next topic</h4>
   <p class="topless"><a href="bent_plume_model.Model.plot_state_space.html"
                         title="next chapter">bent_plume_model.Model.plot_state_space</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../_sources/bpm/bent_plume_model.Model.load_sim.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/bpm/bent_plume_model.Model.load_sim.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
 <ul class="this-page-menu">
   <li><a href="/numpy/docs/numpy-docs/bpm/bent_plume_model.Model.load_sim.rst">Edit page</a></li>
 </ul>
 
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -130,27 +134,20 @@ steps of loading the <a class="reference internal" href="../modules/bpm.html#ben
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="bent_plume_model.Model.plot_state_space.html" title="bent_plume_model.Model.plot_state_space"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="bent_plume_model.Model.save_txt.html" title="bent_plume_model.Model.save_txt"
-             >previous</a> |</li>
-<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
-
-          <li><a href="../modules/reference.html" >Reference</a> &raquo;</li> 
-      </ul>
-    </div>
     <div class="footer">
-        &copy; Copyright 2015, Scott A. Socolofsky.
-      Last updated on Mar 27, 2015.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      &copy;2015, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      
+      |
+      <a href="../_sources/bpm/bent_plume_model.Model.load_sim.txt"
+          rel="nofollow">Page source</a></li>
     </div>
+
+    
+
+    
   </body>
 </html>

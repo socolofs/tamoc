@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -16,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.1.10',
+        VERSION:     '0.1.11',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,13 +23,17 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../../index.html" />
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../../contents.html" />
     <link rel="up" title="Reference" href="../../modules/reference.html" />
     <link rel="next" title="particle_size_distribution" href="../sintef/particle_size_distribution.html" />
-    <link rel="prev" title="equilibrium" href="equilibrium.html" /> 
+    <link rel="prev" title="equilibrium" href="equilibrium.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -45,14 +47,14 @@
              accesskey="P">previous</a> |</li>
 <li><a href="../../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
 
-          <li><a href="../../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
+          <li class="nav-item nav-item-1"><a href="../../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="equil-test">
 <h1>equil_test<a class="headerlink" href="#equil-test" title="Permalink to this headline">¶</a></h1>
@@ -62,19 +64,19 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">March 27, 2015</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">June 03, 2015</td>
 </tr>
 </tbody>
 </table>
 <span class="target" id="module-equil_test"></span><div class="section" id="equilibrium-partitioning">
 <h2>Equilibrium partitioning<a class="headerlink" href="#equilibrium-partitioning" title="Permalink to this headline">¶</a></h2>
-<p>Use the <tt class="docutils literal"><span class="pre">TAMOC</span></tt> <a class="reference internal" href="../../modules/dbm.html#module-dbm" title="dbm"><tt class="xref py py-obj docutils literal"><span class="pre">dbm</span></tt></a> to compute the equilibrium partitioning between 
+<p>Use the <code class="docutils literal"><span class="pre">TAMOC</span></code> <a class="reference internal" href="../../modules/dbm.html#module-dbm" title="dbm"><code class="xref py py-obj docutils literal"><span class="pre">dbm</span></code></a> to compute the equilibrium partitioning between 
 gas and liquid phases of a hydrocarbon mixture.</p>
 <p>In particular, this script demonstrates the methods:</p>
 <ul class="simple">
-<li><a class="reference internal" href="../../dbm/dbm.FluidParticle.equilibrium.html#dbm.FluidParticle.equilibrium" title="dbm.FluidParticle.equilibrium"><tt class="xref py py-obj docutils literal"><span class="pre">dbm.FluidParticle.equilibrium</span></tt></a></li>
-<li><a class="reference internal" href="../../dbm/dbm.equilibrium.html#dbm.equilibrium" title="dbm.equilibrium"><tt class="xref py py-obj docutils literal"><span class="pre">dbm.equilibrium</span></tt></a></li>
-<li><a class="reference internal" href="../../dbm/dbm.gas_liq_eq.html#dbm.gas_liq_eq" title="dbm.gas_liq_eq"><tt class="xref py py-obj docutils literal"><span class="pre">dbm.gas_liq_eq</span></tt></a></li>
+<li><a class="reference internal" href="../../dbm/dbm.FluidParticle.equilibrium.html#dbm.FluidParticle.equilibrium" title="dbm.FluidParticle.equilibrium"><code class="xref py py-obj docutils literal"><span class="pre">dbm.FluidParticle.equilibrium</span></code></a></li>
+<li><a class="reference internal" href="../../dbm/dbm.equilibrium.html#dbm.equilibrium" title="dbm.equilibrium"><code class="xref py py-obj docutils literal"><span class="pre">dbm.equilibrium</span></code></a></li>
+<li><a class="reference internal" href="../../dbm/dbm.gas_liq_eq.html#dbm.gas_liq_eq" title="dbm.gas_liq_eq"><code class="xref py py-obj docutils literal"><span class="pre">dbm.gas_liq_eq</span></code></a></li>
 </ul>
 <p>and test whether it is possible to include a component with zero mol fraction
 in the mixture.</p>
@@ -85,7 +87,7 @@ in the mixture.</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../../contents.html">
               <img class="logo" src="../../_static/logo_holder.png" alt="Logo"/>
@@ -104,16 +106,18 @@ in the mixture.</p>
   <h4>Next topic</h4>
   <p class="topless"><a href="../sintef/particle_size_distribution.html"
                         title="next chapter">particle_size_distribution</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../../_sources/scripts/dbm/equil_test.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/scripts/dbm/equil_test.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
 <ul class="this-page-menu">
   <li><a href="/numpy/docs/numpy-docs/scripts/dbm/equil_test.rst">Edit page</a></li>
 </ul>
 
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../../search.html" method="get">
       <input type="text" name="q" />
@@ -131,27 +135,20 @@ in the mixture.</p>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="../sintef/particle_size_distribution.html" title="particle_size_distribution"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="equilibrium.html" title="equilibrium"
-             >previous</a> |</li>
-<li><a href="../../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
-
-          <li><a href="../../modules/reference.html" >Reference</a> &raquo;</li> 
-      </ul>
-    </div>
     <div class="footer">
-        &copy; Copyright 2015, Scott A. Socolofsky.
-      Last updated on Mar 27, 2015.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      &copy;2015, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      
+      |
+      <a href="../../_sources/scripts/dbm/equil_test.txt"
+          rel="nofollow">Page source</a></li>
     </div>
+
+    
+
+    
   </body>
 </html>

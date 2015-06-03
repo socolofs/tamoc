@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -16,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.10',
+        VERSION:     '0.1.11',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,13 +23,17 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../index.html" />
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../contents.html" />
     <link rel="up" title="Reference" href="../modules/reference.html" />
     <link rel="next" title="profile_from_ctd" href="../scripts/ambient/profile_from_ctd.html" />
-    <link rel="prev" title="lmp.zfe_volume_flux" href="lmp.zfe_volume_flux.html" /> 
+    <link rel="prev" title="lmp.zfe_volume_flux" href="lmp.zfe_volume_flux.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -45,14 +47,14 @@
              accesskey="P">previous</a> |</li>
 <li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
 
-          <li><a href="../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
+          <li class="nav-item nav-item-1"><a href="../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="lmp-flux-to-velocity">
 <h1>lmp.flux_to_velocity<a class="headerlink" href="#lmp-flux-to-velocity" title="Permalink to this headline">¶</a></h1>
@@ -62,13 +64,13 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">March 27, 2015</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">June 03, 2015</td>
 </tr>
 </tbody>
 </table>
 <dl class="function">
 <dt id="lmp.flux_to_velocity">
-<tt class="descclassname">lmp.</tt><tt class="descname">flux_to_velocity</tt><big>(</big><em>Q</em>, <em>A</em>, <em>phi</em>, <em>theta</em><big>)</big><a class="reference internal" href="../_modules/lmp.html#flux_to_velocity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lmp.flux_to_velocity" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">lmp.</code><code class="descname">flux_to_velocity</code><span class="sig-paren">(</span><em>Q</em>, <em>A</em>, <em>phi</em>, <em>theta</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/lmp.py#L781"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/lmp.html#flux_to_velocity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lmp.flux_to_velocity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert fluid flow rate to three-component velocity</p>
 <p>Computes the three-component velocity (u, v, w) along the Cartesian 
 directions (x, y, depth) from the flow rate, cross-sectional area, and the
@@ -77,7 +79,7 @@ orientation (phi and theta).</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>Q</strong> : Volume flux of continuous phase fluid at the discharge (m^3/s)</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>Q</strong> : Volume flux of continuous phase fluid at the discharge (m^3/s)</p>
 <p><strong>A</strong> : Cross-sectional area of the discharge (M^2)</p>
 <p><strong>phi</strong> : float</p>
 <blockquote>
@@ -92,7 +94,7 @@ The x-axis is taken in the direction of the ambient current.
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>Uj</strong> : ndarray</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>Uj</strong> : ndarray</p>
 <blockquote class="last">
 <div><p>Vector of the three-component velocity of continous phase fluid in 
 the jet (u, v, w) in the Cartesian direction (x, y, depth)</p>
@@ -109,7 +111,7 @@ the jet (u, v, w) in the Cartesian direction (x, y, depth)</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../contents.html">
               <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
@@ -120,16 +122,18 @@ the jet (u, v, w) in the Cartesian direction (x, y, depth)</p>
   <h4>Next topic</h4>
   <p class="topless"><a href="../scripts/ambient/profile_from_ctd.html"
                         title="next chapter">profile_from_ctd</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../_sources/bpm/lmp.flux_to_velocity.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/bpm/lmp.flux_to_velocity.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
 <ul class="this-page-menu">
   <li><a href="/numpy/docs/numpy-docs/bpm/lmp.flux_to_velocity.rst">Edit page</a></li>
 </ul>
 
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -147,27 +151,20 @@ the jet (u, v, w) in the Cartesian direction (x, y, depth)</p>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="../scripts/ambient/profile_from_ctd.html" title="profile_from_ctd"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="lmp.zfe_volume_flux.html" title="lmp.zfe_volume_flux"
-             >previous</a> |</li>
-<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
-
-          <li><a href="../modules/reference.html" >Reference</a> &raquo;</li> 
-      </ul>
-    </div>
     <div class="footer">
-        &copy; Copyright 2015, Scott A. Socolofsky.
-      Last updated on Mar 27, 2015.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      &copy;2015, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      
+      |
+      <a href="../_sources/bpm/lmp.flux_to_velocity.txt"
+          rel="nofollow">Page source</a></li>
     </div>
+
+    
+
+    
   </body>
 </html>

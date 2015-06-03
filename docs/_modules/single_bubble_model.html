@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -16,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.10',
+        VERSION:     '0.1.11',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,11 +23,15 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../index.html" />
-    <link rel="up" title="Module code" href="index.html" /> 
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../contents.html" />
+    <link rel="up" title="Module code" href="index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -37,14 +39,14 @@
              accesskey="I">index</a></li>
 <li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
 
-          <li><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <h1>Source code for single_bubble_model</h1><div class="highlight"><pre>
 <span class="sd">&quot;&quot;&quot;</span>
@@ -224,12 +226,13 @@
 <span class="sd">    previous simulation stored in `simfile`.</span>
 <span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">simfile</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">simfile</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">user_data</span><span class="o">=</span><span class="p">{},</span> 
+                 <span class="n">delta_groups</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Model</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
         
         <span class="k">if</span> <span class="n">profile</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="c"># Create a Model object from a saved file</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">load_sim</span><span class="p">(</span><span class="n">simfile</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">load_sim</span><span class="p">(</span><span class="n">simfile</span><span class="p">,</span> <span class="n">user_data</span><span class="p">,</span> <span class="n">delta_groups</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c"># Create a new Model object</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">profile</span> <span class="o">=</span> <span class="n">profile</span>
@@ -333,7 +336,8 @@
                                      <span class="n">K</span><span class="p">,</span> <span class="n">K_T</span><span class="p">,</span> <span class="n">fdis</span><span class="p">)</span>
         
         <span class="c"># Open the simulation module</span>
-        <span class="k">print</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">-- TEXAS A&amp;M OIL-SPILL CALCULATOR (TAMOC) --</span><span class="se">\n</span><span class="s">&#39;</span>
+        <span class="k">print</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">-- TEXAS A&amp;M OIL-SPILL CALCULATOR (TAMOC) --&#39;</span>
+        <span class="k">print</span> <span class="s">&#39;-- Single Bubble Model                    --</span><span class="se">\n</span><span class="s">&#39;</span>
         
         <span class="c"># Calculate the trajectory</span>
         <span class="k">print</span> <span class="s">&#39;Calculate the trajectory...&#39;</span>
@@ -514,7 +518,7 @@
         <span class="c"># Otherwise:</span>
         <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
     </div>
-<div class="viewcode-block" id="Model.load_sim"><a class="viewcode-back" href="../sbm/single_bubble_model.Model.load_sim.html#single_bubble_model.Model.load_sim">[docs]</a>    <span class="k">def</span> <span class="nf">load_sim</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">):</span>
+<div class="viewcode-block" id="Model.load_sim"><a class="viewcode-back" href="../sbm/single_bubble_model.Model.load_sim.html#single_bubble_model.Model.load_sim">[docs]</a>    <span class="k">def</span> <span class="nf">load_sim</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">user_data</span><span class="o">=</span><span class="p">{},</span> <span class="n">delta_groups</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load in a saved simulation result file for post-processing</span>
 <span class="sd">        </span>
@@ -547,7 +551,8 @@
         
         <span class="c"># Load in the dispersed_phases.Particle object</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">particle</span> <span class="o">=</span> \
-            <span class="n">dispersed_phases</span><span class="o">.</span><span class="n">load_particle_from_nc_file</span><span class="p">(</span><span class="n">nc</span><span class="p">,</span> <span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">dispersed_phases</span><span class="o">.</span><span class="n">load_particle_from_nc_file</span><span class="p">(</span><span class="n">nc</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> 
+                <span class="n">user_data</span><span class="o">=</span><span class="n">user_data</span><span class="p">,</span> <span class="n">delta_groups</span><span class="o">=</span><span class="n">delta_groups</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
         
         <span class="c"># Extract the state space data</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">t</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;t&#39;</span><span class="p">][:]</span>
@@ -706,7 +711,7 @@
     
     <span class="c"># Integrate to the free surface (profile.z_min)</span>
     <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">psteps</span> <span class="o">=</span> <span class="mf">250.</span>
+    <span class="n">psteps</span> <span class="o">=</span> <span class="mf">1.</span>
     <span class="n">stop</span> <span class="o">=</span> <span class="bp">False</span>
     <span class="k">while</span> <span class="n">r</span><span class="o">.</span><span class="n">successful</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">stop</span><span class="p">:</span>
         
@@ -793,9 +798,9 @@
     <span class="p">(</span><span class="n">us</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">Cs</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">beta_T</span><span class="p">,</span> <span class="n">T</span><span class="p">)</span> <span class="o">=</span> <span class="n">particle</span><span class="o">.</span><span class="n">properties</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">)</span>
     
     <span class="c"># Advection</span>
-    <span class="c">#yp[0] = 0.</span>
-    <span class="c">#yp[1] = 0.</span>
-    <span class="n">yp</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">us</span>
+    <span class="n">yp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">ua</span>
+    <span class="n">yp</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">va</span>
+    <span class="n">yp</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">us</span> <span class="o">-</span> <span class="n">wa</span>
     
     <span class="c"># Dissolution</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">Cs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -1126,13 +1131,13 @@
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../contents.html">
               <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
             </a></p>
 
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -1150,21 +1155,17 @@
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             >index</a></li>
-<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
-
-          <li><a href="index.html" >Module code</a> &raquo;</li> 
-      </ul>
-    </div>
     <div class="footer">
-        &copy; Copyright 2015, Scott A. Socolofsky.
-      Last updated on Mar 27, 2015.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      &copy;2015, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      
     </div>
+
+    
+
+    
   </body>
 </html>

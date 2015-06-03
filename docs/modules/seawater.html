@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -16,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.10',
+        VERSION:     '0.1.11',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,13 +23,17 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../index.html" />
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../contents.html" />
     <link rel="up" title="Reference" href="reference.html" />
     <link rel="next" title="seawater.density" href="../seawater/seawater.density.html" />
-    <link rel="prev" title="ambient.load_raw" href="../ambient/ambient.load_raw.html" /> 
+    <link rel="prev" title="ambient.load_raw" href="../ambient/ambient.load_raw.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -45,14 +47,14 @@
              accesskey="P">previous</a> |</li>
 <li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
 
-          <li><a href="reference.html" accesskey="U">Reference</a> &raquo;</li> 
+          <li class="nav-item nav-item-1"><a href="reference.html" accesskey="U">Reference</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="overview-of-the-seawater-module">
 <h1>Overview of the Seawater Module<a class="headerlink" href="#overview-of-the-seawater-module" title="Permalink to this headline">¶</a></h1>
@@ -62,7 +64,7 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">March 27, 2015</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">June 03, 2015</td>
 </tr>
 </tbody>
 </table>
@@ -82,19 +84,19 @@ official seawater equation of state.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="../seawater/seawater.density.html#seawater.density" title="seawater.density"><tt class="xref py py-obj docutils literal"><span class="pre">density</span></tt></a>(T,&nbsp;S,&nbsp;P)</td>
+<tr class="row-odd"><td><a class="reference internal" href="../seawater/seawater.density.html#seawater.density" title="seawater.density"><code class="xref py py-obj docutils literal"><span class="pre">density</span></code></a>(T,&nbsp;S,&nbsp;P)</td>
 <td>Computes the density of seawater from Gill (1982)</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="../seawater/seawater.mu.html#seawater.mu" title="seawater.mu"><tt class="xref py py-obj docutils literal"><span class="pre">mu</span></tt></a>(T,&nbsp;S,&nbsp;P)</td>
+<tr class="row-even"><td><a class="reference internal" href="../seawater/seawater.mu.html#seawater.mu" title="seawater.mu"><code class="xref py py-obj docutils literal"><span class="pre">mu</span></code></a>(T,&nbsp;S,&nbsp;P)</td>
 <td>Compute the viscosity of seawater</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="../seawater/seawater.sigma.html#seawater.sigma" title="seawater.sigma"><tt class="xref py py-obj docutils literal"><span class="pre">sigma</span></tt></a>(T)</td>
+<tr class="row-odd"><td><a class="reference internal" href="../seawater/seawater.sigma.html#seawater.sigma" title="seawater.sigma"><code class="xref py py-obj docutils literal"><span class="pre">sigma</span></code></a>(T)</td>
 <td>Compute the surface tension of seawater</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="../seawater/seawater.k.html#seawater.k" title="seawater.k"><tt class="xref py py-obj docutils literal"><span class="pre">k</span></tt></a>()</td>
+<tr class="row-even"><td><a class="reference internal" href="../seawater/seawater.k.html#seawater.k" title="seawater.k"><code class="xref py py-obj docutils literal"><span class="pre">k</span></code></a>()</td>
 <td>Compute the thermal conductivity of seawater</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="../seawater/seawater.cp.html#seawater.cp" title="seawater.cp"><tt class="xref py py-obj docutils literal"><span class="pre">cp</span></tt></a>()</td>
+<tr class="row-odd"><td><a class="reference internal" href="../seawater/seawater.cp.html#seawater.cp" title="seawater.cp"><code class="xref py py-obj docutils literal"><span class="pre">cp</span></code></a>()</td>
 <td>Compute the heat capacity of seawater at constant pressure</td>
 </tr>
 </tbody>
@@ -106,7 +108,7 @@ official seawater equation of state.</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../contents.html">
               <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
@@ -115,9 +117,7 @@ official seawater equation of state.</p>
   <ul>
 <li><a class="reference internal" href="#">Overview of the Seawater Module</a><ul>
 <li><a class="reference internal" href="#equations-of-state-for-seawater">Equations of State for Seawater</a></li>
-<li><a class="reference internal" href="#module-functions">Module Functions</a><ul>
-</ul>
-</li>
+<li><a class="reference internal" href="#module-functions">Module Functions</a></li>
 </ul>
 </li>
 </ul>
@@ -128,16 +128,18 @@ official seawater equation of state.</p>
   <h4>Next topic</h4>
   <p class="topless"><a href="../seawater/seawater.density.html"
                         title="next chapter">seawater.density</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../_sources/modules/seawater.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/modules/seawater.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
 <ul class="this-page-menu">
   <li><a href="/numpy/docs/numpy-docs/modules/seawater.rst">Edit page</a></li>
 </ul>
 
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -155,27 +157,20 @@ official seawater equation of state.</p>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="../seawater/seawater.density.html" title="seawater.density"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="../ambient/ambient.load_raw.html" title="ambient.load_raw"
-             >previous</a> |</li>
-<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
-
-          <li><a href="reference.html" >Reference</a> &raquo;</li> 
-      </ul>
-    </div>
     <div class="footer">
-        &copy; Copyright 2015, Scott A. Socolofsky.
-      Last updated on Mar 27, 2015.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      &copy;2015, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      
+      |
+      <a href="../_sources/modules/seawater.txt"
+          rel="nofollow">Page source</a></li>
     </div>
+
+    
+
+    
   </body>
 </html>

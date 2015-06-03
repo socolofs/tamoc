@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -16,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.10',
+        VERSION:     '0.1.11',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,13 +23,17 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../index.html" />
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../contents.html" />
     <link rel="up" title="Reference" href="../modules/reference.html" />
     <link rel="next" title="ambient.get_nc_db_from_roms" href="ambient.get_nc_db_from_roms.html" />
-    <link rel="prev" title="ambient.create_nc_db" href="ambient.create_nc_db.html" /> 
+    <link rel="prev" title="ambient.create_nc_db" href="ambient.create_nc_db.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -45,14 +47,14 @@
              accesskey="P">previous</a> |</li>
 <li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
 
-          <li><a href="../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
+          <li class="nav-item nav-item-1"><a href="../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="ambient-fill-nc-db">
 <h1>ambient.fill_nc_db<a class="headerlink" href="#ambient-fill-nc-db" title="Permalink to this headline">¶</a></h1>
@@ -62,13 +64,13 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">March 27, 2015</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">June 03, 2015</td>
 </tr>
 </tbody>
 </table>
 <dl class="function">
 <dt id="ambient.fill_nc_db">
-<tt class="descclassname">ambient.</tt><tt class="descname">fill_nc_db</tt><big>(</big><em>nc</em>, <em>data</em>, <em>var_symbols</em>, <em>var_units</em>, <em>comments</em>, <em>z_col=0</em><big>)</big><a class="reference internal" href="../_modules/ambient.html#fill_nc_db"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ambient.fill_nc_db" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">ambient.</code><code class="descname">fill_nc_db</code><span class="sig-paren">(</span><em>nc</em>, <em>data</em>, <em>var_symbols</em>, <em>var_units</em>, <em>comments</em>, <em>z_col=0</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/ambient.py#L849"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/ambient.html#fill_nc_db"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ambient.fill_nc_db" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add data to a netCDF4-classic ambient profile dataset</p>
 <p>This function adds data to a netCDF4-classic dataset for a single CTD
 profile.  It is expected that this function could be called multiple 
@@ -79,7 +81,7 @@ they are already present in the dataset.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>nc</strong> : netCDF4 dataset object</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>nc</strong> : netCDF4 dataset object</p>
 <blockquote>
 <div><p>This is the existing netCDF dataset object that will receive the data
 stored in <em class="xref py py-obj">data</em>.</p>
@@ -93,7 +95,7 @@ than one variable, the data are assumed to be arranged in columns.</p>
 <blockquote>
 <div><p>List of string symbol names (e.g., T, S, P, etc.) in the same order as 
 the columns in the data array.  For chemical properties, use the 
-key name in the <a class="reference internal" href="../modules/chem.html#module-chemical_properties" title="chemical_properties"><tt class="xref py py-obj docutils literal"><span class="pre">chemical_properties</span></tt></a> database.</p>
+key name in the <a class="reference internal" href="../modules/chem.html#module-chemical_properties" title="chemical_properties"><code class="xref py py-obj docutils literal"><span class="pre">chemical_properties</span></code></a> database.</p>
 </div></blockquote>
 <p><strong>var_units</strong> : string list</p>
 <blockquote>
@@ -113,14 +115,14 @@ column is numbered zero.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>nc</strong> : <tt class="xref py py-obj docutils literal"><span class="pre">netCDF4.Dataset</span></tt> object</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>nc</strong> : <code class="xref py py-obj docutils literal"><span class="pre">netCDF4.Dataset</span></code> object</p>
 <blockquote>
 <div><p>Returns the updated netCDF4 dataset with the data and metadata 
 included.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Raises :</th><td class="field-body"><p class="first"><strong>ValueError :</strong> :</p>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>ValueError :</strong></p>
 <blockquote>
 <div><p>The input data array must always include a column of depths.  If the
 input array contains a single column and the netCDF database already
@@ -129,7 +131,7 @@ user is trying to replace the existing depth data in the netCDF
 database.  If such an action is required, build a new netCDF database 
 from scratch with the correct depth data.</p>
 </div></blockquote>
-<p><strong>ValueError :</strong> :</p>
+<p><strong>ValueError :</strong></p>
 <blockquote class="last">
 <div><p>This function checks whether the units supplied by the user in the 
 list <em class="xref py py-obj">var_units</em> match those expected by the database.  If not, a 
@@ -140,16 +142,16 @@ incompatible.</p>
 </tr>
 </tbody>
 </table>
-<div class="admonition-see-also admonition seealso">
+<div class="admonition seealso">
 <p class="first admonition-title">See also</p>
-<p class="last"><a class="reference internal" href="ambient.create_nc_db.html#ambient.create_nc_db" title="ambient.create_nc_db"><tt class="xref py py-obj docutils literal"><span class="pre">create_nc_db</span></tt></a></p>
+<p class="last"><a class="reference internal" href="ambient.create_nc_db.html#ambient.create_nc_db" title="ambient.create_nc_db"><code class="xref py py-obj docutils literal"><span class="pre">create_nc_db</span></code></a></p>
 </div>
 <p class="rubric">Notes</p>
-<p>Symbol names in the <tt class="docutils literal"><span class="pre">TAMOC</span></tt> modeling suite are <em class="xref py py-obj">z</em> (depth, positive down
+<p>Symbol names in the <code class="docutils literal"><span class="pre">TAMOC</span></code> modeling suite are <em class="xref py py-obj">z</em> (depth, positive down
 from the sea surface), <em class="xref py py-obj">temperature</em>, <em class="xref py py-obj">salinity</em>, <em class="xref py py-obj">pressure</em>, and chemical
-names from the <a class="reference internal" href="../modules/chem.html#module-chemical_properties" title="chemical_properties"><tt class="xref py py-obj docutils literal"><span class="pre">chemical_properties</span></tt></a> database (see 
-<tt class="docutils literal"><span class="pre">./data/ChemData.csv</span></tt>).  Other names will be treated exactly like the 
-chemical names, but will likely either be unused by the <tt class="docutils literal"><span class="pre">TAMOC</span></tt> modeling
+names from the <a class="reference internal" href="../modules/chem.html#module-chemical_properties" title="chemical_properties"><code class="xref py py-obj docutils literal"><span class="pre">chemical_properties</span></code></a> database (see 
+<code class="docutils literal"><span class="pre">./data/ChemData.csv</span></code>).  Other names will be treated exactly like the 
+chemical names, but will likely either be unused by the <code class="docutils literal"><span class="pre">TAMOC</span></code> modeling
 suite or generate errors when a different symbol is expected.  Hence, it 
 is the responsibility of the user to ensure that all symbol names are 
 correct when this function is called.</p>
@@ -176,7 +178,7 @@ correct when this function is called.</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../contents.html">
               <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
@@ -187,16 +189,18 @@ correct when this function is called.</p>
   <h4>Next topic</h4>
   <p class="topless"><a href="ambient.get_nc_db_from_roms.html"
                         title="next chapter">ambient.get_nc_db_from_roms</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../_sources/ambient/ambient.fill_nc_db.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/ambient/ambient.fill_nc_db.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
 <ul class="this-page-menu">
   <li><a href="/numpy/docs/numpy-docs/ambient/ambient.fill_nc_db.rst">Edit page</a></li>
 </ul>
 
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -214,27 +218,20 @@ correct when this function is called.</p>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="ambient.get_nc_db_from_roms.html" title="ambient.get_nc_db_from_roms"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="ambient.create_nc_db.html" title="ambient.create_nc_db"
-             >previous</a> |</li>
-<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
-
-          <li><a href="../modules/reference.html" >Reference</a> &raquo;</li> 
-      </ul>
-    </div>
     <div class="footer">
-        &copy; Copyright 2015, Scott A. Socolofsky.
-      Last updated on Mar 27, 2015.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      &copy;2015, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      
+      |
+      <a href="../_sources/ambient/ambient.fill_nc_db.txt"
+          rel="nofollow">Page source</a></li>
     </div>
+
+    
+
+    
   </body>
 </html>

@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -16,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.10',
+        VERSION:     '0.1.11',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,13 +23,17 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../index.html" />
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../contents.html" />
     <link rel="up" title="Overview of Chemical Properties" href="../modules/chem.html" />
     <link rel="next" title="Sources of Data in ChemData.csv" href="ChemData_ReadMe.html" />
-    <link rel="prev" title="chemical_properties.load_data" href="" /> 
+    <link rel="prev" title="chemical_properties.load_data" href="" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -45,21 +47,21 @@
              accesskey="P">previous</a> |</li>
 <li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
 
-          <li><a href="../modules/reference.html" >Reference</a> &raquo;</li>
-          <li><a href="../modules/chem.html" accesskey="U">Overview of Chemical Properties</a> &raquo;</li> 
+          <li class="nav-item nav-item-1"><a href="../modules/reference.html" >Reference</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="../modules/chem.html" accesskey="U">Overview of Chemical Properties</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="chemical-properties-load-data">
 <h1>chemical_properties.load_data<a class="headerlink" href="#chemical-properties-load-data" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="chemical_properties.load_data">
-<tt class="descclassname">chemical_properties.</tt><tt class="descname">load_data</tt><big>(</big><em>fname</em><big>)</big><a class="reference internal" href="../_modules/chemical_properties.html#load_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chemical_properties.load_data" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">chemical_properties.</code><code class="descname">load_data</code><span class="sig-paren">(</span><em>fname</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/chemical_properties.py#L63"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/chemical_properties.html#load_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chemical_properties.load_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load a chemical properties file into memory</p>
 <p>Reads in a chemical properties file, creates a dictionary of the columns
 in the file, and performs some units conversions as necessary to have the
@@ -68,14 +70,14 @@ data in SI mks units.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>fname</strong> : str</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>fname</strong> : str</p>
 <blockquote>
 <div><p>file name (with relative path as necessary) where the chemical 
 property data is stored</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>data</strong> : dict</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>data</strong> : dict</p>
 <blockquote>
 <div><p>dictionary of the properties for each column in the data file</p>
 </div></blockquote>
@@ -88,7 +90,7 @@ property data is stored</p>
 </tbody>
 </table>
 <p class="rubric">Notes</p>
-<p>This function is used by the <a class="reference internal" href="../modules/dbm.html#module-dbm" title="dbm"><tt class="xref py py-obj docutils literal"><span class="pre">dbm</span></tt></a> module to load in the default chemical
+<p>This function is used by the <a class="reference internal" href="../modules/dbm.html#module-dbm" title="dbm"><code class="xref py py-obj docutils literal"><span class="pre">dbm</span></code></a> module to load in the default chemical
 data in ./tamoc/data/chemdata.csv.  This function can also be called by
 the user to read in a user-specified file of chemical data present in any
 storage location.</p>
@@ -100,7 +102,7 @@ storage location.</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../contents.html">
               <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
@@ -111,16 +113,18 @@ storage location.</p>
   <h4>Next topic</h4>
   <p class="topless"><a href="ChemData_ReadMe.html"
                         title="next chapter">Sources of Data in ChemData.csv</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../_sources/chem/chemical_properties.load_data.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/chem/chemical_properties.load_data.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
 <ul class="this-page-menu">
   <li><a href="/numpy/docs/numpy-docs/chem/chemical_properties.load_data.rst">Edit page</a></li>
 </ul>
 
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -138,28 +142,20 @@ storage location.</p>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="ChemData_ReadMe.html" title="Sources of Data in ChemData.csv"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="#" title="chemical_properties.load_data"
-             >previous</a> |</li>
-<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
-
-          <li><a href="../modules/reference.html" >Reference</a> &raquo;</li>
-          <li><a href="../modules/chem.html" >Overview of Chemical Properties</a> &raquo;</li> 
-      </ul>
-    </div>
     <div class="footer">
-        &copy; Copyright 2015, Scott A. Socolofsky.
-      Last updated on Mar 27, 2015.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      &copy;2015, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      
+      |
+      <a href="../_sources/chem/chemical_properties.load_data.txt"
+          rel="nofollow">Page source</a></li>
     </div>
+
+    
+
+    
   </body>
 </html>

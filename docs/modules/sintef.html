@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -16,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.10',
+        VERSION:     '0.1.11',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,13 +23,17 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../index.html" />
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../contents.html" />
     <link rel="up" title="Reference" href="reference.html" />
     <link rel="next" title="sintef.modified_We_model" href="../sintef/sintef.modified_We_model.html" />
-    <link rel="prev" title="dispersed_phases.particles_state_space" href="../disp_phases/dispersed_phases.particles_state_space.html" /> 
+    <link rel="prev" title="dispersed_phases.particles_state_space" href="../disp_phases/dispersed_phases.particles_state_space.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -45,14 +47,14 @@
              accesskey="P">previous</a> |</li>
 <li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
 
-          <li><a href="reference.html" accesskey="U">Reference</a> &raquo;</li> 
+          <li class="nav-item nav-item-1"><a href="reference.html" accesskey="U">Reference</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="overview-of-sintef-module">
 <h1>Overview of Sintef Module<a class="headerlink" href="#overview-of-sintef-module" title="Permalink to this headline">¶</a></h1>
@@ -62,7 +64,7 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">March 27, 2015</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">June 03, 2015</td>
 </tr>
 </tbody>
 </table>
@@ -106,16 +108,16 @@ without injection of chemical dispersants.&#8221;  Marine Pollution Bulletin.</p
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="../sintef/sintef.modified_We_model.html#sintef.modified_We_model" title="sintef.modified_We_model"><tt class="xref py py-obj docutils literal"><span class="pre">modified_We_model</span></tt></a>(D,&nbsp;rho_gas,&nbsp;m_gas,&nbsp;mu_gas,&nbsp;...)</td>
+<tr class="row-odd"><td><a class="reference internal" href="../sintef/sintef.modified_We_model.html#sintef.modified_We_model" title="sintef.modified_We_model"><code class="xref py py-obj docutils literal"><span class="pre">modified_We_model</span></code></a>(D,&nbsp;rho_gas,&nbsp;m_gas,&nbsp;mu_gas,&nbsp;...)</td>
 <td>Compute the initial oil droplet and gas bubble sizes from the SINTEF model</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="../sintef/sintef.de_max.html#sintef.de_max" title="sintef.de_max"><tt class="xref py py-obj docutils literal"><span class="pre">de_max</span></tt></a>(sigma,&nbsp;rho_p,&nbsp;rho)</td>
+<tr class="row-even"><td><a class="reference internal" href="../sintef/sintef.de_max.html#sintef.de_max" title="sintef.de_max"><code class="xref py py-obj docutils literal"><span class="pre">de_max</span></code></a>(sigma,&nbsp;rho_p,&nbsp;rho)</td>
 <td>Calculate the maximum stable particle size</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="../sintef/sintef.de_50.html#sintef.de_50" title="sintef.de_50"><tt class="xref py py-obj docutils literal"><span class="pre">de_50</span></tt></a>(U,&nbsp;D,&nbsp;rho_p,&nbsp;mu_p,&nbsp;sigma,&nbsp;rho)</td>
+<tr class="row-odd"><td><a class="reference internal" href="../sintef/sintef.de_50.html#sintef.de_50" title="sintef.de_50"><code class="xref py py-obj docutils literal"><span class="pre">de_50</span></code></a>(U,&nbsp;D,&nbsp;rho_p,&nbsp;mu_p,&nbsp;sigma,&nbsp;rho)</td>
 <td>Predict the volume mean diameter from a modified Weber number model</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="../sintef/sintef.rosin_rammler.html#sintef.rosin_rammler" title="sintef.rosin_rammler"><tt class="xref py py-obj docutils literal"><span class="pre">rosin_rammler</span></tt></a>(nbins,&nbsp;d50,&nbsp;md_total,&nbsp;sigma,&nbsp;...)</td>
+<tr class="row-even"><td><a class="reference internal" href="../sintef/sintef.rosin_rammler.html#sintef.rosin_rammler" title="sintef.rosin_rammler"><code class="xref py py-obj docutils literal"><span class="pre">rosin_rammler</span></code></a>(nbins,&nbsp;d50,&nbsp;md_total,&nbsp;sigma,&nbsp;...)</td>
 <td>Return the volume size distribution from the Rosin Rammler distribution</td>
 </tr>
 </tbody>
@@ -127,7 +129,7 @@ without injection of chemical dispersants.&#8221;  Marine Pollution Bulletin.</p
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../contents.html">
               <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
@@ -141,9 +143,7 @@ without injection of chemical dispersants.&#8221;  Marine Pollution Bulletin.</p
 </ul>
 </li>
 <li><a class="reference internal" href="#class-objects">Class Objects</a></li>
-<li><a class="reference internal" href="#module-functions">Module Functions</a><ul>
-</ul>
-</li>
+<li><a class="reference internal" href="#module-functions">Module Functions</a></li>
 </ul>
 </li>
 </ul>
@@ -154,16 +154,18 @@ without injection of chemical dispersants.&#8221;  Marine Pollution Bulletin.</p
   <h4>Next topic</h4>
   <p class="topless"><a href="../sintef/sintef.modified_We_model.html"
                         title="next chapter">sintef.modified_We_model</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../_sources/modules/sintef.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/modules/sintef.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
 <ul class="this-page-menu">
   <li><a href="/numpy/docs/numpy-docs/modules/sintef.rst">Edit page</a></li>
 </ul>
 
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -181,27 +183,20 @@ without injection of chemical dispersants.&#8221;  Marine Pollution Bulletin.</p
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="../sintef/sintef.modified_We_model.html" title="sintef.modified_We_model"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="../disp_phases/dispersed_phases.particles_state_space.html" title="dispersed_phases.particles_state_space"
-             >previous</a> |</li>
-<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
-
-          <li><a href="reference.html" >Reference</a> &raquo;</li> 
-      </ul>
-    </div>
     <div class="footer">
-        &copy; Copyright 2015, Scott A. Socolofsky.
-      Last updated on Mar 27, 2015.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      &copy;2015, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      
+      |
+      <a href="../_sources/modules/sintef.txt"
+          rel="nofollow">Page source</a></li>
     </div>
+
+    
+
+    
   </body>
 </html>

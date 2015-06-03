@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -16,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.10',
+        VERSION:     '0.1.11',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,13 +23,17 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../index.html" />
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../contents.html" />
     <link rel="up" title="Reference" href="../modules/reference.html" />
     <link rel="next" title="dispersed_phases.SingleParticle.diameter" href="dispersed_phases.SingleParticle.diameter.html" />
-    <link rel="prev" title="dispersed_phases.particles_state_space" href="dispersed_phases.particles_state_space.html" /> 
+    <link rel="prev" title="dispersed_phases.particles_state_space" href="dispersed_phases.particles_state_space.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -45,14 +47,14 @@
              accesskey="P">previous</a> |</li>
 <li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
 
-          <li><a href="../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
+          <li class="nav-item nav-item-1"><a href="../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="dispersed-phases-singleparticle">
 <h1>dispersed_phases.SingleParticle<a class="headerlink" href="#dispersed-phases-singleparticle" title="Permalink to this headline">¶</a></h1>
@@ -62,17 +64,17 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">March 27, 2015</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">June 03, 2015</td>
 </tr>
 </tbody>
 </table>
 <dl class="class">
 <dt id="dispersed_phases.SingleParticle">
-<em class="property">class </em><tt class="descclassname">dispersed_phases.</tt><tt class="descname">SingleParticle</tt><big>(</big><em>dbm_particle</em>, <em>m0</em>, <em>T0</em>, <em>K=1.0</em>, <em>K_T=1.0</em>, <em>fdis=1e-06</em><big>)</big><a class="reference internal" href="../_modules/dispersed_phases.html#SingleParticle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dispersed_phases.SingleParticle" title="Permalink to this definition">¶</a></dt>
-<dd><p>Interface to the <a class="reference internal" href="../modules/dbm.html#module-dbm" title="dbm"><tt class="xref py py-obj docutils literal"><span class="pre">dbm</span></tt></a> module and container for model parameters</p>
-<p>This class provides a uniform interface to the <a class="reference internal" href="../modules/dbm.html#module-dbm" title="dbm"><tt class="xref py py-obj docutils literal"><span class="pre">dbm</span></tt></a> module objects and
+<em class="property">class </em><code class="descclassname">dispersed_phases.</code><code class="descname">SingleParticle</code><span class="sig-paren">(</span><em>dbm_particle</em>, <em>m0</em>, <em>T0</em>, <em>K=1.0</em>, <em>K_T=1.0</em>, <em>fdis=1e-06</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/dispersed_phases.py#L57"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/dispersed_phases.html#SingleParticle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dispersed_phases.SingleParticle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Interface to the <a class="reference internal" href="../modules/dbm.html#module-dbm" title="dbm"><code class="xref py py-obj docutils literal"><span class="pre">dbm</span></code></a> module and container for model parameters</p>
+<p>This class provides a uniform interface to the <a class="reference internal" href="../modules/dbm.html#module-dbm" title="dbm"><code class="xref py py-obj docutils literal"><span class="pre">dbm</span></code></a> module objects and
 methods and stores the particle-specific model parameters.  Because the
-methods for <a class="reference internal" href="../modules/dbm.html#dbm.FluidParticle" title="dbm.FluidParticle"><tt class="xref py py-obj docutils literal"><span class="pre">dbm.FluidParticle</span></tt></a> and <a class="reference internal" href="../modules/dbm.html#dbm.InsolubleParticle" title="dbm.InsolubleParticle"><tt class="xref py py-obj docutils literal"><span class="pre">dbm.InsolubleParticle</span></tt></a> sometimes have 
+methods for <a class="reference internal" href="../modules/dbm.html#dbm.FluidParticle" title="dbm.FluidParticle"><code class="xref py py-obj docutils literal"><span class="pre">dbm.FluidParticle</span></code></a> and <a class="reference internal" href="../modules/dbm.html#dbm.InsolubleParticle" title="dbm.InsolubleParticle"><code class="xref py py-obj docutils literal"><span class="pre">dbm.InsolubleParticle</span></code></a> sometimes have 
 different inputs and different outputs, there needs to be a method to 
 support these interface differences in a single location.  This object
 solves that problem by providing a single interface and uniform outputs
@@ -86,17 +88,17 @@ dissolved.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>dbm_particle</strong> : <a class="reference internal" href="../modules/dbm.html#dbm.FluidParticle" title="dbm.FluidParticle"><tt class="xref py py-obj docutils literal"><span class="pre">dbm.FluidParticle</span></tt></a> or <a class="reference internal" href="../modules/dbm.html#dbm.InsolubleParticle" title="dbm.InsolubleParticle"><tt class="xref py py-obj docutils literal"><span class="pre">dbm.InsolubleParticle</span></tt></a> object</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>dbm_particle</strong> : <a class="reference internal" href="../modules/dbm.html#dbm.FluidParticle" title="dbm.FluidParticle"><code class="xref py py-obj docutils literal"><span class="pre">dbm.FluidParticle</span></code></a> or <a class="reference internal" href="../modules/dbm.html#dbm.InsolubleParticle" title="dbm.InsolubleParticle"><code class="xref py py-obj docutils literal"><span class="pre">dbm.InsolubleParticle</span></code></a> object</p>
 <blockquote>
 <div><p>Object describing the particle properties and behavior</p>
 </div></blockquote>
 <p><strong>m0</strong> : ndarray</p>
 <blockquote>
-<div><p>Initial masses of the components of the <a class="reference internal" href="../modules/dbm.html#module-dbm" title="dbm"><tt class="xref py py-obj docutils literal"><span class="pre">dbm</span></tt></a> particle object (kg)</p>
+<div><p>Initial masses of the components of the <a class="reference internal" href="../modules/dbm.html#module-dbm" title="dbm"><code class="xref py py-obj docutils literal"><span class="pre">dbm</span></code></a> particle object (kg)</p>
 </div></blockquote>
 <p><strong>T0</strong> : float</p>
 <blockquote>
-<div><p>Initial temperature of the of <a class="reference internal" href="../modules/dbm.html#module-dbm" title="dbm"><tt class="xref py py-obj docutils literal"><span class="pre">dbm</span></tt></a> particle object (K)</p>
+<div><p>Initial temperature of the of <a class="reference internal" href="../modules/dbm.html#module-dbm" title="dbm"><code class="xref py py-obj docutils literal"><span class="pre">dbm</span></code></a> particle object (K)</p>
 </div></blockquote>
 <p><strong>K</strong> : float, default = 1.</p>
 <blockquote>
@@ -117,7 +119,7 @@ should be considered dissolved.</p>
 </table>
 <p class="rubric">Notes</p>
 <p>This object only provides an interface to the <em class="xref py py-obj">return_all</em> and 
-<a class="reference internal" href="dispersed_phases.SingleParticle.diameter.html#dispersed_phases.SingleParticle.diameter" title="dispersed_phases.SingleParticle.diameter"><tt class="xref py py-obj docutils literal"><span class="pre">diameter</span></tt></a> methods of the <a class="reference internal" href="../modules/dbm.html#module-dbm" title="dbm"><tt class="xref py py-obj docutils literal"><span class="pre">dbm</span></tt></a> module objects.  The intent is to be as 
+<a class="reference internal" href="dispersed_phases.SingleParticle.diameter.html#dispersed_phases.SingleParticle.diameter" title="dispersed_phases.SingleParticle.diameter"><code class="xref py py-obj docutils literal"><span class="pre">diameter</span></code></a> methods of the <a class="reference internal" href="../modules/dbm.html#module-dbm" title="dbm"><code class="xref py py-obj docutils literal"><span class="pre">dbm</span></code></a> module objects.  The intent is to be as 
 fast as possible while providing a single location for the necessary 
 <em class="xref py py-obj">if</em>-statements needed to select between soluble and insoluble particle 
 methods and facilitate turning heat transfer and dissolution on and off
@@ -132,46 +134,36 @@ the ambient temperature.</p>
 <p class="rubric">Attributes</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="9%" />
-<col width="41%" />
-<col width="50%" />
+<col width="10%" />
+<col width="90%" />
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td>particle</td>
-<td><a class="reference internal" href="../modules/dbm.html#dbm.FluidParticle" title="dbm.FluidParticle"><tt class="xref py py-obj docutils literal"><span class="pre">dbm.FluidParticle</span></tt></a> or <a class="reference internal" href="../modules/dbm.html#dbm.InsolubleParticle" title="dbm.InsolubleParticle"><tt class="xref py py-obj docutils literal"><span class="pre">dbm.InsolubleParticle</span></tt></a> object</td>
-<td>Stores the <em class="xref py py-obj">dbm_particle</em> object passed to <em class="xref py py-obj">__init__()</em>.</td>
+<td>(<a class="reference internal" href="../modules/dbm.html#dbm.FluidParticle" title="dbm.FluidParticle"><code class="xref py py-obj docutils literal"><span class="pre">dbm.FluidParticle</span></code></a> or <a class="reference internal" href="../modules/dbm.html#dbm.InsolubleParticle" title="dbm.InsolubleParticle"><code class="xref py py-obj docutils literal"><span class="pre">dbm.InsolubleParticle</span></code></a> object) Stores the <em class="xref py py-obj">dbm_particle</em> object passed to <em class="xref py py-obj">__init__()</em>.</td>
 </tr>
 <tr class="row-even"><td>composition</td>
-<td>str list</td>
-<td>Copy of the <em class="xref py py-obj">composition</em> attribute of the <em class="xref py py-obj">dbm_particle</em> object.</td>
+<td>(str list) Copy of the <em class="xref py py-obj">composition</em> attribute of the <em class="xref py py-obj">dbm_particle</em> object.</td>
 </tr>
 <tr class="row-odd"><td>m0</td>
-<td>ndarray</td>
-<td>Initial masses (kg) of the particle components</td>
+<td>(ndarray) Initial masses (kg) of the particle components</td>
 </tr>
 <tr class="row-even"><td>T0</td>
-<td>float</td>
-<td>Initial temperature (K) of the particle</td>
+<td>(float) Initial temperature (K) of the particle</td>
 </tr>
 <tr class="row-odd"><td>cp</td>
-<td>float</td>
-<td>Heat capacity at constant pressure (J/(kg K)) of the particle.</td>
+<td>(float) Heat capacity at constant pressure (J/(kg K)) of the particle.</td>
 </tr>
 <tr class="row-even"><td>K</td>
-<td>float</td>
-<td>Mass transfer reduction factor (&#8211;)</td>
+<td>(float) Mass transfer reduction factor (&#8211;)</td>
 </tr>
 <tr class="row-odd"><td>K_T</td>
-<td>float</td>
-<td>Heat transfer reduction factor (&#8211;)</td>
+<td>(float) Heat transfer reduction factor (&#8211;)</td>
 </tr>
 <tr class="row-even"><td>fdis</td>
-<td>float</td>
-<td>Fraction of initial mass remaining as total dissolution (&#8211;)</td>
+<td>(float) Fraction of initial mass remaining as total dissolution (&#8211;)</td>
 </tr>
 <tr class="row-odd"><td>diss_indices</td>
-<td>ndarray bool</td>
-<td>Indices of m0 that are non-zero.</td>
+<td>(ndarray bool) Indices of m0 that are non-zero.</td>
 </tr>
 </tbody>
 </table>
@@ -182,10 +174,10 @@ the ambient temperature.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="dispersed_phases.SingleParticle.diameter.html#dispersed_phases.SingleParticle.diameter" title="dispersed_phases.SingleParticle.diameter"><tt class="xref py py-obj docutils literal"><span class="pre">diameter</span></tt></a>(m,&nbsp;T,&nbsp;P,&nbsp;Sa,&nbsp;Ta)</td>
+<tr class="row-odd"><td><a class="reference internal" href="dispersed_phases.SingleParticle.diameter.html#dispersed_phases.SingleParticle.diameter" title="dispersed_phases.SingleParticle.diameter"><code class="xref py py-obj docutils literal"><span class="pre">diameter</span></code></a>(m,&nbsp;T,&nbsp;P,&nbsp;Sa,&nbsp;Ta)</td>
 <td>Compute the diameter of a particle from mass and density</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="dispersed_phases.SingleParticle.properties.html#dispersed_phases.SingleParticle.properties" title="dispersed_phases.SingleParticle.properties"><tt class="xref py py-obj docutils literal"><span class="pre">properties</span></tt></a>(m,&nbsp;T,&nbsp;P,&nbsp;Sa,&nbsp;Ta)</td>
+<tr class="row-even"><td><a class="reference internal" href="dispersed_phases.SingleParticle.properties.html#dispersed_phases.SingleParticle.properties" title="dispersed_phases.SingleParticle.properties"><code class="xref py py-obj docutils literal"><span class="pre">properties</span></code></a>(m,&nbsp;T,&nbsp;P,&nbsp;Sa,&nbsp;Ta)</td>
 <td>Return the particle properties from the discrete bubble model</td>
 </tr>
 </tbody>
@@ -196,10 +188,10 @@ the ambient temperature.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="dispersed_phases.SingleParticle.properties.html#dispersed_phases.SingleParticle.properties" title="dispersed_phases.SingleParticle.properties"><tt class="xref py py-obj docutils literal"><span class="pre">SingleParticle.properties</span></tt></a>(m,&nbsp;T,&nbsp;P,&nbsp;Sa,&nbsp;Ta)</td>
+<tr class="row-odd"><td><a class="reference internal" href="dispersed_phases.SingleParticle.properties.html#dispersed_phases.SingleParticle.properties" title="dispersed_phases.SingleParticle.properties"><code class="xref py py-obj docutils literal"><span class="pre">SingleParticle.properties</span></code></a>(m,&nbsp;T,&nbsp;P,&nbsp;Sa,&nbsp;Ta)</td>
 <td>Return the particle properties from the discrete bubble model</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="dispersed_phases.SingleParticle.diameter.html#dispersed_phases.SingleParticle.diameter" title="dispersed_phases.SingleParticle.diameter"><tt class="xref py py-obj docutils literal"><span class="pre">SingleParticle.diameter</span></tt></a>(m,&nbsp;T,&nbsp;P,&nbsp;Sa,&nbsp;Ta)</td>
+<tr class="row-even"><td><a class="reference internal" href="dispersed_phases.SingleParticle.diameter.html#dispersed_phases.SingleParticle.diameter" title="dispersed_phases.SingleParticle.diameter"><code class="xref py py-obj docutils literal"><span class="pre">SingleParticle.diameter</span></code></a>(m,&nbsp;T,&nbsp;P,&nbsp;Sa,&nbsp;Ta)</td>
 <td>Compute the diameter of a particle from mass and density</td>
 </tr>
 </tbody>
@@ -212,7 +204,7 @@ the ambient temperature.</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../contents.html">
               <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
@@ -223,16 +215,18 @@ the ambient temperature.</p>
   <h4>Next topic</h4>
   <p class="topless"><a href="dispersed_phases.SingleParticle.diameter.html"
                         title="next chapter">dispersed_phases.SingleParticle.diameter</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../_sources/disp_phases/dispersed_phases.SingleParticle.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/disp_phases/dispersed_phases.SingleParticle.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
 <ul class="this-page-menu">
   <li><a href="/numpy/docs/numpy-docs/disp_phases/dispersed_phases.SingleParticle.rst">Edit page</a></li>
 </ul>
 
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -250,27 +244,20 @@ the ambient temperature.</p>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="dispersed_phases.SingleParticle.diameter.html" title="dispersed_phases.SingleParticle.diameter"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="dispersed_phases.particles_state_space.html" title="dispersed_phases.particles_state_space"
-             >previous</a> |</li>
-<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
-
-          <li><a href="../modules/reference.html" >Reference</a> &raquo;</li> 
-      </ul>
-    </div>
     <div class="footer">
-        &copy; Copyright 2015, Scott A. Socolofsky.
-      Last updated on Mar 27, 2015.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      &copy;2015, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      
+      |
+      <a href="../_sources/disp_phases/dispersed_phases.SingleParticle.txt"
+          rel="nofollow">Page source</a></li>
     </div>
+
+    
+
+    
   </body>
 </html>

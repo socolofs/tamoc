@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -16,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.10',
+        VERSION:     '0.1.11',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,11 +23,15 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../index.html" />
-    <link rel="up" title="Module code" href="index.html" /> 
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../contents.html" />
+    <link rel="up" title="Module code" href="index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -37,14 +39,14 @@
              accesskey="I">index</a></li>
 <li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
 
-          <li><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <h1>Source code for lmp</h1><div class="highlight"><pre>
 <span class="sd">&quot;&quot;&quot;</span>
@@ -64,7 +66,7 @@
 <span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">integrate</span>
 <span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
 
-<div class="viewcode-block" id="derivs"><a class="viewcode-back" href="../bpm/lmp.derivs.html#lmp.derivs">[docs]</a><span class="k">def</span> <span class="nf">derivs</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">q0_local</span><span class="p">,</span> <span class="n">q1_local</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="p">):</span>
+<div class="viewcode-block" id="derivs"><a class="viewcode-back" href="../bpm/lmp.derivs.html#lmp.derivs">[docs]</a><span class="k">def</span> <span class="nf">derivs</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">dtp_ds</span><span class="p">,</span> <span class="n">q0_local</span><span class="p">,</span> <span class="n">q1_local</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate the derivatives for the system of ODEs for a Lagrangian plume</span>
 <span class="sd">    </span>
@@ -127,8 +129,8 @@
     <span class="c"># down (depth).</span>
     <span class="n">qp</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">md</span> <span class="o">*</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">ua</span>
     <span class="n">qp</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.</span>
-    <span class="n">qp</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">q1_local</span><span class="o">.</span><span class="n">M</span> <span class="o">*</span> <span class="p">(</span><span class="n">q1_local</span><span class="o">.</span><span class="n">rho_a</span> <span class="o">-</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">rho</span><span class="p">)</span> <span class="o">/</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">rho_a</span> \
-            <span class="o">*</span> <span class="n">p</span><span class="o">.</span><span class="n">g</span> <span class="o">-</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">Mp</span> <span class="o">*</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">Fb</span>
+    <span class="n">qp</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span> <span class="n">p</span><span class="o">.</span><span class="n">g</span> <span class="o">/</span> <span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">gamma</span> <span class="o">*</span> <span class="n">p</span><span class="o">.</span><span class="n">rho_r</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">q1_local</span><span class="o">.</span><span class="n">Fb</span> <span class="o">+</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">M</span> <span class="o">*</span> 
+            <span class="p">(</span><span class="n">q1_local</span><span class="o">.</span><span class="n">rho_a</span> <span class="o">-</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">rho</span><span class="p">))</span>
     
     <span class="c"># Constant h/V thickeness to velocity ratio</span>
     <span class="n">qp</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.</span>
@@ -152,6 +154,11 @@
         <span class="c"># Track each particle&#39;s mass transfer separately</span>
         <span class="n">dm_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">q1_local</span><span class="o">.</span><span class="n">nchems</span><span class="p">)</span>
         
+        <span class="c"># Realize that the travel time for the particle is different from </span>
+        <span class="c"># that of the plume.  Compute the time adjustment.</span>
+        <span class="k">if</span> <span class="n">dtp_ds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="mf">0.</span><span class="p">:</span>
+            <span class="n">dtp_ds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">/</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">V</span>
+        
         <span class="c"># Dissolution</span>
         <span class="k">if</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">issoluble</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">q1_local</span><span class="o">.</span><span class="n">nchems</span><span class="p">):</span>
@@ -159,11 +166,11 @@
                 <span class="c"># Conservation of particle mass for a single chemical j</span>
                 <span class="n">qp</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">A</span> <span class="o">*</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">nb0</span> <span class="o">*</span> \
                           <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">beta</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">Cs</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">-</span> 
-                          <span class="n">q1_local</span><span class="o">.</span><span class="n">c_chems</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+                          <span class="n">q1_local</span><span class="o">.</span><span class="n">c_chems</span><span class="p">[</span><span class="n">j</span><span class="p">])</span> <span class="o">*</span> <span class="n">dtp_ds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">V</span>
                 <span class="n">dm_p</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">qp</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
                 
                 <span class="c"># Update continuous phase temperature with heat of solution</span>
-                <span class="n">qp</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+=</span> <span class="n">qp</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">*</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">dH_solR</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">*</span> <span class="n">p</span><span class="o">.</span><span class="n">Ru</span> <span class="o">/</span> \
+                <span class="n">qp</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+=</span> <span class="n">qp</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">*</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">neg_dH_solR</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">*</span> <span class="n">p</span><span class="o">.</span><span class="n">Ru</span> <span class="o">/</span> \
                          <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">M</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
                 <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span>
             
@@ -178,7 +185,7 @@
         <span class="c"># Heat transfer between the particle and the ambient</span>
         <span class="n">qp</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">A</span> <span class="o">*</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">nb0</span> <span class="o">*</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">rho_p</span> <span class="o">*</span> \
                   <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">cp</span> <span class="o">*</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">beta_T</span> <span class="o">*</span> <span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">T</span> <span class="o">-</span> 
-                  <span class="n">q1_local</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> 
+                  <span class="n">q1_local</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">*</span> <span class="n">dtp_ds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">V</span>
         
         <span class="c"># Heat loss due to mass loss by dissolution</span>
         <span class="n">qp</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dm_p</span><span class="p">)</span> <span class="o">*</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">cp</span> <span class="o">*</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
@@ -273,16 +280,20 @@
     <span class="c"># Create vectors (using the list data type) to store the solution</span>
     <span class="n">t</span> <span class="o">=</span> <span class="p">[</span><span class="n">t0</span><span class="p">]</span>
     <span class="n">q</span> <span class="o">=</span> <span class="p">[</span><span class="n">q0</span><span class="p">]</span>
-    <span class="n">xp</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">xpi</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">tpi</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">particles</span><span class="p">)):</span>
-        <span class="n">xp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
-        <span class="n">xp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
-        <span class="n">xp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
-    <span class="n">sp</span> <span class="o">=</span> <span class="p">[</span><span class="n">xp</span><span class="p">]</span>
+        <span class="n">xpi</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">xpi</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+        <span class="n">xpi</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+        <span class="n">tpi</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">t</span><span class="p">)</span>
+    <span class="n">sp</span> <span class="o">=</span> <span class="p">[</span><span class="n">xpi</span><span class="p">]</span>
+    <span class="n">tp</span> <span class="o">=</span> <span class="p">[</span><span class="n">tpi</span><span class="p">]</span>
+    <span class="n">dtp_ds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">particles</span><span class="p">))</span>
     
     <span class="c"># Integrate a finite number of time steps</span>
     <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">psteps</span> <span class="o">=</span> <span class="mf">30.</span>
+    <span class="n">psteps</span> <span class="o">=</span> <span class="mf">1.</span>
     <span class="n">stop</span> <span class="o">=</span> <span class="bp">False</span>
     <span class="k">while</span> <span class="n">r</span><span class="o">.</span><span class="n">successful</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">stop</span><span class="p">:</span>
         
@@ -292,7 +303,7 @@
                 <span class="p">(</span><span class="n">q</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">10</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">k</span><span class="p">)</span>
         
         <span class="c"># Perform one step of the integration</span>
-        <span class="n">r</span><span class="o">.</span><span class="n">set_f_params</span><span class="p">(</span><span class="n">q0_local</span><span class="p">,</span> <span class="n">q1_local</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="p">)</span>
+        <span class="n">r</span><span class="o">.</span><span class="n">set_f_params</span><span class="p">(</span><span class="n">dtp_ds</span><span class="p">,</span> <span class="n">q0_local</span><span class="p">,</span> <span class="n">q1_local</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="p">)</span>
         <span class="n">r</span><span class="o">.</span><span class="n">integrate</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">dt_max</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
         
         <span class="c"># Store the results</span>
@@ -304,7 +315,12 @@
         <span class="n">q1_local</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">q</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="p">)</span>
         <span class="n">q0_hold</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">q1_local</span><span class="p">)</span>
         
+        <span class="c"># Find the displacement</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">s</span> <span class="o">-</span> <span class="n">q0_local</span><span class="o">.</span><span class="n">s</span>
+        
         <span class="c"># Track the dispersed phase particles</span>
+        <span class="n">xpi</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">tpi</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">particles</span><span class="p">)):</span>
             
             <span class="c"># Track the particles through this Lagrangian element</span>
@@ -312,12 +328,17 @@
             <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">track</span><span class="p">(</span><span class="n">q0_local</span><span class="p">,</span> <span class="n">q1_local</span><span class="p">,</span> <span class="n">md</span><span class="p">,</span> <span class="n">t</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">t</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span>
             
             <span class="c"># Store the particle positions</span>
-            <span class="n">xp</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">particles</span><span class="p">)):</span>
-                <span class="n">xp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
-                <span class="n">xp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
-                <span class="n">xp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
-            <span class="n">sp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">xp</span><span class="p">)</span>
+            <span class="n">xpi</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+            <span class="n">xpi</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+            <span class="n">xpi</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+            <span class="n">tpi</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">t</span><span class="p">)</span>
+                
+            <span class="c"># Get the differential particle time step</span>
+            <span class="n">dtp_ds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">tpi</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">tp</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="n">i</span><span class="p">])</span> <span class="o">/</span> <span class="n">ds</span>
+        
+        <span class="c"># Record the particle positions for this timestep</span>
+        <span class="n">sp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">xpi</span><span class="p">)</span>
+        <span class="n">tp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tpi</span><span class="p">)</span>
         <span class="n">k</span> <span class="o">+=</span> <span class="mi">1</span>
         
         <span class="c"># Evaluate the stop criteria</span>
@@ -325,13 +346,13 @@
             <span class="c"># Progressed far along the plume centerline</span>
             <span class="n">stop</span> <span class="o">=</span> <span class="bp">True</span>
         <span class="k">if</span> <span class="n">k</span> <span class="o">&gt;=</span> <span class="mi">50000</span><span class="p">:</span>
-            <span class="c"># Completed 2000 time steps</span>
+            <span class="c"># Stop after specified number of iterations</span>
             <span class="n">stop</span> <span class="o">=</span> <span class="bp">True</span>
         <span class="k">if</span> <span class="n">q</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">9</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mf">0.</span><span class="p">:</span>
             <span class="c"># Reached a location above the free surface</span>
             <span class="n">stop</span> <span class="o">=</span> <span class="bp">True</span>
-        <span class="k">if</span> <span class="n">t</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">t</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]:</span>
-            <span class="c"># Progress of the time-stepping has halted</span>
+        <span class="k">if</span> <span class="n">q</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">10</span><span class="p">]</span> <span class="o">==</span> <span class="n">q</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">][</span><span class="mi">10</span><span class="p">]:</span>
+            <span class="c"># Progress of motion of the plume has stopped</span>
             <span class="n">stop</span> <span class="o">=</span> <span class="bp">True</span>
     
     <span class="c"># Convert solution to numpy arrays</span>
@@ -381,70 +402,78 @@
 <span class="sd">    element.  </span>
 <span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c"># Jet entrainment coefficient</span>
-    <span class="n">alpha_j</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.</span><span class="p">)</span> <span class="o">*</span> <span class="n">p</span><span class="o">.</span><span class="n">alpha_1</span>
+    <span class="c"># Gaussian model jet entrainment coefficient</span>
+    <span class="n">alpha_j</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">alpha_1</span>
     
-    <span class="c"># Plume entrainment coefficient</span>
+    <span class="c"># Gaussian model plume entrainment coefficient</span>
     <span class="k">if</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">rho_a</span> <span class="o">==</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">rho</span><span class="p">:</span>
+        <span class="c"># This is a pure jet</span>
         <span class="n">alpha_p</span> <span class="o">=</span> <span class="mf">0.</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">F1</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">alpha</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">q1_local</span><span class="o">.</span><span class="n">V</span> <span class="o">-</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">ua</span> <span class="o">*</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">cos_p</span> <span class="o">*</span> 
+        <span class="c"># This is a plume; compute the densimetric Gaussian Froude number</span>
+        <span class="n">F1</span> <span class="o">=</span> <span class="mf">2.</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">q1_local</span><span class="o">.</span><span class="n">V</span> <span class="o">-</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">ua</span> <span class="o">*</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">cos_p</span> <span class="o">*</span> 
              <span class="n">q1_local</span><span class="o">.</span><span class="n">cos_t</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">g</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">q1_local</span><span class="o">.</span><span class="n">rho_a</span> <span class="o">-</span> 
-             <span class="n">q1_local</span><span class="o">.</span><span class="n">rho</span><span class="p">)</span> <span class="o">/</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">rho_a</span> <span class="o">*</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">b</span><span class="p">)</span>
-        <span class="n">alpha_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.</span><span class="p">)</span> <span class="o">*</span> <span class="n">p</span><span class="o">.</span><span class="n">alpha_2</span> <span class="o">*</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">sin_p</span> <span class="o">/</span> <span class="n">F1</span><span class="o">**</span><span class="mi">2</span>
+             <span class="n">q1_local</span><span class="o">.</span><span class="n">rho</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">+</span> <span class="mf">1.2</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mf">1.2</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">rho_a</span> <span class="o">*</span> 
+             <span class="n">q1_local</span><span class="o">.</span><span class="n">b</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.</span><span class="p">))</span>
+        
+        <span class="c"># Follow Figure 13 in Jirka (2004)</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">F1</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">sin_p</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">p</span><span class="o">.</span><span class="n">alpha_2</span> <span class="o">/</span> <span class="mf">0.028</span><span class="p">:</span>
+            <span class="n">alpha_p</span> <span class="o">=</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">q1_local</span><span class="o">.</span><span class="n">rho_a</span> <span class="o">-</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">rho</span><span class="p">)</span> <span class="o">*</span> <span class="n">p</span><span class="o">.</span><span class="n">alpha_2</span> <span class="o">*</span> \
+                      <span class="n">q1_local</span><span class="o">.</span><span class="n">sin_p</span> <span class="o">/</span> <span class="n">F1</span><span class="o">**</span><span class="mi">2</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">alpha_p</span> <span class="o">=</span> <span class="o">-</span> <span class="p">(</span><span class="mf">0.083</span> <span class="o">-</span> <span class="n">p</span><span class="o">.</span><span class="n">alpha_1</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">alpha_2</span> <span class="o">/</span> <span class="mf">0.028</span><span class="p">)</span> <span class="o">*</span> <span class="n">F1</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> \
+                      <span class="n">q1_local</span><span class="o">.</span><span class="n">sin_p</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">q1_local</span><span class="o">.</span><span class="n">rho_a</span> <span class="o">-</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">rho</span><span class="p">)</span>
+        
+    <span class="c"># Compute the total shear entrainment coefficient for the top-hat model</span>
+    <span class="n">alpha_s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">alpha_j</span> <span class="o">+</span> <span class="n">alpha_p</span><span class="p">)</span> <span class="o">*</span> <span class="mf">2.</span> <span class="o">*</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">V</span> <span class="o">/</span> \
+              <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">q1_local</span><span class="o">.</span><span class="n">V</span> <span class="o">-</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">ua</span> <span class="o">*</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">cos_p</span> <span class="o">*</span> 
+              <span class="n">q1_local</span><span class="o">.</span><span class="n">cos_t</span><span class="p">)</span> <span class="o">+</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">V</span><span class="p">)</span>
     
-    <span class="c"># Total shear entrainment coefficient</span>
-    <span class="n">alpha_s</span> <span class="o">=</span> <span class="p">(</span><span class="n">alpha_j</span> <span class="o">+</span> <span class="n">alpha_p</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">+</span> <span class="mf">5.</span> <span class="o">*</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">ua</span> <span class="o">*</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">cos_p</span> <span class="o">*</span> 
-              <span class="n">q1_local</span><span class="o">.</span><span class="n">cos_t</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">q1_local</span><span class="o">.</span><span class="n">V</span> <span class="o">-</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">ua</span> <span class="o">*</span> 
-              <span class="n">q1_local</span><span class="o">.</span><span class="n">cos_p</span> <span class="o">*</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">cos_t</span><span class="p">))</span>
-    
-    <span class="c"># Total shear entrainment</span>
+    <span class="c"># Total shear entrainment (kg/s)</span>
     <span class="n">md_s</span> <span class="o">=</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">rho_a</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">q1_local</span><span class="o">.</span><span class="n">V</span> <span class="o">-</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">ua</span> <span class="o">*</span> 
            <span class="n">q1_local</span><span class="o">.</span><span class="n">cos_p</span> <span class="o">*</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">cos_t</span><span class="p">)</span> <span class="o">*</span> <span class="n">alpha_s</span> <span class="o">*</span> <span class="p">(</span> <span class="mf">2.</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> 
            <span class="n">q1_local</span><span class="o">.</span><span class="n">b</span> <span class="o">*</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">h</span><span class="p">)</span>
          
-    <span class="c"># Total area for projected area entrainment (forced entrainment)</span>
+    <span class="c"># Compute the projected area entrainment terms...first, the crossflow </span>
+    <span class="c"># projected onto the plume centerline</span>
     <span class="n">a1</span> <span class="o">=</span> <span class="mf">2.</span> <span class="o">*</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">b</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">q1_local</span><span class="o">.</span><span class="n">sin_p</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">sin_t</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> 
          <span class="n">q1_local</span><span class="o">.</span><span class="n">sin_p</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">sin_t</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">h</span>
     <span class="k">if</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">s</span> <span class="o">==</span> <span class="n">q0_local</span><span class="o">.</span><span class="n">s</span><span class="p">:</span>
         <span class="n">a2</span> <span class="o">=</span> <span class="mf">0.</span>
         <span class="n">a3</span> <span class="o">=</span> <span class="mf">0.</span>
     <span class="k">else</span><span class="p">:</span>
+        <span class="c"># Second, correction for plume expansion</span>
         <span class="n">a2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">b</span> <span class="o">*</span> <span class="p">(</span><span class="n">q1_local</span><span class="o">.</span><span class="n">b</span> <span class="o">-</span> <span class="n">q0_local</span><span class="o">.</span><span class="n">b</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">q1_local</span><span class="o">.</span><span class="n">s</span> <span class="o">-</span> 
              <span class="n">q0_local</span><span class="o">.</span><span class="n">s</span><span class="p">)</span> <span class="o">*</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">h</span> <span class="o">*</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">cos_p</span> <span class="o">*</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">cos_t</span>
+        <span class="c"># Third, correction for plume curvature</span>
         <span class="n">a3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">b</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="mf">2.</span> <span class="o">*</span> <span class="p">(</span><span class="n">q1_local</span><span class="o">.</span><span class="n">cos_p</span> <span class="o">*</span> 
              <span class="n">q1_local</span><span class="o">.</span><span class="n">cos_t</span> <span class="o">-</span> <span class="n">q0_local</span><span class="o">.</span><span class="n">cos_p</span> <span class="o">*</span> <span class="n">q0_local</span><span class="o">.</span><span class="n">cos_t</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">q1_local</span><span class="o">.</span><span class="n">s</span> 
              <span class="o">-</span> <span class="n">q0_local</span><span class="o">.</span><span class="n">s</span><span class="p">)</span> <span class="o">*</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">h</span>
     
-    <span class="c"># Total forced entrainment</span>
+    <span class="c"># Get the total projected area for the forced entraiment</span>
     <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">q1_local</span><span class="o">.</span><span class="n">v</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mf">1.e-9</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">q1_local</span><span class="o">.</span><span class="n">w</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mf">1.e-9</span><span class="p">:</span>
-        <span class="c"># Jet is in co-flow, so Lee and Cheung should integrate all the way</span>
-        <span class="c"># around the jet for a2 </span>
-        <span class="n">A</span> <span class="o">=</span> <span class="n">a1</span> <span class="o">+</span> <span class="mf">2.</span> <span class="o">*</span> <span class="n">a2</span> <span class="o">+</span> <span class="n">a3</span>
+        <span class="c"># Jet is in co-flow, shear entrainment model takes care of this case</span>
+        <span class="c"># by itself</span>
+        <span class="n">A</span> <span class="o">=</span> <span class="mf">0.</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="c"># The jet is inclined to the flow, and the Lee and Cheugn derivation</span>
-        <span class="c"># is completely correct</span>
+        <span class="c"># Compute the regular forced entrainment model</span>
         <span class="n">A</span> <span class="o">=</span> <span class="n">a1</span> <span class="o">+</span> <span class="n">a2</span> <span class="o">+</span> <span class="n">a3</span>
+    
+    <span class="c"># Total forced entrainment (kg/s)</span>
     <span class="n">md_f</span> <span class="o">=</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">rho_a</span> <span class="o">*</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">ua</span> <span class="o">*</span> <span class="n">A</span>
     
-    <span class="c"># Choose the maximum of the two options</span>
+    <span class="c"># Obtain the total entrainment using the maximum hypothesis from Lee and </span>
+    <span class="c"># Cheung (1990)</span>
     <span class="k">if</span> <span class="n">md_s</span> <span class="o">&gt;</span> <span class="n">md_f</span><span class="p">:</span>
         <span class="n">md</span> <span class="o">=</span> <span class="n">md_s</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">md</span> <span class="o">=</span> <span class="n">md_f</span>
     
-    <span class="c"># If the flow is pure, co-flowing momentum jet, then it should be the sum.</span>
-    <span class="k">if</span> <span class="n">alpha_p</span> <span class="o">&lt;=</span> <span class="mf">1.e-12</span><span class="p">:</span>
-        <span class="c"># This is a momentum jet</span>
-        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">q1_local</span><span class="o">.</span><span class="n">v</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mf">1.e-9</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">q1_local</span><span class="o">.</span><span class="n">w</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mf">1.e-9</span><span class="p">:</span>
-            <span class="c"># This is a co-flowing momentum jet.  </span>
-            <span class="n">md</span> <span class="o">=</span> <span class="n">md_s</span> <span class="o">+</span> <span class="n">md_f</span>
-    
     <span class="c"># Return the entrainment rate</span>
     <span class="k">return</span> <span class="n">md</span>
 
 </div>
-<div class="viewcode-block" id="local_coords"><a class="viewcode-back" href="../bpm/lmp.local_coords.html#lmp.local_coords">[docs]</a><span class="k">def</span> <span class="nf">local_coords</span><span class="p">(</span><span class="n">q0_local</span><span class="p">,</span> <span class="n">q1_local</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+<div class="viewcode-block" id="local_coords"><a class="viewcode-back" href="../bpm/lmp.local_coords.html#lmp.local_coords">[docs]</a><span class="k">def</span> <span class="nf">local_coords</span><span class="p">(</span><span class="n">q0_local</span><span class="p">,</span> <span class="n">q1_local</span><span class="p">,</span> <span class="n">ds</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute the rotation matrix from (x, y, z)&#39; to (l, n, m)</span>
 <span class="sd">    </span>
@@ -464,9 +493,9 @@
 <span class="sd">        Object containing the numerical solution at the previous time step</span>
 <span class="sd">    q1_local : `bent_plume_model.LagElement`</span>
 <span class="sd">        Object containing the numerical solution at the current time step</span>
-<span class="sd">    dt : float</span>
-<span class="sd">        Time step between the solutions contained in `q0_local` and </span>
-<span class="sd">        `q1_local`.</span>
+<span class="sd">    ds : float</span>
+<span class="sd">        Segment length along the centerline between the solutions contained </span>
+<span class="sd">        in `q0_local` and `q1_local`.</span>
 <span class="sd">    </span>
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -480,19 +509,19 @@
 <span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c"># Get the rate of angular rotation for the centerline</span>
-    <span class="k">if</span> <span class="n">dt</span> <span class="o">&lt;</span> <span class="mf">1.e-12</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">ds</span> <span class="o">&lt;</span> <span class="mf">1.e-12</span><span class="p">:</span>
         <span class="n">phi_d</span> <span class="o">=</span> <span class="mf">0.</span>
         <span class="n">theta_d</span> <span class="o">=</span> <span class="mf">0.</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">phi_d</span> <span class="o">=</span> <span class="p">(</span><span class="n">q1_local</span><span class="o">.</span><span class="n">phi</span> <span class="o">-</span> <span class="n">q0_local</span><span class="o">.</span><span class="n">phi</span><span class="p">)</span> <span class="o">/</span> <span class="n">dt</span>
+        <span class="n">phi_d</span> <span class="o">=</span> <span class="p">(</span><span class="n">q1_local</span><span class="o">.</span><span class="n">phi</span> <span class="o">-</span> <span class="n">q0_local</span><span class="o">.</span><span class="n">phi</span><span class="p">)</span> <span class="o">/</span> <span class="n">ds</span>
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">q1_local</span><span class="o">.</span><span class="n">theta</span> <span class="o">-</span> <span class="n">q0_local</span><span class="o">.</span><span class="n">theta</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">:</span>
             <span class="c"># Angles are close to 0</span>
             <span class="k">if</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">theta</span> <span class="o">&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">:</span>
-                <span class="n">theta_d</span> <span class="o">=</span> <span class="p">(</span><span class="n">q1_local</span><span class="o">.</span><span class="n">theta</span> <span class="o">-</span> <span class="p">(</span><span class="n">q0_local</span><span class="o">.</span><span class="n">theta</span> <span class="o">+</span> <span class="mf">2.</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span> <span class="o">/</span> <span class="n">dt</span>
+                <span class="n">theta_d</span> <span class="o">=</span> <span class="p">(</span><span class="n">q1_local</span><span class="o">.</span><span class="n">theta</span> <span class="o">-</span> <span class="p">(</span><span class="n">q0_local</span><span class="o">.</span><span class="n">theta</span> <span class="o">+</span> <span class="mf">2.</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span> <span class="o">/</span> <span class="n">ds</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">theta_d</span> <span class="o">=</span> <span class="p">(</span><span class="n">q1_local</span><span class="o">.</span><span class="n">theta</span> <span class="o">+</span> <span class="mf">2.</span><span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">-</span> <span class="n">q0_local</span><span class="o">.</span><span class="n">theta</span><span class="p">)</span> <span class="o">/</span> <span class="n">dt</span>
+                <span class="n">theta_d</span> <span class="o">=</span> <span class="p">(</span><span class="n">q1_local</span><span class="o">.</span><span class="n">theta</span> <span class="o">+</span> <span class="mf">2.</span><span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">-</span> <span class="n">q0_local</span><span class="o">.</span><span class="n">theta</span><span class="p">)</span> <span class="o">/</span> <span class="n">ds</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">theta_d</span> <span class="o">=</span> <span class="p">(</span><span class="n">q1_local</span><span class="o">.</span><span class="n">theta</span> <span class="o">-</span> <span class="n">q0_local</span><span class="o">.</span><span class="n">theta</span><span class="p">)</span> <span class="o">/</span> <span class="n">dt</span>
+            <span class="n">theta_d</span> <span class="o">=</span> <span class="p">(</span><span class="n">q1_local</span><span class="o">.</span><span class="n">theta</span> <span class="o">-</span> <span class="n">q0_local</span><span class="o">.</span><span class="n">theta</span><span class="p">)</span> <span class="o">/</span> <span class="n">ds</span>
     
     <span class="c"># Get the value of 1 / R = r</span>
     <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">phi_d</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">cos_p</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">theta_d</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
@@ -688,7 +717,7 @@
     
     <span class="c"># Set the dimensions of the initial Lagrangian plume element</span>
     <span class="n">b</span> <span class="o">=</span> <span class="n">D</span> <span class="o">/</span> <span class="mf">2.</span>
-    <span class="n">h</span> <span class="o">=</span> <span class="n">D</span> <span class="o">/</span> <span class="mf">2.</span>
+    <span class="n">h</span> <span class="o">=</span> <span class="n">D</span> <span class="o">/</span> <span class="mf">5.</span>
     
     <span class="c"># Measure the arc length along the plume</span>
     <span class="n">s0</span> <span class="o">=</span> <span class="mf">0.</span>
@@ -708,13 +737,12 @@
     <span class="c"># Compute the mass of jet discharge in the initial Lagrangian element</span>
     <span class="n">Mj</span> <span class="o">=</span> <span class="n">Qj</span> <span class="o">*</span> <span class="n">dt</span> <span class="o">*</span> <span class="n">rho_j</span>
     
-    <span class="c"># Get the actual number of particles for each particle object within the</span>
-    <span class="c"># initial Lagrangian element</span>
+    <span class="c"># Get the actual number of particles following this Lagrangian element</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">particles</span><span class="p">)):</span>
-        <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">nb0</span> <span class="o">=</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">nb0</span> <span class="o">*</span> <span class="n">dt</span>
+        <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">nbe</span> <span class="o">=</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">nb0</span> <span class="o">*</span> <span class="n">dt</span>
     
     <span class="c"># Get the velocity in the component directions</span>
-    <span class="n">Uj</span> <span class="o">=</span> <span class="n">flux_to_velocity</span><span class="p">(</span><span class="n">Q</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">phi_0</span><span class="p">,</span> <span class="n">theta_0</span><span class="p">)</span>
+    <span class="n">Uj</span> <span class="o">=</span> <span class="n">flux_to_velocity</span><span class="p">(</span><span class="n">Qj</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">phi_0</span><span class="p">,</span> <span class="n">theta_0</span><span class="p">)</span>
     
     <span class="c"># Compute the magnitude of the exit velocity </span>
     <span class="n">V</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">Uj</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">Uj</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">Uj</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
@@ -844,13 +872,13 @@
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../contents.html">
               <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
             </a></p>
 
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -868,21 +896,17 @@
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             >index</a></li>
-<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
-
-          <li><a href="index.html" >Module code</a> &raquo;</li> 
-      </ul>
-    </div>
     <div class="footer">
-        &copy; Copyright 2015, Scott A. Socolofsky.
-      Last updated on Mar 27, 2015.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      &copy;2015, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      
     </div>
+
+    
+
+    
   </body>
 </html>

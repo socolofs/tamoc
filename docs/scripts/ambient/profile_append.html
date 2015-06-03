@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -16,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.1.10',
+        VERSION:     '0.1.11',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,13 +23,17 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../../index.html" />
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../../contents.html" />
     <link rel="up" title="Ambient Module Users Guide" href="../../ambient/guide.html" />
     <link rel="next" title="Seawater Module Users Guide" href="../../seawater/guide.html" />
-    <link rel="prev" title="profile_extending" href="profile_extending.html" /> 
+    <link rel="prev" title="profile_extending" href="profile_extending.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -45,14 +47,14 @@
              accesskey="P">previous</a> |</li>
 <li><a href="../../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
 
-          <li><a href="../../ambient/guide.html" accesskey="U">Ambient Module Users Guide</a> &raquo;</li> 
+          <li class="nav-item nav-item-1"><a href="../../ambient/guide.html" accesskey="U">Ambient Module Users Guide</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="profile-append">
 <h1>profile_append<a class="headerlink" href="#profile-append" title="Permalink to this headline">¶</a></h1>
@@ -62,7 +64,7 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">March 27, 2015</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">June 03, 2015</td>
 </tr>
 </tbody>
 </table>
@@ -86,18 +88,20 @@ their own data sets.</p>
 <div class="section" id="requires">
 <h3>Requires<a class="headerlink" href="#requires" title="Permalink to this headline">¶</a></h3>
 <p>This script reads data from the text file:</p>
-<div class="highlight-python"><pre>../../tamoc/data/ctd_BM54.cnv</pre>
+<div class="highlight-python"><div class="highlight"><pre>../../tamoc/data/ctd_BM54.cnv
+</pre></div>
 </div>
 </div>
 <div class="section" id="returns">
 <h3>Returns<a class="headerlink" href="#returns" title="Permalink to this headline">¶</a></h3>
-<p>This script generates an <a class="reference internal" href="../../modules/ambient.html#ambient.Profile" title="ambient.Profile"><tt class="xref py py-obj docutils literal"><span class="pre">ambient.Profile</span></tt></a> object, whose netCDF file is 
+<p>This script generates an <a class="reference internal" href="../../modules/ambient.html#ambient.Profile" title="ambient.Profile"><code class="xref py py-obj docutils literal"><span class="pre">ambient.Profile</span></code></a> object, whose netCDF file is 
 written to the file:</p>
-<div class="highlight-python"><pre>../../test/output/BM54.nc</pre>
+<div class="highlight-python"><div class="highlight"><pre>../../test/output/BM54.nc
+</pre></div>
 </div>
 <dl class="function">
 <dt id="profile_append.get_ctd_profile">
-<tt class="descclassname">profile_append.</tt><tt class="descname">get_ctd_profile</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/profile_append.html#get_ctd_profile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#profile_append.get_ctd_profile" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">profile_append.</code><code class="descname">get_ctd_profile</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/bin/ambient/profile_append.py#L50"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../../_modules/profile_append.html#get_ctd_profile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#profile_append.get_ctd_profile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load the ASCII CTD Data into an &#8216;ambient.Profile&#8217; object.</p>
 <p>This function performs the steps in ./profile_from_ctd.py to read in the
 CTD data and create a Profile object.  This is the data set that will be
@@ -112,7 +116,7 @@ used to demonstrate how to append data to a Profiile object.</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../../contents.html">
               <img class="logo" src="../../_static/logo_holder.png" alt="Logo"/>
@@ -136,16 +140,18 @@ used to demonstrate how to append data to a Profiile object.</p>
   <h4>Next topic</h4>
   <p class="topless"><a href="../../seawater/guide.html"
                         title="next chapter">Seawater Module Users Guide</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../../_sources/scripts/ambient/profile_append.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/scripts/ambient/profile_append.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
 <ul class="this-page-menu">
   <li><a href="/numpy/docs/numpy-docs/scripts/ambient/profile_append.rst">Edit page</a></li>
 </ul>
 
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../../search.html" method="get">
       <input type="text" name="q" />
@@ -163,27 +169,20 @@ used to demonstrate how to append data to a Profiile object.</p>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="../../seawater/guide.html" title="Seawater Module Users Guide"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="profile_extending.html" title="profile_extending"
-             >previous</a> |</li>
-<li><a href="../../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
-
-          <li><a href="../../ambient/guide.html" >Ambient Module Users Guide</a> &raquo;</li> 
-      </ul>
-    </div>
     <div class="footer">
-        &copy; Copyright 2015, Scott A. Socolofsky.
-      Last updated on Mar 27, 2015.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      &copy;2015, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      
+      |
+      <a href="../../_sources/scripts/ambient/profile_append.txt"
+          rel="nofollow">Page source</a></li>
     </div>
+
+    
+
+    
   </body>
 </html>

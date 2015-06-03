@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -16,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.10',
+        VERSION:     '0.1.11',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,13 +23,17 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../index.html" />
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../contents.html" />
     <link rel="up" title="Reference" href="../modules/reference.html" />
     <link rel="next" title="dispersed_phases.get_chem_names" href="dispersed_phases.get_chem_names.html" />
-    <link rel="prev" title="dispersed_phases.wuest_ic" href="dispersed_phases.wuest_ic.html" /> 
+    <link rel="prev" title="dispersed_phases.wuest_ic" href="dispersed_phases.wuest_ic.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -45,14 +47,14 @@
              accesskey="P">previous</a> |</li>
 <li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
 
-          <li><a href="../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
+          <li class="nav-item nav-item-1"><a href="../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="dispersed-phases-bf-average">
 <h1>dispersed_phases.bf_average<a class="headerlink" href="#dispersed-phases-bf-average" title="Permalink to this headline">¶</a></h1>
@@ -62,13 +64,13 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">March 27, 2015</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">June 03, 2015</td>
 </tr>
 </tbody>
 </table>
 <dl class="function">
 <dt id="dispersed_phases.bf_average">
-<tt class="descclassname">dispersed_phases.</tt><tt class="descname">bf_average</tt><big>(</big><em>particles</em>, <em>rho</em>, <em>g</em>, <em>rho_r</em>, <em>parm</em><big>)</big><a class="reference internal" href="../_modules/dispersed_phases.html#bf_average"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dispersed_phases.bf_average" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">dispersed_phases.</code><code class="descname">bf_average</code><span class="sig-paren">(</span><em>particles</em>, <em>rho</em>, <em>g</em>, <em>rho_r</em>, <em>parm</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/dispersed_phases.py#L946"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/dispersed_phases.html#bf_average"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dispersed_phases.bf_average" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute a buoyancy-flux-weighted average of <em class="xref py py-obj">parm</em></p>
 <p>Computes a weighted average of the values in <em class="xref py py-obj">parm</em> using the kinematic
 buoyancy flux of each particle containing parm as the weight in the 
@@ -77,10 +79,10 @@ average calculation.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>particles</strong> : list of <em class="xref py py-obj">Particle</em> objects</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>particles</strong> : list of <em class="xref py py-obj">Particle</em> objects</p>
 <blockquote>
-<div><p>List of <a class="reference internal" href="../modules/disp_phases.html#dispersed_phases.SingleParticle" title="dispersed_phases.SingleParticle"><tt class="xref py py-obj docutils literal"><span class="pre">SingleParticle</span></tt></a>, <a class="reference internal" href="../modules/disp_phases.html#dispersed_phases.PlumeParticle" title="dispersed_phases.PlumeParticle"><tt class="xref py py-obj docutils literal"><span class="pre">PlumeParticle</span></tt></a>, or 
-<a class="reference internal" href="../modules/bpm.html#bent_plume_model.Particle" title="bent_plume_model.Particle"><tt class="xref py py-obj docutils literal"><span class="pre">bent_plume_model.Particle</span></tt></a> objects describing each dispersed phase 
+<div><p>List of <a class="reference internal" href="../modules/disp_phases.html#dispersed_phases.SingleParticle" title="dispersed_phases.SingleParticle"><code class="xref py py-obj docutils literal"><span class="pre">SingleParticle</span></code></a>, <a class="reference internal" href="../modules/disp_phases.html#dispersed_phases.PlumeParticle" title="dispersed_phases.PlumeParticle"><code class="xref py py-obj docutils literal"><span class="pre">PlumeParticle</span></code></a>, or 
+<a class="reference internal" href="../modules/bpm.html#bent_plume_model.Particle" title="bent_plume_model.Particle"><code class="xref py py-obj docutils literal"><span class="pre">bent_plume_model.Particle</span></code></a> objects describing each dispersed phase 
 in the simulation</p>
 </div></blockquote>
 <p><strong>rho</strong> : float</p>
@@ -102,7 +104,7 @@ dispersed phase entry (same as elements in parm).</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>parm_ave</strong> : float</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>parm_ave</strong> : float</p>
 <blockquote class="last">
 <div><p>The weighted average of <em class="xref py py-obj">parm</em>.</p>
 </div></blockquote>
@@ -118,7 +120,7 @@ dispersed phase entry (same as elements in parm).</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../contents.html">
               <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
@@ -129,16 +131,18 @@ dispersed phase entry (same as elements in parm).</p>
   <h4>Next topic</h4>
   <p class="topless"><a href="dispersed_phases.get_chem_names.html"
                         title="next chapter">dispersed_phases.get_chem_names</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../_sources/disp_phases/dispersed_phases.bf_average.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/disp_phases/dispersed_phases.bf_average.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
 <ul class="this-page-menu">
   <li><a href="/numpy/docs/numpy-docs/disp_phases/dispersed_phases.bf_average.rst">Edit page</a></li>
 </ul>
 
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -156,27 +160,20 @@ dispersed phase entry (same as elements in parm).</p>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="dispersed_phases.get_chem_names.html" title="dispersed_phases.get_chem_names"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="dispersed_phases.wuest_ic.html" title="dispersed_phases.wuest_ic"
-             >previous</a> |</li>
-<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
-
-          <li><a href="../modules/reference.html" >Reference</a> &raquo;</li> 
-      </ul>
-    </div>
     <div class="footer">
-        &copy; Copyright 2015, Scott A. Socolofsky.
-      Last updated on Mar 27, 2015.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      &copy;2015, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      
+      |
+      <a href="../_sources/disp_phases/dispersed_phases.bf_average.txt"
+          rel="nofollow">Page source</a></li>
     </div>
+
+    
+
+    
   </body>
 </html>

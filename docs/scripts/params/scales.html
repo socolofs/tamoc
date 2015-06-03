@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -16,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.1.10',
+        VERSION:     '0.1.11',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,13 +23,17 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../../index.html" />
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../../contents.html" />
     <link rel="up" title="Reference" href="../../modules/reference.html" />
     <link rel="next" title="bubble" href="../sbm/bubble.html" />
-    <link rel="prev" title="particle_size_distribution" href="../sintef/particle_size_distribution.html" /> 
+    <link rel="prev" title="particle_size_distribution" href="../sintef/particle_size_distribution.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -45,14 +47,14 @@
              accesskey="P">previous</a> |</li>
 <li><a href="../../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
 
-          <li><a href="../../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
+          <li class="nav-item nav-item-1"><a href="../../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="scales">
 <h1>scales<a class="headerlink" href="#scales" title="Permalink to this headline">¶</a></h1>
@@ -62,19 +64,19 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">March 27, 2015</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">June 03, 2015</td>
 </tr>
 </tbody>
 </table>
 <span class="target" id="module-scales"></span><div class="section" id="params-module-compute-characteristic-scales-of-a-plume-model">
 <h2>Params Module:  Compute characteristic scales of a plume model<a class="headerlink" href="#params-module-compute-characteristic-scales-of-a-plume-model" title="Permalink to this headline">¶</a></h2>
-<p>Use the <tt class="docutils literal"><span class="pre">TAMOC</span></tt> module <a class="reference internal" href="../../modules/params.html#module-params" title="params"><tt class="xref py py-obj docutils literal"><span class="pre">params</span></tt></a> to compute the characteristic length and
+<p>Use the <code class="docutils literal"><span class="pre">TAMOC</span></code> module <a class="reference internal" href="../../modules/params.html#module-params" title="params"><code class="xref py py-obj docutils literal"><span class="pre">params</span></code></a> to compute the characteristic length and
 velocity scales of a plume simulation.  These empirical scales are taken 
 from Socolofsky and Adams (2002 and 2005).</p>
 <p>This simulation uses the ambient data stored in the file
 <em class="xref py py-obj">/test/output/test_BM54.nc</em>. This dataset is created by the test files in the
-<em class="xref py py-obj">/test</em> directory. Please be sure that all of the tests pass using <tt class="docutils literal"><span class="pre">py.test</span>
-<span class="pre">-v</span></tt> at the command prompt before trying to run this simulation.</p>
+<em class="xref py py-obj">/test</em> directory. Please be sure that all of the tests pass using <code class="docutils literal"><span class="pre">py.test</span>
+<span class="pre">-v</span></code> at the command prompt before trying to run this simulation.</p>
 </div>
 </div>
 
@@ -82,7 +84,7 @@ from Socolofsky and Adams (2002 and 2005).</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../../contents.html">
               <img class="logo" src="../../_static/logo_holder.png" alt="Logo"/>
@@ -101,16 +103,18 @@ from Socolofsky and Adams (2002 and 2005).</p>
   <h4>Next topic</h4>
   <p class="topless"><a href="../sbm/bubble.html"
                         title="next chapter">bubble</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../../_sources/scripts/params/scales.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/scripts/params/scales.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
 <ul class="this-page-menu">
   <li><a href="/numpy/docs/numpy-docs/scripts/params/scales.rst">Edit page</a></li>
 </ul>
 
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../../search.html" method="get">
       <input type="text" name="q" />
@@ -128,27 +132,20 @@ from Socolofsky and Adams (2002 and 2005).</p>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="../sbm/bubble.html" title="bubble"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="../sintef/particle_size_distribution.html" title="particle_size_distribution"
-             >previous</a> |</li>
-<li><a href="../../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
-
-          <li><a href="../../modules/reference.html" >Reference</a> &raquo;</li> 
-      </ul>
-    </div>
     <div class="footer">
-        &copy; Copyright 2015, Scott A. Socolofsky.
-      Last updated on Mar 27, 2015.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      &copy;2015, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      
+      |
+      <a href="../../_sources/scripts/params/scales.txt"
+          rel="nofollow">Page source</a></li>
     </div>
+
+    
+
+    
   </body>
 </html>

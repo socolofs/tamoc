@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -16,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.10',
+        VERSION:     '0.1.11',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,13 +23,17 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../index.html" />
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../contents.html" />
     <link rel="up" title="Reference" href="../modules/reference.html" />
     <link rel="next" title="stratified_plume_model.InnerPlume" href="stratified_plume_model.InnerPlume.html" />
-    <link rel="prev" title="stratified_plume_model.Model.plot_all_variables" href="stratified_plume_model.Model.plot_all_variables.html" /> 
+    <link rel="prev" title="stratified_plume_model.Model.plot_all_variables" href="stratified_plume_model.Model.plot_all_variables.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -45,14 +47,14 @@
              accesskey="P">previous</a> |</li>
 <li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
 
-          <li><a href="../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
+          <li class="nav-item nav-item-1"><a href="../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="stratified-plume-model-modelparams">
 <h1>stratified_plume_model.ModelParams<a class="headerlink" href="#stratified-plume-model-modelparams" title="Permalink to this headline">¶</a></h1>
@@ -62,13 +64,13 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">March 27, 2015</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">June 03, 2015</td>
 </tr>
 </tbody>
 </table>
 <dl class="class">
 <dt id="stratified_plume_model.ModelParams">
-<em class="property">class </em><tt class="descclassname">stratified_plume_model.</tt><tt class="descname">ModelParams</tt><big>(</big><em>profile</em><big>)</big><a class="reference internal" href="../_modules/stratified_plume_model.html#ModelParams"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stratified_plume_model.ModelParams" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">stratified_plume_model.</code><code class="descname">ModelParams</code><span class="sig-paren">(</span><em>profile</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/stratified_plume_model.py#L627"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/stratified_plume_model.html#ModelParams"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stratified_plume_model.ModelParams" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fixed model parameters for the stratified plume model</p>
 <p>This class stores the set of model parameters that should not be adjusted
 by the user and that are needed by the stratified plume model.</p>
@@ -76,7 +78,7 @@ by the user and that are needed by the stratified plume model.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>profile</strong> : <a class="reference internal" href="../modules/ambient.html#ambient.Profile" title="ambient.Profile"><tt class="xref py py-obj docutils literal"><span class="pre">ambient.Profile</span></tt></a> object</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>profile</strong> : <a class="reference internal" href="../modules/ambient.html#ambient.Profile" title="ambient.Profile"><code class="xref py py-obj docutils literal"><span class="pre">ambient.Profile</span></code></a> object</p>
 <blockquote class="last">
 <div><p>The ambient CTD object used by the simulation.</p>
 </div></blockquote>
@@ -85,85 +87,65 @@ by the user and that are needed by the stratified plume model.</p>
 </tbody>
 </table>
 <p class="rubric">Notes</p>
-<p>This object inherits the <a class="reference internal" href="../sbm/single_bubble_model.ModelParams.html#single_bubble_model.ModelParams" title="single_bubble_model.ModelParams"><tt class="xref py py-obj docutils literal"><span class="pre">single_bubble_model.ModelParams</span></tt></a> object, which
+<p>This object inherits the <a class="reference internal" href="../sbm/single_bubble_model.ModelParams.html#single_bubble_model.ModelParams" title="single_bubble_model.ModelParams"><code class="xref py py-obj docutils literal"><span class="pre">single_bubble_model.ModelParams</span></code></a> object, which
 defines the attribute <em class="xref py py-obj">rho_r</em>.</p>
 <p class="rubric">Attributes</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="10%" />
-<col width="6%" />
-<col width="84%" />
+<col width="9%" />
+<col width="91%" />
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td>rho_r</td>
-<td>float</td>
-<td>Reference density (kg/m^3) evaluated at mid-depth of the water body.</td>
+<td>(float) Reference density (kg/m^3) evaluated at mid-depth of the water body.</td>
 </tr>
 <tr class="row-even"><td>alpha_1</td>
-<td>float</td>
-<td>entrainment coefficient from the ambient fluid to the inner plume</td>
+<td>(float) entrainment coefficient from the ambient fluid to the inner plume</td>
 </tr>
 <tr class="row-odd"><td>alpha_2</td>
-<td>float</td>
-<td>entrainment coefficient from the inner plume to the outer plume</td>
+<td>(float) entrainment coefficient from the inner plume to the outer plume</td>
 </tr>
 <tr class="row-even"><td>alpha_3</td>
-<td>float</td>
-<td>entrainment coefficient from the ambient fluid to the outer plume</td>
+<td>(float) entrainment coefficient from the ambient fluid to the outer plume</td>
 </tr>
 <tr class="row-odd"><td>lambda_2</td>
-<td>float</td>
-<td>spreading rate of dissolved constituents</td>
+<td>(float) spreading rate of dissolved constituents</td>
 </tr>
 <tr class="row-even"><td>epsilon</td>
-<td>float</td>
-<td>continuous peeling parameter (see Crounse 2000)</td>
+<td>(float) continuous peeling parameter (see Crounse 2000)</td>
 </tr>
 <tr class="row-odd"><td>c1</td>
-<td>float</td>
-<td>coefficient for counterflow entrainment model</td>
+<td>(float) coefficient for counterflow entrainment model</td>
 </tr>
 <tr class="row-even"><td>c2</td>
-<td>float</td>
-<td>coefficient for counterflow entrainment model</td>
+<td>(float) coefficient for counterflow entrainment model</td>
 </tr>
 <tr class="row-odd"><td>fe</td>
-<td>float</td>
-<td>extra entrainment factor when the inner plume hits the free
-surface</td>
+<td>(float) extra entrainment factor when the inner plume hits the free surface</td>
 </tr>
 <tr class="row-even"><td>gamma_i</td>
-<td>float</td>
-<td>momentum amplification factor for inner plume (see Milgram 1983)</td>
+<td>(float) momentum amplification factor for inner plume (see Milgram 1983)</td>
 </tr>
 <tr class="row-odd"><td>gamma_o</td>
-<td>float</td>
-<td>momentum amplification factor for outer plume</td>
+<td>(float) momentum amplification factor for outer plume</td>
 </tr>
 <tr class="row-even"><td>Fr_0</td>
-<td>float</td>
-<td>initial plume Froude number (see Wueest et al. 1992)</td>
+<td>(float) initial plume Froude number (see Wueest et al. 1992)</td>
 </tr>
 <tr class="row-odd"><td>Fro_0</td>
-<td>float</td>
-<td>initial plume Froude number for outer plume segments</td>
+<td>(float) initial plume Froude number for outer plume segments</td>
 </tr>
 <tr class="row-even"><td>nwidths</td>
-<td>float</td>
-<td>average size of detraining eddies as a fraction of the plume
-half-width</td>
+<td>(float) average size of detraining eddies as a fraction of the plume half-width</td>
 </tr>
 <tr class="row-odd"><td>naverage</td>
-<td>float</td>
-<td>number of previous outer plume solutions to average</td>
+<td>(float) number of previous outer plume solutions to average</td>
 </tr>
 <tr class="row-even"><td>g</td>
-<td>float</td>
-<td>acceleration of gravity (m/s^2)</td>
+<td>(float) acceleration of gravity (m/s^2)</td>
 </tr>
 <tr class="row-odd"><td>Ru</td>
-<td>float</td>
-<td>universal ideal gas constant (J/(mol K))</td>
+<td>(float) universal ideal gas constant (J/(mol K))</td>
 </tr>
 </tbody>
 </table>
@@ -175,7 +157,7 @@ half-width</td>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../contents.html">
               <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
@@ -186,16 +168,18 @@ half-width</td>
   <h4>Next topic</h4>
   <p class="topless"><a href="stratified_plume_model.InnerPlume.html"
                         title="next chapter">stratified_plume_model.InnerPlume</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../_sources/spm/stratified_plume_model.ModelParams.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/spm/stratified_plume_model.ModelParams.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
 <ul class="this-page-menu">
   <li><a href="/numpy/docs/numpy-docs/spm/stratified_plume_model.ModelParams.rst">Edit page</a></li>
 </ul>
 
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -213,27 +197,20 @@ half-width</td>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="stratified_plume_model.InnerPlume.html" title="stratified_plume_model.InnerPlume"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="stratified_plume_model.Model.plot_all_variables.html" title="stratified_plume_model.Model.plot_all_variables"
-             >previous</a> |</li>
-<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
-
-          <li><a href="../modules/reference.html" >Reference</a> &raquo;</li> 
-      </ul>
-    </div>
     <div class="footer">
-        &copy; Copyright 2015, Scott A. Socolofsky.
-      Last updated on Mar 27, 2015.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      &copy;2015, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      
+      |
+      <a href="../_sources/spm/stratified_plume_model.ModelParams.txt"
+          rel="nofollow">Page source</a></li>
     </div>
+
+    
+
+    
   </body>
 </html>

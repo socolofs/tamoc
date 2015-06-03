@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -16,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.10',
+        VERSION:     '0.1.11',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,13 +23,17 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../index.html" />
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../contents.html" />
     <link rel="up" title="Overview of Bent Plume Model Module" href="../modules/bpm.html" />
     <link rel="next" title="lmp.derivs" href="../bpm/lmp.derivs.html" />
-    <link rel="prev" title="bent_plume_model.plot_all_variables" href="bent_plume_model.plot_all_variables.html" /> 
+    <link rel="prev" title="bent_plume_model.plot_all_variables" href="bent_plume_model.plot_all_variables.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -45,21 +47,21 @@
              accesskey="P">previous</a> |</li>
 <li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
 
-          <li><a href="../modules/reference.html" >Reference</a> &raquo;</li>
-          <li><a href="../modules/bpm.html" accesskey="U">Overview of Bent Plume Model Module</a> &raquo;</li> 
+          <li class="nav-item nav-item-1"><a href="../modules/reference.html" >Reference</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="../modules/bpm.html" accesskey="U">Overview of Bent Plume Model Module</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="bent-plume-model-width-projection">
 <h1>bent_plume_model.width_projection<a class="headerlink" href="#bent-plume-model-width-projection" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="bent_plume_model.width_projection">
-<tt class="descclassname">bent_plume_model.</tt><tt class="descname">width_projection</tt><big>(</big><em>Sx</em>, <em>Sy</em>, <em>b</em><big>)</big><a class="reference internal" href="../_modules/bent_plume_model.html#width_projection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bent_plume_model.width_projection" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">bent_plume_model.</code><code class="descname">width_projection</code><span class="sig-paren">(</span><em>Sx</em>, <em>Sy</em>, <em>b</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/bent_plume_model.py#L1795"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/bent_plume_model.html#width_projection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bent_plume_model.width_projection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find the location of the plume width in x, y, z space</p>
 <p>Converts the width b and plume orientation phi and theta into an 
 (x, y, z) location of the plume edge.  This function provides a two-
@@ -69,7 +71,7 @@ dimensional result given the unit vector along the plume centerline
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>Sx</strong> : float</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>Sx</strong> : float</p>
 <blockquote>
 <div><p>Unit vector projection of the plume trajectory on one of the 
 coordinate axes in (x, y, z) space.</p>
@@ -85,7 +87,7 @@ coordinate axes in (x, y, z) space.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>x1</strong> : float</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>x1</strong> : float</p>
 <blockquote>
 <div><p>Plume edge for Sx projection to left of plume translation direction</p>
 </div></blockquote>
@@ -122,7 +124,7 @@ function as input.</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../contents.html">
               <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
@@ -133,16 +135,18 @@ function as input.</p>
   <h4>Next topic</h4>
   <p class="topless"><a href="../bpm/lmp.derivs.html"
                         title="next chapter">lmp.derivs</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../_sources/spm/bent_plume_model.width_projection.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/spm/bent_plume_model.width_projection.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
 <ul class="this-page-menu">
   <li><a href="/numpy/docs/numpy-docs/spm/bent_plume_model.width_projection.rst">Edit page</a></li>
 </ul>
 
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -160,28 +164,20 @@ function as input.</p>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="../bpm/lmp.derivs.html" title="lmp.derivs"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="bent_plume_model.plot_all_variables.html" title="bent_plume_model.plot_all_variables"
-             >previous</a> |</li>
-<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
-
-          <li><a href="../modules/reference.html" >Reference</a> &raquo;</li>
-          <li><a href="../modules/bpm.html" >Overview of Bent Plume Model Module</a> &raquo;</li> 
-      </ul>
-    </div>
     <div class="footer">
-        &copy; Copyright 2015, Scott A. Socolofsky.
-      Last updated on Mar 27, 2015.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      &copy;2015, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      
+      |
+      <a href="../_sources/spm/bent_plume_model.width_projection.txt"
+          rel="nofollow">Page source</a></li>
     </div>
+
+    
+
+    
   </body>
 </html>

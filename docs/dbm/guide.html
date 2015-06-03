@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -16,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.10',
+        VERSION:     '0.1.11',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,12 +23,16 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../index.html" />
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../contents.html" />
     <link rel="next" title="air_eos" href="../scripts/dbm/air_eos.html" />
-    <link rel="prev" title="Chemical Properties Users Guide" href="../chem/guide.html" /> 
+    <link rel="prev" title="Chemical Properties Users Guide" href="../chem/guide.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -50,7 +52,7 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="discrete-bubble-model-users-guide">
 <h1>Discrete Bubble Model Users Guide<a class="headerlink" href="#discrete-bubble-model-users-guide" title="Permalink to this headline">¶</a></h1>
@@ -60,17 +62,17 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">March 27, 2015</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">June 03, 2015</td>
 </tr>
 </tbody>
 </table>
 <div class="section" id="scripts">
 <h2>Scripts<a class="headerlink" href="#scripts" title="Permalink to this headline">¶</a></h2>
-<p>The class objects and method functions defined in the <a class="reference internal" href="../modules/dbm.html#module-dbm" title="dbm"><tt class="xref py py-obj docutils literal"><span class="pre">dbm</span></tt></a> module provide a
+<p>The class objects and method functions defined in the <a class="reference internal" href="../modules/dbm.html#module-dbm" title="dbm"><code class="xref py py-obj docutils literal"><span class="pre">dbm</span></code></a> module provide a
 flexible structure to handle the chemistry and thermodynamics of mixtures.
 The examples detailed below show a few of the common tasks that may be
-facilitated by the <a class="reference internal" href="../modules/dbm.html#module-dbm" title="dbm"><tt class="xref py py-obj docutils literal"><span class="pre">dbm</span></tt></a> module.  Further examples are presented in the
-following scripts distributed in the <tt class="docutils literal"><span class="pre">./bin</span></tt> directory with the source
+facilitated by the <a class="reference internal" href="../modules/dbm.html#module-dbm" title="dbm"><code class="xref py py-obj docutils literal"><span class="pre">dbm</span></code></a> module.  Further examples are presented in the
+following scripts distributed in the <code class="docutils literal"><span class="pre">./bin</span></code> directory with the source
 code.</p>
 <div class="toctree-wrapper compound">
 <ul>
@@ -86,19 +88,19 @@ code.</p>
 </div>
 <div class="section" id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
-<p>While there are many different applications of the <a class="reference internal" href="../modules/dbm.html#module-dbm" title="dbm"><tt class="xref py py-obj docutils literal"><span class="pre">dbm</span></tt></a> module objects and
+<p>While there are many different applications of the <a class="reference internal" href="../modules/dbm.html#module-dbm" title="dbm"><code class="xref py py-obj docutils literal"><span class="pre">dbm</span></code></a> module objects and
 methods, here we focus on a few of the most common tasks.</p>
-<p>The basic philosophy of the <a class="reference internal" href="../modules/dbm.html#module-dbm" title="dbm"><tt class="xref py py-obj docutils literal"><span class="pre">dbm</span></tt></a> module objects is to store all constant
+<p>The basic philosophy of the <a class="reference internal" href="../modules/dbm.html#module-dbm" title="dbm"><code class="xref py py-obj docutils literal"><span class="pre">dbm</span></code></a> module objects is to store all constant
 chemical properties as object attributes (e.g., molecular weight, temperature
 and pressure at the critical point, etc.) and to make the thermodynamic state
 (e.g., temperature, pressure, salinity, etc.) as inputs to the object methods
 (e.g., when calculating the density). Because this model is designed to work
 with dissolving objects, the masses of each component in the mixture are also
 taken as inputs to the methods. While mole could have been the fundamental
-unit for composition, mass is used in <tt class="docutils literal"><span class="pre">TAMOC</span></tt>.</p>
+unit for composition, mass is used in <code class="docutils literal"><span class="pre">TAMOC</span></code>.</p>
 <div class="section" id="mixture-equations-of-state">
 <h3>Mixture Equations of State<a class="headerlink" href="#mixture-equations-of-state" title="Permalink to this headline">¶</a></h3>
-<p>As in the scripts above for <a class="reference internal" href="../scripts/dbm/air_eos.html#module-air_eos" title="air_eos"><tt class="xref py py-obj docutils literal"><span class="pre">air_eos</span></tt></a> and <a class="reference internal" href="../scripts/dbm/co2_eos.html#module-co2_eos" title="co2_eos"><tt class="xref py py-obj docutils literal"><span class="pre">co2_eos</span></tt></a>, the <a class="reference internal" href="../modules/dbm.html#dbm.FluidMixture" title="dbm.FluidMixture"><tt class="xref py py-obj docutils literal"><span class="pre">dbm.FluidMixture</span></tt></a>
+<p>As in the scripts above for <a class="reference internal" href="../scripts/dbm/air_eos.html#module-air_eos" title="air_eos"><code class="xref py py-obj docutils literal"><span class="pre">air_eos</span></code></a> and <a class="reference internal" href="../scripts/dbm/co2_eos.html#module-co2_eos" title="co2_eos"><code class="xref py py-obj docutils literal"><span class="pre">co2_eos</span></code></a>, the <a class="reference internal" href="../modules/dbm.html#dbm.FluidMixture" title="dbm.FluidMixture"><code class="xref py py-obj docutils literal"><span class="pre">dbm.FluidMixture</span></code></a>
 object provides an interface to the Peng-Robinson equation of state for any
 mixture of chemicals.</p>
 <p>As an example, consider a natural gas containing the following compounds with
@@ -108,7 +110,7 @@ given mole fractions in the mixture:</p>
 </pre></div>
 </div>
 <p>If the binary interaction coefficients are going to be taken as default, then
-we can initialize a <a class="reference internal" href="../modules/dbm.html#dbm.FluidMixture" title="dbm.FluidMixture"><tt class="xref py py-obj docutils literal"><span class="pre">dbm.FluidMixture</span></tt></a> object as follows:</p>
+we can initialize a <a class="reference internal" href="../modules/dbm.html#dbm.FluidMixture" title="dbm.FluidMixture"><code class="xref py py-obj docutils literal"><span class="pre">dbm.FluidMixture</span></code></a> object as follows:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">dbm</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">gas</span> <span class="o">=</span> <span class="n">dbm</span><span class="o">.</span><span class="n">FluidMixture</span><span class="p">(</span><span class="n">composition</span><span class="p">)</span>
 </pre></div>
@@ -168,7 +170,7 @@ gas and liquid present:</p>
 equilibrium with each other. Instead, this function reports the density of gas
 or liquid if each had the mass composition specified by <em class="xref py py-obj">m</em>.</p>
 <p>To evaluate the equilibrium composition, one must use the
-<a class="reference internal" href="dbm.FluidMixture.equilibrium.html#dbm.FluidMixture.equilibrium" title="dbm.FluidMixture.equilibrium"><tt class="xref py py-obj docutils literal"><span class="pre">dbm.FluidMixture.equilibrium</span></tt></a> method.  As an example for this mixture:</p>
+<a class="reference internal" href="dbm.FluidMixture.equilibrium.html#dbm.FluidMixture.equilibrium" title="dbm.FluidMixture.equilibrium"><code class="xref py py-obj docutils literal"><span class="pre">dbm.FluidMixture.equilibrium</span></code></a> method.  As an example for this mixture:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">T</span> <span class="o">=</span> <span class="mf">273.15</span> <span class="o">+</span> <span class="mf">4.1</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">P</span> <span class="o">=</span> <span class="mf">49.5e5</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">gas</span><span class="o">.</span><span class="n">equilibrium</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
@@ -183,9 +185,9 @@ significant two-phase region of the thermodynamic space for this mixture.</p>
 <h3>Bubbles or Droplets<a class="headerlink" href="#bubbles-or-droplets" title="Permalink to this headline">¶</a></h3>
 <p>Bubbles and droplets in general require the same set of steps; here, we focus
 on a bubble with similar composition to the mixture studied above. Both
-bubbles and droplets are modeled by the <a class="reference internal" href="../modules/dbm.html#dbm.FluidParticle" title="dbm.FluidParticle"><tt class="xref py py-obj docutils literal"><span class="pre">dbm.FluidParticle</span></tt></a> object. The main
-differences between the <a class="reference internal" href="../modules/dbm.html#dbm.FluidParticle" title="dbm.FluidParticle"><tt class="xref py py-obj docutils literal"><span class="pre">dbm.FluidParticle</span></tt></a> and <a class="reference internal" href="../modules/dbm.html#dbm.FluidMixture" title="dbm.FluidMixture"><tt class="xref py py-obj docutils literal"><span class="pre">dbm.FluidMixture</span></tt></a> objects is
-that the <a class="reference internal" href="../modules/dbm.html#dbm.FluidParticle" title="dbm.FluidParticle"><tt class="xref py py-obj docutils literal"><span class="pre">dbm.FluidParticle</span></tt></a> can only have one phase (e.g., gas or liquid) and
+bubbles and droplets are modeled by the <a class="reference internal" href="../modules/dbm.html#dbm.FluidParticle" title="dbm.FluidParticle"><code class="xref py py-obj docutils literal"><span class="pre">dbm.FluidParticle</span></code></a> object. The main
+differences between the <a class="reference internal" href="../modules/dbm.html#dbm.FluidParticle" title="dbm.FluidParticle"><code class="xref py py-obj docutils literal"><span class="pre">dbm.FluidParticle</span></code></a> and <a class="reference internal" href="../modules/dbm.html#dbm.FluidMixture" title="dbm.FluidMixture"><code class="xref py py-obj docutils literal"><span class="pre">dbm.FluidMixture</span></code></a> objects is
+that the <a class="reference internal" href="../modules/dbm.html#dbm.FluidParticle" title="dbm.FluidParticle"><code class="xref py py-obj docutils literal"><span class="pre">dbm.FluidParticle</span></code></a> can only have one phase (e.g., gas or liquid) and
 also contains shape information so that concepts like rise velocity have
 meaning.</p>
 <p>If we consider the same mixture as above:</p>
@@ -204,7 +206,7 @@ a hot reservoir fluid in deep water):</p>
 <p>The mass vector is now conceptually the masses of each component in a
 single bubble or droplet.  Typically, we know the mole or mass fractions of
 the components of the bubble or droplet and a characteristic fluid particle
-size.  Hence, the method <a class="reference internal" href="dbm.FluidParticle.masses_by_diameter.html#dbm.FluidParticle.masses_by_diameter" title="dbm.FluidParticle.masses_by_diameter"><tt class="xref py py-obj docutils literal"><span class="pre">dbm.FluidParticle.masses_by_diameter</span></tt></a> is very
+size.  Hence, the method <a class="reference internal" href="dbm.FluidParticle.masses_by_diameter.html#dbm.FluidParticle.masses_by_diameter" title="dbm.FluidParticle.masses_by_diameter"><code class="xref py py-obj docutils literal"><span class="pre">dbm.FluidParticle.masses_by_diameter</span></code></a> is very
 helpful for determining the actual masses of each component in the mixture:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">bub</span><span class="o">.</span><span class="n">masses_by_diameter</span><span class="p">(</span><span class="mf">0.005</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">yk</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">m</span>
@@ -242,11 +244,11 @@ particle physical and transport attributes:</p>
 simulations (e.g., sand) or the composition is too complicated for the
 Peng-Robinson equation of state and it is safe to neglect solubility (e.g.,
 for a dead oil over short time scales). In this case, an
-<a class="reference internal" href="../modules/dbm.html#dbm.InsolubleParticle" title="dbm.InsolubleParticle"><tt class="xref py py-obj docutils literal"><span class="pre">dbm.InsolubleParticle</span></tt></a> object is a simple means to capture the critical
+<a class="reference internal" href="../modules/dbm.html#dbm.InsolubleParticle" title="dbm.InsolubleParticle"><code class="xref py py-obj docutils literal"><span class="pre">dbm.InsolubleParticle</span></code></a> object is a simple means to capture the critical
 properties of the particle yet provide an interface to the physics methods,
 such as slip velocity.</p>
 <p>Consider a sand particle.  This particle is insoluble and incompressible.
-The <a class="reference internal" href="../modules/dbm.html#module-dbm" title="dbm"><tt class="xref py py-obj docutils literal"><span class="pre">dbm</span></tt></a> module can describe this particle as follows:</p>
+The <a class="reference internal" href="../modules/dbm.html#module-dbm" title="dbm"><code class="xref py py-obj docutils literal"><span class="pre">dbm</span></code></a> module can describe this particle as follows:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">dbm</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sand</span> <span class="o">=</span> <span class="n">dbm</span><span class="o">.</span><span class="n">InsolubleParticle</span><span class="p">(</span><span class="n">isfluid</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">iscompressible</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
 <span class="go">                                 rho_p=2500.)</span>
@@ -290,7 +292,7 @@ be calculated:</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../contents.html">
               <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
@@ -298,9 +300,7 @@ be calculated:</p>
   <h3><a href="../contents.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Discrete Bubble Model Users Guide</a><ul>
-<li><a class="reference internal" href="#scripts">Scripts</a><ul>
-</ul>
-</li>
+<li><a class="reference internal" href="#scripts">Scripts</a></li>
 <li><a class="reference internal" href="#examples">Examples</a><ul>
 <li><a class="reference internal" href="#mixture-equations-of-state">Mixture Equations of State</a></li>
 <li><a class="reference internal" href="#bubbles-or-droplets">Bubbles or Droplets</a></li>
@@ -317,16 +317,18 @@ be calculated:</p>
   <h4>Next topic</h4>
   <p class="topless"><a href="../scripts/dbm/air_eos.html"
                         title="next chapter">air_eos</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../_sources/dbm/guide.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/dbm/guide.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
 <ul class="this-page-menu">
   <li><a href="/numpy/docs/numpy-docs/dbm/guide.rst">Edit page</a></li>
 </ul>
 
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -344,26 +346,20 @@ be calculated:</p>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="../scripts/dbm/air_eos.html" title="air_eos"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="../chem/guide.html" title="Chemical Properties Users Guide"
-             >previous</a> |</li>
-<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
- 
-      </ul>
-    </div>
     <div class="footer">
-        &copy; Copyright 2015, Scott A. Socolofsky.
-      Last updated on Mar 27, 2015.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      &copy;2015, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      
+      |
+      <a href="../_sources/dbm/guide.txt"
+          rel="nofollow">Page source</a></li>
     </div>
+
+    
+
+    
   </body>
 </html>

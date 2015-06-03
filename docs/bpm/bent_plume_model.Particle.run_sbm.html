@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -16,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.10',
+        VERSION:     '0.1.11',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,12 +23,17 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../index.html" />
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../contents.html" />
     <link rel="up" title="bent_plume_model.Particle" href="bent_plume_model.Particle.html" />
-    <link rel="next" title="bent_plume_model.Particle.track" href="bent_plume_model.Particle.track.html" /> 
+    <link rel="next" title="bent_plume_model.Particle.track" href="bent_plume_model.Particle.track.html" />
+    <link rel="prev" title="bent_plume_model.Particle.outside" href="bent_plume_model.Particle.outside.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -39,33 +42,36 @@
         <li class="right" >
           <a href="bent_plume_model.Particle.track.html" title="bent_plume_model.Particle.track"
              accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="bent_plume_model.Particle.outside.html" title="bent_plume_model.Particle.outside"
+             accesskey="P">previous</a> |</li>
 <li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
 
-          <li><a href="../modules/reference.html" >Reference</a> &raquo;</li>
-          <li><a href="bent_plume_model.Particle.html" accesskey="U">bent_plume_model.Particle</a> &raquo;</li> 
+          <li class="nav-item nav-item-1"><a href="../modules/reference.html" >Reference</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="bent_plume_model.Particle.html" accesskey="U">bent_plume_model.Particle</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="bent-plume-model-particle-run-sbm">
 <h1>bent_plume_model.Particle.run_sbm<a class="headerlink" href="#bent-plume-model-particle-run-sbm" title="Permalink to this headline">¶</a></h1>
 <dl class="method">
 <dt id="bent_plume_model.Particle.run_sbm">
-<tt class="descclassname">Particle.</tt><tt class="descname">run_sbm</tt><big>(</big><em>profile</em><big>)</big><a class="headerlink" href="#bent_plume_model.Particle.run_sbm" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set up and run the <a class="reference internal" href="../modules/sbm.html#module-single_bubble_model" title="single_bubble_model"><tt class="xref py py-obj docutils literal"><span class="pre">single_bubble_model</span></tt></a> to track outside plume</p>
+<code class="descclassname">Particle.</code><code class="descname">run_sbm</code><span class="sig-paren">(</span><em>profile</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/bent_plume_model.py#L1094"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/bent_plume_model.html#Particle.run_sbm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bent_plume_model.Particle.run_sbm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set up and run the <a class="reference internal" href="../modules/sbm.html#module-single_bubble_model" title="single_bubble_model"><code class="xref py py-obj docutils literal"><span class="pre">single_bubble_model</span></code></a> to track outside plume</p>
 <p>Continues the simulation of the particle outside the plume using 
-the <a class="reference internal" href="../modules/sbm.html#module-single_bubble_model" title="single_bubble_model"><tt class="xref py py-obj docutils literal"><span class="pre">single_bubble_model</span></tt></a>.  The object containing the simulation 
+the <a class="reference internal" href="../modules/sbm.html#module-single_bubble_model" title="single_bubble_model"><code class="xref py py-obj docutils literal"><span class="pre">single_bubble_model</span></code></a>.  The object containing the simulation 
 and simulation results will be added to the attributes of this 
 Particle object.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>profile</strong> : <a class="reference internal" href="../modules/ambient.html#ambient.Profile" title="ambient.Profile"><tt class="xref py py-obj docutils literal"><span class="pre">ambient.Profile</span></tt></a> object</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>profile</strong> : <a class="reference internal" href="../modules/ambient.html#ambient.Profile" title="ambient.Profile"><code class="xref py py-obj docutils literal"><span class="pre">ambient.Profile</span></code></a> object</p>
 <blockquote class="last">
 <div><p>Ambient CTD data for the model simulation</p>
 </div></blockquote>
@@ -81,24 +87,29 @@ Particle object.</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../contents.html">
               <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
             </a></p>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="bent_plume_model.Particle.outside.html"
+                        title="previous chapter">bent_plume_model.Particle.outside</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="bent_plume_model.Particle.track.html"
                         title="next chapter">bent_plume_model.Particle.track</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../_sources/bpm/bent_plume_model.Particle.run_sbm.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/bpm/bent_plume_model.Particle.run_sbm.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
 <ul class="this-page-menu">
   <li><a href="/numpy/docs/numpy-docs/bpm/bent_plume_model.Particle.run_sbm.rst">Edit page</a></li>
 </ul>
 
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -116,25 +127,20 @@ Particle object.</p>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="bent_plume_model.Particle.track.html" title="bent_plume_model.Particle.track"
-             >next</a> |</li>
-<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
-
-          <li><a href="../modules/reference.html" >Reference</a> &raquo;</li>
-          <li><a href="bent_plume_model.Particle.html" >bent_plume_model.Particle</a> &raquo;</li> 
-      </ul>
-    </div>
     <div class="footer">
-        &copy; Copyright 2015, Scott A. Socolofsky.
-      Last updated on Mar 27, 2015.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      &copy;2015, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      
+      |
+      <a href="../_sources/bpm/bent_plume_model.Particle.run_sbm.txt"
+          rel="nofollow">Page source</a></li>
     </div>
+
+    
+
+    
   </body>
 </html>

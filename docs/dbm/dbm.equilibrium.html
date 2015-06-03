@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -16,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.10',
+        VERSION:     '0.1.11',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,13 +23,17 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../index.html" />
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../contents.html" />
     <link rel="up" title="Reference" href="../modules/reference.html" />
     <link rel="next" title="dbm.gas_liq_eq" href="dbm.gas_liq_eq.html" />
-    <link rel="prev" title="dbm.InsolubleParticle.return_all" href="dbm.InsolubleParticle.return_all.html" /> 
+    <link rel="prev" title="dbm.InsolubleParticle.return_all" href="dbm.InsolubleParticle.return_all.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -45,14 +47,14 @@
              accesskey="P">previous</a> |</li>
 <li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
 
-          <li><a href="../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
+          <li class="nav-item nav-item-1"><a href="../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="dbm-equilibrium">
 <h1>dbm.equilibrium<a class="headerlink" href="#dbm-equilibrium" title="Permalink to this headline">¶</a></h1>
@@ -62,13 +64,13 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">March 27, 2015</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">June 03, 2015</td>
 </tr>
 </tbody>
 </table>
 <dl class="function">
 <dt id="dbm.equilibrium">
-<tt class="descclassname">dbm.</tt><tt class="descname">equilibrium</tt><big>(</big><em>m_0</em>, <em>T</em>, <em>P</em>, <em>M</em>, <em>Pc</em>, <em>Tc</em>, <em>omega</em>, <em>delta</em>, <em>Aij</em>, <em>Bij</em>, <em>delta_groups</em>, <em>calc_delta</em><big>)</big><a class="reference internal" href="../_modules/dbm.html#equilibrium"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dbm.equilibrium" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">dbm.</code><code class="descname">equilibrium</code><span class="sig-paren">(</span><em>m_0</em>, <em>T</em>, <em>P</em>, <em>M</em>, <em>Pc</em>, <em>Tc</em>, <em>omega</em>, <em>delta</em>, <em>Aij</em>, <em>Bij</em>, <em>delta_groups</em>, <em>calc_delta</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/dbm.py#L1813"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/dbm.html#equilibrium"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dbm.equilibrium" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the equilibrium composition of a mixture using the P-R EOS</p>
 <p>Computes the mole fraction composition for the gas and liquid phases of a
 mixture using the Peng-Robinson equation of state and the methodology
@@ -78,7 +80,7 @@ PennWell Publishing Company, Tulsa, Oklahoma.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>T</strong> : float</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>T</strong> : float</p>
 <blockquote>
 <div><p>temperature (K)</p>
 </div></blockquote>
@@ -115,7 +117,7 @@ full matrix of zeros.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>xi</strong> : ndarray, size(2, nc)</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>xi</strong> : ndarray, size(2, nc)</p>
 <blockquote class="last">
 <div><p>Mole fraction of each component in the mixture.  Row 1 gives the
 values for the gas phase and Row 2 gives the values for the liquid 
@@ -138,7 +140,7 @@ Convergence uses a squared relative error as in McCain (1990).</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../contents.html">
               <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
@@ -149,16 +151,18 @@ Convergence uses a squared relative error as in McCain (1990).</p>
   <h4>Next topic</h4>
   <p class="topless"><a href="dbm.gas_liq_eq.html"
                         title="next chapter">dbm.gas_liq_eq</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../_sources/dbm/dbm.equilibrium.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/dbm/dbm.equilibrium.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
 <ul class="this-page-menu">
   <li><a href="/numpy/docs/numpy-docs/dbm/dbm.equilibrium.rst">Edit page</a></li>
 </ul>
 
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -176,27 +180,20 @@ Convergence uses a squared relative error as in McCain (1990).</p>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="dbm.gas_liq_eq.html" title="dbm.gas_liq_eq"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="dbm.InsolubleParticle.return_all.html" title="dbm.InsolubleParticle.return_all"
-             >previous</a> |</li>
-<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
-
-          <li><a href="../modules/reference.html" >Reference</a> &raquo;</li> 
-      </ul>
-    </div>
     <div class="footer">
-        &copy; Copyright 2015, Scott A. Socolofsky.
-      Last updated on Mar 27, 2015.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      &copy;2015, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      
+      |
+      <a href="../_sources/dbm/dbm.equilibrium.txt"
+          rel="nofollow">Page source</a></li>
     </div>
+
+    
+
+    
   </body>
 </html>

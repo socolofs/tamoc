@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -16,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.10',
+        VERSION:     '0.1.11',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,11 +23,15 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../index.html" />
-    <link rel="prev" title="bpm_blowout" href="../scripts/bpm/bpm_blowout.html" /> 
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../contents.html" />
+    <link rel="prev" title="bpm_blowout" href="../scripts/bpm/bpm_blowout.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -46,7 +48,7 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="unit-tests">
 <h1>Unit Tests<a class="headerlink" href="#unit-tests" title="Permalink to this headline">¶</a></h1>
@@ -56,7 +58,7 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">March 27, 2015</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">June 03, 2015</td>
 </tr>
 </tbody>
 </table>
@@ -65,20 +67,21 @@ functionality of the package.  To run the tests, install
 <a class="reference external" href="http://pytest.org/latest/">pytest</a> into your Python distribution.  Then,
 from a directory within the source files of the distribution, execute at
 the command prompt:</p>
-<div class="highlight-python"><pre>% py.test -v</pre>
+<div class="highlight-python"><div class="highlight"><pre>% py.test -v
+</pre></div>
 </div>
-<p>If any of the tests fail, first delete the <tt class="docutils literal"><span class="pre">__pycache__</span></tt> directory from the
+<p>If any of the tests fail, first delete the <code class="docutils literal"><span class="pre">__pycache__</span></code> directory from the
 hard drive and re-run the test.  If that does not solve the problem, please
 read the test-specific guidelines below for further potential bug fixes.</p>
 <div class="section" id="module-test_ambient">
 <span id="test-ambient-py"></span><h2>test_ambient.py<a class="headerlink" href="#module-test_ambient" title="Permalink to this headline">¶</a></h2>
-<p>Unit tests for the <a class="reference internal" href="ambient.html#module-ambient" title="ambient"><tt class="xref py py-obj docutils literal"><span class="pre">ambient</span></tt></a> module of <tt class="docutils literal"><span class="pre">TAMOC</span></tt></p>
-<p>Provides testing of all of the functions, classes and methods in the <a class="reference internal" href="ambient.html#module-ambient" title="ambient"><tt class="xref py py-obj docutils literal"><span class="pre">ambient</span></tt></a>
-module. These tests rely on data stored in the <tt class="docutils literal"><span class="pre">./data</span></tt> folder and will
-write data to and read data from the <tt class="docutils literal"><span class="pre">./test/output</span></tt> folder.</p>
+<p>Unit tests for the <a class="reference internal" href="ambient.html#module-ambient" title="ambient"><code class="xref py py-obj docutils literal"><span class="pre">ambient</span></code></a> module of <code class="docutils literal"><span class="pre">TAMOC</span></code></p>
+<p>Provides testing of all of the functions, classes and methods in the <a class="reference internal" href="ambient.html#module-ambient" title="ambient"><code class="xref py py-obj docutils literal"><span class="pre">ambient</span></code></a>
+module. These tests rely on data stored in the <code class="docutils literal"><span class="pre">./data</span></code> folder and will
+write data to and read data from the <code class="docutils literal"><span class="pre">./test/output</span></code> folder.</p>
 <p>Some of the tests using THREDDS connections to ROMS output files have
 had problems with opening and closing the files using py.test. If deleting
-<tt class="docutils literal"><span class="pre">__pycache__</span></tt> does not solve the problem, the ROMS test can be run from
+<code class="docutils literal"><span class="pre">__pycache__</span></code> does not solve the problem, the ROMS test can be run from
 within IPython using:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">test_ambient</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">test_ambient</span><span class="o">.</span><span class="n">test_from_roms</span><span class="p">()</span>
@@ -88,8 +91,8 @@ within IPython using:</p>
 </div>
 <div class="section" id="module-test_dbm_objects">
 <span id="test-dbm-objects-py"></span><h2>test_dbm_objects.py<a class="headerlink" href="#module-test_dbm_objects" title="Permalink to this headline">¶</a></h2>
-<p>Unit tests for the <a class="reference internal" href="dbm.html#module-dbm" title="dbm"><tt class="xref py py-obj docutils literal"><span class="pre">dbm</span></tt></a> module of <tt class="docutils literal"><span class="pre">TAMOC</span></tt></p>
-<p>Provides testing of instantiation of the class objects defined in <tt class="docutils literal"><span class="pre">dbm.py</span></tt>.</p>
+<p>Unit tests for the <a class="reference internal" href="dbm.html#module-dbm" title="dbm"><code class="xref py py-obj docutils literal"><span class="pre">dbm</span></code></a> module of <code class="docutils literal"><span class="pre">TAMOC</span></code></p>
+<p>Provides testing of instantiation of the class objects defined in <code class="docutils literal"><span class="pre">dbm.py</span></code>.</p>
 <div class="section" id="notes">
 <h3>Notes<a class="headerlink" href="#notes" title="Permalink to this headline">¶</a></h3>
 <p>All of the tests defined herein check the general behavior of each of the
@@ -102,19 +105,20 @@ have been validated against measurements.</p>
 </div>
 <div class="section" id="module-test_dbm">
 <span id="test-dbm-py"></span><h2>test_dbm.py<a class="headerlink" href="#module-test_dbm" title="Permalink to this headline">¶</a></h2>
-<p>Unit tests for the <a class="reference internal" href="dbm.html#module-dbm" title="dbm"><tt class="xref py py-obj docutils literal"><span class="pre">dbm</span></tt></a> module of <tt class="docutils literal"><span class="pre">TAMOC</span></tt></p>
-<p>Provides testing of the functions defined in <tt class="docutils literal"><span class="pre">dbm_f</span></tt>.</p>
-<p><tt class="docutils literal"><span class="pre">dbm_f</span></tt> is a library created by <tt class="docutils literal"><span class="pre">f2py</span></tt> from the source code:</p>
+<p>Unit tests for the <a class="reference internal" href="dbm.html#module-dbm" title="dbm"><code class="xref py py-obj docutils literal"><span class="pre">dbm</span></code></a> module of <code class="docutils literal"><span class="pre">TAMOC</span></code></p>
+<p>Provides testing of the functions defined in <code class="docutils literal"><span class="pre">dbm_f</span></code>.</p>
+<p><code class="docutils literal"><span class="pre">dbm_f</span></code> is a library created by <code class="docutils literal"><span class="pre">f2py</span></code> from the source code:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">dbm_eos</span><span class="o">.</span><span class="n">f95</span>
 <span class="n">dbm_phys</span><span class="o">.</span><span class="n">f95</span>
 <span class="n">math_funcs</span><span class="o">.</span><span class="n">f95</span>
 </pre></div>
 </div>
 <p>It can be compiled using:</p>
-<div class="highlight-python"><pre>f2py -c -m dbm_f dbm_eos.f95 dbm_phys.f95 math_funcs.f95</pre>
+<div class="highlight-python"><div class="highlight"><pre>f2py -c -m dbm_f dbm_eos.f95 dbm_phys.f95 math_funcs.f95
+</pre></div>
 </div>
-<p>This module tests direct calling of the <tt class="docutils literal"><span class="pre">dbm_f</span></tt> functions from Python as 
-well as calls to the functions implemented in <a class="reference internal" href="dbm.html#module-dbm" title="dbm"><tt class="xref py py-obj docutils literal"><span class="pre">dbm</span></tt></a>.</p>
+<p>This module tests direct calling of the <code class="docutils literal"><span class="pre">dbm_f</span></code> functions from Python as 
+well as calls to the functions implemented in <a class="reference internal" href="dbm.html#module-dbm" title="dbm"><code class="xref py py-obj docutils literal"><span class="pre">dbm</span></code></a>.</p>
 <div class="section" id="id1">
 <h3>Notes<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
 <p>All of the tests defined herein check the general behavior of each of the
@@ -127,16 +131,17 @@ have been validated against measurements.</p>
 </div>
 <div class="section" id="module-test_sbm">
 <span id="test-sbm-py"></span><h2>test_sbm.py<a class="headerlink" href="#module-test_sbm" title="Permalink to this headline">¶</a></h2>
-<p>Unit tests for the <a class="reference internal" href="sbm.html#module-single_bubble_model" title="single_bubble_model"><tt class="xref py py-obj docutils literal"><span class="pre">single_bubble_model</span></tt></a> module of <tt class="docutils literal"><span class="pre">TAMOC</span></tt></p>
+<p>Unit tests for the <a class="reference internal" href="sbm.html#module-single_bubble_model" title="single_bubble_model"><code class="xref py py-obj docutils literal"><span class="pre">single_bubble_model</span></code></a> module of <code class="docutils literal"><span class="pre">TAMOC</span></code></p>
 <p>Provides testing of the objects, methods and functions defined in the 
-<a class="reference internal" href="sbm.html#module-single_bubble_model" title="single_bubble_model"><tt class="xref py py-obj docutils literal"><span class="pre">single_bubble_model</span></tt></a> module of <tt class="docutils literal"><span class="pre">TAMOC</span></tt>.  This module uses the <a class="reference internal" href="ambient.html#module-ambient" title="ambient"><tt class="xref py py-obj docutils literal"><span class="pre">ambient</span></tt></a>
-module to control ambient data and the <a class="reference internal" href="dbm.html#module-dbm" title="dbm"><tt class="xref py py-obj docutils literal"><span class="pre">dbm</span></tt></a> module to predict particle
+<a class="reference internal" href="sbm.html#module-single_bubble_model" title="single_bubble_model"><code class="xref py py-obj docutils literal"><span class="pre">single_bubble_model</span></code></a> module of <code class="docutils literal"><span class="pre">TAMOC</span></code>.  This module uses the <a class="reference internal" href="ambient.html#module-ambient" title="ambient"><code class="xref py py-obj docutils literal"><span class="pre">ambient</span></code></a>
+module to control ambient data and the <a class="reference internal" href="dbm.html#module-dbm" title="dbm"><code class="xref py py-obj docutils literal"><span class="pre">dbm</span></code></a> module to predict particle
 behavior.  These tests check the behavior of the object, the results of
 the simulations, and the read/write algorithms.</p>
 <p>The ambient data used here are from the <em class="xref py py-obj">ctd_BM54.cnv</em> dataset, stored as:</p>
-<div class="highlight-python"><pre>./test/output/test_BM54.nc</pre>
+<div class="highlight-python"><div class="highlight"><pre>./test/output/test_BM54.nc
+</pre></div>
 </div>
-<p>This netCDF file is written by the <tt class="xref py py-obj docutils literal"><span class="pre">test_ambient.test_from_ctd</span></tt> function, 
+<p>This netCDF file is written by the <code class="xref py py-obj docutils literal"><span class="pre">test_ambient.test_from_ctd</span></code> function, 
 which is run in the following as needed to ensure the dataset is available.</p>
 <div class="section" id="id2">
 <h3>Notes<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
@@ -150,16 +155,17 @@ have been validated against measurements.</p>
 </div>
 <div class="section" id="module-test_spm">
 <span id="test-spm-py"></span><h2>test_spm.py<a class="headerlink" href="#module-test_spm" title="Permalink to this headline">¶</a></h2>
-<p>Unit tests for the <a class="reference internal" href="spm.html#module-stratified_plume_model" title="stratified_plume_model"><tt class="xref py py-obj docutils literal"><span class="pre">stratified_plume_model</span></tt></a> module of <tt class="docutils literal"><span class="pre">TAMOC</span></tt></p>
+<p>Unit tests for the <a class="reference internal" href="spm.html#module-stratified_plume_model" title="stratified_plume_model"><code class="xref py py-obj docutils literal"><span class="pre">stratified_plume_model</span></code></a> module of <code class="docutils literal"><span class="pre">TAMOC</span></code></p>
 <p>Provides testing of the objects, methods and functions defined in the 
-<a class="reference internal" href="spm.html#module-stratified_plume_model" title="stratified_plume_model"><tt class="xref py py-obj docutils literal"><span class="pre">stratified_plume_model</span></tt></a> module of <tt class="docutils literal"><span class="pre">TAMOC</span></tt>.  This module uses the <a class="reference internal" href="ambient.html#module-ambient" title="ambient"><tt class="xref py py-obj docutils literal"><span class="pre">ambient</span></tt></a>
-module to control ambient data and the <a class="reference internal" href="dbm.html#module-dbm" title="dbm"><tt class="xref py py-obj docutils literal"><span class="pre">dbm</span></tt></a> module to predict particle
+<a class="reference internal" href="spm.html#module-stratified_plume_model" title="stratified_plume_model"><code class="xref py py-obj docutils literal"><span class="pre">stratified_plume_model</span></code></a> module of <code class="docutils literal"><span class="pre">TAMOC</span></code>.  This module uses the <a class="reference internal" href="ambient.html#module-ambient" title="ambient"><code class="xref py py-obj docutils literal"><span class="pre">ambient</span></code></a>
+module to control ambient data and the <a class="reference internal" href="dbm.html#module-dbm" title="dbm"><code class="xref py py-obj docutils literal"><span class="pre">dbm</span></code></a> module to predict particle
 behavior.  These tests check the behavior of the object, the results of
 the simulations, and the read/write algorithms.</p>
 <p>The ambient data used here are from the <em class="xref py py-obj">ctd_BM54.cnv</em> dataset, stored as:</p>
-<div class="highlight-python"><pre>./test/output/test_BM54.nc</pre>
+<div class="highlight-python"><div class="highlight"><pre>./test/output/test_BM54.nc
+</pre></div>
 </div>
-<p>This netCDF file is written by the <tt class="xref py py-obj docutils literal"><span class="pre">test_ambient.test_from_ctd</span></tt> function, 
+<p>This netCDF file is written by the <code class="xref py py-obj docutils literal"><span class="pre">test_ambient.test_from_ctd</span></code> function, 
 which is run in the following as needed to ensure the dataset is available.</p>
 <div class="section" id="id3">
 <h3>Notes<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
@@ -173,8 +179,8 @@ have been validated against measurements.</p>
 </div>
 <div class="section" id="module-test_sintef">
 <span id="test-sintef-py"></span><h2>test_sintef.py<a class="headerlink" href="#module-test_sintef" title="Permalink to this headline">¶</a></h2>
-<p>Unit tests for the <a class="reference internal" href="sintef.html#module-sintef" title="sintef"><tt class="xref py py-obj docutils literal"><span class="pre">sintef</span></tt></a> module of <tt class="docutils literal"><span class="pre">TAMOC</span></tt></p>
-<p>Provides testing of all of the functions in the <a class="reference internal" href="sintef.html#module-sintef" title="sintef"><tt class="xref py py-obj docutils literal"><span class="pre">sintef</span></tt></a> module.  Since this
+<p>Unit tests for the <a class="reference internal" href="sintef.html#module-sintef" title="sintef"><code class="xref py py-obj docutils literal"><span class="pre">sintef</span></code></a> module of <code class="docutils literal"><span class="pre">TAMOC</span></code></p>
+<p>Provides testing of all of the functions in the <a class="reference internal" href="sintef.html#module-sintef" title="sintef"><code class="xref py py-obj docutils literal"><span class="pre">sintef</span></code></a> module.  Since this
 is a simple module, the unit tests are stand-alone and do not require 
 external data source or disk access.</p>
 <div class="section" id="id4">
@@ -189,15 +195,16 @@ have been validated against measurements.</p>
 </div>
 <div class="section" id="module-test_params">
 <span id="test-params-py"></span><h2>test_params.py<a class="headerlink" href="#module-test_params" title="Permalink to this headline">¶</a></h2>
-<p>Unit tests for the <a class="reference internal" href="params.html#module-params" title="params"><tt class="xref py py-obj docutils literal"><span class="pre">params</span></tt></a> module of <tt class="docutils literal"><span class="pre">TAMOC</span></tt></p>
-<p>Provides testing of all of the classes and methods in the <a class="reference internal" href="params.html#module-params" title="params"><tt class="xref py py-obj docutils literal"><span class="pre">params</span></tt></a> module.
-This module uses the <a class="reference internal" href="ambient.html#module-ambient" title="ambient"><tt class="xref py py-obj docutils literal"><span class="pre">ambient</span></tt></a> module to control ambient data and the <a class="reference internal" href="dbm.html#module-dbm" title="dbm"><tt class="xref py py-obj docutils literal"><span class="pre">dbm</span></tt></a>
+<p>Unit tests for the <a class="reference internal" href="params.html#module-params" title="params"><code class="xref py py-obj docutils literal"><span class="pre">params</span></code></a> module of <code class="docutils literal"><span class="pre">TAMOC</span></code></p>
+<p>Provides testing of all of the classes and methods in the <a class="reference internal" href="params.html#module-params" title="params"><code class="xref py py-obj docutils literal"><span class="pre">params</span></code></a> module.
+This module uses the <a class="reference internal" href="ambient.html#module-ambient" title="ambient"><code class="xref py py-obj docutils literal"><span class="pre">ambient</span></code></a> module to control ambient data and the <a class="reference internal" href="dbm.html#module-dbm" title="dbm"><code class="xref py py-obj docutils literal"><span class="pre">dbm</span></code></a>
 module to predict particle behavior. These tests check the behavior of the
-<a class="reference internal" href="params.html#params.Scales" title="params.Scales"><tt class="xref py py-obj docutils literal"><span class="pre">params.Scales</span></tt></a> object and the results of its methods.</p>
+<a class="reference internal" href="params.html#params.Scales" title="params.Scales"><code class="xref py py-obj docutils literal"><span class="pre">params.Scales</span></code></a> object and the results of its methods.</p>
 <p>The ambient data used here are from the <em class="xref py py-obj">ctd_BM54.cnv</em> dataset, stored as:</p>
-<div class="highlight-python"><pre>./test/output/test_BM54.nc</pre>
+<div class="highlight-python"><div class="highlight"><pre>./test/output/test_BM54.nc
+</pre></div>
 </div>
-<p>This netCDF file is written by the <tt class="xref py py-obj docutils literal"><span class="pre">test_ambient.test_from_ctd</span></tt> function, 
+<p>This netCDF file is written by the <code class="xref py py-obj docutils literal"><span class="pre">test_ambient.test_from_ctd</span></code> function, 
 which is run in the following test script as needed to ensure the dataset is 
 available.</p>
 <div class="section" id="id5">
@@ -216,7 +223,7 @@ have been validated against measurements.</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../contents.html">
               <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
@@ -256,16 +263,18 @@ have been validated against measurements.</p>
   <h4>Previous topic</h4>
   <p class="topless"><a href="../scripts/bpm/bpm_blowout.html"
                         title="previous chapter">bpm_blowout</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../_sources/modules/test.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/modules/test.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
 <ul class="this-page-menu">
   <li><a href="/numpy/docs/numpy-docs/modules/test.rst">Edit page</a></li>
 </ul>
 
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -283,23 +292,20 @@ have been validated against measurements.</p>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="../scripts/bpm/bpm_blowout.html" title="bpm_blowout"
-             >previous</a> |</li>
-<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
- 
-      </ul>
-    </div>
     <div class="footer">
-        &copy; Copyright 2015, Scott A. Socolofsky.
-      Last updated on Mar 27, 2015.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      &copy;2015, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      
+      |
+      <a href="../_sources/modules/test.txt"
+          rel="nofollow">Page source</a></li>
     </div>
+
+    
+
+    
   </body>
 </html>

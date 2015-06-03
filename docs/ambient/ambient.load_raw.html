@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -16,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.10',
+        VERSION:     '0.1.11',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,13 +23,17 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../index.html" />
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../contents.html" />
     <link rel="up" title="Reference" href="../modules/reference.html" />
     <link rel="next" title="Overview of the Seawater Module" href="../modules/seawater.html" />
-    <link rel="prev" title="ambient.convert_units" href="ambient.convert_units.html" /> 
+    <link rel="prev" title="ambient.convert_units" href="ambient.convert_units.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -45,14 +47,14 @@
              accesskey="P">previous</a> |</li>
 <li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
 
-          <li><a href="../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
+          <li class="nav-item nav-item-1"><a href="../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="ambient-load-raw">
 <h1>ambient.load_raw<a class="headerlink" href="#ambient-load-raw" title="Permalink to this headline">¶</a></h1>
@@ -62,13 +64,13 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">March 27, 2015</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">June 03, 2015</td>
 </tr>
 </tbody>
 </table>
 <dl class="function">
 <dt id="ambient.load_raw">
-<tt class="descclassname">ambient.</tt><tt class="descname">load_raw</tt><big>(</big><em>fname</em><big>)</big><a class="reference internal" href="../_modules/ambient.html#load_raw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ambient.load_raw" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">ambient.</code><code class="descname">load_raw</code><span class="sig-paren">(</span><em>fname</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/ambient.py#L1657"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/ambient.html#load_raw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ambient.load_raw" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read data from a text file.</p>
 <p>Read all of the data in a text file <em class="xref py py-obj">fname</em> with <em class="xref py py-obj">*</em> or <em class="xref py py-obj">#</em> as comment
 characters.  Data are assumed to be sparated by spaces.</p>
@@ -76,13 +78,13 @@ characters.  Data are assumed to be sparated by spaces.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>fname</strong> : string</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>fname</strong> : string</p>
 <blockquote>
 <div><p>Name of file containing the data.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>ctd</strong> : ndarray</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>ctd</strong> : ndarray</p>
 <blockquote class="last">
 <div><p>Array of data contained in <em class="xref py py-obj">fname</em>.</p>
 </div></blockquote>
@@ -90,15 +92,15 @@ characters.  Data are assumed to be sparated by spaces.</p>
 </tr>
 </tbody>
 </table>
-<div class="admonition-see-also admonition seealso">
+<div class="admonition seealso">
 <p class="first admonition-title">See also</p>
 <dl class="last docutils">
-<dt><tt class="xref py py-obj docutils literal"><span class="pre">numpy.fromfile</span></tt></dt>
+<dt><code class="xref py py-obj docutils literal"><span class="pre">numpy.fromfile</span></code></dt>
 <dd>Read data from a simple text file in single table format. Similar to the Matlab <em class="xref py py-obj">load</em> function.  Does not support comments or skipped lines.  Works for text or binary files.</dd>
-<dt><tt class="xref py py-obj docutils literal"><span class="pre">numpy.loadtxt</span></tt></dt>
+<dt><code class="xref py py-obj docutils literal"><span class="pre">numpy.loadtxt</span></code></dt>
 <dd>A more sophisticated method to read data from a text file. This method can handle multiple data types (e.g., strings, floats, and integers together), can perform transformation on the data (e.g., date format to a date object), and can unpack to a tuple of variables.  One limitation is that all rows must have the same number of columns and there is no method to handle missing data.</dd>
-<dt><tt class="xref py py-obj docutils literal"><span class="pre">numpy.genfromtext</span></tt></dt>
-<dd>The most advanced numpy method to read data from a file. Includes the capabilities in <tt class="xref py py-obj docutils literal"><span class="pre">np.loadtxt</span></tt>, but also allows for missing data, data flags, and multiple methods to replace missing data or flags.</dd>
+<dt><code class="xref py py-obj docutils literal"><span class="pre">numpy.genfromtext</span></code></dt>
+<dd>The most advanced numpy method to read data from a file. Includes the capabilities in <code class="xref py py-obj docutils literal"><span class="pre">np.loadtxt</span></code>, but also allows for missing data, data flags, and multiple methods to replace missing data or flags.</dd>
 </dl>
 </div>
 </dd></dl>
@@ -109,7 +111,7 @@ characters.  Data are assumed to be sparated by spaces.</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../contents.html">
               <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
@@ -120,16 +122,18 @@ characters.  Data are assumed to be sparated by spaces.</p>
   <h4>Next topic</h4>
   <p class="topless"><a href="../modules/seawater.html"
                         title="next chapter">Overview of the Seawater Module</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../_sources/ambient/ambient.load_raw.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/ambient/ambient.load_raw.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
 <ul class="this-page-menu">
   <li><a href="/numpy/docs/numpy-docs/ambient/ambient.load_raw.rst">Edit page</a></li>
 </ul>
 
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -147,27 +151,20 @@ characters.  Data are assumed to be sparated by spaces.</p>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="../modules/seawater.html" title="Overview of the Seawater Module"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="ambient.convert_units.html" title="ambient.convert_units"
-             >previous</a> |</li>
-<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
-
-          <li><a href="../modules/reference.html" >Reference</a> &raquo;</li> 
-      </ul>
-    </div>
     <div class="footer">
-        &copy; Copyright 2015, Scott A. Socolofsky.
-      Last updated on Mar 27, 2015.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      &copy;2015, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      
+      |
+      <a href="../_sources/ambient/ambient.load_raw.txt"
+          rel="nofollow">Page source</a></li>
     </div>
+
+    
+
+    
   </body>
 </html>

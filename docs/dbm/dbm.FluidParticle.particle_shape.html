@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -16,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.10',
+        VERSION:     '0.1.11',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,13 +23,17 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../index.html" />
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../contents.html" />
     <link rel="up" title="Reference" href="../modules/reference.html" />
     <link rel="next" title="dbm.FluidParticle.slip_velocity" href="dbm.FluidParticle.slip_velocity.html" />
-    <link rel="prev" title="dbm.FluidParticle.diameter" href="dbm.FluidParticle.diameter.html" /> 
+    <link rel="prev" title="dbm.FluidParticle.diameter" href="dbm.FluidParticle.diameter.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -45,14 +47,14 @@
              accesskey="P">previous</a> |</li>
 <li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
 
-          <li><a href="../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
+          <li class="nav-item nav-item-1"><a href="../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="dbm-fluidparticle-particle-shape">
 <h1>dbm.FluidParticle.particle_shape<a class="headerlink" href="#dbm-fluidparticle-particle-shape" title="Permalink to this headline">¶</a></h1>
@@ -62,20 +64,20 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">March 27, 2015</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">June 03, 2015</td>
 </tr>
 </tbody>
 </table>
 <dl class="method">
 <dt id="dbm.FluidParticle.particle_shape">
-<tt class="descclassname">FluidParticle.</tt><tt class="descname">particle_shape</tt><big>(</big><em>m</em>, <em>T</em>, <em>P</em>, <em>Sa</em>, <em>Ta</em><big>)</big><a class="reference internal" href="../_modules/dbm.html#FluidParticle.particle_shape"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dbm.FluidParticle.particle_shape" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">FluidParticle.</code><code class="descname">particle_shape</code><span class="sig-paren">(</span><em>m</em>, <em>T</em>, <em>P</em>, <em>Sa</em>, <em>Ta</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/dbm.py#L931"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/dbm.html#FluidParticle.particle_shape"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dbm.FluidParticle.particle_shape" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine the shape of a fluid particle from the properties of the 
 particle and surrounding fluid.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>m</strong> : ndarray, size (nc)</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>m</strong> : ndarray, size (nc)</p>
 <blockquote>
 <div><p>masses of each component in a particle (kg)</p>
 </div></blockquote>
@@ -97,7 +99,7 @@ particle and surrounding fluid.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>A tuple containing:</strong> :</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A tuple containing:</p>
 <blockquote class="last">
 <div><dl class="docutils">
 <dt>shape <span class="classifier-delimiter">:</span> <span class="classifier">integer</span></dt>
@@ -132,7 +134,7 @@ particle and surrounding fluid.</p>
 calculate properties at the interface (e.g., to calculate the 
 interfacial tension) and the ambient temperature for properties of 
 the bulk continuous phase (e.g., density and viscosity).</p>
-<p>Uses the Fortran subroutines in <tt class="docutils literal"><span class="pre">./src/dbm_phys.f95</span></tt>.</p>
+<p>Uses the Fortran subroutines in <code class="docutils literal"><span class="pre">./src/dbm_phys.f95</span></code>.</p>
 </dd></dl>
 
 </div>
@@ -141,7 +143,7 @@ the bulk continuous phase (e.g., density and viscosity).</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../contents.html">
               <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
@@ -152,16 +154,18 @@ the bulk continuous phase (e.g., density and viscosity).</p>
   <h4>Next topic</h4>
   <p class="topless"><a href="dbm.FluidParticle.slip_velocity.html"
                         title="next chapter">dbm.FluidParticle.slip_velocity</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../_sources/dbm/dbm.FluidParticle.particle_shape.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/dbm/dbm.FluidParticle.particle_shape.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
 <ul class="this-page-menu">
   <li><a href="/numpy/docs/numpy-docs/dbm/dbm.FluidParticle.particle_shape.rst">Edit page</a></li>
 </ul>
 
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -179,27 +183,20 @@ the bulk continuous phase (e.g., density and viscosity).</p>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="dbm.FluidParticle.slip_velocity.html" title="dbm.FluidParticle.slip_velocity"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="dbm.FluidParticle.diameter.html" title="dbm.FluidParticle.diameter"
-             >previous</a> |</li>
-<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
-
-          <li><a href="../modules/reference.html" >Reference</a> &raquo;</li> 
-      </ul>
-    </div>
     <div class="footer">
-        &copy; Copyright 2015, Scott A. Socolofsky.
-      Last updated on Mar 27, 2015.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      &copy;2015, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      
+      |
+      <a href="../_sources/dbm/dbm.FluidParticle.particle_shape.txt"
+          rel="nofollow">Page source</a></li>
     </div>
+
+    
+
+    
   </body>
 </html>

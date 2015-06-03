@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -16,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.10',
+        VERSION:     '0.1.11',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,13 +23,17 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../index.html" />
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../contents.html" />
     <link rel="up" title="Reference" href="../modules/reference.html" />
     <link rel="next" title="stratified_plume_model.outer_main" href="stratified_plume_model.outer_main.html" />
-    <link rel="prev" title="stratified_plume_model.OuterPlume.update" href="stratified_plume_model.OuterPlume.update.html" /> 
+    <link rel="prev" title="stratified_plume_model.OuterPlume.update" href="stratified_plume_model.OuterPlume.update.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -45,14 +47,14 @@
              accesskey="P">previous</a> |</li>
 <li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
 
-          <li><a href="../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
+          <li class="nav-item nav-item-1"><a href="../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="stratified-plume-model-inner-main">
 <h1>stratified_plume_model.inner_main<a class="headerlink" href="#stratified-plume-model-inner-main" title="Permalink to this headline">¶</a></h1>
@@ -62,13 +64,13 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">March 27, 2015</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">June 03, 2015</td>
 </tr>
 </tbody>
 </table>
 <dl class="function">
 <dt id="stratified_plume_model.inner_main">
-<tt class="descclassname">stratified_plume_model.</tt><tt class="descname">inner_main</tt><big>(</big><em>yi</em>, <em>yo</em>, <em>particles</em>, <em>profile</em>, <em>p</em>, <em>neighbor</em>, <em>delta_z</em><big>)</big><a class="reference internal" href="../_modules/stratified_plume_model.html#inner_main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stratified_plume_model.inner_main" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">stratified_plume_model.</code><code class="descname">inner_main</code><span class="sig-paren">(</span><em>yi</em>, <em>yo</em>, <em>particles</em>, <em>profile</em>, <em>p</em>, <em>neighbor</em>, <em>delta_z</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/stratified_plume_model.py#L1081"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/stratified_plume_model.html#inner_main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stratified_plume_model.inner_main" title="Permalink to this definition">¶</a></dt>
 <dd><p>Manage the integration of the inner plume</p>
 <p>Calculates the inner plume solution, creates the appropriate <em class="xref py py-obj">neighbor</em>
 interpolation object, and returns the complete solution</p>
@@ -76,31 +78,31 @@ interpolation object, and returns the complete solution</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>yi</strong> : <a class="reference internal" href="stratified_plume_model.InnerPlume.html#stratified_plume_model.InnerPlume" title="stratified_plume_model.InnerPlume"><tt class="xref py py-obj docutils literal"><span class="pre">InnerPlume</span></tt></a> object</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>yi</strong> : <a class="reference internal" href="stratified_plume_model.InnerPlume.html#stratified_plume_model.InnerPlume" title="stratified_plume_model.InnerPlume"><code class="xref py py-obj docutils literal"><span class="pre">InnerPlume</span></code></a> object</p>
 <blockquote>
 <div><p>Object containing the inner plume state space and methods to extract
 the state space variables</p>
 </div></blockquote>
-<p><strong>yo</strong> : <a class="reference internal" href="stratified_plume_model.OuterPlume.html#stratified_plume_model.OuterPlume" title="stratified_plume_model.OuterPlume"><tt class="xref py py-obj docutils literal"><span class="pre">OuterPlume</span></tt></a> object</p>
+<p><strong>yo</strong> : <a class="reference internal" href="stratified_plume_model.OuterPlume.html#stratified_plume_model.OuterPlume" title="stratified_plume_model.OuterPlume"><code class="xref py py-obj docutils literal"><span class="pre">OuterPlume</span></code></a> object</p>
 <blockquote>
 <div><p>Object containing the outer plume state space and methods to extract
 the state space variables</p>
 </div></blockquote>
-<p><strong>particles</strong> : list of <a class="reference internal" href="../modules/disp_phases.html#dispersed_phases.PlumeParticle" title="dispersed_phases.PlumeParticle"><tt class="xref py py-obj docutils literal"><span class="pre">dispersed_phases.PlumeParticle</span></tt></a> objects</p>
+<p><strong>particles</strong> : list of <a class="reference internal" href="../modules/disp_phases.html#dispersed_phases.PlumeParticle" title="dispersed_phases.PlumeParticle"><code class="xref py py-obj docutils literal"><span class="pre">dispersed_phases.PlumeParticle</span></code></a> objects</p>
 <blockquote>
-<div><p>List of <a class="reference internal" href="../modules/disp_phases.html#dispersed_phases.PlumeParticle" title="dispersed_phases.PlumeParticle"><tt class="xref py py-obj docutils literal"><span class="pre">dispersed_phases.PlumeParticle</span></tt></a> objects containing the 
+<div><p>List of <a class="reference internal" href="../modules/disp_phases.html#dispersed_phases.PlumeParticle" title="dispersed_phases.PlumeParticle"><code class="xref py py-obj docutils literal"><span class="pre">dispersed_phases.PlumeParticle</span></code></a> objects containing the 
 dispersed phase local conditions and behavior.</p>
 </div></blockquote>
-<p><strong>profile</strong> : <a class="reference internal" href="../modules/ambient.html#ambient.Profile" title="ambient.Profile"><tt class="xref py py-obj docutils literal"><span class="pre">ambient.Profile</span></tt></a> object</p>
+<p><strong>profile</strong> : <a class="reference internal" href="../modules/ambient.html#ambient.Profile" title="ambient.Profile"><code class="xref py py-obj docutils literal"><span class="pre">ambient.Profile</span></code></a> object</p>
 <blockquote>
 <div><p>The ambient CTD object used by the simulation.</p>
 </div></blockquote>
-<p><strong>p</strong> : <a class="reference internal" href="stratified_plume_model.ModelParams.html#stratified_plume_model.ModelParams" title="stratified_plume_model.ModelParams"><tt class="xref py py-obj docutils literal"><span class="pre">ModelParams</span></tt></a> object</p>
+<p><strong>p</strong> : <a class="reference internal" href="stratified_plume_model.ModelParams.html#stratified_plume_model.ModelParams" title="stratified_plume_model.ModelParams"><code class="xref py py-obj docutils literal"><span class="pre">ModelParams</span></code></a> object</p>
 <blockquote>
 <div><p>Object containing the fixed model parameters for the stratified 
 plume model.</p>
 </div></blockquote>
-<p><strong>neighbor</strong> : <tt class="xref py py-obj docutils literal"><span class="pre">scipy.interpolate.interp1d</span></tt> object</p>
+<p><strong>neighbor</strong> : <code class="xref py py-obj docutils literal"><span class="pre">scipy.interpolate.interp1d</span></code> object</p>
 <blockquote>
 <div><p>Container holding the latest solution for the outer plume state
 space</p>
@@ -114,7 +116,7 @@ output data, but not the numerical stability of the calculation.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>z</strong> : ndarray</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>z</strong> : ndarray</p>
 <blockquote>
 <div><p>Vector of elevations where the inner plume solution is obtained (m)</p>
 </div></blockquote>
@@ -123,7 +125,7 @@ output data, but not the numerical stability of the calculation.</p>
 <div><p>Matrix of inner plume state space solutions.  Each row corresponds to
 a depth in z</p>
 </div></blockquote>
-<p><strong>neighbor</strong> : <tt class="xref py py-obj docutils literal"><span class="pre">scipy.interpolate.interp1d</span></tt> object</p>
+<p><strong>neighbor</strong> : <code class="xref py py-obj docutils literal"><span class="pre">scipy.interpolate.interp1d</span></code> object</p>
 <blockquote class="last">
 <div><p>An updated neighbor interpolation object with the inner plume solution
 ready to use with integration of the outer plume</p>
@@ -146,7 +148,7 @@ integration.</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../contents.html">
               <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
@@ -157,16 +159,18 @@ integration.</p>
   <h4>Next topic</h4>
   <p class="topless"><a href="stratified_plume_model.outer_main.html"
                         title="next chapter">stratified_plume_model.outer_main</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../_sources/spm/stratified_plume_model.inner_main.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/spm/stratified_plume_model.inner_main.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
 <ul class="this-page-menu">
   <li><a href="/numpy/docs/numpy-docs/spm/stratified_plume_model.inner_main.rst">Edit page</a></li>
 </ul>
 
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -184,27 +188,20 @@ integration.</p>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="stratified_plume_model.outer_main.html" title="stratified_plume_model.outer_main"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="stratified_plume_model.OuterPlume.update.html" title="stratified_plume_model.OuterPlume.update"
-             >previous</a> |</li>
-<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
-
-          <li><a href="../modules/reference.html" >Reference</a> &raquo;</li> 
-      </ul>
-    </div>
     <div class="footer">
-        &copy; Copyright 2015, Scott A. Socolofsky.
-      Last updated on Mar 27, 2015.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      &copy;2015, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      
+      |
+      <a href="../_sources/spm/stratified_plume_model.inner_main.txt"
+          rel="nofollow">Page source</a></li>
     </div>
+
+    
+
+    
   </body>
 </html>

@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -16,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.10',
+        VERSION:     '0.1.11',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,12 +23,16 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../index.html" />
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../contents.html" />
     <link rel="next" title="Sintef Module User’s Guide" href="../sintef/guide.html" />
-    <link rel="prev" title="hydrocarbon_drops" href="../scripts/dbm/hydrocarbon_drops.html" /> 
+    <link rel="prev" title="hydrocarbon_drops" href="../scripts/dbm/hydrocarbon_drops.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -50,7 +52,7 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="dispersed-phases-user-s-guide">
 <h1>Dispersed Phases User&#8217;s Guide<a class="headerlink" href="#dispersed-phases-user-s-guide" title="Permalink to this headline">¶</a></h1>
@@ -60,21 +62,21 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">March 27, 2015</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">June 03, 2015</td>
 </tr>
 </tbody>
 </table>
 <div class="section" id="scripts">
 <h2>Scripts<a class="headerlink" href="#scripts" title="Permalink to this headline">¶</a></h2>
-<p>The class objects and method functions defined in the <a class="reference internal" href="../modules/disp_phases.html#module-dispersed_phases" title="dispersed_phases"><tt class="xref py py-obj docutils literal"><span class="pre">dispersed_phases</span></tt></a>
-module provide provide an interface to the <a class="reference internal" href="../modules/dbm.html#module-dbm" title="dbm"><tt class="xref py py-obj docutils literal"><span class="pre">dbm</span></tt></a> objects, methods, and
+<p>The class objects and method functions defined in the <a class="reference internal" href="../modules/disp_phases.html#module-dispersed_phases" title="dispersed_phases"><code class="xref py py-obj docutils literal"><span class="pre">dispersed_phases</span></code></a>
+module provide provide an interface to the <a class="reference internal" href="../modules/dbm.html#module-dbm" title="dbm"><code class="xref py py-obj docutils literal"><span class="pre">dbm</span></code></a> objects, methods, and
 functions through the definition of two new objects: the <em class="xref py py-obj">SingleParticle</em>
 object, used to describe one particle, and the <em class="xref py py-obj">PlumeParticle</em> object used to
 describe one group of particle in a plume model simulation. These functions
 are almost never used alone, but rather as part of a model simulation. To see
 examples of how these are used in the context of the various models, see the
-scripts in <tt class="docutils literal"><span class="pre">./bin/sbm</span></tt>, <tt class="docutils literal"><span class="pre">./bin/spm</span></tt>, and <tt class="docutils literal"><span class="pre">./bin/bpm</span></tt>.</p>
-<p>The <a class="reference internal" href="../modules/bpm.html#module-bent_plume_model" title="bent_plume_model"><tt class="xref py py-obj docutils literal"><span class="pre">bent_plume_model</span></tt></a> contains one more object, the <a class="reference internal" href="../modules/bpm.html#bent_plume_model.Particle" title="bent_plume_model.Particle"><tt class="xref py py-obj docutils literal"><span class="pre">bent_plume_model.Particle</span></tt></a>
+scripts in <code class="docutils literal"><span class="pre">./bin/sbm</span></code>, <code class="docutils literal"><span class="pre">./bin/spm</span></code>, and <code class="docutils literal"><span class="pre">./bin/bpm</span></code>.</p>
+<p>The <a class="reference internal" href="../modules/bpm.html#module-bent_plume_model" title="bent_plume_model"><code class="xref py py-obj docutils literal"><span class="pre">bent_plume_model</span></code></a> contains one more object, the <a class="reference internal" href="../modules/bpm.html#bent_plume_model.Particle" title="bent_plume_model.Particle"><code class="xref py py-obj docutils literal"><span class="pre">bent_plume_model.Particle</span></code></a>
 object, which inherits the <em class="xref py py-obj">PlumeParticle</em> object and adds functionality for
 particle tracking within the Lagrangian plume model solution.</p>
 </div>
@@ -82,25 +84,25 @@ particle tracking within the Lagrangian plume model solution.</p>
 <h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
 <p>This example illustrates the tasks involved in using the <em class="xref py py-obj">PlumeParticle</em>
 object to create a set of particles that will eventually be used by the
-<a class="reference internal" href="../modules/spm.html#module-stratified_plume_model" title="stratified_plume_model"><tt class="xref py py-obj docutils literal"><span class="pre">stratified_plume_model</span></tt></a>. The procedure is similar for the other objects in
-this module, as well as for the <a class="reference internal" href="../modules/bpm.html#bent_plume_model.Particle" title="bent_plume_model.Particle"><tt class="xref py py-obj docutils literal"><span class="pre">bent_plume_model.Particle</span></tt></a> object.</p>
-<p>Before running these examples, be sure to install the <tt class="docutils literal"><span class="pre">TAMOC</span></tt> package and
-run all of the tests in the <tt class="docutils literal"><span class="pre">./test</span></tt> directory. The commands below should be
+<a class="reference internal" href="../modules/spm.html#module-stratified_plume_model" title="stratified_plume_model"><code class="xref py py-obj docutils literal"><span class="pre">stratified_plume_model</span></code></a>. The procedure is similar for the other objects in
+this module, as well as for the <a class="reference internal" href="../modules/bpm.html#bent_plume_model.Particle" title="bent_plume_model.Particle"><code class="xref py py-obj docutils literal"><span class="pre">bent_plume_model.Particle</span></code></a> object.</p>
+<p>Before running these examples, be sure to install the <code class="docutils literal"><span class="pre">TAMOC</span></code> package and
+run all of the tests in the <code class="docutils literal"><span class="pre">./test</span></code> directory. The commands below should be
 executed in an IPython session. Start IPython by executing:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">ipython</span> <span class="o">--</span><span class="n">pylab</span>
 </pre></div>
 </div>
-<p>at the command prompt.  The <tt class="docutils literal"><span class="pre">--pylab</span></tt> flag is needed to get the correct
+<p>at the command prompt.  The <code class="docutils literal"><span class="pre">--pylab</span></code> flag is needed to get the correct
 behavior of the output plots.</p>
 <p>The first step in any spill simulation is to define the ambient CTD data. The
-<tt class="docutils literal"><span class="pre">TAMOC</span></tt> module <a class="reference internal" href="../modules/ambient.html#module-ambient" title="ambient"><tt class="xref py py-obj docutils literal"><span class="pre">ambient</span></tt></a> provides the tools needed to read in CTD data from
-text files and organize it into the netCDF files used by the <tt class="docutils literal"><span class="pre">TAMOC</span></tt>
+<code class="docutils literal"><span class="pre">TAMOC</span></code> module <a class="reference internal" href="../modules/ambient.html#module-ambient" title="ambient"><code class="xref py py-obj docutils literal"><span class="pre">ambient</span></code></a> provides the tools needed to read in CTD data from
+text files and organize it into the netCDF files used by the <code class="docutils literal"><span class="pre">TAMOC</span></code>
 simulation modules. Examples of how to do this are provided in the
-<tt class="docutils literal"><span class="pre">./bin/ambient</span></tt> directory of the TAMOC distribution. Here, we use the CTD
-data created by the <tt class="docutils literal"><span class="pre">TAMOC</span></tt> test files and stored in the <tt class="docutils literal"><span class="pre">./test/output</span></tt>
+<code class="docutils literal"><span class="pre">./bin/ambient</span></code> directory of the TAMOC distribution. Here, we use the CTD
+data created by the <code class="docutils literal"><span class="pre">TAMOC</span></code> test files and stored in the <code class="docutils literal"><span class="pre">./test/output</span></code>
 directory. Open a CTD file as follows (path names in this tutorial are from
-any subdirectory of the <tt class="docutils literal"><span class="pre">TAMOC</span></tt> source distribution, e.g.,
-<tt class="docutils literal"><span class="pre">./notebooks</span></tt>):</p>
+any subdirectory of the <code class="docutils literal"><span class="pre">TAMOC</span></code> source distribution, e.g.,
+<code class="docutils literal"><span class="pre">./notebooks</span></code>):</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">ctd_file</span> <span class="o">=</span> <span class="s">&#39;../test/output/test_BM54.nc&#39;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ctd</span> <span class="o">=</span> <span class="n">ambient</span><span class="o">.</span><span class="n">Profile</span><span class="p">(</span><span class="n">ctd_file</span><span class="p">,</span> <span class="n">chem_names</span><span class="o">=</span><span class="s">&#39;all&#39;</span><span class="p">)</span>
 </pre></div>
@@ -113,7 +115,7 @@ For this example, begin with an empty list:</p>
 <div class="section" id="gas-bubbles">
 <h3>Gas Bubbles<a class="headerlink" href="#gas-bubbles" title="Permalink to this headline">¶</a></h3>
 <p>For a blowout, we might expect both gas and oil.  Here, we create a few
-gas bubbles to add to the simulation.  The first step is to create a <a class="reference internal" href="../modules/dbm.html#module-dbm" title="dbm"><tt class="xref py py-obj docutils literal"><span class="pre">dbm</span></tt></a>
+gas bubbles to add to the simulation.  The first step is to create a <a class="reference internal" href="../modules/dbm.html#module-dbm" title="dbm"><code class="xref py py-obj docutils literal"><span class="pre">dbm</span></code></a>
 particle object.  In this case, we choose a dissolvable particle of natural
 gas:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">composition</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;methane&#39;</span><span class="p">,</span> <span class="s">&#39;ethane&#39;</span><span class="p">,</span> <span class="s">&#39;propane&#39;</span><span class="p">,</span> <span class="s">&#39;oxygen&#39;</span><span class="p">]</span>
@@ -122,8 +124,8 @@ gas:</p>
 </pre></div>
 </div>
 <p>Next, we have to get the mass of each component in a single bubble and the
-total bubble flux. A helper function is provided in the <tt class="docutils literal"><span class="pre">TAMOC</span></tt> model called
-<a class="reference internal" href="dispersed_phases.initial_conditions.html#dispersed_phases.initial_conditions" title="dispersed_phases.initial_conditions"><tt class="xref py py-obj docutils literal"><span class="pre">dispersed_phases.initial_conditions</span></tt></a>. Here, we use the function to create six
+total bubble flux. A helper function is provided in the <code class="docutils literal"><span class="pre">TAMOC</span></code> model called
+<a class="reference internal" href="dispersed_phases.initial_conditions.html#dispersed_phases.initial_conditions" title="dispersed_phases.initial_conditions"><code class="xref py py-obj docutils literal"><span class="pre">dispersed_phases.initial_conditions</span></code></a>. Here, we use the function to create six
 different sized bubbles:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">x0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">1000.</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">T0</span> <span class="o">=</span> <span class="mf">273.15</span> <span class="o">+</span> <span class="mf">30.</span>
@@ -156,7 +158,7 @@ new set of equations of state. Here, we assume a non-dissolving oil phase:</p>
 </pre></div>
 </div>
 <p>Then, define the droplet characteristics and append them to the
-<tt class="docutils literal"><span class="pre">particles</span></tt> list as we did for the gas bubbles. Note that all particles go
+<code class="docutils literal"><span class="pre">particles</span></code> list as we did for the gas bubbles. Note that all particles go
 in the same list and could be in any order:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">de</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.02</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.0075</span><span class="p">,</span> <span class="mf">0.005</span><span class="p">,</span> <span class="mf">0.003</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">m0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="mf">5.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">])</span>
@@ -176,7 +178,7 @@ in the same list and could be in any order:</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../contents.html">
               <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
@@ -200,16 +202,18 @@ in the same list and could be in any order:</p>
   <h4>Next topic</h4>
   <p class="topless"><a href="../sintef/guide.html"
                         title="next chapter">Sintef Module User&#8217;s Guide</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../_sources/disp_phases/guide.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/disp_phases/guide.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
 <ul class="this-page-menu">
   <li><a href="/numpy/docs/numpy-docs/disp_phases/guide.rst">Edit page</a></li>
 </ul>
 
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -227,26 +231,20 @@ in the same list and could be in any order:</p>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="../sintef/guide.html" title="Sintef Module User’s Guide"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="../scripts/dbm/hydrocarbon_drops.html" title="hydrocarbon_drops"
-             >previous</a> |</li>
-<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
- 
-      </ul>
-    </div>
     <div class="footer">
-        &copy; Copyright 2015, Scott A. Socolofsky.
-      Last updated on Mar 27, 2015.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      &copy;2015, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      
+      |
+      <a href="../_sources/disp_phases/guide.txt"
+          rel="nofollow">Page source</a></li>
     </div>
+
+    
+
+    
   </body>
 </html>

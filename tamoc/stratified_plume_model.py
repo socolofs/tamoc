@@ -689,8 +689,8 @@ class ModelParams(single_bubble_model.ModelParams):
         self.alpha_1 = 0.055
         self.alpha_2 = 0.110
         self.alpha_3 = 0.110
-        self.lambda_2 = 1.20
-        self.epsilon = 0.050
+        self.lambda_2 = 1.00
+        self.epsilon = 0.015
         self.qdis_ic = 0.1
         self.c1 = 0.
         self.c2 = 1.

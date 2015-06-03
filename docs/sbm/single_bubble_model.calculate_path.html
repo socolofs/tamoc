@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -16,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.10',
+        VERSION:     '0.1.11',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,13 +23,17 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../index.html" />
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../contents.html" />
     <link rel="up" title="Reference" href="../modules/reference.html" />
     <link rel="next" title="single_bubble_model.derivs" href="single_bubble_model.derivs.html" />
-    <link rel="prev" title="single_bubble_model.ModelParams" href="single_bubble_model.ModelParams.html" /> 
+    <link rel="prev" title="single_bubble_model.ModelParams" href="single_bubble_model.ModelParams.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -45,28 +47,28 @@
              accesskey="P">previous</a> |</li>
 <li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
 
-          <li><a href="../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
+          <li class="nav-item nav-item-1"><a href="../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="single-bubble-model-calculate-path">
 <h1>single_bubble_model.calculate_path<a class="headerlink" href="#single-bubble-model-calculate-path" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="single_bubble_model.calculate_path">
-<tt class="descclassname">single_bubble_model.</tt><tt class="descname">calculate_path</tt><big>(</big><em>profile</em>, <em>particle</em>, <em>p</em>, <em>y0</em>, <em>delta_t</em><big>)</big><a class="reference internal" href="../_modules/single_bubble_model.html#calculate_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#single_bubble_model.calculate_path" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">single_bubble_model.</code><code class="descname">calculate_path</code><span class="sig-paren">(</span><em>profile</em>, <em>particle</em>, <em>p</em>, <em>y0</em>, <em>delta_t</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/single_bubble_model.py#L605"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/single_bubble_model.html#calculate_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#single_bubble_model.calculate_path" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the trajectory of a particle</p>
 <p>Calculate the trajectory of a particle by integrating its path using
-the <tt class="xref py py-obj docutils literal"><span class="pre">scipy.integrate.ode</span></tt> object and associated methods.</p>
+the <code class="xref py py-obj docutils literal"><span class="pre">scipy.integrate.ode</span></code> object and associated methods.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>profile</strong> : <a class="reference internal" href="../modules/ambient.html#ambient.Profile" title="ambient.Profile"><tt class="xref py py-obj docutils literal"><span class="pre">ambient.Profile</span></tt></a> object</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>profile</strong> : <a class="reference internal" href="../modules/ambient.html#ambient.Profile" title="ambient.Profile"><code class="xref py py-obj docutils literal"><span class="pre">ambient.Profile</span></code></a> object</p>
 <blockquote>
 <div><p>Ambient CTD data for the model simulation</p>
 </div></blockquote>
@@ -74,9 +76,9 @@ the <tt class="xref py py-obj docutils literal"><span class="pre">scipy.integrat
 <blockquote>
 <div><p>Object describing the properties and behavior of the particle.</p>
 </div></blockquote>
-<p><strong>p</strong> : <a class="reference internal" href="single_bubble_model.ModelParams.html#single_bubble_model.ModelParams" title="single_bubble_model.ModelParams"><tt class="xref py py-obj docutils literal"><span class="pre">ModelParams</span></tt></a> object</p>
+<p><strong>p</strong> : <a class="reference internal" href="single_bubble_model.ModelParams.html#single_bubble_model.ModelParams" title="single_bubble_model.ModelParams"><code class="xref py py-obj docutils literal"><span class="pre">ModelParams</span></code></a> object</p>
 <blockquote>
-<div><p>Collection of model parameters passed to <a class="reference internal" href="single_bubble_model.derivs.html#single_bubble_model.derivs" title="single_bubble_model.derivs"><tt class="xref py py-obj docutils literal"><span class="pre">derivs</span></tt></a>.</p>
+<div><p>Collection of model parameters passed to <a class="reference internal" href="single_bubble_model.derivs.html#single_bubble_model.derivs" title="single_bubble_model.derivs"><code class="xref py py-obj docutils literal"><span class="pre">derivs</span></code></a>.</p>
 </div></blockquote>
 <p><strong>y0</strong> : ndarray</p>
 <blockquote>
@@ -92,7 +94,7 @@ content in J of the particle) at the release point</p>
 </tbody>
 </table>
 <p class="rubric">Notes</p>
-<p>The differential equation in <a class="reference internal" href="single_bubble_model.derivs.html#single_bubble_model.derivs" title="single_bubble_model.derivs"><tt class="xref py py-obj docutils literal"><span class="pre">derivs</span></tt></a> is written with respect to time, so
+<p>The differential equation in <a class="reference internal" href="single_bubble_model.derivs.html#single_bubble_model.derivs" title="single_bubble_model.derivs"><code class="xref py py-obj docutils literal"><span class="pre">derivs</span></code></a> is written with respect to time, so
 the independent variable in this simulation is time.  The vertical 
 coordinate; therefore, becomes a dependent variable, along with the masses
 of each component in the particle and the particle temperature.  Thus, 
@@ -116,7 +118,7 @@ in the state space can be returned by:</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../contents.html">
               <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
@@ -127,16 +129,18 @@ in the state space can be returned by:</p>
   <h4>Next topic</h4>
   <p class="topless"><a href="single_bubble_model.derivs.html"
                         title="next chapter">single_bubble_model.derivs</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../_sources/sbm/single_bubble_model.calculate_path.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/sbm/single_bubble_model.calculate_path.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
 <ul class="this-page-menu">
   <li><a href="/numpy/docs/numpy-docs/sbm/single_bubble_model.calculate_path.rst">Edit page</a></li>
 </ul>
 
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -154,27 +158,20 @@ in the state space can be returned by:</p>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="single_bubble_model.derivs.html" title="single_bubble_model.derivs"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="single_bubble_model.ModelParams.html" title="single_bubble_model.ModelParams"
-             >previous</a> |</li>
-<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
-
-          <li><a href="../modules/reference.html" >Reference</a> &raquo;</li> 
-      </ul>
-    </div>
     <div class="footer">
-        &copy; Copyright 2015, Scott A. Socolofsky.
-      Last updated on Mar 27, 2015.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      &copy;2015, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      
+      |
+      <a href="../_sources/sbm/single_bubble_model.calculate_path.txt"
+          rel="nofollow">Page source</a></li>
     </div>
+
+    
+
+    
   </body>
 </html>

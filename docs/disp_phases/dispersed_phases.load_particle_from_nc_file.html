@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -16,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.10',
+        VERSION:     '0.1.11',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,13 +23,17 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../index.html" />
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../contents.html" />
     <link rel="up" title="Reference" href="../modules/reference.html" />
     <link rel="next" title="dispersed_phases.zfe_volume_flux" href="dispersed_phases.zfe_volume_flux.html" />
-    <link rel="prev" title="dispersed_phases.save_particle_to_nc_file" href="dispersed_phases.save_particle_to_nc_file.html" /> 
+    <link rel="prev" title="dispersed_phases.save_particle_to_nc_file" href="dispersed_phases.save_particle_to_nc_file.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -45,14 +47,14 @@
              accesskey="P">previous</a> |</li>
 <li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
 
-          <li><a href="../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
+          <li class="nav-item nav-item-1"><a href="../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="dispersed-phases-load-particle-from-nc-file">
 <h1>dispersed_phases.load_particle_from_nc_file<a class="headerlink" href="#dispersed-phases-load-particle-from-nc-file" title="Permalink to this headline">¶</a></h1>
@@ -62,34 +64,34 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">March 27, 2015</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">June 03, 2015</td>
 </tr>
 </tbody>
 </table>
 <dl class="function">
 <dt id="dispersed_phases.load_particle_from_nc_file">
-<tt class="descclassname">dispersed_phases.</tt><tt class="descname">load_particle_from_nc_file</tt><big>(</big><em>nc</em>, <em>particle_type</em>, <em>X0=None</em>, <em>user_data={}</em>, <em>delta_groups=None</em><big>)</big><a class="reference internal" href="../_modules/dispersed_phases.html#load_particle_from_nc_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dispersed_phases.load_particle_from_nc_file" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">dispersed_phases.</code><code class="descname">load_particle_from_nc_file</code><span class="sig-paren">(</span><em>nc</em>, <em>particle_type</em>, <em>X0=None</em>, <em>user_data={}</em>, <em>delta_groups=None</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/dispersed_phases.py#L713"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/dispersed_phases.html#load_particle_from_nc_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dispersed_phases.load_particle_from_nc_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read the complete <em class="xref py py-obj">particles</em> list from a netCDF output file</p>
-<p>Creates the <em class="xref py py-obj">particles</em> list of <a class="reference internal" href="../modules/disp_phases.html#dispersed_phases.SingleParticle" title="dispersed_phases.SingleParticle"><tt class="xref py py-obj docutils literal"><span class="pre">SingleParticle</span></tt></a>, <a class="reference internal" href="../modules/disp_phases.html#dispersed_phases.PlumeParticle" title="dispersed_phases.PlumeParticle"><tt class="xref py py-obj docutils literal"><span class="pre">PlumeParticle</span></tt></a>, or
-<a class="reference internal" href="../modules/bpm.html#bent_plume_model.Particle" title="bent_plume_model.Particle"><tt class="xref py py-obj docutils literal"><span class="pre">bent_plume_model.Particle</span></tt></a> objects from the attributes stored in a 
+<p>Creates the <em class="xref py py-obj">particles</em> list of <a class="reference internal" href="../modules/disp_phases.html#dispersed_phases.SingleParticle" title="dispersed_phases.SingleParticle"><code class="xref py py-obj docutils literal"><span class="pre">SingleParticle</span></code></a>, <a class="reference internal" href="../modules/disp_phases.html#dispersed_phases.PlumeParticle" title="dispersed_phases.PlumeParticle"><code class="xref py py-obj docutils literal"><span class="pre">PlumeParticle</span></code></a>, or
+<a class="reference internal" href="../modules/bpm.html#bent_plume_model.Particle" title="bent_plume_model.Particle"><code class="xref py py-obj docutils literal"><span class="pre">bent_plume_model.Particle</span></code></a> objects from the attributes stored in a 
 netCDF output file.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>nc</strong> : <tt class="xref py py-obj docutils literal"><span class="pre">netCDF4.Dataset</span></tt> object</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>nc</strong> : <code class="xref py py-obj docutils literal"><span class="pre">netCDF4.Dataset</span></code> object</p>
 <blockquote>
-<div><p>A <tt class="xref py py-obj docutils literal"><span class="pre">netCDF4.Dataset</span></tt> object that is open and where the particle 
+<div><p>A <code class="xref py py-obj docutils literal"><span class="pre">netCDF4.Dataset</span></code> object that is open and where the particle 
 attributes should be written</p>
 </div></blockquote>
 <p><strong>particle_type</strong> : int</p>
 <blockquote>
-<div><p>The particle type is either 0: <a class="reference internal" href="../modules/disp_phases.html#dispersed_phases.SingleParticle" title="dispersed_phases.SingleParticle"><tt class="xref py py-obj docutils literal"><span class="pre">SingleParticle</span></tt></a>, 1: <a class="reference internal" href="../modules/disp_phases.html#dispersed_phases.PlumeParticle" title="dispersed_phases.PlumeParticle"><tt class="xref py py-obj docutils literal"><span class="pre">PlumeParticle</span></tt></a>
-or 2: <a class="reference internal" href="../modules/bpm.html#bent_plume_model.Particle" title="bent_plume_model.Particle"><tt class="xref py py-obj docutils literal"><span class="pre">bent_plume_model.Particle</span></tt></a></p>
+<div><p>The particle type is either 0: <a class="reference internal" href="../modules/disp_phases.html#dispersed_phases.SingleParticle" title="dispersed_phases.SingleParticle"><code class="xref py py-obj docutils literal"><span class="pre">SingleParticle</span></code></a>, 1: <a class="reference internal" href="../modules/disp_phases.html#dispersed_phases.PlumeParticle" title="dispersed_phases.PlumeParticle"><code class="xref py py-obj docutils literal"><span class="pre">PlumeParticle</span></code></a>
+or 2: <a class="reference internal" href="../modules/bpm.html#bent_plume_model.Particle" title="bent_plume_model.Particle"><code class="xref py py-obj docutils literal"><span class="pre">bent_plume_model.Particle</span></code></a></p>
 </div></blockquote>
 <p><strong>X0</strong> : ndarray</p>
 <blockquote class="last">
-<div><p>Vector of initial positions for the <a class="reference internal" href="../modules/bpm.html#bent_plume_model.Particle" title="bent_plume_model.Particle"><tt class="xref py py-obj docutils literal"><span class="pre">bent_plume_model.Particle</span></tt></a> 
+<div><p>Vector of initial positions for the <a class="reference internal" href="../modules/bpm.html#bent_plume_model.Particle" title="bent_plume_model.Particle"><code class="xref py py-obj docutils literal"><span class="pre">bent_plume_model.Particle</span></code></a> 
 objects.</p>
 </div></blockquote>
 </td>
@@ -104,7 +106,7 @@ objects.</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../contents.html">
               <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
@@ -115,16 +117,18 @@ objects.</p>
   <h4>Next topic</h4>
   <p class="topless"><a href="dispersed_phases.zfe_volume_flux.html"
                         title="next chapter">dispersed_phases.zfe_volume_flux</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../_sources/disp_phases/dispersed_phases.load_particle_from_nc_file.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/disp_phases/dispersed_phases.load_particle_from_nc_file.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
 <ul class="this-page-menu">
   <li><a href="/numpy/docs/numpy-docs/disp_phases/dispersed_phases.load_particle_from_nc_file.rst">Edit page</a></li>
 </ul>
 
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -142,27 +146,20 @@ objects.</p>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="dispersed_phases.zfe_volume_flux.html" title="dispersed_phases.zfe_volume_flux"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="dispersed_phases.save_particle_to_nc_file.html" title="dispersed_phases.save_particle_to_nc_file"
-             >previous</a> |</li>
-<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
-
-          <li><a href="../modules/reference.html" >Reference</a> &raquo;</li> 
-      </ul>
-    </div>
     <div class="footer">
-        &copy; Copyright 2015, Scott A. Socolofsky.
-      Last updated on Mar 27, 2015.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      &copy;2015, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      
+      |
+      <a href="../_sources/disp_phases/dispersed_phases.load_particle_from_nc_file.txt"
+          rel="nofollow">Page source</a></li>
     </div>
+
+    
+
+    
   </body>
 </html>

@@ -170,7 +170,7 @@ class FluidMixture(object):
             self.Tb[i] = properties['Tb']
             if properties['Vb'] < 0.:
                 # Use Tyn & Calus estimate in Poling et al. (2001)
-                self.Vb[i] = 0.285 * self.Vc[i]**1.048
+                self.Vb[i] = (0.285 * (self.Vc[i]*1.e6)**1.048)*1.e-6
             else:
                 self.Vb[i] = properties['Vb']
             self.omega[i] = properties['omega']
@@ -393,13 +393,13 @@ class FluidMixture(object):
             dynamic viscosity for gas (row 1) and liquid (row 2) (Pa s)
         
         """
-        # Compute the items that are not available in the Fortran region
+        # Compute the items that are not available to the Fortran code
         rho_w = seawater.density(273.15 + 15., 0., 101325.)
         if self.nc > 1:
             (m0, xi0, K0) = self.equilibrium(m, 273.15 + 15., 101325.)
             m_o = m0[1,:]
             m_g = m0[0,:]
-            
+        
         else:
             m_o = m
             m_g = m
@@ -1247,7 +1247,7 @@ class FluidParticle(FluidMixture):
         shape = dbm_f.particle_shape(de, rho_p, rho, mu, sigma)
         
         # Other particle properties
-        mu_p = 0.001 # self.viscosity(m, T, P)
+        mu_p = self.viscosity(m, T, P)
                 
         # Solubility
         f = dbm_f.fugacity(T, P, m, self.M, self.Pc, self.Tc, self.omega, 

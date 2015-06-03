@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -16,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.10',
+        VERSION:     '0.1.11',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,13 +23,17 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../index.html" />
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../contents.html" />
     <link rel="up" title="Reference" href="../modules/reference.html" />
     <link rel="next" title="smp.cp_model" href="smp.cp_model.html" />
-    <link rel="prev" title="smp.calcualte" href="smp.calculate.html" /> 
+    <link rel="prev" title="smp.calcualte" href="smp.calculate.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -45,14 +47,14 @@
              accesskey="P">previous</a> |</li>
 <li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
 
-          <li><a href="../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
+          <li class="nav-item nav-item-1"><a href="../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="smp-correct-temperature">
 <h1>smp.correct_temperature<a class="headerlink" href="#smp-correct-temperature" title="Permalink to this headline">¶</a></h1>
@@ -62,13 +64,13 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">March 27, 2015</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">June 03, 2015</td>
 </tr>
 </tbody>
 </table>
 <dl class="function">
 <dt id="smp.correct_temperature">
-<tt class="descclassname">smp.</tt><tt class="descname">correct_temperature</tt><big>(</big><em>r</em>, <em>yi</em>, <em>particles</em>, <em>profile</em>, <em>p</em><big>)</big><a class="reference internal" href="../_modules/smp.html#correct_temperature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#smp.correct_temperature" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">smp.</code><code class="descname">correct_temperature</code><span class="sig-paren">(</span><em>r</em>, <em>yi</em>, <em>particles</em>, <em>profile</em>, <em>p</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/smp.py#L368"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/smp.html#correct_temperature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#smp.correct_temperature" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make sure the correct temperature is stored in the state space solution</p>
 <p>When the dispersed phase particles equilibrate to their surrounding 
 temperature, heat transfer is turned off by the methods in 
@@ -94,7 +96,7 @@ heat yielding the ambient temperature for the particle temperature.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>r</strong> : <tt class="xref py py-obj docutils literal"><span class="pre">scipy.integrate.ode</span></tt> object</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>r</strong> : <code class="xref py py-obj docutils literal"><span class="pre">scipy.integrate.ode</span></code> object</p>
 <blockquote>
 <div><p>ODE solution containing the currect values of the state space (e.g., 
 <em class="xref py py-obj">r.y</em>).</p>
@@ -108,7 +110,7 @@ heat yielding the ambient temperature for the particle temperature.</p>
 <div><p>List of <em class="xref py py-obj">Particle</em> objects containing the dispersed phase local
 conditions and behavior.</p>
 </div></blockquote>
-<p><strong>profile</strong> : <a class="reference internal" href="../modules/ambient.html#ambient.Profile" title="ambient.Profile"><tt class="xref py py-obj docutils literal"><span class="pre">ambient.Profile</span></tt></a> object</p>
+<p><strong>profile</strong> : <a class="reference internal" href="../modules/ambient.html#ambient.Profile" title="ambient.Profile"><code class="xref py py-obj docutils literal"><span class="pre">ambient.Profile</span></code></a> object</p>
 <blockquote>
 <div><p>The ambient CTD object used by the simulation.</p>
 </div></blockquote>
@@ -119,7 +121,7 @@ plume model.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>r</strong> : <tt class="xref py py-obj docutils literal"><span class="pre">scipy.integrate.ode</span></tt> object</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>r</strong> : <code class="xref py py-obj docutils literal"><span class="pre">scipy.integrate.ode</span></code> object</p>
 <blockquote class="last">
 <div><p>Returns the original ODE object with the corrected solution stored
 in the public x and y.</p>
@@ -136,7 +138,7 @@ in the public x and y.</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../contents.html">
               <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
@@ -147,16 +149,18 @@ in the public x and y.</p>
   <h4>Next topic</h4>
   <p class="topless"><a href="smp.cp_model.html"
                         title="next chapter">smp.cp_model</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../_sources/spm/smp.correct_temperature.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/spm/smp.correct_temperature.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
 <ul class="this-page-menu">
   <li><a href="/numpy/docs/numpy-docs/spm/smp.correct_temperature.rst">Edit page</a></li>
 </ul>
 
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -174,27 +178,20 @@ in the public x and y.</p>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="smp.cp_model.html" title="smp.cp_model"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="smp.calculate.html" title="smp.calcualte"
-             >previous</a> |</li>
-<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
-
-          <li><a href="../modules/reference.html" >Reference</a> &raquo;</li> 
-      </ul>
-    </div>
     <div class="footer">
-        &copy; Copyright 2015, Scott A. Socolofsky.
-      Last updated on Mar 27, 2015.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      &copy;2015, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      
+      |
+      <a href="../_sources/spm/smp.correct_temperature.txt"
+          rel="nofollow">Page source</a></li>
     </div>
+
+    
+
+    
   </body>
 </html>

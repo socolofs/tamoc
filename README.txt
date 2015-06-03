@@ -12,6 +12,11 @@ size distributions from source flow conditions.
 For typical usage, please see the ./bin directory of the source distribution
 for various example scripts.
 
+Version 0.1.11: Replaced some of the -9999 values in the ./data/ChemData.csv
+                file with literature values and updated the units of the
+                calcualtion of Vb in dbm.py when data are not available.  
+                Also, updated the parameter values for the stratified plume
+                model with the values recommended in Socolofsky et al. (2008).
 Version 0.1.10: Updated the values for Vb in the ./data/ChemData.csv file 
                 with their correct values.  Improves computation of 
                 diffusivity and mass transfer over Version 0.1.9, and gives

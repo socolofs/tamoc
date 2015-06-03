@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -16,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.10',
+        VERSION:     '0.1.11',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,11 +23,15 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../index.html" />
-    <link rel="up" title="Module code" href="index.html" /> 
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../contents.html" />
+    <link rel="up" title="Module code" href="index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -37,14 +39,14 @@
              accesskey="I">index</a></li>
 <li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
 
-          <li><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <h1>Source code for params</h1><div class="highlight"><pre>
 <span class="sd">&quot;&quot;&quot;</span>
@@ -61,6 +63,8 @@
 <span class="c"># S. Socolofsky, October 2013, Texas A&amp;M University &lt;socolofs@tamu.edu&gt;.</span>
 
 <span class="kn">from</span> <span class="nn">tamoc</span> <span class="kn">import</span> <span class="n">seawater</span>
+
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">fsolve</span>
@@ -101,6 +105,60 @@
         
         <span class="c"># Store the dispersed phase particles</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">particles</span> <span class="o">=</span> <span class="n">particles</span>
+    
+    <span class="k">def</span> <span class="nf">simulate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z_0</span><span class="p">,</span> <span class="n">u_inf</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        docstring for simulate</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Get the empirical model parameters</span>
+        <span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">u_slip</span><span class="p">,</span> <span class="n">u_inf</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_variables</span><span class="p">(</span><span class="n">z_0</span><span class="p">,</span> <span class="n">u_inf</span><span class="p">)</span>
+        
+        <span class="c"># Report the results of the calculations to the screen</span>
+        <span class="k">print</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">-- TEXAS A&amp;M OIL-SPILL CALCULATOR (TAMOC) --&#39;</span>
+        <span class="k">print</span> <span class="s">&#39;-- Empirical Plume Model                  --</span><span class="se">\n</span><span class="s">&#39;</span>
+        <span class="n">epm_soln</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">epm_soln</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;Model Parameters:</span><span class="se">\n\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="n">epm_soln</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;   z       = </span><span class="si">%f</span><span class="s"> (m)</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">z_0</span><span class="p">)</span>
+        <span class="n">epm_soln</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;   B       = </span><span class="si">%f</span><span class="s"> (m^4/s^3)</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">B</span><span class="p">)</span>
+        <span class="n">epm_soln</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;   N       = </span><span class="si">%f</span><span class="s"> (s^(-1))</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">N</span><span class="p">)</span>
+        <span class="n">epm_soln</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;   u_slip  = </span><span class="si">%f</span><span class="s"> (m/s)</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">u_slip</span><span class="p">)</span>
+        <span class="n">epm_soln</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;   ua      = </span><span class="si">%f</span><span class="s"> (m/s)</span><span class="se">\n\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">u_inf</span><span class="p">)</span>
+        <span class="n">epm_soln</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;Model Solution:</span><span class="se">\n\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="n">epm_soln</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;   h_T     = </span><span class="si">%f</span><span class="s"> (m)</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">h_T</span><span class="p">(</span><span class="n">z_0</span><span class="p">))</span>
+        <span class="n">epm_soln</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;   h_P     = </span><span class="si">%f</span><span class="s"> (m)</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">h_P</span><span class="p">(</span><span class="n">z_0</span><span class="p">))</span>
+        <span class="n">epm_soln</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;   h_S     = </span><span class="si">%f</span><span class="s"> (m)</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">h_S</span><span class="p">(</span><span class="n">z_0</span><span class="p">,</span> <span class="n">u_inf</span><span class="p">))</span>
+        <span class="n">epm_soln</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;   ua_crit = </span><span class="si">%f</span><span class="s"> (m/s)</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">u_inf_crit</span><span class="p">(</span><span class="n">z_0</span><span class="p">))</span>
+        <span class="k">print</span> <span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">epm_soln</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">save_txt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z0</span><span class="p">,</span> <span class="n">u_inf</span><span class="p">,</span> <span class="n">base_name</span><span class="p">,</span> <span class="n">profile_path</span><span class="p">,</span> <span class="n">profile_info</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save the results to a text file</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Create the header information</span>
+        <span class="n">p_list</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;Empirical Plume Model ASCII output File </span><span class="se">\n</span><span class="s">&#39;</span><span class="p">]</span>
+        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;Created: &#39;</span> <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(</span><span class="s">&#39; &#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;Simulation based on CTD data in:</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">profile_path</span><span class="p">)</span>
+        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">profile_info</span><span class="p">)</span>
+        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;Row Descriptions:</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;    0: release depth (m)</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;    1: trap height h_T (m)</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;    2: peel height h_P (m)</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;    3: separation height h_S (m)</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;    4: critical crossflow u_inf_crit (m/s)</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">p_list</span><span class="p">)</span>
+        
+        <span class="c"># Assemble and write the solution data</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">z0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">h_T</span><span class="p">(</span><span class="n">z0</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">h_P</span><span class="p">(</span><span class="n">z0</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">h_S</span><span class="p">(</span><span class="n">z0</span><span class="p">,</span> <span class="n">u_inf</span><span class="p">),</span> 
+               <span class="bp">self</span><span class="o">.</span><span class="n">u_inf_crit</span><span class="p">(</span><span class="n">z0</span><span class="p">)])</span>
+        <span class="k">print</span> <span class="n">data</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="n">base_name</span> <span class="o">+</span> <span class="s">&#39;.txt&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">base_name</span> <span class="o">+</span> <span class="s">&#39;_header.txt&#39;</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">dat_file</span><span class="p">:</span>
+            <span class="n">dat_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
     
 <div class="viewcode-block" id="Scales.get_variables"><a class="viewcode-back" href="../params/params.Scales.get_variables.html#params.Scales.get_variables">[docs]</a>    <span class="k">def</span> <span class="nf">get_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z0</span><span class="p">,</span> <span class="n">u_inf</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -351,13 +409,13 @@
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../contents.html">
               <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
             </a></p>
 
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -375,21 +433,17 @@
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             >index</a></li>
-<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
-
-          <li><a href="index.html" >Module code</a> &raquo;</li> 
-      </ul>
-    </div>
     <div class="footer">
-        &copy; Copyright 2015, Scott A. Socolofsky.
-      Last updated on Mar 27, 2015.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      &copy;2015, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      
     </div>
+
+    
+
+    
   </body>
 </html>

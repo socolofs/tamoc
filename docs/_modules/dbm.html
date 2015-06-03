@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -16,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.10',
+        VERSION:     '0.1.11',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,11 +23,15 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../index.html" />
-    <link rel="up" title="Module code" href="index.html" /> 
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../contents.html" />
+    <link rel="up" title="Module code" href="index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -37,14 +39,14 @@
              accesskey="I">index</a></li>
 <li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
 
-          <li><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <h1>Source code for dbm</h1><div class="highlight"><pre>
 <span class="sd">&quot;&quot;&quot;</span>
@@ -95,6 +97,7 @@
 <span class="kn">from</span> <span class="nn">tamoc</span> <span class="kn">import</span> <span class="n">dbm_f</span>
 <span class="kn">from</span> <span class="nn">tamoc</span> <span class="kn">import</span> <span class="n">seawater</span>
 
+<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">fsolve</span>
 
@@ -137,8 +140,8 @@
 <span class="sd">        Acentric factors (--)</span>
 <span class="sd">    kh_0 : ndarray, size (nc)</span>
 <span class="sd">        Henry&#39;s law constants at 298.15 K and 101325 Pa (kg/(m^3 Pa))</span>
-<span class="sd">    dH_solR : ndarray, size (nc)</span>
-<span class="sd">        Enthalpies of solution / Ru (K)</span>
+<span class="sd">    neg_dH_solR : ndarray, size (nc)</span>
+<span class="sd">        The negative of the enthalpies of solution / Ru (K).</span>
 <span class="sd">    nu_bar : ndarray, size (nc)</span>
 <span class="sd">        Partial molar volumes at infinite dilution (m^3/mol)</span>
 <span class="sd">    B : ndarray, size (nc)</span>
@@ -160,7 +163,8 @@
 <span class="sd">           [ 1.24260911]])</span>
 <span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">composition</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">composition</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">user_data</span><span class="o">=</span><span class="p">{},</span> 
+                 <span class="n">delta_groups</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">FluidMixture</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
         
         <span class="c"># Check the data type of the inputs and fix if necessary</span>
@@ -178,39 +182,84 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">delta</span> <span class="o">=</span> <span class="n">delta</span>
         
-        <span class="c"># Initialize the chemical composition variables</span>
+        <span class="c"># Store all of the chemical data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">chem_db</span> <span class="o">=</span> <span class="n">chem</span><span class="o">.</span><span class="n">data</span>
+        
+        <span class="c"># Initialize the chemical composition variables used in TAMOC</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nc</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Pc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nc</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Tc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nc</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Vc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nc</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Tb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nc</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Vb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nc</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">omega</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nc</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">kh_0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nc</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dH_solR</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nc</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neg_dH_solR</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nc</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">nu_bar</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nc</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">B</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nc</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dE</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nc</span><span class="p">)</span>
         
         <span class="c"># Fill the chemical composition variables from the chem database</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nc</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">chem</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">composition</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="s">&#39;M&#39;</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">Pc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">chem</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">composition</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="s">&#39;Pc&#39;</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">Tc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">chem</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">composition</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="s">&#39;Tc&#39;</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">omega</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">chem</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">composition</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="s">&#39;omega&#39;</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">kh_0</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">chem</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">composition</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="s">&#39;kh_0&#39;</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">dH_solR</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">chem</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">composition</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="s">&#39;dH_solR&#39;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">chem</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">composition</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="s">&#39;nu_bar&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">0.</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">nu_bar</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">33.e-6</span>
+            <span class="k">if</span> <span class="n">composition</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">in</span> <span class="n">user_data</span><span class="p">:</span>
+                <span class="c"># Get the properties from the user-specified dataset</span>
+                <span class="n">properties</span> <span class="o">=</span> <span class="n">user_data</span><span class="p">[</span><span class="n">composition</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">nu_bar</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">chem</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">composition</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="s">&#39;nu_bar&#39;</span><span class="p">]</span>
+                <span class="c"># Get the properties from the default dataset supplied with </span>
+                <span class="c"># TAMOC</span>
+                <span class="k">if</span> <span class="n">composition</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">in</span> <span class="n">chem</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
+                    <span class="n">properties</span> <span class="o">=</span> <span class="n">chem</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">composition</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">print</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">ERROR:  </span><span class="si">%s</span><span class="s"> is not in the &#39;</span> <span class="o">%</span> <span class="n">composition</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> \
+                          <span class="s">&#39;Chemical Properties database</span><span class="se">\n</span><span class="s">&#39;</span> 
             
-            <span class="k">if</span> <span class="n">chem</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">composition</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="s">&#39;B&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">0.</span><span class="p">:</span>
+            <span class="c"># Store the properties in the object attributes</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">properties</span><span class="p">[</span><span class="s">&#39;M&#39;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Pc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">properties</span><span class="p">[</span><span class="s">&#39;Pc&#39;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Tc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">properties</span><span class="p">[</span><span class="s">&#39;Tc&#39;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Vc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">properties</span><span class="p">[</span><span class="s">&#39;Vc&#39;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Tb</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">properties</span><span class="p">[</span><span class="s">&#39;Tb&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">properties</span><span class="p">[</span><span class="s">&#39;Vb&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">0.</span><span class="p">:</span>
+                <span class="c"># Use Tyn &amp; Calus estimate in Poling et al. (2001)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">Vb</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.285</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Vc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="mf">1.e6</span><span class="p">)</span><span class="o">**</span><span class="mf">1.048</span><span class="p">)</span><span class="o">*</span><span class="mf">1.e-6</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">Vb</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">properties</span><span class="p">[</span><span class="s">&#39;Vb&#39;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">omega</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">properties</span><span class="p">[</span><span class="s">&#39;omega&#39;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">kh_0</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">properties</span><span class="p">[</span><span class="s">&#39;kh_0&#39;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">neg_dH_solR</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">properties</span><span class="p">[</span><span class="s">&#39;-dH_solR&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">properties</span><span class="p">[</span><span class="s">&#39;nu_bar&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">0.</span><span class="p">:</span>
+                <span class="c"># Use empirical equation from Jonas Gros</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">nu_bar</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.148236984</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="mf">6.789136822</span><span class="p">)</span> \
+                                 <span class="o">/</span> <span class="mf">100.</span><span class="o">**</span><span class="mi">3</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">nu_bar</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">properties</span><span class="p">[</span><span class="s">&#39;nu_bar&#39;</span><span class="p">]</span>
+            
+            <span class="k">if</span> <span class="n">properties</span><span class="p">[</span><span class="s">&#39;B&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">0.</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">5.0</span> <span class="o">*</span> <span class="mf">1.e-2</span> <span class="o">/</span> <span class="mf">100.</span><span class="o">**</span><span class="mf">2.</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">chem</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">composition</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="s">&#39;B&#39;</span><span class="p">]</span>
             
-            <span class="k">if</span> <span class="n">chem</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">composition</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="s">&#39;dE&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">0.</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">properties</span><span class="p">[</span><span class="s">&#39;dE&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">0.</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">dE</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">4000.</span> <span class="o">/</span> <span class="mf">0.238846</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">dE</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">chem</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">composition</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="s">&#39;dE&#39;</span><span class="p">]</span>
+        
+        <span class="c"># If we are using group contribution method (Privat and Jaubert 2012) </span>
+        <span class="c"># for the binary interaction matrix, then we must import Aij and Bij</span>
+        <span class="k">if</span> <span class="n">delta_groups</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">calc_delta</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">delta_groups</span> <span class="o">=</span> <span class="n">delta_groups</span>
+            <span class="n">aij_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> 
+                       <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">__file__</span><span class="p">),</span> <span class="s">&#39;data&#39;</span><span class="p">)),</span><span class="s">&#39;Aij.csv&#39;</span><span class="p">)</span>
+            <span class="n">bij_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> 
+                       <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">__file__</span><span class="p">),</span> <span class="s">&#39;data&#39;</span><span class="p">)),</span><span class="s">&#39;Bij.csv&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Aij</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">aij_file</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s">&#39;,&#39;</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1.e6</span> <span class="c"># Pa</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Bij</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">bij_file</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s">&#39;,&#39;</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1.e6</span> <span class="c"># Pa</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">calc_delta</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">delta_groups</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">nc</span><span class="p">,</span> <span class="mi">15</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Aij</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">15</span><span class="p">,</span> <span class="mi">15</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Bij</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">15</span><span class="p">,</span> <span class="mi">15</span><span class="p">))</span>
         
         <span class="c"># Specify that adequate information is contained in the object to </span>
         <span class="c"># run the solubility methods</span>
@@ -340,8 +389,9 @@
 <span class="sd">        Uses the Fortran subroutines in ``./src/dbm_eos.f95``.</span>
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Pc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">omega</span><span class="p">,</span> 
-                             <span class="bp">self</span><span class="o">.</span><span class="n">delta</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Pc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Vc</span><span class="p">,</span> 
+                             <span class="bp">self</span><span class="o">.</span><span class="n">omega</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Aij</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Bij</span><span class="p">,</span> 
+                             <span class="bp">self</span><span class="o">.</span><span class="n">delta_groups</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_delta</span><span class="p">)</span>
     </div>
 <div class="viewcode-block" id="FluidMixture.fugacity"><a class="viewcode-back" href="../dbm/dbm.FluidMixture.fugacity.html#dbm.FluidMixture.fugacity">[docs]</a>    <span class="k">def</span> <span class="nf">fugacity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -369,7 +419,87 @@
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">fugacity</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Pc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">omega</span><span class="p">,</span> 
-                              <span class="bp">self</span><span class="o">.</span><span class="n">delta</span><span class="p">)</span>
+                              <span class="bp">self</span><span class="o">.</span><span class="n">delta</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Aij</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Bij</span><span class="p">,</span> 
+                              <span class="bp">self</span><span class="o">.</span><span class="n">delta_groups</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_delta</span><span class="p">)</span>
+    </div>
+<div class="viewcode-block" id="FluidMixture.viscosity"><a class="viewcode-back" href="../dbm/dbm.FluidMixture.viscosity.html#dbm.FluidMixture.viscosity">[docs]</a>    <span class="k">def</span> <span class="nf">viscosity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the dynamic viscosity of the gas/liquid mixture.</span>
+<span class="sd">        </span>
+<span class="sd">        Computes the dynamic viscosity of gas and liquid using correlation </span>
+<span class="sd">        equations in McCain (1990).  </span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        m : ndarray, size (nc)</span>
+<span class="sd">            masses of each component in a mixture (kg)</span>
+<span class="sd">        T : float</span>
+<span class="sd">            mixture temperature (K)</span>
+<span class="sd">        P : float</span>
+<span class="sd">            mixture pressure (Pa)</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        mu_p : ndarray, size (2)</span>
+<span class="sd">            dynamic viscosity for gas (row 1) and liquid (row 2) (Pa s)</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Compute the items that are not available to the Fortran code</span>
+        <span class="n">rho_w</span> <span class="o">=</span> <span class="n">seawater</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="mf">273.15</span> <span class="o">+</span> <span class="mf">15.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">101325.</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nc</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="p">(</span><span class="n">m0</span><span class="p">,</span> <span class="n">xi0</span><span class="p">,</span> <span class="n">K0</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">equilibrium</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="mf">273.15</span> <span class="o">+</span> <span class="mf">15.</span><span class="p">,</span> <span class="mf">101325.</span><span class="p">)</span>
+            <span class="n">m_o</span> <span class="o">=</span> <span class="n">m0</span><span class="p">[</span><span class="mi">1</span><span class="p">,:]</span>
+            <span class="n">m_g</span> <span class="o">=</span> <span class="n">m0</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">m_o</span> <span class="o">=</span> <span class="n">m</span>
+            <span class="n">m_g</span> <span class="o">=</span> <span class="n">m</span>
+        
+        <span class="c"># Return the viscosity</span>
+        <span class="k">return</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">viscosity</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Pc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Vc</span><span class="p">,</span> 
+                               <span class="bp">self</span><span class="o">.</span><span class="n">omega</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Aij</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Bij</span><span class="p">,</span> 
+                               <span class="bp">self</span><span class="o">.</span><span class="n">delta_groups</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_delta</span><span class="p">,</span> <span class="n">rho_w</span><span class="p">,</span> 
+                               <span class="n">m_g</span><span class="p">,</span> <span class="n">m_o</span><span class="p">)</span>
+    </div>
+<div class="viewcode-block" id="FluidMixture.interface_tension"><a class="viewcode-back" href="../dbm/dbm.FluidMixture.interface_tension.html#dbm.FluidMixture.interface_tension">[docs]</a>    <span class="k">def</span> <span class="nf">interface_tension</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">P</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the interfacial tension between gas/liquid and water</span>
+<span class="sd">        </span>
+<span class="sd">        Computes the interfacial tension between the gas and liquid phases of the</span>
+<span class="sd">        mixture and water.  This is not the gas-liquid interfacial tension. This</span>
+<span class="sd">        method uses equations in Danesh (1998).</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        m : ndarray, size (nc)</span>
+<span class="sd">            masses of each component in a mixture (kg)</span>
+<span class="sd">        T : float</span>
+<span class="sd">            mixture temperature (K)</span>
+<span class="sd">        P : float</span>
+<span class="sd">            mixture pressure (Pa)</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        sigma_p : ndarray, size (2)</span>
+<span class="sd">            interfacial tension for gas (row 1) and liquid (row 2) (N/m)</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Compute the local density of water</span>
+        <span class="n">rho_w</span> <span class="o">=</span> <span class="n">seawater</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
+        
+        <span class="c"># Compute the density of the mixture phases</span>
+        <span class="n">rho_p</span> <span class="o">=</span> <span class="n">FluidMixture</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
+        
+        <span class="c"># Get the density difference in g/cm^3</span>
+        <span class="n">delta_rho</span> <span class="o">=</span> <span class="p">(</span><span class="n">rho_w</span> <span class="o">-</span> <span class="n">rho_p</span><span class="p">)</span> <span class="o">/</span> <span class="mf">1000.</span>
+        
+        <span class="c"># Compute the pseudo critical temperature using mole fractions as </span>
+        <span class="c"># weights</span>
+        <span class="n">xi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mol_frac</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+        <span class="n">Tc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Tc</span> <span class="o">*</span> <span class="n">xi</span><span class="p">)</span>
+        
+        <span class="c"># Return the Interfacial tension</span>
+        <span class="k">return</span> <span class="mf">0.111</span> <span class="o">*</span> <span class="n">delta_rho</span><span class="o">**</span><span class="mf">1.024</span> <span class="o">*</span> <span class="p">(</span><span class="n">T</span> <span class="o">/</span> <span class="n">Tc</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mf">1.25</span><span class="p">)</span> 
     </div>
 <div class="viewcode-block" id="FluidMixture.equilibrium"><a class="viewcode-back" href="../dbm/dbm.FluidMixture.equilibrium.html#dbm.FluidMixture.equilibrium">[docs]</a>    <span class="k">def</span> <span class="nf">equilibrium</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -409,7 +539,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c"># Get the mole fractions and K-factors at equilibrium</span>
         <span class="p">(</span><span class="n">xi</span><span class="p">,</span> <span class="n">K</span><span class="p">)</span> <span class="o">=</span> <span class="n">equilibrium</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Pc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tc</span><span class="p">,</span> 
-                              <span class="bp">self</span><span class="o">.</span><span class="n">omega</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta</span><span class="p">)</span>
+                              <span class="bp">self</span><span class="o">.</span><span class="n">omega</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Aij</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Bij</span><span class="p">,</span> 
+                              <span class="bp">self</span><span class="o">.</span><span class="n">delta_groups</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_delta</span><span class="p">)</span>
         
         <span class="c"># Get the total moles of each molecule (both phases together)</span>
         <span class="n">n_tot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moles</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
@@ -467,7 +598,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c"># Compute the Henry&#39;s law coefficients using the temperature of the</span>
         <span class="c"># seawater</span>
-        <span class="n">kh</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">kh_insitu</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kh_0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dH_solR</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nu_bar</span><span class="p">)</span>
+        <span class="n">kh</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">kh_insitu</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kh_0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">neg_dH_solR</span><span class="p">,</span> 
+                             <span class="bp">self</span><span class="o">.</span><span class="n">nu_bar</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">)</span>
         
         <span class="c"># Compute the mixture fugacity using the temperature of the mixture</span>
         <span class="n">f</span> <span class="o">=</span> <span class="n">FluidMixture</span><span class="o">.</span><span class="n">fugacity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
@@ -478,7 +610,7 @@
         <span class="n">Cs</span><span class="p">[</span><span class="mi">1</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">sw_solubility</span><span class="p">(</span><span class="n">f</span><span class="p">[</span><span class="mi">1</span><span class="p">,:],</span> <span class="n">kh</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">Cs</span>
     </div>
-<div class="viewcode-block" id="FluidMixture.diffusivity"><a class="viewcode-back" href="../dbm/dbm.FluidMixture.diffusivity.html#dbm.FluidMixture.diffusivity">[docs]</a>    <span class="k">def</span> <span class="nf">diffusivity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Ta</span><span class="p">):</span>
+<div class="viewcode-block" id="FluidMixture.diffusivity"><a class="viewcode-back" href="../dbm/dbm.FluidMixture.diffusivity.html#dbm.FluidMixture.diffusivity">[docs]</a>    <span class="k">def</span> <span class="nf">diffusivity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Ta</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">P</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute the diffusivity (m^2/s) of each component of a mixture into </span>
 <span class="sd">        seawater at the given temperature.</span>
@@ -489,6 +621,10 @@
 <span class="sd">            masses of each component in a mixture (kg)</span>
 <span class="sd">        Ta : float</span>
 <span class="sd">            temperature of ambient seawater (K)</span>
+<span class="sd">        Sa : float</span>
+<span class="sd">            salinity of ambient seawater (psu)</span>
+<span class="sd">        P : float</span>
+<span class="sd">            pressure of ambient seawater (Pa)</span>
 <span class="sd">        </span>
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -501,7 +637,11 @@
 <span class="sd">        Uses the Fortran subroutines in ``./src/dbm_eos.f95``.</span>
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">diffusivity</span><span class="p">(</span><span class="n">Ta</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dE</span><span class="p">)</span>
+        <span class="c"># Compute the viscosity of seawater</span>
+        <span class="n">mu</span> <span class="o">=</span> <span class="n">seawater</span><span class="o">.</span><span class="n">mu</span><span class="p">(</span><span class="n">Ta</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
+        
+        <span class="c"># Return the diffusivities</span>
+        <span class="k">return</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">diffusivity</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Vb</span><span class="p">)</span>
     </div>
 <div class="viewcode-block" id="FluidMixture.hydrate_stability"><a class="viewcode-back" href="../dbm/dbm.FluidMixture.hydrate_stability.html#dbm.FluidMixture.hydrate_stability">[docs]</a>    <span class="k">def</span> <span class="nf">hydrate_stability</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">P</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -626,8 +766,10 @@
 <span class="sd">    0.22197023589052</span>
 <span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">composition</span><span class="p">,</span> <span class="n">fp_type</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">FluidParticle</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">composition</span><span class="p">,</span> <span class="n">delta</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">composition</span><span class="p">,</span> <span class="n">fp_type</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">user_data</span><span class="o">=</span><span class="p">{},</span>
+                 <span class="n">delta_groups</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">FluidParticle</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">composition</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">user_data</span><span class="p">,</span>
+                                            <span class="n">delta_groups</span><span class="p">)</span>
         
         <span class="c"># Store the input variables</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fp_type</span> <span class="o">=</span> <span class="n">fp_type</span>
@@ -685,6 +827,64 @@
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">FluidMixture</span><span class="o">.</span><span class="n">fugacity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">)[</span><span class="bp">self</span><span class="o">.</span><span class="n">fp_type</span><span class="p">,</span> <span class="p">:]</span>
+    </div>
+<div class="viewcode-block" id="FluidParticle.viscosity"><a class="viewcode-back" href="../dbm/dbm.FluidParticle.viscosity.html#dbm.FluidParticle.viscosity">[docs]</a>    <span class="k">def</span> <span class="nf">viscosity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the dynamic viscosity of the fluid in the phase given by </span>
+<span class="sd">        `fp_type`</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        m : ndarray, size (nc)</span>
+<span class="sd">            masses of each component in a mixture (kg)</span>
+<span class="sd">        T : float</span>
+<span class="sd">            mixture temperature (K)</span>
+<span class="sd">        P : float</span>
+<span class="sd">            mixture pressure (Pa)</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        mu_p : float</span>
+<span class="sd">            dynamic viscosity (Pa s)</span>
+<span class="sd">        </span>
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        Uses the density method in the `FluidMixture` object, but only returns</span>
+<span class="sd">        the value for the phase given by `fp_type`.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">FluidMixture</span><span class="o">.</span><span class="n">viscosity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">)[</span><span class="bp">self</span><span class="o">.</span><span class="n">fp_type</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+    </div>
+<div class="viewcode-block" id="FluidParticle.interface_tension"><a class="viewcode-back" href="../dbm/dbm.FluidParticle.interface_tension.html#dbm.FluidParticle.interface_tension">[docs]</a>    <span class="k">def</span> <span class="nf">interface_tension</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">P</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the interfacial tension between the particle and water</span>
+<span class="sd">        </span>
+<span class="sd">        Computes the interfacial tension between the particle and water.  This</span>
+<span class="sd">        method uses equations in Danesh (1998).</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        m : ndarray, size (nc)</span>
+<span class="sd">            masses of each component in the particle (kg)</span>
+<span class="sd">        T : float</span>
+<span class="sd">            particle temperature (K)</span>
+<span class="sd">        S : float</span>
+<span class="sd">            salinity of the ambient seawter (psu)</span>
+<span class="sd">        P : float</span>
+<span class="sd">            particle pressure (Pa)</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        sigma_p : float</span>
+<span class="sd">            interfacial tension (N/m)</span>
+<span class="sd">        </span>
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        Uses the density method in the `FluidMixture` object, but only returns</span>
+<span class="sd">        the value for the phase given by `fp_type`.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">FluidMixture</span><span class="o">.</span><span class="n">interface_tension</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">P</span><span class="p">)[</span><span class="bp">self</span><span class="o">.</span><span class="n">fp_type</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
     </div>
 <div class="viewcode-block" id="FluidParticle.solubility"><a class="viewcode-back" href="../dbm/dbm.FluidParticle.solubility.html#dbm.FluidParticle.solubility">[docs]</a>    <span class="k">def</span> <span class="nf">solubility</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -811,6 +1011,8 @@
 <span class="sd">                ambient seawater density (kg/m^3)</span>
 <span class="sd">            mu : float</span>
 <span class="sd">                ambient seawater dynamic viscosity (Pa s)</span>
+<span class="sd">            mu_p : float</span>
+<span class="sd">                dispersed phase dynamic viscosity (Pa s)</span>
 <span class="sd">            sigma : float</span>
 <span class="sd">                interfacial tension (N/m)</span>
 <span class="sd">        </span>
@@ -828,14 +1030,15 @@
         <span class="n">de</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">diameter</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
         <span class="n">rho_p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
         <span class="n">rho</span> <span class="o">=</span> <span class="n">seawater</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">Ta</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
-        <span class="n">mu</span> <span class="o">=</span> <span class="n">seawater</span><span class="o">.</span><span class="n">mu</span><span class="p">(</span><span class="n">Ta</span><span class="p">)</span>
-        <span class="n">sigma</span> <span class="o">=</span> <span class="n">seawater</span><span class="o">.</span><span class="n">sigma</span><span class="p">(</span><span class="n">T</span><span class="p">)</span>
+        <span class="n">mu</span> <span class="o">=</span> <span class="n">seawater</span><span class="o">.</span><span class="n">mu</span><span class="p">(</span><span class="n">Ta</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
+        <span class="n">mu_p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">viscosity</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
+        <span class="n">sigma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">interface_tension</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
         
         <span class="n">shape</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">particle_shape</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">)</span>
         
-        <span class="k">return</span> <span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">de</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">de</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu_p</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">)</span>
     </div>
-<div class="viewcode-block" id="FluidParticle.slip_velocity"><a class="viewcode-back" href="../dbm/dbm.FluidParticle.slip_velocity.html#dbm.FluidParticle.slip_velocity">[docs]</a>    <span class="k">def</span> <span class="nf">slip_velocity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">):</span>
+<div class="viewcode-block" id="FluidParticle.slip_velocity"><a class="viewcode-back" href="../dbm/dbm.FluidParticle.slip_velocity.html#dbm.FluidParticle.slip_velocity">[docs]</a>    <span class="k">def</span> <span class="nf">slip_velocity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">,</span> <span class="n">status</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute the slip velocity (m/s) of a fluid particle.</span>
 <span class="sd">        </span>
@@ -851,6 +1054,9 @@
 <span class="sd">            salinity of ambient seawater (psu)</span>
 <span class="sd">        Ta : float</span>
 <span class="sd">            temperature of ambient seawater (K)</span>
+<span class="sd">        status : int</span>
+<span class="sd">            flag indicating whether the particle is clean (status = 1) or</span>
+<span class="sd">            dirty (status = -1).  Default value is -1.</span>
 <span class="sd">        </span>
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -863,13 +1069,13 @@
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c"># Get the particle properties</span>
-        <span class="n">shape</span><span class="p">,</span> <span class="n">de</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span> <span class="o">=</span> \
+        <span class="n">shape</span><span class="p">,</span> <span class="n">de</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu_p</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span> <span class="o">=</span> \
              <span class="bp">self</span><span class="o">.</span><span class="n">particle_shape</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">)</span>
         
         <span class="k">if</span> <span class="n">shape</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">us</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">us_sphere</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">shape</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="n">us</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">us_ellipsoid</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">)</span>
+            <span class="n">us</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">us_ellipsoid</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu_p</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">us</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">us_spherical_cap</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">rho</span><span class="p">)</span>
         
@@ -903,7 +1109,7 @@
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c"># Get the particle properties</span>
-        <span class="n">shape</span><span class="p">,</span> <span class="n">de</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span> <span class="o">=</span> \
+        <span class="n">shape</span><span class="p">,</span> <span class="n">de</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu_p</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span> <span class="o">=</span> \
              <span class="bp">self</span><span class="o">.</span><span class="n">particle_shape</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">)</span>
         
         <span class="k">if</span> <span class="n">shape</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
@@ -917,7 +1123,7 @@
         
         <span class="k">return</span> <span class="n">A</span>
     </div>
-<div class="viewcode-block" id="FluidParticle.mass_transfer"><a class="viewcode-back" href="../dbm/dbm.FluidParticle.mass_transfer.html#dbm.FluidParticle.mass_transfer">[docs]</a>    <span class="k">def</span> <span class="nf">mass_transfer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">):</span>
+<div class="viewcode-block" id="FluidParticle.mass_transfer"><a class="viewcode-back" href="../dbm/dbm.FluidParticle.mass_transfer.html#dbm.FluidParticle.mass_transfer">[docs]</a>    <span class="k">def</span> <span class="nf">mass_transfer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">,</span> <span class="n">status</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute the mass transfer coefficients (m/s) for each component in a </span>
 <span class="sd">        fluid particle</span>
@@ -934,6 +1140,9 @@
 <span class="sd">            salinity of ambient seawater (psu)</span>
 <span class="sd">        Ta : float</span>
 <span class="sd">            temperature of ambient seawater (K)</span>
+<span class="sd">        status : int</span>
+<span class="sd">            flag indicating whether the particle is clean (status = 1) or</span>
+<span class="sd">            dirty (status = -1).  Default value is -1.</span>
 <span class="sd">        </span>
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -943,29 +1152,31 @@
 <span class="sd">        </span>
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
-<span class="sd">        Uses the Fortran subroutines in ``./src/dbm_eos.f95``.  This method</span>
+<span class="sd">        Uses the Fortran subroutines in ``./src/dbm_phys.f95``.  This method</span>
 <span class="sd">        checks for hydrate stability and returns a reduced mass transfer </span>
 <span class="sd">        coefficient when hydrate shells are predicted to be present.</span>
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c"># Get the particle properties</span>
-        <span class="n">shape</span><span class="p">,</span> <span class="n">de</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span> <span class="o">=</span> \
+        <span class="n">shape</span><span class="p">,</span> <span class="n">de</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu_p</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span> <span class="o">=</span> \
              <span class="bp">self</span><span class="o">.</span><span class="n">particle_shape</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">)</span>
         
         <span class="c"># Compute the slip velocity</span>
         <span class="n">us</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">slip_velocity</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">)</span>
         
+        <span class="c"># Get the diffusivities</span>
+        <span class="n">D</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">diffusivity</span><span class="p">(</span><span class="n">Ta</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
+        
         <span class="c"># Compute the appropriate mass transfer coefficients</span>
         <span class="k">if</span> <span class="n">shape</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">beta</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_sphere</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">diffusivity</span><span class="p">(</span><span class="n">Ta</span><span class="p">))</span>
+            <span class="n">beta</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_sphere</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">D</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">shape</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="n">beta</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_ellipsoid</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">diffusivity</span><span class="p">(</span><span class="n">Ta</span><span class="p">))</span>
+            <span class="n">beta</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_ellipsoid</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">D</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">beta</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_spherical_cap</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> 
-                                            <span class="bp">self</span><span class="o">.</span><span class="n">diffusivity</span><span class="p">(</span><span class="n">Ta</span><span class="p">))</span>
+            <span class="n">beta</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_spherical_cap</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">D</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">beta</span>
     </div>
-<div class="viewcode-block" id="FluidParticle.heat_transfer"><a class="viewcode-back" href="../dbm/dbm.FluidParticle.heat_transfer.html#dbm.FluidParticle.heat_transfer">[docs]</a>    <span class="k">def</span> <span class="nf">heat_transfer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">):</span>
+<div class="viewcode-block" id="FluidParticle.heat_transfer"><a class="viewcode-back" href="../dbm/dbm.FluidParticle.heat_transfer.html#dbm.FluidParticle.heat_transfer">[docs]</a>    <span class="k">def</span> <span class="nf">heat_transfer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">,</span> <span class="n">status</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute the heat transfer coefficient (m/s) for a fluid particle</span>
 <span class="sd">        </span>
@@ -981,6 +1192,9 @@
 <span class="sd">            salinity of ambient seawater (psu)</span>
 <span class="sd">        Ta : float</span>
 <span class="sd">            temperature of ambient seawater (K)</span>
+<span class="sd">        status : int</span>
+<span class="sd">            flag indicating whether the particle is clean (status = 1) or</span>
+<span class="sd">            dirty (status = -1).  Default value is -1.</span>
 <span class="sd">        </span>
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -993,7 +1207,7 @@
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c"># Get the particle properties</span>
-        <span class="n">shape</span><span class="p">,</span> <span class="n">de</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span> <span class="o">=</span> \
+        <span class="n">shape</span><span class="p">,</span> <span class="n">de</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu_p</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span> <span class="o">=</span> \
              <span class="bp">self</span><span class="o">.</span><span class="n">particle_shape</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">)</span>
         
         <span class="c"># Get the thermal conductivity of seawater</span>
@@ -1008,13 +1222,13 @@
         <span class="k">if</span> <span class="n">shape</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">beta</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_sphere</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">shape</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="n">beta</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_ellipsoid</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+            <span class="n">beta</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_ellipsoid</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">beta</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_spherical_cap</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+            <span class="n">beta</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_spherical_cap</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
         
         <span class="k">return</span> <span class="n">beta</span>
     </div>
-<div class="viewcode-block" id="FluidParticle.return_all"><a class="viewcode-back" href="../dbm/dbm.FluidParticle.return_all.html#dbm.FluidParticle.return_all">[docs]</a>    <span class="k">def</span> <span class="nf">return_all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">):</span>
+<div class="viewcode-block" id="FluidParticle.return_all"><a class="viewcode-back" href="../dbm/dbm.FluidParticle.return_all.html#dbm.FluidParticle.return_all">[docs]</a>    <span class="k">def</span> <span class="nf">return_all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">,</span> <span class="n">status</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute all of the dynamic properties of the bubble in an efficient</span>
 <span class="sd">        manner (e.g., minimizing replicate calls to functions).</span>
@@ -1036,6 +1250,9 @@
 <span class="sd">            salinity of ambient seawater (psu)</span>
 <span class="sd">        Ta : float</span>
 <span class="sd">            temperature of ambient seawater (K)</span>
+<span class="sd">        status : int</span>
+<span class="sd">            flag indicating whether the particle is clean (status = 1) or</span>
+<span class="sd">            dirty (status = -1).  Default value is -1.</span>
 <span class="sd">        </span>
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -1067,21 +1284,28 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c"># Ambient properties of seawater</span>
         <span class="n">rho</span> <span class="o">=</span> <span class="n">seawater</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">Ta</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
-        <span class="n">mu</span> <span class="o">=</span> <span class="n">seawater</span><span class="o">.</span><span class="n">mu</span><span class="p">(</span><span class="n">Ta</span><span class="p">)</span>
-        <span class="n">sigma</span> <span class="o">=</span> <span class="n">seawater</span><span class="o">.</span><span class="n">sigma</span><span class="p">(</span><span class="n">T</span><span class="p">)</span>
-        <span class="n">D</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">diffusivity</span><span class="p">(</span><span class="n">Ta</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dE</span><span class="p">)</span>
+        <span class="n">mu</span> <span class="o">=</span> <span class="n">seawater</span><span class="o">.</span><span class="n">mu</span><span class="p">(</span><span class="n">Ta</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
+        <span class="n">sigma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">interface_tension</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
+        <span class="n">D</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">diffusivity</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Vb</span><span class="p">)</span>
         <span class="n">k</span> <span class="o">=</span> <span class="n">seawater</span><span class="o">.</span><span class="n">k</span><span class="p">()</span>
         
         <span class="c"># Particle density, equivalent diameter and shape</span>
-        <span class="n">rho_p</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Pc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">omega</span><span class="p">,</span> 
-                             <span class="bp">self</span><span class="o">.</span><span class="n">delta</span><span class="p">)[</span><span class="bp">self</span><span class="o">.</span><span class="n">fp_type</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">rho_p</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Pc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Vc</span><span class="p">,</span> 
+                              <span class="bp">self</span><span class="o">.</span><span class="n">omega</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Aij</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Bij</span><span class="p">,</span> 
+                              <span class="bp">self</span><span class="o">.</span><span class="n">delta_groups</span><span class="p">,</span> 
+                              <span class="bp">self</span><span class="o">.</span><span class="n">calc_delta</span><span class="p">)[</span><span class="bp">self</span><span class="o">.</span><span class="n">fp_type</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
         <span class="n">de</span> <span class="o">=</span> <span class="p">(</span><span class="mf">6.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">rho_p</span><span class="p">))</span><span class="o">**</span><span class="p">(</span><span class="mf">1.0</span><span class="o">/</span><span class="mf">3.0</span><span class="p">)</span>
         <span class="n">shape</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">particle_shape</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">)</span>
         
+        <span class="c"># Other particle properties</span>
+        <span class="n">mu_p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">viscosity</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
+                
         <span class="c"># Solubility</span>
         <span class="n">f</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">fugacity</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Pc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">omega</span><span class="p">,</span> 
-                           <span class="bp">self</span><span class="o">.</span><span class="n">delta</span><span class="p">)</span>
-        <span class="n">kh</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">kh_insitu</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kh_0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dH_solR</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nu_bar</span><span class="p">)</span>
+                           <span class="bp">self</span><span class="o">.</span><span class="n">delta</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Aij</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Bij</span><span class="p">,</span> 
+                           <span class="bp">self</span><span class="o">.</span><span class="n">delta_groups</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_delta</span><span class="p">)</span>
+        <span class="n">kh</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">kh_insitu</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kh_0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">neg_dH_solR</span><span class="p">,</span> 
+                             <span class="bp">self</span><span class="o">.</span><span class="n">nu_bar</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">)</span>
         <span class="n">Cs</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">sw_solubility</span><span class="p">(</span><span class="n">f</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">fp_type</span><span class="p">,:],</span> <span class="n">kh</span><span class="p">)</span>
         
         <span class="c"># Check hydrate stability</span>
@@ -1097,16 +1321,17 @@
             <span class="n">beta</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_sphere</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">D</span><span class="p">)</span>
             <span class="n">beta_T</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_sphere</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">k</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">elif</span> <span class="n">shape</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="n">us</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">us_ellipsoid</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">)</span>
+            <span class="n">us</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">us_ellipsoid</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu_p</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
             <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">de</span><span class="o">**</span><span class="mi">2</span>
-            <span class="n">beta</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_ellipsoid</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">D</span><span class="p">)</span>
-            <span class="n">beta_T</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_ellipsoid</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">k</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">beta</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_ellipsoid</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">D</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
+            <span class="n">beta_T</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_ellipsoid</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">status</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">us</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">us_spherical_cap</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">rho</span><span class="p">)</span>
             <span class="n">theta_w</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">theta_w_sc</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">)</span>
             <span class="n">A</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">surface_area_sc</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">theta_w</span><span class="p">)</span>
-            <span class="n">beta</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_spherical_cap</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">D</span><span class="p">)</span>
-            <span class="n">beta_T</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_spherical_cap</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">k</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">beta</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_spherical_cap</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">D</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
+            <span class="n">beta_T</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_spherical_cap</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> 
+                                              <span class="n">status</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         
         <span class="k">return</span> <span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">de</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">Cs</span><span class="p">,</span> <span class="n">K_hyd</span> <span class="o">*</span> <span class="n">beta</span><span class="p">,</span> <span class="n">beta_T</span><span class="p">)</span>
     
@@ -1242,6 +1467,62 @@
         
         <span class="k">return</span> <span class="n">rho_p</span>
     </div>
+<div class="viewcode-block" id="InsolubleParticle.viscosity"><a class="viewcode-back" href="../dbm/dbm.InsolubleParticle.viscosity.html#dbm.InsolubleParticle.viscosity">[docs]</a>    <span class="k">def</span> <span class="nf">viscosity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">T</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the dynamic viscosity of the liquid if applicable.</span>
+<span class="sd">        </span>
+<span class="sd">        Computes the dynamic viscosity of gas and liquid using correlation </span>
+<span class="sd">        equations in McCain (1990).  </span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        T : float</span>
+<span class="sd">            mixture temperature (K)</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        mu_p : ndarray, size (2)</span>
+<span class="sd">            dynamic viscosity (Pa s)</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isfluid</span><span class="p">:</span>
+            <span class="c"># Use equation B-53 for dead oil in McCain (1990)</span>
+            <span class="n">TF</span> <span class="o">=</span> <span class="p">(</span><span class="n">T</span> <span class="o">-</span> <span class="mf">273.15</span><span class="p">)</span> <span class="o">*</span> <span class="mf">9.0</span> <span class="o">/</span> <span class="mf">5.0</span> <span class="o">+</span> <span class="mf">32.0</span>
+            <span class="n">mu</span> <span class="o">=</span> <span class="p">(</span><span class="mf">10.</span> <span class="o">**</span> <span class="p">(</span><span class="mf">10.</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.8653</span> <span class="o">-</span> <span class="mf">0.025086</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamma</span> <span class="o">-</span> 
+                 <span class="mf">0.5644</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">TF</span><span class="p">)))</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">/</span> <span class="mf">1000.</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># Particle is solid; thus, viscosity is infinite</span>
+            <span class="n">mu</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+        
+        <span class="k">return</span> <span class="n">mu</span>
+    </div>
+<div class="viewcode-block" id="InsolubleParticle.interface_tension"><a class="viewcode-back" href="../dbm/dbm.InsolubleParticle.interface_tension.html#dbm.InsolubleParticle.interface_tension">[docs]</a>    <span class="k">def</span> <span class="nf">interface_tension</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">T</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the interfacial tension between the particle and water</span>
+<span class="sd">        </span>
+<span class="sd">        Computes the interfacial tension between the particle and water.  For an</span>
+<span class="sd">        insoluble particle, we do not know much about the interfacial tension.</span>
+<span class="sd">        This method currently uses the air-water interfacial tension for lack of</span>
+<span class="sd">        anything better.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        T : float</span>
+<span class="sd">            particle temperature (K)</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        sigma_p : float</span>
+<span class="sd">            interfacial tension (N/m)</span>
+<span class="sd">        </span>
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        Returns the air-water interfacial tension for lack of any better</span>
+<span class="sd">        knowledge about this compound</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">seawater</span><span class="o">.</span><span class="n">sigma</span><span class="p">(</span><span class="n">T</span><span class="p">)</span>
+    </div>
 <div class="viewcode-block" id="InsolubleParticle.mass_by_diameter"><a class="viewcode-back" href="../dbm/dbm.InsolubleParticle.mass_by_diameter.html#dbm.InsolubleParticle.mass_by_diameter">[docs]</a>    <span class="k">def</span> <span class="nf">mass_by_diameter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">de</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute the mass (kg) of an inert fluid particle with equivalent </span>
@@ -1324,6 +1605,8 @@
 <span class="sd">                ambient seawater density (kg/m^3)</span>
 <span class="sd">            mu : float</span>
 <span class="sd">                ambient seawater dynamic viscosity (Pa s)</span>
+<span class="sd">            mu_p : float</span>
+<span class="sd">                dispersed phase dynamic viscosity (Pa s)</span>
 <span class="sd">            sigma : float</span>
 <span class="sd">                interfacial tension (N/m)</span>
 <span class="sd">        </span>
@@ -1341,8 +1624,9 @@
         <span class="n">de</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">diameter</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">)</span>
         <span class="n">rho_p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">)</span>
         <span class="n">rho</span> <span class="o">=</span> <span class="n">seawater</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">Ta</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
-        <span class="n">mu</span> <span class="o">=</span> <span class="n">seawater</span><span class="o">.</span><span class="n">mu</span><span class="p">(</span><span class="n">Ta</span><span class="p">)</span>
-        <span class="n">sigma</span> <span class="o">=</span> <span class="n">seawater</span><span class="o">.</span><span class="n">sigma</span><span class="p">(</span><span class="n">T</span><span class="p">)</span>
+        <span class="n">mu</span> <span class="o">=</span> <span class="n">seawater</span><span class="o">.</span><span class="n">mu</span><span class="p">(</span><span class="n">Ta</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
+        <span class="n">mu_p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">viscosity</span><span class="p">(</span><span class="n">T</span><span class="p">)</span>
+        <span class="n">sigma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">interface_tension</span><span class="p">(</span><span class="n">T</span><span class="p">)</span>
         
         <span class="c"># Compute the particle shape</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isfluid</span><span class="p">:</span>
@@ -1350,9 +1634,9 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">shape</span> <span class="o">=</span> <span class="mi">4</span>
         
-        <span class="k">return</span> <span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">de</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">de</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu_p</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">)</span>
     </div>
-<div class="viewcode-block" id="InsolubleParticle.slip_velocity"><a class="viewcode-back" href="../dbm/dbm.InsolubleParticle.slip_velocity.html#dbm.InsolubleParticle.slip_velocity">[docs]</a>    <span class="k">def</span> <span class="nf">slip_velocity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">):</span>
+<div class="viewcode-block" id="InsolubleParticle.slip_velocity"><a class="viewcode-back" href="../dbm/dbm.InsolubleParticle.slip_velocity.html#dbm.InsolubleParticle.slip_velocity">[docs]</a>    <span class="k">def</span> <span class="nf">slip_velocity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">,</span> <span class="n">status</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute the slip velocity (m/s) of an inert fluid particle.</span>
 <span class="sd">        </span>
@@ -1368,6 +1652,9 @@
 <span class="sd">            salinity of ambient seawater (psu)</span>
 <span class="sd">        Ta : float</span>
 <span class="sd">            temperature of ambient seawater (K)</span>
+<span class="sd">        status : int</span>
+<span class="sd">            flag indicating whether the particle is clean (status = 1) or</span>
+<span class="sd">            dirty (status = -1).  Default value is -1.</span>
 <span class="sd">        </span>
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -1380,13 +1667,13 @@
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c"># Get the particle properties</span>
-        <span class="n">shape</span><span class="p">,</span> <span class="n">de</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span> <span class="o">=</span> \
+        <span class="n">shape</span><span class="p">,</span> <span class="n">de</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu_p</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span> <span class="o">=</span> \
              <span class="bp">self</span><span class="o">.</span><span class="n">particle_shape</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">)</span>
         
         <span class="k">if</span> <span class="n">shape</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">shape</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
             <span class="n">us</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">us_sphere</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">shape</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="n">us</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">us_ellipsoid</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">)</span>
+            <span class="n">us</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">us_ellipsoid</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu_p</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">us</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">us_spherical_cap</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">rho</span><span class="p">)</span>
         
@@ -1420,7 +1707,7 @@
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c"># Get the particle properties</span>
-        <span class="n">shape</span><span class="p">,</span> <span class="n">de</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span> <span class="o">=</span> \
+        <span class="n">shape</span><span class="p">,</span> <span class="n">de</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu_p</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span> <span class="o">=</span> \
              <span class="bp">self</span><span class="o">.</span><span class="n">particle_shape</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">)</span>
         
         <span class="k">if</span> <span class="n">shape</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
@@ -1434,7 +1721,7 @@
         
         <span class="k">return</span> <span class="n">A</span>
     </div>
-<div class="viewcode-block" id="InsolubleParticle.heat_transfer"><a class="viewcode-back" href="../dbm/dbm.InsolubleParticle.heat_transfer.html#dbm.InsolubleParticle.heat_transfer">[docs]</a>    <span class="k">def</span> <span class="nf">heat_transfer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">):</span>
+<div class="viewcode-block" id="InsolubleParticle.heat_transfer"><a class="viewcode-back" href="../dbm/dbm.InsolubleParticle.heat_transfer.html#dbm.InsolubleParticle.heat_transfer">[docs]</a>    <span class="k">def</span> <span class="nf">heat_transfer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">,</span> <span class="n">status</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute the heat transfer coefficients (m/s) for an inert fluid </span>
 <span class="sd">        particle.</span>
@@ -1451,6 +1738,9 @@
 <span class="sd">            salinity of ambient seawater (psu)</span>
 <span class="sd">        Ta : float</span>
 <span class="sd">            temperature of ambient seawater (K)</span>
+<span class="sd">        status : int</span>
+<span class="sd">            flag indicating whether the particle is clean (status = 1) or</span>
+<span class="sd">            dirty (status = -1).  Default value is -1.</span>
 <span class="sd">        </span>
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -1463,7 +1753,7 @@
 <span class="sd">        </span>
 <span class="sd">       &quot;&quot;&quot;</span>
         <span class="c"># Get the particle properties</span>
-        <span class="n">shape</span><span class="p">,</span> <span class="n">de</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span> <span class="o">=</span> \
+        <span class="n">shape</span><span class="p">,</span> <span class="n">de</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu_p</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span> <span class="o">=</span> \
              <span class="bp">self</span><span class="o">.</span><span class="n">particle_shape</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">)</span>
         
         <span class="c"># Get the thermal conductivity of seawater</span>
@@ -1478,13 +1768,13 @@
         <span class="k">if</span> <span class="n">shape</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">shape</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
             <span class="n">beta</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_sphere</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">shape</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="n">beta</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_ellipsoid</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+            <span class="n">beta</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_ellipsoid</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">beta</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_spherical_cap</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+            <span class="n">beta</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_spherical_cap</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
         
         <span class="k">return</span> <span class="n">beta</span>
     </div>
-<div class="viewcode-block" id="InsolubleParticle.return_all"><a class="viewcode-back" href="../dbm/dbm.InsolubleParticle.return_all.html#dbm.InsolubleParticle.return_all">[docs]</a>    <span class="k">def</span> <span class="nf">return_all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">):</span>
+<div class="viewcode-block" id="InsolubleParticle.return_all"><a class="viewcode-back" href="../dbm/dbm.InsolubleParticle.return_all.html#dbm.InsolubleParticle.return_all">[docs]</a>    <span class="k">def</span> <span class="nf">return_all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">,</span> <span class="n">status</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute all of the dynamic properties of an inert fluid particle in </span>
 <span class="sd">        an efficient manner (e.g., minimizing replicate calls to functions).</span>
@@ -1506,6 +1796,9 @@
 <span class="sd">            salinity of ambient seawater (psu)</span>
 <span class="sd">        Ta : float</span>
 <span class="sd">            temperature of ambient seawater (K)</span>
+<span class="sd">        status : int</span>
+<span class="sd">            flag indicating whether the particle is clean (status = 1) or</span>
+<span class="sd">            dirty (status = -1).  Default value is -1.</span>
 <span class="sd">        </span>
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -1530,8 +1823,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c"># Ambient properties of seawater</span>
         <span class="n">rho</span> <span class="o">=</span> <span class="n">seawater</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">Ta</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
-        <span class="n">mu</span> <span class="o">=</span> <span class="n">seawater</span><span class="o">.</span><span class="n">mu</span><span class="p">(</span><span class="n">Ta</span><span class="p">)</span>
-        <span class="n">sigma</span> <span class="o">=</span> <span class="n">seawater</span><span class="o">.</span><span class="n">sigma</span><span class="p">(</span><span class="n">T</span><span class="p">)</span>
+        <span class="n">mu</span> <span class="o">=</span> <span class="n">seawater</span><span class="o">.</span><span class="n">mu</span><span class="p">(</span><span class="n">Ta</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
+        <span class="n">sigma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">interface_tension</span><span class="p">(</span><span class="n">T</span><span class="p">)</span>
         <span class="n">k</span> <span class="o">=</span> <span class="n">seawater</span><span class="o">.</span><span class="n">k</span><span class="p">()</span>
         
         <span class="c"># Particle density, equivalent diameter and shape</span>
@@ -1542,20 +1835,24 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">shape</span> <span class="o">=</span> <span class="mi">4</span>
         
+        <span class="c"># Other particle properties</span>
+        <span class="n">mu_p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">viscosity</span><span class="p">(</span><span class="n">T</span><span class="p">)</span>
+        
         <span class="c"># Shape-specific properties</span>
         <span class="k">if</span> <span class="n">shape</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">shape</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
             <span class="n">us</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">us_sphere</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">)</span>
             <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">de</span><span class="o">**</span><span class="mi">2</span>
             <span class="n">beta_T</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_sphere</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">k</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">elif</span> <span class="n">shape</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="n">us</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">us_ellipsoid</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">)</span>
+            <span class="n">us</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">us_ellipsoid</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu_p</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
             <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">de</span><span class="o">**</span><span class="mi">2</span>
-            <span class="n">beta_T</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_ellipsoid</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">k</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">beta_T</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_ellipsoid</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">status</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">us</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">us_spherical_cap</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">rho</span><span class="p">)</span>
             <span class="n">theta_w</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">theta_w_sc</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">)</span>
             <span class="n">A</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">surface_area_sc</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">theta_w</span><span class="p">)</span>
-            <span class="n">beta_T</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_spherical_cap</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">k</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">beta_T</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_spherical_cap</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> 
+                                              <span class="n">k</span><span class="p">,</span> <span class="n">status</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         
         <span class="k">return</span> <span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">de</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">beta_T</span><span class="p">)</span>
     
@@ -1564,7 +1861,8 @@
 <span class="c"># Functions used by classes to compute gas/liquid equilibrium of a mixture</span>
 <span class="c"># ----------------------------------------------------------------------------</span>
 </div></div>
-<div class="viewcode-block" id="equilibrium"><a class="viewcode-back" href="../dbm/dbm.equilibrium.html#dbm.equilibrium">[docs]</a><span class="k">def</span> <span class="nf">equilibrium</span><span class="p">(</span><span class="n">m_0</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">Pc</span><span class="p">,</span> <span class="n">Tc</span><span class="p">,</span> <span class="n">omega</span><span class="p">,</span> <span class="n">delta</span><span class="p">):</span>
+<div class="viewcode-block" id="equilibrium"><a class="viewcode-back" href="../dbm/dbm.equilibrium.html#dbm.equilibrium">[docs]</a><span class="k">def</span> <span class="nf">equilibrium</span><span class="p">(</span><span class="n">m_0</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">Pc</span><span class="p">,</span> <span class="n">Tc</span><span class="p">,</span> <span class="n">omega</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">Aij</span><span class="p">,</span> <span class="n">Bij</span><span class="p">,</span> <span class="n">delta_groups</span><span class="p">,</span> 
+                <span class="n">calc_delta</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute the equilibrium composition of a mixture using the P-R EOS</span>
 <span class="sd">    </span>
@@ -1636,12 +1934,15 @@
         <span class="n">xi</span> <span class="o">=</span> <span class="n">gas_liq_eq</span><span class="p">(</span><span class="n">m_0</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">K</span><span class="p">)</span>
         
         <span class="c"># Get tha gas and liquid fugacities for the current composition</span>
-        <span class="n">f_gas</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">fugacity</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">xi</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span><span class="o">*</span><span class="n">M</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">Pc</span><span class="p">,</span> <span class="n">Tc</span><span class="p">,</span> <span class="n">omega</span><span class="p">,</span> <span class="n">delta</span><span class="p">)[</span><span class="mi">0</span><span class="p">,:]</span>
-        <span class="n">f_liq</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">fugacity</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">xi</span><span class="p">[</span><span class="mi">1</span><span class="p">,:]</span><span class="o">*</span><span class="n">M</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">Pc</span><span class="p">,</span> <span class="n">Tc</span><span class="p">,</span> <span class="n">omega</span><span class="p">,</span> <span class="n">delta</span><span class="p">)[</span><span class="mi">1</span><span class="p">,:]</span>
+        <span class="n">f_gas</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">fugacity</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">xi</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span><span class="o">*</span><span class="n">M</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">Pc</span><span class="p">,</span> <span class="n">Tc</span><span class="p">,</span> <span class="n">omega</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> 
+                               <span class="n">Aij</span><span class="p">,</span> <span class="n">Bij</span><span class="p">,</span> <span class="n">delta_groups</span><span class="p">,</span> <span class="n">calc_delta</span><span class="p">)[</span><span class="mi">0</span><span class="p">,:]</span>
+        <span class="n">f_liq</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">fugacity</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">xi</span><span class="p">[</span><span class="mi">1</span><span class="p">,:]</span><span class="o">*</span><span class="n">M</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">Pc</span><span class="p">,</span> <span class="n">Tc</span><span class="p">,</span> <span class="n">omega</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> 
+                               <span class="n">Aij</span><span class="p">,</span> <span class="n">Bij</span><span class="p">,</span> <span class="n">delta_groups</span><span class="p">,</span> <span class="n">calc_delta</span><span class="p">)[</span><span class="mi">1</span><span class="p">,:]</span>
         
         <span class="c"># Update K using K = (phi_liq / phi_gas)</span>
         
         <span class="n">K_new</span> <span class="o">=</span> <span class="p">(</span><span class="n">f_liq</span> <span class="o">/</span> <span class="p">(</span><span class="n">xi</span><span class="p">[</span><span class="mi">1</span><span class="p">,:]</span> <span class="o">*</span> <span class="n">P</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="n">f_gas</span> <span class="o">/</span> <span class="p">(</span><span class="n">xi</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span> <span class="o">*</span> <span class="n">P</span><span class="p">))</span>
+        <span class="n">K_new</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">K_new</span><span class="p">)]</span> <span class="o">=</span> <span class="mf">0.</span>
         
         <span class="c"># Calculate the cost function</span>
         <span class="k">return</span> <span class="n">K_new</span>
@@ -1655,7 +1956,7 @@
     <span class="k">while</span> <span class="n">eps</span> <span class="o">&gt;</span> <span class="n">tol</span><span class="p">:</span>
         <span class="n">K</span> <span class="o">=</span> <span class="n">K_0</span><span class="p">[:]</span>
         <span class="n">K_0</span> <span class="o">=</span> <span class="n">find_K</span><span class="p">(</span><span class="n">K</span><span class="p">)</span>
-        <span class="n">eps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">K</span> <span class="o">-</span> <span class="n">K_0</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="n">K</span> <span class="o">*</span> <span class="n">K_0</span><span class="p">))</span>
+        <span class="n">eps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nansum</span><span class="p">((</span><span class="n">K</span> <span class="o">-</span> <span class="n">K_0</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="n">K</span> <span class="o">*</span> <span class="n">K_0</span><span class="p">))</span>
     
     <span class="c"># Return the optimized mixture composition</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">gas_liq_eq</span><span class="p">(</span><span class="n">m_0</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">K</span><span class="p">),</span> <span class="n">K</span><span class="p">)</span>
@@ -1718,7 +2019,7 @@
         <span class="k">return</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">zj</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">+</span> <span class="n">ng</span> <span class="o">*</span> <span class="p">(</span><span class="n">K</span> <span class="o">-</span> <span class="mf">1.</span><span class="p">))))</span>
     
     <span class="c"># Find the gas and liquid fraction for the mixture</span>
-    <span class="n">ng</span> <span class="o">=</span> <span class="n">fsolve</span><span class="p">(</span><span class="n">residual</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
+    <span class="n">ng</span> <span class="o">=</span> <span class="n">fsolve</span><span class="p">(</span><span class="n">residual</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">)</span>
     <span class="n">nl</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">-</span> <span class="n">ng</span>
     
     <span class="c"># Return the mixture composition</span>
@@ -1729,13 +2030,13 @@
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../contents.html">
               <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
             </a></p>
 
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -1753,21 +2054,17 @@
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             >index</a></li>
-<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
-
-          <li><a href="index.html" >Module code</a> &raquo;</li> 
-      </ul>
-    </div>
     <div class="footer">
-        &copy; Copyright 2015, Scott A. Socolofsky.
-      Last updated on Mar 27, 2015.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      &copy;2015, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      
     </div>
+
+    
+
+    
   </body>
 </html>

@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -16,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.10',
+        VERSION:     '0.1.11',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,13 +23,17 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../index.html" />
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../contents.html" />
     <link rel="up" title="Reference" href="reference.html" />
     <link rel="next" title="chemical_properties.load_data" href="../chem/chemical_properties.load_data.html" />
-    <link rel="prev" title="seawater.cp" href="../seawater/seawater.cp.html" /> 
+    <link rel="prev" title="seawater.cp" href="../seawater/seawater.cp.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -45,14 +47,14 @@
              accesskey="P">previous</a> |</li>
 <li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
 
-          <li><a href="reference.html" accesskey="U">Reference</a> &raquo;</li> 
+          <li class="nav-item nav-item-1"><a href="reference.html" accesskey="U">Reference</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="overview-of-chemical-properties">
 <h1>Overview of Chemical Properties<a class="headerlink" href="#overview-of-chemical-properties" title="Permalink to this headline">¶</a></h1>
@@ -62,7 +64,7 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">March 27, 2015</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">June 03, 2015</td>
 </tr>
 </tbody>
 </table>
@@ -74,12 +76,12 @@ chemicals of environmental interest in a global dictionary for use by other
 programs that need to know chemical properties.</p>
 <div class="section" id="parameters">
 <h3>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></h3>
-<p>The chemical data are stored in <tt class="docutils literal"><span class="pre">./data/ChemData.csv</span></tt>. The columns in the 
+<p>The chemical data are stored in <code class="docutils literal"><span class="pre">./data/ChemData.csv</span></code>. The columns in the 
 file are expected to contain a key name, the molecular weight, critical-point
 pressure, critical-point temperature, acentric factor, Henry&#8217;s law constant at
 298.15 K, enthalpy of solution, specific volume at inifinite dilution, and 
 parameters of the diffusivity model.  The data sources and more details are
-documented in the file <tt class="docutils literal"><span class="pre">../docs/ChemData_ReadMe.txt</span></tt>.</p>
+documented in the file <code class="docutils literal"><span class="pre">../docs/ChemData_ReadMe.txt</span></code>.</p>
 </div>
 <div class="section" id="returns">
 <h3>Returns<a class="headerlink" href="#returns" title="Permalink to this headline">¶</a></h3>
@@ -110,7 +112,7 @@ each variable.</dd>
 </div>
 <div class="section" id="see-also">
 <h3>See also<a class="headerlink" href="#see-also" title="Permalink to this headline">¶</a></h3>
-<p><a class="reference internal" href="dbm.html#module-dbm" title="dbm"><tt class="xref py py-obj docutils literal"><span class="pre">dbm</span></tt></a> : Uses these dictionaries to create chemical mixture objects.</p>
+<p><a class="reference internal" href="dbm.html#module-dbm" title="dbm"><code class="xref py py-obj docutils literal"><span class="pre">dbm</span></code></a> : Uses these dictionaries to create chemical mixture objects.</p>
 </div>
 <div class="section" id="examples">
 <h3>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h3>
@@ -131,7 +133,7 @@ each variable.</dd>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="../chem/chemical_properties.load_data.html#chemical_properties.load_data" title="chemical_properties.load_data"><tt class="xref py py-obj docutils literal"><span class="pre">load_data</span></tt></a>(fname)</td>
+<tr class="row-odd"><td><a class="reference internal" href="../chem/chemical_properties.load_data.html#chemical_properties.load_data" title="chemical_properties.load_data"><code class="xref py py-obj docutils literal"><span class="pre">load_data</span></code></a>(fname)</td>
 <td>Load a chemical properties file into memory</td>
 </tr>
 </tbody>
@@ -144,14 +146,15 @@ the import command is:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">chemical_properties</span>
 </pre></div>
 </div>
-<p>then the database is in the <tt class="docutils literal"><span class="pre">chemical_properties</span></tt> namespace.  The <tt class="docutils literal"><span class="pre">TAMOC</span></tt>
+<p>then the database is in the <code class="docutils literal"><span class="pre">chemical_properties</span></code> namespace.  The <code class="docutils literal"><span class="pre">TAMOC</span></code>
 package usually imports using:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">chemical_properties</span> <span class="kn">as</span> <span class="nn">chem</span>
 </pre></div>
 </div>
-<p>so that the database is in the <tt class="docutils literal"><span class="pre">chem</span></tt> namespace.</p>
+<p>so that the database is in the <code class="docutils literal"><span class="pre">chem</span></code> namespace.</p>
 <p>The data loaded into these namespaces is stored in the file:</p>
-<div class="highlight-python"><pre>./data/ChemData.csv</pre>
+<div class="highlight-python"><div class="highlight"><pre>./data/ChemData.csv
+</pre></div>
 </div>
 <p>The format for these data is described in <a class="reference internal" href="../chem/ChemData_ReadMe.html"><em>Sources of Data in ChemData.csv</em></a></p>
 </div>
@@ -161,7 +164,7 @@ package usually imports using:</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../contents.html">
               <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
@@ -176,9 +179,7 @@ package usually imports using:</p>
 <li><a class="reference internal" href="#examples">Examples</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#module-functions">Module Functions</a><ul>
-</ul>
-</li>
+<li><a class="reference internal" href="#module-functions">Module Functions</a></li>
 <li><a class="reference internal" href="#input-data-documentation">Input Data Documentation</a></li>
 </ul>
 </li>
@@ -190,16 +191,18 @@ package usually imports using:</p>
   <h4>Next topic</h4>
   <p class="topless"><a href="../chem/chemical_properties.load_data.html"
                         title="next chapter">chemical_properties.load_data</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../_sources/modules/chem.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/modules/chem.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
 <ul class="this-page-menu">
   <li><a href="/numpy/docs/numpy-docs/modules/chem.rst">Edit page</a></li>
 </ul>
 
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -217,27 +220,20 @@ package usually imports using:</p>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="../chem/chemical_properties.load_data.html" title="chemical_properties.load_data"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="../seawater/seawater.cp.html" title="seawater.cp"
-             >previous</a> |</li>
-<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
-
-          <li><a href="reference.html" >Reference</a> &raquo;</li> 
-      </ul>
-    </div>
     <div class="footer">
-        &copy; Copyright 2015, Scott A. Socolofsky.
-      Last updated on Mar 27, 2015.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      &copy;2015, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      
+      |
+      <a href="../_sources/modules/chem.txt"
+          rel="nofollow">Page source</a></li>
     </div>
+
+    
+
+    
   </body>
 </html>

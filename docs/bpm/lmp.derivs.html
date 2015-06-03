@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -16,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.10',
+        VERSION:     '0.1.11',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,13 +23,17 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../index.html" />
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../contents.html" />
     <link rel="up" title="Reference" href="../modules/reference.html" />
     <link rel="next" title="lmp.calculate" href="lmp.calculate.html" />
-    <link rel="prev" title="bent_plume_model.width_projection" href="bent_plume_model.width_projection.html" /> 
+    <link rel="prev" title="bent_plume_model.width_projection" href="bent_plume_model.width_projection.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -45,14 +47,14 @@
              accesskey="P">previous</a> |</li>
 <li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
 
-          <li><a href="../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
+          <li class="nav-item nav-item-1"><a href="../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="lmp-derivs">
 <h1>lmp.derivs<a class="headerlink" href="#lmp-derivs" title="Permalink to this headline">¶</a></h1>
@@ -62,13 +64,13 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">March 27, 2015</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">June 03, 2015</td>
 </tr>
 </tbody>
 </table>
 <dl class="function">
 <dt id="lmp.derivs">
-<tt class="descclassname">lmp.</tt><tt class="descname">derivs</tt><big>(</big><em>t</em>, <em>q</em>, <em>dtp_ds</em>, <em>q0_local</em>, <em>q1_local</em>, <em>profile</em>, <em>p</em>, <em>particles</em><big>)</big><a class="reference internal" href="../_modules/lmp.html#derivs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lmp.derivs" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">lmp.</code><code class="descname">derivs</code><span class="sig-paren">(</span><em>t</em>, <em>q</em>, <em>dtp_ds</em>, <em>q0_local</em>, <em>q1_local</em>, <em>profile</em>, <em>p</em>, <em>particles</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/lmp.py#L18"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/lmp.html#derivs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lmp.derivs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the derivatives for the system of ODEs for a Lagrangian plume</p>
 <p>Calculates the right-hand-side of the system of ODEs for a Lagrangian 
 plume integral model.  The continuous phase model matches very closely 
@@ -78,12 +80,12 @@ models by Johansen (2000, 2003) and Yapa and Zheng (1997).  This function
 solves for the entire state space except for the dispersed phase particle
 tracking.  Particle tracking is handled by an analytical solution 
 between each numerical time step; the tracking equations are in the 
-<a class="reference internal" href="bent_plume_model.Particle.track.html#bent_plume_model.Particle.track" title="bent_plume_model.Particle.track"><tt class="xref py py-obj docutils literal"><span class="pre">bent_plume_model.Particle.track</span></tt></a> method.</p>
+<a class="reference internal" href="bent_plume_model.Particle.track.html#bent_plume_model.Particle.track" title="bent_plume_model.Particle.track"><code class="xref py py-obj docutils literal"><span class="pre">bent_plume_model.Particle.track</span></code></a> method.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>t</strong> : float</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>t</strong> : float</p>
 <blockquote>
 <div><p>Current value for the independent variable (time in m).</p>
 </div></blockquote>
@@ -91,15 +93,15 @@ between each numerical time step; the tracking equations are in the
 <blockquote>
 <div><p>Current value for the plume state space vector.</p>
 </div></blockquote>
-<p><strong>q0_local</strong> : <a class="reference internal" href="../modules/bpm.html#bent_plume_model.LagElement" title="bent_plume_model.LagElement"><tt class="xref py py-obj docutils literal"><span class="pre">bent_plume_model.LagElement</span></tt></a></p>
+<p><strong>q0_local</strong> : <a class="reference internal" href="../modules/bpm.html#bent_plume_model.LagElement" title="bent_plume_model.LagElement"><code class="xref py py-obj docutils literal"><span class="pre">bent_plume_model.LagElement</span></code></a></p>
 <blockquote>
 <div><p>Object containing the numerical solution at the previous time step</p>
 </div></blockquote>
-<p><strong>q1_local</strong> : <a class="reference internal" href="../modules/bpm.html#bent_plume_model.LagElement" title="bent_plume_model.LagElement"><tt class="xref py py-obj docutils literal"><span class="pre">bent_plume_model.LagElement</span></tt></a></p>
+<p><strong>q1_local</strong> : <a class="reference internal" href="../modules/bpm.html#bent_plume_model.LagElement" title="bent_plume_model.LagElement"><code class="xref py py-obj docutils literal"><span class="pre">bent_plume_model.LagElement</span></code></a></p>
 <blockquote>
 <div><p>Object containing the numerical solution at the current time step</p>
 </div></blockquote>
-<p><strong>profile</strong> : <a class="reference internal" href="../modules/ambient.html#ambient.Profile" title="ambient.Profile"><tt class="xref py py-obj docutils literal"><span class="pre">ambient.Profile</span></tt></a> object</p>
+<p><strong>profile</strong> : <a class="reference internal" href="../modules/ambient.html#ambient.Profile" title="ambient.Profile"><code class="xref py py-obj docutils literal"><span class="pre">ambient.Profile</span></code></a> object</p>
 <blockquote>
 <div><p>The ambient CTD object used by the simulation.</p>
 </div></blockquote>
@@ -110,12 +112,12 @@ plume model.</p>
 </div></blockquote>
 <p><strong>particles</strong> : list of <em class="xref py py-obj">Particle</em> objects</p>
 <blockquote>
-<div><p>List of <a class="reference internal" href="../modules/bpm.html#bent_plume_model.Particle" title="bent_plume_model.Particle"><tt class="xref py py-obj docutils literal"><span class="pre">bent_plume_model.Particle</span></tt></a> objects containing the dispersed 
+<div><p>List of <a class="reference internal" href="../modules/bpm.html#bent_plume_model.Particle" title="bent_plume_model.Particle"><code class="xref py py-obj docutils literal"><span class="pre">bent_plume_model.Particle</span></code></a> objects containing the dispersed 
 phase local conditions and behavior.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>yp</strong> : ndarray</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>yp</strong> : ndarray</p>
 <blockquote class="last">
 <div><p>A vector of the derivatives of the plume state space.</p>
 </div></blockquote>
@@ -123,9 +125,9 @@ phase local conditions and behavior.</p>
 </tr>
 </tbody>
 </table>
-<div class="admonition-see-also admonition seealso">
+<div class="admonition seealso">
 <p class="first admonition-title">See also</p>
-<p class="last"><a class="reference internal" href="lmp.calculate.html#lmp.calculate" title="lmp.calculate"><tt class="xref py py-obj docutils literal"><span class="pre">calculate</span></tt></a></p>
+<p class="last"><a class="reference internal" href="lmp.calculate.html#lmp.calculate" title="lmp.calculate"><code class="xref py py-obj docutils literal"><span class="pre">calculate</span></code></a></p>
 </div>
 </dd></dl>
 
@@ -135,7 +137,7 @@ phase local conditions and behavior.</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../contents.html">
               <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
@@ -146,16 +148,18 @@ phase local conditions and behavior.</p>
   <h4>Next topic</h4>
   <p class="topless"><a href="lmp.calculate.html"
                         title="next chapter">lmp.calculate</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../_sources/bpm/lmp.derivs.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/bpm/lmp.derivs.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
 <ul class="this-page-menu">
   <li><a href="/numpy/docs/numpy-docs/bpm/lmp.derivs.rst">Edit page</a></li>
 </ul>
 
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -173,27 +177,20 @@ phase local conditions and behavior.</p>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="lmp.calculate.html" title="lmp.calculate"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="bent_plume_model.width_projection.html" title="bent_plume_model.width_projection"
-             >previous</a> |</li>
-<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
-
-          <li><a href="../modules/reference.html" >Reference</a> &raquo;</li> 
-      </ul>
-    </div>
     <div class="footer">
-        &copy; Copyright 2015, Scott A. Socolofsky.
-      Last updated on Mar 27, 2015.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      &copy;2015, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      
+      |
+      <a href="../_sources/bpm/lmp.derivs.txt"
+          rel="nofollow">Page source</a></li>
     </div>
+
+    
+
+    
   </body>
 </html>

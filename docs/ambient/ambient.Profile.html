@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -16,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.10',
+        VERSION:     '0.1.11',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,13 +23,17 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../index.html" />
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../contents.html" />
     <link rel="up" title="Reference" href="../modules/reference.html" />
     <link rel="next" title="ambient.Profile.append" href="ambient.Profile.append.html" />
-    <link rel="prev" title="ambient.load_raw" href="ambient.load_raw.html" /> 
+    <link rel="prev" title="ambient.load_raw" href="ambient.load_raw.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -45,14 +47,14 @@
              accesskey="P">previous</a> |</li>
 <li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
 
-          <li><a href="../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
+          <li class="nav-item nav-item-1"><a href="../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="ambient-profile">
 <h1>ambient.Profile<a class="headerlink" href="#ambient-profile" title="Permalink to this headline">¶</a></h1>
@@ -62,13 +64,13 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">March 27, 2015</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">June 03, 2015</td>
 </tr>
 </tbody>
 </table>
 <dl class="class">
 <dt id="ambient.Profile">
-<em class="property">class </em><tt class="descclassname">ambient.</tt><tt class="descname">Profile</tt><big>(</big><em>nc, ztsp=['z', 'temperature', 'salinity', 'pressure'], chem_names=None, err=0.01</em><big>)</big><a class="reference internal" href="../_modules/ambient.html#Profile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ambient.Profile" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">ambient.</code><code class="descname">Profile</code><span class="sig-paren">(</span><em>nc, ztsp=['z', 'temperature', 'salinity', 'pressure'], chem_names=None, err=0.01</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/ambient.py#L68"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/ambient.html#Profile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ambient.Profile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Class object for ambient seawater profiles</p>
 <p>This object collects the data describing the ambient seawater (e.g., 
 CTD data, currents, etc.) and provides efficient access to interpolated
@@ -83,7 +85,7 @@ variable.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>nc</strong> : netCDF dataset object, path, or str</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>nc</strong> : netCDF dataset object, path, or str</p>
 <blockquote>
 <div><p>Provides the information necessary to access the netCDF dataset.  If
 a file path or string is provided, then the netCDF file is opened
@@ -108,16 +110,16 @@ netCDF file except for &#8216;time&#8217;, &#8216;lat&#8217;, &#8216;lon&#8217;,
 <div><p>The interpolation dataset is a subset of the complete raw dataset 
 stored in the netCDF file.  err sets the acceptable level of 
 relative error using linear interpolation expected of the 
-<em class="xref py py-obj">self.get_values</em> method.  This value is passed to the <a class="reference internal" href="ambient.coarsen.html#ambient.coarsen" title="ambient.coarsen"><tt class="xref py py-obj docutils literal"><span class="pre">coarsen</span></tt></a> 
+<em class="xref py py-obj">self.get_values</em> method.  This value is passed to the <a class="reference internal" href="ambient.coarsen.html#ambient.coarsen" title="ambient.coarsen"><code class="xref py py-obj docutils literal"><span class="pre">coarsen</span></code></a> 
 function to provide an optimal interpolation dataset.</p>
 </div></blockquote>
 </td>
 </tr>
 </tbody>
 </table>
-<div class="admonition-see-also admonition seealso">
+<div class="admonition seealso">
 <p class="first admonition-title">See also</p>
-<p class="last"><tt class="xref py py-obj docutils literal"><span class="pre">netCDF4</span></tt>, <a class="reference internal" href="ambient.create_nc_db.html#ambient.create_nc_db" title="ambient.create_nc_db"><tt class="xref py py-obj docutils literal"><span class="pre">create_nc_db</span></tt></a>, <a class="reference internal" href="ambient.fill_nc_db.html#ambient.fill_nc_db" title="ambient.fill_nc_db"><tt class="xref py py-obj docutils literal"><span class="pre">fill_nc_db</span></tt></a>, <a class="reference internal" href="ambient.coarsen.html#ambient.coarsen" title="ambient.coarsen"><tt class="xref py py-obj docutils literal"><span class="pre">coarsen</span></tt></a>, <a class="reference internal" href="../modules/chem.html#module-chemical_properties" title="chemical_properties"><tt class="xref py py-obj docutils literal"><span class="pre">chemical_properties</span></tt></a></p>
+<p class="last"><code class="xref py py-obj docutils literal"><span class="pre">netCDF4</span></code>, <a class="reference internal" href="ambient.create_nc_db.html#ambient.create_nc_db" title="ambient.create_nc_db"><code class="xref py py-obj docutils literal"><span class="pre">create_nc_db</span></code></a>, <a class="reference internal" href="ambient.fill_nc_db.html#ambient.fill_nc_db" title="ambient.fill_nc_db"><code class="xref py py-obj docutils literal"><span class="pre">fill_nc_db</span></code></a>, <a class="reference internal" href="ambient.coarsen.html#ambient.coarsen" title="ambient.coarsen"><code class="xref py py-obj docutils literal"><span class="pre">coarsen</span></code></a>, <a class="reference internal" href="../modules/chem.html#module-chemical_properties" title="chemical_properties"><code class="xref py py-obj docutils literal"><span class="pre">chemical_properties</span></code></a></p>
 </div>
 <p class="rubric">Examples</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">bm54</span> <span class="o">=</span> <span class="n">Profile</span><span class="p">(</span><span class="s">&#39;./test/output/test_BM54.nc&#39;</span><span class="p">,</span> <span class="n">chem_names</span><span class="o">=</span><span class="s">&#39;all&#39;</span><span class="p">)</span>
@@ -136,39 +138,30 @@ function to provide an optimal interpolation dataset.</p>
 <p class="rubric">Attributes</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="8%" />
-<col width="10%" />
-<col width="82%" />
+<col width="7%" />
+<col width="93%" />
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td>nc_open</td>
-<td>bool</td>
-<td>Flag stating whether or not the netCDF dataset is open or closed</td>
+<td>(bool) Flag stating whether or not the netCDF dataset is open or closed</td>
 </tr>
 <tr class="row-even"><td>nchems</td>
-<td>int</td>
-<td>Number of chemicals in <em class="xref py py-obj">chem_names</em></td>
+<td>(int) Number of chemicals in <em class="xref py py-obj">chem_names</em></td>
 </tr>
 <tr class="row-odd"><td>z</td>
-<td>ndarray</td>
-<td>Array containing the complete raw dataset of depths</td>
+<td>(ndarray) Array containing the complete raw dataset of depths</td>
 </tr>
 <tr class="row-even"><td>y</td>
-<td>ndarray</td>
-<td>Array containing the complete raw dataset for T, S, P, and chemicals
-in <em class="xref py py-obj">chem_names</em>.</td>
+<td>(ndarray) Array containing the complete raw dataset for T, S, P, and chemicals in <em class="xref py py-obj">chem_names</em>.</td>
 </tr>
 <tr class="row-odd"><td>f_names</td>
-<td>str list</td>
-<td>concatenated string list containing <em class="xref py py-obj">ztsp</em> and <em class="xref py py-obj">chem_names</em></td>
+<td>(str list) concatenated string list containing <em class="xref py py-obj">ztsp</em> and <em class="xref py py-obj">chem_names</em></td>
 </tr>
 <tr class="row-even"><td>f_units</td>
-<td>str list</td>
-<td>List of units associated with the variables stored in <em class="xref py py-obj">f_names</em>.</td>
+<td>(str list) List of units associated with the variables stored in <em class="xref py py-obj">f_names</em>.</td>
 </tr>
 <tr class="row-odd"><td>f</td>
-<td>object</td>
-<td><tt class="xref py py-obj docutils literal"><span class="pre">scipy.interpolate.interp1d</span></tt> object containing <em class="xref py py-obj">z</em> and <em class="xref py py-obj">y</em>.</td>
+<td>(object) <code class="xref py py-obj docutils literal"><span class="pre">scipy.interpolate.interp1d</span></code> object containing <em class="xref py py-obj">z</em> and <em class="xref py py-obj">y</em>.</td>
 </tr>
 </tbody>
 </table>
@@ -179,25 +172,25 @@ in <em class="xref py py-obj">chem_names</em>.</td>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="ambient.Profile.append.html#ambient.Profile.append" title="ambient.Profile.append"><tt class="xref py py-obj docutils literal"><span class="pre">append</span></tt></a>(data,&nbsp;var_symbols,&nbsp;var_units,&nbsp;comments)</td>
+<tr class="row-odd"><td><a class="reference internal" href="ambient.Profile.append.html#ambient.Profile.append" title="ambient.Profile.append"><code class="xref py py-obj docutils literal"><span class="pre">append</span></code></a>(data,&nbsp;var_symbols,&nbsp;var_units,&nbsp;comments)</td>
 <td>Add data to the netCDF dataset and update the object attributes</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="ambient.Profile.build_interpolator.html#ambient.Profile.build_interpolator" title="ambient.Profile.build_interpolator"><tt class="xref py py-obj docutils literal"><span class="pre">build_interpolator</span></tt></a>()</td>
+<tr class="row-even"><td><a class="reference internal" href="ambient.Profile.build_interpolator.html#ambient.Profile.build_interpolator" title="ambient.Profile.build_interpolator"><code class="xref py py-obj docutils literal"><span class="pre">build_interpolator</span></code></a>()</td>
 <td>Build the interpolator function from the netCDF dataset</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="ambient.Profile.buoyancy_frequency.html#ambient.Profile.buoyancy_frequency" title="ambient.Profile.buoyancy_frequency"><tt class="xref py py-obj docutils literal"><span class="pre">buoyancy_frequency</span></tt></a>(z[,&nbsp;h])</td>
+<tr class="row-odd"><td><a class="reference internal" href="ambient.Profile.buoyancy_frequency.html#ambient.Profile.buoyancy_frequency" title="ambient.Profile.buoyancy_frequency"><code class="xref py py-obj docutils literal"><span class="pre">buoyancy_frequency</span></code></a>(z[,&nbsp;h])</td>
 <td>Calculate the local buoyancy frequency</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="ambient.Profile.close_nc.html#ambient.Profile.close_nc" title="ambient.Profile.close_nc"><tt class="xref py py-obj docutils literal"><span class="pre">close_nc</span></tt></a>()</td>
+<tr class="row-even"><td><a class="reference internal" href="ambient.Profile.close_nc.html#ambient.Profile.close_nc" title="ambient.Profile.close_nc"><code class="xref py py-obj docutils literal"><span class="pre">close_nc</span></code></a>()</td>
 <td>Close the netCDF dataset</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="ambient.Profile.extend_profile_deeper.html#ambient.Profile.extend_profile_deeper" title="ambient.Profile.extend_profile_deeper"><tt class="xref py py-obj docutils literal"><span class="pre">extend_profile_deeper</span></tt></a>(z_new,&nbsp;nc_name[,&nbsp;h_N,&nbsp;...])</td>
+<tr class="row-odd"><td><a class="reference internal" href="ambient.Profile.extend_profile_deeper.html#ambient.Profile.extend_profile_deeper" title="ambient.Profile.extend_profile_deeper"><code class="xref py py-obj docutils literal"><span class="pre">extend_profile_deeper</span></code></a>(z_new,&nbsp;nc_name[,&nbsp;h_N,&nbsp;...])</td>
 <td>Extend the CTD profile to the depth <em class="xref py py-obj">z_new</em> using a fixed buoyancy</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="ambient.Profile.get_units.html#ambient.Profile.get_units" title="ambient.Profile.get_units"><tt class="xref py py-obj docutils literal"><span class="pre">get_units</span></tt></a>(names)</td>
+<tr class="row-even"><td><a class="reference internal" href="ambient.Profile.get_units.html#ambient.Profile.get_units" title="ambient.Profile.get_units"><code class="xref py py-obj docutils literal"><span class="pre">get_units</span></code></a>(names)</td>
 <td>Return a list of units for the variables in <em class="xref py py-obj">names</em></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="ambient.Profile.get_values.html#ambient.Profile.get_values" title="ambient.Profile.get_values"><tt class="xref py py-obj docutils literal"><span class="pre">get_values</span></tt></a>(z,&nbsp;names)</td>
+<tr class="row-odd"><td><a class="reference internal" href="ambient.Profile.get_values.html#ambient.Profile.get_values" title="ambient.Profile.get_values"><code class="xref py py-obj docutils literal"><span class="pre">get_values</span></code></a>(z,&nbsp;names)</td>
 <td>Return values for the variables listed in <em class="xref py py-obj">names</em> interpolated to the</td>
 </tr>
 </tbody>
@@ -208,25 +201,25 @@ in <em class="xref py py-obj">chem_names</em>.</td>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="ambient.Profile.build_interpolator.html#ambient.Profile.build_interpolator" title="ambient.Profile.build_interpolator"><tt class="xref py py-obj docutils literal"><span class="pre">Profile.build_interpolator</span></tt></a>()</td>
+<tr class="row-odd"><td><a class="reference internal" href="ambient.Profile.build_interpolator.html#ambient.Profile.build_interpolator" title="ambient.Profile.build_interpolator"><code class="xref py py-obj docutils literal"><span class="pre">Profile.build_interpolator</span></code></a>()</td>
 <td>Build the interpolator function from the netCDF dataset</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="ambient.Profile.append.html#ambient.Profile.append" title="ambient.Profile.append"><tt class="xref py py-obj docutils literal"><span class="pre">Profile.append</span></tt></a>(data,&nbsp;var_symbols,&nbsp;var_units,&nbsp;...)</td>
+<tr class="row-even"><td><a class="reference internal" href="ambient.Profile.append.html#ambient.Profile.append" title="ambient.Profile.append"><code class="xref py py-obj docutils literal"><span class="pre">Profile.append</span></code></a>(data,&nbsp;var_symbols,&nbsp;var_units,&nbsp;...)</td>
 <td>Add data to the netCDF dataset and update the object attributes</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="ambient.Profile.get_values.html#ambient.Profile.get_values" title="ambient.Profile.get_values"><tt class="xref py py-obj docutils literal"><span class="pre">Profile.get_values</span></tt></a>(z,&nbsp;names)</td>
+<tr class="row-odd"><td><a class="reference internal" href="ambient.Profile.get_values.html#ambient.Profile.get_values" title="ambient.Profile.get_values"><code class="xref py py-obj docutils literal"><span class="pre">Profile.get_values</span></code></a>(z,&nbsp;names)</td>
 <td>Return values for the variables listed in <em class="xref py py-obj">names</em> interpolated to the</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="ambient.Profile.get_units.html#ambient.Profile.get_units" title="ambient.Profile.get_units"><tt class="xref py py-obj docutils literal"><span class="pre">Profile.get_units</span></tt></a>(names)</td>
+<tr class="row-even"><td><a class="reference internal" href="ambient.Profile.get_units.html#ambient.Profile.get_units" title="ambient.Profile.get_units"><code class="xref py py-obj docutils literal"><span class="pre">Profile.get_units</span></code></a>(names)</td>
 <td>Return a list of units for the variables in <em class="xref py py-obj">names</em></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="ambient.Profile.buoyancy_frequency.html#ambient.Profile.buoyancy_frequency" title="ambient.Profile.buoyancy_frequency"><tt class="xref py py-obj docutils literal"><span class="pre">Profile.buoyancy_frequency</span></tt></a>(z[,&nbsp;h])</td>
+<tr class="row-odd"><td><a class="reference internal" href="ambient.Profile.buoyancy_frequency.html#ambient.Profile.buoyancy_frequency" title="ambient.Profile.buoyancy_frequency"><code class="xref py py-obj docutils literal"><span class="pre">Profile.buoyancy_frequency</span></code></a>(z[,&nbsp;h])</td>
 <td>Calculate the local buoyancy frequency</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="ambient.Profile.extend_profile_deeper.html#ambient.Profile.extend_profile_deeper" title="ambient.Profile.extend_profile_deeper"><tt class="xref py py-obj docutils literal"><span class="pre">Profile.extend_profile_deeper</span></tt></a>(z_new,&nbsp;nc_name)</td>
+<tr class="row-even"><td><a class="reference internal" href="ambient.Profile.extend_profile_deeper.html#ambient.Profile.extend_profile_deeper" title="ambient.Profile.extend_profile_deeper"><code class="xref py py-obj docutils literal"><span class="pre">Profile.extend_profile_deeper</span></code></a>(z_new,&nbsp;nc_name)</td>
 <td>Extend the CTD profile to the depth <em class="xref py py-obj">z_new</em> using a fixed buoyancy</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="ambient.Profile.close_nc.html#ambient.Profile.close_nc" title="ambient.Profile.close_nc"><tt class="xref py py-obj docutils literal"><span class="pre">Profile.close_nc</span></tt></a>()</td>
+<tr class="row-odd"><td><a class="reference internal" href="ambient.Profile.close_nc.html#ambient.Profile.close_nc" title="ambient.Profile.close_nc"><code class="xref py py-obj docutils literal"><span class="pre">Profile.close_nc</span></code></a>()</td>
 <td>Close the netCDF dataset</td>
 </tr>
 </tbody>
@@ -239,7 +232,7 @@ in <em class="xref py py-obj">chem_names</em>.</td>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../contents.html">
               <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
@@ -250,16 +243,18 @@ in <em class="xref py py-obj">chem_names</em>.</td>
   <h4>Next topic</h4>
   <p class="topless"><a href="ambient.Profile.append.html"
                         title="next chapter">ambient.Profile.append</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../_sources/ambient/ambient.Profile.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/ambient/ambient.Profile.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
 <ul class="this-page-menu">
   <li><a href="/numpy/docs/numpy-docs/ambient/ambient.Profile.rst">Edit page</a></li>
 </ul>
 
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -277,27 +272,20 @@ in <em class="xref py py-obj">chem_names</em>.</td>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="ambient.Profile.append.html" title="ambient.Profile.append"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="ambient.load_raw.html" title="ambient.load_raw"
-             >previous</a> |</li>
-<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
-
-          <li><a href="../modules/reference.html" >Reference</a> &raquo;</li> 
-      </ul>
-    </div>
     <div class="footer">
-        &copy; Copyright 2015, Scott A. Socolofsky.
-      Last updated on Mar 27, 2015.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      &copy;2015, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      
+      |
+      <a href="../_sources/ambient/ambient.Profile.txt"
+          rel="nofollow">Page source</a></li>
     </div>
+
+    
+
+    
   </body>
 </html>
