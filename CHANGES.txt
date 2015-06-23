@@ -1,3 +1,48 @@
+V0.1.12, June 23, 2015 --
+   . Replaced the methods to compute gas-liquid equilibrium with more stable
+     and robust methods from Michelsen and Mollerup (2007).  For cases in the
+     two-phase region, far away from the phase boundary, the new methods give
+     identical results to previous versions of the model.  As the two-phase
+     mixture approaches the phase boundary, the new methods prevent troubles
+     associated with converging on the gas-liquid partitioning.  Outside the
+     two-phase region, the new methods also give the same results as before, 
+     but using far fewer iterations.
+   . Replaced the methods to compute viscosity with equations from Pedersen
+     et al. (2014).  These methods are less expensive (an equilibrium 
+     calculation is not required) and give reasonable results for light oils
+     and for gases.
+   . Updated the dbm.py classes so that clean and dirty bubbles are handled
+     consistently throughout.  Also, edited the dbm_phys.f95 file so that 
+     spherical and ellipsoidal bubbles and droplets are handled separately 
+     in all cases.  For clean bubbles, three mass transfer methods are 
+     provided for spherical or ellipsoidal particles:  Kumar and Hartland, 
+     Clift et al., and Johnson et al.  For clean gas bubbles, the greater of 
+     Clift et al. or Johnson et al. is returned; for clean liquid droplets, 
+     Kumar and Hartland is used.  For dirty bubbles or droplets, we follow
+     Clift et al.
+   . Updated the seawater equations of state with more accurate methods for
+     air/water surface tension and thermal conductivity from Sharqawy (2010).  
+     The new method for thermal conductivity reports the value in W/(mK);
+     whereas, previous versions of TAMOC used m/s, which is obtained by 
+     k / (rho * cp).  To preserve the model equations, the rho * cp term 
+     has been corrected in dbm.py so that beta (the heat transfer coefficient)
+     still has units of m/s.
+   . Add the Setschenow constant to ChemData.csv and updated 
+     chemical_properties.py so that any columns added to ChemData.csv are 
+     automatically read into the properties database.  They are not auto-
+     matically added to the dbm objects, though, since Python requires all
+     variables to be created explicitly.  Updated the dbm.py to use the data
+     for K_salt from ChemData.csv if available or to estimate the value from
+     Jonas's correlation equation.  The final K_salt is passed to the fortran
+     files when computing the solubility.  
+   . Updated the dbm objects with a flag called `air` to allow the user to 
+     specify that the working fluid is not a hydrocarbon.  In that case, all
+     of the methods work equally well as for hydrocarbon mixtures except for
+     the interfacial tension.  When `air` is false (default value), the 
+     correlation for hydrocarbons is used; otherwise, the air-seawater 
+     surface tension is returned.
+   . Added mass transfer equations for Re < 1.0 using Clift et al. (1978)
+     equation 3-49.
 V0.1.11, June 2015 --
    . Corrected the units for computing Vb in dbm.py for the Tyn & Calus 
      method.

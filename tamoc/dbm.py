@@ -72,6 +72,24 @@ class FluidMixture(object):
         Binary interaction coefficients for the Peng-Robinson equation of 
         state.  If not passed at instantiation, Python will assume a 
         full matrix of zeros.
+    user_data : dict
+        A dictionary of chemical property data.  If not specified, the data
+        loaded from `/tamoc/data/ChemData.csv` by ``chemical_properties`` will
+        be used.  To load a different properties database, use the 
+        ``chemical_properties.load_data`` function to load in a custom 
+        database, and pass that data to this object as `user_data`.
+    delta_groups : ndarray (nc, 15)
+        Provides the group contribution numbers (normalized) for each 
+        component in the mixture for the 15 groups used by the Privat and
+        Jaubert (2012) group contribution method for binary interaction 
+        coefficients.  Default is None, in which case the values in `delta`
+        will be used.
+    air : bool
+        Flag indicating whether or not fluid is air.  The methods for 
+        viscosity and interfacial tension below use correlations developed
+        for hydocarbons.  If `air` is False (default value), these built
+        in methods are used.  If `air` is True, then these methods are 
+        replaced with correlations between air and seawater.
     
     Attributes
     ----------
@@ -97,6 +115,7 @@ class FluidMixture(object):
         White and Houghton (1966) pre-exponential factor (m^2/s)
     dE : ndarray, size (nc)
         Activation energy (J/mol)
+    K_salt : Setschenow constants (m^3/mol)
     
     See Also
     --------
@@ -113,7 +132,7 @@ class FluidMixture(object):
     
     """
     def __init__(self, composition, delta=None, user_data={}, 
-                 delta_groups=None):
+                 delta_groups=None, air=False):
         super(FluidMixture, self).__init__()
         
         # Check the data type of the inputs and fix if necessary
@@ -129,7 +148,14 @@ class FluidMixture(object):
         if delta is None:
             self.delta = np.zeros((self.nc, self.nc))
         else:
-            self.delta = delta
+            if delta.shape[0] is self.nc:
+                if delta.shape[1] is self.nc:
+                    self.delta = delta
+                else:
+                    print '\nError: Delta wrong shape, should be (%d, %d)' % \
+                          (self.nc, self.nc)
+                    print 'Set to np.zeros((%d, %d))\n' % (self.nc, self.nc)
+                    self.delta = np.zeros((self.nc, self.nc))
         
         # Store all of the chemical data
         self.chem_db = chem.data
@@ -147,6 +173,7 @@ class FluidMixture(object):
         self.nu_bar = np.zeros(self.nc)
         self.B = np.zeros(self.nc)
         self.dE = np.zeros(self.nc)
+        self.K_salt = np.zeros(self.nc)
         
         # Fill the chemical composition variables from the chem database
         for i in range(self.nc):
@@ -186,12 +213,18 @@ class FluidMixture(object):
             if properties['B'] < 0.:
                 self.B[i] = 5.0 * 1.e-2 / 100.**2.
             else:
-                self.B[i] = chem.data[composition[i]]['B']
+                self.B[i] = properties['B']
             
             if properties['dE'] < 0.:
                 self.dE[i] = 4000. / 0.238846
             else:
-                self.dE[i] = chem.data[composition[i]]['dE']
+                self.dE[i] = properties['dE']
+            
+            if properties['K_salt'] < 0.:
+                self.K_salt[i] = (-1.345 * self.M[i] + 2799.4 * 
+                                 self.nu_bar[i] +  0.083556) / 1000.
+            else:
+                self.K_salt[i] = properties['K_salt']
         
         # If we are using group contribution method (Privat and Jaubert 2012) 
         # for the binary interaction matrix, then we must import Aij and Bij
@@ -204,6 +237,7 @@ class FluidMixture(object):
                        os.path.dirname(__file__), 'data')),'Bij.csv')
             self.Aij = np.loadtxt(aij_file, delimiter=',') * 1.e6 # Pa
             self.Bij = np.loadtxt(bij_file, delimiter=',') * 1.e6 # Pa
+        
         else:
             self.calc_delta = -1
             self.delta_groups = np.zeros((self.nc, 15))
@@ -216,6 +250,9 @@ class FluidMixture(object):
         
         # Ideal gas constant
         self.Ru = 8.314510  # (J/(kg K))
+        
+        # Store whether or not the fluid is air
+        self.air = air
     
     def masses(self, n):
         """
@@ -375,12 +412,14 @@ class FluidMixture(object):
         """
         Computes the dynamic viscosity of the gas/liquid mixture.
         
-        Computes the dynamic viscosity of gas and liquid using correlation 
-        equations in McCain (1990).  
+        Computes the dynamic viscosity of gas and liquid using correlation
+        equations in Pedersen et al. (2014) "Phase Behavior of Petroleum
+        Reservoir Fluids", 2nd edition, chapter 10.  This function has been
+        tested for non-hydrocarbon mixtures (oxygen, carbon dioxide) and 
+        shown to give reasonable results; hence, the same equations are used
+        for all mixtures.
         
-        Parameters
-        ----------
-        m : ndarray, size (nc)
+        Parameters size (nc)
             masses of each component in a mixture (kg)
         T : float
             mixture temperature (K)
@@ -393,30 +432,20 @@ class FluidMixture(object):
             dynamic viscosity for gas (row 1) and liquid (row 2) (Pa s)
         
         """
-        # Compute the items that are not available to the Fortran code
-        rho_w = seawater.density(273.15 + 15., 0., 101325.)
-        if self.nc > 1:
-            (m0, xi0, K0) = self.equilibrium(m, 273.15 + 15., 101325.)
-            m_o = m0[1,:]
-            m_g = m0[0,:]
-        
-        else:
-            m_o = m
-            m_g = m
-        
-        # Return the viscosity
         return dbm_f.viscosity(T, P, m, self.M, self.Pc, self.Tc, self.Vc, 
                                self.omega, self.delta, self.Aij, self.Bij, 
-                               self.delta_groups, self.calc_delta, rho_w, 
-                               m_g, m_o)
+                               self.delta_groups, self.calc_delta)
     
     def interface_tension(self, m, T, S, P):
         """
         Computes the interfacial tension between gas/liquid and water
         
-        Computes the interfacial tension between the gas and liquid phases of the
-        mixture and water.  This is not the gas-liquid interfacial tension. This
-        method uses equations in Danesh (1998).
+        If `air` is False (thus, assume hydrocarbon), this method computes
+        the interfacial tension between the gas and liquid phases of the
+        mixture and water using equations in Danesh (1998) "PVT and Phase
+        Behaviour Of Petroleum Reservoir Fluids," Chapter 8.  Otherwise, we
+        treat the fluid like air and use the surface tension of seawater from
+        Sharqawy et al. (2010), Table 6.
         
         Parameters
         ----------
@@ -433,44 +462,58 @@ class FluidMixture(object):
             interfacial tension for gas (row 1) and liquid (row 2) (N/m)
         
         """
-        # Compute the local density of water
-        rho_w = seawater.density(T, S, P)
-        
-        # Compute the density of the mixture phases
-        rho_p = FluidMixture.density(self, m, T, P)
-        
-        # Get the density difference in g/cm^3
-        delta_rho = (rho_w - rho_p) / 1000.
-        
-        # Compute the pseudo critical temperature using mole fractions as 
-        # weights
-        xi = self.mol_frac(m)
-        Tc = np.sum(self.Tc * xi)
+        if self.air:
+            # Use the surface tension of seawater with air
+            sigma_0 = seawater.sigma(T, S)
+            sigma = np.array([[sigma_0], [sigma_0]])
+            
+        else:
+            # Compute the local density of water
+            rho_w = seawater.density(T, S, P)
+            
+            # Compute the density of the mixture phases
+            rho_p = FluidMixture.density(self, m, T, P)
+            
+            # Get the density difference in g/cm^3
+            delta_rho = (rho_w - rho_p) / 1000.
+            
+            # Compute the pseudo critical temperature using mole fractions as 
+            # weights
+            xi = self.mol_frac(m)
+            Tc = np.sum(self.Tc * xi)
+            
+            # Get the interfacial tension
+            sigma = 0.111 * delta_rho**1.024 * (T / Tc)**(-1.25) 
         
         # Return the Interfacial tension
-        return 0.111 * delta_rho**1.024 * (T / Tc)**(-1.25) 
+        return sigma
     
-    def equilibrium(self, m, T, P):
+    def equilibrium(self, m, T, P, K=None):
         """
         Computes the equilibrium composition of a gas/liquid mixture.
         
-        Computes the equilibrium composition of a gas/liquid mixture in the 
-        two-phase region of the thermodynamic state space using methods 
-        described by McCain (1990) using K-factor.  
+        Computes the equilibrium composition of a gas/liquid mixture using the
+        procedure in Michelson and Mollerup (2007) and McCain (1990).  
         
         Parameters
         ----------
+        dbm_obj : dbm.FluidMixture or dbm.FluidParticle
+            DBM FluidMixture or FluidParticle object
         m : ndarray, size (nc)
             masses of each component in a mixture (kg)
         T : float
             mixture temperature (K)
         P : float
             mixture pressure (Pa)
+        K : ndarray, size (nc)
+            array of partition coefficients to use as an initial guess for
+            K-factor.  Default is `None`, in which case the standard initial
+            guess will be used.
         
         Returns
         -------
         A tuple containing:
-            
+        
             m : ndarray, size(2, nc)
                 masses of each component in a mixture at equilibrium between 
                 the gas and liquid phases (kg)
@@ -482,14 +525,15 @@ class FluidMixture(object):
         
         Notes
         -----
-        Uses the function `dbm.equilibrium`, which performs an optimization
-        using wrote iteration.
+        Uses the function equil_MM which uses the Michelsen and Mollerup (2007)
+        procedure to find a stable solution
         
         """
         # Get the mole fractions and K-factors at equilibrium
-        (xi, K) = equilibrium(m, T, P, self.M, self.Pc, self.Tc, 
-                              self.omega, self.delta, self.Aij, self.Bij, 
-                              self.delta_groups, self.calc_delta)
+        xi, beta, K = equil_MM(m, T, P, self.M, self.Pc, self.Tc,
+                               self.omega, self.delta, self.Aij, 
+                               self.Bij, self.delta_groups,
+                               self.calc_delta, K)
         
         # Get the total moles of each molecule (both phases together)
         n_tot = self.moles(m)
@@ -497,7 +541,7 @@ class FluidMixture(object):
         # Get the total number of moles in gas phase using the first 
         # component in the mixture (note that this is independent of 
         # which component you pick):
-        ng = (n_tot[0] - (xi[1,0] * np.sum(n_tot)))/(xi[0,0]-xi[1,0])
+        ng = np.abs((n_tot[0] - (xi[1,0] * np.sum(n_tot)))/(xi[0,0]-xi[1,0]))
         
         # Get the moles of each component in gas (line 1) and liquid (line 2) 
         # phase
@@ -548,7 +592,7 @@ class FluidMixture(object):
         # Compute the Henry's law coefficients using the temperature of the
         # seawater
         kh = dbm_f.kh_insitu(T, P, Sa, self.kh_0, self.neg_dH_solR, 
-                             self.nu_bar, self.M)
+                             self.nu_bar, self.M, self.K_salt)
         
         # Compute the mixture fugacity using the temperature of the mixture
         f = FluidMixture.fugacity(self, m, T, P)
@@ -690,6 +734,24 @@ class FluidParticle(FluidMixture):
         Binary interaction coefficients for the Peng-Robinson equation of 
         state.  If not passed at instantiation, Python will assume a 
         full matrix of zeros.
+    user_data : dict
+        A dictionary of chemical property data.  If not specified, the data
+        loaded from `/tamoc/data/ChemData.csv` by ``chemical_properties`` will
+        be used.  To load a different properties database, use the 
+        ``chemical_properties.load_data`` function to load in a custom 
+        database, and pass that data to this object as `user_data`.
+    delta_groups : ndarray (nc, 15)
+        Provides the group contribution numbers (normalized) for each 
+        component in the mixture for the 15 groups used by the Privat and
+        Jaubert (2012) group contribution method for binary interaction 
+        coefficients.  Default is None, in which case the values in `delta`
+        will be used.
+    air : bool
+        Flag indicating whether or not fluid is air.  The methods for 
+        viscosity and interfacial tension below use correlations developed
+        for hydocarbons.  If `air` is False (default value), these built
+        in methods are used.  If `air` is True, then these methods are 
+        replaced with correlations between air and seawater.
     
     Notes
     -----
@@ -716,9 +778,9 @@ class FluidParticle(FluidMixture):
     
     """
     def __init__(self, composition, fp_type=0., delta=None, user_data={},
-                 delta_groups=None):
+                 delta_groups=None, air=False):
         super(FluidParticle, self).__init__(composition, delta, user_data,
-                                            delta_groups)
+                                            delta_groups, air)
         
         # Store the input variables
         self.fp_type = fp_type
@@ -1111,16 +1173,18 @@ class FluidParticle(FluidMixture):
              self.particle_shape(m, T, P, Sa, Ta)
         
         # Compute the slip velocity
-        us = self.slip_velocity(m, T, P, Sa, Ta)
+        us = self.slip_velocity(m, T, P, Sa, Ta, status)
         
         # Get the diffusivities
         D = self.diffusivity(Ta, Sa, P)
         
         # Compute the appropriate mass transfer coefficients
         if shape == 1:
-            beta = dbm_f.xfer_sphere(de, us, rho, mu, D)
+            beta = dbm_f.xfer_sphere(de, us, rho, mu, D, sigma, mu_p, 
+                                     self.fp_type, status)
         elif shape == 2:
-            beta = dbm_f.xfer_ellipsoid(de, us, rho, mu, D, status)
+            beta = dbm_f.xfer_ellipsoid(de, us, rho, mu, D, sigma, mu_p, 
+                                        self.fp_type, status)
         else:
             beta = dbm_f.xfer_spherical_cap(de, us, rho, rho_p, mu, D, status)
         return beta
@@ -1160,18 +1224,21 @@ class FluidParticle(FluidMixture):
              self.particle_shape(m, T, P, Sa, Ta)
         
         # Get the thermal conductivity of seawater
-        k = seawater.k()
+        k = seawater.k(Ta, Sa, P) / (seawater.density(Ta, Sa, P) * 
+            seawater.cp())
         
         # Compute the slip velocity
-        us = self.slip_velocity(m, T, P, Sa, Ta)
+        us = self.slip_velocity(m, T, P, Sa, Ta, status)
         
         # Compute the appropriate heat transfer coefficients.  Assume the 
         # heat transfer has the same form as the mass transfer with the 
         # diffusivity replaced by the thermal conductivity
         if shape == 1:
-            beta = dbm_f.xfer_sphere(de, us, rho, mu, k)
+            beta = dbm_f.xfer_sphere(de, us, rho, mu, k, sigma, mu_p, 
+                                     self.fp_type, status)
         elif shape == 2:
-            beta = dbm_f.xfer_ellipsoid(de, us, rho, mu, k, status)
+            beta = dbm_f.xfer_ellipsoid(de, us, rho, mu, k, sigma, mu_p, 
+                                        self.fp_type, status)
         else:
             beta = dbm_f.xfer_spherical_cap(de, us, rho, rho_p, mu, k, status)
         
@@ -1236,7 +1303,7 @@ class FluidParticle(FluidMixture):
         mu = seawater.mu(Ta, Sa, P)
         sigma = self.interface_tension(m, T, Sa, P)
         D = dbm_f.diffusivity(mu, self.Vb)
-        k = seawater.k()
+        k = seawater.k(Ta, Sa, P) / (rho * seawater.cp())
         
         # Particle density, equivalent diameter and shape
         rho_p = dbm_f.density(T, P, m, self.M, self.Pc, self.Tc, self.Vc, 
@@ -1254,7 +1321,7 @@ class FluidParticle(FluidMixture):
                            self.delta, self.Aij, self.Bij, 
                            self.delta_groups, self.calc_delta)
         kh = dbm_f.kh_insitu(T, P, Sa, self.kh_0, self.neg_dH_solR, 
-                             self.nu_bar, self.M)
+                             self.nu_bar, self.M, self.K_salt)
         Cs = dbm_f.sw_solubility(f[self.fp_type,:], kh)
         
         # Check hydrate stability
@@ -1267,13 +1334,17 @@ class FluidParticle(FluidMixture):
         if shape == 1:
             us = dbm_f.us_sphere(de, rho_p, rho, mu)
             A = np.pi * de**2
-            beta = dbm_f.xfer_sphere(de, us, rho, mu, D)
-            beta_T = dbm_f.xfer_sphere(de, us, rho, mu, k)[0]
+            beta = dbm_f.xfer_sphere(de, us, rho, mu, D, sigma, mu_p, 
+                                     self.fp_type, status)
+            beta_T = dbm_f.xfer_sphere(de, us, rho, mu, k, sigma, mu_p, 
+                                       self.fp_type, status)[0]
         elif shape == 2:
             us = dbm_f.us_ellipsoid(de, rho_p, rho, mu_p, mu, sigma, status)
             A = np.pi * de**2
-            beta = dbm_f.xfer_ellipsoid(de, us, rho, mu, D, status)
-            beta_T = dbm_f.xfer_ellipsoid(de, us, rho, mu, k, status)[0]
+            beta = dbm_f.xfer_ellipsoid(de, us, rho, mu, D, sigma, mu_p, 
+                                        self.fp_type, status)
+            beta_T = dbm_f.xfer_ellipsoid(de, us, rho, mu, k, sigma, mu_p, 
+                                          self.fp_type, status)[0]
         else:
             us = dbm_f.us_spherical_cap(de, rho_p, rho)
             theta_w = dbm_f.theta_w_sc(de, us, rho, mu)
@@ -1314,6 +1385,16 @@ class InsolubleParticle(object):
     co : float
         isothermal compressibility coefficient (default value is 
         2.90075e-9 Pa^(-1))
+    fp_type : integer
+        Defines the fluid type (0 = gas, 1 = liquid) that is expected to be 
+        contained in the particle.  This is needed because the heat transfer
+        equations are different for gas and liquid.  The default value is 1.
+    air : bool
+        Flag indicating whether or not fluid is air.  The methods for 
+        viscosity and interfacial tension below use correlations developed
+        for hydocarbons.  If `air` is False (default value), these built
+        in methods are used.  If `air` is True, then these methods are 
+        replaced with correlations between air and seawater.
     
     Attributes
     ----------
@@ -1344,7 +1425,7 @@ class InsolubleParticle(object):
     
     """
     def __init__(self, isfluid, iscompressible, rho_p=930., gamma=30., 
-                 beta=0.0007, co=2.90075e-9):
+                 beta=0.0007, co=2.90075e-9, fp_type=1, air=False):
         super(InsolubleParticle, self).__init__()
         
         # Store the input variables
@@ -1354,12 +1435,15 @@ class InsolubleParticle(object):
         self.gamma = gamma
         self.beta = beta
         self.co = co
+        self.fp_type = fp_type
         
         # Specify that the particle is not soluble and is therefore treated
-        # like a single substance
+        # like a single substance and store whether or not the fluid is 
+        # like air
         self.issoluble = False
         self.nc = 1
         self.composition = ['inert']
+        self.air = air
     
     def density(self, T, P, Sa, Ta):
         """
@@ -1421,7 +1505,9 @@ class InsolubleParticle(object):
         Computes the dynamic viscosity of the liquid if applicable.
         
         Computes the dynamic viscosity of gas and liquid using correlation 
-        equations in McCain (1990).  
+        equations in McCain (1990).  This is the only method we can use
+        since an `InsolubleParticle` has not `composition`.  If solid, the
+        viscosity is returned as infinite.
         
         Parameters
         ----------
@@ -1449,10 +1535,11 @@ class InsolubleParticle(object):
         """
         Computes the interfacial tension between the particle and water
         
-        Computes the interfacial tension between the particle and water.  For an
-        insoluble particle, we do not know much about the interfacial tension.
-        This method currently uses the air-water interfacial tension for lack of
-        anything better.
+        Computes the interfacial tension between a fluid particle and water.
+        Since for `InsolubleParticle` there is no `composition` we have very
+        little to go on.  This function currently returns the surface 
+        tension of seawater.  If solid, the surface tension is returned as
+        infinite.
         
         Parameters
         ----------
@@ -1470,7 +1557,14 @@ class InsolubleParticle(object):
         knowledge about this compound
         
         """
-        return seawater.sigma(T)
+        if self.isfluid:
+            S = 34.5
+            sigma = seawater.sigma(T, S)
+            
+        else:
+            sigma = np.inf
+        
+        return sigma
     
     def mass_by_diameter(self, de, T, P, Sa, Ta):
         """
@@ -1706,18 +1800,21 @@ class InsolubleParticle(object):
              self.particle_shape(m, T, P, Sa, Ta)
         
         # Get the thermal conductivity of seawater
-        k = seawater.k()
+        k = seawater.k(Ta, Sa, P) / (seawater.density(Ta, Sa, P) * 
+            seawater.cp())
         
         # Compute the slip velocity
-        us = self.slip_velocity(m, T, P, Sa, Ta)
+        us = self.slip_velocity(m, T, P, Sa, Ta, status)
         
         # Compute the appropriate heat transfer coefficients.  Assume the 
         # heat transfer has the same form as the mass transfer with the 
         # diffusivity replaced by the thermal conductivity
         if shape == 1 or shape == 4:
-            beta = dbm_f.xfer_sphere(de, us, rho, mu, k)
+            beta = dbm_f.xfer_sphere(de, us, rho, mu, k, sigma, mu_p, 
+                                     self.fp_type, status)
         elif shape == 2:
-            beta = dbm_f.xfer_ellipsoid(de, us, rho, mu, k, status)
+            beta = dbm_f.xfer_ellipsoid(de, us, rho, mu, k, sigma, mu_p, 
+                                        self.fp_type, status)
         else:
             beta = dbm_f.xfer_spherical_cap(de, us, rho, rho_p, mu, k, status)
         
@@ -1774,7 +1871,7 @@ class InsolubleParticle(object):
         rho = seawater.density(Ta, Sa, P)
         mu = seawater.mu(Ta, Sa, P)
         sigma = self.interface_tension(T)
-        k = seawater.k()
+        k = seawater.k(Ta, Sa, P) / (rho * seawater.cp())
         
         # Particle density, equivalent diameter and shape
         rho_p = self.density(T, P, Sa, Ta)
@@ -1791,11 +1888,13 @@ class InsolubleParticle(object):
         if shape == 1 or shape == 4:
             us = dbm_f.us_sphere(de, rho_p, rho, mu)
             A = np.pi * de**2
-            beta_T = dbm_f.xfer_sphere(de, us, rho, mu, k)[0]
+            beta_T = dbm_f.xfer_sphere(de, us, rho, mu, k, sigma, mu_p, 
+                                       self.fp_type, status)[0]
         elif shape == 2:
             us = dbm_f.us_ellipsoid(de, rho_p, rho, mu_p, mu, sigma, status)
             A = np.pi * de**2
-            beta_T = dbm_f.xfer_ellipsoid(de, us, rho, mu, k, status)[0]
+            beta_T = dbm_f.xfer_ellipsoid(de, us, rho, mu, k, sigma, mu_p, 
+                                          self.fp_type, status)[0]
         else:
             us = dbm_f.us_spherical_cap(de, rho_p, rho)
             theta_w = dbm_f.theta_w_sc(de, us, rho, mu)
@@ -1810,25 +1909,29 @@ class InsolubleParticle(object):
 # Functions used by classes to compute gas/liquid equilibrium of a mixture
 # ----------------------------------------------------------------------------
 
-def equilibrium(m_0, T, P, M, Pc, Tc, omega, delta, Aij, Bij, delta_groups, 
-                calc_delta):
+def equil_MM(m, T, P, M, Pc, Tc, omega, delta, Aij, Bij, delta_groups, 
+             calc_delta, K_0):
     """
     Compute the equilibrium composition of a mixture using the P-R EOS
     
     Computes the mole fraction composition for the gas and liquid phases of a
     mixture using the Peng-Robinson equation of state and the methodology
-    described in McCain (1990), Properties of Petroleum Fluids, 2nd Edition,
-    PennWell Publishing Company, Tulsa, Oklahoma.
+    described Michelsen and Mollerup (2007).  For multiphase equilibria, 
+    the successive substition method is used.  If several iterations suggest
+    a single-phase equilibrium, stability analysis is used to verify the
+    prediction.  If a two-phase result is predicted by stability analysis, 
+    successive substitution continues with an improved estimate for the 
+    composition; otherwise, the single phase result is returned.
     
     Parameters
     ----------
+    m : ndarray, size (nc)
+        masses of each component present in the whole mixture (gas plus 
+        liquid, kg)
     T : float
         temperature (K)
     P : float
         pressure (Pa)
-    m_0 : ndarray, size (nc)
-        masses of each component present in the whole mixture (gas plus 
-        liquid, kg)
     M : ndarray, size (nc)
         Molecular weights (kg/mol)
     Pc : ndarray, size (nc)
@@ -1839,8 +1942,24 @@ def equilibrium(m_0, T, P, M, Pc, Tc, omega, delta, Aij, Bij, delta_groups,
         Acentric factors (--)
     delta : ndarray, size (nc, nc)
         Binary interaction coefficients for the Peng-Robinson equation of 
-        state.  If not passed at instantiation, Python will assume a 
-        full matrix of zeros.
+        state.  
+    Aij : ndarray, (15, 15)
+        Coefficients in matrix A_ij for the group contribution method for 
+        delta_ij following Privat and Jaubert (2012)
+    Bij : ndarray, (15, 15)
+        Coefficients in matrix A_ij for the group contribution method for 
+        delta_ij following Privat and Jaubert (2012)
+    delta_groups : ndarray, (nc, 15)
+        Specification of the fractional groups for each component of the 
+        mixture for the group contribution method of Privat and Jaubert (2012)
+        for delta_ij
+    calc_delta : int
+        Flag specifying whether or not to compute delta_ij (1: True, -1: 
+        False) using the group contribution method
+    K_0 : ndarray, size (nc)
+        Initial guess for the partition coefficients.  If K = None, this 
+        function will use initial estimates from Wilson (see Michelsen and
+        Mollerup, 2007, page 259, equation 26)
     
     Returns
     -------
@@ -1857,14 +1976,414 @@ def equilibrium(m_0, T, P, M, Pc, Tc, omega, delta, Aij, Bij, delta_groups,
     Convergence uses a squared relative error as in McCain (1990).
     
     """
-    # Compute the residual of the K-factor optimization
-    def find_K(K):
+    # Compute the some constant properties of the mixture
+    moles = m / M
+    zi = moles / np.sum(moles)
+    f_zi = dbm_f.fugacity(T, P, zi*M, M, Pc, Tc, omega, delta, 
+                          Aij, Bij, delta_groups, calc_delta)[0,:]
+    phi_zi = f_zi / (zi * P)
+    di = np.log(zi) + np.log(phi_zi)
+    
+    # Compute the total Gibbs energy
+    def gibbs_energy(K):
+        """
+        Compute the Gibbs energy difference between the feed and the current
+        composition given by K using equation (41) on page 266
+        
+        """
+        # Use the current K to compute the equilibrium
+        xi, beta = gas_liq_eq(m, M, K)
+        
+        # Compute the fugacities of the new composition
+        f_gas = dbm_f.fugacity(T, P, xi[0,:]*M, M, Pc, Tc, omega, delta, 
+                               Aij, Bij, delta_groups, calc_delta)[0,:]
+        f_liq = dbm_f.fugacity(T, P, xi[1,:]*M, M, Pc, Tc, omega, delta, 
+                               Aij, Bij, delta_groups, calc_delta)[1,:]
+        
+        # Get the fugacity coefficients
+        phi_gas = f_gas / (xi[0,:] * P)
+        phi_liq = f_liq / (xi[1,:] * P)
+        
+        # Compute the reduced tangent plane distances
+        tpdx = np.nansum(xi[1,:] * (np.log(xi[1,:]) + np.log(phi_liq) - di))
+        tpdy = np.nansum(xi[0,:] * (np.log(xi[0,:]) + np.log(phi_gas) - di))
+        
+        # Compute the change in the total Gibbs energy between the feed 
+        # and this present composition
+        DG_RT = (1. - beta) * tpdx + beta * tpdy
+        
+        # Return the results
+        return (DG_RT, tpdx, tpdy, phi_liq, phi_gas)
+    
+    # Get an initial estimate for the K-factors 
+    if K_0 is None:
+        # Use equation (26) on page 259 of Michelson and Mollerup (2007)
+        K = np.exp(5.37 * (1. + omega) * (1 - Tc / T)) / (P / Pc)
+    else:
+        K = K_0
+    
+    # Follow the procedure on page 266ff of Michelsen and Mollerup (2007).    
+    # Start with three iterations of successive substitution
+    K, beta, xi, exit_flag = successive_substitution(
+                                 m, T, P, 3, M, Pc, Tc, omega, delta, Aij, 
+                                 Bij, delta_groups, calc_delta, K)
+    
+    # Test the outcome of the iterations to determine how to proceed.
+    if exit_flag > 0:
+        # The solution already converged.
+        pass
+        
+    else:
+        # The solution has not converged, test the total Gibbs energy to 
+        # decide how to proceed.
+        Delta_G_RT, tpdx, tpdy, phi_liq, phi_gas = gibbs_energy(K)
+        
+        if Delta_G_RT < 0.:
+            # The current composition is converging on a lower total Gibbs
+            # energy than the feed: continue successive substitution
+            K, beta, xi, exit_flag = successive_substitution(
+                                         m, T, P, np.inf, M, Pc, Tc, omega, 
+                                         delta, Aij, Bij,  delta_groups, 
+                                         calc_delta, K)
+        
+        elif tpdy < 0.:
+            # The feed is unstable, but we need a better estimate of K
+            K = phi_zi / phi_gas
+            
+            # Continue with successive substitution
+            K, beta, xi, exit_flag = successive_substitution(
+                                         m, T, P, np.inf, M, Pc, Tc, omega, 
+                                         delta, Aij, Bij,  delta_groups, 
+                                         calc_delta, K)
+        
+        elif tpdx < 0.:
+            # The feed is unstable, but we need a better estimate of K
+            K = phi_liq / phi_zi
+            
+            # Continue with successive substitution
+            K, beta, xi, exit_flag = successive_substitution(
+                                         m, T, P, np.inf, M, Pc, Tc, omega, 
+                                         delta, Aij, Bij,  delta_groups, 
+                                         calc_delta, K)
+        
+        else:
+            # We are not sure of the stability of the feed:  do stability 
+            # analysis.
+            K, phases = stability_analysis(m, T, P, M, Pc, Tc, omega, delta, 
+                                           Aij, Bij, delta_groups, 
+                                           calc_delta, K, zi, di)
+            if phases > 1:
+                # The mixture is unstable, continue with successive 
+                # substitution
+                K, beta, xi, exit_flag = successive_substitution(
+                                             m, T, P, np.inf, M, Pc, Tc, omega, 
+                                             delta, Aij, Bij,  delta_groups, 
+                                             calc_delta, K)
+            else:
+                # The mixture is single-phase
+                xi = np.zeros((2,len(zi)))
+                if beta > 0.5:
+                    beta = 1.
+                    xi[0,:] = zi
+                else:
+                    beta = 0.
+                    xi[1,:] = zi
+        
+    # Return the optimized mixture composition
+    return (xi, beta, K)
+
+
+def stability_analysis(m, T, P, M, Pc, Tc, omega, delta, Aij, Bij, 
+                       delta_groups, calc_delta, K, zi, di):
+    """
+    Perform stability analysis to determine the stability of a mixture
+    
+    Perform the stabilty analysis steps in Michelsen and Mollerup (2007) to
+    determine the stability of a mixture
+    
+    Parameters
+    ----------
+    m : ndarray, size (nc)
+        masses of each component present in the whole mixture (gas plus 
+        liquid, kg)
+    T : float
+        temperature (K)
+    P : float
+        pressure (Pa)
+    M : ndarray, size (nc)
+        Molecular weights (kg/mol)
+    Pc : ndarray, size (nc)
+        Critical pressures (Pa)
+    Tc : ndarray, size (nc)
+        Critical temperatures (K)
+    omega : ndarray, size (nc)
+        Acentric factors (--)
+    delta : ndarray, size (nc, nc)
+        Binary interaction coefficients for the Peng-Robinson equation of 
+        state.  
+    Aij : ndarray, (15, 15)
+        Coefficients in matrix A_ij for the group contribution method for 
+        delta_ij following Privat and Jaubert (2012)
+    Bij : ndarray, (15, 15)
+        Coefficients in matrix A_ij for the group contribution method for 
+        delta_ij following Privat and Jaubert (2012)
+    delta_groups : ndarray, (nc, 15)
+        Specification of the fractional groups for each component of the 
+        mixture for the group contribution method of Privat and Jaubert (2012)
+        for delta_ij
+    calc_delta : int
+        Flag specifying whether or not to compute delta_ij (1: True, -1: 
+        False) using the group contribution method
+    K : ndarray, size (nc)
+        Initial guess for the partition coefficients.  If K = None, this 
+        function will use initial estimates from Wilson (see Michelsen and
+        Mollerup, 2007, page 259, equation 26)
+    di : ndarray, size (nc)
+        Mixture property ln(zi) + ln(phi(zi)); see Michelsen and Mollerup
+        (2007) page 267
+    
+    Returns
+    -------
+    K : ndarray, size (nc)
+        Updated estimate for the K factors after stability analysis
+    phases : int
+        Number of phases in the mixture (2 or 1)
+    
+    """
+    # Compute the mole fraction of the total mixture (called the feed in 
+    # Michelsen and Mollerup, 2007)
+    moles = m / M
+    zi = moles / np.sum(moles)
+    
+    # Generate the update equation for finding W that minizes tm
+    def update_W(W, phase):
+        """
+        Update the estimate for W to minimize the modified tangent plane
+        distance using equation (51) on page 269 in Michelsen and Mollerup
+        (2007).
+        
+        Parameters
+        ----------
+        W : ndarray
+            Current estimate for the composition (moles)
+        phase : int
+            Assumed phase of the current composition (0: gas, 1: liquid)
+        
+        Returns
+        -------
+        W : ndarray
+            New estimate of W (moles)
+        
+        """
+        # Compute the fugacity at the composition W
+        f_W = dbm_f.fugacity(T, P, W*M, M, Pc, Tc, omega, delta, 
+                             Aij, Bij, delta_groups, calc_delta)[phase,:]
+        
+        # Get the fugacity coefficients
+        phi_W = f_W / (W / np.sum(W) * P)
+        
+        # Return a new estimate of W
+        return np.exp(di - np.log(phi_W))
+    
+    # Compute the modified tangent plane distance
+    def compute_tm(W, phase):
+        """
+        Compute the modified tangent plane distance according to equation (44)
+        in Michelsen and Mollerup (2007) on page 267.
+        
+        Parameters
+        ----------
+        W : ndarray
+            Current estimate for the composition (moles)
+        phase : int
+            Assumed phase of the current composition (0: gas, 1: liquid)
+        
+        Returns
+        -------
+        tm : float
+            Value of the modified tangent plane distance for the given 
+            composition
+        
+        """
+        # Compute the fugacity at the composition W
+        f_W = dbm_f.fugacity(T, P, W*M, M, Pc, Tc, omega, delta, 
+                             Aij, Bij, delta_groups, calc_delta)[phase,:]
+        
+        # Get the fugacity coefficients
+        phi_W = f_W / (W / np.sum(W) * P)
+        
+        # Return the modified tangent plane distance, equation (44) on page
+        # 267
+        return 1. + np.sum(W * (np.log(W) + np.log(phi_W) - di - 1.))
+    
+    # Solve for W that minimizes tm
+    def find_W(W, phase):
+        """
+        Use successive subsitution to find a value of W that minimizes the 
+        modified tangent plane distance and then interpret the stability 
+        of the mixture based on the results
+        
+        Parameters
+        ----------
+        W : ndarray
+            Current estimate for the composition (moles)
+        phase : int
+            Assumed phase of the current composition (0: gas, 1: liquid)
+        
+        Returns
+        -------
+        W : ndarray
+            Final value of the composition (moles)
+        tm : float
+            Value of the modified tangent plane distance for the final
+            composition
+        phases : int
+            Evaluation of the number of phases present (1 or 2)
+        
+        """
+        # Set up the iteration parameters
+        tol = 1.49012e-8  # Use same value as for K-factor iteration
+        err = 1.
+        
+        # Iterate to find the final value of W
+        while err > tol:
+            # Save the current value of W
+            W_old = W
+            
+            # Update the estimate of W using the update equation
+            W = update_W(W, phase)
+            
+            # Compute the current error based on the squared relative error 
+            # suggested by McCain (1990)
+            err = np.nansum((W - W_old)**2 / (W * W_old))
+        
+        # Compute the modified tangent plane distance
+        tm = compute_tm(W, phase)
+        
+        # Determine if we found a trivial solution
+        trivial = True
+        for i in range(len(W)):
+            if np.abs(W[i] - zi[i]) > 1.e-5:
+                trivial = False
+        
+        # Evaluate the stability of the outcome
+        if tm < 0. and not trivial:
+            phases = 2
+        else:
+            # This is a single-phase gas
+            phases = 1
+        
+        # Return the results
+        return (W, tm, phases)
+    
+    # First, do a test vapor-like composition
+    W = K * zi
+    W_gas, tm_gas, phases_gas = find_W(W, 0)
+    K_gas = W_gas / (zi * np.sum(W_gas))
+    
+    # Second, to be conservative, do a test liquid-like composition
+    W = zi / K
+    W_liq, tm_liq, phases_liq = find_W(W, 1)
+    K_liq = zi * np.sum(W_liq)/ W_liq
+    
+    if phases_gas > 1 and phases_liq > 1:
+        if tm_gas < tm_liq:
+            # This is probably a gas-like mixture
+            K = K_gas
+            phases = 2
+        else:
+            # This is probably a liquid-like mixture
+            K = K_liq
+            phases = 2
+    elif phases_gas > 1:
+        # This is proably a gas-like mixture
+        K = K_gas
+        phases = 2
+    elif phases_liq > 1:
+        # This is probably a liquid-like mixture
+        K = K_liq
+        phases = 2
+    else:
+        # This is a single-phase mixture
+        K = np.ones(K.shape)
+        phases = 1
+    
+    # Return the results
+    return (K, phases)
+
+
+def successive_substitution(m, T, P, max_iter, M, Pc, Tc, omega, delta, Aij, 
+                            Bij, delta_groups, calc_delta, K):
+    """
+    Find K-factors by successive substitution
+    
+    Iterate to find a converged set of K-factors defining the gas/liquid
+    partitioning of a mixture using successive substitution.  We follow the
+    algorithms in McCain (1990) and Michelsen and Mollerup (2007).
+    
+    Parameters
+    ----------
+    m : ndarray, size (nc)
+        masses of each component present in the whole mixture (gas plus 
+        liquid, kg)
+    T : float
+        temperature (K)
+    P : float
+        pressure (Pa)
+    max_iter : int
+        maximum number of iterations to perform.  Set max_iter to np.inf if
+        you want the algorithm to guarantee to iterate to convergenece, but 
+        beware that you may create an infinite loop.
+    M : ndarray, size (nc)
+        Molecular weights (kg/mol)
+    Pc : ndarray, size (nc)
+        Critical pressures (Pa)
+    Tc : ndarray, size (nc)
+        Critical temperatures (K)
+    omega : ndarray, size (nc)
+        Acentric factors (--)
+    delta : ndarray, size (nc, nc)
+        Binary interaction coefficients for the Peng-Robinson equation of 
+        state.  
+    Aij : ndarray, (15, 15)
+        Coefficients in matrix A_ij for the group contribution method for 
+        delta_ij following Privat and Jaubert (2012)
+    Bij : ndarray, (15, 15)
+        Coefficients in matrix A_ij for the group contribution method for 
+        delta_ij following Privat and Jaubert (2012)
+    delta_groups : ndarray, (nc, 15)
+        Specification of the fractional groups for each component of the 
+        mixture for the group contribution method of Privat and Jaubert (2012)
+        for delta_ij
+    calc_delta : int
+        Flag specifying whether or not to compute delta_ij (1: True, -1: 
+        False) using the group contribution method
+    K : ndarray, size (nc)
+        Initial guess for the partition coefficients.  If K = None, this 
+        function will use initial estimates from Wilson (see Michelsen and
+        Mollerup, 2007, page 259, equation 26)
+    
+    Returns
+    -------
+    K : ndarray, size (nc)
+        Final value of the K-factors
+    
+    Notes
+    -----
+    The max_iter parameter controls how many steps of successive iteration 
+    are performed.  If set to None, the iteration will continue until the 
+    tolerance criteria are reached.
+    
+    """
+    # Update the value of K using successive substitution
+    def update_K(K):
         """
         Evaluate the update function for finding K-factor
         
         Evaluates the new guess for K-factor following McCain (1990) p. 426, 
         equation (15-23) as explained on p. 430 in connection with equation
-        (15-31).
+        (15-31).  This is the update equation for the successive substitution 
+        method.
         
         Parameters
         ----------
@@ -1880,7 +2399,7 @@ def equilibrium(m_0, T, P, M, Pc, Tc, omega, delta, Aij, Bij, delta_groups,
         
         """
         # Get the mixture composition for the current K-factor
-        xi = gas_liq_eq(m_0, M, K)
+        xi, beta = gas_liq_eq(m, M, K)
         
         # Get tha gas and liquid fugacities for the current composition
         f_gas = dbm_f.fugacity(T, P, xi[0,:]*M, M, Pc, Tc, omega, delta, 
@@ -1889,89 +2408,256 @@ def equilibrium(m_0, T, P, M, Pc, Tc, omega, delta, Aij, Bij, delta_groups,
                                Aij, Bij, delta_groups, calc_delta)[1,:]
         
         # Update K using K = (phi_liq / phi_gas)
-        
         K_new = (f_liq / (xi[1,:] * P)) / (f_gas / (xi[0,:] * P))
+        
+        # If the mass of any component in the mixture is zero, make sure the
+        # K-factor is also zero.
         K_new[np.isnan(K_new)] = 0.
         
-        # Calculate the cost function
+        # Return an updated value for the K factors
         return K_new
-            
-    # Get an initial guess for the K-factors using equation B-61 on p. 525
-    K_0 = np.exp(5.37 * (1. + omega) * (1 - Tc / T)) / (P / Pc)
     
-    # Find the optimal values of K-factor following algorithm on p. 430
-    tol = 1.49012e-8
-    eps = 1.0
-    while eps > tol:
-        K = K_0[:]
-        K_0 = find_K(K)
-        eps = np.nansum((K - K_0)**2 / (K * K_0))
+    # Set up the iteration parameters
+    tol = 1.49012e-8  # Suggested by McCain (1990)
+    err = 1.
+    steps = 0
     
-    # Return the optimized mixture composition
-    return (gas_liq_eq(m_0, M, K), K)
+    # Iterate to find the final value of K factor using successive 
+    # substitution
+    while err > tol and steps < max_iter:
+        # Save the current value of K factor
+        K_old = K
+        
+        # Update the estimate of K factor using the present fugacities
+        K = update_K(K)
+        
+        # Compute the current error basedo on the squared relative error 
+        # suggested by McCain (1990) and update the iteration counter
+        err = np.nansum((K - K_old)**2 / (K * K_old))
+        steps += 1
+    
+    # Determine the exit condition
+    if steps < max_iter:
+        # This solution is converged
+        flag = 1
+    else:
+        flag = 0
+    
+    # Update the equilibrium and return the last value of K-factor
+    xi, beta = gas_liq_eq(m, M, K)
+    return (K, beta, xi, flag)
+
 
 def gas_liq_eq(m, M, K):
     """
-    Compute the gas and liquid partitioning from K-factor
+    docstring for gas_liq_eq(m, M, K)
     
-    Compute the gas and liquid mole fractions of a mixture based on the 
-    K-factor.
-    
-    Parameters
-    ----------
-    m : ndarray, size (nc)
-        masses of each component present in the whole mixture (gas plus 
-        liquid, kg)
-    M : ndarray, size (nc)
-        Molecular weights (kg/mol)
-    K : ndarray, size (nc)
-        K-factor for partitioning between liquid and gas (--)
-    
-    Returns
-    -------
-    xi : ndarray, size(2, nc)
-        Mole fraction of each component in the mixture.  Row 1 gives the
-        values for the gas phase and Row 2 gives the values for the liquid 
-        phase (--)
-    
-    Notes
-    -----
-    The solution is based on equations (12-17) and (12-18) in McCain (1990) 
-    p. 355.
-    
-    These equations require iteration until the correct ratio of moles of gas 
-    to moles of liquid is obtained.  This iteration is performed by 
-    `scipy.optimize.fzero`, and computes the excess liquid content
-    for a given guess of the gas fraction until converged to zero.
+    This function follows the procedure in Michelsen and Mollerup (2007).  
+    All page and equation numbers below are from this book unless otherwise
+    noted.
     
     """
-    # Compute the mole fraction of the total mixture
+    # Compute the mole fraction of the total mixture (called the feed in 
+    # Michelsen and Mollerup, 2007)
     moles = m / M
-    zj = moles / np.sum(moles)
+    zi = moles / np.sum(moles)
     
-    # Compute the residual of the liquid composition
-    def residual(ng):
+    # Define the Rachford-Rice equation for beta as gas fraction.  
+    def g_gas(beta):
         """
-        Evaluate the liquid composition for the current guess of gas fraction
+        Computes the Rachford-Rice equation, which defines a root-finding 
+        problem for the solution of beta, the gas mole fraction in a mixture.
         
-        The equation to find the composition of a mixture using K-factor
-        requires iteration until the correct ratio of moles of gas to moles of
-        liquid is obtained.  This function computes the excess liquid content
-        for a given guess of the gas fraction.
+        Parameters
+        ----------
+        zi, K = global variables defined in the main function containing this
+            subfunction
+        beta : float
+            Fraction of moles of mixture in the gas phase, [0, 1]
         
-        Input variables are:
-            m, M, K, moles  = constant and inherited from above
-            ng = current guess of moles gas fraction in the mixture (--)
+        Returns
+        -------
+        g : float
+            Value of the Rachford-Rice equation, the roots of which are the
+            solution for beta.
         
         """
-        # Compute the composition and return the residual error
-        return (1. - np.sum(zj / (1. + ng * (K - 1.))))
+        # Equation (2) on page 252
+        return np.sum(zi * (K - 1.) / (1. + beta * (K - 1.)))
     
-    # Find the gas and liquid fraction for the mixture
-    ng = fsolve(residual, 0.7)
-    nl = 1. - ng
+    def g_gas_p(beta):
+        """
+        Computes the gradient of the Rachford-Rice equation, which defines a 
+        root-finding problem for the solution of beta, the gas mole fraction 
+        in a mixture.  This is used in Newton's method to solve for beta.
+        
+        Parameters
+        ----------
+        zi, K = global variables defined in the main function containing this
+            subfunction
+        beta : float
+            Fraction of moles of mixture in the gas phase, [0, 1]
+        
+        Returns
+        -------
+        gp : float
+            Value of the beta-derivative of the Rachford-Rice equation
+        
+        """
+        # Equation (3) on page 252
+        return -np.sum(zi * (K - 1.)**2 / (1. + beta * (K - 1.))**2)
     
-    # Return the mixture composition
-    return np.array([zj / (1. + nl * (1./ K - 1.)), 
-                     zj / (1. + ng * (K - 1.))])
+    # Define the Rachford-Rice equation for beta_l as liquid fraction
+    def g_liq(beta_l):
+        """
+        Computes the modified Rachford-Rice equation, which defines a root-
+        finding problem for the solution of beta_l, the liquid mole fraction 
+        in a mixture.
+        
+        Parameters
+        ----------
+        zi, K = global variables defined in the main function containing this
+            subfunction
+        beta_l : float
+            Fraction of moles of mixture in the liquid phase, [0, 1]
+        
+        Returns
+        -------
+        g : float
+            Value of the modified Rachford-Rice equation, the roots of which 
+            are the solution for beta_l.
+        
+        """
+        # Unlabeled equation at bottom of page 253
+        return np.sum(zi * (K - 1.) / (K - beta_l * (K - 1.)))
+    
+    def g_liq_p(beta_l):
+        """
+        Computes the gradient of the modified Rachford-Rice equation, which 
+        defines a root-finding problem for the solution of beta_l, the liquid
+        mole fraction in a mixture.  This is used in Newton's method to solve 
+        for beta_l.
+        
+        Parameters
+        ----------
+        zi, K = global variables defined in the main function containing this
+            subfunction
+        beta_l : float
+            Fraction of moles of mixture in the liquid phase, [0, 1]
+        
+        Returns
+        -------
+        gp : float
+            Value of the beta_l-derivative of the modified Rachford-Rice 
+            equation
+        
+        """
+        # beta_l-derivative of g_liq equation above
+        return np.sum(zi * (K - 1.)**2 / (K - beta_l * (K - 1.))**2)    
+    
+    # Step i on page 253:  Check conditions of equations (4) and (5) on page
+    # 252 for existence of a two-phase solution for beta.
+    if np.sum(zi * K) - 1. <= 0.:
+        # This is subcooled liquid, beta = 0.
+        beta = 0.
+        
+    elif 1. - np.sum(zi / K) > 0.:
+        # This is superheated gas, beta = 1.
+        beta = 1.
+        
+    else:
+        # This is a two-phase mixture, so search for a solution for beta.
+        # Step ii on page 253:  Check equations (7) and (8) on page 253 for 
+        # tighter bounds on the possible range of beta
+        beta_min = 0.
+        beta_max = 1.
+        for i in range(len(K)):
+            if K[i] >= 1.:
+                # Apply equation (7) on page 253
+                beta_min = np.max([beta_min, (K[i] * zi[i] - 1.) / 
+                           (K[i] - 1.)])
+            else:
+                # Apply equation (8) on page 253
+                beta_max = np.min([beta_max, (1. - zi[i]) / (1. - K[i])])
+        
+        # Step iii on page 254:  Select initial guess for beta and choose
+        # which objective function to use.
+        beta = 0.5 * (beta_min + beta_max)
+        
+        if g_gas(beta) > 0.:
+            # Solution will have excess gas
+            eqn = 1.
+            beta_var = beta
+            
+        else:
+            # Solution will have excess liquid
+            eqn = 0.
+            beta_var = 1. - beta
+            beta_min_hold = beta_min
+            beta_min = 1. - beta_max
+            beta_max = 1. - beta_min_hold
+        
+        # Set up an iterative solution to find beta_var using the optimal
+        # root-finding equation
+        tol = 1.e-6
+        err = 1.
+        
+        while err > tol:
+            # Store the current value of beta
+            beta_old = beta_var
+            
+            # Step iv on page 254:  Perform one iteration of Newton's method
+            # and narrow the possible range of the solution for beta
+            if eqn > 0.:
+                # Use the equations for excess gas
+                g = g_gas(beta_var)
+                gp = g_gas_p(beta_var)
+                beta_new = beta_var - g / gp
+                
+                # Update bounds on beta per criteria in step iv on page 254
+                if g > 0:
+                    beta_min = beta_var
+                else:
+                    beta_max = beta_var
+            
+            else:
+                # Use the equations for excess liqiud
+                g = g_liq(beta_var)
+                gp = g_liq_p(beta_var)
+                beta_new = beta_var - g / gp
+                
+                # Update bounds on beta per criteria in step iv on page 254
+                if g > 0:
+                    beta_max = beta_var
+                else:
+                    beta_min = beta_var
+            
+            # Step v on page 254:  Select best update for beta
+            if beta_new <= beta_max and beta_new >= beta_min:
+                # Newton's method is converging within allowable range for 
+                # the independent variable:  use the Newton's method solution
+                beta_var = beta_new
+                
+            else:
+                # Newton's method suggests a solution outside the allowable
+                # range for the independent variable:  use the bisection
+                # method
+                beta_var = 0.5 * (beta_min + beta_max)
+            
+            # Step vi on page 254:  Check for convergence.  Note:  do not
+            # use relative error since beta_var ~= 0 is an acceptable answer
+            err = np.abs(beta_var - beta_old)
+        
+        # Get the final value of beta, the gas mole fraction
+        if eqn > 0.:
+            # We found beta
+            beta = beta_var
+        else:
+            # We found beta_l
+            beta = 1. - beta_var
+    
+    # Return the solution for gas and liquid mole fractions based on the
+    # converged value of beta
+    return (np.array([zi * K / (1. + beta * (K - 1.)), 
+                     zi / (1. + beta * (K - 1.))]), beta)
 

@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.11',
+        VERSION:     '0.1.12',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -64,7 +64,7 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">June 03, 2015</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">June 23, 2015</td>
 </tr>
 </tbody>
 </table>
@@ -76,12 +76,24 @@ chemicals of environmental interest in a global dictionary for use by other
 programs that need to know chemical properties.</p>
 <div class="section" id="parameters">
 <h3>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></h3>
-<p>The chemical data are stored in <code class="docutils literal"><span class="pre">./data/ChemData.csv</span></code>. The columns in the 
-file are expected to contain a key name, the molecular weight, critical-point
-pressure, critical-point temperature, acentric factor, Henry&#8217;s law constant at
-298.15 K, enthalpy of solution, specific volume at inifinite dilution, and 
-parameters of the diffusivity model.  The data sources and more details are
+<p>The chemical data are stored in <code class="docutils literal"><span class="pre">./data/ChemData.csv</span></code>. Header rows are 
+denoted by <em class="xref py py-obj">%, the last row of pure text is taken as the variable names and
+the last row with `()</em> is taken as the units.  The columns should include
+a key name (e.g., <em class="xref py py-obj">methane</em>), the molecular weight, critical point pressure, 
+critical point temperature, critical point molar volumne, boiling point 
+temperature, molar volume at the boiling point, acentric factor, Henry&#8217;s
+law constant at 298.15 K, negative of the enthalpy of dilution, parameters
+<em class="xref py py-obj">B</em> and <em class="xref py py-obj">dE</em> of the diffusivity model (no longer used), and the Setschenow 
+salting out correction constant.  For unknown parameter values, use -9999.</p>
+<p>For the data provided by the model, the data sources and more details are
 documented in the file <code class="docutils literal"><span class="pre">../docs/ChemData_ReadMe.txt</span></code>.</p>
+<p>This module can read in any number of columns of chemical data, including
+parameters not listed below.  Units will be converted to standard SI units, 
+and the conversion function will operate on g/mol, psia, F, mol/dm^3 atm, 
+mm^2/s, cal/mol.  The returned variables <em class="xref py py-obj">units</em> will contain the final
+set of units for the database.  To use the TAMOC suite of models, all 
+parameters listed below in the <em class="xref py py-obj">data</em> dictionary must be provided with the
+variable names listed.</p>
 </div>
 <div class="section" id="returns">
 <h3>Returns<a class="headerlink" href="#returns" title="Permalink to this headline">¶</a></h3>
@@ -102,13 +114,23 @@ kh_0 : Henry&#8217;s law constant at 298.15 K (kg/(m^3 Pa))
 -dH_solR : negative of the enthalpy of solution / R (K)
 nu_bar : specific volume at infinite dilution (m^3/mol)
 B : diffusivity model coefficient (m^2/s)
-dE : diffusivity model coefficient (J/mol)</div></blockquote>
+dE : diffusivity model coefficient (J/mol)
+K_salt : Setschenow salting out correction for solubility (m^3/mol)</div></blockquote>
 </dd>
 <dt>units <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
 <dd>dictionary with the same keys as the variables names listed above 
 (e.g., M, Pc, Tc, etc.) linked to a string containing the units of 
 each variable.</dd>
 </dl>
+</div>
+<div class="section" id="notes">
+<h3>Notes<a class="headerlink" href="#notes" title="Permalink to this headline">¶</a></h3>
+<p>To use the properties database distributed by TAMOC, simply import this 
+file in Python:  the results will be returned in <em class="xref py py-obj">chemical_properties.data</em>.
+To import a user-defined database of properties, use the function 
+<code class="docutils literal"><span class="pre">load_data</span></code> provided in this module.  The <code class="docutils literal"><span class="pre">TAMOC</span></code> suite of models will
+pull data from both the default and any user-specified database, giving
+first priority to parameter keys found in the user-specified database.</p>
 </div>
 <div class="section" id="see-also">
 <h3>See also<a class="headerlink" href="#see-also" title="Permalink to this headline">¶</a></h3>
@@ -175,6 +197,7 @@ package usually imports using:</p>
 <li><a class="reference internal" href="#chemical-properties-script">Chemical Properties Script</a><ul>
 <li><a class="reference internal" href="#parameters">Parameters</a></li>
 <li><a class="reference internal" href="#returns">Returns</a></li>
+<li><a class="reference internal" href="#notes">Notes</a></li>
 <li><a class="reference internal" href="#see-also">See also</a></li>
 <li><a class="reference internal" href="#examples">Examples</a></li>
 </ul>

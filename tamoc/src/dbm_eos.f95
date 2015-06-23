@@ -64,7 +64,8 @@ subroutine density(nc, T, P, mass, Mol_wt, Pc, Tc, Vc, omega, delta, Aij, &
     !         been provided (1 = yes, -1 = no)
     ! 
     ! Output variable is:
-    !     rho = numpy array of the density [gas, liquid] of the mixture (kg/m^3)
+    !     rho = numpy array of the density [gas, liquid] of the mixture 
+    !         (kg/m^3)
     ! 
     ! S. Socolofsky
     ! June 2013
@@ -518,26 +519,23 @@ end subroutine mole_fraction
 ! Other Fluid Properties (viscosity, surface tension, etc...)
 ! ----------------------------------------------------------------------------
 
-subroutine viscosity(nc, T, P, mass, Mol_wt, Pc, Tc, Vc, omega, delta, Aij, &
-    &                Bij, delta_groups, calc_delta, rho_w, m_g, m_o, &
-    &                mu)
+subroutine viscosity(nc, T, P, mass, Mol_wt, Pc, Tc, Vc, omega, delta, Aij, & 
+    &              Bij, delta_groups, calc_delta, &
+    &              mu)
     
-    ! Compute the viscosity of a petroleum fluid
     !
-    ! Computes the dynamic viscosity of a hydrocarbon fluid.  For the gas 
-    ! phase, equation B-26 in McCain (1990) is used.  For the liquid phase, 
-    ! the dead oil viscosity is computed from equation B-53 in McCain (1990).
-    ! If the oil contains some gas, then the gas-oil ratio is evaluated and
-    ! the saturated oil viscosity is computed from equation B-54 in McCain
-    ! (1990).  If the pressure is above the bubble-point pressure, the 
-    ! saturated oil viscosity will be an over-estimate.  However, this 
-    ! amount of over-estimate is likely within the range of a factor of 2.
-    ! It is already observed that these equations can deviate for dead oil
-    ! by a factor of up to 10 (e.g., pure benzene); hence, this function 
-    ! returns the saturated oil viscosity in the case that gas is present 
-    ! dissolved in the liquid phase.
+    ! Computes the viscosity of a petroleum fluid
     !
-    ! Input Variables are:
+    ! Computes the viscosity of the given fluid mixture for the gas and 
+    ! liquid phases following the method in Pedersen et al. "Phase Behavior
+    ! of Petroleum Reservoir Fluids", 2nd edition, Chapeter 10.
+    !
+    ! This method correlates the viscosity of the mixture to the viscosity
+    ! of methane taken at a specialized corresponding state.  The function
+    ! has the properties of methane hard-wired so that any mixture can be
+    ! evaluated.
+    !
+    ! Input variables:
     !     nc = number of components in the mixture
     !     T = temperature (K)
     !     P = pressure (Pa)
@@ -555,98 +553,169 @@ subroutine viscosity(nc, T, P, mass, Mol_wt, Pc, Tc, Vc, omega, delta, Aij, &
     !         component in the mixture (--)
     !     calc_groups = flag indicating whether or not delta_groups has 
     !         been provided (1 = yes, -1 = no)
-    !     rho_w = density of seawater (kg/m^3)
-    !     m_g = array of masses for each component in the gas phase at 
-    !           equilibrium under standard conditions (15 deg C, 1 atm) (kg)
-    !     m_o = array of masses for each component in the oil phase at
-    !           equilibrium under standard conditions (15 deg C, 1 atm) (kg)
     ! 
     ! Output variable is:
-    !     mu = array containing the gas and liquid phase viscosities for the
-    !          mixture (Pa s)
-    ! 
-    ! S. Socolofsky
-    ! June 2013
-    ! 
+    !     mu = numpy array of the viscosity [gas, liquid] of the mixture
+    !         (Pa s)    
+    !
+    ! S. Socolofsky 
+    ! June 2015
+    !
     
     use EOS_Constants
     implicit none
     
     ! Declare the input and output variable types
     integer, intent(in) :: nc, calc_delta
-    real(kind = DP), intent(in) :: T, P, rho_w
+    real(kind = DP), intent(in) :: T, P
     real(kind = DP), intent(in), dimension(nc) :: mass, Mol_wt, Pc, Tc, Vc, &
-                                                & omega, m_g, m_o
-    real(kind = DP), intent(in), dimension(15, 15) :: Aij, Bij                                            
+                                                & omega
     real(kind = DP), intent(in), dimension(nc, 15) :: delta_groups
+    real(kind = DP), intent(in), dimension(15, 15) :: Aij, Bij
     real(kind = DP), intent(in), dimension(nc, nc) :: delta
     real(kind = DP), intent(out), dimension(2, 1) :: mu
     
     ! Declare the variables internal to the function
-    real(kind = DP) :: Ma, TR, api, A, B, C, mu_g, TF, mu_oD, Vo, Vg, Rs, mu_o
-    real(kind = DP), dimension(nc) :: xi
-    real(kind = DP), dimension(2, 1) :: rho_p
+    integer :: i, j
+    real(kind = DP) :: A, B, C, F, rho_c0, eta_0, eta_1, delta_T, htan, &
+                     & numerator, denominator, Tc_mix, Pc_mix, M_bar_n, &
+                     & M_bar_w, M_mix
+    real(kind = DP), dimension(1) :: M0, Tc0, Pc0, omega0, Vc0
+    real(kind = DP), dimension(2) :: T0, P0
+    real(kind = DP), dimension(7) :: jc, kc
+    real(kind = DP), dimension(9) :: GV
+    real(kind = DP), dimension(nc) :: z, M
+    real(kind = DP), dimension(1,1) :: delta0
+    real(kind = DP), dimension(1,15) :: delta_groups0
+    real(kind = DP), dimension(2, 1) :: theta, delta_eta_p, delta_eta_pp, &
+                                      & rho0, eta_ch4, rho_r, alpha_mix, &
+                                      & alpha0
     
-    ! Compute the density of each phase of the mixture
-    call density(nc, T, P, mass, Mol_wt, Pc, Tc, Vc, omega, delta, Aij, &
-        &        Bij, delta_groups, calc_delta, rho_p)
+    ! Enter the parameter values from Table 10.1
+    GV = [-2.090975D5, 2.647269D5, -1.472818D5, 4.716740D4, -9.491872D3, &
+        & 1.219979D3, -9.627993D1, 4.274152D0, -8.141531D-2]
+    A = 1.696985927D0
+    B = -0.133372346D0
+    C = 1.4D0
+    F = 168.0D0
+    jc = [-10.3506D0, 17.5716D0, -3019.39D0, 188.730D0, 0.0429036D0, &
+        & 145.290D0, 6127.68D0]
+    kc = [-9.74602D0, 18.0834D0, -4126.66D0, 44.6055D0, 0.976544D0, &
+        & 81.8134D0, 15649.9D0]
     
-    ! Start with the viscosity of the gas phase.  Compute the apparent 
-    ! molecular weight of the gas.  See equation 3-35 on page 102.
-    call mole_fraction(nc, mass, Mol_wt, xi)
-    Ma = sum(xi(:) * Mol_wt(:))
+    ! Enter the properties for the reference fluid (methane)
+    M0(1) = 16.043D-3
+    Tc0(1) = 190.56D0
+    Pc0(1) = 4599000.0D0
+    omega0(1) = 0.011D0
+    Vc0(1) = 9.86D-5
+    delta0(1,1) = 0.0D0
+    delta_groups0(1,:) = [0.0D0, 0.0D0, 0.0D0, 0.0D0, 1.0D0, 0.0D0, 0.0D0, &
+        &                 0.0D0, 0.0D0, 0.0D0, 0.0D0, 0.0D0, 0.0D0, 0.0D0, &
+        &                 0.0D0]
+    rho_c0 = 162.84D0
     
-    ! Compute the coefficients A, B, C from equations B-27 to B-29 on 
-    ! pages 514-515.
-    TR = (T - 273.15D0) * 9.0D0/5.0D0 + 491.67D0
-    A = (9.379D0 + 0.01607D0 * Ma) * TR**1.5D0 / (209.2D0 + 19.26D0 * Ma + TR)
-    B = 3.448D0 + 986.4D0 / TR + 0.01009D0 * Ma
-    C = 2.447D0 - 0.2224D0 * B
+    ! 1.  Prepare the variables to determine the corresponding states between
+    !     the given mixture and the reference fluid (methane) ----------------
     
-    ! Get the dynamic viscosity of gas from equation B-26 on page 514.
-    mu_g = A * 1.0D-7 * exp(B * (rho_p(1,1) / 1000.0D0)**C)
+    ! Get the mole fraction of the components of the mixture
+    call mole_fraction(nc, mass, Mol_wt, z)
     
-    ! Next, compute the viscosity of the liquid phase.  We start by 
-    ! computing the dead oil viscosity.  Get the equilibrium composition.
-    call density(nc, 273.15D0 + 15.0D0, 101325.0D0, m_o, Mol_wt, Pc, Tc, & 
-        &        Vc, omega, delta, Aij, Bij, delta_groups, calc_delta, &
-        &        rho_p)
-    api = 141.5D0 /(rho_p(2,1) / rho_w) - 131.5D0
+    ! Compute equation (10.19)
+    numerator = 0.0D0
+    denominator = 0.0D0
+    do i = 1, nc
+        do j = 1, nc
+            numerator = numerator + z(i) * z(j) * ((Tc(i) / Pc(i)) & 
+                &       **(1.0D0/3.0D0) + (Tc(j) / Pc(j))**(1.0D0/3.0D0)) & 
+                &       **3 * sqrt(Tc(i) * Tc(j))
+            denominator = denominator + z(i) * z(j) * ((Tc(i) / Pc(i)) &
+                &       **(1.0D0/3.0D0) + (Tc(j) / Pc(j))**(1.0D0/3.0D0)) &
+                &       **3
+        end do
+    end do
+    Tc_mix = numerator / denominator
     
-    ! Compute the dead oil viscosity from equation B-53 (dead oil) on 
-    ! page 523.
-    TF = (T - 273.15D0) * 9.0D0 / 5.0D0 + 32.0D0
-    mu_oD = 10.0D0 ** (10.0D0 ** (1.8653D0 - 0.025086D0 * api - &
-          & 0.5644D0 * log10(TF))) - 1.0D0
+    ! Compute equation (10.22)
+    Pc_mix = 8.0D0 * numerator / denominator**2
     
-    ! Adjust to a live oil viscosity if needed
-    if (nc > 1) then
+    ! Get the density of methane at TTc0/Tc_mix and PPc0/Pc_mix
+    call density(1, T * Tc0(1) / Tc_mix, P * Pc0(1) / Pc_mix, [1.0D0], M0, &
+        &        Pc0, Tc0, Vc0, omega0, delta0, Aij, Bij, delta_groups0, &
+        &        -1, rho0)
+    
+    ! Compute equation (10.27)
+    rho_r(:,1) = rho0(:,1) / rho_c0
+    
+    ! Compute equation (10.23), where M is in g/mol
+    M = Mol_wt(:) * 1.0D3
+    M_bar_n = sum(z(:) * M(:))
+    M_bar_w = sum(z(:) * M(:)**2) / M_bar_n
+    M_mix = 1.304D-4 * (M_bar_w**2.303D0 - M_bar_n**2.303D0) + M_bar_n
+    
+    ! Compute equation (10.26), where M is in g/mol
+    M0 = M0(:) * 1.0D3
+    alpha_mix(:,1) = 1.0D0 + 7.378D-3 * rho_r(:,1)**1.847D0 * M_mix**0.5173D0
+    alpha0(:,1) = 1.0D0 + 7.378D-3 * rho_r(:,1)**1.847D0 * M0(1)**0.5173D0
+    
+    ! 2.  Compute the viscosity of methane at the corresponding state --------
+    
+    ! Corresponding state
+    T0 = T * Tc0(1) / Tc_mix * alpha0(:,1) / alpha_mix(:,1)
+    P0 = P * Pc0(1) / Pc_mix * alpha0(:,1) / alpha_mix(:,1)
+    
+    ! Compute each state separately
+    do i = 1,2
         
-        ! Get the solution gas-oil ratio of the liquid
-        Vo = sum(m_o(:)) / rho_p(2,1) * 6.2898D0
-        call density(nc, 273.15D0 + 15.0D0, 101325.0D0, m_g, Mol_wt, Pc, Tc, & 
-            &        Vc, omega, delta, Aij, Bij, delta_groups, calc_delta, & 
-            &        rho_p)
-        Vg = sum(m_g(:)) / rho_p(1,1) * 35.31466672D0        
-        Rs = Vg / Vo
+        ! Get the density of methane at T0 and P0.  Be sure to use molecular
+        ! weight in kg/mol
+        call density(1, T0(i), P0(i), [1.0D0], M0*1.0D-3, Pc0, Tc0, Vc0, &
+            &        omega0, delta0, Aij, Bij, delta_groups0, -1, rho0)
         
-        ! Compute the live oil viscosity from equations B-54 to B-56 on 
-        ! pages 523-524.  This equation is for oil at saturation with 
-        ! gas.  If under-saturated, viscosity could be higher by factor
-        ! of 2 or less for reasonable pressures over bubble point 
-        ! pressure.
-        A = 10.715D0 * (Rs + 100.0D0) ** (-0.515D0)
-        B = 5.44D0 * (Rs + 150.0D0) ** (-0.338D0)
-        mu_o = A * mu_oD ** B / 1000.0D0
+        ! Compute equation (10.10)
+        theta(:,1) = (rho0(:,1) - rho_c0) / rho_c0
         
-    else
-        mu_o = mu_oD / 1000.0D0
-    end if
+        ! Equation (10.9) with T in K and rho in g/cm^3
+        rho0(:,1) = rho0(:,1) * 1.0D-3
+        
+        delta_eta_p(:,1) = exp(jc(1) + jc(4) / T0(i)) * (exp(rho0(:,1) & 
+            &              **0.1D0 * (jc(2) + jc(3) / T0(i)**1.5D0) + &
+            &              theta(:,1) * rho0(:,1)**0.5D0 * (jc(5) + jc(6) &
+            &              / T0(i) + jc(7) / T0(i)**2)) - 1.0D0)
+        
+        ! Equation (10.28)
+        delta_eta_pp(:,1) = exp(kc(1) + kc(4) / T0(i)) * (exp(rho0(:,1) &
+            &               **0.1D0 * (kc(2) + kc(3) / T0(i)**1.5D0) + &
+            &               theta(:,1) * rho0(:,1)**0.5D0 * (kc(5) + kc(6) &
+            &               / T0(i) + kc(7) / T0(i)**2)) - 1.0D0)
+        
+        ! Equation (10.7)
+        eta_0 = GV(1) / T0(i) + GV(2) / T0(i)**(2.0D0/3.0D0) + GV(3) / &
+            &   T0(i)**(1.0D0/3.0D0) + GV(4) + GV(5) * T0(i)**(1.0D0/3.0D0) &
+            &   + GV(6) * T0(i)**(2.0D0/3.0D0) + GV(7) * T0(i) + GV(8) * &
+            &   T0(i)**(4.0D0/3.0D0) + GV(9) * T0(i)**(5.0D0/3.0D0)
+        
+        ! Equation (10.8)
+        eta_1 = A + B * (C - log(T0(i) / F))**2
+        
+        ! Equation (10.32)
+        delta_T = T0(i) - 91.0D0
+        
+        ! Equation (10.31)
+        htan = (exp(delta_T) - exp(-delta_T)) / (exp(delta_T) + exp(-delta_T))
+        
+        ! Viscosity of methane (Equation 10.29) -- reported in (Pa s)
+        eta_ch4(i,1) = (eta_0 + eta_1 + (htan + 1.0D0) / 2.0D0 * &
+            &          delta_eta_p(i,1) + (1.0D0 - htan) / 2.0D0 * &
+            &          delta_eta_pp(i,1)) * 1.0e-7
+        
+    end do
     
-    ! Build the output array
-    mu(1,1) = mu_g
-    mu(2,1) = mu_o
-    
+    ! Compute the viscosity of the mixture at the given T and P
+    mu(:,1) = (Tc_mix / Tc0(1))**(-1.0D0/6.0D0) * (Pc_mix / Pc0(1))** &
+        &     (2.0D0/3.0D0) * (M_mix / M0(1))**(0.5D0) * alpha_mix(:,1) / &
+        &     alpha0(:,1) * eta_ch4(:,1)
+
 end subroutine viscosity
 
 
@@ -654,7 +723,7 @@ end subroutine viscosity
 ! Modified Henry's Law for Solubility Calculations
 ! ----------------------------------------------------------------------------
 
-subroutine kh_insitu(T, P, S, kh_0, dH_solR, nu_bar, Mol_wt, nc, &
+subroutine kh_insitu(T, P, S, kh_0, dH_solR, nu_bar, Mol_wt, K_salt, nc, &
     &                kh)
     
     ! 
@@ -681,6 +750,7 @@ subroutine kh_insitu(T, P, S, kh_0, dH_solR, nu_bar, Mol_wt, nc, &
     !     dH_solR = enthalpy of solution / R (K)
     !     nu_bar = partial molar volume at infinite dilution (m^3/mol)
     !     Mol_wt = array of molecular weights for each component (kg/mol) 
+    !     K_salt = Setschenow constant (m^3/mol)
     ! 
     ! Returns an array of Henry's law coefficients (kg/(m^3 Pa))
     ! 
@@ -695,14 +765,13 @@ subroutine kh_insitu(T, P, S, kh_0, dH_solR, nu_bar, Mol_wt, nc, &
     integer, intent(in) :: nc
     real(kind = DP), intent(in) :: T, P, S
     real(kind = DP), intent(in), dimension(nc) :: kh_0, dH_solR, nu_bar, &
-                                                & Mol_wt
+                                                & Mol_wt, K_salt
     real(kind = DP), intent(out), dimension(nc) :: kh
     
     ! Declare the variables internal to the function 
     integer :: i
     real(kind = DP), parameter :: P_ATM = 101325.0D0
-    real(kind = DP), parameter :: M_SEA = 68.35D0
-    real(kind = DP), dimension(nc) :: Ksalt
+    real(kind = DP), parameter :: M_SEA = 0.06835D0
     
     do i = 1, nc
         
@@ -718,10 +787,8 @@ subroutine kh_insitu(T, P, S, kh_0, dH_solR, nu_bar, Mol_wt, nc, &
             ! Adjust to the ambient pressure
             kh(i) =  kh(i) * exp((P_ATM - P) * nu_bar(i) / (RU * T))
             
-            ! Adjust for the salting out effect of salinity.  Use the empirical 
-            ! equation for the Setschenow constant given by Jonas.    
-            Ksalt(i) = -1.162D0 * Mol_wt(i) + 2553.4D0 * nu_bar(i) + 0.090255D0
-            kh(i) = kh(i) * 10.0D0 ** (-S / M_SEA * Ksalt(i))
+            ! Adjust for the salting out effect of salinity.   
+            kh(i) = kh(i) * 10.0D0 ** (-S / M_SEA * K_salt(i))
             
         end if
         
@@ -806,7 +873,8 @@ subroutine diffusivity(mu, Vb, nc, &
             
         else
             ! Use the Hayduk and Laudie formula
-            D(i) = 13.26D-9 / ((mu * 1.0D3)**1.14D0 * (Vb(i) * 1.0D6)**0.589D0)
+            D(i) = 13.26D-9 / ((mu * 1.0D3)**1.14D0 * (Vb(i) * 1.0D6) &
+                &  **0.589D0)
         
         end if
     

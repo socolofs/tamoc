@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.11',
+        VERSION:     '0.1.12',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -64,33 +64,48 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">June 03, 2015</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">June 23, 2015</td>
 </tr>
 </tbody>
 </table>
 <dl class="function">
 <dt id="seawater.k">
-<code class="descclassname">seawater.</code><code class="descname">k</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/seawater.py#L145"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/seawater.html#k"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#seawater.k" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">seawater.</code><code class="descname">k</code><span class="sig-paren">(</span><em>T</em>, <em>S</em>, <em>P</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/seawater.py#L161"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/seawater.html#k"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#seawater.k" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the thermal conductivity of seawater</p>
-<p>Evaluates the thermal conductivity of seawater, evaluating it as a 
-constant.</p>
+<p>Evaluates the thermal conductivity of seawateras a function of 
+temperature, pressure, and salinity following equations in Sharqawy et 
+al. (2010), Table 4.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>k</strong> : float</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>T</strong> : float</p>
+<blockquote>
+<div><p>temperature (K)</p>
+</div></blockquote>
+<p><strong>S</strong> : float</p>
+<blockquote>
+<div><p>salinity (psu)</p>
+</div></blockquote>
+<p><strong>P</strong> : float</p>
+<blockquote>
+<div><p>pressure (Pa)</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>k</strong> : float</p>
 <blockquote class="last">
-<div><p>thermal conductivity of seawater (m^2/s)</p>
+<div><p>thermal conductivity of seawater (W/(mK))</p>
 </div></blockquote>
 </td>
 </tr>
 </tbody>
 </table>
 <p class="rubric">Notes</p>
-<p>TODO (S. Socolofsky, 4/16/13): Get the correct equation of state for 
-seawater.  This constant value is what was used in the Matlab SIMP 
-Ver. 1.0 calculations and should be retained until validation against
-that code is complete.</p>
+<p>Table 4 provides three equations.  Equation (14) is valid for temperatures
+up to 60 deg C, but I could not reproduce the values in the paper.  Hence,
+the slightly less-accurate equation (13) is used for temperatures above
+30 deg C.</p>
 </dd></dl>
 
 </div>

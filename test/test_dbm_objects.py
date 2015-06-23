@@ -33,22 +33,23 @@ def mixture_attributes(dbm_obj, composition, nc):
     assert dbm_obj.nc == nc
     assert dbm_obj.issoluble == True
 
-def chem_properties(dbm_obj, delta, M, Pc, Tc, omega, kh_0, neg_dH_solR, nu_bar, 
-                    B, dE):
+def chem_properties(dbm_obj, delta, M, Pc, Tc, omega, kh_0, neg_dH_solR, 
+                    nu_bar, B, dE, K_salt):
     """
     Test that the chemical properties stored in a dbm object match the 
     values specified in the arguments passed through the above list.
     """
-    assert_array_equal(dbm_obj.delta, delta)
-    assert_array_equal(dbm_obj.M, M)
-    assert_array_equal(dbm_obj.Pc, Pc)
-    assert_array_equal(dbm_obj.Tc, Tc)
-    assert_array_equal(dbm_obj.omega, omega)
-    assert_array_equal(dbm_obj.kh_0, kh_0)
-    assert_array_equal(dbm_obj.neg_dH_solR, neg_dH_solR)
-    assert_array_equal(dbm_obj.nu_bar, nu_bar)
-    assert_array_equal(dbm_obj.B, B)
-    assert_array_equal(dbm_obj.dE, dE)
+    assert_array_almost_equal(dbm_obj.delta, delta, decimal=6)
+    assert_array_almost_equal(dbm_obj.M, M, decimal=6)
+    assert_array_almost_equal(dbm_obj.Pc, Pc, decimal=6)
+    assert_array_almost_equal(dbm_obj.Tc, Tc, decimal=6)
+    assert_array_almost_equal(dbm_obj.omega, omega, decimal=6)
+    assert_array_almost_equal(dbm_obj.kh_0, kh_0, decimal=6)
+    assert_array_almost_equal(dbm_obj.neg_dH_solR, neg_dH_solR, decimal=6)
+    assert_array_almost_equal(dbm_obj.nu_bar, nu_bar, decimal=6)
+    assert_array_almost_equal(dbm_obj.B, B, decimal=6)
+    assert_array_almost_equal(dbm_obj.dE, dE, decimal=6)
+    assert_array_almost_equal(dbm_obj.K_salt, K_salt, decimal=6)
 
 def inert_attributes(dbm_obj, isfluid, iscompressible, rho_p, gamma, beta, 
                      co):
@@ -80,43 +81,43 @@ def test_objects():
     comp = ['oxygen', 'nitrogen', 'carbon_dioxide']
     delta = np.zeros((3, 3))
     M = np.array([0.031998800000000001, 0.028013400000000001, 
-                  0.044009800000000002])
-    Pc = np.array([5042827.4639999997, 3399806.1560000004, 7384287.96])
+                  0.04401])
+    Pc = np.array([5042827.4639999997, 3399806.1560000004, 7373999.99902408])
     Tc = np.array([154.57777777777773, 126.19999999999999, 
-                   304.21111111111111])
-    omega = np.array([0.021600000000000001, 0.037199999999999997, 
-                      0.26669999999999999])
+                   304.12])
+    omega = np.array([0.0216, 0.0372, 0.225])
     kh_0 = np.array([4.1054468295090059e-07, 1.7417658031088084e-07, 
-                     1.4767660498396249e-05])
-    neg_dH_solR = np.array([1650.0, 1300.0, 2400.0])
-    nu_bar = np.array([3.1999999999999999e-05, 3.3000000000000003e-05, 
-                       (1.148236984 * M[2] + 6.789136822) / 100.**3])
+                     1.47433500e-05])
+    neg_dH_solR = np.array([1650.0, 1300.0, 2368.988311])
+    nu_bar = np.array([3.20000000e-05, 3.3000000000000e-05, 
+                       3.20000000e-05])
     B = np.array([4.2000000000000004e-06, 7.9000000000000006e-06, 
-                  5.0 * 1.e-2 / 100.**2.])
+                  5.00000000e-06])
     dE = np.array([18380.044045116938, 19636.083501503061, 
-                   4000. / 0.238846])
+                   16747.19275181])
+    K_salt = np.array([0.0001301, 0.00013826, 0.0001323])
     
     # Initiate a simple mixture from a composition list
     air = dbm.FluidMixture(comp)
     mixture_attributes(air, comp, 3)
-    chem_properties(air, delta, M, Pc, Tc, omega, kh_0, neg_dH_solR, nu_bar, B, 
-                    dE)
+    chem_properties(air, delta, M, Pc, Tc, omega, kh_0, neg_dH_solR, nu_bar, 
+                    B, dE, K_salt)
     
     bub = dbm.FluidParticle(comp)
     mixture_attributes(bub, comp, 3)
-    chem_properties(bub, delta, M, Pc, Tc, omega, kh_0, neg_dH_solR, nu_bar, B, 
-                    dE)
+    chem_properties(bub, delta, M, Pc, Tc, omega, kh_0, neg_dH_solR, nu_bar, 
+                    B, dE, K_salt)
     
     # Initiate a simple mixture from a composition list with delta specified
     air = dbm.FluidMixture(comp, delta)
     mixture_attributes(air, comp, 3)
-    chem_properties(air, delta, M, Pc, Tc, omega, kh_0, neg_dH_solR, nu_bar, B, 
-                    dE)
+    chem_properties(air, delta, M, Pc, Tc, omega, kh_0, neg_dH_solR, nu_bar, 
+                    B, dE, K_salt)
     
     bub = dbm.FluidParticle(comp, delta)
     mixture_attributes(bub, comp, 3)
-    chem_properties(bub, delta, M, Pc, Tc, omega, kh_0, neg_dH_solR, nu_bar, B, 
-                    dE)
+    chem_properties(bub, delta, M, Pc, Tc, omega, kh_0, neg_dH_solR, nu_bar, 
+                    B, dE, K_salt)
     
     # Define the properties of a single-component mixture
     comp = 'oxygen'
@@ -130,38 +131,40 @@ def test_objects():
     nu_bar = np.array([3.1999999999999999e-05])
     B = np.array([4.2000000000000004e-06])
     dE = np.array([18380.044045116938])
+    K_salt = np.array([0.0001301])
     
     # Initiate a single-component mixture from a list
     o2 = dbm.FluidMixture([comp])
     mixture_attributes(o2, [comp], 1)
-    chem_properties(o2, delta, M, Pc, Tc, omega, kh_0, neg_dH_solR, nu_bar, B, dE)
+    chem_properties(o2, delta, M, Pc, Tc, omega, kh_0, neg_dH_solR, nu_bar, 
+                    B, dE, K_salt)
     
     bub = dbm.FluidParticle([comp])
     mixture_attributes(bub, [comp], 1)
-    chem_properties(bub, delta, M, Pc, Tc, omega, kh_0, neg_dH_solR, nu_bar, B, 
-                    dE)
+    chem_properties(bub, delta, M, Pc, Tc, omega, kh_0, neg_dH_solR, nu_bar, 
+                    B, dE, K_salt)
     
     # Initiate a single-componment mixture from a string with delta specified
     o2 = dbm.FluidMixture(comp, delta)
     mixture_attributes(o2, [comp], 1)
-    chem_properties(o2, delta, M, Pc, Tc, omega, kh_0, neg_dH_solR, nu_bar, B, 
-                    dE)
+    chem_properties(o2, delta, M, Pc, Tc, omega, kh_0, neg_dH_solR, nu_bar, 
+                    B, dE, K_salt)
     
     bub = dbm.FluidParticle(comp, delta)
     mixture_attributes(bub, [comp], 1)
-    chem_properties(bub, delta, M, Pc, Tc, omega, kh_0, neg_dH_solR, nu_bar, B, 
-                    dE)
+    chem_properties(bub, delta, M, Pc, Tc, omega, kh_0, neg_dH_solR, nu_bar, 
+                    B, dE, K_salt)
     
     # Initiate a single-componet mixture from a string with scalar delta
     o2 = dbm.FluidMixture(comp, 0.)
     mixture_attributes(o2, [comp], 1)
-    chem_properties(o2, delta, M, Pc, Tc, omega, kh_0, neg_dH_solR, nu_bar, B, 
-                    dE)
+    chem_properties(o2, delta, M, Pc, Tc, omega, kh_0, neg_dH_solR, nu_bar, 
+                    B, dE, K_salt)
     
     bub = dbm.FluidParticle(comp, 0.)
     mixture_attributes(bub, [comp], 1)
-    chem_properties(bub, delta, M, Pc, Tc, omega, kh_0, neg_dH_solR, nu_bar, B, 
-                    dE)
+    chem_properties(bub, delta, M, Pc, Tc, omega, kh_0, neg_dH_solR, nu_bar, 
+                    B, dE, K_salt)
     
     # Define the properties of an inert fluid particle
     isfluid = True

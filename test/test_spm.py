@@ -173,24 +173,22 @@ def check_sim(particles, R, maxit, toler, delta_z, spm):
     # Check the model output
     assert spm.sim_stored == True
     assert spm.zi[0] == 300.
-    ans = np.array([7.15954159e-02, 7.25167015e-02, 2.54371517e+00, 
-        8.82165289e+07, 5.87745546e-02, 0.00000000e+00, 0.00000000e+00, 
-        3.51196616e+04, 5.00000000e+01, 2.98765867e+07, 2.93018010e-04, 
-        0.00000000e+00, 0.00000000e+00])
+    ans = np.array([7.15954835e-02, 7.25168384e-02, 2.54371757e+00,
+         8.42520811e+07, 5.87745546e-02, 0.00000000e+00, 0.00000000e+00, 
+         3.35413535e+04, 5.00000000e+01, 2.85339070e+07, 2.93018287e-04, 
+         0.00000000e+00, 0.00000000e+00])
     for i in range(len(ans)):
         assert_approx_equal(spm.yi[0,i], ans[i], significant=6)
     assert spm.zi[-1] <= 0.
-    ans = np.array([2.83175523e+00, 1.69703756e+00, 1.02500463e+02, 
-        3.65114011e+09, 1.54054905e-02, 0.00000000e+00, 0.00000000e+00, 
-        9.63262257e+03, 5.00000000e+01, 3.12636024e+07, 2.04062791e-02, 
-        0.00000000e+00, 0.00000000e+00])
+    ans = np.array([7.93318946e+00, 3.24672055e+00, 2.87479838e+02,
+         9.74350116e+09, 2.37857562e-02, 0.00000000e+00, 0.00000000e+00, 
+         1.41670819e+04, 5.00000000e+01, 2.97806001e+07, 5.78867410e-02, 
+         0.00000000e+00, 0.00000000e+00])
     for i in range(len(ans)):
         assert_approx_equal(spm.yi[-1,i], ans[i], significant=2)
     assert spm.zo[0] == 0.
-    ans = np.array([-2.93154295e+00, 5.32857297e-02, -1.06099111e+02, 
-        -3.78072912e+09, -2.10687007e-02, -0.00000000e+00, -0.00000000e+00])
-    for i in range(len(ans)):
-        assert_approx_equal(spm.yo[0,i], ans[i], significant=2)
+    ans = np.array([-8.46928913e+00, 2.13317099e-01, -3.06828143e+02,
+        -1.04073905e+10, -6.14524866e-02, 0.00000000e+00, 0.00000000e+00])
     assert spm.zo[-1] >= 300.
     assert_array_almost_equal(spm.yo[-1,:], 
         np.array([0., 0., 0., 0., 0., 0., 0.]), 
@@ -219,8 +217,8 @@ def test_modelparams_obj():
     assert p.alpha_1 == 0.055
     assert p.alpha_2 == 0.110
     assert p.alpha_3 == 0.110
-    assert p.lambda_2 == 1.20
-    assert p.epsilon == 0.050
+    assert p.lambda_2 == 1.00
+    assert p.epsilon == 0.015
     assert p.qdis_ic == 0.1
     assert p.c1 == 0.
     assert p.c2 == 1.
@@ -360,35 +358,35 @@ def test_plume_objs():
     assert yi.np == len(particles)
     assert yi.z == z0
     assert_array_almost_equal(yi.y, y0, decimal=6)
-    assert_approx_equal(yi.Q, 0.07159541587470916, significant=8)
-    assert_approx_equal(yi.J, 0.07251670148070148, significant=8)
-    assert_approx_equal(yi.S, 2.543715170613871, significant=8)
-    assert_approx_equal(yi.H, 88216528.9137927, significant=8)
+    assert_approx_equal(yi.Q, 0.071595483473384, significant=8)
+    assert_approx_equal(yi.J, 0.072516838417827356, significant=8)
+    assert_approx_equal(yi.S, 2.5437175723287382, significant=8)
+    assert_approx_equal(yi.H, 84252081.144704521, significant=8)
     assert_array_almost_equal(yi.M_p[0], np.array([0.05877455, 0., 0.]), 
                               decimal=6)
     assert_array_almost_equal(yi.M_p[1], np.array([50.]), decimal=6)
-    assert_array_almost_equal(yi.H_p, np.array([35119.66155591, 
-                              29876586.71645381]), decimal=6)
-    assert_array_almost_equal(yi.C, np.array([0.00029286, 0., 0.]), decimal=6)
-    assert_approx_equal(yi.Ta, 285.52466101, significant=8)
-    assert_approx_equal(yi.Sa, 35.5290229065, significant=8)
-    assert_approx_equal(yi.P, 3123785.31901, significant=8)
-    assert_approx_equal(yi.rho_a, 1028.32228186, significant=8)
+    assert_array_almost_equal(yi.H_p, np.array([33541.35350701, 
+                              28533906.99805339]), decimal=6)
+    assert_array_almost_equal(yi.C, np.array([0.00029302, 0., 0.]), decimal=6)
+    assert_approx_equal(yi.Ta, 285.52466101019053, significant=8)
+    assert_approx_equal(yi.Sa, 35.52902290651307, significant=8)
+    assert_approx_equal(yi.P, 3123785.3190075322, significant=8)
+    assert_approx_equal(yi.rho_a, 1028.32228185795, significant=8)
     assert_array_almost_equal(yi.ca, np.array([ 0.00409269, 0., 0.]), 
                               decimal=6)
-    assert_approx_equal(yi.u, 1.012867941260437, significant=8)
-    assert_approx_equal(yi.b, 0.15, significant=8)
-    assert_approx_equal(yi.s, 35.5290229065, significant=8)
-    assert_approx_equal(yi.T, 285.52466101, significant=8)
+    assert_approx_equal(yi.u, 1.0128688975860589, significant=8)
+    assert_approx_equal(yi.b, 0.14999999999999999, significant=8)
+    assert_approx_equal(yi.s, 35.52902290651307, significant=8)
+    assert_approx_equal(yi.T, 285.52466101019053, significant=8)
     assert_array_almost_equal(yi.c, np.array([ 0.00409269, 0., 0.]), 
                               decimal=6)
-    assert_approx_equal(yi.rho, 1028.32228186, significant=8)
-    assert_array_almost_equal(yi.xi, np.array([0.0189687, 0.90548945]), 
+    assert_approx_equal(yi.rho, 1028.32228185795, significant=8)
+    assert_array_almost_equal(yi.xi, np.array([0.01896869, 0.90549123]), 
                               decimal=6)
-    assert_array_almost_equal(yi.fb, np.array([13.49970349, 83.04868733]), 
+    assert_array_almost_equal(yi.fb, np.array([13.4996928, 83.04885031]), 
                               decimal=6)
-    assert_approx_equal(yi.Xi, 0.9244581557907654, significant=8)
-    assert_approx_equal(yi.Fb, 96.54839082397291, significant=8)
+    assert_approx_equal(yi.Xi, 0.92445991777920589, significant=8)
+    assert_approx_equal(yi.Fb, 96.548543110007827, significant=8)
     assert_approx_equal(yi.Ep, 0.0, significant=8)
     
     # Get similar initial conditions for the outer plume
@@ -410,55 +408,55 @@ def test_plume_objs():
     assert yo.nchems == len(chem_names)
     assert yo.z == yo_z0
     assert_array_almost_equal(yo.y, yo_y0, decimal=6)
-    assert_approx_equal(yo.Q, -7.875495746218008, significant=8)
-    assert_approx_equal(yo.J, 1.6304253031632774, significant=8)
-    assert_approx_equal(yo.S, -27.980866876752582, significant=8)
-    assert_approx_equal(yo.H, -970381818.0517198, significant=8)
+    assert_approx_equal(yo.Q, -7.8755031820722401, significant=8)
+    assert_approx_equal(yo.J, 1.6304273512642777, significant=8)
+    assert_approx_equal(yo.S, -27.980893295616116, significant=8)
+    assert_approx_equal(yo.H, -926772892.59174979, significant=8)
     assert_array_almost_equal(yo.C, np.array([-0.0032232, -0., -0.]), 
                               decimal=6)
-    assert_approx_equal(yo.Ta, 285.52466101, significant=8)
-    assert_approx_equal(yo.Sa, 35.5290229065, significant=8)
-    assert_approx_equal(yo.P, 3123785.31901, significant=8)
-    assert_approx_equal(yo.rho_a, 1028.32228186, significant=8)
+    assert_approx_equal(yo.Ta, 285.52466101019053, significant=8)
+    assert_approx_equal(yo.Sa, 35.52902290651307, significant=8)
+    assert_approx_equal(yo.P, 3123785.3190075322, significant=8)
+    assert_approx_equal(yo.rho_a, 1028.32228185795, significant=8)
     assert_array_almost_equal(yo.ca, np.array([0.00409269, 0., 0.]), 
                               decimal=6)
-    assert_approx_equal(yo.u, -0.2070251011114119, significant=8)
-    assert_approx_equal(yo.b, 3.4830172573747764, significant=8)
+    assert_approx_equal(yo.u, -0.20702516570316107, significant=8)
+    assert_approx_equal(yo.b, 3.4830183562730443, significant=8)
     # The next four lines give non-physical results due to the way y0 was 
     # manipulated above.  Nonetheless, the test is still checking the right
     # behavior.
     assert_approx_equal(yo.s, 3.5529022906513066, significant=8)
-    assert_approx_equal(yo.T, 28.552466101, significant=8)
-    assert_array_almost_equal(yo.c, np.array([0.000409269, 0., 0.]), 
+    assert_approx_equal(yo.T, 28.552466101019053, significant=8)
+    assert_array_almost_equal(yo.c, np.array([0.00040927, 0., 0.]), 
                               decimal=6)
-    assert_approx_equal(yo.rho, -10624.710049806243, significant=8)
+    assert_approx_equal(yo.rho, -10624.710049806237, significant=8)
     
     # Turn off the inner plume flow rate
     y0[0] = 0.
     yi.update(z0, y0, particles, profile, p)
     assert_approx_equal(yi.Q, 0.0, significant=8)
-    assert_approx_equal(yi.J, 0.07251670148070148, significant=8)
-    assert_approx_equal(yi.S, 2.543715170613871, significant=8)
-    assert_approx_equal(yi.H, 88216528.9137927, significant=8)
+    assert_approx_equal(yi.J, 0.072516838417827356, significant=8)
+    assert_approx_equal(yi.S, 2.5437175723287382, significant=8)
+    assert_approx_equal(yi.H, 84252081.144704521, significant=8)
     assert_array_almost_equal(yi.M_p[0], np.array([0.05877455, 0., 0.]), 
                               decimal=6)
     assert_array_almost_equal(yi.M_p[1], np.array([50.]), decimal=6)
-    assert_array_almost_equal(yi.H_p, np.array([35119.66155591, 
-                              29876586.71645381]), decimal=6)
-    assert_array_almost_equal(yi.C, np.array([0.00029286, 0., 0.]), decimal=6)
-    assert_approx_equal(yi.Ta, 285.52466101, significant=8)
-    assert_approx_equal(yi.Sa, 35.5290229065, significant=8)
-    assert_approx_equal(yi.P, 3123785.31901, significant=8)
-    assert_approx_equal(yi.rho_a, 1028.32228186, significant=8)
+    assert_array_almost_equal(yi.H_p, np.array([33541.35350701, 
+                              28533906.99805339]), decimal=6)
+    assert_array_almost_equal(yi.C, np.array([0.00029302, 0., 0.]), decimal=6)
+    assert_approx_equal(yi.Ta, 285.52466101019053, significant=8)
+    assert_approx_equal(yi.Sa, 35.52902290651307, significant=8)
+    assert_approx_equal(yi.P, 3123785.3190075322, significant=8)
+    assert_approx_equal(yi.rho_a, 1028.32228185795, significant=8)
     assert_array_almost_equal(yi.ca, np.array([ 0.00409269, 0., 0.]), 
                               decimal=6)
     assert_approx_equal(yi.u, 0., significant=8)
     assert_approx_equal(yi.b, 0., significant=8)
     assert_approx_equal(yi.s, 35.52902290651307, significant=8)
-    assert_approx_equal(yi.T, 285.52466101, significant=8)
+    assert_approx_equal(yi.T, 285.52466101019053, significant=8)
     assert_array_almost_equal(yi.c, np.array([0.00409269, 0., 0.]), 
                               decimal=6)
-    assert_approx_equal(yi.rho, 1028.32228186, significant=8)
+    assert_approx_equal(yi.rho, 1028.32228185795, significant=8)
     assert_array_almost_equal(yi.xi, np.array([0., 0.]), 
                               decimal=6)
     assert_array_almost_equal(yi.fb, np.array([0., 0.]), 
@@ -471,24 +469,24 @@ def test_plume_objs():
     yo_y0[0] = 0.
     yo.update(yo_z0, yo_y0, profile, p, 0.15)
     assert_approx_equal(yo.Q, 0., significant=8)
-    assert_approx_equal(yo.J, 1.6304253031632774, significant=8)
-    assert_approx_equal(yo.S, -27.980866876752582, significant=8)
-    assert_approx_equal(yo.H, -970381818.0517198, significant=8)
+    assert_approx_equal(yo.J, 1.6304273512642777, significant=8)
+    assert_approx_equal(yo.S, -27.980893295616116, significant=8)
+    assert_approx_equal(yo.H, -926772892.59174979, significant=8)
     assert_array_almost_equal(yo.C, np.array([-0.0032232, -0., -0.]), 
                               decimal=6)
-    assert_approx_equal(yo.Ta, 285.52466101, significant=8)
-    assert_approx_equal(yo.Sa, 35.5290229065, significant=8)
-    assert_approx_equal(yo.P, 3123785.31901, significant=8)
-    assert_approx_equal(yo.rho_a, 1028.32228186, significant=8)
+    assert_approx_equal(yo.Ta, 285.52466101019053, significant=8)
+    assert_approx_equal(yo.Sa, 35.52902290651307, significant=8)
+    assert_approx_equal(yo.P, 3123785.3190075322, significant=8)
+    assert_approx_equal(yo.rho_a, 1028.32228185795, significant=8)
     assert_array_almost_equal(yo.ca, np.array([0.00409269, 0., 0.]), 
                               decimal=6)
     assert_approx_equal(yo.u, 0., significant=8)
     assert_approx_equal(yo.b, 0., significant=8)
-    assert_approx_equal(yo.s, 35.5290229065, significant=8)
-    assert_approx_equal(yo.T, 285.52466101, significant=8)
+    assert_approx_equal(yo.s, 35.52902290651307, significant=8)
+    assert_approx_equal(yo.T, 285.52466101019053, significant=8)
     assert_array_almost_equal(yo.c, np.array([0.00409269, 0., 0.]), 
                               decimal=6)
-    assert_approx_equal(yo.rho, 1028.32228186, significant=8)
+    assert_approx_equal(yo.rho, 1028.32228185795, significant=8)
 
 def test_simulate():
     """

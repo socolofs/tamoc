@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.11',
+        VERSION:     '0.1.12',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -64,16 +64,21 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">June 03, 2015</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">June 23, 2015</td>
 </tr>
 </tbody>
 </table>
 <dl class="function">
 <dt id="seawater.cp">
-<code class="descclassname">seawater.</code><code class="descname">cp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/seawater.py#L167"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/seawater.html#cp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#seawater.cp" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute the heat capacity of seawater at constant pressure</p>
-<p>Evaluates the heat capacity of seawater at constant pressure, evaluating 
-it as a constant.</p>
+<code class="descclassname">seawater.</code><code class="descname">cp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/seawater.py#L213"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/seawater.html#cp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#seawater.cp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the heat capacity of seawater at fixed conditions</p>
+<p>Per Figure 5 in Sharqawy et al. (2010), the heat capacity of seawater 
+only varies +/- 5 percent over practical temperatures and salinities 
+for deepwater blowouts.  If we let heat capacity depend on temperature
+and or salinity, computing the temperature of water given the total 
+heat becomes an implicit calculation.  This is a problem for the plume
+models.  As a result, we choose to set the heat capacity to that of
+seawater at 10 deg C and 34.5 psu.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -86,11 +91,6 @@ it as a constant.</p>
 </tr>
 </tbody>
 </table>
-<p class="rubric">Notes</p>
-<p>TODO (S. Socolofsky, 4/16/13): Get the correct equation of state for 
-seawater.  This constant value is what was used in the Matlab SIMP 
-Ver. 1.0 calculations and should be retained until validation against
-that code is complete.</p>
 </dd></dl>
 
 </div>

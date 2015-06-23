@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.11',
+        VERSION:     '0.1.12',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -64,18 +64,16 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">June 03, 2015</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">June 23, 2015</td>
 </tr>
 </tbody>
 </table>
 <dl class="function">
 <dt id="seawater.sigma">
-<code class="descclassname">seawater.</code><code class="descname">sigma</code><span class="sig-paren">(</span><em>T</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/seawater.py#L122"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/seawater.html#sigma"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#seawater.sigma" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">seawater.</code><code class="descname">sigma</code><span class="sig-paren">(</span><em>T</em>, <em>S</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/seawater.py#L122"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/seawater.html#sigma"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#seawater.sigma" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the surface tension of seawater</p>
-<p>Evaluates the surface tension of seawater as a function of temperature per 
-data in the CRC handbook and fit following methods in Leifer et al. 
-(2000).  Note that Leifer et al. (2000) do not present a correlation for
-sigma; rather, this function just follows their methodology for viscosity.</p>
+<p>Evaluates the surface tension of seawater as a function of temperature and
+salinity following equations in Sharqawy et al. (2010), Table 6.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -83,6 +81,10 @@ sigma; rather, this function just follows their methodology for viscosity.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>T</strong> : float</p>
 <blockquote>
 <div><p>temperature (K)</p>
+</div></blockquote>
+<p><strong>S</strong> : float</p>
+<blockquote>
+<div><p>salinity (psu)</p>
 </div></blockquote>
 </td>
 </tr>

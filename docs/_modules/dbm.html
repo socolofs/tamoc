@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.11',
+        VERSION:     '0.1.12',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -123,6 +123,24 @@
 <span class="sd">        Binary interaction coefficients for the Peng-Robinson equation of </span>
 <span class="sd">        state.  If not passed at instantiation, Python will assume a </span>
 <span class="sd">        full matrix of zeros.</span>
+<span class="sd">    user_data : dict</span>
+<span class="sd">        A dictionary of chemical property data.  If not specified, the data</span>
+<span class="sd">        loaded from `/tamoc/data/ChemData.csv` by ``chemical_properties`` will</span>
+<span class="sd">        be used.  To load a different properties database, use the </span>
+<span class="sd">        ``chemical_properties.load_data`` function to load in a custom </span>
+<span class="sd">        database, and pass that data to this object as `user_data`.</span>
+<span class="sd">    delta_groups : ndarray (nc, 15)</span>
+<span class="sd">        Provides the group contribution numbers (normalized) for each </span>
+<span class="sd">        component in the mixture for the 15 groups used by the Privat and</span>
+<span class="sd">        Jaubert (2012) group contribution method for binary interaction </span>
+<span class="sd">        coefficients.  Default is None, in which case the values in `delta`</span>
+<span class="sd">        will be used.</span>
+<span class="sd">    air : bool</span>
+<span class="sd">        Flag indicating whether or not fluid is air.  The methods for </span>
+<span class="sd">        viscosity and interfacial tension below use correlations developed</span>
+<span class="sd">        for hydocarbons.  If `air` is False (default value), these built</span>
+<span class="sd">        in methods are used.  If `air` is True, then these methods are </span>
+<span class="sd">        replaced with correlations between air and seawater.</span>
 <span class="sd">    </span>
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
@@ -148,6 +166,7 @@
 <span class="sd">        White and Houghton (1966) pre-exponential factor (m^2/s)</span>
 <span class="sd">    dE : ndarray, size (nc)</span>
 <span class="sd">        Activation energy (J/mol)</span>
+<span class="sd">    K_salt : Setschenow constants (m^3/mol)</span>
 <span class="sd">    </span>
 <span class="sd">    See Also</span>
 <span class="sd">    --------</span>
@@ -164,7 +183,7 @@
 <span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">composition</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">user_data</span><span class="o">=</span><span class="p">{},</span> 
-                 <span class="n">delta_groups</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+                 <span class="n">delta_groups</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">air</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">FluidMixture</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
         
         <span class="c"># Check the data type of the inputs and fix if necessary</span>
@@ -180,7 +199,14 @@
         <span class="k">if</span> <span class="n">delta</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">delta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">nc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nc</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">delta</span> <span class="o">=</span> <span class="n">delta</span>
+            <span class="k">if</span> <span class="n">delta</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="bp">self</span><span class="o">.</span><span class="n">nc</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">delta</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="bp">self</span><span class="o">.</span><span class="n">nc</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">delta</span> <span class="o">=</span> <span class="n">delta</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">print</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">Error: Delta wrong shape, should be (</span><span class="si">%d</span><span class="s">, </span><span class="si">%d</span><span class="s">)&#39;</span> <span class="o">%</span> \
+                          <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nc</span><span class="p">)</span>
+                    <span class="k">print</span> <span class="s">&#39;Set to np.zeros((</span><span class="si">%d</span><span class="s">, </span><span class="si">%d</span><span class="s">))</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nc</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">delta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">nc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nc</span><span class="p">))</span>
         
         <span class="c"># Store all of the chemical data</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">chem_db</span> <span class="o">=</span> <span class="n">chem</span><span class="o">.</span><span class="n">data</span>
@@ -198,6 +224,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">nu_bar</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nc</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">B</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nc</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dE</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nc</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">K_salt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nc</span><span class="p">)</span>
         
         <span class="c"># Fill the chemical composition variables from the chem database</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nc</span><span class="p">):</span>
@@ -237,12 +264,18 @@
             <span class="k">if</span> <span class="n">properties</span><span class="p">[</span><span class="s">&#39;B&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">0.</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">5.0</span> <span class="o">*</span> <span class="mf">1.e-2</span> <span class="o">/</span> <span class="mf">100.</span><span class="o">**</span><span class="mf">2.</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">chem</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">composition</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="s">&#39;B&#39;</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">properties</span><span class="p">[</span><span class="s">&#39;B&#39;</span><span class="p">]</span>
             
             <span class="k">if</span> <span class="n">properties</span><span class="p">[</span><span class="s">&#39;dE&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">0.</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">dE</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">4000.</span> <span class="o">/</span> <span class="mf">0.238846</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">dE</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">chem</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">composition</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="s">&#39;dE&#39;</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dE</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">properties</span><span class="p">[</span><span class="s">&#39;dE&#39;</span><span class="p">]</span>
+            
+            <span class="k">if</span> <span class="n">properties</span><span class="p">[</span><span class="s">&#39;K_salt&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">0.</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">K_salt</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mf">1.345</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="mf">2799.4</span> <span class="o">*</span> 
+                                 <span class="bp">self</span><span class="o">.</span><span class="n">nu_bar</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span>  <span class="mf">0.083556</span><span class="p">)</span> <span class="o">/</span> <span class="mf">1000.</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">K_salt</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">properties</span><span class="p">[</span><span class="s">&#39;K_salt&#39;</span><span class="p">]</span>
         
         <span class="c"># If we are using group contribution method (Privat and Jaubert 2012) </span>
         <span class="c"># for the binary interaction matrix, then we must import Aij and Bij</span>
@@ -255,6 +288,7 @@
                        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">__file__</span><span class="p">),</span> <span class="s">&#39;data&#39;</span><span class="p">)),</span><span class="s">&#39;Bij.csv&#39;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">Aij</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">aij_file</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s">&#39;,&#39;</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1.e6</span> <span class="c"># Pa</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">Bij</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">bij_file</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s">&#39;,&#39;</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1.e6</span> <span class="c"># Pa</span>
+        
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">calc_delta</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">delta_groups</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">nc</span><span class="p">,</span> <span class="mi">15</span><span class="p">))</span>
@@ -267,6 +301,9 @@
         
         <span class="c"># Ideal gas constant</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Ru</span> <span class="o">=</span> <span class="mf">8.314510</span>  <span class="c"># (J/(kg K))</span>
+        
+        <span class="c"># Store whether or not the fluid is air</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">air</span> <span class="o">=</span> <span class="n">air</span>
     
 <div class="viewcode-block" id="FluidMixture.masses"><a class="viewcode-back" href="../dbm/dbm.FluidMixture.masses.html#dbm.FluidMixture.masses">[docs]</a>    <span class="k">def</span> <span class="nf">masses</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -426,12 +463,14 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Computes the dynamic viscosity of the gas/liquid mixture.</span>
 <span class="sd">        </span>
-<span class="sd">        Computes the dynamic viscosity of gas and liquid using correlation </span>
-<span class="sd">        equations in McCain (1990).  </span>
+<span class="sd">        Computes the dynamic viscosity of gas and liquid using correlation</span>
+<span class="sd">        equations in Pedersen et al. (2014) &quot;Phase Behavior of Petroleum</span>
+<span class="sd">        Reservoir Fluids&quot;, 2nd edition, chapter 10.  This function has been</span>
+<span class="sd">        tested for non-hydrocarbon mixtures (oxygen, carbon dioxide) and </span>
+<span class="sd">        shown to give reasonable results; hence, the same equations are used</span>
+<span class="sd">        for all mixtures.</span>
 <span class="sd">        </span>
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        m : ndarray, size (nc)</span>
+<span class="sd">        Parameters size (nc)</span>
 <span class="sd">            masses of each component in a mixture (kg)</span>
 <span class="sd">        T : float</span>
 <span class="sd">            mixture temperature (K)</span>
@@ -444,30 +483,20 @@
 <span class="sd">            dynamic viscosity for gas (row 1) and liquid (row 2) (Pa s)</span>
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c"># Compute the items that are not available to the Fortran code</span>
-        <span class="n">rho_w</span> <span class="o">=</span> <span class="n">seawater</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="mf">273.15</span> <span class="o">+</span> <span class="mf">15.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">101325.</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nc</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="p">(</span><span class="n">m0</span><span class="p">,</span> <span class="n">xi0</span><span class="p">,</span> <span class="n">K0</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">equilibrium</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="mf">273.15</span> <span class="o">+</span> <span class="mf">15.</span><span class="p">,</span> <span class="mf">101325.</span><span class="p">)</span>
-            <span class="n">m_o</span> <span class="o">=</span> <span class="n">m0</span><span class="p">[</span><span class="mi">1</span><span class="p">,:]</span>
-            <span class="n">m_g</span> <span class="o">=</span> <span class="n">m0</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span>
-        
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">m_o</span> <span class="o">=</span> <span class="n">m</span>
-            <span class="n">m_g</span> <span class="o">=</span> <span class="n">m</span>
-        
-        <span class="c"># Return the viscosity</span>
         <span class="k">return</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">viscosity</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Pc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Vc</span><span class="p">,</span> 
                                <span class="bp">self</span><span class="o">.</span><span class="n">omega</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Aij</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Bij</span><span class="p">,</span> 
-                               <span class="bp">self</span><span class="o">.</span><span class="n">delta_groups</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_delta</span><span class="p">,</span> <span class="n">rho_w</span><span class="p">,</span> 
-                               <span class="n">m_g</span><span class="p">,</span> <span class="n">m_o</span><span class="p">)</span>
+                               <span class="bp">self</span><span class="o">.</span><span class="n">delta_groups</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_delta</span><span class="p">)</span>
     </div>
 <div class="viewcode-block" id="FluidMixture.interface_tension"><a class="viewcode-back" href="../dbm/dbm.FluidMixture.interface_tension.html#dbm.FluidMixture.interface_tension">[docs]</a>    <span class="k">def</span> <span class="nf">interface_tension</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">P</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Computes the interfacial tension between gas/liquid and water</span>
 <span class="sd">        </span>
-<span class="sd">        Computes the interfacial tension between the gas and liquid phases of the</span>
-<span class="sd">        mixture and water.  This is not the gas-liquid interfacial tension. This</span>
-<span class="sd">        method uses equations in Danesh (1998).</span>
+<span class="sd">        If `air` is False (thus, assume hydrocarbon), this method computes</span>
+<span class="sd">        the interfacial tension between the gas and liquid phases of the</span>
+<span class="sd">        mixture and water using equations in Danesh (1998) &quot;PVT and Phase</span>
+<span class="sd">        Behaviour Of Petroleum Reservoir Fluids,&quot; Chapter 8.  Otherwise, we</span>
+<span class="sd">        treat the fluid like air and use the surface tension of seawater from</span>
+<span class="sd">        Sharqawy et al. (2010), Table 6.</span>
 <span class="sd">        </span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -484,44 +513,58 @@
 <span class="sd">            interfacial tension for gas (row 1) and liquid (row 2) (N/m)</span>
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c"># Compute the local density of water</span>
-        <span class="n">rho_w</span> <span class="o">=</span> <span class="n">seawater</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
-        
-        <span class="c"># Compute the density of the mixture phases</span>
-        <span class="n">rho_p</span> <span class="o">=</span> <span class="n">FluidMixture</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
-        
-        <span class="c"># Get the density difference in g/cm^3</span>
-        <span class="n">delta_rho</span> <span class="o">=</span> <span class="p">(</span><span class="n">rho_w</span> <span class="o">-</span> <span class="n">rho_p</span><span class="p">)</span> <span class="o">/</span> <span class="mf">1000.</span>
-        
-        <span class="c"># Compute the pseudo critical temperature using mole fractions as </span>
-        <span class="c"># weights</span>
-        <span class="n">xi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mol_frac</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
-        <span class="n">Tc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Tc</span> <span class="o">*</span> <span class="n">xi</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">air</span><span class="p">:</span>
+            <span class="c"># Use the surface tension of seawater with air</span>
+            <span class="n">sigma_0</span> <span class="o">=</span> <span class="n">seawater</span><span class="o">.</span><span class="n">sigma</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">S</span><span class="p">)</span>
+            <span class="n">sigma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">sigma_0</span><span class="p">],</span> <span class="p">[</span><span class="n">sigma_0</span><span class="p">]])</span>
+            
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># Compute the local density of water</span>
+            <span class="n">rho_w</span> <span class="o">=</span> <span class="n">seawater</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
+            
+            <span class="c"># Compute the density of the mixture phases</span>
+            <span class="n">rho_p</span> <span class="o">=</span> <span class="n">FluidMixture</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
+            
+            <span class="c"># Get the density difference in g/cm^3</span>
+            <span class="n">delta_rho</span> <span class="o">=</span> <span class="p">(</span><span class="n">rho_w</span> <span class="o">-</span> <span class="n">rho_p</span><span class="p">)</span> <span class="o">/</span> <span class="mf">1000.</span>
+            
+            <span class="c"># Compute the pseudo critical temperature using mole fractions as </span>
+            <span class="c"># weights</span>
+            <span class="n">xi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mol_frac</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+            <span class="n">Tc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Tc</span> <span class="o">*</span> <span class="n">xi</span><span class="p">)</span>
+            
+            <span class="c"># Get the interfacial tension</span>
+            <span class="n">sigma</span> <span class="o">=</span> <span class="mf">0.111</span> <span class="o">*</span> <span class="n">delta_rho</span><span class="o">**</span><span class="mf">1.024</span> <span class="o">*</span> <span class="p">(</span><span class="n">T</span> <span class="o">/</span> <span class="n">Tc</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mf">1.25</span><span class="p">)</span> 
         
         <span class="c"># Return the Interfacial tension</span>
-        <span class="k">return</span> <span class="mf">0.111</span> <span class="o">*</span> <span class="n">delta_rho</span><span class="o">**</span><span class="mf">1.024</span> <span class="o">*</span> <span class="p">(</span><span class="n">T</span> <span class="o">/</span> <span class="n">Tc</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mf">1.25</span><span class="p">)</span> 
+        <span class="k">return</span> <span class="n">sigma</span>
     </div>
-<div class="viewcode-block" id="FluidMixture.equilibrium"><a class="viewcode-back" href="../dbm/dbm.FluidMixture.equilibrium.html#dbm.FluidMixture.equilibrium">[docs]</a>    <span class="k">def</span> <span class="nf">equilibrium</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">):</span>
+<div class="viewcode-block" id="FluidMixture.equilibrium"><a class="viewcode-back" href="../dbm/dbm.FluidMixture.equilibrium.html#dbm.FluidMixture.equilibrium">[docs]</a>    <span class="k">def</span> <span class="nf">equilibrium</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Computes the equilibrium composition of a gas/liquid mixture.</span>
 <span class="sd">        </span>
-<span class="sd">        Computes the equilibrium composition of a gas/liquid mixture in the </span>
-<span class="sd">        two-phase region of the thermodynamic state space using methods </span>
-<span class="sd">        described by McCain (1990) using K-factor.  </span>
+<span class="sd">        Computes the equilibrium composition of a gas/liquid mixture using the</span>
+<span class="sd">        procedure in Michelson and Mollerup (2007) and McCain (1990).  </span>
 <span class="sd">        </span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
+<span class="sd">        dbm_obj : dbm.FluidMixture or dbm.FluidParticle</span>
+<span class="sd">            DBM FluidMixture or FluidParticle object</span>
 <span class="sd">        m : ndarray, size (nc)</span>
 <span class="sd">            masses of each component in a mixture (kg)</span>
 <span class="sd">        T : float</span>
 <span class="sd">            mixture temperature (K)</span>
 <span class="sd">        P : float</span>
 <span class="sd">            mixture pressure (Pa)</span>
+<span class="sd">        K : ndarray, size (nc)</span>
+<span class="sd">            array of partition coefficients to use as an initial guess for</span>
+<span class="sd">            K-factor.  Default is `None`, in which case the standard initial</span>
+<span class="sd">            guess will be used.</span>
 <span class="sd">        </span>
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        A tuple containing:</span>
-<span class="sd">            </span>
+<span class="sd">        </span>
 <span class="sd">            m : ndarray, size(2, nc)</span>
 <span class="sd">                masses of each component in a mixture at equilibrium between </span>
 <span class="sd">                the gas and liquid phases (kg)</span>
@@ -533,14 +576,15 @@
 <span class="sd">        </span>
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
-<span class="sd">        Uses the function `dbm.equilibrium`, which performs an optimization</span>
-<span class="sd">        using wrote iteration.</span>
+<span class="sd">        Uses the function equil_MM which uses the Michelsen and Mollerup (2007)</span>
+<span class="sd">        procedure to find a stable solution</span>
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c"># Get the mole fractions and K-factors at equilibrium</span>
-        <span class="p">(</span><span class="n">xi</span><span class="p">,</span> <span class="n">K</span><span class="p">)</span> <span class="o">=</span> <span class="n">equilibrium</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Pc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tc</span><span class="p">,</span> 
-                              <span class="bp">self</span><span class="o">.</span><span class="n">omega</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Aij</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Bij</span><span class="p">,</span> 
-                              <span class="bp">self</span><span class="o">.</span><span class="n">delta_groups</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_delta</span><span class="p">)</span>
+        <span class="n">xi</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">K</span> <span class="o">=</span> <span class="n">equil_MM</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Pc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tc</span><span class="p">,</span>
+                               <span class="bp">self</span><span class="o">.</span><span class="n">omega</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Aij</span><span class="p">,</span> 
+                               <span class="bp">self</span><span class="o">.</span><span class="n">Bij</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta_groups</span><span class="p">,</span>
+                               <span class="bp">self</span><span class="o">.</span><span class="n">calc_delta</span><span class="p">,</span> <span class="n">K</span><span class="p">)</span>
         
         <span class="c"># Get the total moles of each molecule (both phases together)</span>
         <span class="n">n_tot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moles</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
@@ -548,7 +592,7 @@
         <span class="c"># Get the total number of moles in gas phase using the first </span>
         <span class="c"># component in the mixture (note that this is independent of </span>
         <span class="c"># which component you pick):</span>
-        <span class="n">ng</span> <span class="o">=</span> <span class="p">(</span><span class="n">n_tot</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="n">xi</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">n_tot</span><span class="p">)))</span><span class="o">/</span><span class="p">(</span><span class="n">xi</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="n">xi</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">ng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">((</span><span class="n">n_tot</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="n">xi</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">n_tot</span><span class="p">)))</span><span class="o">/</span><span class="p">(</span><span class="n">xi</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="n">xi</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]))</span>
         
         <span class="c"># Get the moles of each component in gas (line 1) and liquid (line 2) </span>
         <span class="c"># phase</span>
@@ -599,7 +643,7 @@
         <span class="c"># Compute the Henry&#39;s law coefficients using the temperature of the</span>
         <span class="c"># seawater</span>
         <span class="n">kh</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">kh_insitu</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kh_0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">neg_dH_solR</span><span class="p">,</span> 
-                             <span class="bp">self</span><span class="o">.</span><span class="n">nu_bar</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">)</span>
+                             <span class="bp">self</span><span class="o">.</span><span class="n">nu_bar</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">K_salt</span><span class="p">)</span>
         
         <span class="c"># Compute the mixture fugacity using the temperature of the mixture</span>
         <span class="n">f</span> <span class="o">=</span> <span class="n">FluidMixture</span><span class="o">.</span><span class="n">fugacity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
@@ -741,6 +785,24 @@
 <span class="sd">        Binary interaction coefficients for the Peng-Robinson equation of </span>
 <span class="sd">        state.  If not passed at instantiation, Python will assume a </span>
 <span class="sd">        full matrix of zeros.</span>
+<span class="sd">    user_data : dict</span>
+<span class="sd">        A dictionary of chemical property data.  If not specified, the data</span>
+<span class="sd">        loaded from `/tamoc/data/ChemData.csv` by ``chemical_properties`` will</span>
+<span class="sd">        be used.  To load a different properties database, use the </span>
+<span class="sd">        ``chemical_properties.load_data`` function to load in a custom </span>
+<span class="sd">        database, and pass that data to this object as `user_data`.</span>
+<span class="sd">    delta_groups : ndarray (nc, 15)</span>
+<span class="sd">        Provides the group contribution numbers (normalized) for each </span>
+<span class="sd">        component in the mixture for the 15 groups used by the Privat and</span>
+<span class="sd">        Jaubert (2012) group contribution method for binary interaction </span>
+<span class="sd">        coefficients.  Default is None, in which case the values in `delta`</span>
+<span class="sd">        will be used.</span>
+<span class="sd">    air : bool</span>
+<span class="sd">        Flag indicating whether or not fluid is air.  The methods for </span>
+<span class="sd">        viscosity and interfacial tension below use correlations developed</span>
+<span class="sd">        for hydocarbons.  If `air` is False (default value), these built</span>
+<span class="sd">        in methods are used.  If `air` is True, then these methods are </span>
+<span class="sd">        replaced with correlations between air and seawater.</span>
 <span class="sd">    </span>
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
@@ -767,9 +829,9 @@
 <span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">composition</span><span class="p">,</span> <span class="n">fp_type</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">user_data</span><span class="o">=</span><span class="p">{},</span>
-                 <span class="n">delta_groups</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+                 <span class="n">delta_groups</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">air</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">FluidParticle</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">composition</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">user_data</span><span class="p">,</span>
-                                            <span class="n">delta_groups</span><span class="p">)</span>
+                                            <span class="n">delta_groups</span><span class="p">,</span> <span class="n">air</span><span class="p">)</span>
         
         <span class="c"># Store the input variables</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fp_type</span> <span class="o">=</span> <span class="n">fp_type</span>
@@ -1162,16 +1224,18 @@
              <span class="bp">self</span><span class="o">.</span><span class="n">particle_shape</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">)</span>
         
         <span class="c"># Compute the slip velocity</span>
-        <span class="n">us</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">slip_velocity</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">)</span>
+        <span class="n">us</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">slip_velocity</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
         
         <span class="c"># Get the diffusivities</span>
         <span class="n">D</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">diffusivity</span><span class="p">(</span><span class="n">Ta</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
         
         <span class="c"># Compute the appropriate mass transfer coefficients</span>
         <span class="k">if</span> <span class="n">shape</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">beta</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_sphere</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">D</span><span class="p">)</span>
+            <span class="n">beta</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_sphere</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">D</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">mu_p</span><span class="p">,</span> 
+                                     <span class="bp">self</span><span class="o">.</span><span class="n">fp_type</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">shape</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="n">beta</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_ellipsoid</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">D</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
+            <span class="n">beta</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_ellipsoid</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">D</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">mu_p</span><span class="p">,</span> 
+                                        <span class="bp">self</span><span class="o">.</span><span class="n">fp_type</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">beta</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_spherical_cap</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">D</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">beta</span>
@@ -1211,18 +1275,21 @@
              <span class="bp">self</span><span class="o">.</span><span class="n">particle_shape</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">)</span>
         
         <span class="c"># Get the thermal conductivity of seawater</span>
-        <span class="n">k</span> <span class="o">=</span> <span class="n">seawater</span><span class="o">.</span><span class="n">k</span><span class="p">()</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="n">seawater</span><span class="o">.</span><span class="n">k</span><span class="p">(</span><span class="n">Ta</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">seawater</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">Ta</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span> <span class="o">*</span> 
+            <span class="n">seawater</span><span class="o">.</span><span class="n">cp</span><span class="p">())</span>
         
         <span class="c"># Compute the slip velocity</span>
-        <span class="n">us</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">slip_velocity</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">)</span>
+        <span class="n">us</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">slip_velocity</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
         
         <span class="c"># Compute the appropriate heat transfer coefficients.  Assume the </span>
         <span class="c"># heat transfer has the same form as the mass transfer with the </span>
         <span class="c"># diffusivity replaced by the thermal conductivity</span>
         <span class="k">if</span> <span class="n">shape</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">beta</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_sphere</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+            <span class="n">beta</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_sphere</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">mu_p</span><span class="p">,</span> 
+                                     <span class="bp">self</span><span class="o">.</span><span class="n">fp_type</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">shape</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="n">beta</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_ellipsoid</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
+            <span class="n">beta</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_ellipsoid</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">mu_p</span><span class="p">,</span> 
+                                        <span class="bp">self</span><span class="o">.</span><span class="n">fp_type</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">beta</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_spherical_cap</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
         
@@ -1287,7 +1354,7 @@
         <span class="n">mu</span> <span class="o">=</span> <span class="n">seawater</span><span class="o">.</span><span class="n">mu</span><span class="p">(</span><span class="n">Ta</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
         <span class="n">sigma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">interface_tension</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
         <span class="n">D</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">diffusivity</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Vb</span><span class="p">)</span>
-        <span class="n">k</span> <span class="o">=</span> <span class="n">seawater</span><span class="o">.</span><span class="n">k</span><span class="p">()</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="n">seawater</span><span class="o">.</span><span class="n">k</span><span class="p">(</span><span class="n">Ta</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">rho</span> <span class="o">*</span> <span class="n">seawater</span><span class="o">.</span><span class="n">cp</span><span class="p">())</span>
         
         <span class="c"># Particle density, equivalent diameter and shape</span>
         <span class="n">rho_p</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Pc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Vc</span><span class="p">,</span> 
@@ -1305,7 +1372,7 @@
                            <span class="bp">self</span><span class="o">.</span><span class="n">delta</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Aij</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Bij</span><span class="p">,</span> 
                            <span class="bp">self</span><span class="o">.</span><span class="n">delta_groups</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_delta</span><span class="p">)</span>
         <span class="n">kh</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">kh_insitu</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kh_0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">neg_dH_solR</span><span class="p">,</span> 
-                             <span class="bp">self</span><span class="o">.</span><span class="n">nu_bar</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">)</span>
+                             <span class="bp">self</span><span class="o">.</span><span class="n">nu_bar</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">K_salt</span><span class="p">)</span>
         <span class="n">Cs</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">sw_solubility</span><span class="p">(</span><span class="n">f</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">fp_type</span><span class="p">,:],</span> <span class="n">kh</span><span class="p">)</span>
         
         <span class="c"># Check hydrate stability</span>
@@ -1318,13 +1385,17 @@
         <span class="k">if</span> <span class="n">shape</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">us</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">us_sphere</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">)</span>
             <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">de</span><span class="o">**</span><span class="mi">2</span>
-            <span class="n">beta</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_sphere</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">D</span><span class="p">)</span>
-            <span class="n">beta_T</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_sphere</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">k</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">beta</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_sphere</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">D</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">mu_p</span><span class="p">,</span> 
+                                     <span class="bp">self</span><span class="o">.</span><span class="n">fp_type</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
+            <span class="n">beta_T</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_sphere</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">mu_p</span><span class="p">,</span> 
+                                       <span class="bp">self</span><span class="o">.</span><span class="n">fp_type</span><span class="p">,</span> <span class="n">status</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">elif</span> <span class="n">shape</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
             <span class="n">us</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">us_ellipsoid</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu_p</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
             <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">de</span><span class="o">**</span><span class="mi">2</span>
-            <span class="n">beta</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_ellipsoid</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">D</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
-            <span class="n">beta_T</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_ellipsoid</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">status</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">beta</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_ellipsoid</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">D</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">mu_p</span><span class="p">,</span> 
+                                        <span class="bp">self</span><span class="o">.</span><span class="n">fp_type</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
+            <span class="n">beta_T</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_ellipsoid</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">mu_p</span><span class="p">,</span> 
+                                          <span class="bp">self</span><span class="o">.</span><span class="n">fp_type</span><span class="p">,</span> <span class="n">status</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">us</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">us_spherical_cap</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">rho</span><span class="p">)</span>
             <span class="n">theta_w</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">theta_w_sc</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">)</span>
@@ -1365,6 +1436,16 @@
 <span class="sd">    co : float</span>
 <span class="sd">        isothermal compressibility coefficient (default value is </span>
 <span class="sd">        2.90075e-9 Pa^(-1))</span>
+<span class="sd">    fp_type : integer</span>
+<span class="sd">        Defines the fluid type (0 = gas, 1 = liquid) that is expected to be </span>
+<span class="sd">        contained in the particle.  This is needed because the heat transfer</span>
+<span class="sd">        equations are different for gas and liquid.  The default value is 1.</span>
+<span class="sd">    air : bool</span>
+<span class="sd">        Flag indicating whether or not fluid is air.  The methods for </span>
+<span class="sd">        viscosity and interfacial tension below use correlations developed</span>
+<span class="sd">        for hydocarbons.  If `air` is False (default value), these built</span>
+<span class="sd">        in methods are used.  If `air` is True, then these methods are </span>
+<span class="sd">        replaced with correlations between air and seawater.</span>
 <span class="sd">    </span>
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
@@ -1395,7 +1476,7 @@
 <span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">isfluid</span><span class="p">,</span> <span class="n">iscompressible</span><span class="p">,</span> <span class="n">rho_p</span><span class="o">=</span><span class="mf">930.</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="mf">30.</span><span class="p">,</span> 
-                 <span class="n">beta</span><span class="o">=</span><span class="mf">0.0007</span><span class="p">,</span> <span class="n">co</span><span class="o">=</span><span class="mf">2.90075e-9</span><span class="p">):</span>
+                 <span class="n">beta</span><span class="o">=</span><span class="mf">0.0007</span><span class="p">,</span> <span class="n">co</span><span class="o">=</span><span class="mf">2.90075e-9</span><span class="p">,</span> <span class="n">fp_type</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">air</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">InsolubleParticle</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
         
         <span class="c"># Store the input variables</span>
@@ -1405,12 +1486,15 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">gamma</span> <span class="o">=</span> <span class="n">gamma</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">beta</span> <span class="o">=</span> <span class="n">beta</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">co</span> <span class="o">=</span> <span class="n">co</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fp_type</span> <span class="o">=</span> <span class="n">fp_type</span>
         
         <span class="c"># Specify that the particle is not soluble and is therefore treated</span>
-        <span class="c"># like a single substance</span>
+        <span class="c"># like a single substance and store whether or not the fluid is </span>
+        <span class="c"># like air</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">issoluble</span> <span class="o">=</span> <span class="bp">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">nc</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">composition</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;inert&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">air</span> <span class="o">=</span> <span class="n">air</span>
     
 <div class="viewcode-block" id="InsolubleParticle.density"><a class="viewcode-back" href="../dbm/dbm.InsolubleParticle.density.html#dbm.InsolubleParticle.density">[docs]</a>    <span class="k">def</span> <span class="nf">density</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1472,7 +1556,9 @@
 <span class="sd">        Computes the dynamic viscosity of the liquid if applicable.</span>
 <span class="sd">        </span>
 <span class="sd">        Computes the dynamic viscosity of gas and liquid using correlation </span>
-<span class="sd">        equations in McCain (1990).  </span>
+<span class="sd">        equations in McCain (1990).  This is the only method we can use</span>
+<span class="sd">        since an `InsolubleParticle` has not `composition`.  If solid, the</span>
+<span class="sd">        viscosity is returned as infinite.</span>
 <span class="sd">        </span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1500,10 +1586,11 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Computes the interfacial tension between the particle and water</span>
 <span class="sd">        </span>
-<span class="sd">        Computes the interfacial tension between the particle and water.  For an</span>
-<span class="sd">        insoluble particle, we do not know much about the interfacial tension.</span>
-<span class="sd">        This method currently uses the air-water interfacial tension for lack of</span>
-<span class="sd">        anything better.</span>
+<span class="sd">        Computes the interfacial tension between a fluid particle and water.</span>
+<span class="sd">        Since for `InsolubleParticle` there is no `composition` we have very</span>
+<span class="sd">        little to go on.  This function currently returns the surface </span>
+<span class="sd">        tension of seawater.  If solid, the surface tension is returned as</span>
+<span class="sd">        infinite.</span>
 <span class="sd">        </span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1521,7 +1608,14 @@
 <span class="sd">        knowledge about this compound</span>
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">seawater</span><span class="o">.</span><span class="n">sigma</span><span class="p">(</span><span class="n">T</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isfluid</span><span class="p">:</span>
+            <span class="n">S</span> <span class="o">=</span> <span class="mf">34.5</span>
+            <span class="n">sigma</span> <span class="o">=</span> <span class="n">seawater</span><span class="o">.</span><span class="n">sigma</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">S</span><span class="p">)</span>
+            
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sigma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+        
+        <span class="k">return</span> <span class="n">sigma</span>
     </div>
 <div class="viewcode-block" id="InsolubleParticle.mass_by_diameter"><a class="viewcode-back" href="../dbm/dbm.InsolubleParticle.mass_by_diameter.html#dbm.InsolubleParticle.mass_by_diameter">[docs]</a>    <span class="k">def</span> <span class="nf">mass_by_diameter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">de</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1757,18 +1851,21 @@
              <span class="bp">self</span><span class="o">.</span><span class="n">particle_shape</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">)</span>
         
         <span class="c"># Get the thermal conductivity of seawater</span>
-        <span class="n">k</span> <span class="o">=</span> <span class="n">seawater</span><span class="o">.</span><span class="n">k</span><span class="p">()</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="n">seawater</span><span class="o">.</span><span class="n">k</span><span class="p">(</span><span class="n">Ta</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">seawater</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">Ta</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span> <span class="o">*</span> 
+            <span class="n">seawater</span><span class="o">.</span><span class="n">cp</span><span class="p">())</span>
         
         <span class="c"># Compute the slip velocity</span>
-        <span class="n">us</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">slip_velocity</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">)</span>
+        <span class="n">us</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">slip_velocity</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
         
         <span class="c"># Compute the appropriate heat transfer coefficients.  Assume the </span>
         <span class="c"># heat transfer has the same form as the mass transfer with the </span>
         <span class="c"># diffusivity replaced by the thermal conductivity</span>
         <span class="k">if</span> <span class="n">shape</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">shape</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
-            <span class="n">beta</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_sphere</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+            <span class="n">beta</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_sphere</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">mu_p</span><span class="p">,</span> 
+                                     <span class="bp">self</span><span class="o">.</span><span class="n">fp_type</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">shape</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="n">beta</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_ellipsoid</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
+            <span class="n">beta</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_ellipsoid</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">mu_p</span><span class="p">,</span> 
+                                        <span class="bp">self</span><span class="o">.</span><span class="n">fp_type</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">beta</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_spherical_cap</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
         
@@ -1825,7 +1922,7 @@
         <span class="n">rho</span> <span class="o">=</span> <span class="n">seawater</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">Ta</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
         <span class="n">mu</span> <span class="o">=</span> <span class="n">seawater</span><span class="o">.</span><span class="n">mu</span><span class="p">(</span><span class="n">Ta</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
         <span class="n">sigma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">interface_tension</span><span class="p">(</span><span class="n">T</span><span class="p">)</span>
-        <span class="n">k</span> <span class="o">=</span> <span class="n">seawater</span><span class="o">.</span><span class="n">k</span><span class="p">()</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="n">seawater</span><span class="o">.</span><span class="n">k</span><span class="p">(</span><span class="n">Ta</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">rho</span> <span class="o">*</span> <span class="n">seawater</span><span class="o">.</span><span class="n">cp</span><span class="p">())</span>
         
         <span class="c"># Particle density, equivalent diameter and shape</span>
         <span class="n">rho_p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">)</span>
@@ -1842,11 +1939,13 @@
         <span class="k">if</span> <span class="n">shape</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">shape</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
             <span class="n">us</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">us_sphere</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">)</span>
             <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">de</span><span class="o">**</span><span class="mi">2</span>
-            <span class="n">beta_T</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_sphere</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">k</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">beta_T</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_sphere</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">mu_p</span><span class="p">,</span> 
+                                       <span class="bp">self</span><span class="o">.</span><span class="n">fp_type</span><span class="p">,</span> <span class="n">status</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">elif</span> <span class="n">shape</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
             <span class="n">us</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">us_ellipsoid</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu_p</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
             <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">de</span><span class="o">**</span><span class="mi">2</span>
-            <span class="n">beta_T</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_ellipsoid</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">status</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">beta_T</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">xfer_ellipsoid</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">mu_p</span><span class="p">,</span> 
+                                          <span class="bp">self</span><span class="o">.</span><span class="n">fp_type</span><span class="p">,</span> <span class="n">status</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">us</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">us_spherical_cap</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">rho</span><span class="p">)</span>
             <span class="n">theta_w</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">theta_w_sc</span><span class="p">(</span><span class="n">de</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">mu</span><span class="p">)</span>
@@ -1861,25 +1960,29 @@
 <span class="c"># Functions used by classes to compute gas/liquid equilibrium of a mixture</span>
 <span class="c"># ----------------------------------------------------------------------------</span>
 </div></div>
-<div class="viewcode-block" id="equilibrium"><a class="viewcode-back" href="../dbm/dbm.equilibrium.html#dbm.equilibrium">[docs]</a><span class="k">def</span> <span class="nf">equilibrium</span><span class="p">(</span><span class="n">m_0</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">Pc</span><span class="p">,</span> <span class="n">Tc</span><span class="p">,</span> <span class="n">omega</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">Aij</span><span class="p">,</span> <span class="n">Bij</span><span class="p">,</span> <span class="n">delta_groups</span><span class="p">,</span> 
-                <span class="n">calc_delta</span><span class="p">):</span>
+<div class="viewcode-block" id="equil_MM"><a class="viewcode-back" href="../dbm/dbm.equil_MM.html#dbm.equil_MM">[docs]</a><span class="k">def</span> <span class="nf">equil_MM</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">Pc</span><span class="p">,</span> <span class="n">Tc</span><span class="p">,</span> <span class="n">omega</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">Aij</span><span class="p">,</span> <span class="n">Bij</span><span class="p">,</span> <span class="n">delta_groups</span><span class="p">,</span> 
+             <span class="n">calc_delta</span><span class="p">,</span> <span class="n">K_0</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute the equilibrium composition of a mixture using the P-R EOS</span>
 <span class="sd">    </span>
 <span class="sd">    Computes the mole fraction composition for the gas and liquid phases of a</span>
 <span class="sd">    mixture using the Peng-Robinson equation of state and the methodology</span>
-<span class="sd">    described in McCain (1990), Properties of Petroleum Fluids, 2nd Edition,</span>
-<span class="sd">    PennWell Publishing Company, Tulsa, Oklahoma.</span>
+<span class="sd">    described Michelsen and Mollerup (2007).  For multiphase equilibria, </span>
+<span class="sd">    the successive substition method is used.  If several iterations suggest</span>
+<span class="sd">    a single-phase equilibrium, stability analysis is used to verify the</span>
+<span class="sd">    prediction.  If a two-phase result is predicted by stability analysis, </span>
+<span class="sd">    successive substitution continues with an improved estimate for the </span>
+<span class="sd">    composition; otherwise, the single phase result is returned.</span>
 <span class="sd">    </span>
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
+<span class="sd">    m : ndarray, size (nc)</span>
+<span class="sd">        masses of each component present in the whole mixture (gas plus </span>
+<span class="sd">        liquid, kg)</span>
 <span class="sd">    T : float</span>
 <span class="sd">        temperature (K)</span>
 <span class="sd">    P : float</span>
 <span class="sd">        pressure (Pa)</span>
-<span class="sd">    m_0 : ndarray, size (nc)</span>
-<span class="sd">        masses of each component present in the whole mixture (gas plus </span>
-<span class="sd">        liquid, kg)</span>
 <span class="sd">    M : ndarray, size (nc)</span>
 <span class="sd">        Molecular weights (kg/mol)</span>
 <span class="sd">    Pc : ndarray, size (nc)</span>
@@ -1890,8 +1993,24 @@
 <span class="sd">        Acentric factors (--)</span>
 <span class="sd">    delta : ndarray, size (nc, nc)</span>
 <span class="sd">        Binary interaction coefficients for the Peng-Robinson equation of </span>
-<span class="sd">        state.  If not passed at instantiation, Python will assume a </span>
-<span class="sd">        full matrix of zeros.</span>
+<span class="sd">        state.  </span>
+<span class="sd">    Aij : ndarray, (15, 15)</span>
+<span class="sd">        Coefficients in matrix A_ij for the group contribution method for </span>
+<span class="sd">        delta_ij following Privat and Jaubert (2012)</span>
+<span class="sd">    Bij : ndarray, (15, 15)</span>
+<span class="sd">        Coefficients in matrix A_ij for the group contribution method for </span>
+<span class="sd">        delta_ij following Privat and Jaubert (2012)</span>
+<span class="sd">    delta_groups : ndarray, (nc, 15)</span>
+<span class="sd">        Specification of the fractional groups for each component of the </span>
+<span class="sd">        mixture for the group contribution method of Privat and Jaubert (2012)</span>
+<span class="sd">        for delta_ij</span>
+<span class="sd">    calc_delta : int</span>
+<span class="sd">        Flag specifying whether or not to compute delta_ij (1: True, -1: </span>
+<span class="sd">        False) using the group contribution method</span>
+<span class="sd">    K_0 : ndarray, size (nc)</span>
+<span class="sd">        Initial guess for the partition coefficients.  If K = None, this </span>
+<span class="sd">        function will use initial estimates from Wilson (see Michelsen and</span>
+<span class="sd">        Mollerup, 2007, page 259, equation 26)</span>
 <span class="sd">    </span>
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -1908,14 +2027,414 @@
 <span class="sd">    Convergence uses a squared relative error as in McCain (1990).</span>
 <span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c"># Compute the residual of the K-factor optimization</span>
-    <span class="k">def</span> <span class="nf">find_K</span><span class="p">(</span><span class="n">K</span><span class="p">):</span>
+    <span class="c"># Compute the some constant properties of the mixture</span>
+    <span class="n">moles</span> <span class="o">=</span> <span class="n">m</span> <span class="o">/</span> <span class="n">M</span>
+    <span class="n">zi</span> <span class="o">=</span> <span class="n">moles</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">moles</span><span class="p">)</span>
+    <span class="n">f_zi</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">fugacity</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">zi</span><span class="o">*</span><span class="n">M</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">Pc</span><span class="p">,</span> <span class="n">Tc</span><span class="p">,</span> <span class="n">omega</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> 
+                          <span class="n">Aij</span><span class="p">,</span> <span class="n">Bij</span><span class="p">,</span> <span class="n">delta_groups</span><span class="p">,</span> <span class="n">calc_delta</span><span class="p">)[</span><span class="mi">0</span><span class="p">,:]</span>
+    <span class="n">phi_zi</span> <span class="o">=</span> <span class="n">f_zi</span> <span class="o">/</span> <span class="p">(</span><span class="n">zi</span> <span class="o">*</span> <span class="n">P</span><span class="p">)</span>
+    <span class="n">di</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">zi</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">phi_zi</span><span class="p">)</span>
+    
+    <span class="c"># Compute the total Gibbs energy</span>
+    <span class="k">def</span> <span class="nf">gibbs_energy</span><span class="p">(</span><span class="n">K</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the Gibbs energy difference between the feed and the current</span>
+<span class="sd">        composition given by K using equation (41) on page 266</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Use the current K to compute the equilibrium</span>
+        <span class="n">xi</span><span class="p">,</span> <span class="n">beta</span> <span class="o">=</span> <span class="n">gas_liq_eq</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">K</span><span class="p">)</span>
+        
+        <span class="c"># Compute the fugacities of the new composition</span>
+        <span class="n">f_gas</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">fugacity</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">xi</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span><span class="o">*</span><span class="n">M</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">Pc</span><span class="p">,</span> <span class="n">Tc</span><span class="p">,</span> <span class="n">omega</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> 
+                               <span class="n">Aij</span><span class="p">,</span> <span class="n">Bij</span><span class="p">,</span> <span class="n">delta_groups</span><span class="p">,</span> <span class="n">calc_delta</span><span class="p">)[</span><span class="mi">0</span><span class="p">,:]</span>
+        <span class="n">f_liq</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">fugacity</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">xi</span><span class="p">[</span><span class="mi">1</span><span class="p">,:]</span><span class="o">*</span><span class="n">M</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">Pc</span><span class="p">,</span> <span class="n">Tc</span><span class="p">,</span> <span class="n">omega</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> 
+                               <span class="n">Aij</span><span class="p">,</span> <span class="n">Bij</span><span class="p">,</span> <span class="n">delta_groups</span><span class="p">,</span> <span class="n">calc_delta</span><span class="p">)[</span><span class="mi">1</span><span class="p">,:]</span>
+        
+        <span class="c"># Get the fugacity coefficients</span>
+        <span class="n">phi_gas</span> <span class="o">=</span> <span class="n">f_gas</span> <span class="o">/</span> <span class="p">(</span><span class="n">xi</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span> <span class="o">*</span> <span class="n">P</span><span class="p">)</span>
+        <span class="n">phi_liq</span> <span class="o">=</span> <span class="n">f_liq</span> <span class="o">/</span> <span class="p">(</span><span class="n">xi</span><span class="p">[</span><span class="mi">1</span><span class="p">,:]</span> <span class="o">*</span> <span class="n">P</span><span class="p">)</span>
+        
+        <span class="c"># Compute the reduced tangent plane distances</span>
+        <span class="n">tpdx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nansum</span><span class="p">(</span><span class="n">xi</span><span class="p">[</span><span class="mi">1</span><span class="p">,:]</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">xi</span><span class="p">[</span><span class="mi">1</span><span class="p">,:])</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">phi_liq</span><span class="p">)</span> <span class="o">-</span> <span class="n">di</span><span class="p">))</span>
+        <span class="n">tpdy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nansum</span><span class="p">(</span><span class="n">xi</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">xi</span><span class="p">[</span><span class="mi">0</span><span class="p">,:])</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">phi_gas</span><span class="p">)</span> <span class="o">-</span> <span class="n">di</span><span class="p">))</span>
+        
+        <span class="c"># Compute the change in the total Gibbs energy between the feed </span>
+        <span class="c"># and this present composition</span>
+        <span class="n">DG_RT</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">beta</span><span class="p">)</span> <span class="o">*</span> <span class="n">tpdx</span> <span class="o">+</span> <span class="n">beta</span> <span class="o">*</span> <span class="n">tpdy</span>
+        
+        <span class="c"># Return the results</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">DG_RT</span><span class="p">,</span> <span class="n">tpdx</span><span class="p">,</span> <span class="n">tpdy</span><span class="p">,</span> <span class="n">phi_liq</span><span class="p">,</span> <span class="n">phi_gas</span><span class="p">)</span>
+    
+    <span class="c"># Get an initial estimate for the K-factors </span>
+    <span class="k">if</span> <span class="n">K_0</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="c"># Use equation (26) on page 259 of Michelson and Mollerup (2007)</span>
+        <span class="n">K</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mf">5.37</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">+</span> <span class="n">omega</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">Tc</span> <span class="o">/</span> <span class="n">T</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="n">P</span> <span class="o">/</span> <span class="n">Pc</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">K</span> <span class="o">=</span> <span class="n">K_0</span>
+    
+    <span class="c"># Follow the procedure on page 266ff of Michelsen and Mollerup (2007).    </span>
+    <span class="c"># Start with three iterations of successive substitution</span>
+    <span class="n">K</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">xi</span><span class="p">,</span> <span class="n">exit_flag</span> <span class="o">=</span> <span class="n">successive_substitution</span><span class="p">(</span>
+                                 <span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">Pc</span><span class="p">,</span> <span class="n">Tc</span><span class="p">,</span> <span class="n">omega</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">Aij</span><span class="p">,</span> 
+                                 <span class="n">Bij</span><span class="p">,</span> <span class="n">delta_groups</span><span class="p">,</span> <span class="n">calc_delta</span><span class="p">,</span> <span class="n">K</span><span class="p">)</span>
+    
+    <span class="c"># Test the outcome of the iterations to determine how to proceed.</span>
+    <span class="k">if</span> <span class="n">exit_flag</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="c"># The solution already converged.</span>
+        <span class="k">pass</span>
+        
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c"># The solution has not converged, test the total Gibbs energy to </span>
+        <span class="c"># decide how to proceed.</span>
+        <span class="n">Delta_G_RT</span><span class="p">,</span> <span class="n">tpdx</span><span class="p">,</span> <span class="n">tpdy</span><span class="p">,</span> <span class="n">phi_liq</span><span class="p">,</span> <span class="n">phi_gas</span> <span class="o">=</span> <span class="n">gibbs_energy</span><span class="p">(</span><span class="n">K</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">Delta_G_RT</span> <span class="o">&lt;</span> <span class="mf">0.</span><span class="p">:</span>
+            <span class="c"># The current composition is converging on a lower total Gibbs</span>
+            <span class="c"># energy than the feed: continue successive substitution</span>
+            <span class="n">K</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">xi</span><span class="p">,</span> <span class="n">exit_flag</span> <span class="o">=</span> <span class="n">successive_substitution</span><span class="p">(</span>
+                                         <span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">Pc</span><span class="p">,</span> <span class="n">Tc</span><span class="p">,</span> <span class="n">omega</span><span class="p">,</span> 
+                                         <span class="n">delta</span><span class="p">,</span> <span class="n">Aij</span><span class="p">,</span> <span class="n">Bij</span><span class="p">,</span>  <span class="n">delta_groups</span><span class="p">,</span> 
+                                         <span class="n">calc_delta</span><span class="p">,</span> <span class="n">K</span><span class="p">)</span>
+        
+        <span class="k">elif</span> <span class="n">tpdy</span> <span class="o">&lt;</span> <span class="mf">0.</span><span class="p">:</span>
+            <span class="c"># The feed is unstable, but we need a better estimate of K</span>
+            <span class="n">K</span> <span class="o">=</span> <span class="n">phi_zi</span> <span class="o">/</span> <span class="n">phi_gas</span>
+            
+            <span class="c"># Continue with successive substitution</span>
+            <span class="n">K</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">xi</span><span class="p">,</span> <span class="n">exit_flag</span> <span class="o">=</span> <span class="n">successive_substitution</span><span class="p">(</span>
+                                         <span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">Pc</span><span class="p">,</span> <span class="n">Tc</span><span class="p">,</span> <span class="n">omega</span><span class="p">,</span> 
+                                         <span class="n">delta</span><span class="p">,</span> <span class="n">Aij</span><span class="p">,</span> <span class="n">Bij</span><span class="p">,</span>  <span class="n">delta_groups</span><span class="p">,</span> 
+                                         <span class="n">calc_delta</span><span class="p">,</span> <span class="n">K</span><span class="p">)</span>
+        
+        <span class="k">elif</span> <span class="n">tpdx</span> <span class="o">&lt;</span> <span class="mf">0.</span><span class="p">:</span>
+            <span class="c"># The feed is unstable, but we need a better estimate of K</span>
+            <span class="n">K</span> <span class="o">=</span> <span class="n">phi_liq</span> <span class="o">/</span> <span class="n">phi_zi</span>
+            
+            <span class="c"># Continue with successive substitution</span>
+            <span class="n">K</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">xi</span><span class="p">,</span> <span class="n">exit_flag</span> <span class="o">=</span> <span class="n">successive_substitution</span><span class="p">(</span>
+                                         <span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">Pc</span><span class="p">,</span> <span class="n">Tc</span><span class="p">,</span> <span class="n">omega</span><span class="p">,</span> 
+                                         <span class="n">delta</span><span class="p">,</span> <span class="n">Aij</span><span class="p">,</span> <span class="n">Bij</span><span class="p">,</span>  <span class="n">delta_groups</span><span class="p">,</span> 
+                                         <span class="n">calc_delta</span><span class="p">,</span> <span class="n">K</span><span class="p">)</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># We are not sure of the stability of the feed:  do stability </span>
+            <span class="c"># analysis.</span>
+            <span class="n">K</span><span class="p">,</span> <span class="n">phases</span> <span class="o">=</span> <span class="n">stability_analysis</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">Pc</span><span class="p">,</span> <span class="n">Tc</span><span class="p">,</span> <span class="n">omega</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> 
+                                           <span class="n">Aij</span><span class="p">,</span> <span class="n">Bij</span><span class="p">,</span> <span class="n">delta_groups</span><span class="p">,</span> 
+                                           <span class="n">calc_delta</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">zi</span><span class="p">,</span> <span class="n">di</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">phases</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="c"># The mixture is unstable, continue with successive </span>
+                <span class="c"># substitution</span>
+                <span class="n">K</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">xi</span><span class="p">,</span> <span class="n">exit_flag</span> <span class="o">=</span> <span class="n">successive_substitution</span><span class="p">(</span>
+                                             <span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">Pc</span><span class="p">,</span> <span class="n">Tc</span><span class="p">,</span> <span class="n">omega</span><span class="p">,</span> 
+                                             <span class="n">delta</span><span class="p">,</span> <span class="n">Aij</span><span class="p">,</span> <span class="n">Bij</span><span class="p">,</span>  <span class="n">delta_groups</span><span class="p">,</span> 
+                                             <span class="n">calc_delta</span><span class="p">,</span> <span class="n">K</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c"># The mixture is single-phase</span>
+                <span class="n">xi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">zi</span><span class="p">)))</span>
+                <span class="k">if</span> <span class="n">beta</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">:</span>
+                    <span class="n">beta</span> <span class="o">=</span> <span class="mf">1.</span>
+                    <span class="n">xi</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">zi</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">beta</span> <span class="o">=</span> <span class="mf">0.</span>
+                    <span class="n">xi</span><span class="p">[</span><span class="mi">1</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">zi</span>
+        
+    <span class="c"># Return the optimized mixture composition</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">xi</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">K</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="stability_analysis"><a class="viewcode-back" href="../dbm/dbm.stability_analysis.html#dbm.stability_analysis">[docs]</a><span class="k">def</span> <span class="nf">stability_analysis</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">Pc</span><span class="p">,</span> <span class="n">Tc</span><span class="p">,</span> <span class="n">omega</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">Aij</span><span class="p">,</span> <span class="n">Bij</span><span class="p">,</span> 
+                       <span class="n">delta_groups</span><span class="p">,</span> <span class="n">calc_delta</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">zi</span><span class="p">,</span> <span class="n">di</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Perform stability analysis to determine the stability of a mixture</span>
+<span class="sd">    </span>
+<span class="sd">    Perform the stabilty analysis steps in Michelsen and Mollerup (2007) to</span>
+<span class="sd">    determine the stability of a mixture</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    m : ndarray, size (nc)</span>
+<span class="sd">        masses of each component present in the whole mixture (gas plus </span>
+<span class="sd">        liquid, kg)</span>
+<span class="sd">    T : float</span>
+<span class="sd">        temperature (K)</span>
+<span class="sd">    P : float</span>
+<span class="sd">        pressure (Pa)</span>
+<span class="sd">    M : ndarray, size (nc)</span>
+<span class="sd">        Molecular weights (kg/mol)</span>
+<span class="sd">    Pc : ndarray, size (nc)</span>
+<span class="sd">        Critical pressures (Pa)</span>
+<span class="sd">    Tc : ndarray, size (nc)</span>
+<span class="sd">        Critical temperatures (K)</span>
+<span class="sd">    omega : ndarray, size (nc)</span>
+<span class="sd">        Acentric factors (--)</span>
+<span class="sd">    delta : ndarray, size (nc, nc)</span>
+<span class="sd">        Binary interaction coefficients for the Peng-Robinson equation of </span>
+<span class="sd">        state.  </span>
+<span class="sd">    Aij : ndarray, (15, 15)</span>
+<span class="sd">        Coefficients in matrix A_ij for the group contribution method for </span>
+<span class="sd">        delta_ij following Privat and Jaubert (2012)</span>
+<span class="sd">    Bij : ndarray, (15, 15)</span>
+<span class="sd">        Coefficients in matrix A_ij for the group contribution method for </span>
+<span class="sd">        delta_ij following Privat and Jaubert (2012)</span>
+<span class="sd">    delta_groups : ndarray, (nc, 15)</span>
+<span class="sd">        Specification of the fractional groups for each component of the </span>
+<span class="sd">        mixture for the group contribution method of Privat and Jaubert (2012)</span>
+<span class="sd">        for delta_ij</span>
+<span class="sd">    calc_delta : int</span>
+<span class="sd">        Flag specifying whether or not to compute delta_ij (1: True, -1: </span>
+<span class="sd">        False) using the group contribution method</span>
+<span class="sd">    K : ndarray, size (nc)</span>
+<span class="sd">        Initial guess for the partition coefficients.  If K = None, this </span>
+<span class="sd">        function will use initial estimates from Wilson (see Michelsen and</span>
+<span class="sd">        Mollerup, 2007, page 259, equation 26)</span>
+<span class="sd">    di : ndarray, size (nc)</span>
+<span class="sd">        Mixture property ln(zi) + ln(phi(zi)); see Michelsen and Mollerup</span>
+<span class="sd">        (2007) page 267</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    K : ndarray, size (nc)</span>
+<span class="sd">        Updated estimate for the K factors after stability analysis</span>
+<span class="sd">    phases : int</span>
+<span class="sd">        Number of phases in the mixture (2 or 1)</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># Compute the mole fraction of the total mixture (called the feed in </span>
+    <span class="c"># Michelsen and Mollerup, 2007)</span>
+    <span class="n">moles</span> <span class="o">=</span> <span class="n">m</span> <span class="o">/</span> <span class="n">M</span>
+    <span class="n">zi</span> <span class="o">=</span> <span class="n">moles</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">moles</span><span class="p">)</span>
+    
+    <span class="c"># Generate the update equation for finding W that minizes tm</span>
+    <span class="k">def</span> <span class="nf">update_W</span><span class="p">(</span><span class="n">W</span><span class="p">,</span> <span class="n">phase</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update the estimate for W to minimize the modified tangent plane</span>
+<span class="sd">        distance using equation (51) on page 269 in Michelsen and Mollerup</span>
+<span class="sd">        (2007).</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        W : ndarray</span>
+<span class="sd">            Current estimate for the composition (moles)</span>
+<span class="sd">        phase : int</span>
+<span class="sd">            Assumed phase of the current composition (0: gas, 1: liquid)</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        W : ndarray</span>
+<span class="sd">            New estimate of W (moles)</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Compute the fugacity at the composition W</span>
+        <span class="n">f_W</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">fugacity</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">W</span><span class="o">*</span><span class="n">M</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">Pc</span><span class="p">,</span> <span class="n">Tc</span><span class="p">,</span> <span class="n">omega</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> 
+                             <span class="n">Aij</span><span class="p">,</span> <span class="n">Bij</span><span class="p">,</span> <span class="n">delta_groups</span><span class="p">,</span> <span class="n">calc_delta</span><span class="p">)[</span><span class="n">phase</span><span class="p">,:]</span>
+        
+        <span class="c"># Get the fugacity coefficients</span>
+        <span class="n">phi_W</span> <span class="o">=</span> <span class="n">f_W</span> <span class="o">/</span> <span class="p">(</span><span class="n">W</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">W</span><span class="p">)</span> <span class="o">*</span> <span class="n">P</span><span class="p">)</span>
+        
+        <span class="c"># Return a new estimate of W</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">di</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">phi_W</span><span class="p">))</span>
+    
+    <span class="c"># Compute the modified tangent plane distance</span>
+    <span class="k">def</span> <span class="nf">compute_tm</span><span class="p">(</span><span class="n">W</span><span class="p">,</span> <span class="n">phase</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the modified tangent plane distance according to equation (44)</span>
+<span class="sd">        in Michelsen and Mollerup (2007) on page 267.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        W : ndarray</span>
+<span class="sd">            Current estimate for the composition (moles)</span>
+<span class="sd">        phase : int</span>
+<span class="sd">            Assumed phase of the current composition (0: gas, 1: liquid)</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tm : float</span>
+<span class="sd">            Value of the modified tangent plane distance for the given </span>
+<span class="sd">            composition</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Compute the fugacity at the composition W</span>
+        <span class="n">f_W</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">fugacity</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">W</span><span class="o">*</span><span class="n">M</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">Pc</span><span class="p">,</span> <span class="n">Tc</span><span class="p">,</span> <span class="n">omega</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> 
+                             <span class="n">Aij</span><span class="p">,</span> <span class="n">Bij</span><span class="p">,</span> <span class="n">delta_groups</span><span class="p">,</span> <span class="n">calc_delta</span><span class="p">)[</span><span class="n">phase</span><span class="p">,:]</span>
+        
+        <span class="c"># Get the fugacity coefficients</span>
+        <span class="n">phi_W</span> <span class="o">=</span> <span class="n">f_W</span> <span class="o">/</span> <span class="p">(</span><span class="n">W</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">W</span><span class="p">)</span> <span class="o">*</span> <span class="n">P</span><span class="p">)</span>
+        
+        <span class="c"># Return the modified tangent plane distance, equation (44) on page</span>
+        <span class="c"># 267</span>
+        <span class="k">return</span> <span class="mf">1.</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">W</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">W</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">phi_W</span><span class="p">)</span> <span class="o">-</span> <span class="n">di</span> <span class="o">-</span> <span class="mf">1.</span><span class="p">))</span>
+    
+    <span class="c"># Solve for W that minimizes tm</span>
+    <span class="k">def</span> <span class="nf">find_W</span><span class="p">(</span><span class="n">W</span><span class="p">,</span> <span class="n">phase</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Use successive subsitution to find a value of W that minimizes the </span>
+<span class="sd">        modified tangent plane distance and then interpret the stability </span>
+<span class="sd">        of the mixture based on the results</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        W : ndarray</span>
+<span class="sd">            Current estimate for the composition (moles)</span>
+<span class="sd">        phase : int</span>
+<span class="sd">            Assumed phase of the current composition (0: gas, 1: liquid)</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        W : ndarray</span>
+<span class="sd">            Final value of the composition (moles)</span>
+<span class="sd">        tm : float</span>
+<span class="sd">            Value of the modified tangent plane distance for the final</span>
+<span class="sd">            composition</span>
+<span class="sd">        phases : int</span>
+<span class="sd">            Evaluation of the number of phases present (1 or 2)</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Set up the iteration parameters</span>
+        <span class="n">tol</span> <span class="o">=</span> <span class="mf">1.49012e-8</span>  <span class="c"># Use same value as for K-factor iteration</span>
+        <span class="n">err</span> <span class="o">=</span> <span class="mf">1.</span>
+        
+        <span class="c"># Iterate to find the final value of W</span>
+        <span class="k">while</span> <span class="n">err</span> <span class="o">&gt;</span> <span class="n">tol</span><span class="p">:</span>
+            <span class="c"># Save the current value of W</span>
+            <span class="n">W_old</span> <span class="o">=</span> <span class="n">W</span>
+            
+            <span class="c"># Update the estimate of W using the update equation</span>
+            <span class="n">W</span> <span class="o">=</span> <span class="n">update_W</span><span class="p">(</span><span class="n">W</span><span class="p">,</span> <span class="n">phase</span><span class="p">)</span>
+            
+            <span class="c"># Compute the current error based on the squared relative error </span>
+            <span class="c"># suggested by McCain (1990)</span>
+            <span class="n">err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nansum</span><span class="p">((</span><span class="n">W</span> <span class="o">-</span> <span class="n">W_old</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="n">W</span> <span class="o">*</span> <span class="n">W_old</span><span class="p">))</span>
+        
+        <span class="c"># Compute the modified tangent plane distance</span>
+        <span class="n">tm</span> <span class="o">=</span> <span class="n">compute_tm</span><span class="p">(</span><span class="n">W</span><span class="p">,</span> <span class="n">phase</span><span class="p">)</span>
+        
+        <span class="c"># Determine if we found a trivial solution</span>
+        <span class="n">trivial</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">W</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">W</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">zi</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mf">1.e-5</span><span class="p">:</span>
+                <span class="n">trivial</span> <span class="o">=</span> <span class="bp">False</span>
+        
+        <span class="c"># Evaluate the stability of the outcome</span>
+        <span class="k">if</span> <span class="n">tm</span> <span class="o">&lt;</span> <span class="mf">0.</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">trivial</span><span class="p">:</span>
+            <span class="n">phases</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># This is a single-phase gas</span>
+            <span class="n">phases</span> <span class="o">=</span> <span class="mi">1</span>
+        
+        <span class="c"># Return the results</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">W</span><span class="p">,</span> <span class="n">tm</span><span class="p">,</span> <span class="n">phases</span><span class="p">)</span>
+    
+    <span class="c"># First, do a test vapor-like composition</span>
+    <span class="n">W</span> <span class="o">=</span> <span class="n">K</span> <span class="o">*</span> <span class="n">zi</span>
+    <span class="n">W_gas</span><span class="p">,</span> <span class="n">tm_gas</span><span class="p">,</span> <span class="n">phases_gas</span> <span class="o">=</span> <span class="n">find_W</span><span class="p">(</span><span class="n">W</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">K_gas</span> <span class="o">=</span> <span class="n">W_gas</span> <span class="o">/</span> <span class="p">(</span><span class="n">zi</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">W_gas</span><span class="p">))</span>
+    
+    <span class="c"># Second, to be conservative, do a test liquid-like composition</span>
+    <span class="n">W</span> <span class="o">=</span> <span class="n">zi</span> <span class="o">/</span> <span class="n">K</span>
+    <span class="n">W_liq</span><span class="p">,</span> <span class="n">tm_liq</span><span class="p">,</span> <span class="n">phases_liq</span> <span class="o">=</span> <span class="n">find_W</span><span class="p">(</span><span class="n">W</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">K_liq</span> <span class="o">=</span> <span class="n">zi</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">W_liq</span><span class="p">)</span><span class="o">/</span> <span class="n">W_liq</span>
+    
+    <span class="k">if</span> <span class="n">phases_gas</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">phases_liq</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">tm_gas</span> <span class="o">&lt;</span> <span class="n">tm_liq</span><span class="p">:</span>
+            <span class="c"># This is probably a gas-like mixture</span>
+            <span class="n">K</span> <span class="o">=</span> <span class="n">K_gas</span>
+            <span class="n">phases</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># This is probably a liquid-like mixture</span>
+            <span class="n">K</span> <span class="o">=</span> <span class="n">K_liq</span>
+            <span class="n">phases</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="k">elif</span> <span class="n">phases_gas</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="c"># This is proably a gas-like mixture</span>
+        <span class="n">K</span> <span class="o">=</span> <span class="n">K_gas</span>
+        <span class="n">phases</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="k">elif</span> <span class="n">phases_liq</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="c"># This is probably a liquid-like mixture</span>
+        <span class="n">K</span> <span class="o">=</span> <span class="n">K_liq</span>
+        <span class="n">phases</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c"># This is a single-phase mixture</span>
+        <span class="n">K</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">K</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="n">phases</span> <span class="o">=</span> <span class="mi">1</span>
+    
+    <span class="c"># Return the results</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">phases</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="successive_substitution"><a class="viewcode-back" href="../dbm/dbm.successive_substitution.html#dbm.successive_substitution">[docs]</a><span class="k">def</span> <span class="nf">successive_substitution</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">max_iter</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">Pc</span><span class="p">,</span> <span class="n">Tc</span><span class="p">,</span> <span class="n">omega</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">Aij</span><span class="p">,</span> 
+                            <span class="n">Bij</span><span class="p">,</span> <span class="n">delta_groups</span><span class="p">,</span> <span class="n">calc_delta</span><span class="p">,</span> <span class="n">K</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Find K-factors by successive substitution</span>
+<span class="sd">    </span>
+<span class="sd">    Iterate to find a converged set of K-factors defining the gas/liquid</span>
+<span class="sd">    partitioning of a mixture using successive substitution.  We follow the</span>
+<span class="sd">    algorithms in McCain (1990) and Michelsen and Mollerup (2007).</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    m : ndarray, size (nc)</span>
+<span class="sd">        masses of each component present in the whole mixture (gas plus </span>
+<span class="sd">        liquid, kg)</span>
+<span class="sd">    T : float</span>
+<span class="sd">        temperature (K)</span>
+<span class="sd">    P : float</span>
+<span class="sd">        pressure (Pa)</span>
+<span class="sd">    max_iter : int</span>
+<span class="sd">        maximum number of iterations to perform.  Set max_iter to np.inf if</span>
+<span class="sd">        you want the algorithm to guarantee to iterate to convergenece, but </span>
+<span class="sd">        beware that you may create an infinite loop.</span>
+<span class="sd">    M : ndarray, size (nc)</span>
+<span class="sd">        Molecular weights (kg/mol)</span>
+<span class="sd">    Pc : ndarray, size (nc)</span>
+<span class="sd">        Critical pressures (Pa)</span>
+<span class="sd">    Tc : ndarray, size (nc)</span>
+<span class="sd">        Critical temperatures (K)</span>
+<span class="sd">    omega : ndarray, size (nc)</span>
+<span class="sd">        Acentric factors (--)</span>
+<span class="sd">    delta : ndarray, size (nc, nc)</span>
+<span class="sd">        Binary interaction coefficients for the Peng-Robinson equation of </span>
+<span class="sd">        state.  </span>
+<span class="sd">    Aij : ndarray, (15, 15)</span>
+<span class="sd">        Coefficients in matrix A_ij for the group contribution method for </span>
+<span class="sd">        delta_ij following Privat and Jaubert (2012)</span>
+<span class="sd">    Bij : ndarray, (15, 15)</span>
+<span class="sd">        Coefficients in matrix A_ij for the group contribution method for </span>
+<span class="sd">        delta_ij following Privat and Jaubert (2012)</span>
+<span class="sd">    delta_groups : ndarray, (nc, 15)</span>
+<span class="sd">        Specification of the fractional groups for each component of the </span>
+<span class="sd">        mixture for the group contribution method of Privat and Jaubert (2012)</span>
+<span class="sd">        for delta_ij</span>
+<span class="sd">    calc_delta : int</span>
+<span class="sd">        Flag specifying whether or not to compute delta_ij (1: True, -1: </span>
+<span class="sd">        False) using the group contribution method</span>
+<span class="sd">    K : ndarray, size (nc)</span>
+<span class="sd">        Initial guess for the partition coefficients.  If K = None, this </span>
+<span class="sd">        function will use initial estimates from Wilson (see Michelsen and</span>
+<span class="sd">        Mollerup, 2007, page 259, equation 26)</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    K : ndarray, size (nc)</span>
+<span class="sd">        Final value of the K-factors</span>
+<span class="sd">    </span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The max_iter parameter controls how many steps of successive iteration </span>
+<span class="sd">    are performed.  If set to None, the iteration will continue until the </span>
+<span class="sd">    tolerance criteria are reached.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># Update the value of K using successive substitution</span>
+    <span class="k">def</span> <span class="nf">update_K</span><span class="p">(</span><span class="n">K</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Evaluate the update function for finding K-factor</span>
 <span class="sd">        </span>
 <span class="sd">        Evaluates the new guess for K-factor following McCain (1990) p. 426, </span>
 <span class="sd">        equation (15-23) as explained on p. 430 in connection with equation</span>
-<span class="sd">        (15-31).</span>
+<span class="sd">        (15-31).  This is the update equation for the successive substitution </span>
+<span class="sd">        method.</span>
 <span class="sd">        </span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1931,7 +2450,7 @@
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c"># Get the mixture composition for the current K-factor</span>
-        <span class="n">xi</span> <span class="o">=</span> <span class="n">gas_liq_eq</span><span class="p">(</span><span class="n">m_0</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">K</span><span class="p">)</span>
+        <span class="n">xi</span><span class="p">,</span> <span class="n">beta</span> <span class="o">=</span> <span class="n">gas_liq_eq</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">K</span><span class="p">)</span>
         
         <span class="c"># Get tha gas and liquid fugacities for the current composition</span>
         <span class="n">f_gas</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">fugacity</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">xi</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span><span class="o">*</span><span class="n">M</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">Pc</span><span class="p">,</span> <span class="n">Tc</span><span class="p">,</span> <span class="n">omega</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> 
@@ -1940,91 +2459,258 @@
                                <span class="n">Aij</span><span class="p">,</span> <span class="n">Bij</span><span class="p">,</span> <span class="n">delta_groups</span><span class="p">,</span> <span class="n">calc_delta</span><span class="p">)[</span><span class="mi">1</span><span class="p">,:]</span>
         
         <span class="c"># Update K using K = (phi_liq / phi_gas)</span>
-        
         <span class="n">K_new</span> <span class="o">=</span> <span class="p">(</span><span class="n">f_liq</span> <span class="o">/</span> <span class="p">(</span><span class="n">xi</span><span class="p">[</span><span class="mi">1</span><span class="p">,:]</span> <span class="o">*</span> <span class="n">P</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="n">f_gas</span> <span class="o">/</span> <span class="p">(</span><span class="n">xi</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span> <span class="o">*</span> <span class="n">P</span><span class="p">))</span>
+        
+        <span class="c"># If the mass of any component in the mixture is zero, make sure the</span>
+        <span class="c"># K-factor is also zero.</span>
         <span class="n">K_new</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">K_new</span><span class="p">)]</span> <span class="o">=</span> <span class="mf">0.</span>
         
-        <span class="c"># Calculate the cost function</span>
+        <span class="c"># Return an updated value for the K factors</span>
         <span class="k">return</span> <span class="n">K_new</span>
-            
-    <span class="c"># Get an initial guess for the K-factors using equation B-61 on p. 525</span>
-    <span class="n">K_0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mf">5.37</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">+</span> <span class="n">omega</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">Tc</span> <span class="o">/</span> <span class="n">T</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="n">P</span> <span class="o">/</span> <span class="n">Pc</span><span class="p">)</span>
     
-    <span class="c"># Find the optimal values of K-factor following algorithm on p. 430</span>
-    <span class="n">tol</span> <span class="o">=</span> <span class="mf">1.49012e-8</span>
-    <span class="n">eps</span> <span class="o">=</span> <span class="mf">1.0</span>
-    <span class="k">while</span> <span class="n">eps</span> <span class="o">&gt;</span> <span class="n">tol</span><span class="p">:</span>
-        <span class="n">K</span> <span class="o">=</span> <span class="n">K_0</span><span class="p">[:]</span>
-        <span class="n">K_0</span> <span class="o">=</span> <span class="n">find_K</span><span class="p">(</span><span class="n">K</span><span class="p">)</span>
-        <span class="n">eps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nansum</span><span class="p">((</span><span class="n">K</span> <span class="o">-</span> <span class="n">K_0</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="n">K</span> <span class="o">*</span> <span class="n">K_0</span><span class="p">))</span>
+    <span class="c"># Set up the iteration parameters</span>
+    <span class="n">tol</span> <span class="o">=</span> <span class="mf">1.49012e-8</span>  <span class="c"># Suggested by McCain (1990)</span>
+    <span class="n">err</span> <span class="o">=</span> <span class="mf">1.</span>
+    <span class="n">steps</span> <span class="o">=</span> <span class="mi">0</span>
     
-    <span class="c"># Return the optimized mixture composition</span>
-    <span class="k">return</span> <span class="p">(</span><span class="n">gas_liq_eq</span><span class="p">(</span><span class="n">m_0</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">K</span><span class="p">),</span> <span class="n">K</span><span class="p">)</span>
+    <span class="c"># Iterate to find the final value of K factor using successive </span>
+    <span class="c"># substitution</span>
+    <span class="k">while</span> <span class="n">err</span> <span class="o">&gt;</span> <span class="n">tol</span> <span class="ow">and</span> <span class="n">steps</span> <span class="o">&lt;</span> <span class="n">max_iter</span><span class="p">:</span>
+        <span class="c"># Save the current value of K factor</span>
+        <span class="n">K_old</span> <span class="o">=</span> <span class="n">K</span>
+        
+        <span class="c"># Update the estimate of K factor using the present fugacities</span>
+        <span class="n">K</span> <span class="o">=</span> <span class="n">update_K</span><span class="p">(</span><span class="n">K</span><span class="p">)</span>
+        
+        <span class="c"># Compute the current error basedo on the squared relative error </span>
+        <span class="c"># suggested by McCain (1990) and update the iteration counter</span>
+        <span class="n">err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nansum</span><span class="p">((</span><span class="n">K</span> <span class="o">-</span> <span class="n">K_old</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="n">K</span> <span class="o">*</span> <span class="n">K_old</span><span class="p">))</span>
+        <span class="n">steps</span> <span class="o">+=</span> <span class="mi">1</span>
+    
+    <span class="c"># Determine the exit condition</span>
+    <span class="k">if</span> <span class="n">steps</span> <span class="o">&lt;</span> <span class="n">max_iter</span><span class="p">:</span>
+        <span class="c"># This solution is converged</span>
+        <span class="n">flag</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">flag</span> <span class="o">=</span> <span class="mi">0</span>
+    
+    <span class="c"># Update the equilibrium and return the last value of K-factor</span>
+    <span class="n">xi</span><span class="p">,</span> <span class="n">beta</span> <span class="o">=</span> <span class="n">gas_liq_eq</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">K</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">xi</span><span class="p">,</span> <span class="n">flag</span><span class="p">)</span>
+
 </div>
 <div class="viewcode-block" id="gas_liq_eq"><a class="viewcode-back" href="../dbm/dbm.gas_liq_eq.html#dbm.gas_liq_eq">[docs]</a><span class="k">def</span> <span class="nf">gas_liq_eq</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">K</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Compute the gas and liquid partitioning from K-factor</span>
+<span class="sd">    docstring for gas_liq_eq(m, M, K)</span>
 <span class="sd">    </span>
-<span class="sd">    Compute the gas and liquid mole fractions of a mixture based on the </span>
-<span class="sd">    K-factor.</span>
-<span class="sd">    </span>
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    m : ndarray, size (nc)</span>
-<span class="sd">        masses of each component present in the whole mixture (gas plus </span>
-<span class="sd">        liquid, kg)</span>
-<span class="sd">    M : ndarray, size (nc)</span>
-<span class="sd">        Molecular weights (kg/mol)</span>
-<span class="sd">    K : ndarray, size (nc)</span>
-<span class="sd">        K-factor for partitioning between liquid and gas (--)</span>
-<span class="sd">    </span>
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    xi : ndarray, size(2, nc)</span>
-<span class="sd">        Mole fraction of each component in the mixture.  Row 1 gives the</span>
-<span class="sd">        values for the gas phase and Row 2 gives the values for the liquid </span>
-<span class="sd">        phase (--)</span>
-<span class="sd">    </span>
-<span class="sd">    Notes</span>
-<span class="sd">    -----</span>
-<span class="sd">    The solution is based on equations (12-17) and (12-18) in McCain (1990) </span>
-<span class="sd">    p. 355.</span>
-<span class="sd">    </span>
-<span class="sd">    These equations require iteration until the correct ratio of moles of gas </span>
-<span class="sd">    to moles of liquid is obtained.  This iteration is performed by </span>
-<span class="sd">    `scipy.optimize.fzero`, and computes the excess liquid content</span>
-<span class="sd">    for a given guess of the gas fraction until converged to zero.</span>
+<span class="sd">    This function follows the procedure in Michelsen and Mollerup (2007).  </span>
+<span class="sd">    All page and equation numbers below are from this book unless otherwise</span>
+<span class="sd">    noted.</span>
 <span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c"># Compute the mole fraction of the total mixture</span>
+    <span class="c"># Compute the mole fraction of the total mixture (called the feed in </span>
+    <span class="c"># Michelsen and Mollerup, 2007)</span>
     <span class="n">moles</span> <span class="o">=</span> <span class="n">m</span> <span class="o">/</span> <span class="n">M</span>
-    <span class="n">zj</span> <span class="o">=</span> <span class="n">moles</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">moles</span><span class="p">)</span>
+    <span class="n">zi</span> <span class="o">=</span> <span class="n">moles</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">moles</span><span class="p">)</span>
     
-    <span class="c"># Compute the residual of the liquid composition</span>
-    <span class="k">def</span> <span class="nf">residual</span><span class="p">(</span><span class="n">ng</span><span class="p">):</span>
+    <span class="c"># Define the Rachford-Rice equation for beta as gas fraction.  </span>
+    <span class="k">def</span> <span class="nf">g_gas</span><span class="p">(</span><span class="n">beta</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Evaluate the liquid composition for the current guess of gas fraction</span>
+<span class="sd">        Computes the Rachford-Rice equation, which defines a root-finding </span>
+<span class="sd">        problem for the solution of beta, the gas mole fraction in a mixture.</span>
 <span class="sd">        </span>
-<span class="sd">        The equation to find the composition of a mixture using K-factor</span>
-<span class="sd">        requires iteration until the correct ratio of moles of gas to moles of</span>
-<span class="sd">        liquid is obtained.  This function computes the excess liquid content</span>
-<span class="sd">        for a given guess of the gas fraction.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        zi, K = global variables defined in the main function containing this</span>
+<span class="sd">            subfunction</span>
+<span class="sd">        beta : float</span>
+<span class="sd">            Fraction of moles of mixture in the gas phase, [0, 1]</span>
 <span class="sd">        </span>
-<span class="sd">        Input variables are:</span>
-<span class="sd">            m, M, K, moles  = constant and inherited from above</span>
-<span class="sd">            ng = current guess of moles gas fraction in the mixture (--)</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        g : float</span>
+<span class="sd">            Value of the Rachford-Rice equation, the roots of which are the</span>
+<span class="sd">            solution for beta.</span>
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c"># Compute the composition and return the residual error</span>
-        <span class="k">return</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">zj</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">+</span> <span class="n">ng</span> <span class="o">*</span> <span class="p">(</span><span class="n">K</span> <span class="o">-</span> <span class="mf">1.</span><span class="p">))))</span>
+        <span class="c"># Equation (2) on page 252</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">zi</span> <span class="o">*</span> <span class="p">(</span><span class="n">K</span> <span class="o">-</span> <span class="mf">1.</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">+</span> <span class="n">beta</span> <span class="o">*</span> <span class="p">(</span><span class="n">K</span> <span class="o">-</span> <span class="mf">1.</span><span class="p">)))</span>
     
-    <span class="c"># Find the gas and liquid fraction for the mixture</span>
-    <span class="n">ng</span> <span class="o">=</span> <span class="n">fsolve</span><span class="p">(</span><span class="n">residual</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">)</span>
-    <span class="n">nl</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">-</span> <span class="n">ng</span>
+    <span class="k">def</span> <span class="nf">g_gas_p</span><span class="p">(</span><span class="n">beta</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the gradient of the Rachford-Rice equation, which defines a </span>
+<span class="sd">        root-finding problem for the solution of beta, the gas mole fraction </span>
+<span class="sd">        in a mixture.  This is used in Newton&#39;s method to solve for beta.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        zi, K = global variables defined in the main function containing this</span>
+<span class="sd">            subfunction</span>
+<span class="sd">        beta : float</span>
+<span class="sd">            Fraction of moles of mixture in the gas phase, [0, 1]</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        gp : float</span>
+<span class="sd">            Value of the beta-derivative of the Rachford-Rice equation</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Equation (3) on page 252</span>
+        <span class="k">return</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">zi</span> <span class="o">*</span> <span class="p">(</span><span class="n">K</span> <span class="o">-</span> <span class="mf">1.</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">+</span> <span class="n">beta</span> <span class="o">*</span> <span class="p">(</span><span class="n">K</span> <span class="o">-</span> <span class="mf">1.</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
     
-    <span class="c"># Return the mixture composition</span>
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">zj</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">+</span> <span class="n">nl</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.</span><span class="o">/</span> <span class="n">K</span> <span class="o">-</span> <span class="mf">1.</span><span class="p">)),</span> 
-                     <span class="n">zj</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">+</span> <span class="n">ng</span> <span class="o">*</span> <span class="p">(</span><span class="n">K</span> <span class="o">-</span> <span class="mf">1.</span><span class="p">))])</span>
+    <span class="c"># Define the Rachford-Rice equation for beta_l as liquid fraction</span>
+    <span class="k">def</span> <span class="nf">g_liq</span><span class="p">(</span><span class="n">beta_l</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the modified Rachford-Rice equation, which defines a root-</span>
+<span class="sd">        finding problem for the solution of beta_l, the liquid mole fraction </span>
+<span class="sd">        in a mixture.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        zi, K = global variables defined in the main function containing this</span>
+<span class="sd">            subfunction</span>
+<span class="sd">        beta_l : float</span>
+<span class="sd">            Fraction of moles of mixture in the liquid phase, [0, 1]</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        g : float</span>
+<span class="sd">            Value of the modified Rachford-Rice equation, the roots of which </span>
+<span class="sd">            are the solution for beta_l.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Unlabeled equation at bottom of page 253</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">zi</span> <span class="o">*</span> <span class="p">(</span><span class="n">K</span> <span class="o">-</span> <span class="mf">1.</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">K</span> <span class="o">-</span> <span class="n">beta_l</span> <span class="o">*</span> <span class="p">(</span><span class="n">K</span> <span class="o">-</span> <span class="mf">1.</span><span class="p">)))</span>
+    
+    <span class="k">def</span> <span class="nf">g_liq_p</span><span class="p">(</span><span class="n">beta_l</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the gradient of the modified Rachford-Rice equation, which </span>
+<span class="sd">        defines a root-finding problem for the solution of beta_l, the liquid</span>
+<span class="sd">        mole fraction in a mixture.  This is used in Newton&#39;s method to solve </span>
+<span class="sd">        for beta_l.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        zi, K = global variables defined in the main function containing this</span>
+<span class="sd">            subfunction</span>
+<span class="sd">        beta_l : float</span>
+<span class="sd">            Fraction of moles of mixture in the liquid phase, [0, 1]</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        gp : float</span>
+<span class="sd">            Value of the beta_l-derivative of the modified Rachford-Rice </span>
+<span class="sd">            equation</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># beta_l-derivative of g_liq equation above</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">zi</span> <span class="o">*</span> <span class="p">(</span><span class="n">K</span> <span class="o">-</span> <span class="mf">1.</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="n">K</span> <span class="o">-</span> <span class="n">beta_l</span> <span class="o">*</span> <span class="p">(</span><span class="n">K</span> <span class="o">-</span> <span class="mf">1.</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>    
+    
+    <span class="c"># Step i on page 253:  Check conditions of equations (4) and (5) on page</span>
+    <span class="c"># 252 for existence of a two-phase solution for beta.</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">zi</span> <span class="o">*</span> <span class="n">K</span><span class="p">)</span> <span class="o">-</span> <span class="mf">1.</span> <span class="o">&lt;=</span> <span class="mf">0.</span><span class="p">:</span>
+        <span class="c"># This is subcooled liquid, beta = 0.</span>
+        <span class="n">beta</span> <span class="o">=</span> <span class="mf">0.</span>
+        
+    <span class="k">elif</span> <span class="mf">1.</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">zi</span> <span class="o">/</span> <span class="n">K</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">0.</span><span class="p">:</span>
+        <span class="c"># This is superheated gas, beta = 1.</span>
+        <span class="n">beta</span> <span class="o">=</span> <span class="mf">1.</span>
+        
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c"># This is a two-phase mixture, so search for a solution for beta.</span>
+        <span class="c"># Step ii on page 253:  Check equations (7) and (8) on page 253 for </span>
+        <span class="c"># tighter bounds on the possible range of beta</span>
+        <span class="n">beta_min</span> <span class="o">=</span> <span class="mf">0.</span>
+        <span class="n">beta_max</span> <span class="o">=</span> <span class="mf">1.</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">K</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">K</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mf">1.</span><span class="p">:</span>
+                <span class="c"># Apply equation (7) on page 253</span>
+                <span class="n">beta_min</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">([</span><span class="n">beta_min</span><span class="p">,</span> <span class="p">(</span><span class="n">K</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">zi</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="mf">1.</span><span class="p">)</span> <span class="o">/</span> 
+                           <span class="p">(</span><span class="n">K</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="mf">1.</span><span class="p">)])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c"># Apply equation (8) on page 253</span>
+                <span class="n">beta_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">([</span><span class="n">beta_max</span><span class="p">,</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">zi</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">K</span><span class="p">[</span><span class="n">i</span><span class="p">])])</span>
+        
+        <span class="c"># Step iii on page 254:  Select initial guess for beta and choose</span>
+        <span class="c"># which objective function to use.</span>
+        <span class="n">beta</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">beta_min</span> <span class="o">+</span> <span class="n">beta_max</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">g_gas</span><span class="p">(</span><span class="n">beta</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">0.</span><span class="p">:</span>
+            <span class="c"># Solution will have excess gas</span>
+            <span class="n">eqn</span> <span class="o">=</span> <span class="mf">1.</span>
+            <span class="n">beta_var</span> <span class="o">=</span> <span class="n">beta</span>
+            
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># Solution will have excess liquid</span>
+            <span class="n">eqn</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">beta_var</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">-</span> <span class="n">beta</span>
+            <span class="n">beta_min_hold</span> <span class="o">=</span> <span class="n">beta_min</span>
+            <span class="n">beta_min</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">-</span> <span class="n">beta_max</span>
+            <span class="n">beta_max</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">-</span> <span class="n">beta_min_hold</span>
+        
+        <span class="c"># Set up an iterative solution to find beta_var using the optimal</span>
+        <span class="c"># root-finding equation</span>
+        <span class="n">tol</span> <span class="o">=</span> <span class="mf">1.e-6</span>
+        <span class="n">err</span> <span class="o">=</span> <span class="mf">1.</span>
+        
+        <span class="k">while</span> <span class="n">err</span> <span class="o">&gt;</span> <span class="n">tol</span><span class="p">:</span>
+            <span class="c"># Store the current value of beta</span>
+            <span class="n">beta_old</span> <span class="o">=</span> <span class="n">beta_var</span>
+            
+            <span class="c"># Step iv on page 254:  Perform one iteration of Newton&#39;s method</span>
+            <span class="c"># and narrow the possible range of the solution for beta</span>
+            <span class="k">if</span> <span class="n">eqn</span> <span class="o">&gt;</span> <span class="mf">0.</span><span class="p">:</span>
+                <span class="c"># Use the equations for excess gas</span>
+                <span class="n">g</span> <span class="o">=</span> <span class="n">g_gas</span><span class="p">(</span><span class="n">beta_var</span><span class="p">)</span>
+                <span class="n">gp</span> <span class="o">=</span> <span class="n">g_gas_p</span><span class="p">(</span><span class="n">beta_var</span><span class="p">)</span>
+                <span class="n">beta_new</span> <span class="o">=</span> <span class="n">beta_var</span> <span class="o">-</span> <span class="n">g</span> <span class="o">/</span> <span class="n">gp</span>
+                
+                <span class="c"># Update bounds on beta per criteria in step iv on page 254</span>
+                <span class="k">if</span> <span class="n">g</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">beta_min</span> <span class="o">=</span> <span class="n">beta_var</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">beta_max</span> <span class="o">=</span> <span class="n">beta_var</span>
+            
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c"># Use the equations for excess liqiud</span>
+                <span class="n">g</span> <span class="o">=</span> <span class="n">g_liq</span><span class="p">(</span><span class="n">beta_var</span><span class="p">)</span>
+                <span class="n">gp</span> <span class="o">=</span> <span class="n">g_liq_p</span><span class="p">(</span><span class="n">beta_var</span><span class="p">)</span>
+                <span class="n">beta_new</span> <span class="o">=</span> <span class="n">beta_var</span> <span class="o">-</span> <span class="n">g</span> <span class="o">/</span> <span class="n">gp</span>
+                
+                <span class="c"># Update bounds on beta per criteria in step iv on page 254</span>
+                <span class="k">if</span> <span class="n">g</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">beta_max</span> <span class="o">=</span> <span class="n">beta_var</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">beta_min</span> <span class="o">=</span> <span class="n">beta_var</span>
+            
+            <span class="c"># Step v on page 254:  Select best update for beta</span>
+            <span class="k">if</span> <span class="n">beta_new</span> <span class="o">&lt;=</span> <span class="n">beta_max</span> <span class="ow">and</span> <span class="n">beta_new</span> <span class="o">&gt;=</span> <span class="n">beta_min</span><span class="p">:</span>
+                <span class="c"># Newton&#39;s method is converging within allowable range for </span>
+                <span class="c"># the independent variable:  use the Newton&#39;s method solution</span>
+                <span class="n">beta_var</span> <span class="o">=</span> <span class="n">beta_new</span>
+                
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c"># Newton&#39;s method suggests a solution outside the allowable</span>
+                <span class="c"># range for the independent variable:  use the bisection</span>
+                <span class="c"># method</span>
+                <span class="n">beta_var</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">beta_min</span> <span class="o">+</span> <span class="n">beta_max</span><span class="p">)</span>
+            
+            <span class="c"># Step vi on page 254:  Check for convergence.  Note:  do not</span>
+            <span class="c"># use relative error since beta_var ~= 0 is an acceptable answer</span>
+            <span class="n">err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">beta_var</span> <span class="o">-</span> <span class="n">beta_old</span><span class="p">)</span>
+        
+        <span class="c"># Get the final value of beta, the gas mole fraction</span>
+        <span class="k">if</span> <span class="n">eqn</span> <span class="o">&gt;</span> <span class="mf">0.</span><span class="p">:</span>
+            <span class="c"># We found beta</span>
+            <span class="n">beta</span> <span class="o">=</span> <span class="n">beta_var</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># We found beta_l</span>
+            <span class="n">beta</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">-</span> <span class="n">beta_var</span>
+    
+    <span class="c"># Return the solution for gas and liquid mole fractions based on the</span>
+    <span class="c"># converged value of beta</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">zi</span> <span class="o">*</span> <span class="n">K</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">+</span> <span class="n">beta</span> <span class="o">*</span> <span class="p">(</span><span class="n">K</span> <span class="o">-</span> <span class="mf">1.</span><span class="p">)),</span> 
+                     <span class="n">zi</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">+</span> <span class="n">beta</span> <span class="o">*</span> <span class="p">(</span><span class="n">K</span> <span class="o">-</span> <span class="mf">1.</span><span class="p">))]),</span> <span class="n">beta</span><span class="p">)</span>
 </pre></div></div>
 
           </div>

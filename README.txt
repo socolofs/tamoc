@@ -12,6 +12,13 @@ size distributions from source flow conditions.
 For typical usage, please see the ./bin directory of the source distribution
 for various example scripts.
 
+Version 0.1.12: Replaced methods for equilibrium and viscosity with better
+                algorithms.  Fixed small inconsistencies in the dbm.py module
+                for clean bubbles, and updated the seawater equations of 
+                state with better methods for heat capacity and air/water
+                surface tension.  Updated values for the Setschenow constant
+                in ./data/ChemData.csv, and added a mass transfer equation
+                for Re < 1.
 Version 0.1.11: Replaced some of the -9999 values in the ./data/ChemData.csv
                 file with literature values and updated the units of the
                 calcualtion of Vb in dbm.py when data are not available.  

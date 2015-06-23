@@ -141,32 +141,32 @@ def test_params_module():
     # Test that the governing parameters are computed correctly
     # First, test a single dispersed phase
     model = params.Scales(profile, disp_phases[1])
-    check_get_variables(model, z0, 0.15, 0.21706728746, 
-                        0.00172410090108, 0.226109275333, 0.15)
+    check_get_variables(model, z0, 0.15, 0.21717614671, 
+                        0.00172410090108, 0.226114214737, 0.15)
     
     # Second, try a list of dispersed phases, where the dominant phase is 
     # not the first one
     particles = [disp_phases[1], disp_phases[0], disp_phases[2]]
     model = params.Scales(profile, particles)
-    check_get_variables(model, z0, 0.15, 1.10064267144, 
-                        0.001724100901081246, 0.337634881365, 0.15)
+    check_get_variables(model, z0, 0.15, 1.10118696769, 
+                        0.001724100901081246, 0.337641694398, 0.15)
     
     # Third, make sure we get the same answer as the previous case if the 
     # particles are in a different order (i.e., the original order)
     model = params.Scales(profile, disp_phases)
-    check_get_variables(model, z0, 0.15, 1.10064267144, 
-                        0.001724100901081246, 0.337634881365, 0.15)
+    check_get_variables(model, z0, 0.15, 1.10118696769, 
+                        0.001724100901081246, 0.337641694398, 0.15)
     
     # Using the latest Scales object, check that the other methods return
     # the correct results.  Since these methods only depend on the values 
     # of B, N, and us computed by the get_variables() method, only one case
     # needs to be tested
-    assert_approx_equal(model.h_T(z0), 346.3288387471077, significant=6)
-    assert_approx_equal(model.h_P(z0), 627.4559992348499, significant=6)
-    assert_approx_equal(model.h_S(z0, 0.15), 295.2402066479224, 
+    assert_approx_equal(model.h_T(z0), 346.37419607362875, significant=6)
+    assert_approx_equal(model.h_P(z0), 627.529818214058, significant=6)
+    assert_approx_equal(model.h_S(z0, 0.15), 295.37362236036597, 
         significant=6)
-    assert_approx_equal(model.lambda_1(z0, 0), 0.7452116406438939, 
+    assert_approx_equal(model.lambda_1(z0, 0), 0.7452277141402428, 
         significant=6)
-    assert_approx_equal(model.u_inf_crit(z0), 0.06368497297118722, 
+    assert_approx_equal(model.u_inf_crit(z0), 0.06370915943381314, 
         significant=6)
 

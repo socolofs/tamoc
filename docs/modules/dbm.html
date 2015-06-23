@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.11',
+        VERSION:     '0.1.12',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -60,7 +60,7 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">June 03, 2015</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">June 23, 2015</td>
 </tr>
 </tbody>
 </table>
@@ -104,7 +104,7 @@ the discrete bubble model have not been ported to Fortran and reside in the
 <h2>Class Objects<a class="headerlink" href="#class-objects" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="dbm.FluidMixture">
-<em class="property">class </em><code class="descclassname">dbm.</code><code class="descname">FluidMixture</code><span class="sig-paren">(</span><em>composition</em>, <em>delta=None</em>, <em>user_data={}</em>, <em>delta_groups=None</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/dbm.py#L53"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/dbm.html#FluidMixture"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dbm.FluidMixture" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dbm.</code><code class="descname">FluidMixture</code><span class="sig-paren">(</span><em>composition</em>, <em>delta=None</em>, <em>user_data={}</em>, <em>delta_groups=None</em>, <em>air=False</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/dbm.py#L53"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/dbm.html#FluidMixture"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dbm.FluidMixture" title="Permalink to this definition">¶</a></dt>
 <dd><p>Class object for a fluid mixture</p>
 <p>This object defines the behavior of a fluid mixture defined as a standard
 thermodynamic system.  The mixture may contain just liquid phase, a 
@@ -124,10 +124,34 @@ the second row.</p>
 using the same key names as in ./data/ChemData.csv</p>
 </div></blockquote>
 <p><strong>delta</strong> : ndarray, size (nc, nc)</p>
-<blockquote class="last">
+<blockquote>
 <div><p>Binary interaction coefficients for the Peng-Robinson equation of 
 state.  If not passed at instantiation, Python will assume a 
 full matrix of zeros.</p>
+</div></blockquote>
+<p><strong>user_data</strong> : dict</p>
+<blockquote>
+<div><p>A dictionary of chemical property data.  If not specified, the data
+loaded from <em class="xref py py-obj">/tamoc/data/ChemData.csv</em> by <code class="docutils literal"><span class="pre">chemical_properties</span></code> will
+be used.  To load a different properties database, use the 
+<code class="docutils literal"><span class="pre">chemical_properties.load_data</span></code> function to load in a custom 
+database, and pass that data to this object as <em class="xref py py-obj">user_data</em>.</p>
+</div></blockquote>
+<p><strong>delta_groups</strong> : ndarray (nc, 15)</p>
+<blockquote>
+<div><p>Provides the group contribution numbers (normalized) for each 
+component in the mixture for the 15 groups used by the Privat and
+Jaubert (2012) group contribution method for binary interaction 
+coefficients.  Default is None, in which case the values in <em class="xref py py-obj">delta</em>
+will be used.</p>
+</div></blockquote>
+<p><strong>air</strong> : bool</p>
+<blockquote class="last">
+<div><p>Flag indicating whether or not fluid is air.  The methods for 
+viscosity and interfacial tension below use correlations developed
+for hydocarbons.  If <em class="xref py py-obj">air</em> is False (default value), these built
+in methods are used.  If <em class="xref py py-obj">air</em> is True, then these methods are 
+replaced with correlations between air and seawater.</p>
 </div></blockquote>
 </td>
 </tr>
@@ -186,6 +210,9 @@ full matrix of zeros.</p>
 <tr class="row-odd"><td>dE</td>
 <td>(ndarray, size (nc)) Activation energy (J/mol)</td>
 </tr>
+<tr class="row-even"><td>K_salt</td>
+<td>(Setschenow constants (m^3/mol))</td>
+</tr>
 </tbody>
 </table>
 <p class="rubric">Methods</p>
@@ -201,7 +228,7 @@ full matrix of zeros.</p>
 <tr class="row-even"><td><a class="reference internal" href="../dbm/dbm.FluidMixture.diffusivity.html#dbm.FluidMixture.diffusivity" title="dbm.FluidMixture.diffusivity"><code class="xref py py-obj docutils literal"><span class="pre">diffusivity</span></code></a>(Ta,&nbsp;Sa,&nbsp;P)</td>
 <td>Compute the diffusivity (m^2/s) of each component of a mixture into  seawater at the given temperature.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="../dbm/dbm.FluidMixture.equilibrium.html#dbm.FluidMixture.equilibrium" title="dbm.FluidMixture.equilibrium"><code class="xref py py-obj docutils literal"><span class="pre">equilibrium</span></code></a>(m,&nbsp;T,&nbsp;P)</td>
+<tr class="row-odd"><td><a class="reference internal" href="../dbm/dbm.FluidMixture.equilibrium.html#dbm.FluidMixture.equilibrium" title="dbm.FluidMixture.equilibrium"><code class="xref py py-obj docutils literal"><span class="pre">equilibrium</span></code></a>(m,&nbsp;T,&nbsp;P[,&nbsp;K])</td>
 <td>Computes the equilibrium composition of a gas/liquid mixture.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="../dbm/dbm.FluidMixture.fugacity.html#dbm.FluidMixture.fugacity" title="dbm.FluidMixture.fugacity"><code class="xref py py-obj docutils literal"><span class="pre">fugacity</span></code></a>(m,&nbsp;T,&nbsp;P)</td>
@@ -240,7 +267,7 @@ full matrix of zeros.</p>
 
 <dl class="class">
 <dt id="dbm.FluidParticle">
-<em class="property">class </em><code class="descclassname">dbm.</code><code class="descname">FluidParticle</code><span class="sig-paren">(</span><em>composition</em>, <em>fp_type=0.0</em>, <em>delta=None</em>, <em>user_data={}</em>, <em>delta_groups=None</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/dbm.py#L667"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/dbm.html#FluidParticle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dbm.FluidParticle" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dbm.</code><code class="descname">FluidParticle</code><span class="sig-paren">(</span><em>composition</em>, <em>fp_type=0.0</em>, <em>delta=None</em>, <em>user_data={}</em>, <em>delta_groups=None</em>, <em>air=False</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/dbm.py#L711"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/dbm.html#FluidParticle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dbm.FluidParticle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Class object for a soluble fluid particle</p>
 <p>This object defines the behavior of a soluble fluid particle.  The object
 inherits the internal variables and methods from the <a class="reference internal" href="#dbm.FluidMixture" title="dbm.FluidMixture"><code class="xref py py-obj docutils literal"><span class="pre">FluidMixture</span></code></a> 
@@ -266,10 +293,34 @@ variable allows the class to automatically return the values for the
 desired phase.</p>
 </div></blockquote>
 <p><strong>delta</strong> : ndarray, size (nc, nc)</p>
-<blockquote class="last">
+<blockquote>
 <div><p>Binary interaction coefficients for the Peng-Robinson equation of 
 state.  If not passed at instantiation, Python will assume a 
 full matrix of zeros.</p>
+</div></blockquote>
+<p><strong>user_data</strong> : dict</p>
+<blockquote>
+<div><p>A dictionary of chemical property data.  If not specified, the data
+loaded from <em class="xref py py-obj">/tamoc/data/ChemData.csv</em> by <code class="docutils literal"><span class="pre">chemical_properties</span></code> will
+be used.  To load a different properties database, use the 
+<code class="docutils literal"><span class="pre">chemical_properties.load_data</span></code> function to load in a custom 
+database, and pass that data to this object as <em class="xref py py-obj">user_data</em>.</p>
+</div></blockquote>
+<p><strong>delta_groups</strong> : ndarray (nc, 15)</p>
+<blockquote>
+<div><p>Provides the group contribution numbers (normalized) for each 
+component in the mixture for the 15 groups used by the Privat and
+Jaubert (2012) group contribution method for binary interaction 
+coefficients.  Default is None, in which case the values in <em class="xref py py-obj">delta</em>
+will be used.</p>
+</div></blockquote>
+<p><strong>air</strong> : bool</p>
+<blockquote class="last">
+<div><p>Flag indicating whether or not fluid is air.  The methods for 
+viscosity and interfacial tension below use correlations developed
+for hydocarbons.  If <em class="xref py py-obj">air</em> is False (default value), these built
+in methods are used.  If <em class="xref py py-obj">air</em> is True, then these methods are 
+replaced with correlations between air and seawater.</p>
 </div></blockquote>
 </td>
 </tr>
@@ -312,7 +363,7 @@ full matrix of zeros.</p>
 <tr class="row-odd"><td><a class="reference internal" href="../dbm/dbm.FluidParticle.diffusivity.html#dbm.FluidParticle.diffusivity" title="dbm.FluidParticle.diffusivity"><code class="xref py py-obj docutils literal"><span class="pre">diffusivity</span></code></a>(Ta,&nbsp;Sa,&nbsp;P)</td>
 <td>Compute the diffusivity (m^2/s) of each component of a mixture into  seawater at the given temperature.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="../dbm/dbm.FluidParticle.equilibrium.html#dbm.FluidParticle.equilibrium" title="dbm.FluidParticle.equilibrium"><code class="xref py py-obj docutils literal"><span class="pre">equilibrium</span></code></a>(m,&nbsp;T,&nbsp;P)</td>
+<tr class="row-even"><td><a class="reference internal" href="../dbm/dbm.FluidParticle.equilibrium.html#dbm.FluidParticle.equilibrium" title="dbm.FluidParticle.equilibrium"><code class="xref py py-obj docutils literal"><span class="pre">equilibrium</span></code></a>(m,&nbsp;T,&nbsp;P[,&nbsp;K])</td>
 <td>Computes the equilibrium composition of a gas/liquid mixture.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="../dbm/dbm.FluidParticle.fugacity.html#dbm.FluidParticle.fugacity" title="dbm.FluidParticle.fugacity"><code class="xref py py-obj docutils literal"><span class="pre">fugacity</span></code></a>(m,&nbsp;T,&nbsp;P)</td>
@@ -372,7 +423,7 @@ full matrix of zeros.</p>
 
 <dl class="class">
 <dt id="dbm.InsolubleParticle">
-<em class="property">class </em><code class="descclassname">dbm.</code><code class="descname">InsolubleParticle</code><span class="sig-paren">(</span><em>isfluid</em>, <em>iscompressible</em>, <em>rho_p=930.0</em>, <em>gamma=30.0</em>, <em>beta=0.0007</em>, <em>co=2.90075e-09</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/dbm.py#L1288"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/dbm.html#InsolubleParticle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dbm.InsolubleParticle" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dbm.</code><code class="descname">InsolubleParticle</code><span class="sig-paren">(</span><em>isfluid</em>, <em>iscompressible</em>, <em>rho_p=930.0</em>, <em>gamma=30.0</em>, <em>beta=0.0007</em>, <em>co=2.90075e-09</em>, <em>fp_type=1</em>, <em>air=False</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/dbm.py#L1359"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/dbm.html#InsolubleParticle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dbm.InsolubleParticle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Class object for an insoluble (inert) fluid particle</p>
 <p>This object defines the behavior of an inert fluid particle.  The purpose
 of this class is to simulate particle that cannot be described by the 
@@ -408,9 +459,23 @@ instantiation.</p>
 <div><p>thermal expansion coefficient (default value is 0.0007 K^(-1))</p>
 </div></blockquote>
 <p><strong>co</strong> : float</p>
-<blockquote class="last">
+<blockquote>
 <div><p>isothermal compressibility coefficient (default value is 
 2.90075e-9 Pa^(-1))</p>
+</div></blockquote>
+<p><strong>fp_type</strong> : integer</p>
+<blockquote>
+<div><p>Defines the fluid type (0 = gas, 1 = liquid) that is expected to be 
+contained in the particle.  This is needed because the heat transfer
+equations are different for gas and liquid.  The default value is 1.</p>
+</div></blockquote>
+<p><strong>air</strong> : bool</p>
+<blockquote class="last">
+<div><p>Flag indicating whether or not fluid is air.  The methods for 
+viscosity and interfacial tension below use correlations developed
+for hydocarbons.  If <em class="xref py py-obj">air</em> is False (default value), these built
+in methods are used.  If <em class="xref py py-obj">air</em> is True, then these methods are 
+replaced with correlations between air and seawater.</p>
 </div></blockquote>
 </td>
 </tr>
@@ -502,11 +567,17 @@ instantiation.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="../dbm/dbm.equilibrium.html#dbm.equilibrium" title="dbm.equilibrium"><code class="xref py py-obj docutils literal"><span class="pre">equilibrium</span></code></a>(m_0,&nbsp;T,&nbsp;P,&nbsp;M,&nbsp;Pc,&nbsp;Tc,&nbsp;omega,&nbsp;...)</td>
+<tr class="row-odd"><td><a class="reference internal" href="../dbm/dbm.equil_MM.html#dbm.equil_MM" title="dbm.equil_MM"><code class="xref py py-obj docutils literal"><span class="pre">equil_MM</span></code></a>(m,&nbsp;T,&nbsp;P,&nbsp;M,&nbsp;Pc,&nbsp;Tc,&nbsp;omega,&nbsp;delta,&nbsp;...)</td>
 <td>Compute the equilibrium composition of a mixture using the P-R EOS</td>
 </tr>
+<tr class="row-even"><td><a class="reference internal" href="../dbm/dbm.successive_substitution.html#dbm.successive_substitution" title="dbm.successive_substitution"><code class="xref py py-obj docutils literal"><span class="pre">successive_substitution</span></code></a>(m,&nbsp;T,&nbsp;P,&nbsp;max_iter,&nbsp;...)</td>
+<td>Find K-factors by successive substitution</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="../dbm/dbm.stability_analysis.html#dbm.stability_analysis" title="dbm.stability_analysis"><code class="xref py py-obj docutils literal"><span class="pre">stability_analysis</span></code></a>(m,&nbsp;T,&nbsp;P,&nbsp;M,&nbsp;Pc,&nbsp;Tc,&nbsp;...)</td>
+<td>Perform stability analysis to determine the stability of a mixture</td>
+</tr>
 <tr class="row-even"><td><a class="reference internal" href="../dbm/dbm.gas_liq_eq.html#dbm.gas_liq_eq" title="dbm.gas_liq_eq"><code class="xref py py-obj docutils literal"><span class="pre">gas_liq_eq</span></code></a>(m,&nbsp;M,&nbsp;K)</td>
-<td>Compute the gas and liquid partitioning from K-factor</td>
+<td>docstring for gas_liq_eq(m, M, K)</td>
 </tr>
 </tbody>
 </table>

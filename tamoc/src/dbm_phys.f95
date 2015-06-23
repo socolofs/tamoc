@@ -476,6 +476,92 @@ end subroutine  us_spherical_cap
 ! Mass Transfer Coefficients
 ! ----------------------------------------------------------------------------
 
+
+subroutine xfer_kumar_hartland(de, us, rho, mu, D, sigma, mu_p, nc, &
+    &                          beta)
+    
+    !
+    ! Compute the mass transfer coefficient for clean fluid particles
+    !
+    ! Computes the mass transfer coefficients for clean fluid particles 
+    ! following the formulas in Kumar and Hartland (1999), "Correlations for
+    ! prediction of mass transfer coefficients in single drop systems and 
+    ! liquid-liquid extraction columns," Trans. IChemE., 77, Part A, 372--
+    ! 384.
+    !
+    ! This equation performs similarly to the Johnson et al. (1969) equation
+    ! in the ellipsoidal bubble regime and for large spherical particles and
+    ! follows the Clift et al. (1978) formulation for solid particles for 
+    ! smaller spherical particles.  For small spherical particles, the Johnson
+    ! et al. (1969) formula gets very small; hence, either the Clift et al.
+    ! (1978) or the Kumar and Hartland (1999) equations are preferred for 
+    ! small spherical particles.
+    !
+    ! Input variables:
+    !     de = equivalent spherical diameter (m)
+    !     us = slip velocity of the dispersed phase (m/s)
+    !     rho = continuous phase density (kg/m^3)
+    !     mu = dynamic viscosity of the continuous phase (Pa s)
+    !     D = diffusion coefficients of the dispersed phase components in the
+    !         continuous phase fluid (m^2/s)
+    !     sigma = interfacial tension between seawater and the dispersed 
+    !             phase (N/m)
+    !     mu_p = viscosity of the dispersed phase (Pa s)
+    !     nc = number of tracked dispersed phase chemical components
+    !
+    ! Returns the mass transfer coefficients (m/s) for each component in the
+    ! dispersed phase (assuming rigid spheres).
+    !
+    ! S. Socolofsky 
+    ! June 2015
+    !
+    
+    use Phys_Constants
+    implicit none
+    
+    ! Declare the input and output variable types
+    integer, intent(in) :: nc
+    real(kind = DP), intent(in) :: de, us, rho, mu, sigma, mu_p
+    real(kind = DP), intent(in), dimension(nc) :: D
+    real(kind = DP), intent(out), dimension(nc) :: beta
+    
+    ! Declare the variables internal to the subroutine
+    real(kind = DP) :: C1, C2, n1, n2, n3, n4, Re
+    real(kind = DP), dimension(nc) :: Sc, Pe, Sh_rigid, Sh_infty, lambda, Sh
+    
+    ! Constants for the formulas
+    C1 = 50.0D0
+    C2 = 5.26D-2
+    n1 = (1.0D0 / 3.0D0) + 6.59D-2 * Re**0.25D0
+    n2 = 1.0D0 / 3.0D0
+    n3 = 1.0D0 / 3.0D0
+    n4 = 1.1D0
+    
+    ! Compute the Reynolds, Schmidt, and Peclet numbers
+    Re = de * us * rho / mu
+    Sc(:) = mu / (rho * D(:))
+    Pe(:) = de * us / D(:)
+    
+    ! Compute equation 16
+    Sh_rigid(:) = 2.43D0 + 0.775D0 * Re**0.5D0 * Sc(:)**n2 + 0.0103D0 * Re &
+        &         * Sc(:)**n2
+    
+    ! Compute equation 50
+    Sh_infty(:) = C1 + 2.0D0 / sqrt(PI) * Pe(:)**0.5D0
+    
+    ! Compute lambda as the RHS of equation 51
+    lambda(:) = C2 * Re**n1 * Sc(:)**n2 * (us * mu / sigma)**n3 * 1.0D0 / &
+        &    (1.0D0 + (mu_p / mu)**n4)
+    
+    ! Compute the in situ Sherwood number
+    Sh(:) = (Sh_infty(:) * lambda(:) + Sh_rigid(:)) / (1.0D0 + lambda(:))
+    
+    ! Convert Sherwood number to mass transfer coefficient
+    beta(:) = Sh(:) * D(:) / de
+    
+end subroutine xfer_kumar_hartland
+
+
 subroutine xfer_johnson(de, us, D, nc, &
     &                   beta)
     
@@ -490,6 +576,11 @@ subroutine xfer_johnson(de, us, D, nc, &
     !     us = slip velocity of the dispersed phase (m/s)
     !     D = diffusion coefficients of the dispersed phase components in the
     !         continuous phase fluid (m^2/s)
+    !     nc = number of tracked dispersed phase chemical components
+    !
+    ! S. Socolofsky
+    ! June 2015
+    !
     
     use Phys_Constants
     implicit none
@@ -507,21 +598,22 @@ subroutine xfer_johnson(de, us, D, nc, &
 end subroutine xfer_johnson
 
 
-subroutine xfer_sphere(de, us, rho, mu, D, nc, &
-    &                  beta)
+subroutine xfer_clift(de, us, rho, mu, D, nc, &
+    &                 beta)
     
     ! 
     ! Compute the mass transfer coefficients for a rigid sphere
     ! 
     ! Computes the mass transfer coefficients for a rigid sphere in water from
-    ! equations in Clift et al. (1978).  For Re < 100, equation (5-25) on 
-    ! page 121 is used; for Re < 1e5, equations in Table 5.4 on page 123 are 
-    ! used.  All of these equations assume high Schmidt number.
+    ! equations in Clift et al. (1978).  For Re < 1, uses equation (3-49) on 
+    ! page 49 for creeping flow past a sphere.  For higher Reynolds numbers,
+    ! for Re < 100, equation (5-25) page 121 is used; for Re < 1e5, equations 
+    ! in Table 5.4 on page 123 are used.  All of these equations assume high 
+    ! Schmidt number.
     ! 
     ! These equations may be used for fluid particles in contaminated systems
     ! when slight impurities result in the bubble or droplet having no 
-    ! internal circulations.  Currently, this function uses these equations 
-    ! for all spherical particles.
+    ! internal circulations.
     ! 
     ! Input variables:
     !     de = equivalent spherical diameter (m)
@@ -530,6 +622,8 @@ subroutine xfer_sphere(de, us, rho, mu, D, nc, &
     !     mu = dynamic viscosity of the continuous phase (Pa s)
     !     D = diffusion coefficients of the dispersed phase components in the
     !         continuous phase fluid (m^2/s)
+    !     status = flag indicating whether the interface is clean (status = 1)
+    !              or dirty (status = -1)
     !     nc = number of tracked dispersed phase chemical components
     ! 
     ! Returns the mass transfer coefficients (m/s) for each component in the
@@ -561,10 +655,12 @@ subroutine xfer_sphere(de, us, rho, mu, D, nc, &
     ! Compute the Sherwood Number
     do i = 1, nc
         if (D(i) > 0.0D0) then
-            if (Re < 100) then
+            if (Re < 1.0D0) then
+                Sh(i)  = 1.0D0 + (1.0D0 + Pe(i))**(1.0D0/3.0D0)
+            else if (Re < 100.0D0) then
                 Sh(i) = 1.0D0 + (1.0D0 + 1.0D0 / Pe(i))**(1.0D0/3.0D0) * &
                     & Re**0.41D0 * Sc(i)**(1.0D0/3.0D0)
-            else if (Re < 2000) then
+            else if (Re < 2000.0D0) then
                 Sh(i) = 1.0D0 + 0.724D0 * Re**(0.48D0) * Sc(i)**(1.0D0/3.0D0)
             else
                 Sh(i) = 1.0D0 + 0.425D0 * Re**0.55D0 * Sc(i)**(1.0D0/3.0D0)
@@ -577,10 +673,84 @@ subroutine xfer_sphere(de, us, rho, mu, D, nc, &
     ! Return the mass transfer coefficient
     beta(:) = Sh(:) * D(:) / de
     
+end subroutine xfer_clift
+
+
+subroutine xfer_sphere(de, us, rho, mu, D, sigma, mu_p, fp_type, status, nc, &
+    &                  beta)
+    
+    ! 
+    ! Compute the mass transfer coefficients for a spherical fluid particle
+    ! 
+    ! This function computes the mass transfer for a spherical fluid particle
+    ! using equations in Johnson et al. (1969) for clean bubbles and equations
+    ! for solid particles in Clift et al. (1978) for dirty bubbles.
+    ! 
+    ! Input variables:
+    !     de = equivalent spherical diameter (m)
+    !     us = slip velocity of the dispersed phase (m/s)
+    !     rho = continuous phase density (kg/m^3)
+    !     mu = dynamic viscosity of the continuous phase (Pa s)
+    !     D = diffusion coefficients of the dispersed phase components in the
+    !         continuous phase fluid (m^2/s)
+    !     sigma = interfacial tension between seawater and the dispersed 
+    !             phase (N/m)
+    !     mu_p = viscosity of the dispersed phase (Pa s)
+    !     fp_type = flag indicating whether the fluid is 0: gas or 1: 
+    !               liquid.
+    !     nc = number of tracked dispersed phase chemical components
+    ! 
+    ! Returns the mass transfer coefficients (m/s) for each component in the
+    ! dispersed phase (assuming rigid spheres).
+    ! 
+    ! S. Socolofsky
+    ! June 2013
+    ! 
+    
+    use Phys_Constants
+    implicit none
+    
+    ! Declare the input and output variable types
+    integer, intent(in) :: nc, fp_type, status
+    real(kind = DP), intent(in) :: de, us, rho, mu, sigma, mu_p
+    real(kind = DP), intent(in), dimension(nc) :: D
+    real(kind = DP), intent(out), dimension(nc) :: beta
+    
+    ! Declare the variables internal to the subroutine
+    integer :: i
+    real(kind = DP), dimension(nc) :: beta_j, beta_c
+    
+    ! Compute the correct mass transfer coefficients
+    if (status > 0) then
+        if (fp_type > 0) then
+            ! This is a liquid particle: use Kumar and Hartland
+            call xfer_kumar_hartland(de, us, rho, mu, D, sigma, mu_p, nc, &
+                &                    beta)
+        else
+            ! This is gas: use larger of Johnson or Clift
+            call xfer_johnson(de, us, D, nc, beta_j)
+            call xfer_clift(de, us, rho, mu, D, nc, beta_c)
+            
+            ! For small particles, the Johnson formula is too low
+            do i = 1, nc
+                if (beta_j(i) > beta_c(i)) then
+                    ! Johnson is ok
+                    beta(i) = beta_j(i)
+                else
+                    ! Clift is better
+                    beta(i) = beta_c(i)
+                end if
+            end do
+        end if
+    else
+        call xfer_clift(de, us, rho, mu, D, nc, beta)
+    end if
+    
 end subroutine xfer_sphere
 
 
-subroutine xfer_ellipsoid(de, us, rho, mu, D, status, nc, &
+subroutine xfer_ellipsoid(de, us, rho, mu, D, sigma, mu_p, fp_type, status, &
+    &                     nc, &
     &                     beta)
     
     ! 
@@ -601,6 +771,9 @@ subroutine xfer_ellipsoid(de, us, rho, mu, D, status, nc, &
     !     mu = dynamic viscosity of the continuous phase (Pa s)
     !     D = diffusion coefficients of the dispersed phase components in the
     !         continuous phase fluid (m^2/s)
+    !     sigma = interfacial tension between seawater and the dispersed 
+    !             phase (N/m)
+    !     mu_p = viscosity of the dispersed phase (Pa s)
     !     status = flag indicating whether the interface is clean (status = 1)
     !              or dirty (status = -1)
     !     nc = number of tracked dispersed phase chemical components
@@ -616,16 +789,39 @@ subroutine xfer_ellipsoid(de, us, rho, mu, D, status, nc, &
     implicit none
     
     ! Declare the input and output variable types
-    integer, intent(in) :: status, nc
-    real(kind = DP), intent(in) :: de, us, rho, mu
+    integer, intent(in) :: status, fp_type, nc
+    real(kind = DP), intent(in) :: de, us, rho, mu, sigma, mu_p
     real(kind = DP), intent(in), dimension(nc) :: D
     real(kind = DP), intent(out), dimension(nc) :: beta
     
+    ! Declare the variables internal to the subroutine
+    integer :: i
+    real(kind = DP), dimension(nc) :: beta_j, beta_c
+    
     ! Compute the correct mass transfer coefficients
     if (status > 0) then
-        call xfer_johnson(de, us, D, nc, beta)
+        if (fp_type > 0) then
+            ! This is a liquid particle: use Kumar and Hartland
+            call xfer_kumar_hartland(de, us, rho, mu, D, sigma, mu_p, nc, &
+                &                    beta)
+        else
+            ! This is gas: use larger of Johnson or Clift
+            call xfer_johnson(de, us, D, nc, beta_j)
+            call xfer_clift(de, us, rho, mu, D, nc, beta_c)
+            
+            ! For small particles, the Johnson formula is too low
+            do i = 1, nc
+                if (beta_j(i) > beta_c(i)) then
+                    ! Johnson is ok
+                    beta(i) = beta_j(i)
+                else
+                    ! Clift is better
+                    beta(i) = beta_c(i)
+                end if
+            end do
+        end if
     else
-        call xfer_sphere(de, us, rho, mu, D, nc, beta)
+        call xfer_clift(de, us, rho, mu, D, nc, beta)
     end if
     
 end subroutine xfer_ellipsoid

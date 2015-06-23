@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.11',
+        VERSION:     '0.1.12',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -61,12 +61,26 @@
 
 <span class="sd">Parameters</span>
 <span class="sd">----------</span>
-<span class="sd">The chemical data are stored in ``./data/ChemData.csv``. The columns in the </span>
-<span class="sd">file are expected to contain a key name, the molecular weight, critical-point</span>
-<span class="sd">pressure, critical-point temperature, acentric factor, Henry&#39;s law constant at</span>
-<span class="sd">298.15 K, enthalpy of solution, specific volume at inifinite dilution, and </span>
-<span class="sd">parameters of the diffusivity model.  The data sources and more details are</span>
+<span class="sd">The chemical data are stored in ``./data/ChemData.csv``. Header rows are </span>
+<span class="sd">denoted by `%, the last row of pure text is taken as the variable names and</span>
+<span class="sd">the last row with `()` is taken as the units.  The columns should include</span>
+<span class="sd">a key name (e.g., `methane`), the molecular weight, critical point pressure, </span>
+<span class="sd">critical point temperature, critical point molar volumne, boiling point </span>
+<span class="sd">temperature, molar volume at the boiling point, acentric factor, Henry&#39;s</span>
+<span class="sd">law constant at 298.15 K, negative of the enthalpy of dilution, parameters</span>
+<span class="sd">`B` and `dE` of the diffusivity model (no longer used), and the Setschenow </span>
+<span class="sd">salting out correction constant.  For unknown parameter values, use -9999.</span>
+
+<span class="sd">For the data provided by the model, the data sources and more details are</span>
 <span class="sd">documented in the file ``../docs/ChemData_ReadMe.txt``.</span>
+
+<span class="sd">This module can read in any number of columns of chemical data, including</span>
+<span class="sd">parameters not listed below.  Units will be converted to standard SI units, </span>
+<span class="sd">and the conversion function will operate on g/mol, psia, F, mol/dm^3 atm, </span>
+<span class="sd">mm^2/s, cal/mol.  The returned variables `units` will contain the final</span>
+<span class="sd">set of units for the database.  To use the TAMOC suite of models, all </span>
+<span class="sd">parameters listed below in the `data` dictionary must be provided with the</span>
+<span class="sd">variable names listed.  </span>
 
 <span class="sd">Returns</span>
 <span class="sd">-------</span>
@@ -87,11 +101,21 @@
 <span class="sd">       nu_bar : specific volume at infinite dilution (m^3/mol)</span>
 <span class="sd">       B : diffusivity model coefficient (m^2/s)</span>
 <span class="sd">       dE : diffusivity model coefficient (J/mol)</span>
+<span class="sd">       K_salt : Setschenow salting out correction for solubility (m^3/mol)</span>
 
 <span class="sd">units : dict</span>
 <span class="sd">    dictionary with the same keys as the variables names listed above </span>
 <span class="sd">    (e.g., M, Pc, Tc, etc.) linked to a string containing the units of </span>
 <span class="sd">    each variable.</span>
+
+<span class="sd">Notes</span>
+<span class="sd">-----</span>
+<span class="sd">To use the properties database distributed by TAMOC, simply import this </span>
+<span class="sd">file in Python:  the results will be returned in `chemical_properties.data`.</span>
+<span class="sd">To import a user-defined database of properties, use the function </span>
+<span class="sd">``load_data`` provided in this module.  The ``TAMOC`` suite of models will</span>
+<span class="sd">pull data from both the default and any user-specified database, giving</span>
+<span class="sd">first priority to parameter keys found in the user-specified database.</span>
 
 <span class="sd">See also</span>
 <span class="sd">--------</span>
@@ -172,51 +196,48 @@
                 <span class="n">data</span><span class="p">[</span><span class="n">entries</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span><span class="n">header_keys</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">(</span><span class="n">entries</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
                         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">entries</span><span class="p">))}</span>
             
-    <span class="c"># Add the units to the dictionary</span>
+    <span class="c"># Add the units to two different dictionaries</span>
+    <span class="n">read_units</span> <span class="o">=</span> <span class="p">{</span><span class="n">header_keys</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="p">:</span> <span class="n">header_units</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                  <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">header_units</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)}</span>
     <span class="n">units</span> <span class="o">=</span> <span class="p">{</span><span class="n">header_keys</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="p">:</span> <span class="n">header_units</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
              <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">header_units</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)}</span>
-    
+                      
     <span class="c"># Convert to SI units.  If you add a new unit to the file ChemData.csv, </span>
     <span class="c"># then you should include a check for it here.</span>
     <span class="k">for</span> <span class="n">chemical</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">units</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">units</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;g/mol&#39;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">read_units</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">read_units</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;g/mol&#39;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c"># Convert to kg/mol</span>
                 <span class="n">data</span><span class="p">[</span><span class="n">chemical</span><span class="p">][</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">chemical</span><span class="p">][</span><span class="n">variable</span><span class="p">]</span> <span class="o">/</span> <span class="mf">1000.</span>
+                <span class="n">units</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;(kg/mol)&#39;</span>
             
-            <span class="k">if</span> <span class="n">units</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;psia&#39;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">read_units</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;psia&#39;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c"># Convert to Pa</span>
                 <span class="n">data</span><span class="p">[</span><span class="n">chemical</span><span class="p">][</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">chemical</span><span class="p">][</span><span class="n">variable</span><span class="p">]</span> <span class="o">*</span> <span class="mf">6894.76</span>
+                <span class="n">units</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;(Pa)&#39;</span>
             
-            <span class="k">if</span> <span class="n">units</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;F&#39;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">read_units</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;F&#39;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c"># Convert to K</span>
                 <span class="n">data</span><span class="p">[</span><span class="n">chemical</span><span class="p">][</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">chemical</span><span class="p">][</span><span class="n">variable</span><span class="p">]</span> <span class="o">-</span> <span class="mf">32.</span><span class="p">)</span> <span class="o">*</span> \
                                            <span class="mf">5.</span> <span class="o">/</span> <span class="mf">9.</span> <span class="o">+</span> <span class="mf">273.15</span>
+                <span class="n">units</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;(K)&#39;</span>
             
-            <span class="k">if</span> <span class="n">units</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;mol/dm^3 atm&#39;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">read_units</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;mol/dm^3 atm&#39;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c"># Convert to kg/(m^3 Pa)</span>
                 <span class="n">data</span><span class="p">[</span><span class="n">chemical</span><span class="p">][</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">chemical</span><span class="p">][</span><span class="n">variable</span><span class="p">]</span> <span class="o">*</span> \
                                            <span class="mf">1000.</span> <span class="o">/</span> <span class="mf">101325.</span> <span class="o">*</span> \
                                            <span class="n">data</span><span class="p">[</span><span class="n">chemical</span><span class="p">][</span><span class="s">&#39;M&#39;</span><span class="p">])</span>
+                <span class="n">units</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;(kg/(m^3 Pa))&#39;</span>
             
-            <span class="k">if</span> <span class="n">units</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;mm^2/sec&#39;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">read_units</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;mm^2/s&#39;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c"># Convert to m^3/s</span>
                 <span class="n">data</span><span class="p">[</span><span class="n">chemical</span><span class="p">][</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">chemical</span><span class="p">][</span><span class="n">variable</span><span class="p">]</span> <span class="o">/</span> <span class="mf">1000.</span><span class="o">**</span><span class="mi">2</span>
+                <span class="n">units</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;(m^3/s)&#39;</span>
             
-            <span class="k">if</span> <span class="n">units</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;cal/mol&#39;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">read_units</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;cal/mol&#39;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c"># Convert to J/mol</span>
                 <span class="n">data</span><span class="p">[</span><span class="n">chemical</span><span class="p">][</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">chemical</span><span class="p">][</span><span class="n">variable</span><span class="p">]</span> <span class="o">/</span> <span class="mf">0.238846</span>
-    
-    <span class="c"># Now that all the data are converted, store the correct units.  Only set</span>
-    <span class="c"># the units of checked above.  If the user has other data in the table, </span>
-    <span class="c"># leave the units alone.</span>
-    <span class="n">units</span><span class="p">[</span><span class="n">header_keys</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="s">&#39;(--)&#39;</span>
-    <span class="n">units</span><span class="p">[</span><span class="n">header_keys</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="s">&#39;(kg/mol)&#39;</span>
-    <span class="n">units</span><span class="p">[</span><span class="n">header_keys</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span> <span class="o">=</span> <span class="s">&#39;(Pa)&#39;</span>
-    <span class="n">units</span><span class="p">[</span><span class="n">header_keys</span><span class="p">[</span><span class="mi">3</span><span class="p">]]</span> <span class="o">=</span> <span class="s">&#39;(K)&#39;</span>
-    <span class="n">units</span><span class="p">[</span><span class="n">header_keys</span><span class="p">[</span><span class="mi">4</span><span class="p">]]</span> <span class="o">=</span> <span class="s">&#39;(m^3/mol)&#39;</span>
-    <span class="n">units</span><span class="p">[</span><span class="n">header_keys</span><span class="p">[</span><span class="mi">5</span><span class="p">]]</span> <span class="o">=</span> <span class="s">&#39;(K)&#39;</span>
-    <span class="n">units</span><span class="p">[</span><span class="n">header_keys</span><span class="p">[</span><span class="mi">6</span><span class="p">]]</span> <span class="o">=</span> <span class="s">&#39;(m^3/mol)&#39;</span>
-    <span class="n">units</span><span class="p">[</span><span class="n">header_keys</span><span class="p">[</span><span class="mi">6</span><span class="p">]]</span> <span class="o">=</span> <span class="s">&#39;(--)&#39;</span>
-    <span class="n">units</span><span class="p">[</span><span class="n">header_keys</span><span class="p">[</span><span class="mi">7</span><span class="p">]]</span> <span class="o">=</span> <span class="s">&#39;(kg/m^3 Pa)&#39;</span>
-    <span class="n">units</span><span class="p">[</span><span class="n">header_keys</span><span class="p">[</span><span class="mi">8</span><span class="p">]]</span> <span class="o">=</span> <span class="s">&#39;(K)&#39;</span>
-    <span class="n">units</span><span class="p">[</span><span class="n">header_keys</span><span class="p">[</span><span class="mi">9</span><span class="p">]]</span> <span class="o">=</span> <span class="s">&#39;(m^3/mol)&#39;</span>
-    <span class="n">units</span><span class="p">[</span><span class="n">header_keys</span><span class="p">[</span><span class="mi">10</span><span class="p">]]</span> <span class="o">=</span> <span class="s">&#39;(m^2/s)&#39;</span>
-    <span class="n">units</span><span class="p">[</span><span class="n">header_keys</span><span class="p">[</span><span class="mi">11</span><span class="p">]]</span> <span class="o">=</span> <span class="s">&#39;(J/mol)&#39;</span>
+                <span class="n">units</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;(J/mol)&#39;</span>
     
     <span class="k">return</span> <span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">units</span><span class="p">)</span>
 

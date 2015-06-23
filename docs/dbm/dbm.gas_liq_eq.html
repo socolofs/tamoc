@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.11',
+        VERSION:     '0.1.12',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -26,7 +26,6 @@
     <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../contents.html" />
     <link rel="up" title="Reference" href="../modules/reference.html" />
     <link rel="next" title="Overview of Dispersed Phases Module" href="../modules/disp_phases.html" />
-    <link rel="prev" title="dbm.equilibrium" href="dbm.equilibrium.html" />
    
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
@@ -42,9 +41,6 @@
         <li class="right" >
           <a href="../modules/disp_phases.html" title="Overview of Dispersed Phases Module"
              accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="dbm.equilibrium.html" title="dbm.equilibrium"
-             accesskey="P">previous</a> |</li>
 <li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
 
           <li class="nav-item nav-item-1"><a href="../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
@@ -64,52 +60,17 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">June 03, 2015</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">June 23, 2015</td>
 </tr>
 </tbody>
 </table>
 <dl class="function">
 <dt id="dbm.gas_liq_eq">
-<code class="descclassname">dbm.</code><code class="descname">gas_liq_eq</code><span class="sig-paren">(</span><em>m</em>, <em>M</em>, <em>K</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/dbm.py#L1913"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/dbm.html#gas_liq_eq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dbm.gas_liq_eq" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute the gas and liquid partitioning from K-factor</p>
-<p>Compute the gas and liquid mole fractions of a mixture based on the 
-K-factor.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>m</strong> : ndarray, size (nc)</p>
-<blockquote>
-<div><p>masses of each component present in the whole mixture (gas plus 
-liquid, kg)</p>
-</div></blockquote>
-<p><strong>M</strong> : ndarray, size (nc)</p>
-<blockquote>
-<div><p>Molecular weights (kg/mol)</p>
-</div></blockquote>
-<p><strong>K</strong> : ndarray, size (nc)</p>
-<blockquote>
-<div><p>K-factor for partitioning between liquid and gas (&#8211;)</p>
-</div></blockquote>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>xi</strong> : ndarray, size(2, nc)</p>
-<blockquote class="last">
-<div><p>Mole fraction of each component in the mixture.  Row 1 gives the
-values for the gas phase and Row 2 gives the values for the liquid 
-phase (&#8211;)</p>
-</div></blockquote>
-</td>
-</tr>
-</tbody>
-</table>
-<p class="rubric">Notes</p>
-<p>The solution is based on equations (12-17) and (12-18) in McCain (1990) 
-p. 355.</p>
-<p>These equations require iteration until the correct ratio of moles of gas 
-to moles of liquid is obtained.  This iteration is performed by 
-<em class="xref py py-obj">scipy.optimize.fzero</em>, and computes the excess liquid content
-for a given guess of the gas fraction until converged to zero.</p>
+<code class="descclassname">dbm.</code><code class="descname">gas_liq_eq</code><span class="sig-paren">(</span><em>m</em>, <em>M</em>, <em>K</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/dbm.py#L2451"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/dbm.html#gas_liq_eq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dbm.gas_liq_eq" title="Permalink to this definition">¶</a></dt>
+<dd><p>docstring for gas_liq_eq(m, M, K)</p>
+<p>This function follows the procedure in Michelsen and Mollerup (2007).  
+All page and equation numbers below are from this book unless otherwise
+noted.</p>
 </dd></dl>
 
 </div>
@@ -123,9 +84,6 @@ for a given guess of the gas fraction until converged to zero.</p>
             <p class="logo"><a href="../contents.html">
               <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
             </a></p>
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="dbm.equilibrium.html"
-                        title="previous chapter">dbm.equilibrium</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="../modules/disp_phases.html"
                         title="next chapter">Overview of Dispersed Phases Module</a></p>

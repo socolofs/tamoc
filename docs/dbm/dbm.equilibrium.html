@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.11',
+        VERSION:     '0.1.12',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -64,76 +64,10 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">June 03, 2015</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">June 23, 2015</td>
 </tr>
 </tbody>
 </table>
-<dl class="function">
-<dt id="dbm.equilibrium">
-<code class="descclassname">dbm.</code><code class="descname">equilibrium</code><span class="sig-paren">(</span><em>m_0</em>, <em>T</em>, <em>P</em>, <em>M</em>, <em>Pc</em>, <em>Tc</em>, <em>omega</em>, <em>delta</em>, <em>Aij</em>, <em>Bij</em>, <em>delta_groups</em>, <em>calc_delta</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/dbm.py#L1813"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/dbm.html#equilibrium"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dbm.equilibrium" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute the equilibrium composition of a mixture using the P-R EOS</p>
-<p>Computes the mole fraction composition for the gas and liquid phases of a
-mixture using the Peng-Robinson equation of state and the methodology
-described in McCain (1990), Properties of Petroleum Fluids, 2nd Edition,
-PennWell Publishing Company, Tulsa, Oklahoma.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>T</strong> : float</p>
-<blockquote>
-<div><p>temperature (K)</p>
-</div></blockquote>
-<p><strong>P</strong> : float</p>
-<blockquote>
-<div><p>pressure (Pa)</p>
-</div></blockquote>
-<p><strong>m_0</strong> : ndarray, size (nc)</p>
-<blockquote>
-<div><p>masses of each component present in the whole mixture (gas plus 
-liquid, kg)</p>
-</div></blockquote>
-<p><strong>M</strong> : ndarray, size (nc)</p>
-<blockquote>
-<div><p>Molecular weights (kg/mol)</p>
-</div></blockquote>
-<p><strong>Pc</strong> : ndarray, size (nc)</p>
-<blockquote>
-<div><p>Critical pressures (Pa)</p>
-</div></blockquote>
-<p><strong>Tc</strong> : ndarray, size (nc)</p>
-<blockquote>
-<div><p>Critical temperatures (K)</p>
-</div></blockquote>
-<p><strong>omega</strong> : ndarray, size (nc)</p>
-<blockquote>
-<div><p>Acentric factors (&#8211;)</p>
-</div></blockquote>
-<p><strong>delta</strong> : ndarray, size (nc, nc)</p>
-<blockquote>
-<div><p>Binary interaction coefficients for the Peng-Robinson equation of 
-state.  If not passed at instantiation, Python will assume a 
-full matrix of zeros.</p>
-</div></blockquote>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>xi</strong> : ndarray, size(2, nc)</p>
-<blockquote class="last">
-<div><p>Mole fraction of each component in the mixture.  Row 1 gives the
-values for the gas phase and Row 2 gives the values for the liquid 
-phase (&#8211;)</p>
-</div></blockquote>
-</td>
-</tr>
-</tbody>
-</table>
-<p class="rubric">Notes</p>
-<p>The method estimates the K-factors giving the mole fractions in gas and
-liquid and optimizes the K-factor estimates until they converge on the
-ratio of the actual fugacity coefficients (phi_liq / phi_gas).
-Convergence uses a squared relative error as in McCain (1990).</p>
-</dd></dl>
-
 </div>
 
 
