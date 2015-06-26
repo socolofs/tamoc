@@ -163,7 +163,7 @@ def test_particle_obj():
     
     # Check if the values returned by the `properties` method match the input
     (us, rho_p, A, Cs, beta, beta_T, T_ans) = bub_obj.properties(m0, T, P, 
-        Sa, Ta)
+        Sa, Ta, 0.)
     us_ans = bub.slip_velocity(m0, T, P, Sa, Ta)
     rho_p_ans = bub.density(m0, T, P)
     A_ans = bub.surface_area(m0, T, P, Sa, Ta)
@@ -181,24 +181,24 @@ def test_particle_obj():
     # Check that dissolution shuts down correctly
     m_dis = np.array([m0[0]*1e-10, m0[1]*1e-8, m0[2]*1e-3, 1.5e-5])
     (us, rho_p, A, Cs, beta, beta_T, T_ans) = bub_obj.properties(m_dis, T, P, 
-        Sa, Ta)
+        Sa, Ta, 0)
     assert beta[0] == 0.
     assert beta[1] == 0.
     assert beta[2] > 0.
     assert beta[3] > 0.
     m_dis = np.array([m0[0]*1e-10, m0[1]*1e-8, m0[2]*1e-7, 1.5e-16])
     (us, rho_p, A, Cs, beta, beta_T, T_ans) = bub_obj.properties(m_dis, T, P, 
-        Sa, Ta)
+        Sa, Ta, 0.)
     assert np.sum(beta[0:-1]) == 0.
     assert us == 0.
     assert rho_p == seawater.density(Ta, Sa, P)
     
     # Check that heat transfer shuts down correctly
     (us, rho_p, A, Cs, beta, beta_T, T_ans) = bub_obj.properties(m_dis, Ta, P, 
-        Sa, Ta)
+        Sa, Ta, 0)
     assert beta_T == 0.
     (us, rho_p, A, Cs, beta, beta_T, T_ans) = bub_obj.properties(m_dis, T, P, 
-        Sa, Ta)
+        Sa, Ta, 0)
     assert beta_T == 0.
     
     # Check the value returned by the `diameter` method
@@ -215,7 +215,7 @@ def test_particle_obj():
     
     # Check if the values returned by the `properties` method match the input
     (us, rho_p, A, Cs, beta, beta_T, T_ans) = drop_obj.properties(
-        np.array([m0]), T, P, Sa, Ta)
+        np.array([m0]), T, P, Sa, Ta, 0)
     us_ans = drop.slip_velocity(m0, T, P, Sa, Ta)
     rho_p_ans = drop.density(T, P, Sa, Ta)
     A_ans = drop.surface_area(m0, T, P, Sa, Ta)
@@ -227,10 +227,10 @@ def test_particle_obj():
     
     # Check that heat transfer shuts down correctly
     (us, rho_p, A, Cs, beta, beta_T, T_ans) = drop_obj.properties(m_dis, Ta, P, 
-        Sa, Ta)
+        Sa, Ta, 0)
     assert beta_T == 0.
     (us, rho_p, A, Cs, beta, beta_T, T_ans) = drop_obj.properties(m_dis, T, P, 
-        Sa, Ta)
+        Sa, Ta, 0)
     assert beta_T == 0.
     
     # Check the value returned by the `diameter` method
@@ -258,10 +258,11 @@ def test_ic():
     K = 1.
     K_T = 1.
     fdis = 1.e-4
+    t_hyd = 0.
     
     # Get the initial conditions
     (bub_obj, y0) = single_bubble_model.sbm_ic(profile, bub, 
-                    np.array([0., 0., z0]), de, yk, T0, K, K_T, fdis)
+                    np.array([0., 0., z0]), de, yk, T0, K, K_T, fdis, t_hyd)
     
     # Check the initial condition values
     assert y0[0] == 0.
@@ -278,6 +279,7 @@ def test_ic():
     assert bub_obj.K == K
     assert bub_obj.K_T == K_T
     assert bub_obj.fdis == fdis
+    assert bub_obj.t_hyd == t_hyd
     for i in range(len(composition)-1):
         assert bub_obj.diss_indices[i] == True
     assert bub_obj.diss_indices[-1] == False
@@ -366,13 +368,16 @@ def test_simulation():
     sbm_f = single_bubble_model.Model(simfile = './output/sbm_data.nc')
     
     # Check that the attributes are loaded correctly
-    assert sbm_f.z0 == sbm.z0
-    assert sbm_f.de == sbm.de
-    assert_array_almost_equal(sbm_f.yk, sbm_f.yk, decimal = 6)
-    assert sbm_f.T0 == sbm.T0
-    assert sbm_f.K == sbm.K
-    assert sbm_f.K_T == sbm.K_T
-    assert sbm_f.fdis == sbm.fdis
+    assert sbm_f.y[0,0] == sbm.y[0,0]  # x0
+    assert sbm_f.y[0,1] == sbm.y[0,1]  # y0
+    assert sbm_f.y[0,2] == sbm.y[0,2]  # z0
+    assert_array_almost_equal(sbm_f.particle.m0, sbm.particle.m0, decimal = 6)
+    assert sbm_f.particle.T0 == sbm.particle.T0
+    print sbm_f.particle.K_T, sbm.particle.K_T
+    assert sbm_f.particle.K == sbm.particle.K
+    assert sbm_f.particle.K_T == sbm.particle.K_T
+    assert sbm_f.particle.fdis == sbm.particle.fdis
+    assert sbm_f.K_T0 == sbm.K_T0
     assert sbm_f.delta_t == sbm.delta_t
     (T, S, P) = profile.get_values(1000., ['temperature', 'salinity', 
                                    'pressure'])

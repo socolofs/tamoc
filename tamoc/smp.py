@@ -144,6 +144,10 @@ def derivs_inner(z, y, yi, yo, particles, profile, p, neighbor):
         # phase fluid
         yp[3] -= yp[idx] 
         idx += 1
+        
+        # Track the age of each particle by following its advection
+        yp[idx] = 1. / (yi.u + particles[i].us)
+        idx += 1
     
     # Conservation equations for the dissolved constituents.
     for i in range(yi.nchems):
@@ -371,7 +375,7 @@ def correct_temperature(r, yi, particles, profile, p):
     
     When the dispersed phase particles equilibrate to their surrounding 
     temperature, heat transfer is turned off by the methods in 
-    `single_bubble_model.Particle`.  This is needed to prevent numerical
+    `dispersed_phases.Particle`.  This is needed to prevent numerical
     oscillations as the particles become small.  Unfortunately, it is not as
     easy to make the numerical solution output the correct result once 
     particle temperature effectively stops being a state space variable.  
@@ -432,7 +436,7 @@ def correct_temperature(r, yi, particles, profile, p):
         idx += particles[i].particle.nc
         r.y[idx] = np.sum(particles[i].m) * particles[i].nb0 * \
                        particles[i].cp * particles[i].T
-        idx += 1
+        idx += 2
     
     # Return the corrected solution
     return r

@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.12',
+        VERSION:     '0.1.13',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -159,7 +159,7 @@
     <span class="c"># Create the dispersed phase particles</span>
     <span class="n">composition</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;oxygen&#39;</span><span class="p">,</span> <span class="s">&#39;nitrogen&#39;</span><span class="p">,</span> <span class="s">&#39;argon&#39;</span><span class="p">]</span>
     <span class="n">yk</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">])</span>
-    <span class="n">o2</span> <span class="o">=</span> <span class="n">dbm</span><span class="o">.</span><span class="n">FluidParticle</span><span class="p">(</span><span class="n">composition</span><span class="p">)</span>
+    <span class="n">o2</span> <span class="o">=</span> <span class="n">dbm</span><span class="o">.</span><span class="n">FluidParticle</span><span class="p">(</span><span class="n">composition</span><span class="p">,</span> <span class="n">air</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
     <span class="n">z0</span> <span class="o">=</span> <span class="mf">46.</span>
     <span class="n">bubbles</span> <span class="o">=</span> <span class="p">[]</span>
     
@@ -168,14 +168,14 @@
     <span class="n">de</span> <span class="o">=</span> <span class="mf">0.001</span>
     <span class="n">lambda_1</span> <span class="o">=</span> <span class="mf">0.9</span>
     <span class="n">bubbles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stratified_plume_model</span><span class="o">.</span><span class="n">particle_from_Q</span><span class="p">(</span><span class="n">lake</span><span class="p">,</span> <span class="n">z0</span><span class="p">,</span> <span class="n">o2</span><span class="p">,</span> <span class="n">yk</span><span class="p">,</span> 
-                   <span class="n">Q_N</span><span class="p">,</span>  <span class="n">de</span><span class="p">,</span> <span class="n">lambda_1</span><span class="p">))</span>
+                   <span class="n">Q_N</span><span class="p">,</span>  <span class="n">de</span><span class="p">,</span> <span class="n">lambda_1</span><span class="p">,</span> <span class="n">t_hyd</span><span class="o">=</span><span class="mf">0.</span><span class="p">))</span>
     
     <span class="c"># Medium bubble</span>
     <span class="n">Q_N</span> <span class="o">=</span> <span class="mf">70.</span> <span class="o">/</span> <span class="mf">60.</span><span class="o">/</span> <span class="mf">60.</span>
     <span class="n">de</span> <span class="o">=</span> <span class="mf">0.002</span>
     <span class="n">lambda_1</span> <span class="o">=</span> <span class="mf">0.8</span>
     <span class="n">bubbles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stratified_plume_model</span><span class="o">.</span><span class="n">particle_from_Q</span><span class="p">(</span><span class="n">lake</span><span class="p">,</span> <span class="n">z0</span><span class="p">,</span> <span class="n">o2</span><span class="p">,</span> <span class="n">yk</span><span class="p">,</span> 
-                  <span class="n">Q_N</span><span class="p">,</span>  <span class="n">de</span><span class="p">,</span> <span class="n">lambda_1</span><span class="p">))</span>
+                  <span class="n">Q_N</span><span class="p">,</span>  <span class="n">de</span><span class="p">,</span> <span class="n">lambda_1</span><span class="p">,</span> <span class="n">t_hyd</span><span class="o">=</span><span class="mf">0.</span><span class="p">))</span>
     
     <span class="c"># Initialize a simulation</span>
     <span class="n">R</span> <span class="o">=</span> <span class="mf">6.5</span> <span class="o">/</span> <span class="mf">2.</span>

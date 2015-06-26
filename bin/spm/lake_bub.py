@@ -108,7 +108,7 @@ if __name__ == '__main__':
     # Create the dispersed phase particles
     composition = ['oxygen', 'nitrogen', 'argon']
     yk = np.array([1.0, 0., 0.])
-    o2 = dbm.FluidParticle(composition)
+    o2 = dbm.FluidParticle(composition, air=True)
     z0 = 46.
     bubbles = []
     
@@ -117,14 +117,14 @@ if __name__ == '__main__':
     de = 0.001
     lambda_1 = 0.9
     bubbles.append(stratified_plume_model.particle_from_Q(lake, z0, o2, yk, 
-                   Q_N,  de, lambda_1))
+                   Q_N,  de, lambda_1, t_hyd=0.))
     
     # Medium bubble
     Q_N = 70. / 60./ 60.
     de = 0.002
     lambda_1 = 0.8
     bubbles.append(stratified_plume_model.particle_from_Q(lake, z0, o2, yk, 
-                  Q_N,  de, lambda_1))
+                  Q_N,  de, lambda_1, t_hyd=0.))
     
     # Initialize a simulation
     R = 6.5 / 2.

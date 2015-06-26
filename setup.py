@@ -56,6 +56,7 @@ bin_files = ['./bin/dbm/air_eos.py',
              './bin/sbm/drop.py',
              './bin/sbm/sbm_file_io.py',
              './bin/sbm/particle.py',
+             './bin/sbm/seep_particle.py'
              './bin/spm/blowout.py',
              './bin/spm/lake_bub.py',
              './bin/spm/lake_part.py',
@@ -79,7 +80,7 @@ if __name__ == '__main__':
     
     setup(
         name = 'TAMOC',
-        version = '0.1.12',
+        version = '0.1.13',
         description = 'Texas A&M Oilspill Calculator',
         long_description = open('README.txt').read(),
         license = 'LICENSE.txt',

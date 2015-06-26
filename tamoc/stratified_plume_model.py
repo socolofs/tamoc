@@ -844,13 +844,17 @@ class InnerPlume(object):
         idx = 4
         M_p = {} # Since inert particles have different components than soluble
         H_p = [] # Each particle has one value for temperature (heat)
+        t_p = [] # Each particle has its own age (time since release)
         for i in range(self.np):
             M_p[i] = y[idx:idx + particles[i].particle.nc]
             idx += particles[i].particle.nc
             H_p.extend(y[idx:idx + 1])
             idx += 1
+            t_p.extend(y[idx:idx + 1])
+            idx += 1
         self.M_p = M_p
         self.H_p = np.array(H_p)
+        self.t_p = np.array(t_p)
         if self.nchems >= 1:
             self.C = y[idx:]
         else:
@@ -878,7 +882,8 @@ class InnerPlume(object):
                 # Update the particle properties
                 m_p = self.M_p[i] / particles[i].nb0
                 T_p = self.H_p[i] / (np.sum(self.M_p[i]) * particles[i].cp)
-                particles[i].update(m_p, T_p, self.P, self.s, self.T)
+                particles[i].update(m_p, T_p, self.P, self.s, self.T, 
+                                    self.t_p[i])
                 
                 # Calculate the individual void fractions in the plume
                 self.xi[i] = np.sum(self.M_p[i]) / (particles[i].rho_p *
@@ -919,7 +924,8 @@ class InnerPlume(object):
                 # Update the particle properties
                 m_p = self.M_p[i] * 0.
                 T_p = self.Ta
-                particles[i].update(m_p, T_p, self.P, self.Sa, self.Ta)
+                particles[i].update(m_p, T_p, self.P, self.Sa, self.Ta, 
+                                    self.t_p[i])
             
             # Compute the net void fraction and buoyancy flux
             self.Xi = 0.
@@ -1377,7 +1383,7 @@ def err_check(zi, yi, zo, yo, zi_old, yi_old, zo_old, yo_old, yi_local,
 # ----------------------------------------------------------------------------
 
 def particle_from_Q(profile, z0, dbm_particle, yk, Q_N, de, lambda_1, T0=None, 
-                    x0=0., y0=0., K=1., K_T=1., fdis=1.e-6):
+                    K=1., K_T=1., fdis=1.e-6, t_hyd=0.):
     """
     Create a `dispersed_phases.PlumeParticle` object from volume flux
     
@@ -1413,6 +1419,11 @@ def particle_from_Q(profile, z0, dbm_particle, yk, Q_N, de, lambda_1, T0=None,
     fdis : float, default = 0.01
         Fraction of the initial total mass (--) remaining when the particle 
         should be considered dissolved.
+    t_hyd : float, default = 0.
+        Hydrate film formation time (s).  Mass transfer is computed by clean
+        bubble methods for t less than t_hyd and by dirty bubble methods
+        thereafter.  The default behavior is to assume the particle is dirty
+        or hydrate covered from the release.
     
     Returns
     -------
@@ -1428,10 +1439,10 @@ def particle_from_Q(profile, z0, dbm_particle, yk, Q_N, de, lambda_1, T0=None,
     
     # Create the particle object
     return dispersed_phases.PlumeParticle(dbm_particle, m0, T0, nb0, lambda_1,
-                                          P, Sa, Ta, K, K_T, fdis)
+                                          P, Sa, Ta, K, K_T, fdis, t_hyd)
 
 def particle_from_mb0(profile, z0, dbm_particle, yk, mb0, de, lambda_1, 
-                      T0=None, K=1., K_T=1., fdis=1.e-6):
+                      T0=None, K=1., K_T=1., fdis=1.e-6, t_hyd=0.):
     """
     Create a `dispersed_phases.PlumeParticle` object from the mass flux 
     
@@ -1467,6 +1478,11 @@ def particle_from_mb0(profile, z0, dbm_particle, yk, mb0, de, lambda_1,
     fdis : float, default = 1.e-6
         Fraction of the initial total mass (--) remaining when the particle 
         should be considered dissolved.
+    t_hyd : float, default = 0.
+        Hydrate film formation time (s).  Mass transfer is computed by clean
+        bubble methods for t less than t_hyd and by dirty bubble methods
+        thereafter.  The default behavior is to assume the particle is dirty
+        or hydrate covered from the release.
     
     Returns
     -------

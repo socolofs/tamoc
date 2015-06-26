@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.12',
+        VERSION:     '0.1.13',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -895,13 +895,17 @@
         <span class="n">idx</span> <span class="o">=</span> <span class="mi">4</span>
         <span class="n">M_p</span> <span class="o">=</span> <span class="p">{}</span> <span class="c"># Since inert particles have different components than soluble</span>
         <span class="n">H_p</span> <span class="o">=</span> <span class="p">[]</span> <span class="c"># Each particle has one value for temperature (heat)</span>
+        <span class="n">t_p</span> <span class="o">=</span> <span class="p">[]</span> <span class="c"># Each particle has its own age (time since release)</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">np</span><span class="p">):</span>
             <span class="n">M_p</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="n">idx</span><span class="p">:</span><span class="n">idx</span> <span class="o">+</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">nc</span><span class="p">]</span>
             <span class="n">idx</span> <span class="o">+=</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">nc</span>
             <span class="n">H_p</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">idx</span><span class="p">:</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
             <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">t_p</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">idx</span><span class="p">:</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
+            <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">M_p</span> <span class="o">=</span> <span class="n">M_p</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">H_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">H_p</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">t_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">t_p</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nchems</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">C</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="n">idx</span><span class="p">:]</span>
         <span class="k">else</span><span class="p">:</span>
@@ -929,7 +933,8 @@
                 <span class="c"># Update the particle properties</span>
                 <span class="n">m_p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">M_p</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">nb0</span>
                 <span class="n">T_p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">H_p</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">M_p</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">*</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">cp</span><span class="p">)</span>
-                <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">m_p</span><span class="p">,</span> <span class="n">T_p</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">P</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+                <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">m_p</span><span class="p">,</span> <span class="n">T_p</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">P</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> 
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">t_p</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
                 
                 <span class="c"># Calculate the individual void fractions in the plume</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">xi</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">M_p</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">rho_p</span> <span class="o">*</span>
@@ -970,7 +975,8 @@
                 <span class="c"># Update the particle properties</span>
                 <span class="n">m_p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">M_p</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="mf">0.</span>
                 <span class="n">T_p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ta</span>
-                <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">m_p</span><span class="p">,</span> <span class="n">T_p</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">P</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Sa</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ta</span><span class="p">)</span>
+                <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">m_p</span><span class="p">,</span> <span class="n">T_p</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">P</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Sa</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ta</span><span class="p">,</span> 
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">t_p</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
             
             <span class="c"># Compute the net void fraction and buoyancy flux</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">Xi</span> <span class="o">=</span> <span class="mf">0.</span>
@@ -1428,7 +1434,7 @@
 <span class="c"># ----------------------------------------------------------------------------</span>
 </div>
 <div class="viewcode-block" id="particle_from_Q"><a class="viewcode-back" href="../spm/stratified_plume_model.particle_from_Q.html#stratified_plume_model.particle_from_Q">[docs]</a><span class="k">def</span> <span class="nf">particle_from_Q</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">z0</span><span class="p">,</span> <span class="n">dbm_particle</span><span class="p">,</span> <span class="n">yk</span><span class="p">,</span> <span class="n">Q_N</span><span class="p">,</span> <span class="n">de</span><span class="p">,</span> <span class="n">lambda_1</span><span class="p">,</span> <span class="n">T0</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> 
-                    <span class="n">x0</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">y0</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">K_T</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">fdis</span><span class="o">=</span><span class="mf">1.e-6</span><span class="p">):</span>
+                    <span class="n">K</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">K_T</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">fdis</span><span class="o">=</span><span class="mf">1.e-6</span><span class="p">,</span> <span class="n">t_hyd</span><span class="o">=</span><span class="mf">0.</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create a `dispersed_phases.PlumeParticle` object from volume flux</span>
 <span class="sd">    </span>
@@ -1464,6 +1470,11 @@
 <span class="sd">    fdis : float, default = 0.01</span>
 <span class="sd">        Fraction of the initial total mass (--) remaining when the particle </span>
 <span class="sd">        should be considered dissolved.</span>
+<span class="sd">    t_hyd : float, default = 0.</span>
+<span class="sd">        Hydrate film formation time (s).  Mass transfer is computed by clean</span>
+<span class="sd">        bubble methods for t less than t_hyd and by dirty bubble methods</span>
+<span class="sd">        thereafter.  The default behavior is to assume the particle is dirty</span>
+<span class="sd">        or hydrate covered from the release.</span>
 <span class="sd">    </span>
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -1479,10 +1490,10 @@
     
     <span class="c"># Create the particle object</span>
     <span class="k">return</span> <span class="n">dispersed_phases</span><span class="o">.</span><span class="n">PlumeParticle</span><span class="p">(</span><span class="n">dbm_particle</span><span class="p">,</span> <span class="n">m0</span><span class="p">,</span> <span class="n">T0</span><span class="p">,</span> <span class="n">nb0</span><span class="p">,</span> <span class="n">lambda_1</span><span class="p">,</span>
-                                          <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">K_T</span><span class="p">,</span> <span class="n">fdis</span><span class="p">)</span>
+                                          <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">K_T</span><span class="p">,</span> <span class="n">fdis</span><span class="p">,</span> <span class="n">t_hyd</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="particle_from_mb0"><a class="viewcode-back" href="../spm/stratified_plume_model.particle_from_mb0.html#stratified_plume_model.particle_from_mb0">[docs]</a><span class="k">def</span> <span class="nf">particle_from_mb0</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">z0</span><span class="p">,</span> <span class="n">dbm_particle</span><span class="p">,</span> <span class="n">yk</span><span class="p">,</span> <span class="n">mb0</span><span class="p">,</span> <span class="n">de</span><span class="p">,</span> <span class="n">lambda_1</span><span class="p">,</span> 
-                      <span class="n">T0</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">K_T</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">fdis</span><span class="o">=</span><span class="mf">1.e-6</span><span class="p">):</span>
+                      <span class="n">T0</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">K_T</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">fdis</span><span class="o">=</span><span class="mf">1.e-6</span><span class="p">,</span> <span class="n">t_hyd</span><span class="o">=</span><span class="mf">0.</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create a `dispersed_phases.PlumeParticle` object from the mass flux </span>
 <span class="sd">    </span>
@@ -1518,6 +1529,11 @@
 <span class="sd">    fdis : float, default = 1.e-6</span>
 <span class="sd">        Fraction of the initial total mass (--) remaining when the particle </span>
 <span class="sd">        should be considered dissolved.</span>
+<span class="sd">    t_hyd : float, default = 0.</span>
+<span class="sd">        Hydrate film formation time (s).  Mass transfer is computed by clean</span>
+<span class="sd">        bubble methods for t less than t_hyd and by dirty bubble methods</span>
+<span class="sd">        thereafter.  The default behavior is to assume the particle is dirty</span>
+<span class="sd">        or hydrate covered from the release.</span>
 <span class="sd">    </span>
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>

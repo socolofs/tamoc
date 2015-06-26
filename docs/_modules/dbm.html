@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.12',
+        VERSION:     '0.1.13',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -753,7 +753,16 @@
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">yk</span> <span class="o">/</span> <span class="n">K_vsi</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
         
         <span class="c"># Use root-finding to get the critical formation pressure</span>
-        <span class="n">T_hyd</span> <span class="o">=</span> <span class="n">fsolve</span><span class="p">(</span><span class="n">residual</span><span class="p">,</span> <span class="mf">283.15</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">m_gases</span><span class="p">)</span> <span class="o">==</span> <span class="mf">0.</span><span class="p">:</span>
+            <span class="c"># Set T_hyd to the freezing point of pure water.  In this way, </span>
+            <span class="c"># no ocean temperatures will be found to be below the hydrate</span>
+            <span class="c"># stability temperature, which is the desired behavior since </span>
+            <span class="c"># there are not hydrate forming compounds in the mixture.</span>
+            <span class="n">T_hyd</span> <span class="o">=</span> <span class="mf">273.15</span>
+            
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># Use the K_vsi method to find the hydrate stability temperature</span>
+            <span class="n">T_hyd</span> <span class="o">=</span> <span class="n">fsolve</span><span class="p">(</span><span class="n">residual</span><span class="p">,</span> <span class="mf">283.15</span><span class="p">)</span>
         
         <span class="c"># Return the formation temperature</span>
         <span class="k">return</span> <span class="n">T_hyd</span>

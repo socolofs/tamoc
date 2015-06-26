@@ -192,7 +192,7 @@ class Model(object):
             self.sim_stored = False
     
     def simulate(self, particle, X0, de, yk, T0=None, K=1., K_T=1., 
-                 fdis=1.e-6, delta_t=0.1):
+                 fdis=1.e-6, t_hyd=0., delta_t=0.1):
         """
         Simulate the trajectory of a particle from given initial conditions
         
@@ -227,6 +227,11 @@ class Model(object):
             Fraction of the initial total mass remaining (--) for each 
             component in the particle when the particle should be considered 
             dissolved.
+        t_hyd : float, default = 0.
+            Hydrate film formation time (s).  Mass transfer is computed by clean
+            bubble methods for t less than t_hyd and by dirty bubble methods
+            thereafter.  The default behavior is to assume the particle is dirty
+            or hydrate covered from the release.
         delta_t : float, default = 0.1 s
             Maximum time step to use (s) in the simulation.  The ODE solver
             in `calculate_path` is set up with adaptive step size integration, 
@@ -267,22 +272,14 @@ class Model(object):
                                     len(particle.composition)
             return
         
-        # Save the input variables since they may be modified during the
-        # simulation
-        self.x0 = X0[0]
-        self.y0 = X0[1]
-        self.z0 = X0[2]
-        self.de = de
-        self.yk = yk
-        self.T0 = T0
-        self.K = K
-        self.K_T = K_T
-        self.fdis = fdis
+        # Save the input variables that are not part of the self.particle
+        # object
+        self.K_T0 = K_T
         self.delta_t = delta_t
         
         # Get the initial conditions for the simulation run
         (self.particle, y0) = sbm_ic(self.profile, particle, X0, de, yk, T0, 
-                                     K, K_T, fdis)
+                                     K, K_T, fdis, t_hyd)
         
         # Open the simulation module
         print '\n-- TEXAS A&M OIL-SPILL CALCULATOR (TAMOC) --'
@@ -295,6 +292,9 @@ class Model(object):
         print 'Simulation complete.\n '
         self.sim_stored = True
         
+        # Restart heat transfer
+        self.particle.K_T = self.K_T0
+    
     def save_sim(self, fname, profile_path, profile_info):
         """
         Save the current simulation results
@@ -341,7 +341,7 @@ class Model(object):
         
         # Store the dbm particle object instantiation variables
         dispersed_phases.save_particle_to_nc_file(nc, 
-            self.particle.composition, self.particle, self.K_T)
+            self.particle.composition, self.particle, self.K_T0)
         
         # Store the solution independent variable
         t = nc.createVariable('t', 'f8', ('z',))
@@ -360,36 +360,12 @@ class Model(object):
         for i in range(len(nc.dimensions['ns'])):
             y[0:len(self.t),i] = self.y[:,i]
         
-        # Store the model initial conditions
-        x0 = nc.createVariable('x0', 'f8', ('profile',))
-        x0.long_name = 'release depth'
-        x0.standard_name = 'z0'
-        x0.units = 'm'
-        x0[0] = self.x0
-        
-        y0 = nc.createVariable('y0', 'f8', ('profile',))
-        y0.long_name = 'release depth'
-        y0.standard_name = 'z0'
-        y0.units = 'm'
-        y0[0] = self.y0
-        
-        z0 = nc.createVariable('z0', 'f8', ('profile',))
-        z0.long_name = 'release depth'
-        z0.standard_name = 'z0'
-        z0.units = 'm'
-        z0[0] = self.z0
-        
-        de = nc.createVariable('de', 'f8', ('profile',))
-        de.long_name = 'initial depth'
-        de.standard_name = 'de'
-        de.units = 'm'
-        de[0] = self.de
-        
-        yk = nc.createVariable('yk', 'f8', ('nchems',))
-        yk.long_name = 'initial mole fractions'
-        yk.standard_name = 'yk'
-        yk.units = 'mole fraction'
-        yk[:] = self.yk
+        # Store the model initial conditions        
+        K_T0 = nc.createVariable('K_T0', 'f8', ('profile',))
+        K_T0.long_name = 'Initial heat transfer reduction factor'
+        K_T0.standard_name = 'K_T0'
+        K_T0.units = 'nondimensional'
+        K_T0[0] = self.K_T0
         
         delta_t = nc.createVariable('delta_t', 'f8', ('profile',))
         delta_t.long_name = 'maximum simulation output time step'
@@ -511,22 +487,7 @@ class Model(object):
             self.y[:,i] = nc.variables['y'][0:len(self.t), i]
         
         # Extract the initial conditions
-        self.z0 = nc.variables['z0'][0]
-        try:
-            self.x0 = nc.variables['x0'][0]
-        except KeyError:
-            self.x0 = 0.
-        try:
-            self.y0 = nc.variables['y0'][0]
-        except KeyError:
-            self.y0 = 0.
-        self.X0 = np.array([self.x0, self.y0, self.z0])
-        self.de = nc.variables['de'][0]
-        self.yk = nc.variables['yk'][:]
-        self.T0 = nc.variables['T0'][0]
-        self.K = nc.variables['K'][0]
-        self.K_T = nc.variables['K_T'][0]
-        self.fdis = nc.variables['fdis'][0]
+        self.K_T0 = nc.variables['K_T0'][0]
         self.delta_t = nc.variables['delta_t'][0]
         
         # Close the netCDF dataset
@@ -744,7 +705,8 @@ def derivs(t, y, profile, particle, p):
     C = profile.get_values(z, particle.composition)
     
     # Get the particle properties
-    (us, rho_p, A, Cs, beta, beta_T, T) = particle.properties(m, T, P, Sa, Ta)
+    (us, rho_p, A, Cs, beta, beta_T, T) = particle.properties(m, T, P, Sa, 
+                                                              Ta, t)
     
     # Advection
     yp[0] = ua
@@ -766,7 +728,7 @@ def derivs(t, y, profile, particle, p):
     return yp
 
 
-def sbm_ic(profile, particle, X0, de, yk, T0, K, K_T, fdis):
+def sbm_ic(profile, particle, X0, de, yk, T0, K, K_T, fdis, t_hyd):
     """
     Set the initial conditions for a single bubble model simulation
     
@@ -800,6 +762,11 @@ def sbm_ic(profile, particle, X0, de, yk, T0, K, K_T, fdis):
     fdis : float, default = 0.01
         Fraction of the initial total mass (--) remaining when the 
         particle should be considered dissolved.
+    t_hyd : float, default = 0.
+        Hydrate film formation time (s).  Mass transfer is computed by clean
+        bubble methods for t less than t_hyd and by dirty bubble methods
+        thereafter.  The default behavior is to assume the particle is dirty
+        or hydrate covered from the release.
     
     Return
     ------
@@ -833,7 +800,7 @@ def sbm_ic(profile, particle, X0, de, yk, T0, K, K_T, fdis):
     
     # Initialize a LagrangianParticle object
     particle = dispersed_phases.SingleParticle(particle, m0, T0, K, K_T, 
-               fdis)
+               fdis, t_hyd)
     
     # Assemble the state space
     y0 = np.hstack((X0, m0, T0 * np.sum(m0) * particle.cp))
@@ -907,7 +874,7 @@ def plot_state_space(profile, particle, p, t, y, fig):
                              'salinity', 'pressure'])
         N[i] = profile.buoyancy_frequency(zi[i], h=0.005)
         (us[i], rho_p[i], A[i], Cs_local, beta_local, beta_T, T_fun[i]) = \
-            particle.properties(m[i,:], T[i], P[i], Sa[i], Ta[i])
+            particle.properties(m[i,:], T[i], P[i], Sa[i], Ta[i], t[i])
         if len(Cs_local) > 0:
             Cs[i,:] = Cs_local
             beta[i,:] = beta_local
@@ -918,6 +885,7 @@ def plot_state_space(profile, particle, p, t, y, fig):
     # Start by plotting the raw state space versus t
     plt.figure(fig)
     plt.clf()
+    plt.show()
     
     # Depth
     ax1 = plt.subplot(221)
@@ -950,11 +918,12 @@ def plot_state_space(profile, particle, p, t, y, fig):
     #ax4.xaxis.set_major_locator(mpl.ticker.LogLocator(base=1e2))
     ax4.grid(True)
     
-    plt.show()
+    plt.draw()
     
     # Plot derived variables related to diameter
     plt.figure(fig+1)
     plt.clf()
+    plt.show()
     
     # Diameter
     ax1 = plt.subplot(221)
@@ -995,11 +964,12 @@ def plot_state_space(profile, particle, p, t, y, fig):
     ax4.locator_params(tight=True, nbins=6)
     ax4.grid(True)
     
-    plt.show()
+    plt.draw()
     
     # Plot dissolution data
     plt.figure(fig+2)
     plt.clf()
+    plt.show()
     
     # Masses
     ax1 = plt.subplot(221)
@@ -1037,11 +1007,12 @@ def plot_state_space(profile, particle, p, t, y, fig):
     ax4.invert_yaxis()
     ax4.grid(True)
     
-    plt.show()
+    plt.draw()
     
     # Plot dissolution data
     plt.figure(fig+3)
     plt.clf()
+    plt.show()
     
     # CTD Temperature
     ax1 = plt.subplot(221)
@@ -1074,5 +1045,5 @@ def plot_state_space(profile, particle, p, t, y, fig):
     ax4.invert_yaxis()
     ax4.grid(True)
     
-    plt.show()
+    plt.draw()
 

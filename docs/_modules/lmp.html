@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.12',
+        VERSION:     '0.1.13',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -193,7 +193,7 @@
         <span class="c"># Take the heat leaving the particle and put it in the continuous </span>
         <span class="c"># phase fluid</span>
         <span class="n">qp</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-=</span> <span class="n">qp</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
-        <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">idx</span> <span class="o">+=</span> <span class="mi">2</span>  <span class="c"># because we don&#39;t update t_p here.</span>
     
     <span class="c"># Conservation equations for the dissolved constituents in the plume</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">q1_local</span><span class="o">.</span><span class="n">nchems</span><span class="p">):</span>
@@ -366,6 +366,76 @@
     <span class="k">return</span> <span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">sp</span><span class="p">)</span>
 
 </div>
+<span class="k">def</span> <span class="nf">correct_temperature</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">q_local</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Make sure the correct temperature is stored in the state space solution</span>
+<span class="sd">    </span>
+<span class="sd">    When the dispersed phase particles equilibrate to their surrounding</span>
+<span class="sd">    temperature, heat transfer is turned off by the methods in </span>
+<span class="sd">    `dispersed_phases.Particle`.  This is needed to prevent numerical </span>
+<span class="sd">    oscillation as the particle becomes small.  Unfortunately, it is not as</span>
+<span class="sd">    easy to make the numerical solution compute the correct result once</span>
+<span class="sd">    particle temperature effectively stops being a state space variable since</span>
+<span class="sd">    the state space is intrinsic to the ODE solver.  The derivatives function</span>
+<span class="sd">    computes the correct heat transfer based on the correct state space, but</span>
+<span class="sd">    the state space in the ODE solver remains fixed.</span>
+<span class="sd">    </span>
+<span class="sd">    Since the solution for heat in the state space of the ODE solver is the</span>
+<span class="sd">    wrong value, we have to change the external version of the state space</span>
+<span class="sd">    before saving the solution to the current model step.  This follows the</span>
+<span class="sd">    same method and reasoning as the similar function in </span>
+<span class="sd">    `smp.correct_temperature`.</span>
+<span class="sd">    </span>
+<span class="sd">    Hence, the purpose of this function is to overwrite the state space </span>
+<span class="sd">    solution containing the particle heat that is extrinsic to the ODE solver</span>
+<span class="sd">    and which is used to store the state space following each time step.</span>
+<span class="sd">    The allows the correct temperature to be stored in the model solution.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    r : `scipy.integrate.ode` object</span>
+<span class="sd">        ODE solution containing the current values of the state space in </span>
+<span class="sd">        the solver&#39;s extrinsic data.  These values are editable, but an </span>
+<span class="sd">        intrinsic version of these data are used when the solver makes </span>
+<span class="sd">        calculations; hence, editing this file does not change the state</span>
+<span class="sd">        space stored in the actual solver.</span>
+<span class="sd">    q_local : `bent_plume_model.LagElement`</span>
+<span class="sd">        Object containing the numerical solution at the initial condition</span>
+<span class="sd">    profile : `ambient.Profile` object</span>
+<span class="sd">        The ambient CTD object used by the simulation.</span>
+<span class="sd">    p : `ModelParams` object</span>
+<span class="sd">        Object containing the fixed model parameters for the bent</span>
+<span class="sd">        plume model.</span>
+<span class="sd">    particles : list of `Particle` objects</span>
+<span class="sd">        List of `bent_plume_model.Particle` objects containing the dispersed </span>
+<span class="sd">        phase local conditions and behavior.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    r : `sciply.integrate.ode` object</span>
+<span class="sd">        The updated extrinsic state space with the correct values for heat</span>
+<span class="sd">        as were used in the calcualtion.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># Update the Lagrangian element state space with the current solution.</span>
+    <span class="c"># This will check whether heat transfer is turned off and will return </span>
+    <span class="c"># the value of the particle temperature that was used in the calculation</span>
+    <span class="c"># step.</span>
+    <span class="n">q1_local</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">t</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="p">)</span>
+    
+    <span class="c"># Find the heat conservation equation in the model state space for the </span>
+    <span class="c"># particles and replace r.y with the correct values.</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="mi">11</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">particles</span><span class="p">)):</span>
+        <span class="n">idx</span> <span class="o">+=</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">nc</span>
+        <span class="n">r</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">m</span><span class="p">)</span> <span class="o">*</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">nb0</span> <span class="o">*</span> \
+                       <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">cp</span> <span class="o">*</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span>
+    
+    <span class="c"># Return the corrected solution</span>
+    <span class="k">return</span> <span class="n">r</span>
+
+
 <div class="viewcode-block" id="entrainment"><a class="viewcode-back" href="../bpm/lmp.entrainment.html#lmp.entrainment">[docs]</a><span class="k">def</span> <span class="nf">entrainment</span><span class="p">(</span><span class="n">q0_local</span><span class="p">,</span> <span class="n">q1_local</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute the total shear and forced entrainment at one time step</span>

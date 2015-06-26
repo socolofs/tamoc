@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.12',
+        VERSION:     '0.1.13',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -220,9 +220,11 @@
             <span class="n">T0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">T0</span>
             <span class="n">m_p</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">m0</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">nb0</span>
             <span class="k">if</span> <span class="n">m_p</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">0.</span><span class="p">:</span>
-                <span class="c"># Particles exist, get properties</span>
+                <span class="c"># Particles exist, get properties.  Make sure the algorithm </span>
+                <span class="c"># uses the dirty bubble properties since this is supposed</span>
+                <span class="c"># to be the rise velocity averaged over the whole plume.</span>
                 <span class="n">us</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">rho_p</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">properties</span><span class="p">(</span><span class="n">m0</span><span class="p">,</span> <span class="n">T0</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> 
-                                                               <span class="n">Ta</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span>
+                                 <span class="n">Ta</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span>
                 <span class="n">B_p</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">rho</span> <span class="o">-</span> <span class="n">rho_p</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">/</span> <span class="n">rho</span> <span class="o">*</span> <span class="mf">9.81</span> <span class="o">*</span> <span class="p">(</span><span class="n">m_p</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="n">rho_p</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="c"># Particles dissolved, set to ambient conditions</span>
@@ -356,12 +358,14 @@
         <span class="c"># Get the governing variables</span>
         <span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">u_slip</span><span class="p">,</span> <span class="n">u_inf</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_variables</span><span class="p">(</span><span class="n">z0</span><span class="p">,</span> <span class="mf">0.</span><span class="p">)</span>
         
-        <span class="c"># Compute the slip velocity for the selected dispersed-phase particle</span>
+        <span class="c"># Compute the slip velocity for the selected dispersed-phase particle.</span>
+        <span class="c"># Make sure the algorithm uses the dirty bubble properties since this</span>
+        <span class="c"># is supposed to be the rise velocity averaged over the whole plume.</span>
         <span class="n">Ta</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">P</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="n">z0</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;temperature&#39;</span><span class="p">,</span> <span class="s">&#39;salinity&#39;</span><span class="p">,</span>
                                             <span class="s">&#39;pressure&#39;</span><span class="p">])</span>
         <span class="n">u_slip</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">properties</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">m0</span><span class="p">,</span> 
                                               <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">T0</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> 
-                                              <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                                              <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         
         <span class="c"># Compute the particle value of U_N</span>
         <span class="n">U_N</span> <span class="o">=</span> <span class="n">u_slip</span> <span class="o">/</span> <span class="p">(</span><span class="n">B</span> <span class="o">*</span> <span class="n">N</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="mf">4.</span><span class="p">)</span>

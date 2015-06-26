@@ -142,7 +142,7 @@ def derivs(t, q, dtp_ds, q0_local, q1_local, profile, p, particles):
         # Take the heat leaving the particle and put it in the continuous 
         # phase fluid
         qp[2] -= qp[idx]
-        idx += 1
+        idx += 2  # because we don't update t_p here.
     
     # Conservation equations for the dissolved constituents in the plume
     for i in range(q1_local.nchems):
@@ -313,6 +313,76 @@ def calculate(t0, q0, q0_local, profile, p, particles, derivs,
     print '    Distance:  %g (m), time:  %g (s), k:  %d' % \
                 (q[-1,10], t[-1], k)
     return (t, q, sp)
+
+
+def correct_temperature(r, q_local, profile, p, particles):
+    """
+    Make sure the correct temperature is stored in the state space solution
+    
+    When the dispersed phase particles equilibrate to their surrounding
+    temperature, heat transfer is turned off by the methods in 
+    `dispersed_phases.Particle`.  This is needed to prevent numerical 
+    oscillation as the particle becomes small.  Unfortunately, it is not as
+    easy to make the numerical solution compute the correct result once
+    particle temperature effectively stops being a state space variable since
+    the state space is intrinsic to the ODE solver.  The derivatives function
+    computes the correct heat transfer based on the correct state space, but
+    the state space in the ODE solver remains fixed.
+    
+    Since the solution for heat in the state space of the ODE solver is the
+    wrong value, we have to change the external version of the state space
+    before saving the solution to the current model step.  This follows the
+    same method and reasoning as the similar function in 
+    `smp.correct_temperature`.
+    
+    Hence, the purpose of this function is to overwrite the state space 
+    solution containing the particle heat that is extrinsic to the ODE solver
+    and which is used to store the state space following each time step.
+    The allows the correct temperature to be stored in the model solution.
+    
+    Parameters
+    ----------
+    r : `scipy.integrate.ode` object
+        ODE solution containing the current values of the state space in 
+        the solver's extrinsic data.  These values are editable, but an 
+        intrinsic version of these data are used when the solver makes 
+        calculations; hence, editing this file does not change the state
+        space stored in the actual solver.
+    q_local : `bent_plume_model.LagElement`
+        Object containing the numerical solution at the initial condition
+    profile : `ambient.Profile` object
+        The ambient CTD object used by the simulation.
+    p : `ModelParams` object
+        Object containing the fixed model parameters for the bent
+        plume model.
+    particles : list of `Particle` objects
+        List of `bent_plume_model.Particle` objects containing the dispersed 
+        phase local conditions and behavior.
+    
+    Returns
+    -------
+    r : `sciply.integrate.ode` object
+        The updated extrinsic state space with the correct values for heat
+        as were used in the calcualtion.
+    
+    """
+    # Update the Lagrangian element state space with the current solution.
+    # This will check whether heat transfer is turned off and will return 
+    # the value of the particle temperature that was used in the calculation
+    # step.
+    q1_local.update(r.t, r.y, profile, p, particles)
+    
+    # Find the heat conservation equation in the model state space for the 
+    # particles and replace r.y with the correct values.
+    idx = 11
+    for i in range(len(particles)):
+        idx += particles[i].particle.nc
+        r.y[idx] = np.sum(particles[i].m) * particles[i].nb0 * \
+                       particles[i].cp * particles[i].T
+        idx += 1
+    
+    # Return the corrected solution
+    return r
 
 
 def entrainment(q0_local, q1_local, p):

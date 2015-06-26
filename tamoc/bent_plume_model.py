@@ -291,7 +291,11 @@ class Model(object):
         
         # Update the status of the solution
         self.sim_stored = True
-    
+        
+        # Restart heat transfer
+        for i in range(len(self.particles)):
+            self.particles[i].K_T = self.K_T0[i]
+        
     def save_sim(self, fname, profile_path, profile_info):
         """
         Save the current simulation results
@@ -888,9 +892,9 @@ class Particle(dispersed_phases.PlumeParticle):
     
     """
     def __init__(self, x, y, z, dbm_particle, m0, T0, nb0, lambda_1, 
-                 P, Sa, Ta, K=1., K_T=1., fdis=1.e-6):
+                 P, Sa, Ta, K=1., K_T=1., fdis=1.e-6, t_hyd=0.):
         super(Particle, self).__init__(dbm_particle, m0, T0, nb0, lambda_1, 
-                                       P, Sa, Ta, K, K_T, fdis)
+                                       P, Sa, Ta, K, K_T, fdis, t_hyd)
         
         # Particles start inside the plume and should be integrated
         self.integrate = True
@@ -902,7 +906,7 @@ class Particle(dispersed_phases.PlumeParticle):
         self.z = z
         
         # Update the particle with its current properties
-        self.update(m0, T0, P, Sa, Ta)
+        self.update(m0, T0, P, Sa, Ta, self.t)
     
     def track(self, q0_local, q1_local, md, dt):
         """
@@ -1366,7 +1370,7 @@ class LagElement(object):
             M_p[i] = q[idx:idx + particles[i].particle.nc]
             idx += particles[i].particle.nc
             H_p.extend(q[idx:idx + 1])
-            idx += 1
+            idx += 2  # because t_p is not updated
         self.M_p = M_p
         self.H_p = np.array(H_p)
         self.cpe = q[idx:idx + self.nchems]
@@ -1416,7 +1420,8 @@ class LagElement(object):
             # Update the particles with their current properties
             m_p = self.M_p[i] / particles[i].nb0
             T_p = self.H_p[i] / (np.sum(self.M_p[i]) * particles[i].cp)
-            particles[i].update(m_p, T_p, self.Pa, self.Sa, self.Ta)
+            particles[i].update(m_p, T_p, self.Pa, self.Sa, self.Ta, 
+                                particles[i].t)
             
             # Get the mass of particles following this Lagrangian element
             self.mp[i] = np.sum(m_p) * particles[i].nbe
@@ -1572,6 +1577,11 @@ def plot_all_variables(t, q, sp, q_local, profile, p, particles, tracked,
     # Create a second Lagrangian element in order to compute entrainment
     q0_local = LagElement(t[0], q[0,:], q_local.D, profile, p, particles,
                           q_local.tracers, q_local.chem_names)
+    n_part = q0_local.np
+    pchems = 1
+    for i in range(n_part):
+        if len(particles[i].composition) > pchems:
+            pchems = len(particles[i].composition)
     
     # Although it may be faster to extract the derived variables using
     # equations such as q[:,1] / q[:,0], we use the LagElement so that 
@@ -1579,6 +1589,10 @@ def plot_all_variables(t, q, sp, q_local, profile, p, particles, tracked,
     M = np.zeros(t.shape)
     S = np.zeros(t.shape)
     T = np.zeros(t.shape)
+    Mpf = np.zeros((len(t), n_part, pchems))
+    Hp = np.zeros((len(t), n_part))
+    Mp = np.zeros((len(t), n_part))
+    Tp = np.zeros((len(t), n_part))
     u = np.zeros(t.shape)
     v = np.zeros(t.shape)
     w = np.zeros(t.shape)
@@ -1601,12 +1615,17 @@ def plot_all_variables(t, q, sp, q_local, profile, p, particles, tracked,
     E = np.zeros(t.shape)
     
     for i in range(len(t)):
-        q_local.update(t[i], q[i,:], profile, p, particles)
         if i > 0:
             q0_local.update(t[i-1], q[i-1,:], profile, p, particles)
+        q_local.update(t[i], q[i,:], profile, p, particles)
         M[i] = q_local.M
         S[i] = q_local.S
         T[i] = q_local.T
+        for j in range(n_part):
+            Mpf[i,j,0:len(q_local.M_p[j])] = q_local.M_p[j][:]
+            Mp[i,j] = np.sum(particles[j].m[:])
+            Tp[i,j] = particles[j].T
+        Hp[i,:] = q_local.H_p
         u[i] = q_local.u
         v[i] = q_local.v
         w[i] = q_local.w
@@ -1788,6 +1807,29 @@ def plot_all_variables(t, q, sp, q_local, profile, p, particles, tracked,
     ax3.set_xlabel('s (m)')
     ax3.set_ylabel('Density (kg/m^3)')
     ax3.grid(b=True, which='major', color='0.5', linestyle='-')
+    
+    plt.draw()
+    
+    # Plot the particle mass and temperature
+    plt.figure(fig)
+    plt.clf()
+    plt.ticklabel_format(useOffset=False, axis='y')
+    plt.show()
+    fig += 1
+    
+    ax1 = plt.subplot(121)
+    ax1.yaxis.set_major_formatter(formatter)
+    ax1.plot(s, Mp / 1e-6, 'b-')
+    ax1.set_xlabel('s (m)')
+    ax1.set_ylabel('m (mg)')
+    ax1.grid(b=True, which='major', color='0.5', linestyle='-')
+    
+    ax2 = plt.subplot(122)
+    ax2.yaxis.set_major_formatter(formatter)
+    ax2.plot(s, Tp - 273.15, 'b-')
+    ax2.set_xlabel('s (m)')
+    ax2.set_ylabel('Temperature (deg C)')
+    ax2.grid(b=True, which='major', color='0.5', linestyle='-')
     
     plt.draw()
 

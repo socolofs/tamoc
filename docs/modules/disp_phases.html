@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.12',
+        VERSION:     '0.1.13',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -60,7 +60,7 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">June 23, 2015</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">June 26, 2015</td>
 </tr>
 </tbody>
 </table>
@@ -107,7 +107,7 @@ elements are independent).</dd>
 <h2>Class Objects<a class="headerlink" href="#class-objects" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="dispersed_phases.SingleParticle">
-<em class="property">class </em><code class="descclassname">dispersed_phases.</code><code class="descname">SingleParticle</code><span class="sig-paren">(</span><em>dbm_particle</em>, <em>m0</em>, <em>T0</em>, <em>K=1.0</em>, <em>K_T=1.0</em>, <em>fdis=1e-06</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/dispersed_phases.py#L57"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/dispersed_phases.html#SingleParticle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dispersed_phases.SingleParticle" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dispersed_phases.</code><code class="descname">SingleParticle</code><span class="sig-paren">(</span><em>dbm_particle</em>, <em>m0</em>, <em>T0</em>, <em>K=1.0</em>, <em>K_T=1.0</em>, <em>fdis=1e-06</em>, <em>t_hyd=0.0</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/dispersed_phases.py#L57"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/dispersed_phases.html#SingleParticle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dispersed_phases.SingleParticle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Interface to the <a class="reference internal" href="dbm.html#module-dbm" title="dbm"><code class="xref py py-obj docutils literal"><span class="pre">dbm</span></code></a> module and container for model parameters</p>
 <p>This class provides a uniform interface to the <a class="reference internal" href="dbm.html#module-dbm" title="dbm"><code class="xref py py-obj docutils literal"><span class="pre">dbm</span></code></a> module objects and
 methods and stores the particle-specific model parameters.  Because the
@@ -145,10 +145,17 @@ dissolved.</p>
 <blockquote>
 <div><p>Heat transfer reduction factor (&#8211;).</p>
 </div></blockquote>
-<p><strong>fdis</strong> : float, default = 0.01</p>
-<blockquote class="last">
+<p><strong>fdis</strong> : float, default = 1e-6</p>
+<blockquote>
 <div><p>Fraction of the initial total mass (&#8211;) remaining when the particle 
 should be considered dissolved.</p>
+</div></blockquote>
+<p><strong>t_hyd</strong> : float, default = 0.</p>
+<blockquote class="last">
+<div><p>Hydrate film formation time (s).  Mass transfer is computed by clean
+bubble methods for t less than t_hyd and by dirty bubble methods
+thereafter.  The default behavior is to assume the particle is dirty
+or hydrate covered from the release.</p>
 </div></blockquote>
 </td>
 </tr>
@@ -214,7 +221,7 @@ the ambient temperature.</p>
 <tr class="row-odd"><td><a class="reference internal" href="../disp_phases/dispersed_phases.SingleParticle.diameter.html#dispersed_phases.SingleParticle.diameter" title="dispersed_phases.SingleParticle.diameter"><code class="xref py py-obj docutils literal"><span class="pre">diameter</span></code></a>(m,&nbsp;T,&nbsp;P,&nbsp;Sa,&nbsp;Ta)</td>
 <td>Compute the diameter of a particle from mass and density</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="../disp_phases/dispersed_phases.SingleParticle.properties.html#dispersed_phases.SingleParticle.properties" title="dispersed_phases.SingleParticle.properties"><code class="xref py py-obj docutils literal"><span class="pre">properties</span></code></a>(m,&nbsp;T,&nbsp;P,&nbsp;Sa,&nbsp;Ta)</td>
+<tr class="row-even"><td><a class="reference internal" href="../disp_phases/dispersed_phases.SingleParticle.properties.html#dispersed_phases.SingleParticle.properties" title="dispersed_phases.SingleParticle.properties"><code class="xref py py-obj docutils literal"><span class="pre">properties</span></code></a>(m,&nbsp;T,&nbsp;P,&nbsp;Sa,&nbsp;Ta,&nbsp;t)</td>
 <td>Return the particle properties from the discrete bubble model</td>
 </tr>
 </tbody>
@@ -223,7 +230,7 @@ the ambient temperature.</p>
 
 <dl class="class">
 <dt id="dispersed_phases.PlumeParticle">
-<em class="property">class </em><code class="descclassname">dispersed_phases.</code><code class="descname">PlumeParticle</code><span class="sig-paren">(</span><em>dbm_particle</em>, <em>m0</em>, <em>T0</em>, <em>nb0</em>, <em>lambda_1</em>, <em>P</em>, <em>Sa</em>, <em>Ta</em>, <em>K=1.0</em>, <em>K_T=1.0</em>, <em>fdis=1e-06</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/dispersed_phases.py#L281"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/dispersed_phases.html#PlumeParticle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dispersed_phases.PlumeParticle" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dispersed_phases.</code><code class="descname">PlumeParticle</code><span class="sig-paren">(</span><em>dbm_particle</em>, <em>m0</em>, <em>T0</em>, <em>nb0</em>, <em>lambda_1</em>, <em>P</em>, <em>Sa</em>, <em>Ta</em>, <em>K=1.0</em>, <em>K_T=1.0</em>, <em>fdis=1e-06</em>, <em>t_hyd=0.0</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/dispersed_phases.py#L300"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/dispersed_phases.html#PlumeParticle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dispersed_phases.PlumeParticle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Interface to the <a class="reference internal" href="dbm.html#module-dbm" title="dbm"><code class="xref py py-obj docutils literal"><span class="pre">dbm</span></code></a> module and container for the model parameters</p>
 <p>As in the <em class="xref py py-obj">single_bubble_model.Particle</em> class, this object provides a
 uniform interface to the <a class="reference internal" href="dbm.html#module-dbm" title="dbm"><code class="xref py py-obj docutils literal"><span class="pre">dbm</span></code></a> module objects and captures the 
@@ -274,9 +281,16 @@ particle-specific model parameters.</p>
 <div><p>Heat transfer reduction factor (&#8211;).</p>
 </div></blockquote>
 <p><strong>fdis</strong> : float, default = 0.01</p>
-<blockquote class="last">
+<blockquote>
 <div><p>Fraction of the initial total mass (&#8211;) remaining when the particle 
 should be considered dissolved.</p>
+</div></blockquote>
+<p><strong>t_hyd</strong> : float, default = 0.</p>
+<blockquote class="last">
+<div><p>Hydrate film formation time (s).  Mass transfer is computed by clean
+bubble methods for t less than t_hyd and by dirty bubble methods
+thereafter.  The default behavior is to assume the particle is dirty
+or hydrate covered from the release.</p>
 </div></blockquote>
 </td>
 </tr>
@@ -368,10 +382,10 @@ defines the attributes: <a class="reference internal" href="../scripts/sbm/parti
 <tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">diameter</span></code>(m,&nbsp;T,&nbsp;P,&nbsp;Sa,&nbsp;Ta)</td>
 <td>Compute the diameter of a particle from mass and density</td>
 </tr>
-<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">properties</span></code>(m,&nbsp;T,&nbsp;P,&nbsp;Sa,&nbsp;Ta)</td>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">properties</span></code>(m,&nbsp;T,&nbsp;P,&nbsp;Sa,&nbsp;Ta,&nbsp;t)</td>
 <td>Return the particle properties from the discrete bubble model</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="../disp_phases/dispersed_phases.PlumeParticle.update.html#dispersed_phases.PlumeParticle.update" title="dispersed_phases.PlumeParticle.update"><code class="xref py py-obj docutils literal"><span class="pre">update</span></code></a>(m,&nbsp;T,&nbsp;P,&nbsp;Sa,&nbsp;Ta)</td>
+<tr class="row-odd"><td><a class="reference internal" href="../disp_phases/dispersed_phases.PlumeParticle.update.html#dispersed_phases.PlumeParticle.update" title="dispersed_phases.PlumeParticle.update"><code class="xref py py-obj docutils literal"><span class="pre">update</span></code></a>(m,&nbsp;T,&nbsp;P,&nbsp;Sa,&nbsp;Ta,&nbsp;t)</td>
 <td>Store the instantaneous values of the particle properties</td>
 </tr>
 </tbody>
@@ -393,19 +407,22 @@ defines the attributes: <a class="reference internal" href="../scripts/sbm/parti
 <tr class="row-even"><td><a class="reference internal" href="../disp_phases/dispersed_phases.load_particle_from_nc_file.html#dispersed_phases.load_particle_from_nc_file" title="dispersed_phases.load_particle_from_nc_file"><code class="xref py py-obj docutils literal"><span class="pre">load_particle_from_nc_file</span></code></a>(nc,&nbsp;particle_type)</td>
 <td>Read the complete <em class="xref py py-obj">particles</em> list from a netCDF output file</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="../disp_phases/dispersed_phases.zfe_volume_flux.html#dispersed_phases.zfe_volume_flux" title="dispersed_phases.zfe_volume_flux"><code class="xref py py-obj docutils literal"><span class="pre">zfe_volume_flux</span></code></a>(profile,&nbsp;particles,&nbsp;p,&nbsp;X0,&nbsp;R)</td>
+<tr class="row-odd"><td><a class="reference internal" href="../disp_phases/dispersed_phases.hydrate_formation_time.html#dispersed_phases.hydrate_formation_time" title="dispersed_phases.hydrate_formation_time"><code class="xref py py-obj docutils literal"><span class="pre">hydrate_formation_time</span></code></a>(dbm_obj,&nbsp;z,&nbsp;m,&nbsp;T,&nbsp;profile)</td>
+<td>Compute the hydrate formation time</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../disp_phases/dispersed_phases.zfe_volume_flux.html#dispersed_phases.zfe_volume_flux" title="dispersed_phases.zfe_volume_flux"><code class="xref py py-obj docutils literal"><span class="pre">zfe_volume_flux</span></code></a>(profile,&nbsp;particles,&nbsp;p,&nbsp;X0,&nbsp;R)</td>
 <td>Initial volume for a multiphase plume</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="../disp_phases/dispersed_phases.wuest_ic.html#dispersed_phases.wuest_ic" title="dispersed_phases.wuest_ic"><code class="xref py py-obj docutils literal"><span class="pre">wuest_ic</span></code></a>(u_0,&nbsp;particles,&nbsp;lambda_1,&nbsp;...)</td>
+<tr class="row-odd"><td><a class="reference internal" href="../disp_phases/dispersed_phases.wuest_ic.html#dispersed_phases.wuest_ic" title="dispersed_phases.wuest_ic"><code class="xref py py-obj docutils literal"><span class="pre">wuest_ic</span></code></a>(u_0,&nbsp;particles,&nbsp;lambda_1,&nbsp;...)</td>
 <td>Compute the initial velocity of entrained ambient fluid</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="../disp_phases/dispersed_phases.bf_average.html#dispersed_phases.bf_average" title="dispersed_phases.bf_average"><code class="xref py py-obj docutils literal"><span class="pre">bf_average</span></code></a>(particles,&nbsp;rho,&nbsp;g,&nbsp;rho_r,&nbsp;parm)</td>
+<tr class="row-even"><td><a class="reference internal" href="../disp_phases/dispersed_phases.bf_average.html#dispersed_phases.bf_average" title="dispersed_phases.bf_average"><code class="xref py py-obj docutils literal"><span class="pre">bf_average</span></code></a>(particles,&nbsp;rho,&nbsp;g,&nbsp;rho_r,&nbsp;parm)</td>
 <td>Compute a buoyancy-flux-weighted average of <em class="xref py py-obj">parm</em></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="../disp_phases/dispersed_phases.get_chem_names.html#dispersed_phases.get_chem_names" title="dispersed_phases.get_chem_names"><code class="xref py py-obj docutils literal"><span class="pre">get_chem_names</span></code></a>(particles)</td>
+<tr class="row-odd"><td><a class="reference internal" href="../disp_phases/dispersed_phases.get_chem_names.html#dispersed_phases.get_chem_names" title="dispersed_phases.get_chem_names"><code class="xref py py-obj docutils literal"><span class="pre">get_chem_names</span></code></a>(particles)</td>
 <td>Create a list of chemical names for the dispersed phase particles</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="../disp_phases/dispersed_phases.particles_state_space.html#dispersed_phases.particles_state_space" title="dispersed_phases.particles_state_space"><code class="xref py py-obj docutils literal"><span class="pre">particles_state_space</span></code></a>(particles)</td>
+<tr class="row-even"><td><a class="reference internal" href="../disp_phases/dispersed_phases.particles_state_space.html#dispersed_phases.particles_state_space" title="dispersed_phases.particles_state_space"><code class="xref py py-obj docutils literal"><span class="pre">particles_state_space</span></code></a>(particles)</td>
 <td>Create the state space describing the dispersed phase properties</td>
 </tr>
 </tbody>

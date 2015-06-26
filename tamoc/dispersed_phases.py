@@ -83,9 +83,14 @@ class SingleParticle(object):
         Mass transfer reduction factor (--).
     K_T : float, default = 1.
         Heat transfer reduction factor (--).
-    fdis : float, default = 0.01
+    fdis : float, default = 1e-6
         Fraction of the initial total mass (--) remaining when the particle 
         should be considered dissolved.
+    t_hyd : float, default = 0.
+        Hydrate film formation time (s).  Mass transfer is computed by clean
+        bubble methods for t less than t_hyd and by dirty bubble methods
+        thereafter.  The default behavior is to assume the particle is dirty
+        or hydrate covered from the release.
     
     Attributes
     ----------
@@ -127,7 +132,8 @@ class SingleParticle(object):
     the ambient temperature.
     
     """
-    def __init__(self, dbm_particle, m0, T0, K=1., K_T=1., fdis=1.e-6):
+    def __init__(self, dbm_particle, m0, T0, K=1., K_T=1., fdis=1.e-6, 
+                 t_hyd=0.):
         super(SingleParticle, self).__init__()
         
         # Make sure the masses are in a numpy array
@@ -148,11 +154,12 @@ class SingleParticle(object):
         self.K = K
         self.K_T = K_T
         self.fdis = fdis
+        self.t_hyd = t_hyd
         
         # Store parameters to track the dissolution of the initial masses
         self.diss_indices = self.m0 > 0
     
-    def properties(self, m, T, P, Sa, Ta):
+    def properties(self, m, T, P, Sa, Ta, t):
         """
         Return the particle properties from the discrete bubble model
         
@@ -173,6 +180,9 @@ class SingleParticle(object):
             salinity of ambient seawater (psu)
         Ta : float
             temperature of ambient seawater (K)
+        t : float
+            age of the particle--time since it was released into the water 
+            column (s)
         
         Returns
         -------
@@ -210,13 +220,22 @@ class SingleParticle(object):
         if self.K_T == 0.:
             T = Ta
         
+        # Decide which slip velocity and mass and heat transfer to use
+        if t < self.t_hyd:
+            # Treat the particle as clean for slip velocity and mass
+            # transfer
+            status = 1
+        else:
+            # Use the dirty bubble slip velocity and mass transfer
+            status = -1
+        
         # Distinguish between soluble and insoluble particles
         if self.particle.issoluble:
-            
+                        
             # Get the DBM results
             m[m<0] = 0.   # stop oscillations at small mass
             shape, de, rho_p, us, A, Cs, beta, beta_T = \
-                self.particle.return_all(m, T, P, Sa, Ta)
+                self.particle.return_all(m, T, P, Sa, Ta, status)
             
             # Turn off dissolution for "dissolved" components
             frac_diss = m[self.diss_indices] / self.m0[self.diss_indices]
@@ -234,7 +253,7 @@ class SingleParticle(object):
         else:
             # Get the particle properties
             shape, de, rho_p, us, A, beta_T = \
-                self.particle.return_all(m[0], T, P, Sa, Ta)
+                self.particle.return_all(m[0], T, P, Sa, Ta, status)
             beta = np.array([])
             Cs = np.array([])
         
@@ -312,6 +331,11 @@ class PlumeParticle(SingleParticle):
     fdis : float, default = 0.01
         Fraction of the initial total mass (--) remaining when the particle 
         should be considered dissolved.
+    t_hyd : float, default = 0.
+        Hydrate film formation time (s).  Mass transfer is computed by clean
+        bubble methods for t less than t_hyd and by dirty bubble methods
+        thereafter.  The default behavior is to assume the particle is dirty
+        or hydrate covered from the release.
     
     Attributes
     ----------
@@ -368,8 +392,9 @@ class PlumeParticle(SingleParticle):
     
     """
     def __init__(self, dbm_particle, m0, T0, nb0, lambda_1, P, Sa, Ta, 
-                 K=1., K_T=1., fdis=1.e-6):
-        super(PlumeParticle, self).__init__(dbm_particle, m0, T0, K, K_T, fdis)
+                 K=1., K_T=1., fdis=1.e-6, t_hyd=0.):
+        super(PlumeParticle, self).__init__(dbm_particle, m0, T0, K, K_T, 
+                                            fdis, t_hyd)
         
         # Store the input variables related to the particle description
         self.nb0 = nb0
@@ -377,10 +402,11 @@ class PlumeParticle(SingleParticle):
         # Store the model parameters
         self.lambda_1 = lambda_1
         
-        # Set the local masses and temperature to their initial values
-        self.update(m0, T0, P, Sa, Ta)
+        # Set the local masses and temperature to their initial values.  The
+        # particle age is zero at instantiation
+        self.update(m0, T0, P, Sa, Ta, 0.)
     
-    def update(self, m, T, P, Sa, Ta):
+    def update(self, m, T, P, Sa, Ta, t):
         """
         Store the instantaneous values of the particle properties
         
@@ -401,6 +427,9 @@ class PlumeParticle(SingleParticle):
             Local salinity surrounding the particle (psu)
         Ta : float
             Local temperature surrounding the particle (K)       
+        t : float
+            age of the particle--time since it was released into the water 
+            column (s)
         
         """
         # Make sure the masses are in a numpy array
@@ -414,7 +443,7 @@ class PlumeParticle(SingleParticle):
         self.m = m
         if np.sum(self.m) > 0.:
             self.us,  self.rho_p,  self.A, self.Cs, self.beta, \
-                self.beta_T, self.T = self.properties(m, T, P, Sa, Ta)
+                self.beta_T, self.T = self.properties(m, T, P, Sa, Ta, t)
         else:
             self.us = 0.
             self.rho_p = seawater.density(Ta, Sa, P)
@@ -430,7 +459,7 @@ class PlumeParticle(SingleParticle):
 # ----------------------------------------------------------------------------
 
 def initial_conditions(profile, z0, dbm_particle, yk, q, q_type, de, 
-                              T0=None):
+                       T0=None):
     """
     Define standard initial conditions for a PlumeParticle from flow rate
     
@@ -653,6 +682,11 @@ def save_particle_to_nc_file(nc, chem_names, particles, K_T0):
     fdis.standard_name = 'fdis'
     fdis.units = 'nondimensional'
     
+    t_hyd = nc.createVariable('t_hyd', 'f8', ('nparticles',))
+    t_hyd.long_name = 'hydrate formation time'
+    t_hyd.standard_name = 't_hyd'
+    t_hyd.units = 's'
+    
     if isinstance(particles[0], PlumeParticle):
         
         nb0 = nc.createVariable('nb0', 'f8', ('nparticles'))
@@ -702,6 +736,7 @@ def save_particle_to_nc_file(nc, chem_names, particles, K_T0):
         K[i] = particles[i].K
         K_T[i] = K_T0[i]
         fdis[i] = particles[i].fdis
+        t_hyd[i] = particles[i].t_hyd
         if isinstance(particles[i], PlumeParticle):
             particle_type[i] = 1
             nb0[i] = particles[i].nb0
@@ -769,24 +804,108 @@ def load_particle_from_nc_file(nc, particle_type, X0=None, user_data={},
                 nc.variables['lambda_1'][i], nc.variables['P'][0], 
                 nc.variables['Sa'][0], nc.variables['Ta'][0], 
                 nc.variables['K'][i], nc.variables['K_T'][i], 
-                nc.variables['fdis'][i])
+                nc.variables['fdis'][i], nc.variables['t_hyd'][i])
         elif particle_type == 1:
             particle  = PlumeParticle(particle, m0, 
                 nc.variables['T0'][i], nc.variables['nb0'][i], 
                 nc.variables['lambda_1'][i], nc.variables['P'][0], 
                 nc.variables['Sa'][0], nc.variables['Ta'][0], 
                 nc.variables['K'][i], nc.variables['K_T'][i], 
-                nc.variables['fdis'][i])
+                nc.variables['fdis'][i], nc.variables['t_hyd'][i])
         else:
             particle  = SingleParticle(particle, m0, 
                 nc.variables['T0'][i], nc.variables['K'][i],
-                nc.variables['K_T'][i], nc.variables['fdis'][i])
+                nc.variables['K_T'][i], nc.variables['fdis'][i],
+                nc.variables['t_hyd'][i])
         
         # Add this particle to the particles list
         particles.append(particle)
     
     # Return the list of particles and their composition
     return (particles, chem_names)
+
+
+# ----------------------------------------------------------------------------
+# Functions for hydrate skin model
+# ----------------------------------------------------------------------------
+
+def hydrate_formation_time(dbm_obj, z, m, T, profile):
+    """
+    Compute the hydrate formation time
+    
+    Computes the time to form a hydrate shell using the empirical model from
+    Jun et al. (2015).  If the particle is above the hydrate stability zone,
+    the formation time is np.inf.  If it is below the hydrate statbility
+    line, the maximum formation time t_star is computed based on the particle
+    diameter.  For high hydrate subcooling, the formation time can be 
+    accelerated by a factor phi = f(extent of subcooling).  The final 
+    hydrate formation time is t_hyd = phi * t_star.
+    
+    The idea behind this model is that bubbles or droplets in the ocen may 
+    form a hydrate shell that results in dirty-bubble mass and heat transfer
+    and rise velocity.  This algorithm sets the time to form the shell based
+    on measured field data by Rehder et al. (2002).  The model has been 
+    validated to field data in Romer et al. (2012), McGinnis et al. (2006), 
+    Warkinski et al. (2014), and the GISR field experiments.
+    
+    Parameters
+    ----------
+    dbm_obj : `dbm.FluidParticle` object
+        Discrete bubble model `dbm.FluidParticle` object.  Since this method
+        must calculate the hydrate stability temperature, it cannot be used
+        on `dbm.InsolubleParticle` objects.  A hydrate formation time can 
+        still be set for those particles, but not estimated from this 
+        function.
+    z : float
+        Release depth (m)
+    m : ndarray
+        Initial masses of the components of the `dbm_obj` (kg)
+    T : float
+        Initial temperature of the of `dbm~_obj` particle (K)
+    profile : `ambient.Profile` object
+        An object containing the ambient CTD data and associated methods.  
+    
+    Returns
+    -------
+    t_hyd : float
+        Hydrate formation time (s)
+    
+    """
+    # Get the ambient properties at the depth
+    Ta, Sa, P = profile.get_values(z, ['temperature', 'salinity', 
+                                   'pressure'])
+    
+    # Compute the diameter of the particle
+    de = dbm_obj.diameter(m, T, P)
+    
+    # Estimate the hydrate stability temperature
+    T_hyd = dbm_obj.hydrate_stability(m, P)
+    
+    if T_hyd < Ta:
+        # The particle is above the hydrate stability zone
+        t_hyd = np.inf
+    
+    else:
+        # The particle is below the hydrate stability zone, compute the 
+        # skin formation time.  Compute the maximum hydrate colonation
+        # time
+        t_star = 85710. * de - 244.15
+        
+        # Get the subcooling acceleration factor.
+        phi = -0.1312 * (T_hyd - Ta) + 2.4584
+        if phi > 1.:
+            # Formation time cannot exceed the maximum colonation time.
+            phi = 1.
+            
+        elif phi < 0.:
+            # Formation time cannot be less than 0.
+            phi = 0.
+        
+        # Compute the actual hydrate formation time
+        t_hyd = phi * t_star
+    
+    # Return the formation time
+    return t_hyd
 
 
 # ----------------------------------------------------------------------------
@@ -836,13 +955,14 @@ def zfe_volume_flux(profile, particles, p, X0, R):
                                    'pressure'])
     rho = seawater.density(Ta, Sa, P)
     
-    # Update the particle objects and pull out the multiphase properties
+    # Update the particle objects and pull out the multiphase properties.
+    # Since this is the release, the particle age is zero.
     lambda_1 = np.zeros(len(particles))
     us = np.zeros(len(particles))
     rho_p = np.zeros(len(particles))
     Q = np.zeros(len(particles))
     for i in range(len(particles)):
-        particles[i].update(particles[i].m, particles[i].T, P, Sa, Ta)
+        particles[i].update(particles[i].m, particles[i].T, P, Sa, Ta, 0.)
         lambda_1[i] = particles[i].lambda_1
         us[i] = particles[i].us
         rho_p[i] = particles[i].rho_p
@@ -1055,6 +1175,9 @@ def particles_state_space(particles):
         # Add in the heat flux of the particle
         y.append(np.sum(particles[i].m) * particles[i].nb0 * 
                  particles[i].cp * particles[i].T)
+        
+        # Initialize the particle age to zer
+        y.append(0.)
     
     # Return the state space as a list
     return y

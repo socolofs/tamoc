@@ -1,3 +1,28 @@
+V0.1.13, June, 2015 --
+   . Updated the numerical solution for the bent plume model so that the 
+     temperature is stored correctly once heat transfer is turned off.
+   . Added the particle age (t_p) to the state space of the stratified plume
+     model.
+   . Added the hydrate formation time `t_hyd` to the 
+     `dispersed_phases.SingleParticle` object and implemented the model from
+     Jun et al. (2015) that the slip velocity and heat and mass transfer 
+     should be for clean bubbles for t < t_hyd and for dirty bubbles 
+     otherwise.  This also makes the particle age `t` and input to 
+     `dispersed_phases.SingleParticle.properties`.  Because the 
+     `SingleParticle` object is inherited by the stratified plume model 
+     and the bent plume model particle objects, they also have this same
+     behavior.  Added the correct coding to pass the computed particle
+     ages in all of the relevant `update` methods.  Hence, `t_hyd` must 
+     be set when creating a particle object and then the Jun et al. (2015)
+     model is implemented automatically.  Set `t_hyd = 0.` to have the 
+     dirty bubble solution or `t_hyd = np.inf` to have the clean bubble
+     solution over the whole simulation period.
+   . Added the method `dispersed_phases.hydrate_formation_time` to compute
+     the hydrate formation time following the algorithm in Jun et al. (2015).
+     Pass that formation time to the particle object at creation to use the
+     hydrate skin model.  See `./bin/sbm/seep_bubble.py` for an example.  
+     Implementation would follow the same process for the stratified plume
+     model or the bent plume model.
 V0.1.12, June 23, 2015 --
    . Replaced the methods to compute gas-liquid equilibrium with more stable
      and robust methods from Michelsen and Mollerup (2007).  For cases in the

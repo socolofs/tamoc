@@ -12,6 +12,17 @@ size distributions from source flow conditions.
 For typical usage, please see the ./bin directory of the source distribution
 for various example scripts.
 
+Version 0.1.13: Updated the temperature output for the bent plume model so 
+                that the correct temperature is saved when heat transfer ends.
+                Added the particle time to the state space of the stratified
+                plume model and added the hydrate formation model of Jun et 
+                al. (2015) to the particle objects in the dispersed phases
+                module.  The hydrate formation time is set at the start of a
+                simulation and is properly implemented for all three 
+                simulation modules in the ``TAMOC`` suite.  To compute the
+                hydrate formation time using the equations from Jun et al.
+                (2015), use the function 
+                `dispersed_phases.hydrate_formation_time`.
 Version 0.1.12: Replaced methods for equilibrium and viscosity with better
                 algorithms.  Fixed small inconsistencies in the dbm.py module
                 for clean bubbles, and updated the seawater equations of 

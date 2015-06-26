@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.12',
+        VERSION:     '0.1.13',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -64,13 +64,13 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">June 23, 2015</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">June 26, 2015</td>
 </tr>
 </tbody>
 </table>
 <dl class="method">
 <dt id="single_bubble_model.Model.simulate">
-<code class="descclassname">Model.</code><code class="descname">simulate</code><span class="sig-paren">(</span><em>particle</em>, <em>X0</em>, <em>de</em>, <em>yk</em>, <em>T0=None</em>, <em>K=1.0</em>, <em>K_T=1.0</em>, <em>fdis=1e-06</em>, <em>delta_t=0.1</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/single_bubble_model.py#L194"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/single_bubble_model.html#Model.simulate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#single_bubble_model.Model.simulate" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">Model.</code><code class="descname">simulate</code><span class="sig-paren">(</span><em>particle</em>, <em>X0</em>, <em>de</em>, <em>yk</em>, <em>T0=None</em>, <em>K=1.0</em>, <em>K_T=1.0</em>, <em>fdis=1e-06</em>, <em>t_hyd=0.0</em>, <em>delta_t=0.1</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/single_bubble_model.py#L194"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/single_bubble_model.html#Model.simulate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#single_bubble_model.Model.simulate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Simulate the trajectory of a particle from given initial conditions</p>
 <p>Simulate the trajectory of a particle (bubble, droplet or solid 
 particle) until the particle dissolves or until it reaches the free
@@ -119,6 +119,13 @@ transfer coefficient providing amplification (&gt;1) or retardation
 <div><p>Fraction of the initial total mass remaining (&#8211;) for each 
 component in the particle when the particle should be considered 
 dissolved.</p>
+</div></blockquote>
+<p><strong>t_hyd</strong> : float, default = 0.</p>
+<blockquote>
+<div><p>Hydrate film formation time (s).  Mass transfer is computed by clean
+bubble methods for t less than t_hyd and by dirty bubble methods
+thereafter.  The default behavior is to assume the particle is dirty
+or hydrate covered from the release.</p>
 </div></blockquote>
 <p><strong>delta_t</strong> : float, default = 0.1 s</p>
 <blockquote class="last">

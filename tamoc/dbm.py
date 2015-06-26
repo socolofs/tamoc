@@ -702,7 +702,16 @@ class FluidMixture(object):
             return np.sum(yk / K_vsi) - 1
         
         # Use root-finding to get the critical formation pressure
-        T_hyd = fsolve(residual, 283.15)
+        if np.sum(m_gases) == 0.:
+            # Set T_hyd to the freezing point of pure water.  In this way, 
+            # no ocean temperatures will be found to be below the hydrate
+            # stability temperature, which is the desired behavior since 
+            # there are not hydrate forming compounds in the mixture.
+            T_hyd = 273.15
+            
+        else:
+            # Use the K_vsi method to find the hydrate stability temperature
+            T_hyd = fsolve(residual, 283.15)
         
         # Return the formation temperature
         return T_hyd

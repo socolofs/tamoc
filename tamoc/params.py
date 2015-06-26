@@ -169,9 +169,11 @@ class Scales(object):
             T0 = self.particles[i].T0
             m_p[i] = np.sum(m0) * self.particles[i].nb0
             if m_p[i] > 0.:
-                # Particles exist, get properties
+                # Particles exist, get properties.  Make sure the algorithm 
+                # uses the dirty bubble properties since this is supposed
+                # to be the rise velocity averaged over the whole plume.
                 us[i], rho_p[i]= self.particles[i].properties(m0, T0, P, Sa, 
-                                                               Ta)[0:2]
+                                 Ta, np.inf)[0:2]
                 B_p[i] = (rho - rho_p[i]) / rho * 9.81 * (m_p[i] / rho_p[i])
             else:
                 # Particles dissolved, set to ambient conditions
@@ -305,12 +307,14 @@ class Scales(object):
         # Get the governing variables
         (B, N, u_slip, u_inf) = self.get_variables(z0, 0.)
         
-        # Compute the slip velocity for the selected dispersed-phase particle
+        # Compute the slip velocity for the selected dispersed-phase particle.
+        # Make sure the algorithm uses the dirty bubble properties since this
+        # is supposed to be the rise velocity averaged over the whole plume.
         Ta, Sa, P = self.profile.get_values(z0, ['temperature', 'salinity',
                                             'pressure'])
         u_slip = self.particles[n].properties(self.particles[n].m0, 
                                               self.particles[n].T0, P, 
-                                              Sa, Ta)[0]
+                                              Sa, Ta, np.inf)[0]
         
         # Compute the particle value of U_N
         U_N = u_slip / (B * N)**(1./4.)
