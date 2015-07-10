@@ -826,6 +826,77 @@ def load_particle_from_nc_file(nc, particle_type, X0=None, user_data={},
 
 
 # ----------------------------------------------------------------------------
+# Functions for shear entrainment
+# ----------------------------------------------------------------------------
+
+def shear_entrainment(U, Ua, rho, rho_a, b, sin_p, cos_p, cos_t, p):
+    """
+    Compute the entrainment coefficient for shear entrainment 
+    
+    Computes the entrainment coefficient for the shear entrainment for a top
+    hat model.  This code can be used by both the bent plume model and the 
+    stratified plume model.  It is based on the concepts for shear entrainment
+    in Lee and Cheung (1990) and adapted by the model in Jirka (2004).  The
+    model works for pure jets, pure plumes, and buoyant jets.
+    
+    Parameters
+    ----------
+    U : float
+        Top hat velocity of entrained plume water (m/s)
+    Ua : float
+        Magnitude of the velocity of the crossflow along th theta axis (m/s)
+    rho : float
+        Density of the entrained plume fluid (kg/m^3)
+    rho_a : float
+        Density of the ambient water at the current height (kg/m^3)
+    sin_p : float
+        Sine of the angle phi from the horizontal with down being positive (up 
+        is - pi/2)
+    cos_p : float
+         Sine of the angle phi from the horizontal with down being positive 
+         (up is - pi/2)
+    cos_t : float
+        Cosine of the angle theta from the crossflow direction
+    p : `bent_plume_model.ModelParams` or `stratified_plume_model.ModelParams`
+        Object containing the present model parameters
+    
+    Returns
+    -------
+    alpha_s : float
+        The shear entrainment coefficient (--)
+    
+    """
+    # Gaussian model jet entrainment coefficient
+    alpha_j = p.alpha_j
+    
+    # Gaussian model plume entrainment coefficient
+    if rho_a == rho:
+        # This is a pure jet
+        alpha_p = 0.
+    else:
+        # This is a plume; compute the densimetric Gaussian Froude number
+        F1 = 2. * np.abs(U - Ua * cos_p * cos_t) / np.sqrt(p.g * np.abs(
+             rho_a - rho) * (1. + 1.2**2) / 1.2**2 / rho_a * b / np.sqrt(2.))
+        
+        # Follow Figure 13 in Jirka (2004)
+        if np.abs(F1**2 / sin_p) > p.alpha_Fr / 0.028:
+            alpha_p = - np.sign(rho_a - rho) * p.alpha_Fr * sin_p / F1**2
+        else:
+            alpha_p = - (0.083 - p.alpha_j) / (p.alpha_Fr / 0.028) * F1**2 / \
+                      sin_p * np.sign(rho_a - rho)
+    
+    # Compute the total shear entrainment coefficient for the top-hat model
+    if (np.abs(U - Ua * cos_p * cos_t) + U) == 0:
+        alpha_s = np.sqrt(2.) * alpha_j
+    else:
+        alpha_s = np.sqrt(2.) * (alpha_j + alpha_p) * 2. * U / \
+                  (np.abs(U - Ua * cos_p * cos_t) + U)
+    
+    # Return the total shear entrainment coefficient
+    return alpha_s
+
+
+# ----------------------------------------------------------------------------
 # Functions for hydrate skin model
 # ----------------------------------------------------------------------------
 

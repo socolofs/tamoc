@@ -412,8 +412,8 @@ subroutine coefs(nc, T, P, mass, Mol_wt, Pc, Tc, omega, delta_in, Aij, Bij, &
     ! modified Peng-Robinson (1978) equations for mu
     do i = 1, nc
         if (omega(i) > 0.49D0) then
-            mu(i) = 0.379642D0 + 1.48503D0 * omega(i) - 0.1644D0 * &
-                  & omega(i)**2 + 0.016667D0 * omega(i)**3
+            mu(i) = 0.379642D0 + 1.48503D0 * omega(i) - 0.164423D0 * &
+                  & omega(i)**2 + 0.016666D0 * omega(i)**3
         else
             mu(i) = 0.37464D0 + 1.54226D0 * omega(i) - 0.26992D0 * omega(i)**2
         end if

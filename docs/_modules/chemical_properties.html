@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.13',
+        VERSION:     '0.1.14',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -238,7 +238,12 @@
                 <span class="c"># Convert to J/mol</span>
                 <span class="n">data</span><span class="p">[</span><span class="n">chemical</span><span class="p">][</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">chemical</span><span class="p">][</span><span class="n">variable</span><span class="p">]</span> <span class="o">/</span> <span class="mf">0.238846</span>
                 <span class="n">units</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;(J/mol)&#39;</span>
-    
+            
+            <span class="k">if</span> <span class="n">read_units</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;L/mol&#39;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c"># Convert to m^3/mol</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">chemical</span><span class="p">][</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">chemical</span><span class="p">][</span><span class="n">variable</span><span class="p">]</span> <span class="o">/</span> <span class="mf">1000.</span>
+                <span class="n">units</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;(m^3/mol)&#39;</span>
+            
     <span class="k">return</span> <span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">units</span><span class="p">)</span>
 
 </div>

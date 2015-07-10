@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.13',
+        VERSION:     '0.1.14',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -195,8 +195,13 @@
 <span class="sd">        Array of times computed in the solution (s)</span>
 <span class="sd">    q : ndarray</span>
 <span class="sd">        Array of state space values computed in the solution</span>
+<span class="sd">    tp : ndarray</span>
+<span class="sd">        Age of each particle in the `particles` list where each row is one</span>
+<span class="sd">        iteration of the solution and the columns are (tp0, tp1, ... tpn),</span>
+<span class="sd">        where n is the number of dispersed phase particles in the simulation.</span>
 <span class="sd">    sp : ndarray</span>
-<span class="sd">        Trajectory of the each particle in the `particles` list as (x0, y0, </span>
+<span class="sd">        Trajectory of the each particle in the `particles` list where each</span>
+<span class="sd">        row is one iteration of the solution and the columns are (x0, y0, </span>
 <span class="sd">        z0, x1, y1, z1, ... xn, yn, zn), where n is the number of dispersed</span>
 <span class="sd">        phase particles in the simulation.</span>
 <span class="sd">    q_local : `LagElement` object</span>
@@ -316,20 +321,19 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">sd_max</span> <span class="o">=</span> <span class="n">sd_max</span>
         
         <span class="c"># Create the initial state space from the given input variables</span>
-        <span class="n">t0</span><span class="p">,</span> <span class="n">q0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chem_names</span> <span class="o">=</span> <span class="n">lmp</span><span class="o">.</span><span class="n">main_ic</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">,</span> 
-                                  <span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">D</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Vj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi_0</span><span class="p">,</span> 
-                                  <span class="bp">self</span><span class="o">.</span><span class="n">theta_0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Sj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cj</span><span class="p">,</span> 
-                                  <span class="bp">self</span><span class="o">.</span><span class="n">tracers</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">)</span>
+        <span class="n">t0</span><span class="p">,</span> <span class="n">q0</span><span class="p">,</span> <span class="n">tp0</span><span class="p">,</span> <span class="n">sp0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chem_names</span> <span class="o">=</span> <span class="n">lmp</span><span class="o">.</span><span class="n">main_ic</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">D</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Vj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi_0</span><span class="p">,</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">theta_0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Sj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracers</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">)</span>
         
         <span class="c"># Store the initial conditions in a Lagrangian element object</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">q_local</span> <span class="o">=</span> <span class="n">LagElement</span><span class="p">(</span><span class="n">t0</span><span class="p">,</span> <span class="n">q0</span><span class="p">,</span> <span class="n">D</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">,</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">q_local</span> <span class="o">=</span> <span class="n">LagElement</span><span class="p">(</span><span class="n">t0</span><span class="p">,</span> <span class="n">q0</span><span class="p">,</span> <span class="n">tp0</span><span class="p">,</span> <span class="n">sp0</span><span class="p">,</span> <span class="n">D</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">,</span> 
                        <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracers</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chem_names</span><span class="p">)</span>
         
         <span class="c"># Compute the buoyant jet trajectory</span>
         <span class="k">print</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">-- TEXAS A&amp;M OIL-SPILL CALCULATOR (TAMOC) --&#39;</span>
         <span class="k">print</span> <span class="s">&#39;-- Bent Plume Model                       --</span><span class="se">\n</span><span class="s">&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sp</span> <span class="o">=</span> <span class="n">lmp</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="n">t0</span><span class="p">,</span> <span class="n">q0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_local</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">,</span> <span class="n">lmp</span><span class="o">.</span><span class="n">derivs</span><span class="p">,</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sp</span><span class="o">=</span> <span class="n">lmp</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="n">t0</span><span class="p">,</span> <span class="n">q0</span><span class="p">,</span> <span class="n">tp0</span><span class="p">,</span> <span class="n">sp0</span><span class="p">,</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">q_local</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">,</span> <span class="n">lmp</span><span class="o">.</span><span class="n">derivs</span><span class="p">,</span> 
             <span class="bp">self</span><span class="o">.</span><span class="n">dt_max</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sd_max</span><span class="p">)</span>
         
         <span class="c"># Track the particles</span>
@@ -775,7 +779,7 @@
         
         <span class="c"># Plot the results</span>
         <span class="k">print</span> <span class="s">&#39;Plotting the full variable suite...&#39;</span>
-        <span class="n">plot_all_variables</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_local</span><span class="p">,</span> 
+        <span class="n">plot_all_variables</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_local</span><span class="p">,</span> 
                            <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">track</span><span class="p">,</span> 
                            <span class="n">fig</span><span class="p">)</span>
         <span class="k">print</span> <span class="s">&#39;Done.</span><span class="se">\n</span><span class="s">&#39;</span>
@@ -825,8 +829,8 @@
         <span class="nb">super</span><span class="p">(</span><span class="n">ModelParams</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span>
         
         <span class="c"># Set the model parameters to the values in Lee and Cheung (1990)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">alpha_1</span> <span class="o">=</span> <span class="mf">0.057</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">alpha_2</span> <span class="o">=</span> <span class="mf">0.544</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alpha_j</span> <span class="o">=</span> <span class="mf">0.057</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alpha_Fr</span> <span class="o">=</span> <span class="mf">0.544</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gamma</span> <span class="o">=</span> <span class="mf">1.10</span>
         
         <span class="c"># Set some of the multiphase plume model parameters</span>
@@ -1358,7 +1362,7 @@
 <span class="sd">        the Lagrangian element (kg/m^3)</span>
 <span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t0</span><span class="p">,</span> <span class="n">q0</span><span class="p">,</span> <span class="n">D</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">tracers</span><span class="p">,</span> 
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t0</span><span class="p">,</span> <span class="n">q0</span><span class="p">,</span> <span class="n">tp0</span><span class="p">,</span> <span class="n">sp0</span><span class="p">,</span> <span class="n">D</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">tracers</span><span class="p">,</span> 
                  <span class="n">chem_names</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">LagElement</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
         
@@ -1374,9 +1378,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">np</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">particles</span><span class="p">)</span>
         
         <span class="c"># Extract the state variables and compute the derived quantities</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">t0</span><span class="p">,</span> <span class="n">q0</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">t0</span><span class="p">,</span> <span class="n">q0</span><span class="p">,</span> <span class="n">tp0</span><span class="p">,</span> <span class="n">sp0</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="p">)</span>
     
-<div class="viewcode-block" id="LagElement.update"><a class="viewcode-back" href="../bpm/bent_plume_model.LagElement.update.html#bent_plume_model.LagElement.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="o">=</span><span class="p">[]):</span>
+<div class="viewcode-block" id="LagElement.update"><a class="viewcode-back" href="../bpm/bent_plume_model.LagElement.update.html#bent_plume_model.LagElement.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">tp</span><span class="p">,</span> <span class="n">sp</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="o">=</span><span class="p">[]):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Update the `LagElement` object with the current local conditions</span>
 <span class="sd">        </span>
@@ -1389,6 +1393,8 @@
 <span class="sd">            Current time of the simulation (s)</span>
 <span class="sd">        q : ndarray</span>
 <span class="sd">            Current values of the simulation state space, q</span>
+<span class="sd">        sp : ndarray</span>
+<span class="sd">            Current values of the particle locations in (x, y, z)-space (m)</span>
 <span class="sd">        profile : `ambient.Profile`</span>
 <span class="sd">            Ambient CTD data    </span>
 <span class="sd">        p : `ModelParams`</span>
@@ -1477,9 +1483,15 @@
             <span class="c"># Get the mass of particles following this Lagrangian element</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">mp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">m_p</span><span class="p">)</span> <span class="o">*</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">nbe</span>
             
+            <span class="c"># Get the particle offset from the plume centerline and the </span>
+            <span class="c"># associated buoyant force reduction factor</span>
+            <span class="n">lp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">sp</span><span class="p">[</span><span class="n">i</span><span class="o">*</span><span class="mi">3</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> 
+                 <span class="n">sp</span><span class="p">[</span><span class="n">i</span><span class="o">*</span><span class="mi">3</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">-</span> <span class="n">sp</span><span class="p">[</span><span class="n">i</span><span class="o">*</span><span class="mi">3</span><span class="o">+</span><span class="mi">2</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">p_fac</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">lp</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">)</span>
+            
             <span class="c"># Compute the buoyant force coming from this set of particles</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">fb</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rho</span> <span class="o">/</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">rho_p</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">mp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> \
-                         <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rho_a</span> <span class="o">-</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">rho_p</span><span class="p">)</span>
+                         <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rho_a</span> <span class="o">-</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">rho_p</span><span class="p">)</span> <span class="o">*</span> <span class="n">p_fac</span>
             
             <span class="c"># Force the particle mass and bubble force to zero if the bubble</span>
             <span class="c"># have dissolved</span>
@@ -1586,7 +1598,7 @@
     <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
 
 </div>
-<div class="viewcode-block" id="plot_all_variables"><a class="viewcode-back" href="../spm/bent_plume_model.plot_all_variables.html#bent_plume_model.plot_all_variables">[docs]</a><span class="k">def</span> <span class="nf">plot_all_variables</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">sp</span><span class="p">,</span> <span class="n">q_local</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">tracked</span><span class="p">,</span> 
+<div class="viewcode-block" id="plot_all_variables"><a class="viewcode-back" href="../spm/bent_plume_model.plot_all_variables.html#bent_plume_model.plot_all_variables">[docs]</a><span class="k">def</span> <span class="nf">plot_all_variables</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">tp</span><span class="p">,</span> <span class="n">sp</span><span class="p">,</span> <span class="n">q_local</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">tracked</span><span class="p">,</span> 
     <span class="n">fig</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plot a comprehensive suite of simulation results</span>
@@ -1667,8 +1679,9 @@
     
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">)):</span>
         <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">q0_local</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">q</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,:],</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="p">)</span>
-        <span class="n">q_local</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">q</span><span class="p">[</span><span class="n">i</span><span class="p">,:],</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="p">)</span>
+            <span class="n">q0_local</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">q</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,:],</span> <span class="n">tp</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">sp</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">profile</span><span class="p">,</span> 
+                <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="p">)</span>
+        <span class="n">q_local</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">q</span><span class="p">[</span><span class="n">i</span><span class="p">,:],</span> <span class="n">tp</span><span class="p">[</span><span class="n">i</span><span class="p">,:],</span> <span class="n">sp</span><span class="p">[</span><span class="n">i</span><span class="p">,:],</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="p">)</span>
         <span class="n">M</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">q_local</span><span class="o">.</span><span class="n">M</span>
         <span class="n">S</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">q_local</span><span class="o">.</span><span class="n">S</span>
         <span class="n">T</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">q_local</span><span class="o">.</span><span class="n">T</span>

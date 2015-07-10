@@ -598,8 +598,8 @@ def calculate_path(profile, particle, p, y0, delta_t):
     in the state space can be returned by::
     
         >>> import seawater
-        >>> z = y[0]
-        >>> m = y[1:-1]
+        >>> z = y[2]
+        >>> m = y[3:-1]
         >>> T = y[-1] / (np.sum(y[1:-1]) * particle.cp)
     
     """

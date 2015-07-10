@@ -1,0 +1,193 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>dispersed_phases.shear_entrainment &mdash; Texas A&amp;M Oilspill Calculator v0.1 Manual</title>
+    
+    <link rel="stylesheet" href="../_static/scipy.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1.14',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../contents.html" />
+    <link rel="up" title="Overview of Dispersed Phases Module" href="../modules/disp_phases.html" />
+    <link rel="next" title="dispersed_phases.hydrate_formation_time" href="dispersed_phases.hydrate_formation_time.html" />
+    <link rel="prev" title="dispersed_phases.load_particle_from_nc_file" href="dispersed_phases.load_particle_from_nc_file.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="dispersed_phases.hydrate_formation_time.html" title="dispersed_phases.hydrate_formation_time"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="dispersed_phases.load_particle_from_nc_file.html" title="dispersed_phases.load_particle_from_nc_file"
+             accesskey="P">previous</a> |</li>
+<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+
+          <li class="nav-item nav-item-1"><a href="../modules/reference.html" >Reference</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="../modules/disp_phases.html" accesskey="U">Overview of Dispersed Phases Module</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="dispersed-phases-shear-entrainment">
+<h1>dispersed_phases.shear_entrainment<a class="headerlink" href="#dispersed-phases-shear-entrainment" title="Permalink to this headline">¶</a></h1>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">July 10, 2015</td>
+</tr>
+</tbody>
+</table>
+<dl class="function">
+<dt id="dispersed_phases.shear_entrainment">
+<code class="descclassname">dispersed_phases.</code><code class="descname">shear_entrainment</code><span class="sig-paren">(</span><em>U</em>, <em>Ua</em>, <em>rho</em>, <em>rho_a</em>, <em>b</em>, <em>sin_p</em>, <em>cos_p</em>, <em>cos_t</em>, <em>p</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/dispersed_phases.py#L832"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/dispersed_phases.html#shear_entrainment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dispersed_phases.shear_entrainment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the entrainment coefficient for shear entrainment</p>
+<p>Computes the entrainment coefficient for the shear entrainment for a top
+hat model.  This code can be used by both the bent plume model and the 
+stratified plume model.  It is based on the concepts for shear entrainment
+in Lee and Cheung (1990) and adapted by the model in Jirka (2004).  The
+model works for pure jets, pure plumes, and buoyant jets.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>U</strong> : float</p>
+<blockquote>
+<div><p>Top hat velocity of entrained plume water (m/s)</p>
+</div></blockquote>
+<p><strong>Ua</strong> : float</p>
+<blockquote>
+<div><p>Magnitude of the velocity of the crossflow along th theta axis (m/s)</p>
+</div></blockquote>
+<p><strong>rho</strong> : float</p>
+<blockquote>
+<div><p>Density of the entrained plume fluid (kg/m^3)</p>
+</div></blockquote>
+<p><strong>rho_a</strong> : float</p>
+<blockquote>
+<div><p>Density of the ambient water at the current height (kg/m^3)</p>
+</div></blockquote>
+<p><strong>sin_p</strong> : float</p>
+<blockquote>
+<div><p>Sine of the angle phi from the horizontal with down being positive (up 
+is - pi/2)</p>
+</div></blockquote>
+<p><strong>cos_p</strong> : float</p>
+<blockquote>
+<div><p>Sine of the angle phi from the horizontal with down being positive 
+(up is - pi/2)</p>
+</div></blockquote>
+<p><strong>cos_t</strong> : float</p>
+<blockquote>
+<div><p>Cosine of the angle theta from the crossflow direction</p>
+</div></blockquote>
+<p><strong>p</strong> : <a class="reference internal" href="../modules/bpm.html#bent_plume_model.ModelParams" title="bent_plume_model.ModelParams"><code class="xref py py-obj docutils literal"><span class="pre">bent_plume_model.ModelParams</span></code></a> or <a class="reference internal" href="../spm/stratified_plume_model.ModelParams.html#stratified_plume_model.ModelParams" title="stratified_plume_model.ModelParams"><code class="xref py py-obj docutils literal"><span class="pre">stratified_plume_model.ModelParams</span></code></a></p>
+<blockquote>
+<div><p>Object containing the present model parameters</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>alpha_s</strong> : float</p>
+<blockquote class="last">
+<div><p>The shear entrainment coefficient (&#8211;)</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../contents.html">
+              <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
+            </a></p>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="dispersed_phases.load_particle_from_nc_file.html"
+                        title="previous chapter">dispersed_phases.load_particle_from_nc_file</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="dispersed_phases.hydrate_formation_time.html"
+                        title="next chapter">dispersed_phases.hydrate_formation_time</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/disp_phases/dispersed_phases.shear_entrainment.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<ul class="this-page-menu">
+  <li><a href="/numpy/docs/numpy-docs/disp_phases/dispersed_phases.shear_entrainment.rst">Edit page</a></li>
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      
+      |
+      <a href="../_sources/disp_phases/dispersed_phases.shear_entrainment.txt"
+          rel="nofollow">Page source</a></li>
+    </div>
+
+    
+
+    
+  </body>
+</html>

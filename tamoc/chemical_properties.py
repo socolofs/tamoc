@@ -187,7 +187,12 @@ def load_data(fname):
                 # Convert to J/mol
                 data[chemical][variable] = data[chemical][variable] / 0.238846
                 units[variable] = '(J/mol)'
-    
+            
+            if read_units[variable].find('L/mol') >= 0:
+                # Convert to m^3/mol
+                data[chemical][variable] = data[chemical][variable] / 1000.
+                units[variable] = '(m^3/mol)'
+            
     return (data, units)
 
 

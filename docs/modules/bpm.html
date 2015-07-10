@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.13',
+        VERSION:     '0.1.14',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -60,7 +60,7 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">June 26, 2015</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">July 10, 2015</td>
 </tr>
 </tbody>
 </table>
@@ -203,10 +203,13 @@ simulation run.</p>
 <tr class="row-even"><td>q</td>
 <td>(ndarray) Array of state space values computed in the solution</td>
 </tr>
-<tr class="row-odd"><td>sp</td>
-<td>(ndarray) Trajectory of the each particle in the <em class="xref py py-obj">particles</em> list as (x0, y0, z0, x1, y1, z1, ... xn, yn, zn), where n is the number of dispersed phase particles in the simulation.</td>
+<tr class="row-odd"><td>tp</td>
+<td>(ndarray) Age of each particle in the <em class="xref py py-obj">particles</em> list where each row is one iteration of the solution and the columns are (tp0, tp1, ... tpn), where n is the number of dispersed phase particles in the simulation.</td>
 </tr>
-<tr class="row-even"><td>q_local</td>
+<tr class="row-even"><td>sp</td>
+<td>(ndarray) Trajectory of the each particle in the <em class="xref py py-obj">particles</em> list where each row is one iteration of the solution and the columns are (x0, y0, z0, x1, y1, z1, ... xn, yn, zn), where n is the number of dispersed phase particles in the simulation.</td>
+</tr>
+<tr class="row-odd"><td>q_local</td>
 <td>(<a class="reference internal" href="#bent_plume_model.LagElement" title="bent_plume_model.LagElement"><code class="xref py py-obj docutils literal"><span class="pre">LagElement</span></code></a> object) Object that translates the <a class="reference internal" href="#bent_plume_model.Model" title="bent_plume_model.Model"><code class="xref py py-obj docutils literal"><span class="pre">Model</span></code></a> state space <em class="xref py py-obj">t</em> and <em class="xref py py-obj">q</em> into the comprehensive list of derived variables.</td>
 </tr>
 </tbody>
@@ -242,7 +245,7 @@ simulation run.</p>
 
 <dl class="class">
 <dt id="bent_plume_model.ModelParams">
-<em class="property">class </em><code class="descclassname">bent_plume_model.</code><code class="descname">ModelParams</code><span class="sig-paren">(</span><em>profile</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/bent_plume_model.py#L737"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/bent_plume_model.html#ModelParams"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bent_plume_model.ModelParams" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">bent_plume_model.</code><code class="descname">ModelParams</code><span class="sig-paren">(</span><em>profile</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/bent_plume_model.py#L741"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/bent_plume_model.html#ModelParams"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bent_plume_model.ModelParams" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fixed model parameters for the bent plume model</p>
 <p>This class stores the set of model parameters that should not be adjusted
 by the user and that are needed by the bent plume model.</p>
@@ -295,7 +298,7 @@ by the user and that are needed by the bent plume model.</p>
 
 <dl class="class">
 <dt id="bent_plume_model.Particle">
-<em class="property">class </em><code class="descclassname">bent_plume_model.</code><code class="descname">Particle</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>z</em>, <em>dbm_particle</em>, <em>m0</em>, <em>T0</em>, <em>nb0</em>, <em>lambda_1</em>, <em>P</em>, <em>Sa</em>, <em>Ta</em>, <em>K=1.0</em>, <em>K_T=1.0</em>, <em>fdis=1e-06</em>, <em>t_hyd=0.0</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/bent_plume_model.py#L789"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/bent_plume_model.html#Particle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bent_plume_model.Particle" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">bent_plume_model.</code><code class="descname">Particle</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>z</em>, <em>dbm_particle</em>, <em>m0</em>, <em>T0</em>, <em>nb0</em>, <em>lambda_1</em>, <em>P</em>, <em>Sa</em>, <em>Ta</em>, <em>K=1.0</em>, <em>K_T=1.0</em>, <em>fdis=1e-06</em>, <em>t_hyd=0.0</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/bent_plume_model.py#L793"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/bent_plume_model.html#Particle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bent_plume_model.Particle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Interface to the <a class="reference internal" href="dbm.html#module-dbm" title="dbm"><code class="xref py py-obj docutils literal"><span class="pre">dbm</span></code></a> module tool for particle tracking</p>
 <p>This new <a class="reference internal" href="#bent_plume_model.Particle" title="bent_plume_model.Particle"><code class="xref py py-obj docutils literal"><span class="pre">Particle</span></code></a> class is need to allow dispersed phase particles to 
 be tracked within the Lagrangian plume element during the solution.</p>
@@ -479,7 +482,7 @@ should be considered dissolved.</p>
 
 <dl class="class">
 <dt id="bent_plume_model.LagElement">
-<em class="property">class </em><code class="descclassname">bent_plume_model.</code><code class="descname">LagElement</code><span class="sig-paren">(</span><em>t0</em>, <em>q0</em>, <em>D</em>, <em>profile</em>, <em>p</em>, <em>particles</em>, <em>tracers</em>, <em>chem_names</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/bent_plume_model.py#L1135"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/bent_plume_model.html#LagElement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bent_plume_model.LagElement" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">bent_plume_model.</code><code class="descname">LagElement</code><span class="sig-paren">(</span><em>t0</em>, <em>q0</em>, <em>tp0</em>, <em>sp0</em>, <em>D</em>, <em>profile</em>, <em>p</em>, <em>particles</em>, <em>tracers</em>, <em>chem_names</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/bent_plume_model.py#L1139"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/bent_plume_model.html#LagElement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bent_plume_model.LagElement" title="Permalink to this definition">¶</a></dt>
 <dd><p>Manages the Lagragian plume element state space and derived variables</p>
 <p>Translates the state space variables for a Lagrangian plume element into
 its individual parts and derived quantitites.</p>
@@ -714,7 +717,7 @@ the discharge through <em class="xref py py-obj">cj</em>.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="../bpm/bent_plume_model.LagElement.update.html#bent_plume_model.LagElement.update" title="bent_plume_model.LagElement.update"><code class="xref py py-obj docutils literal"><span class="pre">update</span></code></a>(t,&nbsp;q,&nbsp;profile,&nbsp;p[,&nbsp;particles])</td>
+<tr class="row-odd"><td><a class="reference internal" href="../bpm/bent_plume_model.LagElement.update.html#bent_plume_model.LagElement.update" title="bent_plume_model.LagElement.update"><code class="xref py py-obj docutils literal"><span class="pre">update</span></code></a>(t,&nbsp;q,&nbsp;tp,&nbsp;sp,&nbsp;profile,&nbsp;p[,&nbsp;particles])</td>
 <td>Update the <a class="reference internal" href="#bent_plume_model.LagElement" title="bent_plume_model.LagElement"><code class="xref py py-obj docutils literal"><span class="pre">LagElement</span></code></a> object with the current local conditions</td>
 </tr>
 </tbody>
@@ -733,7 +736,7 @@ the discharge through <em class="xref py py-obj">cj</em>.</p>
 <tr class="row-odd"><td><a class="reference internal" href="../spm/bent_plume_model.plot_state_space.html#bent_plume_model.plot_state_space" title="bent_plume_model.plot_state_space"><code class="xref py py-obj docutils literal"><span class="pre">plot_state_space</span></code></a>(t,&nbsp;q,&nbsp;sp,&nbsp;particles,&nbsp;fig)</td>
 <td>Plot the Lagrangian model state space</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="../spm/bent_plume_model.plot_all_variables.html#bent_plume_model.plot_all_variables" title="bent_plume_model.plot_all_variables"><code class="xref py py-obj docutils literal"><span class="pre">plot_all_variables</span></code></a>(t,&nbsp;q,&nbsp;sp,&nbsp;q_local,&nbsp;...)</td>
+<tr class="row-even"><td><a class="reference internal" href="../spm/bent_plume_model.plot_all_variables.html#bent_plume_model.plot_all_variables" title="bent_plume_model.plot_all_variables"><code class="xref py py-obj docutils literal"><span class="pre">plot_all_variables</span></code></a>(t,&nbsp;q,&nbsp;tp,&nbsp;sp,&nbsp;q_local,&nbsp;...)</td>
 <td>Plot a comprehensive suite of simulation results</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="../spm/bent_plume_model.width_projection.html#bent_plume_model.width_projection" title="bent_plume_model.width_projection"><code class="xref py py-obj docutils literal"><span class="pre">width_projection</span></code></a>(Sx,&nbsp;Sy,&nbsp;b)</td>
@@ -753,10 +756,10 @@ functions contained in this module are detailed in the following.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="../bpm/lmp.derivs.html#lmp.derivs" title="lmp.derivs"><code class="xref py py-obj docutils literal"><span class="pre">derivs</span></code></a>(t,&nbsp;q,&nbsp;dtp_ds,&nbsp;q0_local,&nbsp;q1_local,&nbsp;...)</td>
+<tr class="row-odd"><td><a class="reference internal" href="../bpm/lmp.derivs.html#lmp.derivs" title="lmp.derivs"><code class="xref py py-obj docutils literal"><span class="pre">derivs</span></code></a>(t,&nbsp;q,&nbsp;tp,&nbsp;sp,&nbsp;dtp_ds,&nbsp;q0_local,&nbsp;...)</td>
 <td>Calculate the derivatives for the system of ODEs for a Lagrangian plume</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="../bpm/lmp.calculate.html#lmp.calculate" title="lmp.calculate"><code class="xref py py-obj docutils literal"><span class="pre">calculate</span></code></a>(t0,&nbsp;q0,&nbsp;q0_local,&nbsp;profile,&nbsp;p,&nbsp;...)</td>
+<tr class="row-even"><td><a class="reference internal" href="../bpm/lmp.calculate.html#lmp.calculate" title="lmp.calculate"><code class="xref py py-obj docutils literal"><span class="pre">calculate</span></code></a>(t0,&nbsp;q0,&nbsp;tp0,&nbsp;sp0,&nbsp;q0_local,&nbsp;...)</td>
 <td>Integrate an the Lagrangian plume solution</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="../bpm/lmp.entrainment.html#lmp.entrainment" title="lmp.entrainment"><code class="xref py py-obj docutils literal"><span class="pre">entrainment</span></code></a>(q0_local,&nbsp;q1_local,&nbsp;p)</td>

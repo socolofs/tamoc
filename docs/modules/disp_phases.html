@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.13',
+        VERSION:     '0.1.14',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -60,7 +60,7 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">June 26, 2015</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">July 10, 2015</td>
 </tr>
 </tbody>
 </table>
@@ -407,22 +407,25 @@ defines the attributes: <a class="reference internal" href="../scripts/sbm/parti
 <tr class="row-even"><td><a class="reference internal" href="../disp_phases/dispersed_phases.load_particle_from_nc_file.html#dispersed_phases.load_particle_from_nc_file" title="dispersed_phases.load_particle_from_nc_file"><code class="xref py py-obj docutils literal"><span class="pre">load_particle_from_nc_file</span></code></a>(nc,&nbsp;particle_type)</td>
 <td>Read the complete <em class="xref py py-obj">particles</em> list from a netCDF output file</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="../disp_phases/dispersed_phases.hydrate_formation_time.html#dispersed_phases.hydrate_formation_time" title="dispersed_phases.hydrate_formation_time"><code class="xref py py-obj docutils literal"><span class="pre">hydrate_formation_time</span></code></a>(dbm_obj,&nbsp;z,&nbsp;m,&nbsp;T,&nbsp;profile)</td>
+<tr class="row-odd"><td><a class="reference internal" href="../disp_phases/dispersed_phases.shear_entrainment.html#dispersed_phases.shear_entrainment" title="dispersed_phases.shear_entrainment"><code class="xref py py-obj docutils literal"><span class="pre">shear_entrainment</span></code></a>(U,&nbsp;Ua,&nbsp;rho,&nbsp;rho_a,&nbsp;b,&nbsp;...)</td>
+<td>Compute the entrainment coefficient for shear entrainment</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../disp_phases/dispersed_phases.hydrate_formation_time.html#dispersed_phases.hydrate_formation_time" title="dispersed_phases.hydrate_formation_time"><code class="xref py py-obj docutils literal"><span class="pre">hydrate_formation_time</span></code></a>(dbm_obj,&nbsp;z,&nbsp;m,&nbsp;T,&nbsp;profile)</td>
 <td>Compute the hydrate formation time</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="../disp_phases/dispersed_phases.zfe_volume_flux.html#dispersed_phases.zfe_volume_flux" title="dispersed_phases.zfe_volume_flux"><code class="xref py py-obj docutils literal"><span class="pre">zfe_volume_flux</span></code></a>(profile,&nbsp;particles,&nbsp;p,&nbsp;X0,&nbsp;R)</td>
+<tr class="row-odd"><td><a class="reference internal" href="../disp_phases/dispersed_phases.zfe_volume_flux.html#dispersed_phases.zfe_volume_flux" title="dispersed_phases.zfe_volume_flux"><code class="xref py py-obj docutils literal"><span class="pre">zfe_volume_flux</span></code></a>(profile,&nbsp;particles,&nbsp;p,&nbsp;X0,&nbsp;R)</td>
 <td>Initial volume for a multiphase plume</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="../disp_phases/dispersed_phases.wuest_ic.html#dispersed_phases.wuest_ic" title="dispersed_phases.wuest_ic"><code class="xref py py-obj docutils literal"><span class="pre">wuest_ic</span></code></a>(u_0,&nbsp;particles,&nbsp;lambda_1,&nbsp;...)</td>
+<tr class="row-even"><td><a class="reference internal" href="../disp_phases/dispersed_phases.wuest_ic.html#dispersed_phases.wuest_ic" title="dispersed_phases.wuest_ic"><code class="xref py py-obj docutils literal"><span class="pre">wuest_ic</span></code></a>(u_0,&nbsp;particles,&nbsp;lambda_1,&nbsp;...)</td>
 <td>Compute the initial velocity of entrained ambient fluid</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="../disp_phases/dispersed_phases.bf_average.html#dispersed_phases.bf_average" title="dispersed_phases.bf_average"><code class="xref py py-obj docutils literal"><span class="pre">bf_average</span></code></a>(particles,&nbsp;rho,&nbsp;g,&nbsp;rho_r,&nbsp;parm)</td>
+<tr class="row-odd"><td><a class="reference internal" href="../disp_phases/dispersed_phases.bf_average.html#dispersed_phases.bf_average" title="dispersed_phases.bf_average"><code class="xref py py-obj docutils literal"><span class="pre">bf_average</span></code></a>(particles,&nbsp;rho,&nbsp;g,&nbsp;rho_r,&nbsp;parm)</td>
 <td>Compute a buoyancy-flux-weighted average of <em class="xref py py-obj">parm</em></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="../disp_phases/dispersed_phases.get_chem_names.html#dispersed_phases.get_chem_names" title="dispersed_phases.get_chem_names"><code class="xref py py-obj docutils literal"><span class="pre">get_chem_names</span></code></a>(particles)</td>
+<tr class="row-even"><td><a class="reference internal" href="../disp_phases/dispersed_phases.get_chem_names.html#dispersed_phases.get_chem_names" title="dispersed_phases.get_chem_names"><code class="xref py py-obj docutils literal"><span class="pre">get_chem_names</span></code></a>(particles)</td>
 <td>Create a list of chemical names for the dispersed phase particles</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="../disp_phases/dispersed_phases.particles_state_space.html#dispersed_phases.particles_state_space" title="dispersed_phases.particles_state_space"><code class="xref py py-obj docutils literal"><span class="pre">particles_state_space</span></code></a>(particles)</td>
+<tr class="row-odd"><td><a class="reference internal" href="../disp_phases/dispersed_phases.particles_state_space.html#dispersed_phases.particles_state_space" title="dispersed_phases.particles_state_space"><code class="xref py py-obj docutils literal"><span class="pre">particles_state_space</span></code></a>(particles)</td>
 <td>Create the state space describing the dispersed phase properties</td>
 </tr>
 </tbody>

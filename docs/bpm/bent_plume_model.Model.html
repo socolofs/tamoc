@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.13',
+        VERSION:     '0.1.14',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -64,7 +64,7 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">June 26, 2015</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">July 10, 2015</td>
 </tr>
 </tbody>
 </table>
@@ -164,10 +164,13 @@ simulation run.</p>
 <tr class="row-even"><td>q</td>
 <td>(ndarray) Array of state space values computed in the solution</td>
 </tr>
-<tr class="row-odd"><td>sp</td>
-<td>(ndarray) Trajectory of the each particle in the <em class="xref py py-obj">particles</em> list as (x0, y0, z0, x1, y1, z1, ... xn, yn, zn), where n is the number of dispersed phase particles in the simulation.</td>
+<tr class="row-odd"><td>tp</td>
+<td>(ndarray) Age of each particle in the <em class="xref py py-obj">particles</em> list where each row is one iteration of the solution and the columns are (tp0, tp1, ... tpn), where n is the number of dispersed phase particles in the simulation.</td>
 </tr>
-<tr class="row-even"><td>q_local</td>
+<tr class="row-even"><td>sp</td>
+<td>(ndarray) Trajectory of the each particle in the <em class="xref py py-obj">particles</em> list where each row is one iteration of the solution and the columns are (x0, y0, z0, x1, y1, z1, ... xn, yn, zn), where n is the number of dispersed phase particles in the simulation.</td>
+</tr>
+<tr class="row-odd"><td>q_local</td>
 <td>(<a class="reference internal" href="../modules/bpm.html#bent_plume_model.LagElement" title="bent_plume_model.LagElement"><code class="xref py py-obj docutils literal"><span class="pre">LagElement</span></code></a> object) Object that translates the <a class="reference internal" href="../modules/bpm.html#bent_plume_model.Model" title="bent_plume_model.Model"><code class="xref py py-obj docutils literal"><span class="pre">Model</span></code></a> state space <em class="xref py py-obj">t</em> and <em class="xref py py-obj">q</em> into the comprehensive list of derived variables.</td>
 </tr>
 </tbody>

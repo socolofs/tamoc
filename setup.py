@@ -80,7 +80,7 @@ if __name__ == '__main__':
     
     setup(
         name = 'TAMOC',
-        version = '0.1.13',
+        version = '0.1.14',
         description = 'Texas A&M Oilspill Calculator',
         long_description = open('README.txt').read(),
         license = 'LICENSE.txt',

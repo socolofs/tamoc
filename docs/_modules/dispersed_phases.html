@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.13',
+        VERSION:     '0.1.14',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -874,6 +874,77 @@
     
     <span class="c"># Return the list of particles and their composition</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">particles</span><span class="p">,</span> <span class="n">chem_names</span><span class="p">)</span>
+
+
+<span class="c"># ----------------------------------------------------------------------------</span>
+<span class="c"># Functions for shear entrainment</span>
+<span class="c"># ----------------------------------------------------------------------------</span>
+</div>
+<div class="viewcode-block" id="shear_entrainment"><a class="viewcode-back" href="../disp_phases/dispersed_phases.shear_entrainment.html#dispersed_phases.shear_entrainment">[docs]</a><span class="k">def</span> <span class="nf">shear_entrainment</span><span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="n">Ua</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">rho_a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">sin_p</span><span class="p">,</span> <span class="n">cos_p</span><span class="p">,</span> <span class="n">cos_t</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the entrainment coefficient for shear entrainment </span>
+<span class="sd">    </span>
+<span class="sd">    Computes the entrainment coefficient for the shear entrainment for a top</span>
+<span class="sd">    hat model.  This code can be used by both the bent plume model and the </span>
+<span class="sd">    stratified plume model.  It is based on the concepts for shear entrainment</span>
+<span class="sd">    in Lee and Cheung (1990) and adapted by the model in Jirka (2004).  The</span>
+<span class="sd">    model works for pure jets, pure plumes, and buoyant jets.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    U : float</span>
+<span class="sd">        Top hat velocity of entrained plume water (m/s)</span>
+<span class="sd">    Ua : float</span>
+<span class="sd">        Magnitude of the velocity of the crossflow along th theta axis (m/s)</span>
+<span class="sd">    rho : float</span>
+<span class="sd">        Density of the entrained plume fluid (kg/m^3)</span>
+<span class="sd">    rho_a : float</span>
+<span class="sd">        Density of the ambient water at the current height (kg/m^3)</span>
+<span class="sd">    sin_p : float</span>
+<span class="sd">        Sine of the angle phi from the horizontal with down being positive (up </span>
+<span class="sd">        is - pi/2)</span>
+<span class="sd">    cos_p : float</span>
+<span class="sd">         Sine of the angle phi from the horizontal with down being positive </span>
+<span class="sd">         (up is - pi/2)</span>
+<span class="sd">    cos_t : float</span>
+<span class="sd">        Cosine of the angle theta from the crossflow direction</span>
+<span class="sd">    p : `bent_plume_model.ModelParams` or `stratified_plume_model.ModelParams`</span>
+<span class="sd">        Object containing the present model parameters</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    alpha_s : float</span>
+<span class="sd">        The shear entrainment coefficient (--)</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># Gaussian model jet entrainment coefficient</span>
+    <span class="n">alpha_j</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">alpha_j</span>
+    
+    <span class="c"># Gaussian model plume entrainment coefficient</span>
+    <span class="k">if</span> <span class="n">rho_a</span> <span class="o">==</span> <span class="n">rho</span><span class="p">:</span>
+        <span class="c"># This is a pure jet</span>
+        <span class="n">alpha_p</span> <span class="o">=</span> <span class="mf">0.</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c"># This is a plume; compute the densimetric Gaussian Froude number</span>
+        <span class="n">F1</span> <span class="o">=</span> <span class="mf">2.</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">U</span> <span class="o">-</span> <span class="n">Ua</span> <span class="o">*</span> <span class="n">cos_p</span> <span class="o">*</span> <span class="n">cos_t</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">g</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span>
+             <span class="n">rho_a</span> <span class="o">-</span> <span class="n">rho</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">+</span> <span class="mf">1.2</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mf">1.2</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">rho_a</span> <span class="o">*</span> <span class="n">b</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.</span><span class="p">))</span>
+        
+        <span class="c"># Follow Figure 13 in Jirka (2004)</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">F1</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">sin_p</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">p</span><span class="o">.</span><span class="n">alpha_Fr</span> <span class="o">/</span> <span class="mf">0.028</span><span class="p">:</span>
+            <span class="n">alpha_p</span> <span class="o">=</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">rho_a</span> <span class="o">-</span> <span class="n">rho</span><span class="p">)</span> <span class="o">*</span> <span class="n">p</span><span class="o">.</span><span class="n">alpha_Fr</span> <span class="o">*</span> <span class="n">sin_p</span> <span class="o">/</span> <span class="n">F1</span><span class="o">**</span><span class="mi">2</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">alpha_p</span> <span class="o">=</span> <span class="o">-</span> <span class="p">(</span><span class="mf">0.083</span> <span class="o">-</span> <span class="n">p</span><span class="o">.</span><span class="n">alpha_j</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">alpha_Fr</span> <span class="o">/</span> <span class="mf">0.028</span><span class="p">)</span> <span class="o">*</span> <span class="n">F1</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> \
+                      <span class="n">sin_p</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">rho_a</span> <span class="o">-</span> <span class="n">rho</span><span class="p">)</span>
+    
+    <span class="c"># Compute the total shear entrainment coefficient for the top-hat model</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">U</span> <span class="o">-</span> <span class="n">Ua</span> <span class="o">*</span> <span class="n">cos_p</span> <span class="o">*</span> <span class="n">cos_t</span><span class="p">)</span> <span class="o">+</span> <span class="n">U</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">alpha_s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.</span><span class="p">)</span> <span class="o">*</span> <span class="n">alpha_j</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">alpha_s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">alpha_j</span> <span class="o">+</span> <span class="n">alpha_p</span><span class="p">)</span> <span class="o">*</span> <span class="mf">2.</span> <span class="o">*</span> <span class="n">U</span> <span class="o">/</span> \
+                  <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">U</span> <span class="o">-</span> <span class="n">Ua</span> <span class="o">*</span> <span class="n">cos_p</span> <span class="o">*</span> <span class="n">cos_t</span><span class="p">)</span> <span class="o">+</span> <span class="n">U</span><span class="p">)</span>
+    
+    <span class="c"># Return the total shear entrainment coefficient</span>
+    <span class="k">return</span> <span class="n">alpha_s</span>
 
 
 <span class="c"># ----------------------------------------------------------------------------</span>

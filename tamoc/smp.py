@@ -76,7 +76,8 @@ def derivs_inner(z, y, yi, yo, particles, profile, p, neighbor):
     # Set up the output from the fuction to have the right size and type
     yp = np.zeros((yi.len, 1))
     
-    # Update the inner plume object with the corrent solution
+    # Update the inner plume object with the corrent solution and compute
+    # the inner plume shear entrainment coefficient
     yi.update(z, y, particles, profile, p)
     
     # Update the outer plume object at the current depth
@@ -88,21 +89,21 @@ def derivs_inner(z, y, yi, yo, particles, profile, p, neighbor):
         yo.update(z, neighbor(z), profile, p, yi.b)
     
     # Conservation of mass
-    yp[0] = 2. * np.pi * yi.b * (p.alpha_1 * (yi.u + p.c1 * yo.u) + \
+    yp[0] = 2. * np.pi * yi.b * (yi.alpha_s * (yi.u + p.c1 * yo.u) + \
             p.alpha_2 * yo.u) + yi.Ep
             
     # Conservation of momentum
     yp[1] = 1. / p.gamma_i * (np.pi * p.g * yi.b**2 / p.rho_r * \
             (yi.Fb + p.lambda_2**2 * (1. - yi.Xi) * (yi.rho_a - \
-            yi.rho)) + 2. * np.pi * yi.b * (p.alpha_1 * (yi.u + p.c1 * \
+            yi.rho)) + 2. * np.pi * yi.b * (yi.alpha_s * (yi.u + p.c1 * \
             yo.u) * yo.u + p.alpha_2 * yo.u * yi.u) + yi.Ep * yi.u)
             
     # Conservation of salinity
-    yp[2] = 2. * np.pi * yi.b * (p.alpha_1 * (yi.u + p.c1 * yo.u) * \
+    yp[2] = 2. * np.pi * yi.b * (yi.alpha_s * (yi.u + p.c1 * yo.u) * \
             yo.s + p.alpha_2 * yo.u * yi.s) + yi.Ep * yi.s
             
     # Conservation of continuous phase fluid heat
-    yp[3] = p.rho_r * seawater.cp() * (2. * np.pi * yi.b * (p.alpha_1 * \
+    yp[3] = p.rho_r * seawater.cp() * (2. * np.pi * yi.b * (yi.alpha_s * \
             (yi.u + p.c1 * yo.u) * yo.T + p.alpha_2 * yo.u * yi.T) + \
             yi.Ep * yi.T)
             
@@ -146,12 +147,15 @@ def derivs_inner(z, y, yi, yo, particles, profile, p, neighbor):
         idx += 1
         
         # Track the age of each particle by following its advection
-        yp[idx] = 1. / (yi.u + particles[i].us)
+        if yi.u + particles[i].us == 0.:
+            yp[idx] = 0.
+        else:
+            yp[idx] = 1. / (yi.u + particles[i].us)
         idx += 1
     
     # Conservation equations for the dissolved constituents.
     for i in range(yi.nchems):
-        yp[idx] = 2. * np.pi * yi.b * (p.alpha_1 * (yi.u + p.c1 * yo.u) * \
+        yp[idx] = 2. * np.pi * yi.b * (yi.alpha_s * (yi.u + p.c1 * yo.u) * \
                   yo.c[i] + p.alpha_2 * yo.u * yi.c[i]) + yi.Ep * \
                   yi.c[i] - delDiss[i]
         idx += 1
@@ -202,7 +206,8 @@ def derivs_outer(z, y, yi, yo, particles, profile, p, neighbor):
     # Set up the output from the function to have the correct size and type
     yp = np.zeros((yo.len,1))
     
-    # Update the inner plume object at the current depth
+    # Update the inner plume object at the current depth and the inner plume
+    # shear entrainment coefficient
     if z > np.max(neighbor.x):
         yi.update(z, np.zeros(yi.len), particles, profile, p)
     else:
@@ -212,28 +217,28 @@ def derivs_outer(z, y, yi, yo, particles, profile, p, neighbor):
     yo.update(z, y, profile, p, yi.b)
     
     # Conservation of Mass:
-    yp[0] = 2. * np.pi * yi.b * (p.alpha_1 * (yi.u + p.c1 * yo.u) + \
+    yp[0] = 2. * np.pi * yi.b * (yi.alpha_s * (yi.u + p.c1 * yo.u) + \
             p.alpha_2 * yo.u) + 2. * np.pi * yo.b * p.alpha_3 * yo.u + yi.Ep
     
     # Conservation of Momentum:
     yp[1] = 1. / p.gamma_o * (-np.pi * p.g * (yo.b**2 - yi.b**2) / p.rho_r * \
-            (yo.rho_a - yo.rho) + 2. * np.pi * yi.b * (p.alpha_1 * (yi.u + \
+            (yo.rho_a - yo.rho) + 2. * np.pi * yi.b * (yi.alpha_s * (yi.u + \
             p.c1 * yo.u) * yo.u + p.alpha_2 * yo.u * yi.u) + yi.Ep * yi.u)
     
     # Conservation of Salinity:
-    yp[2] = 2. * np.pi * yi.b * (p.alpha_1 * (yi.u + p.c1 * yo.u) * yo.s + \
+    yp[2] = 2. * np.pi * yi.b * (yi.alpha_s * (yi.u + p.c1 * yo.u) * yo.s + \
             p.alpha_2 * yo.u * yi.s) + 2. * np.pi * yo.b * p.alpha_3 * \
             yo.u * yo.Sa + yi.Ep * yi.s
     
     # Conservation of Heat:
-    yp[3] = p.rho_r * seawater.cp() * (2. * np.pi * yi.b * (p.alpha_1 * \
+    yp[3] = p.rho_r * seawater.cp() * (2. * np.pi * yi.b * (yi.alpha_s * \
             (yi.u + p.c1 * yo.u) * yo.T + p.alpha_2 * yo.u * yi.T) + \
             2. * np.pi * yo.b * p.alpha_3 * yo.u * yo.Ta + yi.Ep * yi.T)
     
     # Conservation of tracked chemical constituents:
     idx = 4
     for i in range(yo.nchems):
-        yp[idx] = 2. * np.pi * yi.b * (p.alpha_1 * (yi.u + p.c1 * yo.u) * \
+        yp[idx] = 2. * np.pi * yi.b * (yi.alpha_s * (yi.u + p.c1 * yo.u) * \
                 yo.c[i] + p.alpha_2 * yo.u * yi.c[i]) + 2. * np.pi * yo.b * \
                 p.alpha_3 * yo.u * yo.ca[i] + yi.Ep * yi.c[i]
         idx += 1
@@ -323,7 +328,7 @@ def calculate(yi, yo, particles, profile, p, neighbor, derivs, z0, y0, zf,
     
     # Integrate to zf unless the solution stops naturally earlier
     k = 0
-    psteps = 30.
+    psteps = 30
     stop = False
     while r.successful() and not stop:
         
@@ -695,7 +700,6 @@ def outer_dis(yi, particles, profile, p, neighbor, z_0):
     rho = yi.rho
     
     # Use a Froude number approach to set the initial width and velocity
-    yi.u, -Q, yi.b, yi.rho_a, rho, p.g, p.Fro_0
     u = outer_fr(0.05, Q, yi.b, yi.rho_a, rho, p.g, p.Fro_0)
     
     # Calculate the outer plume state space variables

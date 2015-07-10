@@ -245,7 +245,7 @@ class Model(object):
             # Plot the state space to help track the convergence
             self.sim_stored = True
             if plots:
-                self.plot_state_space(iter)
+                self.plot_state_space(1)
             
             # Restart heat transfer
             for i in range(len(self.particles)):
@@ -686,6 +686,8 @@ class ModelParams(single_bubble_model.ModelParams):
         
         # Set the model parameters to the values recommended by Socolofsky
         # et al. (2008)
+        self.alpha_j = 0.057
+        self.alpha_Fr = 0.544
         self.alpha_1 = 0.055
         self.alpha_2 = 0.110
         self.alpha_3 = 0.110
@@ -933,6 +935,10 @@ class InnerPlume(object):
             
             # Get the peeling flux
             self.Ep = 0.
+        
+        # Get the shear entrainment coefficient
+        self.alpha_s = dispersed_phases.shear_entrainment(self.u, 0., 
+                       self.rho, self.rho_a, self.b, -1., 0., 1., p)
 
 class OuterPlume(object):
     """
@@ -1567,6 +1573,7 @@ def plot_state_space(zi, yi, zo, yo, yi_local, yo_local, particles, profile,
     # Plot the figures
     plt.figure(fig)
     plt.clf()
+    plt.show()
     
     # Volume flux
     ax1 = plt.subplot(221)
@@ -1603,7 +1610,7 @@ def plot_state_space(zi, yi, zo, yo, yi_local, yo_local, particles, profile,
     ax4.invert_yaxis()
     ax4.grid(True)
     
-    plt.show()
+    plt.draw()
 
 def plot_all_variables(zi, yi, zo, yo, yi_local, yo_local, particles, 
                        profile, p, fig):

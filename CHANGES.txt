@@ -1,3 +1,60 @@
+V0.1.14, July, 2015 -- 
+   . Changed the stratified plume model inner plume entrainment coefficient 
+     to match that in the bent plume model.  The bent plume model had a more
+     sophisticated treatment of the shear entrainment that matches approaches
+     in single-phase flow, allowing the entrainment coefficient to depend on
+     the local plume Froude number.  This was facilitated by moving the 
+     function to compute the shear entrainment from lmp.py to 
+     dispersed_phases.shear_entrainment.  The function is then called as 
+     needed by the bent plume and stratified plume models.
+   . Checked the stratified plume model validation against data in Socolofsky
+     and Adams (2003, 2005).  Verified that the new entrainment model is 
+     acceptable and that the performance matches that in Socolofsky et al. 
+     (2008).  Also, verified that the present treatment of gamma_i and gamma_o
+     in the stratified plume model (which matches what was used in 
+     Socolofsky et al. (2008), but not the equation written in the text) is
+     the optimal usage.  Hence, the stratified plume model is fully validated
+     to match or exceep performance of the model in Socolofsky et al. (2008).
+   . Checked the bent plume model validation against data in Milgram (1983)
+     The no crossflow cases in Milgram perform well. Also, verified that the
+     stratified plume model and bent plume model give equal results for the
+     quiescent, unstratified cases in Milgram. The only model deviations are
+     for results very close to the diffuser in the z/D space defined by
+     Bombardelli et al. (2007), and since the diffuser geometry is unknown,
+     these deviations are accepted.
+   . Checked the bent plume model validation against data in Socolofsky and
+     Adams (2002).  This showed that the crossflow separation height was
+     over-predicted by the model.  This is because the full buoyancy of the 
+     bubbles is exerted on the plume until they reach the plume edge.  To 
+     solve this, we now reduce the bubble buoyancy by a factor 1 - lp/b, 
+     where lp is the distance from the centerline of the plume to the 
+     bubbles and b is the plume half-width.  Tried other forumlations, 
+     including (1 - lp/b)^2 and exp(-lp**3/b**2), and the simple linear 
+     model gave the best match to data in Socolofsky and Adams (2002).  
+   . Included the particle age and position as an attribute of the bent plume
+     model `Model` object.  
+   . To compute the buoyant force of the bubbles with the new crossflow 
+     factor, had to add sp (particle position) to the LagElement.update
+     function.  This required sp to be passed to `lmp.calculate` and used
+     in the `lmp.derivs` functions.  This will cause any old code to fail that
+     tries to update the `LagElement` object without passing sp.  Since sp is
+     an attribute of the bent plume model `Model` object, though, it will be
+     easy to edit old code to have this added.  This only effects user-defined
+     post-processing:  All old codes will still run to obtain the solution 
+     and to plot it using the built-in plot_state_space or plot_all_variables
+     functions.
+   . Updated `lmp.calculate` with the `lmp.correct_temperature` function so
+     that the particle temperatures are stored correctly.  The 
+     correct_temperature function was distributed with previous versions of
+     the model, but was not implemented in the `lmp.calculate` function so 
+     that it was ineffective.  It is now turned on. \
+   . Edited the initial conditions file for the bent plume model in 
+     `lmp.bent_plume_ic` so that Q = Qj instead of Q = Qj + Qp since the 
+     momentum equation assumes the void fraction is small.  With this change, 
+     the initial half-width of a bent plume model simulation matches the 
+     radius of the diffuser; moreover, the simulation result from the bent
+     plume model is nearly identical to the result from the stratified plume
+     model in quiescent, unstratified conditions.
 V0.1.13, June, 2015 --
    . Updated the numerical solution for the bent plume model so that the 
      temperature is stored correctly once heat transfer is turned off.

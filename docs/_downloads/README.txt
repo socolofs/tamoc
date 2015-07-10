@@ -12,6 +12,13 @@ size distributions from source flow conditions.
 For typical usage, please see the ./bin directory of the source distribution
 for various example scripts.
 
+Version 0.1.14: Updated several aspects of the calibration after comparing 
+                to available data in Milgram (1983), Jirka (2004), Socolofsky
+                and Adams (2002, 2003, 2005), Socolofs et al. (2008), and
+                Socolofsky et al. (2013).  The most significant change is an
+                updated shear entrainment coefficient for the stratified 
+                plume model.  Also, added a buoyant force reduction as bubbles
+                drift away from the centerline in a crossflow.
 Version 0.1.13: Updated the temperature output for the bent plume model so 
                 that the correct temperature is saved when heat transfer ends.
                 Added the particle time to the state space of the stratified

@@ -144,8 +144,13 @@ class Model(object):
         Array of times computed in the solution (s)
     q : ndarray
         Array of state space values computed in the solution
+    tp : ndarray
+        Age of each particle in the `particles` list where each row is one
+        iteration of the solution and the columns are (tp0, tp1, ... tpn),
+        where n is the number of dispersed phase particles in the simulation.
     sp : ndarray
-        Trajectory of the each particle in the `particles` list as (x0, y0, 
+        Trajectory of the each particle in the `particles` list where each
+        row is one iteration of the solution and the columns are (x0, y0, 
         z0, x1, y1, z1, ... xn, yn, zn), where n is the number of dispersed
         phase particles in the simulation.
     q_local : `LagElement` object
@@ -265,20 +270,19 @@ class Model(object):
         self.sd_max = sd_max
         
         # Create the initial state space from the given input variables
-        t0, q0, self.chem_names = lmp.main_ic(self.profile, self.particles, 
-                                  self.X, self.D, self.Vj, self.phi_0, 
-                                  self.theta_0, self.Sj, self.Tj, self.cj, 
-                                  self.tracers, self.p)
+        t0, q0, tp0, sp0, self.chem_names = lmp.main_ic(self.profile, 
+            self.particles, self.X, self.D, self.Vj, self.phi_0, 
+            self.theta_0, self.Sj, self.Tj, self.cj, self.tracers, self.p)
         
         # Store the initial conditions in a Lagrangian element object
-        self.q_local = LagElement(t0, q0, D, self.profile, self.p, 
+        self.q_local = LagElement(t0, q0, tp0, sp0, D, self.profile, self.p, 
                        self.particles, self.tracers, self.chem_names)
         
         # Compute the buoyant jet trajectory
         print '\n-- TEXAS A&M OIL-SPILL CALCULATOR (TAMOC) --'
         print '-- Bent Plume Model                       --\n'
-        self.t, self.q, self.sp = lmp.calculate(t0, q0, self.q_local,
-            self.profile, self.p, self.particles, lmp.derivs, 
+        self.t, self.q, self.tp, self.sp= lmp.calculate(t0, q0, tp0, sp0, 
+            self.q_local, self.profile, self.p, self.particles, lmp.derivs, 
             self.dt_max, self.sd_max)
         
         # Track the particles
@@ -724,7 +728,7 @@ class Model(object):
         
         # Plot the results
         print 'Plotting the full variable suite...'
-        plot_all_variables(self.t, self.q, self.sp, self.q_local, 
+        plot_all_variables(self.t, self.q, self.tp, self.sp, self.q_local, 
                            self.profile, self.p, self.particles, self.track, 
                            fig)
         print 'Done.\n'
@@ -774,8 +778,8 @@ class ModelParams(single_bubble_model.ModelParams):
         super(ModelParams, self).__init__(profile)
         
         # Set the model parameters to the values in Lee and Cheung (1990)
-        self.alpha_1 = 0.057
-        self.alpha_2 = 0.544
+        self.alpha_j = 0.057
+        self.alpha_Fr = 0.544
         self.gamma = 1.10
         
         # Set some of the multiphase plume model parameters
@@ -1307,7 +1311,7 @@ class LagElement(object):
         the Lagrangian element (kg/m^3)
     
     """
-    def __init__(self, t0, q0, D, profile, p, particles, tracers, 
+    def __init__(self, t0, q0, tp0, sp0, D, profile, p, particles, tracers, 
                  chem_names):
         super(LagElement, self).__init__()
         
@@ -1323,9 +1327,9 @@ class LagElement(object):
         self.np = len(particles)
         
         # Extract the state variables and compute the derived quantities
-        self.update(t0, q0, profile, p, particles)
+        self.update(t0, q0, tp0, sp0, profile, p, particles)
     
-    def update(self, t, q, profile, p, particles=[]):
+    def update(self, t, q, tp, sp, profile, p, particles=[]):
         """
         Update the `LagElement` object with the current local conditions
         
@@ -1338,6 +1342,8 @@ class LagElement(object):
             Current time of the simulation (s)
         q : ndarray
             Current values of the simulation state space, q
+        sp : ndarray
+            Current values of the particle locations in (x, y, z)-space (m)
         profile : `ambient.Profile`
             Ambient CTD data    
         p : `ModelParams`
@@ -1426,9 +1432,15 @@ class LagElement(object):
             # Get the mass of particles following this Lagrangian element
             self.mp[i] = np.sum(m_p) * particles[i].nbe
             
+            # Get the particle offset from the plume centerline and the 
+            # associated buoyant force reduction factor
+            lp = np.sqrt((self.x - sp[i*3])**2 + (self.y - 
+                 sp[i*3+1])**2 + (self.z - sp[i*3+2])**2)
+            p_fac = (1.0 - lp / self.b)
+            
             # Compute the buoyant force coming from this set of particles
             self.fb[i] = self.rho / particles[i].rho_p * self.mp[i] * \
-                         (self.rho_a - particles[i].rho_p)
+                         (self.rho_a - particles[i].rho_p) * p_fac
             
             # Force the particle mass and bubble force to zero if the bubble
             # have dissolved
@@ -1535,7 +1547,7 @@ def plot_state_space(t, q, sp, particles, fig):
     plt.draw()
 
 
-def plot_all_variables(t, q, sp, q_local, profile, p, particles, tracked, 
+def plot_all_variables(t, q, tp, sp, q_local, profile, p, particles, tracked, 
     fig):
     """
     Plot a comprehensive suite of simulation results
@@ -1616,8 +1628,9 @@ def plot_all_variables(t, q, sp, q_local, profile, p, particles, tracked,
     
     for i in range(len(t)):
         if i > 0:
-            q0_local.update(t[i-1], q[i-1,:], profile, p, particles)
-        q_local.update(t[i], q[i,:], profile, p, particles)
+            q0_local.update(t[i-1], q[i-1,:], tp[i-1], sp[i-1], profile, 
+                p, particles)
+        q_local.update(t[i], q[i,:], tp[i,:], sp[i,:], profile, p, particles)
         M[i] = q_local.M
         S[i] = q_local.S
         T[i] = q_local.T

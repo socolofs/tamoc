@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.13',
+        VERSION:     '0.1.14',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -296,7 +296,7 @@
             <span class="c"># Plot the state space to help track the convergence</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">sim_stored</span> <span class="o">=</span> <span class="bp">True</span>
             <span class="k">if</span> <span class="n">plots</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">plot_state_space</span><span class="p">(</span><span class="nb">iter</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">plot_state_space</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
             
             <span class="c"># Restart heat transfer</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">)):</span>
@@ -737,6 +737,8 @@
         
         <span class="c"># Set the model parameters to the values recommended by Socolofsky</span>
         <span class="c"># et al. (2008)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alpha_j</span> <span class="o">=</span> <span class="mf">0.057</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alpha_Fr</span> <span class="o">=</span> <span class="mf">0.544</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">alpha_1</span> <span class="o">=</span> <span class="mf">0.055</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">alpha_2</span> <span class="o">=</span> <span class="mf">0.110</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">alpha_3</span> <span class="o">=</span> <span class="mf">0.110</span>
@@ -984,6 +986,10 @@
             
             <span class="c"># Get the peeling flux</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">Ep</span> <span class="o">=</span> <span class="mf">0.</span>
+        
+        <span class="c"># Get the shear entrainment coefficient</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alpha_s</span> <span class="o">=</span> <span class="n">dispersed_phases</span><span class="o">.</span><span class="n">shear_entrainment</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> 
+                       <span class="bp">self</span><span class="o">.</span><span class="n">rho</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rho_a</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
 </div></div>
 <div class="viewcode-block" id="OuterPlume"><a class="viewcode-back" href="../spm/stratified_plume_model.OuterPlume.html#stratified_plume_model.OuterPlume">[docs]</a><span class="k">class</span> <span class="nc">OuterPlume</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -1618,6 +1624,7 @@
     <span class="c"># Plot the figures</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
     
     <span class="c"># Volume flux</span>
     <span class="n">ax1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">221</span><span class="p">)</span>
@@ -1654,7 +1661,7 @@
     <span class="n">ax4</span><span class="o">.</span><span class="n">invert_yaxis</span><span class="p">()</span>
     <span class="n">ax4</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
     
-    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
 </div>
 <div class="viewcode-block" id="plot_all_variables"><a class="viewcode-back" href="../spm/stratified_plume_model.plot_all_variables.html#stratified_plume_model.plot_all_variables">[docs]</a><span class="k">def</span> <span class="nf">plot_all_variables</span><span class="p">(</span><span class="n">zi</span><span class="p">,</span> <span class="n">yi</span><span class="p">,</span> <span class="n">zo</span><span class="p">,</span> <span class="n">yo</span><span class="p">,</span> <span class="n">yi_local</span><span class="p">,</span> <span class="n">yo_local</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> 
                        <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">fig</span><span class="p">):</span>
