@@ -206,7 +206,7 @@ class Model(object):
         neighbor = interp1d(np.array([0, self.profile.z_max]), 
                    np.zeros((2, 4 + self.yo_local.nchems)).transpose())
         
-        print '\n-- TEXAS A&M OIL-SPILL CALCULATOR (TAMOC) --\n'
+        print '\n-- TEXAS A&M OIL-SPILL CALCULATOR (TAMOC) --'
         print '-- Stratified Plume Model                 --\n'
         while iter < self.maxit and np.abs(ea) > self.toler:
             
@@ -847,6 +847,7 @@ class InnerPlume(object):
         M_p = {} # Since inert particles have different components than soluble
         H_p = [] # Each particle has one value for temperature (heat)
         t_p = [] # Each particle has its own age (time since release)
+        x_p = [] # Each paticle will have three components of position
         for i in range(self.np):
             M_p[i] = y[idx:idx + particles[i].particle.nc]
             idx += particles[i].particle.nc
@@ -854,9 +855,12 @@ class InnerPlume(object):
             idx += 1
             t_p.extend(y[idx:idx + 1])
             idx += 1
+            x_p.append(y[idx:idx + 3])
+            idx += 3
         self.M_p = M_p
         self.H_p = np.array(H_p)
         self.t_p = np.array(t_p)
+        self.x_p = np.array(x_p)
         if self.nchems >= 1:
             self.C = y[idx:]
         else:

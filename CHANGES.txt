@@ -1,3 +1,53 @@
+V0.1.15, August 2015 -- 
+   . Changed the way the bent plume model tracks the particles inside the 
+     plume.  Previous versions did the particle tracking outside the main 
+     integration loop.  This has two problems:  1.) the adaptive step solver
+     used in the main integration does not know when particles leave the 
+     plume, so there can be a big integration step near where particles 
+     leave even though this should be a small step (solution is to set a 
+     reasonably small value of dt_max, but this defeats the benefit of the
+     adaptive step solver).  2.) this reduces the accuracy of the particle
+     tracking since it is not down inside the RK adaptive step solver and
+     can only rely on plume solutions at two final time steps.  The new 
+     version of the model does all particle tracking inside the main 
+     integration loop.  Particle time and position relative to the plume 
+     centerline in local plume coordinates (unit vector direction l,n,m in 
+     Lee and Cheung (1990)) are added to the plume state space.  The old
+     outputs tp and sp are removed from the model.  Conversion of the 
+     state space solution to x,y,z Cartesian coordinates is handled by the
+     LagElement object.  This new method has a smooth transition when 
+     particles leave the plume.
+   . Solutions for tp and sp have been removed from the bent plume model 
+     as discussed above.  These are now available through the LagElement
+     object as a translation from the plume state space.
+   . The entrainment function for forced entrainment was adapted to prevent
+     errors in large crossflow.  If the integration step (ds) compared to the 
+     plume width is small (ds/b < 1.e-9), we neglect the expansion and 
+     curvature corrections to the forced entrainment.  Otherwise, the 
+     entrainment will go to infinity unrealistically due to numerical problems
+     in estimating db/ds from two model solution points.
+   . Changed the bent plume model state space to have total particle mass 
+     in the Lagrangian element (M_p = m * nbe) instead of mass flux.  This
+     is more consistent with typical Lagrangian plume models.
+   . Changed the bent plume model state space variable for concentration of
+     dissolved-phase tracers to be total mass of tracer in the element 
+     instead of the concentration times mass (C*M) typically used.  Salinity
+     and passive tracer are still modeled in the old way (psu*M, C*M).  This
+     new formulation makes it much easier to add the dissolving particle
+     mass to the dissolved phase inside the Lagrangian element.
+   . Updated where the buoyant force reduction factor (p_fac) is calculated.
+     p_fac accounts for the fact that the buoyant force from the bubbles
+     decreases as the particles start to drift out of the plume.  This is
+     now with the new particle tracking.  Older versions had errors due to 
+     the phase shift between the current model solution and the particle 
+     tracking, which was conducted outside the main integration loop.  The 
+     new method has consistent tracking so that phase errors do not give the 
+     wrong p_fac.
+   . Updated the hydrate formation time with refined calibration values and
+     ensuring that the formation time cannot be negative.  Also, note that 
+     if hydrate_formation_time is used and the bubble starts above the 
+     hydrate stability zone, clean bubble mass and heat transfer will be 
+     assumed throughout the model simulation.
 V0.1.14, July, 2015 -- 
    . Changed the stratified plume model inner plume entrainment coefficient 
      to match that in the bent plume model.  The bent plume model had a more

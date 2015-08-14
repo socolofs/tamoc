@@ -621,7 +621,7 @@ def calculate_path(profile, particle, p, y0, delta_t):
     
     # Integrate to the free surface (profile.z_min)
     k = 0
-    psteps = 1.
+    psteps = 10.
     stop = False
     while r.successful() and not stop:
         

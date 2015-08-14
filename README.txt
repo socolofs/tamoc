@@ -12,6 +12,15 @@ size distributions from source flow conditions.
 For typical usage, please see the ./bin directory of the source distribution
 for various example scripts.
 
+Version 0.1.15: Moved the particle tracking in the bent plume model inside
+                the main integration loop, which then removes tp and sp 
+                from the model attributes and includes then in the model
+                state space instead.  Updated the bent plume model state 
+                space so that particle mass is the state variables instead
+                of particle mass flux and so that the dissovled phase 
+                constituents are modeled as total mass in the Lagrangian 
+                element instead of concentration times mass of the element.
+                Made a small update to the hydrate formation time equations.
 Version 0.1.14: Updated several aspects of the calibration after comparing 
                 to available data in Milgram (1983), Jirka (2004), Socolofsky
                 and Adams (2002, 2003, 2005), Socolofs et al. (2008), and

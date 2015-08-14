@@ -213,7 +213,7 @@ class SingleParticle(object):
         """
         # Turn off heat transfer when at equilibrium.  This will be a 
         # persistent change, so it only has to happen once.
-        if self.K_T > 0. and np.abs(Ta - T) < 0.1:
+        if self.K_T > 0. and np.abs(Ta - T) < 0.5:
             self.K_T = 0.
         
         # Use the right temperature
@@ -953,26 +953,31 @@ def hydrate_formation_time(dbm_obj, z, m, T, profile):
     T_hyd = dbm_obj.hydrate_stability(m, P)
     
     if T_hyd < Ta:
-        # The particle is above the hydrate stability zone
+        # The particle is above the hydrate stability zone...assume hydrates
+        # never form.
         t_hyd = np.inf
     
     else:
         # The particle is below the hydrate stability zone, compute the 
-        # skin formation time.  Compute the maximum hydrate colonation
-        # time
-        t_star = 85710. * de - 244.15
+        # skin formation time.  
+        t_star = 85206. * de - 243.276
+        
+        if t_star < 0.:
+            # Hydate skin formation time cannot be zero.
+            t_star = 0.
         
         # Get the subcooling acceleration factor.
-        phi = -0.1312 * (T_hyd - Ta) + 2.4584
+        phi = -0.1158 * (T_hyd - Ta) + 2.2692
+        
         if phi > 1.:
-            # Formation time cannot exceed the maximum colonation time.
+            # Acceleration cannot be more than one.
             phi = 1.
             
         elif phi < 0.:
-            # Formation time cannot be less than 0.
+            # Acceleration cannot be less than 0.
             phi = 0.
         
-        # Compute the actual hydrate formation time
+        # Compute the in situ hydrate formation time
         t_hyd = phi * t_star
     
     # Return the formation time
@@ -1216,7 +1221,7 @@ def get_chem_names(particles):
     return chem_names
 
 
-def particles_state_space(particles):
+def particles_state_space(particles, nb):
     """
     Create the state space describing the dispersed phase properties
     
@@ -1229,6 +1234,10 @@ def particles_state_space(particles):
         List of `SingleParticle`, `PlumeParticle`, or 
         `bent_plume_model.Particle` objects describing each dispersed phase 
         in the simulation
+    nb : ndarray
+        Array of particle numbers for forming the state space.  nb can be in 
+        number/T, which will give state space variables in mass flux (M/T) or
+        in number, which will give state space variables in mass.
     
     Returns
     -------
@@ -1241,14 +1250,17 @@ def particles_state_space(particles):
     for i in range(len(particles)):
         
         # Masses of each element in the particle
-        y.extend(particles[i].m * particles[i].nb0)
+        y.extend(particles[i].m * nb[i])
         
         # Add in the heat flux of the particle
-        y.append(np.sum(particles[i].m) * particles[i].nb0 * 
+        y.append(np.sum(particles[i].m) * nb[i] * 
                  particles[i].cp * particles[i].T)
         
-        # Initialize the particle age to zer
+        # Initialize the particle age to zero
         y.append(0.)
+        
+        # Initialize the particle positions to the center of the plume
+        y.extend([0., 0., 0.])
     
     # Return the state space as a list
     return y

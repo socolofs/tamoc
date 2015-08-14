@@ -1332,12 +1332,7 @@ class FluidParticle(FluidMixture):
         kh = dbm_f.kh_insitu(T, P, Sa, self.kh_0, self.neg_dH_solR, 
                              self.nu_bar, self.M, self.K_salt)
         Cs = dbm_f.sw_solubility(f[self.fp_type,:], kh)
-        
-        # Check hydrate stability
-        K_hyd = 1.
-        T_hyd = self.hydrate_stability(m, P)
-        if T < T_hyd:
-            K_hyd = 1.0
+        K_hyd = 1.0
         
         # Shape-specific properties
         if shape == 1:

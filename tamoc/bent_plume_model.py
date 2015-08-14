@@ -20,7 +20,8 @@ The numerical solution is contained in the `lpm` module.
 Notes 
 ----- 
 This model is a Lagrangian plume integral model following the approach in
-Lee and Cheung (1990) for single-phase plumes and adapted to multiphase plumes
+Lee and Cheung (1990) for single-phase plumes, updated using the shear 
+entrainment formulation in Jirka (2004), and adapted to multiphase plumes
 following the methods of Johansen (2000, 2003) and Zheng and Yapa (1997).
 Several modifications are made to make the model consistent with the approach
 in Socolofsky et al. (2008) and to match the available validation data.
@@ -134,32 +135,28 @@ class Model(object):
     sd_max : float
         Maximum number of orifice diameters to compute the solution along
         the plume centerline (m/m)
+    K_T0 : ndarray
+        Array of heat transfer reduction factors for the particle objects
+        which is used to restart heat transfer after the simulation ends
+        since during simulation, heat transfer is turned off.
     chem_names : string list
         List of chemical parameters to track for the dissolution.  Only the 
         parameters in this list will be used to set background concentration
         for the dissolution, and the concentrations of these parameters are 
         computed separately from those listed in `tracers` or inputed from
         the discharge through `cj`.
+    q_local : `LagElement` object
+        Object that translates the `Model` state space `t` and `q` into the 
+        comprehensive list of derived variables.
     t : ndarray
         Array of times computed in the solution (s)
     q : ndarray
         Array of state space values computed in the solution
-    tp : ndarray
-        Age of each particle in the `particles` list where each row is one
-        iteration of the solution and the columns are (tp0, tp1, ... tpn),
-        where n is the number of dispersed phase particles in the simulation.
-    sp : ndarray
-        Trajectory of the each particle in the `particles` list where each
-        row is one iteration of the solution and the columns are (x0, y0, 
-        z0, x1, y1, z1, ... xn, yn, zn), where n is the number of dispersed
-        phase particles in the simulation.
-    q_local : `LagElement` object
-        Object that translates the `Model` state space `t` and `q` into the 
-        comprehensive list of derived variables.
     
     See Also
     --------
-    simulate, save_sim, load_sim, plot_state_space, plot_all_variables
+    simulate, save_sim, save_txt, load_sim, plot_state_space, 
+    plot_all_variables
     
     """
     def __init__(self, profile=None, simfile=None):
@@ -168,6 +165,7 @@ class Model(object):
         if profile is None:
             # Create a Model object from a save file
             self.load_sim(simfile)
+        
         else:
             # Create a new Model object
             self.profile = profile
@@ -187,8 +185,8 @@ class Model(object):
         
         Simulate the buoyant plume using a Lagrangian plume integral model
         approach until the plume reaches the surface, the integration 
-        exceeds the given s/D, or the intrusion reaches a point of neutral
-        buoyancy.  
+        exceeds the given s/D (`sd_max`), or the intrusion reaches a point of 
+        neutral buoyancy.
         
         Parameters
         ----------
@@ -238,7 +236,7 @@ class Model(object):
         # Make sure the position is an array
         if not isinstance(X, np.ndarray):
             if not isinstance(X, list):
-                # Assume using specified the depth only
+                # Assume user specified the depth only
                 X = np.array([0., 0., X])
             else:
                 X = np.array(X)
@@ -263,27 +261,26 @@ class Model(object):
         self.cj = cj
         self.tracers = tracers
         self.particles = particles
-        self.K_T0 = np.array([self.particles[i].K_T for i in 
-                              range(len(self.particles))])
         self.track = track
         self.dt_max = dt_max
         self.sd_max = sd_max
+        self.K_T0 = np.array([self.particles[i].K_T for i in 
+                              range(len(self.particles))])
         
         # Create the initial state space from the given input variables
-        t0, q0, tp0, sp0, self.chem_names = lmp.main_ic(self.profile, 
+        t0, q0, self.chem_names = lmp.main_ic(self.profile, 
             self.particles, self.X, self.D, self.Vj, self.phi_0, 
             self.theta_0, self.Sj, self.Tj, self.cj, self.tracers, self.p)
         
         # Store the initial conditions in a Lagrangian element object
-        self.q_local = LagElement(t0, q0, tp0, sp0, D, self.profile, self.p, 
+        self.q_local = LagElement(t0, q0, D, self.profile, self.p, 
                        self.particles, self.tracers, self.chem_names)
         
         # Compute the buoyant jet trajectory
         print '\n-- TEXAS A&M OIL-SPILL CALCULATOR (TAMOC) --'
         print '-- Bent Plume Model                       --\n'
-        self.t, self.q, self.tp, self.sp= lmp.calculate(t0, q0, tp0, sp0, 
-            self.q_local, self.profile, self.p, self.particles, lmp.derivs, 
-            self.dt_max, self.sd_max)
+        self.t, self.q, = lmp.calculate(t0, q0, self.q_local, self.profile, 
+            self.p, self.particles, lmp.derivs, self.dt_max, self.sd_max)
         
         # Track the particles
         if track:
@@ -348,7 +345,6 @@ class Model(object):
         t = nc.createDimension('t', None)
         p = nc.createDimension('profile', 1)
         ns = nc.createDimension('ns', len(self.q_local.q0))
-        sp = nc.createDimension('sp', len(self.particles) * 3)
         params = nc.createDimension('params', 1)
         
         # Save the names of the chemicals in the tracers and particle objects
@@ -358,25 +354,6 @@ class Model(object):
         # Save the standard variables for the particles objects
         dispersed_phases.save_particle_to_nc_file(nc, self.chem_names, 
             self.particles, self.K_T0)
-        
-        # Store the remaining particle data for a Lagrangian plume Particle
-        # object
-        xp = nc.createVariable('xp', 'f8', ('t', 'nparticles',))
-        xp.long_name = 'particle x-coordinate'
-        xp.standard_name = 'x'
-        xp.units = 'm'
-        yp = nc.createVariable('yp', 'f8', ('t', 'nparticles',))
-        yp.long_name = 'particle y-coordinate'
-        yp.standard_name = 'y'
-        yp.units = 'm'
-        zp = nc.createVariable('zp', 'f8', ('t', 'nparticles',))
-        zp.long_name = 'particle z-coordinate'
-        zp.standard_name = 'z'
-        zp.units = 'm'
-        for i in range(len(self.particles)):
-            xp[:,i] = self.sp[:, 3*i]
-            yp[:,i] = self.sp[:, 3*i + 1]
-            zp[:,i] = self.sp[:, 3*i + 2]
         
         # Store the independent variable
         t = nc.createVariable('t', 'f8', ('t', 'profile',))
@@ -414,23 +391,6 @@ class Model(object):
         z0.axis = 'Z'
         z0.positive = 'down'
         z0[0] = self.X[2]
-        Ta0, Sa0, P0 = self.profile.get_values(self.X[2], 
-                          ['temperature', 'salinity', 'pressure'])
-        Ta = nc.createVariable('Ta', 'f8', ('params',))
-        Ta.long_name = 'ambient temperature at the release point'
-        Ta.standard_name = 'Ta'
-        Ta.units = 'K'
-        Ta[0] = Ta0
-        Sa = nc.createVariable('Sa', 'f8', ('params',))
-        Sa.long_name = 'ambient salinity at the release point'
-        Sa.standard_name = 'Sa'
-        Sa.units = 'psu'
-        Sa[0] = Sa0
-        P = nc.createVariable('P', 'f8', ('params',))
-        P.long_name = 'ambient pressure at the release point'
-        P.standard_name = 'P'
-        P.units = 'Pa'
-        P[0] = P0
         D = nc.createVariable('D', 'f8', ('params',))
         D.long_name = 'Orifice diameter'
         D.standard_name = 'diameter'
@@ -509,7 +469,8 @@ class Model(object):
         
         See Also
         --------
-        stratified_plume_model.Model.save_txt, single_bubble_model.Model.save_txt
+        save_sim, load_sim, stratified_plume_model.Model.save_txt, 
+        single_bubble_model.Model.save_txt
         
         Notes
         -----
@@ -522,6 +483,12 @@ class Model(object):
         each column of the output data.
         
         These output files are written using the `numpy.savetxt` method.
+        
+        Note, also, that this only saves the state space solution, and the 
+        data saved by this function is inadequate to rebuild the `Model` 
+        object by reloading a saved solution.  To have seamless saving and
+        loading of `Model` objects, use the `save_sim` and `load_sim` 
+        commands.
         
         """
         if self.sim_stored is False:
@@ -541,8 +508,8 @@ class Model(object):
         p_list.append('Column Descriptions:\n')
         p_list.append('    0: time (s)\n')
         p_list.append('    1: mass (kg)\n')
-        p_list.append('    2: salinity flux (psu kg/s)\n')
-        p_list.append('    3: heat flux (J/s)\n')
+        p_list.append('    2: salinity (psu)\n')
+        p_list.append('    3: heat (J)\n')
         p_list.append('    4: x-direction momentum (kg m/s)\n')
         p_list.append('    5: y-direction momentum (kg m/s)\n')
         p_list.append('    6: z-direction momentum (kg m/s)\n')
@@ -556,18 +523,30 @@ class Model(object):
             for j in range(len(self.chem_names)):
                 idx += 1
                 p_list.append(
-                    '    %d: Total mass flux of %s in particle %d in kg/s\n' %
+                    '    %d: Total mass flux of %s in particle %d (kg/s)\n' %
                     (idx, self.particles[i].composition[j], i))
             idx += 1
-            p_list.append('    %d: Total heat flux of particle %d in J/s\n' %
+            p_list.append('    %d: Total heat flux of particle %d (J/s)\n' %
                           (idx, i))
+            idx += 1
+            p_list.append('    %d: Time since release of particle %d (s)\n' %
+                          (idx, i))
+            idx += 1
+            p_list.append('    %d: Lambda coordinate of particle %d (m)\n' %
+                          (idx, i))
+            idx += 1
+            p_list.append('    %d: Eta coordinate of particle %d (m)\n' %
+                          (idx, i))
+            idx += 1
+            p_list.append('    %d: Csi coordinate of particle %d (m)\n' %
+                          (idx, i))            
         for i in range(len(self.chem_names)):
             idx += 1
-            p_list.append('    %d: Mass flux of dissolved %s in kg/s\n' % 
+            p_list.append('    %d: Mass of dissolved %s (kg)\n' % 
                           (idx, self.chem_names[i]))
         for i in range(len(self.tracers)):
             idx += 1
-            p_list.append('    %d: Mass flux of %s in kg/s\n' % 
+            p_list.append('    %d: Mass of %s in (kg)\n' % 
                           (idx, self.tracers[i]))
         header = ''.join(p_list)
         
@@ -650,21 +629,6 @@ class Model(object):
         self.t = np.zeros(nt)
         self.t[:] = nc.variables['t'][0:nt,0]
         self.q = np.zeros((nt, ns))
-        for i in range(ns):
-            self.q[:,i] = nc.variables['q'][0:nt,i]
-        if len(self.particles) > 0:
-            self.sp = np.zeros((nt, 3*len(self.particles)))
-            for i in range(len(self.particles)):
-                self.sp[:,i*3] = nc.variables['xp'][0:nt, i]
-                self.sp[:,i*3 + 1] = nc.variables['yp'][0:nt, i]
-                self.sp[:,i*3 + 2] = nc.variables['zp'][0:nt, i]
-        else:
-            xp = []
-            sp = [xp]
-            for i in length(dt-1):
-                xp = []
-                sp.append(xp)
-            self.sp = np.array(sp)
         
         # Create the local Lagrangian plume element
         self.q_local = LagElement(self.t[0], self.q[0,:], self.D, 
@@ -699,10 +663,10 @@ class Model(object):
         
         # Plot the results
         print 'Plotting the state space...'
-        plot_state_space(self.t, self.q, self.sp, self.particles, 
-            fig)
+        plot_state_space(self.t, self.q, self.q_local, self.profile, self.p, 
+            self.particles, fig)
         print 'Done.\n'
-
+    
     def plot_all_variables(self, fig):
         """
         Plot a comprehensive suite of simulation results
@@ -728,9 +692,8 @@ class Model(object):
         
         # Plot the results
         print 'Plotting the full variable suite...'
-        plot_all_variables(self.t, self.q, self.tp, self.sp, self.q_local, 
-                           self.profile, self.p, self.particles, self.track, 
-                           fig)
+        plot_all_variables(self.t, self.q, self.q_local, self.profile, 
+            self.p, self.particles, self.track, fig)
         print 'Done.\n'
 
 
@@ -752,12 +715,12 @@ class ModelParams(single_bubble_model.ModelParams):
     
     Attributes
     ----------
-    alpha : float
-        Parameter in the Froude number for the shear entrainment model.
-    alpha_1 : float
-        Jet entrainment coefficient for the shear entrainment model.
-    alpha_2 : float
-        Plume entrainment coefficient for the shear entrainment model.
+    alpha_j : float
+        Jet shear entrainment coefficient.
+    alpha_Fr : float
+        Plume entrainment coefficient in Froude-number expression.
+    gamma : float
+        Momentum amplification factor
     Fr_0 : float
         Initial plume Froude number for the Wuest et al. (1992) multiphase
         plume initial conditions
@@ -787,29 +750,31 @@ class ModelParams(single_bubble_model.ModelParams):
 
 
 # ----------------------------------------------------------------------------
-# Particle object that can track itself within the model solution
+# Particle object that handles tracking and exiting the plume
 # ----------------------------------------------------------------------------
 
 class Particle(dispersed_phases.PlumeParticle):
     """
-    Interface to the `dbm` module tool for particle tracking
+    Special model properties for tracking inside a Lagrangian plume object
     
-    This new `Particle` class is need to allow dispersed phase particles to 
-    be tracked within the Lagrangian plume element during the solution.  
+    This new `Particle` class is needed to allow dispersed phase particles to 
+    be tracked within the Lagrangian plume element during the solution and 
+    to exit the plume at the right time.  
     
     This object inherits the `dispersed_phases.PlumeParticle` object and 
     adds functionality for three-dimensional positioning and particle 
     tracking.  All behavior not associated with tracking is identical to 
-    that in the `dispersed_phases.PlumeParticle` object.
+    that in the `dispersed_phases.PlumeParticle` object.  Moreover, this
+    object can be used in a `stratified_plume_model.Model` simulation.
     
     Parameters
     ----------
     x : float
-        Current position of the `Particle` object in the x-direction (m)
+        Initial position of the particle in the x-direction (m)
     y : float
-        Current position of the `Particle` object in the y-direction (m)
+        Initial position of the particle in the y-direction (m)
     z : float
-        Current position of the `Particle` object in the z-direction (m)
+        Initial position of the particle in the z-direction (m)
     dbm_particle : `dbm.FluidParticle` or `dbm.InsolubleParticle` object
         Object describing the particle properties and behavior
     m0 : ndarray
@@ -818,7 +783,7 @@ class Particle(dispersed_phases.PlumeParticle):
     T0 : float
         Initial temperature of the of `dbm` particle object (K)
     nb0 : float
-        Initial number flux of particles at the release (--)
+        Initial number flux of particles at the release (#/s)
     lambda_1 : float 
         spreading rate of the dispersed phase in a plume (--)
     P : float
@@ -831,26 +796,12 @@ class Particle(dispersed_phases.PlumeParticle):
         Mass transfer reduction factor (--).
     K_T : float, default = 1.
         Heat transfer reduction factor (--).
-    fdis : float, default = 0.01
-        Fraction of the initial total mass (--) remaining when the particle 
-        should be considered dissolved.
+    fdis : float, default = 1.e-6
+        Fraction (--) of the initial mass of each component of the mixture
+        when that component should be considered totally dissolved.
     
     Attributes
     ----------
-    t : float
-        Current age of the 'Particle' object since its release (s)
-    x : float
-        Current position of the `Particle` object in the x-direction (m)
-    y : float
-        Current position of the `Particle` object in the y-direction (m)
-    z : float
-        Current position of the `Particle` object in the z-direction (m)
-    integrate : bool
-        Flag indicating whether or not this particle is inside the bent
-        plume model and should be integrated
-    b_local : float
-        Width of the bent plume model at the location where the particle 
-        exited the plume.
     particle : `dbm.FluidParticle` or `dbm.InsolubleParticle` object
         Stores the `dbm_particle` object passed to at creation.
     composition : str list
@@ -869,14 +820,19 @@ class Particle(dispersed_phases.PlumeParticle):
         Fraction of initial mass remaining as total dissolution (--)
     diss_indices : ndarray bool
         Indices of m0 that are non-zero.
+    t_hyd : float
+        Formation time for a hydrate skin (s)
     nb0 : float
-        Initial number flux of particles at the release (--)
+        Initial number flux of particles at the release (#/s)
+    nbe : float
+        Number of particles associated with a Lagrangian element (#).  This 
+        number with the mass per particle sets the total mass of particles
+        inside the Lagrangian element at any given time.  This value is set
+        by `lmp.bent_plume_ic`.
     lambda_1 : float 
         Spreading rate of the dispersed phase in a plume (--)
     m : ndarray
-        Current masses of the particle components (kg)
-    T : float
-        Current temperature of the particle (K)
+        Masses of the particle components for a single particle (kg)
     us : float
         Slip velocity (m/s)
     rho_p : float
@@ -889,6 +845,28 @@ class Particle(dispersed_phases.PlumeParticle):
         Mass transfer coefficients (m/s)
     beta_T : float
         Heat transfer coefficient (m/s)
+    T : float
+        Temperature of the particle (K)
+    integrate : bool
+        Flag indicating whether or not the particle is still inside the plume,
+        where its trajectory should continue to be integrated.
+    t : float
+        Current time since the particle was released (s)
+    x : float
+        Current position of the particle in the x-direction (m)
+    y : float
+        Current position of the particle in the y-direction (m)
+    z : float
+        Current position of the particle in the z-direction (m)
+    p_fac : float
+        Buoyant force reduction factor due to a reduced buoyancy as the
+        particle moves to the edge of the plume (--)
+    b_local : float
+        Width of the bent plume model at the location where the particle 
+        exited the plume.
+    sbm : `single_bubble_model.Model` object
+        Model object for tracking the particle outside the plume
+    
     
     See Also
     --------
@@ -912,167 +890,77 @@ class Particle(dispersed_phases.PlumeParticle):
         # Update the particle with its current properties
         self.update(m0, T0, P, Sa, Ta, self.t)
     
-    def track(self, q0_local, q1_local, md, dt):
+    def track(self, t_p, X_cl, X_p, q_local, Ainv=None):
         """
-        Track a particle for one time step of the numerical solution
+        Track the particle in the Lagragian plume model
         
-        This tracking algorithm uses an analytical solution to track this
-        dispersed phase particle through the Lagrangian plume element over 
-        one time step of the numerical solution.  The plume velocity, particle
-        terminal rise velocity, and the entrainment flux is assumed constant
-        during the tracking over one time step.  The analytical solution is
-        the solution to::
-        
-            dx / dt = u + ue
-            dy / dt = v + ve
-            dz / dt = w + us + we
-        
-        where (u, v, w) is the velocity of the entrained plume fluid along
-        the plume trajectory s, (ue, ve, we) is the velocity of the 
-        entraining fluid normal to the plume trajectory s and us is the 
-        vertical rise velocity of the particle.  The entrainment is assumed
-        to linearly decrease from its value at r = b to zero at the plume 
-        centerline.
-        
-        These equations are rotated to a local coordinate system along the 
-        plume axis with origin at the center of the Lagrangian element 
-        before solving.  The initial conditions for the solution are the 
-        particle position at the end of the previous timestep.  After 
-        obtaining the solution, the results are rotated back to the original
-        coordinate system (x, y, z)
-        
-        Because the numerical solution for the plume trajectory uses an 
-        iterative solver of the Runge-Kutta type, the constant plume velocity
-        (u, v, w) does not yield the exact motion of the plume centerline.  
-        The final results of the particle tracking are corrected by nudging
-        the particle by the amount of this discrepancy.
+        Track the location of the particle within a Lagrangian plume model
+        element and stop the integration when the particle exits the plume.
         
         Parameters
         ----------
-        q0_local : `LagElement` object
-            `LagElement for the end of the previous time step of the numerical
-            solution.
-        q0_local : `LagElement` object
-            `LagElement for the end of the current time step of the numerical
-            solution.
-        md : float
-            Entrainment flux during this time step (kg/s)
-        dt : float
-            Duration of the current time step (s)
+        t_p : float
+            Time since the particle was released (s)
+        X_cl : ndarray
+            Array of Cartesian coordinates (x,y,z) for the plume centerline
+            (m).
+        X_p : ndarray
+            Array of local plume coordinates (l,n,m) for the current 
+            particle position (m)().  This method converts these coordinates, 
+            which are solved by the bent plume model state space solution, to 
+            Cartesian coordinates.
+        q_local : `LagElement` object
+            Object that translates the bent plume model state space `t` and 
+            `q` into the comprehensive list of derived variables.
+        Ainv : ndarray, default = None
+            Coordinate transformation matrix from the local plume coordinates
+            (l,n,m) to Cartesian coordinates (x,y,z).  If `Ainv` is known, it
+            can be passed to this function; otherwise, this function can 
+            solve for `Ainv` using q_local.
         
-        Notes
-        -----
-        The result of calling this function is that the `Particle` attributes
-        x, y, and z and updated with their new position at the end of 
-        particle tracking.  
+        Returns
+        -------
+        xp : ndarray
+            Array of Cartesian coordinates (x,y,z) for the current particle 
+            position (m).
         
         """
-        # Get the analytical solution for particle motion through the 
-        # Lagrangian element
-        def particle_path(delta_t):
-            """
-            Solution to the governing tracking ODEs in the local coordinates
-            
-            Parameters
-            ----------
-            delta_t : float
-                Time step to find the new position.  Not necessarily equal to 
-                dt since we seek the travel time for the particles to 
-                traverse the Lagrangian element.
-            
-            Returns
-            -------
-            chi : ndarray
-                Vector of particle positions in the rotated, local coordinate 
-                system.
-            
-            """
-            # Create a vector to store the solution
-            chi = np.zeros(chi_0.shape)
-            
-            # Implement the analytical solution
-            chi[0] = chi_0[0] + (V + up[0]) * delta_t
-            chi[1] = up[1] / fe + (chi_0[1] - up[1] / fe) * \
-                     np.exp(-fe * delta_t)
-            chi[2] = up[2] / fe + (chi_0[2] - up[2] / fe) * \
-                     np.exp(-fe * delta_t)
-            
-            return chi
-        
-        # Define an objective function for finding the particle travel time 
-        # over the distance ds
-        def residual(delta_t):
-            """
-            Objective function for finding particle travel times
-            
-            Returns the difference between the particle travel distance for a 
-            given estimate of delta_t and the expected length ds along the 
-            Lagrangian element given the current element height h.
-            
-            Parameters
-            ----------
-            delta_t : float
-                Time step to find the new position.  Not necessarily equal to 
-                dt since we seek the travel time for the particles to 
-                traverse the Lagrangian element.
-            
-            """
-            # Get a particle location for the current estimate of delta_t
-            chi = particle_path(delta_t)
-            
-            # Compare the estimate to the true location
-            return chi[0] - ds - chi[1] * np.tan(q1_local.phi - q0_local.phi)
-        
-        # Do the particle tracking if the particle is still active
         if self.integrate:
+            # Compute the transformation matrix from local plume coordinates 
+            # (l,n,m) to Cartesian coordinates (x,y,z) if needed
+            if Ainv is None:
+                A = lmp.local_coords(q_local, q_local, 0.)
+                Ainv = inv(A)
             
-            # Calculate the local entrainment frequency
-            fe = md / (2. * np.pi * q0_local.rho_a * q0_local.b**2 * 
-                 q0_local.h)
+            # Update the particle age
+            self.t = t_p
             
-            # Get the distance, ds, moved by the Lagrangian element over this
-            # time step
-            ds = q1_local.s - q0_local.s
+            # Get the particle position
+            xp = np.dot(Ainv, X_p) + X_cl
+            self.x = xp[0]
+            self.y = xp[1]
+            self.z = xp[2]
             
-            # Get the local water velocity
-            V = (q1_local.V + q0_local.V) / 2.
+            # Compute the particle offset from the plume centerline
+            lp = np.sqrt(X_p[0]**2 + X_p[1]**2 + X_p[2]**2)
             
-            # Get the rotation matrix to the local coordinate system (l,n,m)
-            A = lmp.local_coords(q0_local, q1_local, ds)
-            
-            # Get the initial position of the particle in local coordinates
-            chi_0 = np.dot(A, np.array([self.x - q0_local.x, self.y - 
-                q0_local.y, self.z - q0_local.z]))
-            
-            # Project the slip velocity onto the local coordinate system
-            up = np.dot(A, np.array([0., 0., -self.us]))
-            
-            # Find the correct particle travel time
-            delta_t = fsolve(residual, dt)
-            
-            # Use this time step to find the final particle position
-            chi = particle_path(delta_t)
-            
-            # Find the location of the centerline at the new time
-            chi_c = np.array([V * dt, 0., 0.])
-            
-            # Rotate the solution back to the correct coordinate system using 
-            # the original coordinate transform
-            Ainv = inv(A)
-            xp = np.dot(Ainv, chi)
-            xc = np.dot(Ainv, chi_c)
-            
-            self.x = xp[0] + (q1_local.x - xc[0])
-            self.y = xp[1] + (q1_local.y - xc[1])
-            self.z = xp[2] + (q1_local.z - xc[2])
+            # Compute the buoyant force reduction factor
+            self.p_fac = (1.0 - lp / q_local.b)
+            if self.p_fac < 0.:
+                self.p_fac = 0.
             
             # Check if the particle exited the plume
-            if np.sqrt(chi[1]**2 + chi[2]**2) > q1_local.b:
+            if lp > q_local.b:
                 self.integrate = False
-                self.b_local = q1_local.b
-            
-            # Compute the particle age
-            self.t += delta_t[0]
+                self.b_local = q_local.b
+        
+        else:
+            # Return the position when the particle exited the plume
+            xp = np.array([self.x, self.y, self.z])
+            self.p_fac = 0.
+        
+        # Return the particle position as a matrix
+        return xp
     
     def outside(self, Ta, Sa, Pa):
         """
@@ -1101,7 +989,7 @@ class Particle(dispersed_phases.PlumeParticle):
     
     def run_sbm(self, profile):
         """
-        Set up and run the `single_bubble_model` to track outside plume
+        Run the `single_bubble_model` to track particles outside the plume
         
         Continues the simulation of the particle outside the plume using 
         the `single_bubble_model`.  The object containing the simulation 
@@ -1237,8 +1125,12 @@ class LagElement(object):
         particle.
     H_p : ndarray
         Total heat flux for each particle (J/s)
+    t_p : ndarray
+        Time since release for each particle (s)
+    X_p : ndarray
+        Position of each particle in local plume coordinates (l,n,m) (m).
     cpe : ndarray
-        Masses of the chemical components involved in dissolution (kg/m^2 kg)
+        Masses of the chemical components involved in dissolution (kg)
     cte : ndarray
         Masses of the passive tracers in the plume (concentration kg)
     Pa : float
@@ -1294,7 +1186,8 @@ class LagElement(object):
         The cosine of the angle theta (--)
     phi : float
         The vertical angle from horizontal of the current plume trajectory
-        (rad in range +/- pi/2)
+        (rad in range +/- pi/2).  Since z is positive down (depth), phi = 
+        pi/2 point down and -pi/2 points up.
     theta : float
         The lateral angle in the horizontal plane from the x-axis to the 
         current plume trajectory (rad in range 0 to 2 pi)
@@ -1304,6 +1197,7 @@ class LagElement(object):
     fb : ndarray
         Buoyant force for each of the dispersed phase particles in the 
         `particles` variable as density difference (kg/m^3)
+    x_p : ndarray
     Mp : float
         Total mass of dispersed phases in the Lagrangian element (kg)
     Fb : float
@@ -1311,7 +1205,7 @@ class LagElement(object):
         the Lagrangian element (kg/m^3)
     
     """
-    def __init__(self, t0, q0, tp0, sp0, D, profile, p, particles, tracers, 
+    def __init__(self, t0, q0, D, profile, p, particles, tracers, 
                  chem_names):
         super(LagElement, self).__init__()
         
@@ -1327,9 +1221,9 @@ class LagElement(object):
         self.np = len(particles)
         
         # Extract the state variables and compute the derived quantities
-        self.update(t0, q0, tp0, sp0, profile, p, particles)
+        self.update(t0, q0, profile, p, particles)
     
-    def update(self, t, q, tp, sp, profile, p, particles=[]):
+    def update(self, t, q, profile, p, particles=[]):
         """
         Update the `LagElement` object with the current local conditions
         
@@ -1342,8 +1236,6 @@ class LagElement(object):
             Current time of the simulation (s)
         q : ndarray
             Current values of the simulation state space, q
-        sp : ndarray
-            Current values of the particle locations in (x, y, z)-space (m)
         profile : `ambient.Profile`
             Ambient CTD data    
         p : `ModelParams`
@@ -1372,13 +1264,21 @@ class LagElement(object):
         idx = 11
         M_p = {}
         H_p = []
+        t_p = []
+        X_p = []
         for i in range(self.np):
             M_p[i] = q[idx:idx + particles[i].particle.nc]
             idx += particles[i].particle.nc
             H_p.extend(q[idx:idx + 1])
-            idx += 2  # because t_p is not updated
+            idx += 1
+            t_p.extend(q[idx:idx + 1])
+            idx += 1
+            X_p.append(q[idx:idx + 3])
+            idx += 3
         self.M_p = M_p
         self.H_p = np.array(H_p)
+        self.t_p = np.array(t_p)
+        self.X_p = np.array(X_p)
         self.cpe = q[idx:idx + self.nchems]
         idx += self.nchems
         if self.ntracers >= 1:
@@ -1396,7 +1296,8 @@ class LagElement(object):
         # Compute the derived quantities
         self.S = self.Se / self.M
         self.T = self.He / (self.M * seawater.cp())
-        self.c_chems = self.cpe / self.M
+        self.rho = seawater.density(self.T, self.S, self.Pa)
+        self.c_chems = self.cpe / (self.M / self.rho)
         self.c_tracers = self.cte / self.M
         self.u = self.Jx / self.M
         self.v = self.Jy / self.M
@@ -1404,7 +1305,6 @@ class LagElement(object):
         self.hvel = np.sqrt(self.u**2 + self.v**2)
         self.V = np.sqrt(self.hvel**2 + self.w**2)
         self.h = self.H * self.V
-        self.rho = seawater.density(self.T, self.S, self.Pa)
         self.b = np.sqrt(self.M / (self.rho * np.pi * self.h))
         self.sin_p = self.w / self.V
         self.cos_p = self.hvel / self.V
@@ -1418,32 +1318,37 @@ class LagElement(object):
         self.phi = np.arctan2(self.w, self.hvel)
         self.theta = np.arctan2(self.v, self.u)
         
+        # Compute the transformation matrix from the local plume coordinates
+        # (l,n,m) to Cartesian coordinates (x,y,z)
+        Ainv = inv(lmp.local_coords(self, self, 0.))
+        
         # Get the particle characteristics
         self.mp = np.zeros(self.np)
         self.fb = np.zeros(self.np)
+        self.x_p = np.zeros((self.np, 3))
         
         for i in range(self.np):
             # Update the particles with their current properties
-            m_p = self.M_p[i] / particles[i].nb0
+            m_p = self.M_p[i] / particles[i].nbe
             T_p = self.H_p[i] / (np.sum(self.M_p[i]) * particles[i].cp)
             particles[i].update(m_p, T_p, self.Pa, self.Sa, self.Ta, 
-                                particles[i].t)
+                                self.t_p[i])
+            
+            # Track the particle in the plume
+            self.x_p[i,:] = particles[i].track(self.t_p[i], 
+                            np.array([self.x, self.y, self.z]), 
+                            self.X_p[i], self, Ainv)
             
             # Get the mass of particles following this Lagrangian element
             self.mp[i] = np.sum(m_p) * particles[i].nbe
             
-            # Get the particle offset from the plume centerline and the 
-            # associated buoyant force reduction factor
-            lp = np.sqrt((self.x - sp[i*3])**2 + (self.y - 
-                 sp[i*3+1])**2 + (self.z - sp[i*3+2])**2)
-            p_fac = (1.0 - lp / self.b)
-            
             # Compute the buoyant force coming from this set of particles
             self.fb[i] = self.rho / particles[i].rho_p * self.mp[i] * \
-                         (self.rho_a - particles[i].rho_p) * p_fac
+                         (self.rho_a - particles[i].rho_p) * \
+                         particles[i].p_fac
             
             # Force the particle mass and bubble force to zero if the bubble
-            # have dissolved
+            # has dissolved
             if self.rho == particles[i].rho_p:
                 self.mp[i] = 0.
                 self.fb[i] = 0.
@@ -1467,7 +1372,7 @@ class LagElement(object):
 # Functions to plot output from the simulations
 # ----------------------------------------------------------------------------
 
-def plot_state_space(t, q, sp, particles, fig):
+def plot_state_space(t, q, q_local, profile, p, particles, fig):
     """
     Plot the Lagrangian model state space
     
@@ -1480,10 +1385,13 @@ def plot_state_space(t, q, sp, particles, fig):
         Array of times computed in the solution (s)
     q : ndarray
         Array of state space values computed in the solution
-    sp : ndarray
-        Trajectory of the each particle in the `particles` list as (x0, y0, 
-        z0, x1, y1, z1, ... xn, yn, zn), where n is the number of dispersed
-        phase particles in the simulation.
+    q_local : `LagElement` object
+        Object that translates the `Model` state space `t` and `q` into the 
+        comprehensive list of derived variables.
+    profile : `ambient.Profile`
+        Ambient CTD data
+    p : `ModelParams`
+        Container for the fixed model parameters
     particles : list of `Particle` objects
         List of `Particle` objects describing each dispersed phase in the 
         simulation
@@ -1503,6 +1411,13 @@ def plot_state_space(t, q, sp, particles, fig):
     s = q[:,10]
     M = q[:,0]
     
+    # Extract the particle positions from the q state space
+    xp = np.zeros((len(t),3*len(particles)))
+    for i in range(len(t)):
+        q_local.update(t[i], q[i,:], profile, p, particles)
+        for j in range(len(particles)):
+            xp[i,j*3:j*3+3] = q_local.x_p[j,:]
+    
     # Plot the figure
     plt.figure(fig)
     plt.clf()
@@ -1512,7 +1427,7 @@ def plot_state_space(t, q, sp, particles, fig):
     ax1 = plt.subplot(221)
     ax1.plot(x, z)
     for i in range(len(particles)):
-        ax1.plot(sp[:,i*3], sp[:,i*3 + 2], '.:')
+        ax1.plot(xp[:,i*3], xp[:,i*3 + 2], '.--')
     ax1.set_xlabel('x (m)')
     ax1.set_ylabel('Depth (m)')
     ax1.invert_yaxis()
@@ -1522,7 +1437,7 @@ def plot_state_space(t, q, sp, particles, fig):
     ax2 = plt.subplot(222)
     ax2.plot(y, z)
     for i in range(len(particles)):
-        ax2.plot(sp[:,i*3+1], sp[:,i*3 + 2], '.:')
+        ax2.plot(xp[:,i*3+1], xp[:,i*3 + 2], '.--')
     ax2.set_xlabel('y (m)')
     ax2.set_ylabel('Depth (m)')
     ax2.invert_yaxis()
@@ -1532,7 +1447,7 @@ def plot_state_space(t, q, sp, particles, fig):
     ax3 = plt.subplot(223)
     ax3.plot(x, y)
     for i in range(len(particles)):
-        ax3.plot(sp[:,i*3], sp[:,i*3 + 1], '.:')
+        ax3.plot(xp[:,i*3], xp[:,i*3 + 1], '.--')
     ax3.set_xlabel('x (m)')
     ax3.set_ylabel('y (m)')
     ax3.grid(b=True, which='major', color='0.65', linestyle='-')
@@ -1547,7 +1462,7 @@ def plot_state_space(t, q, sp, particles, fig):
     plt.draw()
 
 
-def plot_all_variables(t, q, tp, sp, q_local, profile, p, particles, tracked, 
+def plot_all_variables(t, q, q_local, profile, p, particles, tracked, 
     fig):
     """
     Plot a comprehensive suite of simulation results
@@ -1562,10 +1477,6 @@ def plot_all_variables(t, q, tp, sp, q_local, profile, p, particles, tracked,
         Array of times computed in the solution (s)
     q : ndarray
         Array of state space values computed in the solution
-    sp : ndarray
-        Trajectory of the each particle in the `particles` list as (x0, y0, 
-        z0, x1, y1, z1, ... xn, yn, zn), where n is the number of dispersed
-        phase particles in the simulation.
     q_local : `LagElement` object
         Object that translates the `Model` state space `t` and `q` into the 
         comprehensive list of derived variables.
@@ -1587,17 +1498,15 @@ def plot_all_variables(t, q, tp, sp, q_local, profile, p, particles, tracked,
     formatter = mpl.ticker.ScalarFormatter(useOffset=False)
     
     # Create a second Lagrangian element in order to compute entrainment
-    q0_local = LagElement(t[0], q[0,:], q_local.D, profile, p, particles,
-                          q_local.tracers, q_local.chem_names)
+    q0_local = LagElement(t[0], q[0,:], q_local.D, profile, p, particles, 
+        q_local.tracers, q_local.chem_names)
     n_part = q0_local.np
     pchems = 1
     for i in range(n_part):
         if len(particles[i].composition) > pchems:
             pchems = len(particles[i].composition)
     
-    # Although it may be faster to extract the derived variables using
-    # equations such as q[:,1] / q[:,0], we use the LagElement so that 
-    # all state-space translations are centralized in that single location.
+    # Store the derived variables
     M = np.zeros(t.shape)
     S = np.zeros(t.shape)
     T = np.zeros(t.shape)
@@ -1605,6 +1514,7 @@ def plot_all_variables(t, q, tp, sp, q_local, profile, p, particles, tracked,
     Hp = np.zeros((len(t), n_part))
     Mp = np.zeros((len(t), n_part))
     Tp = np.zeros((len(t), n_part))
+    xp = np.zeros((len(t), 3*n_part))
     u = np.zeros(t.shape)
     v = np.zeros(t.shape)
     w = np.zeros(t.shape)
@@ -1628,9 +1538,8 @@ def plot_all_variables(t, q, tp, sp, q_local, profile, p, particles, tracked,
     
     for i in range(len(t)):
         if i > 0:
-            q0_local.update(t[i-1], q[i-1,:], tp[i-1], sp[i-1], profile, 
-                p, particles)
-        q_local.update(t[i], q[i,:], tp[i,:], sp[i,:], profile, p, particles)
+            q0_local.update(t[i-1], q[i-1,:], profile, p, particles)
+        q_local.update(t[i], q[i,:], profile, p, particles)
         M[i] = q_local.M
         S[i] = q_local.S
         T[i] = q_local.T
@@ -1638,6 +1547,7 @@ def plot_all_variables(t, q, tp, sp, q_local, profile, p, particles, tracked,
             Mpf[i,j,0:len(q_local.M_p[j])] = q_local.M_p[j][:]
             Mp[i,j] = np.sum(particles[j].m[:])
             Tp[i,j] = particles[j].T
+            xp[i,j*3:j*3+3] = q_local.x_p[j,:]
         Hp[i,:] = q_local.H_p
         u[i] = q_local.u
         v[i] = q_local.v
@@ -1678,7 +1588,7 @@ def plot_all_variables(t, q, tp, sp, q_local, profile, p, particles, tracked,
     ax1.plot(x + x2, z + z2, 'b--')
     for i in range(len(particles)):
         ax1.plot(particles[i].x, particles[i].z, 'o')
-        ax1.plot(sp[:,i*3], sp[:,i*3+2], '.:')
+        ax1.plot(xp[:,i*3], xp[:,i*3+2], '.--')
         if tracked:
             if particles[i].integrate is False and particles[i].z > 0.:
                 ax1.plot(particles[i].sbm.y[:,0], particles[i].sbm.y[:,2], 
@@ -1695,7 +1605,7 @@ def plot_all_variables(t, q, tp, sp, q_local, profile, p, particles, tracked,
     ax2.plot(y + y2, z + z2, 'b--')
     for i in range(len(particles)):
         ax2.plot(particles[i].y, particles[i].z, 'o')
-        ax2.plot(sp[:,i*3+1], sp[:,i*3+2], '.:')
+        ax2.plot(xp[:,i*3+1], xp[:,i*3+2], '.--')
         if tracked:
             if particles[i].integrate is False and particles[i].z > 0.:
                 ax2.plot(particles[i].sbm.y[:,1], particles[i].sbm.y[:,2], 
@@ -1712,7 +1622,7 @@ def plot_all_variables(t, q, tp, sp, q_local, profile, p, particles, tracked,
     ax3.plot(x + x2, y + y2, 'b--')
     for i in range(len(particles)):
         ax3.plot(particles[i].x, particles[i].y, 'o')
-        ax3.plot(sp[:,i*3], sp[:,i*3+1], '.:')
+        ax3.plot(xp[:,i*3], xp[:,i*3+1], '.--')
         if tracked:
             if particles[i].integrate is False and particles[i].z > 0.:
                 ax3.plot(particles[i].sbm.y[:,0], particles[i].sbm.y[:,1], 

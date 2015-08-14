@@ -15,33 +15,23 @@ import numpy as np
 from scipy import integrate
 from copy import deepcopy
 
-def derivs(t, q, tp, sp, dtp_ds, q0_local, q1_local, profile, p, particles):
+def derivs(t, q, q0_local, q1_local, profile, p, particles):
     """
     Calculate the derivatives for the system of ODEs for a Lagrangian plume
     
     Calculates the right-hand-side of the system of ODEs for a Lagrangian 
     plume integral model.  The continuous phase model matches very closely 
-    the model of Lee and Cheung (1990).  Multiphase extensions following the
+    the model of Lee and Cheung (1990), with adaptations for the shear 
+    entrainment following Jirka (2004).  Multiphase extensions following the
     strategy in Socolofsky et al. (2008) with adaptation to Lagrangian plume
-    models by Johansen (2000, 2003) and Yapa and Zheng (1997).  This function
-    solves for the entire state space except for the dispersed phase particle
-    tracking.  Particle tracking is handled by an analytical solution 
-    between each numerical time step; the tracking equations are in the 
-    `bent_plume_model.Particle.track` method.
+    models by Johansen (2000, 2003) and Yapa and Zheng (1997).  
     
     Parameters
     ----------
     t : float
-        Current value for the independent variable (time in m).
+        Current value for the independent variable (time in s).
     q : ndarray
         Current value for the plume state space vector.
-    tp : ndarray
-        Array of current particle ages, one entry for each particle in the 
-        `particles` list.
-    sp : ndarray
-        Array of current particle positions, one entry for each particle in
-        the `particles` list.  The array is organized as (x0, y0, z0, x1, 
-        y1, z1, ... xn, yn, zn) for n particles.
     q0_local : `bent_plume_model.LagElement`
         Object containing the numerical solution at the previous time step
     q1_local : `bent_plume_model.LagElement`
@@ -69,10 +59,13 @@ def derivs(t, q, tp, sp, dtp_ds, q0_local, q1_local, profile, p, particles):
     qp = np.zeros(q.shape)
     
     # Update the local Lagrangian element properties
-    q1_local.update(t, q, tp, sp, profile, p, particles)
+    q1_local.update(t, q, profile, p, particles)
     
     # Get the entrainment flux
     md = entrainment(q0_local, q1_local, p)
+    
+    # Get the dispersed phase tracking variables
+    (fe, up, dtp_dt) = track_particles(q0_local, q1_local, md, particles)
     
     # Conservation of Mass
     qp[0] = md
@@ -101,28 +94,23 @@ def derivs(t, q, tp, sp, dtp_ds, q0_local, q1_local, profile, p, particles):
     # Conservation equations for each dispersed phase
     idx = 11
     
-    # Track the mass dissolving into the continuous phase
+    # Track the mass dissolving into the continuous phase per unit time
     dm = np.zeros(q1_local.nchems)
     
     # Compute mass and heat transfer for each particle
-    for i in range(q1_local.np):
+    for i in range(len(particles)):
         
         # Track each particle's mass transfer separately
         dm_p = np.zeros(q1_local.nchems)
-        
-        # Realize that the travel time for the particle is different from 
-        # that of the plume.  Compute the time adjustment.
-        if dtp_ds[i] == 0.:
-            dtp_ds[i] = 1. / q1_local.V
         
         # Dissolution
         if particles[i].particle.issoluble:
             for j in range(q1_local.nchems):
                 
                 # Conservation of particle mass for a single chemical j
-                qp[idx] = - particles[i].A * particles[i].nb0 * \
+                qp[idx] = - particles[i].A * particles[i].nbe * \
                           particles[i].beta[j] * (particles[i].Cs[j] - 
-                          q1_local.c_chems[j]) * dtp_ds[i] * q1_local.V
+                          q1_local.c_chems[j]) * dtp_dt[i]
                 dm_p[j] = qp[idx]
                 
                 # Update continuous phase temperature with heat of solution
@@ -139,9 +127,9 @@ def derivs(t, q, tp, sp, dtp_ds, q0_local, q1_local, profile, p, particles):
         dm += dm_p
         
         # Heat transfer between the particle and the ambient
-        qp[idx] = - particles[i].A * particles[i].nb0 * particles[i].rho_p * \
+        qp[idx] = - particles[i].A * particles[i].nbe * particles[i].rho_p * \
                   particles[i].cp * particles[i].beta_T * (particles[i].T - 
-                  q1_local.T) * dtp_ds[i] * q1_local.V
+                  q1_local.T) * dtp_dt[i]
         
         # Heat loss due to mass loss by dissolution
         qp[idx] += np.sum(dm_p) * particles[i].cp * particles[i].T
@@ -149,11 +137,29 @@ def derivs(t, q, tp, sp, dtp_ds, q0_local, q1_local, profile, p, particles):
         # Take the heat leaving the particle and put it in the continuous 
         # phase fluid
         qp[2] -= qp[idx]
-        idx += 2  # because we don't update t_p here.
+        idx += 1
+        
+        # Track the particles in the plume
+        if particles[i].integrate:
+            # Particle age
+            qp[idx] = dtp_dt[i]
+            idx += 1
+            
+            # Follow the particles in the local coordinate system (l,n,m) 
+            # relative to the plume centerline
+            qp[idx] = 0.
+            idx += 1
+            qp[idx] = (up[i,1] - fe * q[idx]) * dtp_dt[i]
+            idx += 1
+            qp[idx] = (up[i,2] - fe * q[idx]) * dtp_dt[i]
+            idx += 1
+            
+        else:
+            idx += 4
     
     # Conservation equations for the dissolved constituents in the plume
     for i in range(q1_local.nchems):
-        qp[idx] = md * q1_local.ca_chems[i] - dm[i]
+        qp[idx] = md / q1_local.rho_a * q1_local.ca_chems[i] - dm[i]
         idx += 1
     
     # Conservation equation for the passive tracers in the plume
@@ -163,8 +169,8 @@ def derivs(t, q, tp, sp, dtp_ds, q0_local, q1_local, profile, p, particles):
     return qp
 
 
-def calculate(t0, q0, tp0, sp0, q0_local, profile, p, particles, derivs, 
-    dt_max, sd_max):
+def calculate(t0, q0, q0_local, profile, p, particles, derivs, dt_max, 
+              sd_max):
     """
     Integrate an the Lagrangian plume solution
     
@@ -179,13 +185,6 @@ def calculate(t0, q0, tp0, sp0, q0_local, profile, p, particles, derivs,
         Initial time (s)
     q0 : ndarray
         Initial values of the state space vector
-    tp0 : ndarray
-        Array of initial particle ages, one entry for each particle in the 
-        `particles` list.
-    sp0 : ndarray
-        Array of initial particle positions, one entry for each particle in
-        the `particles` list.  The array is organized as (x0, y0, z0, x1, 
-        y1, z1, ... xn, yn, zn) for n particles.
     q0_local : `bent_plume_model.LagElement`
         Object containing the numerical solution at the initial condition
     profile : `ambient.Profile` object
@@ -216,16 +215,6 @@ def calculate(t0, q0, tp0, sp0, q0_local, profile, p, particles, derivs,
     y : ndarray
         Matrix of the plume state space solutions.  Each row corresponds to
         a time in `t`.
-    tp : ndarray
-        Matrix of the particle ages for all the particles in `particles`.
-        Each row corresponds to a time in `t`.  Each column is the age of 
-        the corresponding particle in the `particles` list.
-    sp : ndarray
-        Matrix of the positions of all the particles in `particles`.  Each
-        row corresponds to a time in `t`.  Each particle has three columns
-        in `sp`, one each for (x, y, z) position.  When the particle reaches
-        the edge of the plume, it is no longer tracked; hence, its position
-        remains constant for the remainder of the plume integration.
     
     See Also
     --------
@@ -247,9 +236,6 @@ def calculate(t0, q0, tp0, sp0, q0_local, profile, p, particles, derivs,
     # Create vectors (using the list data type) to store the solution
     t = [t0]
     q = [q0]
-    tp = [tp0]
-    sp = [sp0]
-    dtp_ds = np.zeros(len(particles))
     
     # Integrate a finite number of time steps
     k = 0
@@ -263,75 +249,53 @@ def calculate(t0, q0, tp0, sp0, q0_local, profile, p, particles, derivs,
                 (q[-1][10], t[-1], k)
         
         # Perform one step of the integration
-        r.set_f_params(np.array(tp[-1]), np.array(sp[-1]), dtp_ds, q0_local, 
-            q1_local, profile, p, particles)
+        r.set_f_params(q0_local, q1_local, profile, p, particles)
         r.integrate(t[-1] + dt_max, step=True)
         
         # Correct the temperature
-        r = correct_temperature(r, np.array(tp[-1]), np.array(sp[-1]), 
-            q1_local, profile, p, particles)
+        r = correct_temperature(r, q1_local, profile, p, particles)
+        
+        # Remove particle solution for particles outside the plume
+        r = correct_particle_tracking(r, particles)
         
         # Store the results
         t.append(r.t)
         q.append(r.y)
         
-        # Update the Lagrangian elements
+        # Update the Lagrangian elements for the next time step
         q0_local = q0_hold
-        q1_local.update(t[-1], q[-1], tp[-1], sp[-1], profile, p, particles)
+        q1_local.update(t[-1], q[-1], profile, p, particles)
         q0_hold = deepcopy(q1_local)
-        
-        # Find the displacement
-        ds = q1_local.s - q0_local.s
-        
-        # Track the dispersed phase particles
-        xpi = []
-        tpi = []
-        for i in range(len(particles)):
-            
-            # Track the particles through this Lagrangian element
-            md = entrainment(q0_local, q1_local, p)
-            particles[i].track(q0_local, q1_local, md, t[-1] - t[-2])
-            
-            # Store the particle positions
-            xpi.append(particles[i].x)
-            xpi.append(particles[i].y)
-            xpi.append(particles[i].z)
-            tpi.append(particles[i].t)
-                
-            # Get the differential particle time step
-            dtp_ds[i] = (tpi[i] - tp[-1][i]) / ds
-        
-        # Record the particle positions for this timestep
-        sp.append(xpi)
-        tp.append(tpi)
-        k += 1
         
         # Evaluate the stop criteria
         if q[-1][10] / q1_local.D > sd_max:
-            # Progressed far along the plume centerline
+            # Progressed desired distance along the plume centerline
             stop = True
         if k >= 50000:
-            # Stop after specified number of iterations
+            # Stop after specified number of iterations; used to protect 
+            # against problems with the solution become stuck
             stop = True
         if q[-1][9] <= 0.:
-            # Reached a location above the free surface
+            # Reached a location at or above the free surface
             stop = True
         if q[-1][10] == q[-2][10]:
             # Progress of motion of the plume has stopped
             stop = True
+        
+        # Update the index counter
+        k += 1
     
     # Convert solution to numpy arrays
     t = np.array(t)
     q = np.array(q)
-    sp = np.array(sp)
     
     # Show user the final calculated point and return the solution
     print '    Distance:  %g (m), time:  %g (s), k:  %d' % \
                 (q[-1,10], t[-1], k)
-    return (t, q, tp, sp)
+    return (t, q)
 
 
-def correct_temperature(r, tp, sp, q_local, profile, p, particles):
+def correct_temperature(r, q_local, profile, p, particles):
     """
     Make sure the correct temperature is stored in the state space solution
     
@@ -393,16 +357,77 @@ def correct_temperature(r, tp, sp, q_local, profile, p, particles):
     # This will check whether heat transfer is turned off and will return 
     # the value of the particle temperature that was used in the calculation
     # step.
-    q_local.update(r.t, r.y, tp, sp, profile, p, particles)
+    q_local.update(r.t, r.y, profile, p, particles)
     
     # Find the heat conservation equation in the model state space for the 
     # particles and replace r.y with the correct values.
     idx = 11
     for i in range(len(particles)):
         idx += particles[i].particle.nc
-        r.y[idx] = np.sum(particles[i].m) * particles[i].nb0 * \
+        r.y[idx] = np.sum(particles[i].m) * particles[i].nbe * \
                        particles[i].cp * particles[i].T
-        idx += 2
+        # Advance for heat, time, and position
+        idx += 1 + 1 + 3
+    
+    # Return the corrected solution
+    return r
+
+
+def correct_particle_tracking(r, particles):
+    """
+    Remove the particle tracking solution after particles exit plume
+    
+    Even though the particle tracking stops as needed once the particles
+    leave the plume, the post processing algorithm has now way to know if a
+    given state space solution is before or after particle tracking has
+    stopped. This function simply replaces the particle position after
+    integration has stopped (e.g., after the particles leave the plume) with
+    NaN so that the post-processor always knows whether the solution in the
+    state space is valid or not.  This is necessary since the solution for 
+    particle position is in local plume coordinates (l,n,m); hence, it is not
+    possible to know the (x,y,z) position unless the correct local plume 
+    element is known.  This function makes sure that every valid (l,n,m) is 
+    stored with the corresponding element.  
+    
+    Parameters
+    ----------
+    r : `scipy.integrate.ode` object
+        ODE solution containing the current values of the state space in 
+        the solver's extrinsic data.  These values are editable, but an 
+        intrinsic version of these data are used when the solver makes 
+        calculations; hence, editing this file does not change the state
+        space stored in the actual solver.
+    particles : list of `Particle` objects
+        List of `bent_plume_model.Particle` objects containing the dispersed 
+        phase local conditions and behavior.
+    
+    Returns
+    -------
+    r : `sciply.integrate.ode` object
+        The updated extrinsic state space with the correct values for heat
+        as were used in the calcualtion.
+    
+    """
+    # Check each particle to determine whether they are inside or outside
+    # the plume
+    
+    for i in range(len(particles)):
+        if not particles[i].integrate:
+            # This particle is outside the plume...find the particle position 
+            # in the state space solution
+            idx = 11
+            
+            for i in range(len(particles)):
+                # Skip the particle mass, heat, and time (time is always 
+                # computed properly)
+                idx += particles[i].particle.nc + 3
+                
+                # Replace the (l,n,m) coordinates with np.nan
+                r.y[idx:idx+3] = np.nan
+                
+                # Skip forward in the state space solution to the start of 
+                # the next particle solution
+                idx += 3
     
     # Return the corrected solution
     return r
@@ -412,15 +437,16 @@ def entrainment(q0_local, q1_local, p):
     """
     Compute the total shear and forced entrainment at one time step
     
-    Computes the local entrainment (kg/s) as a combination of shear 
-    entrainment and forced entrainment for a local Lagrangian element.  This
-    function follows the equations in Lee and Cheung (1990) to compute both
-    types of entrainment.  It also uses the maximum entrainment hypothesis:
-    entrainment = max (shear, forced), with the exception that a pure 
-    coflowing momentum jet has entrainment = shear + forced.  This function
-    also makes one the correction that in pure coflow the force entrainment
-    should be computed by integrating around the entire jet, and not just 
-    the half of the jet exposed to the current.
+    Computes the local entrainment (kg/s) as a combination of shear
+    entrainment and forced entrainment for a local Lagrangian element. This
+    function follows the approach in Lee and Cheung (1990) to compute both
+    types of entrainment, but uses the formulation in Jirka (2004) for the
+    shear entrainment term. Like Lee and Cheung (1990), it uses the maximum
+    entrainment hypothesis: entrainment = max (shear, forced), with the
+    exception that a pure coflowing momentum jet has entrainment = shear +
+    forced. This function also makes one correction that in pure coflow
+    the forced entrainment should be computed by integrating around the entire
+    jet, and not just the half of the jet exposed to the current.
     
     Parameters
     ----------
@@ -458,7 +484,10 @@ def entrainment(q0_local, q1_local, p):
     # projected onto the plume centerline
     a1 = 2. * q1_local.b * np.sqrt(q1_local.sin_p**2 + q1_local.sin_t**2 - 
          q1_local.sin_p**2 * q1_local.sin_t**2) * q1_local.h
-    if q1_local.s == q0_local.s:
+    if (q1_local.s - q0_local.s) / q1_local.b <= 1.e-9:
+        # The plume is not progressing along the centerline; assume the
+        # expansion and curvature corrections are small since delta s / b is
+        # very small.
         a2 = 0.
         a3 = 0.
     else:
@@ -476,7 +505,6 @@ def entrainment(q0_local, q1_local, p):
         # by itself
         A = 0.
     else:
-        # Compute the regular forced entrainment model
         A = a1 + a2 + a3
     
     # Total forced entrainment (kg/s)
@@ -493,9 +521,92 @@ def entrainment(q0_local, q1_local, p):
     return md
 
 
+def track_particles(q0_local, q1_local, md, particles):
+    """
+    Compute the forcing variables needed to track particles
+    
+    The independent variable in the Lagrangian plume model is t for advection
+    of the continuous phase.  Because the particles slip through the fluid, 
+    their advection speed is different; hence, all particle equations have 
+    a different independent variable for their time, tp.  Also, particle 
+    motion is computed in the local plume coordinates space (l,n,m); thus,
+    the vertical slip velocity needs to be transformed to the local plume
+    coordinate system.  Finally, the entrainment velocity pointing toward
+    the plume centerline needs to be evaluated, based on the distance the 
+    particle is from the plume centerline.
+    
+    Parameters
+    ----------
+    q0_local : `bent_plume_model.LagElement`
+        Object containing the numerical solution at the previous time step
+    q1_local : `bent_plume_model.LagElement`
+        Object containing the numerical solution at the current time step
+    md : float
+        Total entrainment into the Lagrangian element (kg)
+    particles : list of `Particle` objects
+        List of `bent_plume_model.Particle` objects containing the dispersed 
+        phase local conditions and behavior.
+    
+    Returns
+    -------
+    fe : float
+        Entrainment frequency (1/s)
+    up : ndarray
+        Slip velocity for each particle projected on the local plume 
+        coordinate system (l,n,m) (m/s).  Each row is for a different 
+        particle and the columns are for the velocity in the (l,n,m)
+        direction.
+    dtp_dt : ndarray
+        Differential particle transport time to continuous phase transport
+        time evaluated from the previous time step to the current time 
+        step (--).
+    
+    """
+    # Compute the entrainment frequency
+    fe = md / (2. * np.pi * q1_local.rho_a * q1_local.b**2 * 
+         q1_local.h)
+    
+    # Get the rotation matrix to the local coordinate system (l,n,m)
+    ds = q1_local.s - q0_local.s
+    A = local_coords(q0_local, q1_local, ds)
+    
+    # Get the velocity of the current plume slice
+    V = q1_local.V
+    
+    # Compute particle properties
+    up = np.zeros((len(particles),3))
+    dtp_dt = np.zeros(len(particles))
+    
+    for i in range(len(particles)):
+        # Transform the slip velocity from Cartesian coordinate to the 
+        # local plume coordinate system (l,n,m)
+        up[i,:] = np.dot(A, np.array([0., 0., -particles[i].us]))
+        
+        # Get the distance along the particle path
+        dsp = np.sqrt((q1_local.x_p[i,0] - q0_local.x_p[i,0])**2 + 
+                      (q1_local.x_p[i,1] - q0_local.x_p[i,1])**2 + 
+                      (q1_local.x_p[i,2] - q0_local.x_p[i,2])**2)
+        
+        # Get the total velocity of the particle
+        Vp = np.sqrt((up[i,0] + V)**2 + 
+                     (up[i,1] - fe * q1_local.X_p[i,1])**2 + 
+                     (up[i,2] - fe * q1_local.X_p[i,2])**2)
+        
+        # Compute the particle time correction dtp/dt
+        if Vp == 0:
+            dtp_dt[i] = 0.
+        elif ds == 0:
+            dtp_dt[i] = 1.
+        else:
+            dtp_dt[i] = V / Vp * dsp / ds
+    
+    # Return the particle tracking variables
+    return (fe, up, dtp_dt)
+
+
 def local_coords(q0_local, q1_local, ds):
     """
-    Compute the rotation matrix from (x, y, z)' to (l, n, m)
+    Compute the rotation matrix from (x, y, z) to (l, n, m)
     
     Computes the rotation matrix from the local Cartesian coordinate system
     (x - xi, y - yi, z - zi), where (xi, yi, zi) is the current location of
@@ -640,13 +751,6 @@ def main_ic(profile, particles, X, D, Vj, phi_0, theta_0, Sj, Tj, cj,
         Initial time for the simulation (s)
     q : ndarray
         Initial value of the plume state space
-    tp : ndarray
-        Array of initial particle ages, one entry for each particle in the 
-        `particles` list.
-    sp : ndarray
-        Array of initial particle positions, one entry for each particle in
-        the `particles` list.  The array is organized as (x0, y0, z0, x1, 
-        y1, z1, ... xn, yn, zn) for n particles.
     chem_names : str list
         List of the chemicals in the dispersed phase composition that are 
         undergoing dissolution
@@ -672,19 +776,8 @@ def main_ic(profile, particles, X, D, Vj, phi_0, theta_0, Sj, Tj, cj,
     t, q = bent_plume_ic(profile, particles, Q, A, D, X, phi_0, theta_0, 
              Tj, Sj, Pj, rho_j, cj, chem_names, tracers, p)
     
-    # Initialize the particle tracking state space for the particles
-    tpi = []
-    xpi = []
-    for i in range(len(particles)):
-        xpi.append(particles[i].x)
-        xpi.append(particles[i].y)
-        xpi.append(particles[i].z)
-        tpi.append(particles[i].t)
-    tp = np.array(tpi)
-    sp = np.array(xpi)
-    
     # Return the initial state space
-    return (t, q, tp, sp, chem_names)
+    return (t, q, chem_names)
 
 
 def bent_plume_ic(profile, particles, Qj, A, D, X, phi_0, theta_0, Tj, Sj, 
@@ -760,11 +853,6 @@ def bent_plume_ic(profile, particles, Qj, A, D, X, phi_0, theta_0, Tj, Sj,
     # Measure the arc length along the plume
     s0 = 0.
     
-    # Determine the volume flux of particles from the discharge
-    Qp = 0.
-    for i in range(len(particles)):
-        Qp += np.sum(particles[i].m) * particles[i].nb0 / particles[i].rho_p
-    
     # The total discharge volume flux is the jet discharge since we assume
     # the void fraction of gas is negligible
     Q = Qj
@@ -775,9 +863,15 @@ def bent_plume_ic(profile, particles, Qj, A, D, X, phi_0, theta_0, Tj, Sj,
     # Compute the mass of jet discharge in the initial Lagrangian element
     Mj = Qj * dt * rho_j
     
-    # Get the actual number of particles following this Lagrangian element
+    # Evaluate the mass of particles in the intial Lagrangian element.  Since
+    # particles are tracked by number and mass per particle, we need to know
+    # how many particles enter the Lagrangian element.  This should be the 
+    # number flux in #/s time the fill time for the Lagrangian element, dt.
+    # Store this value in the `Particle` objects for use throughout the model.
+    nbe = np.zeros(len(particles))
     for i in range(len(particles)):
-        particles[i].nbe = particles[i].nb0 * dt
+        nbe[i] = particles[i].nb0 * dt
+        particles[i].nbe = nbe[i]
     
     # Get the velocity in the component directions
     Uj = flux_to_velocity(Qj, A, phi_0, theta_0)
@@ -790,12 +884,12 @@ def bent_plume_ic(profile, particles, Qj, A, D, X, phi_0, theta_0, Tj, Sj,
     q = [Mj, Mj * Sj, Mj * seawater.cp() * Tj, Mj * Uj[0], Mj * Uj[1], 
           Mj * Uj[2], h / V, X[0], X[1], X[2], s0]
     
-    # Add in the dispersed phase variables, one particle at a time
-    q.extend(dispersed_phases.particles_state_space(particles))
+    # Add in the state space for the dispersed phase particles
+    q.extend(dispersed_phases.particles_state_space(particles, nbe))
     
     # Add the ambient concentrations of the dispersed-phase chemicals
     ca = profile.get_values(X[2], chem_names)
-    q.extend(Mj*ca)
+    q.extend(Mj / rho_j * ca)
     
     # Add in the tracers discharged with the jet
     q.extend(Mj*cj)

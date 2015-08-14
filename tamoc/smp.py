@@ -152,6 +152,10 @@ def derivs_inner(z, y, yi, yo, particles, profile, p, neighbor):
         else:
             yp[idx] = 1. / (yi.u + particles[i].us)
         idx += 1
+        
+        # Track the location of each particle relative to the plume centerline
+        yp[idx:idx+3] = 0.
+        idx += 3
     
     # Conservation equations for the dissolved constituents.
     for i in range(yi.nchems):
@@ -441,7 +445,8 @@ def correct_temperature(r, yi, particles, profile, p):
         idx += particles[i].particle.nc
         r.y[idx] = np.sum(particles[i].m) * particles[i].nb0 * \
                        particles[i].cp * particles[i].T
-        idx += 2
+        # Advance for heat, time, and position
+        idx += 1 + 1 + 3
     
     # Return the corrected solution
     return r
@@ -587,7 +592,10 @@ def inner_plume_ic(profile, particles, p, z, Q, A, S, T, chem_names):
     y = [Q, Q**2 / A, S * Q, p.rho_r * seawater.cp() * T * Q]
     
     # Add in the state space of the multiphase components
-    y.extend(dispersed_phases.particles_state_space(particles))
+    nb0 = np.zeros(len(particles))
+    for i in range(len(particles)):
+        nb0[i] = particles[i].nb0
+    y.extend(dispersed_phases.particles_state_space(particles, nb0))
     
     # And the mass fluxes of dissolved components
     ca = profile.get_values(z, chem_names)
