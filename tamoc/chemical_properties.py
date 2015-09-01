@@ -142,14 +142,17 @@ def load_data(fname):
                 
             else:
                 # This is a data line
-                data[entries[0]] = {header_keys[i] : np.float64(entries[i])
-                        for i in range(1, len(entries))}
+                data[entries[0]] = {}
+                for i in range(1, len(entries)):
+                    data[entries[0]][header_keys[i]] = np.float64(entries[i])
             
     # Add the units to two different dictionaries
-    read_units = {header_keys[i] : header_units[i]
-                  for i in range(len(header_units) - 1)}
-    units = {header_keys[i] : header_units[i]
-             for i in range(len(header_units) - 1)}
+    read_units = {}
+    for i in range(len(header_units) - 1):
+        read_units[header_keys[i]] = header_units[i]
+    units = {}
+    for i in range(len(header_units) - 1):
+        units[header_keys[i]] = header_units[i]
                       
     # Convert to SI units.  If you add a new unit to the file ChemData.csv, 
     # then you should include a check for it here.
