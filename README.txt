@@ -12,6 +12,17 @@ size distributions from source flow conditions.
 For typical usage, please see the ./bin directory of the source distribution
 for various example scripts.
 
+Version 0.1.16: Updated the bent plume model so that post processing is 
+                fully consistent with the simulation results.  Also, added
+                the capability for the bent plume model to stop at the 
+                neutral buoyancy level in the intrusion for a stratified 
+                case.  Updated the equilibrium calculations in the dbm module
+                so that it does not crash when the first few elements of 
+                the mixture disappear (go to zero) and to speed up the 
+                calculation when successive substitution indicates the
+                mixture may be single phase, but is slowly converging:  
+                stability analysis is initiated early, which greatly improves
+                performance for difficult cases.  
 Version 0.1.15: Moved the particle tracking in the bent plume model inside
                 the main integration loop, which then removes tp and sp 
                 from the model attributes and includes then in the model

@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.14',
+        VERSION:     '0.1.16',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -64,45 +64,31 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">July 10, 2015</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">September 08, 2015</td>
 </tr>
 </tbody>
 </table>
 <dl class="function">
 <dt id="lmp.derivs">
-<code class="descclassname">lmp.</code><code class="descname">derivs</code><span class="sig-paren">(</span><em>t</em>, <em>q</em>, <em>tp</em>, <em>sp</em>, <em>dtp_ds</em>, <em>q0_local</em>, <em>q1_local</em>, <em>profile</em>, <em>p</em>, <em>particles</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/lmp.py#L18"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/lmp.html#derivs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lmp.derivs" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">lmp.</code><code class="descname">derivs</code><span class="sig-paren">(</span><em>t</em>, <em>q</em>, <em>q0_local</em>, <em>q1_local</em>, <em>profile</em>, <em>p</em>, <em>particles</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/lmp.py#L18"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/lmp.html#derivs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lmp.derivs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the derivatives for the system of ODEs for a Lagrangian plume</p>
 <p>Calculates the right-hand-side of the system of ODEs for a Lagrangian 
 plume integral model.  The continuous phase model matches very closely 
-the model of Lee and Cheung (1990).  Multiphase extensions following the
+the model of Lee and Cheung (1990), with adaptations for the shear 
+entrainment following Jirka (2004).  Multiphase extensions following the
 strategy in Socolofsky et al. (2008) with adaptation to Lagrangian plume
-models by Johansen (2000, 2003) and Yapa and Zheng (1997).  This function
-solves for the entire state space except for the dispersed phase particle
-tracking.  Particle tracking is handled by an analytical solution 
-between each numerical time step; the tracking equations are in the 
-<a class="reference internal" href="bent_plume_model.Particle.track.html#bent_plume_model.Particle.track" title="bent_plume_model.Particle.track"><code class="xref py py-obj docutils literal"><span class="pre">bent_plume_model.Particle.track</span></code></a> method.</p>
+models by Johansen (2000, 2003) and Yapa and Zheng (1997).</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>t</strong> : float</p>
 <blockquote>
-<div><p>Current value for the independent variable (time in m).</p>
+<div><p>Current value for the independent variable (time in s).</p>
 </div></blockquote>
 <p><strong>q</strong> : ndarray</p>
 <blockquote>
 <div><p>Current value for the plume state space vector.</p>
-</div></blockquote>
-<p><strong>tp</strong> : ndarray</p>
-<blockquote>
-<div><p>Array of current particle ages, one entry for each particle in the 
-<em class="xref py py-obj">particles</em> list.</p>
-</div></blockquote>
-<p><strong>sp</strong> : ndarray</p>
-<blockquote>
-<div><p>Array of current particle positions, one entry for each particle in
-the <em class="xref py py-obj">particles</em> list.  The array is organized as (x0, y0, z0, x1, 
-y1, z1, ... xn, yn, zn) for n particles.</p>
 </div></blockquote>
 <p><strong>q0_local</strong> : <a class="reference internal" href="../modules/bpm.html#bent_plume_model.LagElement" title="bent_plume_model.LagElement"><code class="xref py py-obj docutils literal"><span class="pre">bent_plume_model.LagElement</span></code></a></p>
 <blockquote>

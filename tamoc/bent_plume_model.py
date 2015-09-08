@@ -283,7 +283,7 @@ class Model(object):
             self.p, self.particles, lmp.derivs, self.dt_max, self.sd_max)
         
         # Track the particles
-        if track:
+        if self.track:
             for i in range(len(self.particles)):
                 if particles[i].integrate is False and particles[i].z > 0.:
                     print '\nTracking Particle %d of %d:' % \
@@ -293,8 +293,9 @@ class Model(object):
         # Update the status of the solution
         self.sim_stored = True
         
-        # Restart heat transfer
+        # Update the status of the particles
         for i in range(len(self.particles)):
+            self.particles[i].sim_stored = True
             self.particles[i].K_T = self.K_T0[i]
         
     def save_sim(self, fname, profile_path, profile_info):
@@ -880,6 +881,7 @@ class Particle(dispersed_phases.PlumeParticle):
         
         # Particles start inside the plume and should be integrated
         self.integrate = True
+        self.sim_stored = False
         
         # Store the initial particle locations
         self.t = 0.
@@ -934,6 +936,7 @@ class Particle(dispersed_phases.PlumeParticle):
             
             # Update the particle age
             self.t = t_p
+            tp = self.t
             
             # Get the particle position
             xp = np.dot(Ainv, X_p) + X_cl
@@ -951,16 +954,17 @@ class Particle(dispersed_phases.PlumeParticle):
             
             # Check if the particle exited the plume
             if lp > q_local.b:
-                self.integrate = False
+                self.p_fac = 0.
                 self.b_local = q_local.b
         
         else:
-            # Return the position when the particle exited the plume
-            xp = np.array([self.x, self.y, self.z])
+            # Return the time and position when the particle exited the plume
+            tp = self.te
+            xp = np.array([self.xe, self.ye, self.ze])
             self.p_fac = 0.
         
         # Return the particle position as a matrix
-        return xp
+        return (tp, xp)
     
     def outside(self, Ta, Sa, Pa):
         """
@@ -1298,7 +1302,7 @@ class LagElement(object):
         self.T = self.He / (self.M * seawater.cp())
         self.rho = seawater.density(self.T, self.S, self.Pa)
         self.c_chems = self.cpe / (self.M / self.rho)
-        self.c_tracers = self.cte / self.M
+        self.c_tracers = self.cte / (self.M / self.rho)
         self.u = self.Jx / self.M
         self.v = self.Jy / self.M
         self.w = self.Jz / self.M
@@ -1328,6 +1332,14 @@ class LagElement(object):
         self.x_p = np.zeros((self.np, 3))
         
         for i in range(self.np):
+            # If this is a post-processing call, update the status of the 
+            # integration flag
+            if particles[i].sim_stored:
+                if np.isnan(self.X_p[i][0]):
+                    particles[i].integrate = False
+                else:
+                    particles[i].integrate = True
+            
             # Update the particles with their current properties
             m_p = self.M_p[i] / particles[i].nbe
             T_p = self.H_p[i] / (np.sum(self.M_p[i]) * particles[i].cp)
@@ -1335,7 +1347,7 @@ class LagElement(object):
                                 self.t_p[i])
             
             # Track the particle in the plume
-            self.x_p[i,:] = particles[i].track(self.t_p[i], 
+            self.t_p[i], self.x_p[i,:] = particles[i].track(self.t_p[i], 
                             np.array([self.x, self.y, self.z]), 
                             self.X_p[i], self, Ainv)
             
@@ -1352,19 +1364,8 @@ class LagElement(object):
             if self.rho == particles[i].rho_p:
                 self.mp[i] = 0.
                 self.fb[i] = 0.
-            
-            # Force the particle mass and bubble force to zero if the bubble
-            # is outside the plume
-            if not particles[i].integrate:
-                self.mp[i] = 0.
-                self.fb[i] = 0.
-            
-            # Stop the dissolution once the particle is outside the plume
-            if not particles[i].integrate:
-                particles[i].outside(self.Ta, self.Sa, self.Pa)
         
         # Compute the net particle mass and buoyant force
-        self.Mp = np.sum(self.mp)
         self.Fb = np.sum(self.fb)
 
 
@@ -1734,27 +1735,28 @@ def plot_all_variables(t, q, q_local, profile, p, particles, tracked,
     plt.draw()
     
     # Plot the particle mass and temperature
-    plt.figure(fig)
-    plt.clf()
-    plt.ticklabel_format(useOffset=False, axis='y')
-    plt.show()
-    fig += 1
+    if n_part > 0:
+        plt.figure(fig)
+        plt.clf()
+        plt.ticklabel_format(useOffset=False, axis='y')
+        plt.show()
+        fig += 1
     
-    ax1 = plt.subplot(121)
-    ax1.yaxis.set_major_formatter(formatter)
-    ax1.plot(s, Mp / 1e-6, 'b-')
-    ax1.set_xlabel('s (m)')
-    ax1.set_ylabel('m (mg)')
-    ax1.grid(b=True, which='major', color='0.5', linestyle='-')
+        ax1 = plt.subplot(121)
+        ax1.yaxis.set_major_formatter(formatter)
+        ax1.plot(s, Mp / 1e-6, 'b-')
+        ax1.set_xlabel('s (m)')
+        ax1.set_ylabel('m (mg)')
+        ax1.grid(b=True, which='major', color='0.5', linestyle='-')
     
-    ax2 = plt.subplot(122)
-    ax2.yaxis.set_major_formatter(formatter)
-    ax2.plot(s, Tp - 273.15, 'b-')
-    ax2.set_xlabel('s (m)')
-    ax2.set_ylabel('Temperature (deg C)')
-    ax2.grid(b=True, which='major', color='0.5', linestyle='-')
+        ax2 = plt.subplot(122)
+        ax2.yaxis.set_major_formatter(formatter)
+        ax2.plot(s, Tp - 273.15, 'b-')
+        ax2.set_xlabel('s (m)')
+        ax2.set_ylabel('Temperature (deg C)')
+        ax2.grid(b=True, which='major', color='0.5', linestyle='-')
     
-    plt.draw()
+        plt.draw()
 
 
 def width_projection(Sx, Sy, b):

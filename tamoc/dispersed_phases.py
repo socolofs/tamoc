@@ -238,7 +238,9 @@ class SingleParticle(object):
                 self.particle.return_all(m, T, P, Sa, Ta, status)
             
             # Turn off dissolution for "dissolved" components
-            frac_diss = m[self.diss_indices] / self.m0[self.diss_indices]
+            frac_diss = np.ones(np.size(m))
+            frac_diss[self.diss_indices] = \
+                m[self.diss_indices] / self.m0[self.diss_indices]
             beta[frac_diss < self.fdis] = 0.
             
             # Shut down bubble forces when particles fully dissolve

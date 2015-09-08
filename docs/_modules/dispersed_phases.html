@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.14',
+        VERSION:     '0.1.16',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -264,7 +264,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c"># Turn off heat transfer when at equilibrium.  This will be a </span>
         <span class="c"># persistent change, so it only has to happen once.</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">K_T</span> <span class="o">&gt;</span> <span class="mf">0.</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">Ta</span> <span class="o">-</span> <span class="n">T</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">0.1</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">K_T</span> <span class="o">&gt;</span> <span class="mf">0.</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">Ta</span> <span class="o">-</span> <span class="n">T</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">0.5</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">K_T</span> <span class="o">=</span> <span class="mf">0.</span>
         
         <span class="c"># Use the right temperature</span>
@@ -289,7 +289,9 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">return_all</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
             
             <span class="c"># Turn off dissolution for &quot;dissolved&quot; components</span>
-            <span class="n">frac_diss</span> <span class="o">=</span> <span class="n">m</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">diss_indices</span><span class="p">]</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">m0</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">diss_indices</span><span class="p">]</span>
+            <span class="n">frac_diss</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="n">m</span><span class="p">))</span>
+            <span class="n">frac_diss</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">diss_indices</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">m</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">diss_indices</span><span class="p">]</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">m0</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">diss_indices</span><span class="p">]</span>
             <span class="n">beta</span><span class="p">[</span><span class="n">frac_diss</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">fdis</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.</span>
             
             <span class="c"># Shut down bubble forces when particles fully dissolve</span>
@@ -1004,26 +1006,31 @@
     <span class="n">T_hyd</span> <span class="o">=</span> <span class="n">dbm_obj</span><span class="o">.</span><span class="n">hydrate_stability</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
     
     <span class="k">if</span> <span class="n">T_hyd</span> <span class="o">&lt;</span> <span class="n">Ta</span><span class="p">:</span>
-        <span class="c"># The particle is above the hydrate stability zone</span>
+        <span class="c"># The particle is above the hydrate stability zone...assume hydrates</span>
+        <span class="c"># never form.</span>
         <span class="n">t_hyd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
     
     <span class="k">else</span><span class="p">:</span>
         <span class="c"># The particle is below the hydrate stability zone, compute the </span>
-        <span class="c"># skin formation time.  Compute the maximum hydrate colonation</span>
-        <span class="c"># time</span>
-        <span class="n">t_star</span> <span class="o">=</span> <span class="mf">85710.</span> <span class="o">*</span> <span class="n">de</span> <span class="o">-</span> <span class="mf">244.15</span>
+        <span class="c"># skin formation time.  </span>
+        <span class="n">t_star</span> <span class="o">=</span> <span class="mf">85206.</span> <span class="o">*</span> <span class="n">de</span> <span class="o">-</span> <span class="mf">243.276</span>
+        
+        <span class="k">if</span> <span class="n">t_star</span> <span class="o">&lt;</span> <span class="mf">0.</span><span class="p">:</span>
+            <span class="c"># Hydate skin formation time cannot be zero.</span>
+            <span class="n">t_star</span> <span class="o">=</span> <span class="mf">0.</span>
         
         <span class="c"># Get the subcooling acceleration factor.</span>
-        <span class="n">phi</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.1312</span> <span class="o">*</span> <span class="p">(</span><span class="n">T_hyd</span> <span class="o">-</span> <span class="n">Ta</span><span class="p">)</span> <span class="o">+</span> <span class="mf">2.4584</span>
+        <span class="n">phi</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.1158</span> <span class="o">*</span> <span class="p">(</span><span class="n">T_hyd</span> <span class="o">-</span> <span class="n">Ta</span><span class="p">)</span> <span class="o">+</span> <span class="mf">2.2692</span>
+        
         <span class="k">if</span> <span class="n">phi</span> <span class="o">&gt;</span> <span class="mf">1.</span><span class="p">:</span>
-            <span class="c"># Formation time cannot exceed the maximum colonation time.</span>
+            <span class="c"># Acceleration cannot be more than one.</span>
             <span class="n">phi</span> <span class="o">=</span> <span class="mf">1.</span>
             
         <span class="k">elif</span> <span class="n">phi</span> <span class="o">&lt;</span> <span class="mf">0.</span><span class="p">:</span>
-            <span class="c"># Formation time cannot be less than 0.</span>
+            <span class="c"># Acceleration cannot be less than 0.</span>
             <span class="n">phi</span> <span class="o">=</span> <span class="mf">0.</span>
         
-        <span class="c"># Compute the actual hydrate formation time</span>
+        <span class="c"># Compute the in situ hydrate formation time</span>
         <span class="n">t_hyd</span> <span class="o">=</span> <span class="n">phi</span> <span class="o">*</span> <span class="n">t_star</span>
     
     <span class="c"># Return the formation time</span>
@@ -1267,7 +1274,7 @@
     <span class="k">return</span> <span class="n">chem_names</span>
 
 </div>
-<div class="viewcode-block" id="particles_state_space"><a class="viewcode-back" href="../disp_phases/dispersed_phases.particles_state_space.html#dispersed_phases.particles_state_space">[docs]</a><span class="k">def</span> <span class="nf">particles_state_space</span><span class="p">(</span><span class="n">particles</span><span class="p">):</span>
+<div class="viewcode-block" id="particles_state_space"><a class="viewcode-back" href="../disp_phases/dispersed_phases.particles_state_space.html#dispersed_phases.particles_state_space">[docs]</a><span class="k">def</span> <span class="nf">particles_state_space</span><span class="p">(</span><span class="n">particles</span><span class="p">,</span> <span class="n">nb</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create the state space describing the dispersed phase properties</span>
 <span class="sd">    </span>
@@ -1280,6 +1287,10 @@
 <span class="sd">        List of `SingleParticle`, `PlumeParticle`, or </span>
 <span class="sd">        `bent_plume_model.Particle` objects describing each dispersed phase </span>
 <span class="sd">        in the simulation</span>
+<span class="sd">    nb : ndarray</span>
+<span class="sd">        Array of particle numbers for forming the state space.  nb can be in </span>
+<span class="sd">        number/T, which will give state space variables in mass flux (M/T) or</span>
+<span class="sd">        in number, which will give state space variables in mass.</span>
 <span class="sd">    </span>
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -1292,14 +1303,17 @@
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">particles</span><span class="p">)):</span>
         
         <span class="c"># Masses of each element in the particle</span>
-        <span class="n">y</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">m</span> <span class="o">*</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">nb0</span><span class="p">)</span>
+        <span class="n">y</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">m</span> <span class="o">*</span> <span class="n">nb</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
         
         <span class="c"># Add in the heat flux of the particle</span>
-        <span class="n">y</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">m</span><span class="p">)</span> <span class="o">*</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">nb0</span> <span class="o">*</span> 
+        <span class="n">y</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">m</span><span class="p">)</span> <span class="o">*</span> <span class="n">nb</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> 
                  <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">cp</span> <span class="o">*</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
         
-        <span class="c"># Initialize the particle age to zer</span>
+        <span class="c"># Initialize the particle age to zero</span>
         <span class="n">y</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">0.</span><span class="p">)</span>
+        
+        <span class="c"># Initialize the particle positions to the center of the plume</span>
+        <span class="n">y</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">])</span>
     
     <span class="c"># Return the state space as a list</span>
     <span class="k">return</span> <span class="n">y</span>

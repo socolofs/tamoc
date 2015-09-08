@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.14',
+        VERSION:     '0.1.16',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -66,33 +66,23 @@
 <span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">integrate</span>
 <span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
 
-<div class="viewcode-block" id="derivs"><a class="viewcode-back" href="../bpm/lmp.derivs.html#lmp.derivs">[docs]</a><span class="k">def</span> <span class="nf">derivs</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">tp</span><span class="p">,</span> <span class="n">sp</span><span class="p">,</span> <span class="n">dtp_ds</span><span class="p">,</span> <span class="n">q0_local</span><span class="p">,</span> <span class="n">q1_local</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="p">):</span>
+<div class="viewcode-block" id="derivs"><a class="viewcode-back" href="../bpm/lmp.derivs.html#lmp.derivs">[docs]</a><span class="k">def</span> <span class="nf">derivs</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">q0_local</span><span class="p">,</span> <span class="n">q1_local</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate the derivatives for the system of ODEs for a Lagrangian plume</span>
 <span class="sd">    </span>
 <span class="sd">    Calculates the right-hand-side of the system of ODEs for a Lagrangian </span>
 <span class="sd">    plume integral model.  The continuous phase model matches very closely </span>
-<span class="sd">    the model of Lee and Cheung (1990).  Multiphase extensions following the</span>
+<span class="sd">    the model of Lee and Cheung (1990), with adaptations for the shear </span>
+<span class="sd">    entrainment following Jirka (2004).  Multiphase extensions following the</span>
 <span class="sd">    strategy in Socolofsky et al. (2008) with adaptation to Lagrangian plume</span>
-<span class="sd">    models by Johansen (2000, 2003) and Yapa and Zheng (1997).  This function</span>
-<span class="sd">    solves for the entire state space except for the dispersed phase particle</span>
-<span class="sd">    tracking.  Particle tracking is handled by an analytical solution </span>
-<span class="sd">    between each numerical time step; the tracking equations are in the </span>
-<span class="sd">    `bent_plume_model.Particle.track` method.</span>
+<span class="sd">    models by Johansen (2000, 2003) and Yapa and Zheng (1997).  </span>
 <span class="sd">    </span>
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    t : float</span>
-<span class="sd">        Current value for the independent variable (time in m).</span>
+<span class="sd">        Current value for the independent variable (time in s).</span>
 <span class="sd">    q : ndarray</span>
 <span class="sd">        Current value for the plume state space vector.</span>
-<span class="sd">    tp : ndarray</span>
-<span class="sd">        Array of current particle ages, one entry for each particle in the </span>
-<span class="sd">        `particles` list.</span>
-<span class="sd">    sp : ndarray</span>
-<span class="sd">        Array of current particle positions, one entry for each particle in</span>
-<span class="sd">        the `particles` list.  The array is organized as (x0, y0, z0, x1, </span>
-<span class="sd">        y1, z1, ... xn, yn, zn) for n particles.</span>
 <span class="sd">    q0_local : `bent_plume_model.LagElement`</span>
 <span class="sd">        Object containing the numerical solution at the previous time step</span>
 <span class="sd">    q1_local : `bent_plume_model.LagElement`</span>
@@ -120,10 +110,13 @@
     <span class="n">qp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">q</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
     
     <span class="c"># Update the local Lagrangian element properties</span>
-    <span class="n">q1_local</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">tp</span><span class="p">,</span> <span class="n">sp</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="p">)</span>
+    <span class="n">q1_local</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="p">)</span>
     
     <span class="c"># Get the entrainment flux</span>
     <span class="n">md</span> <span class="o">=</span> <span class="n">entrainment</span><span class="p">(</span><span class="n">q0_local</span><span class="p">,</span> <span class="n">q1_local</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+    
+    <span class="c"># Get the dispersed phase tracking variables</span>
+    <span class="p">(</span><span class="n">fe</span><span class="p">,</span> <span class="n">up</span><span class="p">,</span> <span class="n">dtp_dt</span><span class="p">)</span> <span class="o">=</span> <span class="n">track_particles</span><span class="p">(</span><span class="n">q0_local</span><span class="p">,</span> <span class="n">q1_local</span><span class="p">,</span> <span class="n">md</span><span class="p">,</span> <span class="n">particles</span><span class="p">)</span>
     
     <span class="c"># Conservation of Mass</span>
     <span class="n">qp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">md</span>
@@ -152,70 +145,85 @@
     <span class="c"># Conservation equations for each dispersed phase</span>
     <span class="n">idx</span> <span class="o">=</span> <span class="mi">11</span>
     
-    <span class="c"># Track the mass dissolving into the continuous phase</span>
+    <span class="c"># Track the mass dissolving into the continuous phase per unit time</span>
     <span class="n">dm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">q1_local</span><span class="o">.</span><span class="n">nchems</span><span class="p">)</span>
     
     <span class="c"># Compute mass and heat transfer for each particle</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">q1_local</span><span class="o">.</span><span class="n">np</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">particles</span><span class="p">)):</span>
         
-        <span class="c"># Track each particle&#39;s mass transfer separately</span>
-        <span class="n">dm_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">q1_local</span><span class="o">.</span><span class="n">nchems</span><span class="p">)</span>
-        
-        <span class="c"># Realize that the travel time for the particle is different from </span>
-        <span class="c"># that of the plume.  Compute the time adjustment.</span>
-        <span class="k">if</span> <span class="n">dtp_ds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="mf">0.</span><span class="p">:</span>
-            <span class="n">dtp_ds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">/</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">V</span>
-        
-        <span class="c"># Dissolution</span>
-        <span class="k">if</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">issoluble</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">q1_local</span><span class="o">.</span><span class="n">nchems</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">integrate</span><span class="p">:</span>
+            <span class="c"># Only simulate particles inside the plume</span>
+            
+            <span class="c"># Track each particle&#39;s mass transfer separately</span>
+            <span class="n">dm_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">q1_local</span><span class="o">.</span><span class="n">nchems</span><span class="p">)</span>
+            
+            <span class="c"># Dissolution</span>
+            <span class="k">if</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">issoluble</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">q1_local</span><span class="o">.</span><span class="n">nchems</span><span class="p">):</span>
+                    
+                    <span class="c"># Conservation of particle mass for a single chemical jx</span>
+                    <span class="n">qp</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">A</span> <span class="o">*</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">nbe</span> <span class="o">*</span> \
+                              <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">beta</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">Cs</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">-</span> 
+                              <span class="n">q1_local</span><span class="o">.</span><span class="n">c_chems</span><span class="p">[</span><span class="n">j</span><span class="p">])</span> <span class="o">*</span> <span class="n">dtp_dt</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                    <span class="n">dm_p</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">qp</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+                    
+                    <span class="c"># Update continuous phase temperature with heat of solution</span>
+                    <span class="n">qp</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+=</span> <span class="n">qp</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">*</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">neg_dH_solR</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> \
+                             <span class="o">*</span> <span class="n">p</span><span class="o">.</span><span class="n">Ru</span> <span class="o">/</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">M</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+                    <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span>
                 
-                <span class="c"># Conservation of particle mass for a single chemical j</span>
-                <span class="n">qp</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">A</span> <span class="o">*</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">nb0</span> <span class="o">*</span> \
-                          <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">beta</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">Cs</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">-</span> 
-                          <span class="n">q1_local</span><span class="o">.</span><span class="n">c_chems</span><span class="p">[</span><span class="n">j</span><span class="p">])</span> <span class="o">*</span> <span class="n">dtp_ds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">V</span>
-                <span class="n">dm_p</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">qp</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
-                
-                <span class="c"># Update continuous phase temperature with heat of solution</span>
-                <span class="n">qp</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+=</span> <span class="n">qp</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">*</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">neg_dH_solR</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">*</span> <span class="n">p</span><span class="o">.</span><span class="n">Ru</span> <span class="o">/</span> \
-                         <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">M</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c"># Non-dissolving particles have one component</span>
+                <span class="n">qp</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.</span>
                 <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span>
             
-        <span class="k">else</span><span class="p">:</span>
-            <span class="c"># Non-dissolving particles have one component</span>
+            <span class="c"># Update the total mass dissolved</span>
+            <span class="n">dm</span> <span class="o">+=</span> <span class="n">dm_p</span>
+            
+            <span class="c"># Heat transfer between the particle and the ambient</span>
+            <span class="n">qp</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">A</span> <span class="o">*</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">nbe</span> <span class="o">*</span> \
+                        <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">rho_p</span> <span class="o">*</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">cp</span> <span class="o">*</span> \
+                        <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">beta_T</span> <span class="o">*</span> <span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">T</span> <span class="o">-</span> \
+                        <span class="n">q1_local</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">*</span> <span class="n">dtp_dt</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            
+            <span class="c"># Heat loss due to mass loss by dissolution</span>
+            <span class="n">qp</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dm_p</span><span class="p">)</span> <span class="o">*</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">cp</span> <span class="o">*</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
+            
+            <span class="c"># Take the heat leaving the particle and put it in the continuous </span>
+            <span class="c"># phase fluid</span>
+            <span class="n">qp</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-=</span> <span class="n">qp</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+            <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span>
+            
+            <span class="c"># Particle age</span>
+            <span class="n">qp</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">dtp_dt</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span>
+            
+            <span class="c"># Follow the particles in the local coordinate system (l,n,m) </span>
+            <span class="c"># relative to the plume centerline</span>
             <span class="n">qp</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.</span>
             <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span>
-        
-        <span class="c"># Update the total mass dissolved</span>
-        <span class="n">dm</span> <span class="o">+=</span> <span class="n">dm_p</span>
-        
-        <span class="c"># Heat transfer between the particle and the ambient</span>
-        <span class="n">qp</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">A</span> <span class="o">*</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">nb0</span> <span class="o">*</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">rho_p</span> <span class="o">*</span> \
-                  <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">cp</span> <span class="o">*</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">beta_T</span> <span class="o">*</span> <span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">T</span> <span class="o">-</span> 
-                  <span class="n">q1_local</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">*</span> <span class="n">dtp_ds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">V</span>
-        
-        <span class="c"># Heat loss due to mass loss by dissolution</span>
-        <span class="n">qp</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dm_p</span><span class="p">)</span> <span class="o">*</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">cp</span> <span class="o">*</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
-        
-        <span class="c"># Take the heat leaving the particle and put it in the continuous </span>
-        <span class="c"># phase fluid</span>
-        <span class="n">qp</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-=</span> <span class="n">qp</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
-        <span class="n">idx</span> <span class="o">+=</span> <span class="mi">2</span>  <span class="c"># because we don&#39;t update t_p here.</span>
+            <span class="n">qp</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">up</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">fe</span> <span class="o">*</span> <span class="n">q</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span> <span class="o">*</span> <span class="n">dtp_dt</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">qp</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">up</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">fe</span> <span class="o">*</span> <span class="n">q</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span> <span class="o">*</span> <span class="n">dtp_dt</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span>
+            
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">idx</span> <span class="o">+=</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">nc</span> <span class="o">+</span> <span class="mi">5</span>
     
     <span class="c"># Conservation equations for the dissolved constituents in the plume</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">q1_local</span><span class="o">.</span><span class="n">nchems</span><span class="p">):</span>
-        <span class="n">qp</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">md</span> <span class="o">*</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">ca_chems</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">dm</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">qp</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">md</span> <span class="o">/</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">rho_a</span> <span class="o">*</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">ca_chems</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">dm</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
         <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span>
     
     <span class="c"># Conservation equation for the passive tracers in the plume</span>
-    <span class="n">qp</span><span class="p">[</span><span class="n">idx</span><span class="p">:]</span> <span class="o">=</span> <span class="n">md</span> <span class="o">*</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">ca_tracers</span>
+    <span class="n">qp</span><span class="p">[</span><span class="n">idx</span><span class="p">:]</span> <span class="o">=</span> <span class="n">md</span> <span class="o">/</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">rho_a</span> <span class="o">*</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">ca_tracers</span>
     
     <span class="c"># Return the slopes</span>
     <span class="k">return</span> <span class="n">qp</span>
 
 </div>
-<div class="viewcode-block" id="calculate"><a class="viewcode-back" href="../bpm/lmp.calculate.html#lmp.calculate">[docs]</a><span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span><span class="n">t0</span><span class="p">,</span> <span class="n">q0</span><span class="p">,</span> <span class="n">tp0</span><span class="p">,</span> <span class="n">sp0</span><span class="p">,</span> <span class="n">q0_local</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">derivs</span><span class="p">,</span> 
-    <span class="n">dt_max</span><span class="p">,</span> <span class="n">sd_max</span><span class="p">):</span>
+<div class="viewcode-block" id="calculate"><a class="viewcode-back" href="../bpm/lmp.calculate.html#lmp.calculate">[docs]</a><span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span><span class="n">t0</span><span class="p">,</span> <span class="n">q0</span><span class="p">,</span> <span class="n">q0_local</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">derivs</span><span class="p">,</span> <span class="n">dt_max</span><span class="p">,</span> 
+              <span class="n">sd_max</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Integrate an the Lagrangian plume solution</span>
 <span class="sd">    </span>
@@ -230,13 +238,6 @@
 <span class="sd">        Initial time (s)</span>
 <span class="sd">    q0 : ndarray</span>
 <span class="sd">        Initial values of the state space vector</span>
-<span class="sd">    tp0 : ndarray</span>
-<span class="sd">        Array of initial particle ages, one entry for each particle in the </span>
-<span class="sd">        `particles` list.</span>
-<span class="sd">    sp0 : ndarray</span>
-<span class="sd">        Array of initial particle positions, one entry for each particle in</span>
-<span class="sd">        the `particles` list.  The array is organized as (x0, y0, z0, x1, </span>
-<span class="sd">        y1, z1, ... xn, yn, zn) for n particles.</span>
 <span class="sd">    q0_local : `bent_plume_model.LagElement`</span>
 <span class="sd">        Object containing the numerical solution at the initial condition</span>
 <span class="sd">    profile : `ambient.Profile` object</span>
@@ -267,16 +268,6 @@
 <span class="sd">    y : ndarray</span>
 <span class="sd">        Matrix of the plume state space solutions.  Each row corresponds to</span>
 <span class="sd">        a time in `t`.</span>
-<span class="sd">    tp : ndarray</span>
-<span class="sd">        Matrix of the particle ages for all the particles in `particles`.</span>
-<span class="sd">        Each row corresponds to a time in `t`.  Each column is the age of </span>
-<span class="sd">        the corresponding particle in the `particles` list.</span>
-<span class="sd">    sp : ndarray</span>
-<span class="sd">        Matrix of the positions of all the particles in `particles`.  Each</span>
-<span class="sd">        row corresponds to a time in `t`.  Each particle has three columns</span>
-<span class="sd">        in `sp`, one each for (x, y, z) position.  When the particle reaches</span>
-<span class="sd">        the edge of the plume, it is no longer tracked; hence, its position</span>
-<span class="sd">        remains constant for the remainder of the plume integration.</span>
 <span class="sd">    </span>
 <span class="sd">    See Also</span>
 <span class="sd">    --------</span>
@@ -298,14 +289,12 @@
     <span class="c"># Create vectors (using the list data type) to store the solution</span>
     <span class="n">t</span> <span class="o">=</span> <span class="p">[</span><span class="n">t0</span><span class="p">]</span>
     <span class="n">q</span> <span class="o">=</span> <span class="p">[</span><span class="n">q0</span><span class="p">]</span>
-    <span class="n">tp</span> <span class="o">=</span> <span class="p">[</span><span class="n">tp0</span><span class="p">]</span>
-    <span class="n">sp</span> <span class="o">=</span> <span class="p">[</span><span class="n">sp0</span><span class="p">]</span>
-    <span class="n">dtp_ds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">particles</span><span class="p">))</span>
     
     <span class="c"># Integrate a finite number of time steps</span>
     <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">psteps</span> <span class="o">=</span> <span class="mf">30.</span>
     <span class="n">stop</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="n">neutral_counter</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="k">while</span> <span class="n">r</span><span class="o">.</span><span class="n">successful</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">stop</span><span class="p">:</span>
         
         <span class="c"># Print progress to the screen</span>
@@ -314,75 +303,66 @@
                 <span class="p">(</span><span class="n">q</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">10</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">k</span><span class="p">)</span>
         
         <span class="c"># Perform one step of the integration</span>
-        <span class="n">r</span><span class="o">.</span><span class="n">set_f_params</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">tp</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sp</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="n">dtp_ds</span><span class="p">,</span> <span class="n">q0_local</span><span class="p">,</span> 
-            <span class="n">q1_local</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="p">)</span>
+        <span class="n">r</span><span class="o">.</span><span class="n">set_f_params</span><span class="p">(</span><span class="n">q0_local</span><span class="p">,</span> <span class="n">q1_local</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="p">)</span>
         <span class="n">r</span><span class="o">.</span><span class="n">integrate</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">dt_max</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">q1_local</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">t</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="p">)</span>
         
         <span class="c"># Correct the temperature</span>
-        <span class="n">r</span> <span class="o">=</span> <span class="n">correct_temperature</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">tp</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sp</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> 
-            <span class="n">q1_local</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="p">)</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">correct_temperature</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">particles</span><span class="p">)</span>
+        
+        <span class="c"># Remove particle solution for particles outside the plume</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">correct_particle_tracking</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">particles</span><span class="p">)</span>
         
         <span class="c"># Store the results</span>
         <span class="n">t</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">t</span><span class="p">)</span>
         <span class="n">q</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
         
-        <span class="c"># Update the Lagrangian elements</span>
+        <span class="c"># Update the Lagrangian elements for the next time step</span>
         <span class="n">q0_local</span> <span class="o">=</span> <span class="n">q0_hold</span>
-        <span class="n">q1_local</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">q</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">tp</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">sp</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="p">)</span>
         <span class="n">q0_hold</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">q1_local</span><span class="p">)</span>
         
-        <span class="c"># Find the displacement</span>
-        <span class="n">ds</span> <span class="o">=</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">s</span> <span class="o">-</span> <span class="n">q0_local</span><span class="o">.</span><span class="n">s</span>
-        
-        <span class="c"># Track the dispersed phase particles</span>
-        <span class="n">xpi</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">tpi</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">particles</span><span class="p">)):</span>
-            
-            <span class="c"># Track the particles through this Lagrangian element</span>
-            <span class="n">md</span> <span class="o">=</span> <span class="n">entrainment</span><span class="p">(</span><span class="n">q0_local</span><span class="p">,</span> <span class="n">q1_local</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
-            <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">track</span><span class="p">(</span><span class="n">q0_local</span><span class="p">,</span> <span class="n">q1_local</span><span class="p">,</span> <span class="n">md</span><span class="p">,</span> <span class="n">t</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">t</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span>
-            
-            <span class="c"># Store the particle positions</span>
-            <span class="n">xpi</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
-            <span class="n">xpi</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
-            <span class="n">xpi</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
-            <span class="n">tpi</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">t</span><span class="p">)</span>
-                
-            <span class="c"># Get the differential particle time step</span>
-            <span class="n">dtp_ds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">tpi</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">tp</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="n">i</span><span class="p">])</span> <span class="o">/</span> <span class="n">ds</span>
-        
-        <span class="c"># Record the particle positions for this timestep</span>
-        <span class="n">sp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">xpi</span><span class="p">)</span>
-        <span class="n">tp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tpi</span><span class="p">)</span>
-        <span class="n">k</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="c"># Check if this element passed through a region of neutral </span>
+        <span class="c"># buoyancy</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">q0_local</span><span class="o">.</span><span class="n">rho_a</span> <span class="o">-</span> <span class="n">q0_local</span><span class="o">.</span><span class="n">rho</span><span class="p">)</span> <span class="o">!=</span> \
+            <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">q1_local</span><span class="o">.</span><span class="n">rho_a</span> <span class="o">-</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">rho</span><span class="p">):</span>
+            <span class="c"># Check for numerical instability</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">q0_local</span><span class="o">.</span><span class="n">rho_a</span> <span class="o">-</span> <span class="n">q0_local</span><span class="o">.</span><span class="n">rho</span><span class="p">),</span> 
+                <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">q1_local</span><span class="o">.</span><span class="n">rho_a</span> <span class="o">-</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">rho</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mf">1.e-10</span><span class="p">:</span>
+                <span class="c"># Update neutral buoyancy level counter</span>
+                <span class="n">neutral_counter</span> <span class="o">+=</span> <span class="mi">1</span>
         
         <span class="c"># Evaluate the stop criteria</span>
+        <span class="k">if</span> <span class="n">neutral_counter</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="c"># Passed through the second neutral buoyany level</span>
+            <span class="n">stop</span> <span class="o">=</span> <span class="bp">True</span>
         <span class="k">if</span> <span class="n">q</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">10</span><span class="p">]</span> <span class="o">/</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">D</span> <span class="o">&gt;</span> <span class="n">sd_max</span><span class="p">:</span>
-            <span class="c"># Progressed far along the plume centerline</span>
+            <span class="c"># Progressed desired distance along the plume centerline</span>
             <span class="n">stop</span> <span class="o">=</span> <span class="bp">True</span>
         <span class="k">if</span> <span class="n">k</span> <span class="o">&gt;=</span> <span class="mi">50000</span><span class="p">:</span>
-            <span class="c"># Stop after specified number of iterations</span>
+            <span class="c"># Stop after specified number of iterations; used to protect </span>
+            <span class="c"># against problems with the solution become stuck</span>
             <span class="n">stop</span> <span class="o">=</span> <span class="bp">True</span>
         <span class="k">if</span> <span class="n">q</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">9</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mf">0.</span><span class="p">:</span>
-            <span class="c"># Reached a location above the free surface</span>
+            <span class="c"># Reached a location at or above the free surface</span>
             <span class="n">stop</span> <span class="o">=</span> <span class="bp">True</span>
         <span class="k">if</span> <span class="n">q</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">10</span><span class="p">]</span> <span class="o">==</span> <span class="n">q</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">][</span><span class="mi">10</span><span class="p">]:</span>
             <span class="c"># Progress of motion of the plume has stopped</span>
             <span class="n">stop</span> <span class="o">=</span> <span class="bp">True</span>
+        
+        <span class="c"># Update the index counter</span>
+        <span class="n">k</span> <span class="o">+=</span> <span class="mi">1</span>
     
     <span class="c"># Convert solution to numpy arrays</span>
     <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
     <span class="n">q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
-    <span class="n">sp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sp</span><span class="p">)</span>
     
     <span class="c"># Show user the final calculated point and return the solution</span>
     <span class="k">print</span> <span class="s">&#39;    Distance:  </span><span class="si">%g</span><span class="s"> (m), time:  </span><span class="si">%g</span><span class="s"> (s), k:  </span><span class="si">%d</span><span class="s">&#39;</span> <span class="o">%</span> \
                 <span class="p">(</span><span class="n">q</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">10</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">k</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">tp</span><span class="p">,</span> <span class="n">sp</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span>
 
 </div>
-<span class="k">def</span> <span class="nf">correct_temperature</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">tp</span><span class="p">,</span> <span class="n">sp</span><span class="p">,</span> <span class="n">q_local</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">correct_temperature</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">particles</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Make sure the correct temperature is stored in the state space solution</span>
 <span class="sd">    </span>
@@ -415,20 +395,6 @@
 <span class="sd">        intrinsic version of these data are used when the solver makes </span>
 <span class="sd">        calculations; hence, editing this file does not change the state</span>
 <span class="sd">        space stored in the actual solver.</span>
-<span class="sd">    tp : ndarray</span>
-<span class="sd">        Array of current particle ages, one entry for each particle in the </span>
-<span class="sd">        `particles` list.</span>
-<span class="sd">    sp : ndarray</span>
-<span class="sd">        Array of current particle positions, one entry for each particle in</span>
-<span class="sd">        the `particles` list.  The array is organized as (x0, y0, z0, x1, </span>
-<span class="sd">        y1, z1, ... xn, yn, zn) for n particles.</span>
-<span class="sd">    q_local : `bent_plume_model.LagElement`</span>
-<span class="sd">        Object containing the numerical solution at the initial condition</span>
-<span class="sd">    profile : `ambient.Profile` object</span>
-<span class="sd">        The ambient CTD object used by the simulation.</span>
-<span class="sd">    p : `ModelParams` object</span>
-<span class="sd">        Object containing the fixed model parameters for the bent</span>
-<span class="sd">        plume model.</span>
 <span class="sd">    particles : list of `Particle` objects</span>
 <span class="sd">        List of `bent_plume_model.Particle` objects containing the dispersed </span>
 <span class="sd">        phase local conditions and behavior.</span>
@@ -440,20 +406,86 @@
 <span class="sd">        as were used in the calcualtion.</span>
 <span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c"># Update the Lagrangian element state space with the current solution.</span>
-    <span class="c"># This will check whether heat transfer is turned off and will return </span>
-    <span class="c"># the value of the particle temperature that was used in the calculation</span>
-    <span class="c"># step.</span>
-    <span class="n">q_local</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">t</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">tp</span><span class="p">,</span> <span class="n">sp</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="p">)</span>
-    
     <span class="c"># Find the heat conservation equation in the model state space for the </span>
     <span class="c"># particles and replace r.y with the correct values.</span>
     <span class="n">idx</span> <span class="o">=</span> <span class="mi">11</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">particles</span><span class="p">)):</span>
         <span class="n">idx</span> <span class="o">+=</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">nc</span>
-        <span class="n">r</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">m</span><span class="p">)</span> <span class="o">*</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">nb0</span> <span class="o">*</span> \
+        <span class="n">r</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">m</span><span class="p">)</span> <span class="o">*</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">nbe</span> <span class="o">*</span> \
                        <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">cp</span> <span class="o">*</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
-        <span class="n">idx</span> <span class="o">+=</span> <span class="mi">2</span>
+        <span class="c"># Advance for heat, time, and position</span>
+        <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">+</span> <span class="mi">3</span>
+    
+    <span class="c"># Return the corrected solution</span>
+    <span class="k">return</span> <span class="n">r</span>
+
+
+<span class="k">def</span> <span class="nf">correct_particle_tracking</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">particles</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Remove the particle tracking solution after particles exit plume</span>
+<span class="sd">    </span>
+<span class="sd">    Even though the particle tracking stops as needed once the particles</span>
+<span class="sd">    leave the plume, the post processing algorithm has now way to know if a</span>
+<span class="sd">    given state space solution is before or after particle tracking has</span>
+<span class="sd">    stopped. This function simply replaces the particle position after</span>
+<span class="sd">    integration has stopped (e.g., after the particles leave the plume) with</span>
+<span class="sd">    NaN so that the post-processor always knows whether the solution in the</span>
+<span class="sd">    state space is valid or not.  This is necessary since the solution for </span>
+<span class="sd">    particle position is in local plume coordinates (l,n,m); hence, it is not</span>
+<span class="sd">    possible to know the (x,y,z) position unless the correct local plume </span>
+<span class="sd">    element is known.  This function makes sure that every valid (l,n,m) is </span>
+<span class="sd">    stored with the corresponding element.  </span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    r : `scipy.integrate.ode` object</span>
+<span class="sd">        ODE solution containing the current values of the state space in </span>
+<span class="sd">        the solver&#39;s extrinsic data.  These values are editable, but an </span>
+<span class="sd">        intrinsic version of these data are used when the solver makes </span>
+<span class="sd">        calculations; hence, editing this file does not change the state</span>
+<span class="sd">        space stored in the actual solver.</span>
+<span class="sd">    particles : list of `Particle` objects</span>
+<span class="sd">        List of `bent_plume_model.Particle` objects containing the dispersed </span>
+<span class="sd">        phase local conditions and behavior.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    r : `sciply.integrate.ode` object</span>
+<span class="sd">        The updated extrinsic state space with the correct values for heat</span>
+<span class="sd">        as were used in the calcualtion.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># Skip through the single-phase state space</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="mi">11</span>
+
+    <span class="c"># Check each particle to determine whether they are inside or outside</span>
+    <span class="c"># the plume</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">particles</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">integrate</span><span class="p">:</span>
+            <span class="c"># Skip the masses, temperature, and time</span>
+            <span class="n">idx</span> <span class="o">+=</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">nc</span> <span class="o">+</span> <span class="mi">2</span>
+            
+            <span class="c"># Particle is outside the plume; replace the coordinates with </span>
+            <span class="c"># np.nan</span>
+            <span class="n">r</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="n">idx</span><span class="p">:</span><span class="n">idx</span><span class="o">+</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="n">idx</span> <span class="o">+=</span> <span class="mi">3</span>
+            
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># Skip the masses, temperature, time, and coordinates</span>
+            <span class="n">idx</span> <span class="o">+=</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">nc</span> <span class="o">+</span> <span class="mi">5</span>
+        
+        <span class="c"># Check if the integration should stop</span>
+        <span class="k">if</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">p_fac</span> <span class="o">==</span> <span class="mf">0.</span><span class="p">:</span>
+            <span class="c"># Stop tracking the particle inside the plume</span>
+            <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">integrate</span> <span class="o">=</span> <span class="bp">False</span>
+            
+            <span class="c"># Store the properties at the exit point</span>
+            <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">te</span> <span class="o">=</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">t</span>
+            <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">xe</span> <span class="o">=</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">x</span>
+            <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">ye</span> <span class="o">=</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">y</span>
+            <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">ze</span> <span class="o">=</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">z</span>
+            <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">me</span> <span class="o">=</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">m</span>
+            <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">Te</span> <span class="o">=</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
     
     <span class="c"># Return the corrected solution</span>
     <span class="k">return</span> <span class="n">r</span>
@@ -463,15 +495,16 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute the total shear and forced entrainment at one time step</span>
 <span class="sd">    </span>
-<span class="sd">    Computes the local entrainment (kg/s) as a combination of shear </span>
-<span class="sd">    entrainment and forced entrainment for a local Lagrangian element.  This</span>
-<span class="sd">    function follows the equations in Lee and Cheung (1990) to compute both</span>
-<span class="sd">    types of entrainment.  It also uses the maximum entrainment hypothesis:</span>
-<span class="sd">    entrainment = max (shear, forced), with the exception that a pure </span>
-<span class="sd">    coflowing momentum jet has entrainment = shear + forced.  This function</span>
-<span class="sd">    also makes one the correction that in pure coflow the force entrainment</span>
-<span class="sd">    should be computed by integrating around the entire jet, and not just </span>
-<span class="sd">    the half of the jet exposed to the current.</span>
+<span class="sd">    Computes the local entrainment (kg/s) as a combination of shear</span>
+<span class="sd">    entrainment and forced entrainment for a local Lagrangian element. This</span>
+<span class="sd">    function follows the approach in Lee and Cheung (1990) to compute both</span>
+<span class="sd">    types of entrainment, but uses the formulation in Jirka (2004) for the</span>
+<span class="sd">    shear entrainment term. Like Lee and Cheung (1990), it uses the maximum</span>
+<span class="sd">    entrainment hypothesis: entrainment = max (shear, forced), with the</span>
+<span class="sd">    exception that a pure coflowing momentum jet has entrainment = shear +</span>
+<span class="sd">    forced. This function also makes one correction that in pure coflow</span>
+<span class="sd">    the forced entrainment should be computed by integrating around the entire</span>
+<span class="sd">    jet, and not just the half of the jet exposed to the current.</span>
 <span class="sd">    </span>
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -509,7 +542,10 @@
     <span class="c"># projected onto the plume centerline</span>
     <span class="n">a1</span> <span class="o">=</span> <span class="mf">2.</span> <span class="o">*</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">b</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">q1_local</span><span class="o">.</span><span class="n">sin_p</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">sin_t</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> 
          <span class="n">q1_local</span><span class="o">.</span><span class="n">sin_p</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">sin_t</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">h</span>
-    <span class="k">if</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">s</span> <span class="o">==</span> <span class="n">q0_local</span><span class="o">.</span><span class="n">s</span><span class="p">:</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">q1_local</span><span class="o">.</span><span class="n">s</span> <span class="o">-</span> <span class="n">q0_local</span><span class="o">.</span><span class="n">s</span><span class="p">)</span> <span class="o">/</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">b</span> <span class="o">&lt;=</span> <span class="mf">1.e-3</span><span class="p">:</span>
+        <span class="c"># The plume is not progressing along the centerline; assume the</span>
+        <span class="c"># expansion and curvature corrections are small since delta s / b is</span>
+        <span class="c"># very small.</span>
         <span class="n">a2</span> <span class="o">=</span> <span class="mf">0.</span>
         <span class="n">a3</span> <span class="o">=</span> <span class="mf">0.</span>
     <span class="k">else</span><span class="p">:</span>
@@ -527,7 +563,6 @@
         <span class="c"># by itself</span>
         <span class="n">A</span> <span class="o">=</span> <span class="mf">0.</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="c"># Compute the regular forced entrainment model</span>
         <span class="n">A</span> <span class="o">=</span> <span class="n">a1</span> <span class="o">+</span> <span class="n">a2</span> <span class="o">+</span> <span class="n">a3</span>
     
     <span class="c"># Total forced entrainment (kg/s)</span>
@@ -544,9 +579,92 @@
     <span class="k">return</span> <span class="n">md</span>
 
 </div>
+<span class="k">def</span> <span class="nf">track_particles</span><span class="p">(</span><span class="n">q0_local</span><span class="p">,</span> <span class="n">q1_local</span><span class="p">,</span> <span class="n">md</span><span class="p">,</span> <span class="n">particles</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the forcing variables needed to track particles</span>
+<span class="sd">    </span>
+<span class="sd">    The independent variable in the Lagrangian plume model is t for advection</span>
+<span class="sd">    of the continuous phase.  Because the particles slip through the fluid, </span>
+<span class="sd">    their advection speed is different; hence, all particle equations have </span>
+<span class="sd">    a different independent variable for their time, tp.  Also, particle </span>
+<span class="sd">    motion is computed in the local plume coordinates space (l,n,m); thus,</span>
+<span class="sd">    the vertical slip velocity needs to be transformed to the local plume</span>
+<span class="sd">    coordinate system.  Finally, the entrainment velocity pointing toward</span>
+<span class="sd">    the plume centerline needs to be evaluated, based on the distance the </span>
+<span class="sd">    particle is from the plume centerline.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    q0_local : `bent_plume_model.LagElement`</span>
+<span class="sd">        Object containing the numerical solution at the previous time step</span>
+<span class="sd">    q1_local : `bent_plume_model.LagElement`</span>
+<span class="sd">        Object containing the numerical solution at the current time step</span>
+<span class="sd">    md : float</span>
+<span class="sd">        Total entrainment into the Lagrangian element (kg)</span>
+<span class="sd">    particles : list of `Particle` objects</span>
+<span class="sd">        List of `bent_plume_model.Particle` objects containing the dispersed </span>
+<span class="sd">        phase local conditions and behavior.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    fe : float</span>
+<span class="sd">        Entrainment frequency (1/s)</span>
+<span class="sd">    up : ndarray</span>
+<span class="sd">        Slip velocity for each particle projected on the local plume </span>
+<span class="sd">        coordinate system (l,n,m) (m/s).  Each row is for a different </span>
+<span class="sd">        particle and the columns are for the velocity in the (l,n,m)</span>
+<span class="sd">        direction.</span>
+<span class="sd">    dtp_dt : ndarray</span>
+<span class="sd">        Differential particle transport time to continuous phase transport</span>
+<span class="sd">        time evaluated from the previous time step to the current time </span>
+<span class="sd">        step (--).</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># Compute the entrainment frequency</span>
+    <span class="n">fe</span> <span class="o">=</span> <span class="n">md</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">rho_a</span> <span class="o">*</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">b</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> 
+         <span class="n">q1_local</span><span class="o">.</span><span class="n">h</span><span class="p">)</span>
+    
+    <span class="c"># Get the rotation matrix to the local coordinate system (l,n,m)</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">s</span> <span class="o">-</span> <span class="n">q0_local</span><span class="o">.</span><span class="n">s</span>
+    <span class="n">A</span> <span class="o">=</span> <span class="n">local_coords</span><span class="p">(</span><span class="n">q0_local</span><span class="p">,</span> <span class="n">q1_local</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span>
+    
+    <span class="c"># Get the velocity of the current plume slice</span>
+    <span class="n">V</span> <span class="o">=</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">V</span>
+    
+    <span class="c"># Compute particle properties</span>
+    <span class="n">up</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">particles</span><span class="p">),</span><span class="mi">3</span><span class="p">))</span>
+    <span class="n">dtp_dt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">particles</span><span class="p">))</span>
+    
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">particles</span><span class="p">)):</span>
+        <span class="c"># Transform the slip velocity from Cartesian coordinate to the </span>
+        <span class="c"># local plume coordinate system (l,n,m)</span>
+        <span class="n">up</span><span class="p">[</span><span class="n">i</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="o">-</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">us</span><span class="p">]))</span>
+        
+        <span class="c"># Get the distance along the particle path</span>
+        <span class="n">dsp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">q1_local</span><span class="o">.</span><span class="n">x_p</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">q0_local</span><span class="o">.</span><span class="n">x_p</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> 
+                      <span class="p">(</span><span class="n">q1_local</span><span class="o">.</span><span class="n">x_p</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">q0_local</span><span class="o">.</span><span class="n">x_p</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> 
+                      <span class="p">(</span><span class="n">q1_local</span><span class="o">.</span><span class="n">x_p</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">q0_local</span><span class="o">.</span><span class="n">x_p</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">2</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        
+        <span class="c"># Get the total velocity of the particle</span>
+        <span class="n">Vp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">up</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">V</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> 
+                     <span class="p">(</span><span class="n">up</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">fe</span> <span class="o">*</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">X_p</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> 
+                     <span class="p">(</span><span class="n">up</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">fe</span> <span class="o">*</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">X_p</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">2</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        
+        <span class="c"># Compute the particle time correction dtp/dt</span>
+        <span class="k">if</span> <span class="n">Vp</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">dtp_dt</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.</span>
+        <span class="k">elif</span> <span class="n">ds</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">dtp_dt</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dtp_dt</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">V</span> <span class="o">/</span> <span class="n">Vp</span> <span class="o">*</span> <span class="n">dsp</span> <span class="o">/</span> <span class="n">ds</span>
+    
+    <span class="c"># Return the particle tracking variables</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">fe</span><span class="p">,</span> <span class="n">up</span><span class="p">,</span> <span class="n">dtp_dt</span><span class="p">)</span>
+
+
 <div class="viewcode-block" id="local_coords"><a class="viewcode-back" href="../bpm/lmp.local_coords.html#lmp.local_coords">[docs]</a><span class="k">def</span> <span class="nf">local_coords</span><span class="p">(</span><span class="n">q0_local</span><span class="p">,</span> <span class="n">q1_local</span><span class="p">,</span> <span class="n">ds</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Compute the rotation matrix from (x, y, z)&#39; to (l, n, m)</span>
+<span class="sd">    Compute the rotation matrix from (x, y, z) to (l, n, m)</span>
 <span class="sd">    </span>
 <span class="sd">    Computes the rotation matrix from the local Cartesian coordinate system</span>
 <span class="sd">    (x - xi, y - yi, z - zi), where (xi, yi, zi) is the current location of</span>
@@ -691,13 +809,6 @@
 <span class="sd">        Initial time for the simulation (s)</span>
 <span class="sd">    q : ndarray</span>
 <span class="sd">        Initial value of the plume state space</span>
-<span class="sd">    tp : ndarray</span>
-<span class="sd">        Array of initial particle ages, one entry for each particle in the </span>
-<span class="sd">        `particles` list.</span>
-<span class="sd">    sp : ndarray</span>
-<span class="sd">        Array of initial particle positions, one entry for each particle in</span>
-<span class="sd">        the `particles` list.  The array is organized as (x0, y0, z0, x1, </span>
-<span class="sd">        y1, z1, ... xn, yn, zn) for n particles.</span>
 <span class="sd">    chem_names : str list</span>
 <span class="sd">        List of the chemicals in the dispersed phase composition that are </span>
 <span class="sd">        undergoing dissolution</span>
@@ -723,19 +834,8 @@
     <span class="n">t</span><span class="p">,</span> <span class="n">q</span> <span class="o">=</span> <span class="n">bent_plume_ic</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">D</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">phi_0</span><span class="p">,</span> <span class="n">theta_0</span><span class="p">,</span> 
              <span class="n">Tj</span><span class="p">,</span> <span class="n">Sj</span><span class="p">,</span> <span class="n">Pj</span><span class="p">,</span> <span class="n">rho_j</span><span class="p">,</span> <span class="n">cj</span><span class="p">,</span> <span class="n">chem_names</span><span class="p">,</span> <span class="n">tracers</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
     
-    <span class="c"># Initialize the particle tracking state space for the particles</span>
-    <span class="n">tpi</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">xpi</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">particles</span><span class="p">)):</span>
-        <span class="n">xpi</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
-        <span class="n">xpi</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
-        <span class="n">xpi</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
-        <span class="n">tpi</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">t</span><span class="p">)</span>
-    <span class="n">tp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">tpi</span><span class="p">)</span>
-    <span class="n">sp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">xpi</span><span class="p">)</span>
-    
     <span class="c"># Return the initial state space</span>
-    <span class="k">return</span> <span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">tp</span><span class="p">,</span> <span class="n">sp</span><span class="p">,</span> <span class="n">chem_names</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">chem_names</span><span class="p">)</span>
 
 </div>
 <div class="viewcode-block" id="bent_plume_ic"><a class="viewcode-back" href="../bpm/lmp.bent_plume_ic.html#lmp.bent_plume_ic">[docs]</a><span class="k">def</span> <span class="nf">bent_plume_ic</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">Qj</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">D</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">phi_0</span><span class="p">,</span> <span class="n">theta_0</span><span class="p">,</span> <span class="n">Tj</span><span class="p">,</span> <span class="n">Sj</span><span class="p">,</span> 
@@ -811,11 +911,6 @@
     <span class="c"># Measure the arc length along the plume</span>
     <span class="n">s0</span> <span class="o">=</span> <span class="mf">0.</span>
     
-    <span class="c"># Determine the volume flux of particles from the discharge</span>
-    <span class="n">Qp</span> <span class="o">=</span> <span class="mf">0.</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">particles</span><span class="p">)):</span>
-        <span class="n">Qp</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">m</span><span class="p">)</span> <span class="o">*</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">nb0</span> <span class="o">/</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">rho_p</span>
-    
     <span class="c"># The total discharge volume flux is the jet discharge since we assume</span>
     <span class="c"># the void fraction of gas is negligible</span>
     <span class="n">Q</span> <span class="o">=</span> <span class="n">Qj</span>
@@ -826,9 +921,15 @@
     <span class="c"># Compute the mass of jet discharge in the initial Lagrangian element</span>
     <span class="n">Mj</span> <span class="o">=</span> <span class="n">Qj</span> <span class="o">*</span> <span class="n">dt</span> <span class="o">*</span> <span class="n">rho_j</span>
     
-    <span class="c"># Get the actual number of particles following this Lagrangian element</span>
+    <span class="c"># Evaluate the mass of particles in the intial Lagrangian element.  Since</span>
+    <span class="c"># particles are tracked by number and mass per particle, we need to know</span>
+    <span class="c"># how many particles enter the Lagrangian element.  This should be the </span>
+    <span class="c"># number flux in #/s time the fill time for the Lagrangian element, dt.</span>
+    <span class="c"># Store this value in the `Particle` objects for use throughout the model.</span>
+    <span class="n">nbe</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">particles</span><span class="p">))</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">particles</span><span class="p">)):</span>
-        <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">nbe</span> <span class="o">=</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">nb0</span> <span class="o">*</span> <span class="n">dt</span>
+        <span class="n">nbe</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">nb0</span> <span class="o">*</span> <span class="n">dt</span>
+        <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">nbe</span> <span class="o">=</span> <span class="n">nbe</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
     
     <span class="c"># Get the velocity in the component directions</span>
     <span class="n">Uj</span> <span class="o">=</span> <span class="n">flux_to_velocity</span><span class="p">(</span><span class="n">Qj</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">phi_0</span><span class="p">,</span> <span class="n">theta_0</span><span class="p">)</span>
@@ -841,12 +942,12 @@
     <span class="n">q</span> <span class="o">=</span> <span class="p">[</span><span class="n">Mj</span><span class="p">,</span> <span class="n">Mj</span> <span class="o">*</span> <span class="n">Sj</span><span class="p">,</span> <span class="n">Mj</span> <span class="o">*</span> <span class="n">seawater</span><span class="o">.</span><span class="n">cp</span><span class="p">()</span> <span class="o">*</span> <span class="n">Tj</span><span class="p">,</span> <span class="n">Mj</span> <span class="o">*</span> <span class="n">Uj</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">Mj</span> <span class="o">*</span> <span class="n">Uj</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> 
           <span class="n">Mj</span> <span class="o">*</span> <span class="n">Uj</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">h</span> <span class="o">/</span> <span class="n">V</span><span class="p">,</span> <span class="n">X</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">X</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">X</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">s0</span><span class="p">]</span>
     
-    <span class="c"># Add in the dispersed phase variables, one particle at a time</span>
-    <span class="n">q</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">dispersed_phases</span><span class="o">.</span><span class="n">particles_state_space</span><span class="p">(</span><span class="n">particles</span><span class="p">))</span>
+    <span class="c"># Add in the state space for the dispersed phase particles</span>
+    <span class="n">q</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">dispersed_phases</span><span class="o">.</span><span class="n">particles_state_space</span><span class="p">(</span><span class="n">particles</span><span class="p">,</span> <span class="n">nbe</span><span class="p">))</span>
     
     <span class="c"># Add the ambient concentrations of the dispersed-phase chemicals</span>
     <span class="n">ca</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">chem_names</span><span class="p">)</span>
-    <span class="n">q</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">Mj</span><span class="o">*</span><span class="n">ca</span><span class="p">)</span>
+    <span class="n">q</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">Mj</span> <span class="o">/</span> <span class="n">rho_j</span> <span class="o">*</span> <span class="n">ca</span><span class="p">)</span>
     
     <span class="c"># Add in the tracers discharged with the jet</span>
     <span class="n">q</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">Mj</span><span class="o">*</span><span class="n">cj</span><span class="p">)</span>

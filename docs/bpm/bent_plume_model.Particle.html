@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.14',
+        VERSION:     '0.1.16',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -64,35 +64,37 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">July 10, 2015</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">September 08, 2015</td>
 </tr>
 </tbody>
 </table>
 <dl class="class">
 <dt id="bent_plume_model.Particle">
-<em class="property">class </em><code class="descclassname">bent_plume_model.</code><code class="descname">Particle</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>z</em>, <em>dbm_particle</em>, <em>m0</em>, <em>T0</em>, <em>nb0</em>, <em>lambda_1</em>, <em>P</em>, <em>Sa</em>, <em>Ta</em>, <em>K=1.0</em>, <em>K_T=1.0</em>, <em>fdis=1e-06</em>, <em>t_hyd=0.0</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/bent_plume_model.py#L793"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/bent_plume_model.html#Particle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bent_plume_model.Particle" title="Permalink to this definition">¶</a></dt>
-<dd><p>Interface to the <a class="reference internal" href="../modules/dbm.html#module-dbm" title="dbm"><code class="xref py py-obj docutils literal"><span class="pre">dbm</span></code></a> module tool for particle tracking</p>
-<p>This new <a class="reference internal" href="../modules/bpm.html#bent_plume_model.Particle" title="bent_plume_model.Particle"><code class="xref py py-obj docutils literal"><span class="pre">Particle</span></code></a> class is need to allow dispersed phase particles to 
-be tracked within the Lagrangian plume element during the solution.</p>
+<em class="property">class </em><code class="descclassname">bent_plume_model.</code><code class="descname">Particle</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>z</em>, <em>dbm_particle</em>, <em>m0</em>, <em>T0</em>, <em>nb0</em>, <em>lambda_1</em>, <em>P</em>, <em>Sa</em>, <em>Ta</em>, <em>K=1.0</em>, <em>K_T=1.0</em>, <em>fdis=1e-06</em>, <em>t_hyd=0.0</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/bent_plume_model.py#L757"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/bent_plume_model.html#Particle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bent_plume_model.Particle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Special model properties for tracking inside a Lagrangian plume object</p>
+<p>This new <a class="reference internal" href="../modules/bpm.html#bent_plume_model.Particle" title="bent_plume_model.Particle"><code class="xref py py-obj docutils literal"><span class="pre">Particle</span></code></a> class is needed to allow dispersed phase particles to 
+be tracked within the Lagrangian plume element during the solution and 
+to exit the plume at the right time.</p>
 <p>This object inherits the <a class="reference internal" href="../modules/disp_phases.html#dispersed_phases.PlumeParticle" title="dispersed_phases.PlumeParticle"><code class="xref py py-obj docutils literal"><span class="pre">dispersed_phases.PlumeParticle</span></code></a> object and 
 adds functionality for three-dimensional positioning and particle 
 tracking.  All behavior not associated with tracking is identical to 
-that in the <a class="reference internal" href="../modules/disp_phases.html#dispersed_phases.PlumeParticle" title="dispersed_phases.PlumeParticle"><code class="xref py py-obj docutils literal"><span class="pre">dispersed_phases.PlumeParticle</span></code></a> object.</p>
+that in the <a class="reference internal" href="../modules/disp_phases.html#dispersed_phases.PlumeParticle" title="dispersed_phases.PlumeParticle"><code class="xref py py-obj docutils literal"><span class="pre">dispersed_phases.PlumeParticle</span></code></a> object.  Moreover, this
+object can be used in a <a class="reference internal" href="../spm/stratified_plume_model.Model.html#stratified_plume_model.Model" title="stratified_plume_model.Model"><code class="xref py py-obj docutils literal"><span class="pre">stratified_plume_model.Model</span></code></a> simulation.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>x</strong> : float</p>
 <blockquote>
-<div><p>Current position of the <a class="reference internal" href="../modules/bpm.html#bent_plume_model.Particle" title="bent_plume_model.Particle"><code class="xref py py-obj docutils literal"><span class="pre">Particle</span></code></a> object in the x-direction (m)</p>
+<div><p>Initial position of the particle in the x-direction (m)</p>
 </div></blockquote>
 <p><strong>y</strong> : float</p>
 <blockquote>
-<div><p>Current position of the <a class="reference internal" href="../modules/bpm.html#bent_plume_model.Particle" title="bent_plume_model.Particle"><code class="xref py py-obj docutils literal"><span class="pre">Particle</span></code></a> object in the y-direction (m)</p>
+<div><p>Initial position of the particle in the y-direction (m)</p>
 </div></blockquote>
 <p><strong>z</strong> : float</p>
 <blockquote>
-<div><p>Current position of the <a class="reference internal" href="../modules/bpm.html#bent_plume_model.Particle" title="bent_plume_model.Particle"><code class="xref py py-obj docutils literal"><span class="pre">Particle</span></code></a> object in the z-direction (m)</p>
+<div><p>Initial position of the particle in the z-direction (m)</p>
 </div></blockquote>
 <p><strong>dbm_particle</strong> : <a class="reference internal" href="../modules/dbm.html#dbm.FluidParticle" title="dbm.FluidParticle"><code class="xref py py-obj docutils literal"><span class="pre">dbm.FluidParticle</span></code></a> or <a class="reference internal" href="../modules/dbm.html#dbm.InsolubleParticle" title="dbm.InsolubleParticle"><code class="xref py py-obj docutils literal"><span class="pre">dbm.InsolubleParticle</span></code></a> object</p>
 <blockquote>
@@ -109,7 +111,7 @@ that in the <a class="reference internal" href="../modules/disp_phases.html#disp
 </div></blockquote>
 <p><strong>nb0</strong> : float</p>
 <blockquote>
-<div><p>Initial number flux of particles at the release (&#8211;)</p>
+<div><p>Initial number flux of particles at the release (#/s)</p>
 </div></blockquote>
 <p><strong>lambda_1</strong> : float</p>
 <blockquote>
@@ -135,10 +137,10 @@ that in the <a class="reference internal" href="../modules/disp_phases.html#disp
 <blockquote>
 <div><p>Heat transfer reduction factor (&#8211;).</p>
 </div></blockquote>
-<p><strong>fdis</strong> : float, default = 0.01</p>
+<p><strong>fdis</strong> : float, default = 1.e-6</p>
 <blockquote class="last">
-<div><p>Fraction of the initial total mass (&#8211;) remaining when the particle 
-should be considered dissolved.</p>
+<div><p>Fraction (&#8211;) of the initial mass of each component of the mixture
+when that component should be considered totally dissolved.</p>
 </div></blockquote>
 </td>
 </tr>
@@ -151,28 +153,10 @@ should be considered dissolved.</p>
 <p class="rubric">Attributes</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="10%" />
-<col width="90%" />
+<col width="5%" />
+<col width="95%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td>t</td>
-<td>(float) Current age of the &#8216;Particle&#8217; object since its release (s)</td>
-</tr>
-<tr class="row-even"><td>x</td>
-<td>(float) Current position of the <a class="reference internal" href="../modules/bpm.html#bent_plume_model.Particle" title="bent_plume_model.Particle"><code class="xref py py-obj docutils literal"><span class="pre">Particle</span></code></a> object in the x-direction (m)</td>
-</tr>
-<tr class="row-odd"><td>y</td>
-<td>(float) Current position of the <a class="reference internal" href="../modules/bpm.html#bent_plume_model.Particle" title="bent_plume_model.Particle"><code class="xref py py-obj docutils literal"><span class="pre">Particle</span></code></a> object in the y-direction (m)</td>
-</tr>
-<tr class="row-even"><td>z</td>
-<td>(float) Current position of the <a class="reference internal" href="../modules/bpm.html#bent_plume_model.Particle" title="bent_plume_model.Particle"><code class="xref py py-obj docutils literal"><span class="pre">Particle</span></code></a> object in the z-direction (m)</td>
-</tr>
-<tr class="row-odd"><td>integrate</td>
-<td>(bool) Flag indicating whether or not this particle is inside the bent plume model and should be integrated</td>
-</tr>
-<tr class="row-even"><td>b_local</td>
-<td>(float) Width of the bent plume model at the location where the particle exited the plume.</td>
-</tr>
 <tr class="row-odd"><td>particle</td>
 <td>(<a class="reference internal" href="../modules/dbm.html#dbm.FluidParticle" title="dbm.FluidParticle"><code class="xref py py-obj docutils literal"><span class="pre">dbm.FluidParticle</span></code></a> or <a class="reference internal" href="../modules/dbm.html#dbm.InsolubleParticle" title="dbm.InsolubleParticle"><code class="xref py py-obj docutils literal"><span class="pre">dbm.InsolubleParticle</span></code></a> object) Stores the <em class="xref py py-obj">dbm_particle</em> object passed to at creation.</td>
 </tr>
@@ -200,35 +184,65 @@ should be considered dissolved.</p>
 <tr class="row-odd"><td>diss_indices</td>
 <td>(ndarray bool) Indices of m0 that are non-zero.</td>
 </tr>
-<tr class="row-even"><td>nb0</td>
-<td>(float) Initial number flux of particles at the release (&#8211;)</td>
+<tr class="row-even"><td>t_hyd</td>
+<td>(float) Formation time for a hydrate skin (s)</td>
+</tr>
+<tr class="row-odd"><td>nb0</td>
+<td>(float) Initial number flux of particles at the release (#/s)</td>
+</tr>
+<tr class="row-even"><td>nbe</td>
+<td>(float) Number of particles associated with a Lagrangian element (#).  This number with the mass per particle sets the total mass of particles inside the Lagrangian element at any given time.  This value is set by <a class="reference internal" href="lmp.bent_plume_ic.html#lmp.bent_plume_ic" title="lmp.bent_plume_ic"><code class="xref py py-obj docutils literal"><span class="pre">lmp.bent_plume_ic</span></code></a>.</td>
 </tr>
 <tr class="row-odd"><td>lambda_1</td>
 <td>(float) Spreading rate of the dispersed phase in a plume (&#8211;)</td>
 </tr>
 <tr class="row-even"><td>m</td>
-<td>(ndarray) Current masses of the particle components (kg)</td>
+<td>(ndarray) Masses of the particle components for a single particle (kg)</td>
 </tr>
-<tr class="row-odd"><td>T</td>
-<td>(float) Current temperature of the particle (K)</td>
-</tr>
-<tr class="row-even"><td>us</td>
+<tr class="row-odd"><td>us</td>
 <td>(float) Slip velocity (m/s)</td>
 </tr>
-<tr class="row-odd"><td>rho_p</td>
+<tr class="row-even"><td>rho_p</td>
 <td>(float) Particle density (kg/m^3)</td>
 </tr>
-<tr class="row-even"><td>A</td>
+<tr class="row-odd"><td>A</td>
 <td>(float) Particle surface area (m^2)</td>
 </tr>
-<tr class="row-odd"><td>Cs</td>
+<tr class="row-even"><td>Cs</td>
 <td>(ndarray) Solubility of each dissolving component in the particle (kg/m^3)</td>
 </tr>
-<tr class="row-even"><td>beta</td>
+<tr class="row-odd"><td>beta</td>
 <td>(ndarray) Mass transfer coefficients (m/s)</td>
 </tr>
-<tr class="row-odd"><td>beta_T</td>
+<tr class="row-even"><td>beta_T</td>
 <td>(float) Heat transfer coefficient (m/s)</td>
+</tr>
+<tr class="row-odd"><td>T</td>
+<td>(float) Temperature of the particle (K)</td>
+</tr>
+<tr class="row-even"><td>integrate</td>
+<td>(bool) Flag indicating whether or not the particle is still inside the plume, where its trajectory should continue to be integrated.</td>
+</tr>
+<tr class="row-odd"><td>t</td>
+<td>(float) Current time since the particle was released (s)</td>
+</tr>
+<tr class="row-even"><td>x</td>
+<td>(float) Current position of the particle in the x-direction (m)</td>
+</tr>
+<tr class="row-odd"><td>y</td>
+<td>(float) Current position of the particle in the y-direction (m)</td>
+</tr>
+<tr class="row-even"><td>z</td>
+<td>(float) Current position of the particle in the z-direction (m)</td>
+</tr>
+<tr class="row-odd"><td>p_fac</td>
+<td>(float) Buoyant force reduction factor due to a reduced buoyancy as the particle moves to the edge of the plume (&#8211;)</td>
+</tr>
+<tr class="row-even"><td>b_local</td>
+<td>(float) Width of the bent plume model at the location where the particle exited the plume.</td>
+</tr>
+<tr class="row-odd"><td>sbm</td>
+<td>(<a class="reference internal" href="../sbm/single_bubble_model.Model.html#single_bubble_model.Model" title="single_bubble_model.Model"><code class="xref py py-obj docutils literal"><span class="pre">single_bubble_model.Model</span></code></a> object) Model object for tracking the particle outside the plume</td>
 </tr>
 </tbody>
 </table>
@@ -243,10 +257,10 @@ should be considered dissolved.</p>
 <td>Remove the effect of particles if they are outside the plume</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="bent_plume_model.Particle.run_sbm.html#bent_plume_model.Particle.run_sbm" title="bent_plume_model.Particle.run_sbm"><code class="xref py py-obj docutils literal"><span class="pre">run_sbm</span></code></a>(profile)</td>
-<td>Set up and run the <a class="reference internal" href="../modules/sbm.html#module-single_bubble_model" title="single_bubble_model"><code class="xref py py-obj docutils literal"><span class="pre">single_bubble_model</span></code></a> to track outside plume</td>
+<td>Run the <a class="reference internal" href="../modules/sbm.html#module-single_bubble_model" title="single_bubble_model"><code class="xref py py-obj docutils literal"><span class="pre">single_bubble_model</span></code></a> to track particles outside the plume</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="bent_plume_model.Particle.track.html#bent_plume_model.Particle.track" title="bent_plume_model.Particle.track"><code class="xref py py-obj docutils literal"><span class="pre">track</span></code></a>(q0_local,&nbsp;q1_local,&nbsp;md,&nbsp;dt)</td>
-<td>Track a particle for one time step of the numerical solution</td>
+<tr class="row-odd"><td><a class="reference internal" href="bent_plume_model.Particle.track.html#bent_plume_model.Particle.track" title="bent_plume_model.Particle.track"><code class="xref py py-obj docutils literal"><span class="pre">track</span></code></a>(t_p,&nbsp;X_cl,&nbsp;X_p,&nbsp;q_local[,&nbsp;Ainv])</td>
+<td>Track the particle in the Lagragian plume model</td>
 </tr>
 </tbody>
 </table>
@@ -256,8 +270,8 @@ should be considered dissolved.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="bent_plume_model.Particle.track.html#bent_plume_model.Particle.track" title="bent_plume_model.Particle.track"><code class="xref py py-obj docutils literal"><span class="pre">Particle.track</span></code></a>(q0_local,&nbsp;q1_local,&nbsp;md,&nbsp;dt)</td>
-<td>Track a particle for one time step of the numerical solution</td>
+<tr class="row-odd"><td><a class="reference internal" href="bent_plume_model.Particle.track.html#bent_plume_model.Particle.track" title="bent_plume_model.Particle.track"><code class="xref py py-obj docutils literal"><span class="pre">Particle.track</span></code></a>(t_p,&nbsp;X_cl,&nbsp;X_p,&nbsp;q_local[,&nbsp;Ainv])</td>
+<td>Track the particle in the Lagragian plume model</td>
 </tr>
 </tbody>
 </table>

@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.14',
+        VERSION:     '0.1.16',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -60,7 +60,7 @@
 <h1>bent_plume_model.Model.save_txt<a class="headerlink" href="#bent-plume-model-model-save-txt" title="Permalink to this headline">¶</a></h1>
 <dl class="method">
 <dt id="bent_plume_model.Model.save_txt">
-<code class="descclassname">Model.</code><code class="descname">save_txt</code><span class="sig-paren">(</span><em>base_name</em>, <em>profile_path</em>, <em>profile_info</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/bent_plume_model.py#L491"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/bent_plume_model.html#Model.save_txt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bent_plume_model.Model.save_txt" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">Model.</code><code class="descname">save_txt</code><span class="sig-paren">(</span><em>base_name</em>, <em>profile_path</em>, <em>profile_info</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/bent_plume_model.py#L452"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/bent_plume_model.html#Model.save_txt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bent_plume_model.Model.save_txt" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save the state space in ascii text format for exporting</p>
 <p>Save the state space (dependent and independent variables) in an 
 ascii text file for exporting to other programs (e.g., Matlab).</p>
@@ -89,7 +89,7 @@ to the directory where <em class="xref py py-obj">fname</em> will be saved.</p>
 </table>
 <div class="admonition seealso">
 <p class="first admonition-title">See also</p>
-<p class="last"><a class="reference internal" href="../spm/stratified_plume_model.Model.save_txt.html#stratified_plume_model.Model.save_txt" title="stratified_plume_model.Model.save_txt"><code class="xref py py-obj docutils literal"><span class="pre">stratified_plume_model.Model.save_txt</span></code></a>, <a class="reference internal" href="../sbm/single_bubble_model.Model.save_txt.html#single_bubble_model.Model.save_txt" title="single_bubble_model.Model.save_txt"><code class="xref py py-obj docutils literal"><span class="pre">single_bubble_model.Model.save_txt</span></code></a></p>
+<p class="last"><a class="reference internal" href="bent_plume_model.Model.save_sim.html#bent_plume_model.Model.save_sim" title="bent_plume_model.Model.save_sim"><code class="xref py py-obj docutils literal"><span class="pre">save_sim</span></code></a>, <a class="reference internal" href="bent_plume_model.Model.load_sim.html#bent_plume_model.Model.load_sim" title="bent_plume_model.Model.load_sim"><code class="xref py py-obj docutils literal"><span class="pre">load_sim</span></code></a>, <a class="reference internal" href="../spm/stratified_plume_model.Model.save_txt.html#stratified_plume_model.Model.save_txt" title="stratified_plume_model.Model.save_txt"><code class="xref py py-obj docutils literal"><span class="pre">stratified_plume_model.Model.save_txt</span></code></a>, <a class="reference internal" href="../sbm/single_bubble_model.Model.save_txt.html#single_bubble_model.Model.save_txt" title="single_bubble_model.Model.save_txt"><code class="xref py py-obj docutils literal"><span class="pre">single_bubble_model.Model.save_txt</span></code></a></p>
 </div>
 <p class="rubric">Notes</p>
 <p>The output will be organized in columns, with each column as follows:</p>
@@ -99,6 +99,11 @@ to the directory where <em class="xref py py-obj">fname</em> will be saved.</p>
 <p>The header to the output file will give the extact organization of 
 each column of the output data.</p>
 <p>These output files are written using the <code class="xref py py-obj docutils literal"><span class="pre">numpy.savetxt</span></code> method.</p>
+<p>Note, also, that this only saves the state space solution, and the 
+data saved by this function is inadequate to rebuild the <a class="reference internal" href="../modules/bpm.html#bent_plume_model.Model" title="bent_plume_model.Model"><code class="xref py py-obj docutils literal"><span class="pre">Model</span></code></a> 
+object by reloading a saved solution.  To have seamless saving and
+loading of <a class="reference internal" href="../modules/bpm.html#bent_plume_model.Model" title="bent_plume_model.Model"><code class="xref py py-obj docutils literal"><span class="pre">Model</span></code></a> objects, use the <a class="reference internal" href="bent_plume_model.Model.save_sim.html#bent_plume_model.Model.save_sim" title="bent_plume_model.Model.save_sim"><code class="xref py py-obj docutils literal"><span class="pre">save_sim</span></code></a> and <a class="reference internal" href="bent_plume_model.Model.load_sim.html#bent_plume_model.Model.load_sim" title="bent_plume_model.Model.load_sim"><code class="xref py py-obj docutils literal"><span class="pre">load_sim</span></code></a> 
+commands.</p>
 </dd></dl>
 
 </div>

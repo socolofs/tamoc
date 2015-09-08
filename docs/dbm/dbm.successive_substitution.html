@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.14',
+        VERSION:     '0.1.16',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -64,13 +64,13 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">July 08, 2015</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">September 08, 2015</td>
 </tr>
 </tbody>
 </table>
 <dl class="function">
 <dt id="dbm.successive_substitution">
-<code class="descclassname">dbm.</code><code class="descname">successive_substitution</code><span class="sig-paren">(</span><em>m</em>, <em>T</em>, <em>P</em>, <em>max_iter</em>, <em>M</em>, <em>Pc</em>, <em>Tc</em>, <em>omega</em>, <em>delta</em>, <em>Aij</em>, <em>Bij</em>, <em>delta_groups</em>, <em>calc_delta</em>, <em>K</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/dbm.py#L2324"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/dbm.html#successive_substitution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dbm.successive_substitution" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">dbm.</code><code class="descname">successive_substitution</code><span class="sig-paren">(</span><em>m</em>, <em>T</em>, <em>P</em>, <em>max_iter</em>, <em>M</em>, <em>Pc</em>, <em>Tc</em>, <em>omega</em>, <em>delta</em>, <em>Aij</em>, <em>Bij</em>, <em>delta_groups</em>, <em>calc_delta</em>, <em>K</em>, <em>steps=0</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/dbm.py#L2315"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/dbm.html#successive_substitution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dbm.successive_substitution" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find K-factors by successive substitution</p>
 <p>Iterate to find a converged set of K-factors defining the gas/liquid
 partitioning of a mixture using successive substitution.  We follow the
@@ -146,11 +146,36 @@ False) using the group contribution method</p>
 function will use initial estimates from Wilson (see Michelsen and
 Mollerup, 2007, page 259, equation 26)</p>
 </div></blockquote>
+<p><strong>steps</strong> : int (default = 0)</p>
+<blockquote>
+<div><p>Number of previous iteration steps</p>
+</div></blockquote>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>K</strong> : ndarray, size (nc)</p>
-<blockquote class="last">
+<blockquote>
 <div><p>Final value of the K-factors</p>
+</div></blockquote>
+<p><strong>beta</strong> : float</p>
+<blockquote>
+<div><p>Fraction of gas or liquid (&#8211;)</p>
+</div></blockquote>
+<p><strong>xi</strong> : ndarray, size(2, nc)</p>
+<blockquote>
+<div><p>Mole fraction of each component in the mixture.  Row 1 gives the
+values for the gas phase and Row 2 gives the values for the liquid 
+phase (&#8211;)</p>
+</div></blockquote>
+<p><strong>exit_flag</strong> : int</p>
+<blockquote>
+<div><p>Flag indicating how the solution finished:  1: converged in the 
+allowable number of iterations, 0: did not converge and did not find
+any indication that it might be single phase, and -1: did not 
+converge, but it looks like it might be single phase.</p>
+</div></blockquote>
+<p><strong>steps</strong> : int</p>
+<blockquote class="last">
+<div><p>Total number of interation steps so far</p>
 </div></blockquote>
 </td>
 </tr>

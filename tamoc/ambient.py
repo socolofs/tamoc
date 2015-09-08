@@ -171,8 +171,6 @@ class Profile(object):
         
         # Build an interpolation function
         self.build_interpolator()
-        
-        
     
     def build_interpolator(self):
         """

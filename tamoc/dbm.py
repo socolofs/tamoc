@@ -539,9 +539,13 @@ class FluidMixture(object):
         n_tot = self.moles(m)
         
         # Get the total number of moles in gas phase using the first 
-        # component in the mixture (note that this is independent of 
+        # non-zero component in the mixture (note that this is independent of 
         # which component you pick):
-        ng = np.abs((n_tot[0] - (xi[1,0] * np.sum(n_tot)))/(xi[0,0]-xi[1,0]))
+        idx = 0
+        while m[idx] <= 0.:
+            idx += 1
+        ng = np.abs((n_tot[idx] - (xi[1,idx] * np.sum(n_tot))) / 
+            (xi[0,idx]-xi[1,idx]))
         
         # Get the moles of each component in gas (line 1) and liquid (line 2) 
         # phase
@@ -703,11 +707,11 @@ class FluidMixture(object):
         
         # Use root-finding to get the critical formation pressure
         if np.sum(m_gases) == 0.:
-            # Set T_hyd to the freezing point of pure water.  In this way, 
-            # no ocean temperatures will be found to be below the hydrate
-            # stability temperature, which is the desired behavior since 
-            # there are not hydrate forming compounds in the mixture.
-            T_hyd = 273.15
+            # Set T_hyd to zero. In this way, no ocean temperatures will be
+            # found to be below the hydrate stability temperature, which is
+            # the desired behavior since there are not hydrate forming
+            # compounds in the mixture.
+            T_hyd = 0.
             
         else:
             # Use the K_vsi method to find the hydrate stability temperature
@@ -2028,71 +2032,63 @@ def equil_MM(m, T, P, M, Pc, Tc, omega, delta, Aij, Bij, delta_groups,
     
     # Follow the procedure on page 266ff of Michelsen and Mollerup (2007).    
     # Start with three iterations of successive substitution
-    K, beta, xi, exit_flag = successive_substitution(
+    K, beta, xi, exit_flag, steps = successive_substitution(
                                  m, T, P, 3, M, Pc, Tc, omega, delta, Aij, 
                                  Bij, delta_groups, calc_delta, K)
     
-    # Test the outcome of the iterations to determine how to proceed.
-    if exit_flag > 0:
-        # The solution already converged.
-        pass
+    # Continue iterating if necessary until the solution converges
+    while exit_flag <= 0:
         
-    else:
-        # The solution has not converged, test the total Gibbs energy to 
-        # decide how to proceed.
-        Delta_G_RT, tpdx, tpdy, phi_liq, phi_gas = gibbs_energy(K)
-        
-        if Delta_G_RT < 0.:
-            # The current composition is converging on a lower total Gibbs
-            # energy than the feed: continue successive substitution
-            K, beta, xi, exit_flag = successive_substitution(
-                                         m, T, P, np.inf, M, Pc, Tc, omega, 
-                                         delta, Aij, Bij,  delta_groups, 
-                                         calc_delta, K)
-        
-        elif tpdy < 0.:
-            # The feed is unstable, but we need a better estimate of K
-            K = phi_zi / phi_gas
+        if exit_flag == 0:
+            # Test the total Gibbs energy to decide how to proceed.
+            Delta_G_RT, tpdx, tpdy, phi_liq, phi_gas = gibbs_energy(K)
             
-            # Continue with successive substitution
-            K, beta, xi, exit_flag = successive_substitution(
-                                         m, T, P, np.inf, M, Pc, Tc, omega, 
-                                         delta, Aij, Bij,  delta_groups, 
-                                         calc_delta, K)
-        
-        elif tpdx < 0.:
-            # The feed is unstable, but we need a better estimate of K
-            K = phi_liq / phi_zi
-            
-            # Continue with successive substitution
-            K, beta, xi, exit_flag = successive_substitution(
-                                         m, T, P, np.inf, M, Pc, Tc, omega, 
-                                         delta, Aij, Bij,  delta_groups, 
-                                         calc_delta, K)
-        
+            if Delta_G_RT < 0.:
+                # The current composition is converging on a lower total Gibbs
+                # energy than the feed: continue successive substitution
+                phases = 2
+                
+            elif tpdy < 0.:
+                # The feed is unstable, but we need a better estimate of K
+                K = phi_zi / phi_gas
+                phases = 2
+                
+            elif tpdx < 0.:
+                # The feed is unstable, but we need a better estimate of K
+                K = phi_liq / phi_zi
+                phases = 2
+                
+            else:
+                # We are not sure of the stability of the feed:  do stability
+                # analysis.
+                K, phases = stability_analysis(m, T, P, M, Pc, Tc, omega, 
+                                               delta, Aij, Bij, delta_groups,
+                                               calc_delta, K, zi, di)
         else:
-            # We are not sure of the stability of the feed:  do stability 
-            # analysis.
-            K, phases = stability_analysis(m, T, P, M, Pc, Tc, omega, delta, 
+            # We need to do stability analysis to proceed
+            K, phases = stability_analysis(m, T, P, M, Pc, Tc, omega, delta,
                                            Aij, Bij, delta_groups, 
                                            calc_delta, K, zi, di)
-            if phases > 1:
-                # The mixture is unstable, continue with successive 
-                # substitution
-                K, beta, xi, exit_flag = successive_substitution(
-                                             m, T, P, np.inf, M, Pc, Tc, omega, 
-                                             delta, Aij, Bij,  delta_groups, 
-                                             calc_delta, K)
-            else:
-                # The mixture is single-phase
-                xi = np.zeros((2,len(zi)))
-                if beta > 0.5:
-                    beta = 1.
-                    xi[0,:] = zi
-                else:
-                    beta = 0.
-                    xi[1,:] = zi
         
+        # Based on the updated estimate of K and phases, keep iterating or
+        # stop
+        if phases > 1:
+            # The mixture is unstable, continue with successive 
+            # substitution
+            K, beta, xi, exit_flag, steps = successive_substitution(
+                                         m, T, P, np.inf, M, Pc, Tc, omega, 
+                                         delta, Aij, Bij,  delta_groups, 
+                                         calc_delta, K, steps)
+        else:
+            # The mixture is single-phase
+            xi = np.zeros((2,len(zi)))
+            if beta > 0.5:
+                beta = 1.
+                xi[0,:] = zi
+            else:
+                beta = 0.
+                xi[1,:] = zi
+    
     # Return the optimized mixture composition
     return (xi, beta, K)
 
@@ -2317,7 +2313,7 @@ def stability_analysis(m, T, P, M, Pc, Tc, omega, delta, Aij, Bij,
 
 
 def successive_substitution(m, T, P, max_iter, M, Pc, Tc, omega, delta, Aij, 
-                            Bij, delta_groups, calc_delta, K):
+                            Bij, delta_groups, calc_delta, K, steps=0):
     """
     Find K-factors by successive substitution
     
@@ -2366,11 +2362,26 @@ def successive_substitution(m, T, P, max_iter, M, Pc, Tc, omega, delta, Aij,
         Initial guess for the partition coefficients.  If K = None, this 
         function will use initial estimates from Wilson (see Michelsen and
         Mollerup, 2007, page 259, equation 26)
+    steps : int (default = 0)
+        Number of previous iteration steps
     
     Returns
     -------
     K : ndarray, size (nc)
         Final value of the K-factors
+    beta : float
+        Fraction of gas or liquid (--)
+    xi : ndarray, size(2, nc)
+        Mole fraction of each component in the mixture.  Row 1 gives the
+        values for the gas phase and Row 2 gives the values for the liquid 
+        phase (--)
+    exit_flag : int
+        Flag indicating how the solution finished:  1: converged in the 
+        allowable number of iterations, 0: did not converge and did not find
+        any indication that it might be single phase, and -1: did not 
+        converge, but it looks like it might be single phase.
+    steps : int
+        Total number of interation steps so far
     
     Notes
     -----
@@ -2419,29 +2430,43 @@ def successive_substitution(m, T, P, max_iter, M, Pc, Tc, omega, delta, Aij,
         K_new[np.isnan(K_new)] = 0.
         
         # Return an updated value for the K factors
-        return K_new
+        return (K_new, beta)
     
     # Set up the iteration parameters
     tol = 1.49012e-8  # Suggested by McCain (1990)
     err = 1.
-    steps = 0
+    stop = False
     
     # Iterate to find the final value of K factor using successive 
     # substitution
-    while err > tol and steps < max_iter:
+    while err > tol and steps < max_iter and not stop:
         # Save the current value of K factor
         K_old = K
         
         # Update the estimate of K factor using the present fugacities
-        K = update_K(K)
-        
-        # Compute the current error basedo on the squared relative error 
-        # suggested by McCain (1990) and update the iteration counter
-        err = np.nansum((K - K_old)**2 / (K * K_old))
+        K, beta = update_K(K)
         steps += 1
+        
+        if beta == 1 or beta == 0:
+            # The current estimate thinks it might be single-phase. 
+            if steps > 2:
+                # we should do stability analysis to check if this is single
+                # phase or not...stop iterating
+                stop = True
+                steps += 1
+            
+        else:
+            # Compute the current error based on the squared relative error 
+            # suggested by McCain (1990) and update the iteration counter
+            err = np.nansum((K - K_old)**2 / (K * K_old))
+            steps += 1
     
     # Determine the exit condition
-    if steps < max_iter:
+    if stop:
+        # We are converging on single phase, but need to do stability analysis
+        # to check
+        flag = -1
+    elif steps < max_iter:
         # This solution is converged
         flag = 1
     else:
@@ -2449,7 +2474,7 @@ def successive_substitution(m, T, P, max_iter, M, Pc, Tc, omega, delta, Aij,
     
     # Update the equilibrium and return the last value of K-factor
     xi, beta = gas_liq_eq(m, M, K)
-    return (K, beta, xi, flag)
+    return (K, beta, xi, flag, steps)
 
 
 def gas_liq_eq(m, M, K):

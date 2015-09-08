@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.14',
+        VERSION:     '0.1.16',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -64,13 +64,13 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">July 10, 2015</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">September 08, 2015</td>
 </tr>
 </tbody>
 </table>
 <dl class="class">
 <dt id="bent_plume_model.LagElement">
-<em class="property">class </em><code class="descclassname">bent_plume_model.</code><code class="descname">LagElement</code><span class="sig-paren">(</span><em>t0</em>, <em>q0</em>, <em>tp0</em>, <em>sp0</em>, <em>D</em>, <em>profile</em>, <em>p</em>, <em>particles</em>, <em>tracers</em>, <em>chem_names</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/bent_plume_model.py#L1139"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/bent_plume_model.html#LagElement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bent_plume_model.LagElement" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">bent_plume_model.</code><code class="descname">LagElement</code><span class="sig-paren">(</span><em>t0</em>, <em>q0</em>, <em>D</em>, <em>profile</em>, <em>p</em>, <em>particles</em>, <em>tracers</em>, <em>chem_names</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/bent_plume_model.py#L1031"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/bent_plume_model.html#LagElement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bent_plume_model.LagElement" title="Permalink to this definition">¶</a></dt>
 <dd><p>Manages the Lagragian plume element state space and derived variables</p>
 <p>Translates the state space variables for a Lagrangian plume element into
 its individual parts and derived quantitites.</p>
@@ -203,8 +203,14 @@ the discharge through <em class="xref py py-obj">cj</em>.</p>
 <tr class="row-even"><td>H_p</td>
 <td>(ndarray) Total heat flux for each particle (J/s)</td>
 </tr>
+<tr class="row-odd"><td>t_p</td>
+<td>(ndarray) Time since release for each particle (s)</td>
+</tr>
+<tr class="row-even"><td>X_p</td>
+<td>(ndarray) Position of each particle in local plume coordinates (l,n,m) (m).</td>
+</tr>
 <tr class="row-odd"><td>cpe</td>
-<td>(ndarray) Masses of the chemical components involved in dissolution (kg/m^2 kg)</td>
+<td>(ndarray) Masses of the chemical components involved in dissolution (kg)</td>
 </tr>
 <tr class="row-even"><td>cte</td>
 <td>(ndarray) Masses of the passive tracers in the plume (concentration kg)</td>
@@ -279,7 +285,7 @@ the discharge through <em class="xref py py-obj">cj</em>.</p>
 <td>(float) The cosine of the angle theta (&#8211;)</td>
 </tr>
 <tr class="row-even"><td>phi</td>
-<td>(float) The vertical angle from horizontal of the current plume trajectory (rad in range +/- pi/2)</td>
+<td>(float) The vertical angle from horizontal of the current plume trajectory (rad in range +/- pi/2).  Since z is positive down (depth), phi = pi/2 point down and -pi/2 points up.</td>
 </tr>
 <tr class="row-odd"><td>theta</td>
 <td>(float) The lateral angle in the horizontal plane from the x-axis to the current plume trajectory (rad in range 0 to 2 pi)</td>
@@ -290,10 +296,13 @@ the discharge through <em class="xref py py-obj">cj</em>.</p>
 <tr class="row-odd"><td>fb</td>
 <td>(ndarray) Buoyant force for each of the dispersed phase particles in the <em class="xref py py-obj">particles</em> variable as density difference (kg/m^3)</td>
 </tr>
-<tr class="row-even"><td>Mp</td>
+<tr class="row-even"><td>x_p</td>
+<td>(ndarray)</td>
+</tr>
+<tr class="row-odd"><td>Mp</td>
 <td>(float) Total mass of dispersed phases in the Lagrangian element (kg)</td>
 </tr>
-<tr class="row-odd"><td>Fb</td>
+<tr class="row-even"><td>Fb</td>
 <td>(float) Total buoyant force as density difference of the dispersed phases in the Lagrangian element (kg/m^3)</td>
 </tr>
 </tbody>
@@ -305,7 +314,7 @@ the discharge through <em class="xref py py-obj">cj</em>.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="bent_plume_model.LagElement.update.html#bent_plume_model.LagElement.update" title="bent_plume_model.LagElement.update"><code class="xref py py-obj docutils literal"><span class="pre">update</span></code></a>(t,&nbsp;q,&nbsp;tp,&nbsp;sp,&nbsp;profile,&nbsp;p[,&nbsp;particles])</td>
+<tr class="row-odd"><td><a class="reference internal" href="bent_plume_model.LagElement.update.html#bent_plume_model.LagElement.update" title="bent_plume_model.LagElement.update"><code class="xref py py-obj docutils literal"><span class="pre">update</span></code></a>(t,&nbsp;q,&nbsp;profile,&nbsp;p[,&nbsp;particles])</td>
 <td>Update the <a class="reference internal" href="../modules/bpm.html#bent_plume_model.LagElement" title="bent_plume_model.LagElement"><code class="xref py py-obj docutils literal"><span class="pre">LagElement</span></code></a> object with the current local conditions</td>
 </tr>
 </tbody>
@@ -316,7 +325,7 @@ the discharge through <em class="xref py py-obj">cj</em>.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="bent_plume_model.LagElement.update.html#bent_plume_model.LagElement.update" title="bent_plume_model.LagElement.update"><code class="xref py py-obj docutils literal"><span class="pre">LagElement.update</span></code></a>(t,&nbsp;q,&nbsp;tp,&nbsp;sp,&nbsp;profile,&nbsp;p)</td>
+<tr class="row-odd"><td><a class="reference internal" href="bent_plume_model.LagElement.update.html#bent_plume_model.LagElement.update" title="bent_plume_model.LagElement.update"><code class="xref py py-obj docutils literal"><span class="pre">LagElement.update</span></code></a>(t,&nbsp;q,&nbsp;profile,&nbsp;p[,&nbsp;particles])</td>
 <td>Update the <a class="reference internal" href="../modules/bpm.html#bent_plume_model.LagElement" title="bent_plume_model.LagElement"><code class="xref py py-obj docutils literal"><span class="pre">LagElement</span></code></a> object with the current local conditions</td>
 </tr>
 </tbody>

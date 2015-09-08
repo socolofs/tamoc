@@ -62,7 +62,7 @@ def make_ctd_file():
     __location__ = os.path.realpath(os.path.join(os.getcwd(),
                                     os.path.dirname(__file__), 
                                     'output'))
-    nc_file = os.path.join(__location__,'test_BM54.nc')
+    nc_file = os.path.join(__location__,file)
     
     try:
         # Load the dataset if it exists
@@ -358,10 +358,10 @@ def test_simulation():
         -2.92955049e-13, -3.00676749e-14, -1.54789975e-07]), decimal = 6)
     
     # Write the output files
-    sbm.save_sim('./output/sbm_data.nc', './test_bm54.nc', 
+    sbm.save_sim('./output/sbm_data.nc', './test_BM54.nc', 
                  'Results of ./test_sbm.py script')
     
-    sbm.save_txt('./output/sbm_data.txt', './test_bm54.nc', 
+    sbm.save_txt('./output/sbm_data.txt', './test_BM54.nc', 
                  'Results of ./test_sbm.py script')
     
     # Reload the simulation

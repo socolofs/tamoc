@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.14',
+        VERSION:     '0.1.16',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -71,7 +71,8 @@
 <span class="sd">Notes </span>
 <span class="sd">----- </span>
 <span class="sd">This model is a Lagrangian plume integral model following the approach in</span>
-<span class="sd">Lee and Cheung (1990) for single-phase plumes and adapted to multiphase plumes</span>
+<span class="sd">Lee and Cheung (1990) for single-phase plumes, updated using the shear </span>
+<span class="sd">entrainment formulation in Jirka (2004), and adapted to multiphase plumes</span>
 <span class="sd">following the methods of Johansen (2000, 2003) and Zheng and Yapa (1997).</span>
 <span class="sd">Several modifications are made to make the model consistent with the approach</span>
 <span class="sd">in Socolofsky et al. (2008) and to match the available validation data.</span>
@@ -185,32 +186,28 @@
 <span class="sd">    sd_max : float</span>
 <span class="sd">        Maximum number of orifice diameters to compute the solution along</span>
 <span class="sd">        the plume centerline (m/m)</span>
+<span class="sd">    K_T0 : ndarray</span>
+<span class="sd">        Array of heat transfer reduction factors for the particle objects</span>
+<span class="sd">        which is used to restart heat transfer after the simulation ends</span>
+<span class="sd">        since during simulation, heat transfer is turned off.</span>
 <span class="sd">    chem_names : string list</span>
 <span class="sd">        List of chemical parameters to track for the dissolution.  Only the </span>
 <span class="sd">        parameters in this list will be used to set background concentration</span>
 <span class="sd">        for the dissolution, and the concentrations of these parameters are </span>
 <span class="sd">        computed separately from those listed in `tracers` or inputed from</span>
 <span class="sd">        the discharge through `cj`.</span>
+<span class="sd">    q_local : `LagElement` object</span>
+<span class="sd">        Object that translates the `Model` state space `t` and `q` into the </span>
+<span class="sd">        comprehensive list of derived variables.</span>
 <span class="sd">    t : ndarray</span>
 <span class="sd">        Array of times computed in the solution (s)</span>
 <span class="sd">    q : ndarray</span>
 <span class="sd">        Array of state space values computed in the solution</span>
-<span class="sd">    tp : ndarray</span>
-<span class="sd">        Age of each particle in the `particles` list where each row is one</span>
-<span class="sd">        iteration of the solution and the columns are (tp0, tp1, ... tpn),</span>
-<span class="sd">        where n is the number of dispersed phase particles in the simulation.</span>
-<span class="sd">    sp : ndarray</span>
-<span class="sd">        Trajectory of the each particle in the `particles` list where each</span>
-<span class="sd">        row is one iteration of the solution and the columns are (x0, y0, </span>
-<span class="sd">        z0, x1, y1, z1, ... xn, yn, zn), where n is the number of dispersed</span>
-<span class="sd">        phase particles in the simulation.</span>
-<span class="sd">    q_local : `LagElement` object</span>
-<span class="sd">        Object that translates the `Model` state space `t` and `q` into the </span>
-<span class="sd">        comprehensive list of derived variables.</span>
 <span class="sd">    </span>
 <span class="sd">    See Also</span>
 <span class="sd">    --------</span>
-<span class="sd">    simulate, save_sim, load_sim, plot_state_space, plot_all_variables</span>
+<span class="sd">    simulate, save_sim, save_txt, load_sim, plot_state_space, </span>
+<span class="sd">    plot_all_variables</span>
 <span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">simfile</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
@@ -219,6 +216,7 @@
         <span class="k">if</span> <span class="n">profile</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="c"># Create a Model object from a save file</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">load_sim</span><span class="p">(</span><span class="n">simfile</span><span class="p">)</span>
+        
         <span class="k">else</span><span class="p">:</span>
             <span class="c"># Create a new Model object</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">profile</span> <span class="o">=</span> <span class="n">profile</span>
@@ -238,8 +236,8 @@
 <span class="sd">        </span>
 <span class="sd">        Simulate the buoyant plume using a Lagrangian plume integral model</span>
 <span class="sd">        approach until the plume reaches the surface, the integration </span>
-<span class="sd">        exceeds the given s/D, or the intrusion reaches a point of neutral</span>
-<span class="sd">        buoyancy.  </span>
+<span class="sd">        exceeds the given s/D (`sd_max`), or the intrusion reaches a point of </span>
+<span class="sd">        neutral buoyancy.</span>
 <span class="sd">        </span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -289,7 +287,7 @@
         <span class="c"># Make sure the position is an array</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-                <span class="c"># Assume using specified the depth only</span>
+                <span class="c"># Assume user specified the depth only</span>
                 <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="n">X</span><span class="p">])</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
@@ -314,30 +312,29 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">cj</span> <span class="o">=</span> <span class="n">cj</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tracers</span> <span class="o">=</span> <span class="n">tracers</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">particles</span> <span class="o">=</span> <span class="n">particles</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">K_T0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">K_T</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> 
-                              <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">))])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">track</span> <span class="o">=</span> <span class="n">track</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dt_max</span> <span class="o">=</span> <span class="n">dt_max</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sd_max</span> <span class="o">=</span> <span class="n">sd_max</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">K_T0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">K_T</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> 
+                              <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">))])</span>
         
         <span class="c"># Create the initial state space from the given input variables</span>
-        <span class="n">t0</span><span class="p">,</span> <span class="n">q0</span><span class="p">,</span> <span class="n">tp0</span><span class="p">,</span> <span class="n">sp0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chem_names</span> <span class="o">=</span> <span class="n">lmp</span><span class="o">.</span><span class="n">main_ic</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> 
+        <span class="n">t0</span><span class="p">,</span> <span class="n">q0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chem_names</span> <span class="o">=</span> <span class="n">lmp</span><span class="o">.</span><span class="n">main_ic</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> 
             <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">D</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Vj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi_0</span><span class="p">,</span> 
             <span class="bp">self</span><span class="o">.</span><span class="n">theta_0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Sj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracers</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">)</span>
         
         <span class="c"># Store the initial conditions in a Lagrangian element object</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">q_local</span> <span class="o">=</span> <span class="n">LagElement</span><span class="p">(</span><span class="n">t0</span><span class="p">,</span> <span class="n">q0</span><span class="p">,</span> <span class="n">tp0</span><span class="p">,</span> <span class="n">sp0</span><span class="p">,</span> <span class="n">D</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">,</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">q_local</span> <span class="o">=</span> <span class="n">LagElement</span><span class="p">(</span><span class="n">t0</span><span class="p">,</span> <span class="n">q0</span><span class="p">,</span> <span class="n">D</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">,</span> 
                        <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracers</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chem_names</span><span class="p">)</span>
         
         <span class="c"># Compute the buoyant jet trajectory</span>
         <span class="k">print</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">-- TEXAS A&amp;M OIL-SPILL CALCULATOR (TAMOC) --&#39;</span>
         <span class="k">print</span> <span class="s">&#39;-- Bent Plume Model                       --</span><span class="se">\n</span><span class="s">&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sp</span><span class="o">=</span> <span class="n">lmp</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="n">t0</span><span class="p">,</span> <span class="n">q0</span><span class="p">,</span> <span class="n">tp0</span><span class="p">,</span> <span class="n">sp0</span><span class="p">,</span> 
-            <span class="bp">self</span><span class="o">.</span><span class="n">q_local</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">,</span> <span class="n">lmp</span><span class="o">.</span><span class="n">derivs</span><span class="p">,</span> 
-            <span class="bp">self</span><span class="o">.</span><span class="n">dt_max</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sd_max</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">,</span> <span class="o">=</span> <span class="n">lmp</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="n">t0</span><span class="p">,</span> <span class="n">q0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_local</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">,</span> <span class="n">lmp</span><span class="o">.</span><span class="n">derivs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt_max</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sd_max</span><span class="p">)</span>
         
         <span class="c"># Track the particles</span>
-        <span class="k">if</span> <span class="n">track</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">track</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">)):</span>
                 <span class="k">if</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">integrate</span> <span class="ow">is</span> <span class="bp">False</span> <span class="ow">and</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">z</span> <span class="o">&gt;</span> <span class="mf">0.</span><span class="p">:</span>
                     <span class="k">print</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">Tracking Particle </span><span class="si">%d</span><span class="s"> of </span><span class="si">%d</span><span class="s">:&#39;</span> <span class="o">%</span> \
@@ -347,8 +344,9 @@
         <span class="c"># Update the status of the solution</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sim_stored</span> <span class="o">=</span> <span class="bp">True</span>
         
-        <span class="c"># Restart heat transfer</span>
+        <span class="c"># Update the status of the particles</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">sim_stored</span> <span class="o">=</span> <span class="bp">True</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">K_T</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">K_T0</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
         </div>
 <div class="viewcode-block" id="Model.save_sim"><a class="viewcode-back" href="../bpm/bent_plume_model.Model.save_sim.html#bent_plume_model.Model.save_sim">[docs]</a>    <span class="k">def</span> <span class="nf">save_sim</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">profile_path</span><span class="p">,</span> <span class="n">profile_info</span><span class="p">):</span>
@@ -399,7 +397,6 @@
         <span class="n">t</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createDimension</span><span class="p">(</span><span class="s">&#39;t&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
         <span class="n">p</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createDimension</span><span class="p">(</span><span class="s">&#39;profile&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">ns</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createDimension</span><span class="p">(</span><span class="s">&#39;ns&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">q_local</span><span class="o">.</span><span class="n">q0</span><span class="p">))</span>
-        <span class="n">sp</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createDimension</span><span class="p">(</span><span class="s">&#39;sp&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">)</span> <span class="o">*</span> <span class="mi">3</span><span class="p">)</span>
         <span class="n">params</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createDimension</span><span class="p">(</span><span class="s">&#39;params&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         
         <span class="c"># Save the names of the chemicals in the tracers and particle objects</span>
@@ -409,25 +406,6 @@
         <span class="c"># Save the standard variables for the particles objects</span>
         <span class="n">dispersed_phases</span><span class="o">.</span><span class="n">save_particle_to_nc_file</span><span class="p">(</span><span class="n">nc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chem_names</span><span class="p">,</span> 
             <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">K_T0</span><span class="p">)</span>
-        
-        <span class="c"># Store the remaining particle data for a Lagrangian plume Particle</span>
-        <span class="c"># object</span>
-        <span class="n">xp</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;xp&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;t&#39;</span><span class="p">,</span> <span class="s">&#39;nparticles&#39;</span><span class="p">,))</span>
-        <span class="n">xp</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;particle x-coordinate&#39;</span>
-        <span class="n">xp</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;x&#39;</span>
-        <span class="n">xp</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;m&#39;</span>
-        <span class="n">yp</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;yp&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;t&#39;</span><span class="p">,</span> <span class="s">&#39;nparticles&#39;</span><span class="p">,))</span>
-        <span class="n">yp</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;particle y-coordinate&#39;</span>
-        <span class="n">yp</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;y&#39;</span>
-        <span class="n">yp</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;m&#39;</span>
-        <span class="n">zp</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;zp&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;t&#39;</span><span class="p">,</span> <span class="s">&#39;nparticles&#39;</span><span class="p">,))</span>
-        <span class="n">zp</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;particle z-coordinate&#39;</span>
-        <span class="n">zp</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;z&#39;</span>
-        <span class="n">zp</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;m&#39;</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">)):</span>
-            <span class="n">xp</span><span class="p">[:,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sp</span><span class="p">[:,</span> <span class="mi">3</span><span class="o">*</span><span class="n">i</span><span class="p">]</span>
-            <span class="n">yp</span><span class="p">[:,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sp</span><span class="p">[:,</span> <span class="mi">3</span><span class="o">*</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
-            <span class="n">zp</span><span class="p">[:,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sp</span><span class="p">[:,</span> <span class="mi">3</span><span class="o">*</span><span class="n">i</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span>
         
         <span class="c"># Store the independent variable</span>
         <span class="n">t</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;t&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;t&#39;</span><span class="p">,</span> <span class="s">&#39;profile&#39;</span><span class="p">,))</span>
@@ -465,23 +443,6 @@
         <span class="n">z0</span><span class="o">.</span><span class="n">axis</span> <span class="o">=</span> <span class="s">&#39;Z&#39;</span>
         <span class="n">z0</span><span class="o">.</span><span class="n">positive</span> <span class="o">=</span> <span class="s">&#39;down&#39;</span>
         <span class="n">z0</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
-        <span class="n">Ta0</span><span class="p">,</span> <span class="n">Sa0</span><span class="p">,</span> <span class="n">P0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> 
-                          <span class="p">[</span><span class="s">&#39;temperature&#39;</span><span class="p">,</span> <span class="s">&#39;salinity&#39;</span><span class="p">,</span> <span class="s">&#39;pressure&#39;</span><span class="p">])</span>
-        <span class="n">Ta</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;Ta&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;params&#39;</span><span class="p">,))</span>
-        <span class="n">Ta</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;ambient temperature at the release point&#39;</span>
-        <span class="n">Ta</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;Ta&#39;</span>
-        <span class="n">Ta</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;K&#39;</span>
-        <span class="n">Ta</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">Ta0</span>
-        <span class="n">Sa</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;Sa&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;params&#39;</span><span class="p">,))</span>
-        <span class="n">Sa</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;ambient salinity at the release point&#39;</span>
-        <span class="n">Sa</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;Sa&#39;</span>
-        <span class="n">Sa</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;psu&#39;</span>
-        <span class="n">Sa</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">Sa0</span>
-        <span class="n">P</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;P&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;params&#39;</span><span class="p">,))</span>
-        <span class="n">P</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;ambient pressure at the release point&#39;</span>
-        <span class="n">P</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;P&#39;</span>
-        <span class="n">P</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;Pa&#39;</span>
-        <span class="n">P</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">P0</span>
         <span class="n">D</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;D&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;params&#39;</span><span class="p">,))</span>
         <span class="n">D</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;Orifice diameter&#39;</span>
         <span class="n">D</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;diameter&#39;</span>
@@ -560,7 +521,8 @@
 <span class="sd">        </span>
 <span class="sd">        See Also</span>
 <span class="sd">        --------</span>
-<span class="sd">        stratified_plume_model.Model.save_txt, single_bubble_model.Model.save_txt</span>
+<span class="sd">        save_sim, load_sim, stratified_plume_model.Model.save_txt, </span>
+<span class="sd">        single_bubble_model.Model.save_txt</span>
 <span class="sd">        </span>
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
@@ -573,6 +535,12 @@
 <span class="sd">        each column of the output data.</span>
 <span class="sd">        </span>
 <span class="sd">        These output files are written using the `numpy.savetxt` method.</span>
+<span class="sd">        </span>
+<span class="sd">        Note, also, that this only saves the state space solution, and the </span>
+<span class="sd">        data saved by this function is inadequate to rebuild the `Model` </span>
+<span class="sd">        object by reloading a saved solution.  To have seamless saving and</span>
+<span class="sd">        loading of `Model` objects, use the `save_sim` and `load_sim` </span>
+<span class="sd">        commands.</span>
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_stored</span> <span class="ow">is</span> <span class="bp">False</span><span class="p">:</span>
@@ -592,8 +560,8 @@
         <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;Column Descriptions:</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
         <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;    0: time (s)</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
         <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;    1: mass (kg)</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
-        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;    2: salinity flux (psu kg/s)</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
-        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;    3: heat flux (J/s)</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;    2: salinity (psu)</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;    3: heat (J)</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
         <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;    4: x-direction momentum (kg m/s)</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
         <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;    5: y-direction momentum (kg m/s)</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
         <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;    6: z-direction momentum (kg m/s)</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
@@ -607,18 +575,30 @@
             <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chem_names</span><span class="p">)):</span>
                 <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span>
                 <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="s">&#39;    </span><span class="si">%d</span><span class="s">: Total mass flux of </span><span class="si">%s</span><span class="s"> in particle </span><span class="si">%d</span><span class="s"> in kg/s</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span>
+                    <span class="s">&#39;    </span><span class="si">%d</span><span class="s">: Total mass flux of </span><span class="si">%s</span><span class="s"> in particle </span><span class="si">%d</span><span class="s"> (kg/s)</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span>
                     <span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">composition</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">i</span><span class="p">))</span>
             <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;    </span><span class="si">%d</span><span class="s">: Total heat flux of particle </span><span class="si">%d</span><span class="s"> in J/s</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span>
+            <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;    </span><span class="si">%d</span><span class="s">: Total heat flux of particle </span><span class="si">%d</span><span class="s"> (J/s)</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span>
                           <span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+            <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;    </span><span class="si">%d</span><span class="s">: Time since release of particle </span><span class="si">%d</span><span class="s"> (s)</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span>
+                          <span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+            <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;    </span><span class="si">%d</span><span class="s">: Lambda coordinate of particle </span><span class="si">%d</span><span class="s"> (m)</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span>
+                          <span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+            <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;    </span><span class="si">%d</span><span class="s">: Eta coordinate of particle </span><span class="si">%d</span><span class="s"> (m)</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span>
+                          <span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+            <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;    </span><span class="si">%d</span><span class="s">: Csi coordinate of particle </span><span class="si">%d</span><span class="s"> (m)</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span>
+                          <span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>            
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chem_names</span><span class="p">)):</span>
             <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;    </span><span class="si">%d</span><span class="s">: Mass flux of dissolved </span><span class="si">%s</span><span class="s"> in kg/s</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> 
+            <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;    </span><span class="si">%d</span><span class="s">: Mass of dissolved </span><span class="si">%s</span><span class="s"> (kg)</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> 
                           <span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chem_names</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tracers</span><span class="p">)):</span>
             <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;    </span><span class="si">%d</span><span class="s">: Mass flux of </span><span class="si">%s</span><span class="s"> in kg/s</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> 
+            <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;    </span><span class="si">%d</span><span class="s">: Mass of </span><span class="si">%s</span><span class="s"> in (kg)</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> 
                           <span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracers</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
         <span class="n">header</span> <span class="o">=</span> <span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">p_list</span><span class="p">)</span>
         
@@ -701,21 +681,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">nt</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;t&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="n">nt</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nt</span><span class="p">,</span> <span class="n">ns</span><span class="p">))</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ns</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">[:,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;q&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="n">nt</span><span class="p">,</span><span class="n">i</span><span class="p">]</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">sp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nt</span><span class="p">,</span> <span class="mi">3</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">)))</span>
-            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">)):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">sp</span><span class="p">[:,</span><span class="n">i</span><span class="o">*</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;xp&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="n">nt</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">sp</span><span class="p">[:,</span><span class="n">i</span><span class="o">*</span><span class="mi">3</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;yp&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="n">nt</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">sp</span><span class="p">[:,</span><span class="n">i</span><span class="o">*</span><span class="mi">3</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;zp&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="n">nt</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">xp</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="n">sp</span> <span class="o">=</span> <span class="p">[</span><span class="n">xp</span><span class="p">]</span>
-            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">length</span><span class="p">(</span><span class="n">dt</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
-                <span class="n">xp</span> <span class="o">=</span> <span class="p">[]</span>
-                <span class="n">sp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">xp</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">sp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sp</span><span class="p">)</span>
         
         <span class="c"># Create the local Lagrangian plume element</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">q_local</span> <span class="o">=</span> <span class="n">LagElement</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">[</span><span class="mi">0</span><span class="p">,:],</span> <span class="bp">self</span><span class="o">.</span><span class="n">D</span><span class="p">,</span> 
@@ -750,10 +715,10 @@
         
         <span class="c"># Plot the results</span>
         <span class="k">print</span> <span class="s">&#39;Plotting the state space...&#39;</span>
-        <span class="n">plot_state_space</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">,</span> 
-            <span class="n">fig</span><span class="p">)</span>
+        <span class="n">plot_state_space</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_local</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">,</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">,</span> <span class="n">fig</span><span class="p">)</span>
         <span class="k">print</span> <span class="s">&#39;Done.</span><span class="se">\n</span><span class="s">&#39;</span>
-</div>
+    </div>
 <div class="viewcode-block" id="Model.plot_all_variables"><a class="viewcode-back" href="../bpm/bent_plume_model.Model.plot_all_variables.html#bent_plume_model.Model.plot_all_variables">[docs]</a>    <span class="k">def</span> <span class="nf">plot_all_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fig</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Plot a comprehensive suite of simulation results</span>
@@ -779,9 +744,8 @@
         
         <span class="c"># Plot the results</span>
         <span class="k">print</span> <span class="s">&#39;Plotting the full variable suite...&#39;</span>
-        <span class="n">plot_all_variables</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_local</span><span class="p">,</span> 
-                           <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">track</span><span class="p">,</span> 
-                           <span class="n">fig</span><span class="p">)</span>
+        <span class="n">plot_all_variables</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_local</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">track</span><span class="p">,</span> <span class="n">fig</span><span class="p">)</span>
         <span class="k">print</span> <span class="s">&#39;Done.</span><span class="se">\n</span><span class="s">&#39;</span>
 
 
@@ -803,12 +767,12 @@
 <span class="sd">    </span>
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
-<span class="sd">    alpha : float</span>
-<span class="sd">        Parameter in the Froude number for the shear entrainment model.</span>
-<span class="sd">    alpha_1 : float</span>
-<span class="sd">        Jet entrainment coefficient for the shear entrainment model.</span>
-<span class="sd">    alpha_2 : float</span>
-<span class="sd">        Plume entrainment coefficient for the shear entrainment model.</span>
+<span class="sd">    alpha_j : float</span>
+<span class="sd">        Jet shear entrainment coefficient.</span>
+<span class="sd">    alpha_Fr : float</span>
+<span class="sd">        Plume entrainment coefficient in Froude-number expression.</span>
+<span class="sd">    gamma : float</span>
+<span class="sd">        Momentum amplification factor</span>
 <span class="sd">    Fr_0 : float</span>
 <span class="sd">        Initial plume Froude number for the Wuest et al. (1992) multiphase</span>
 <span class="sd">        plume initial conditions</span>
@@ -838,29 +802,31 @@
 
 
 <span class="c"># ----------------------------------------------------------------------------</span>
-<span class="c"># Particle object that can track itself within the model solution</span>
+<span class="c"># Particle object that handles tracking and exiting the plume</span>
 <span class="c"># ----------------------------------------------------------------------------</span>
 </div>
 <div class="viewcode-block" id="Particle"><a class="viewcode-back" href="../modules/bpm.html#bent_plume_model.Particle">[docs]</a><span class="k">class</span> <span class="nc">Particle</span><span class="p">(</span><span class="n">dispersed_phases</span><span class="o">.</span><span class="n">PlumeParticle</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Interface to the `dbm` module tool for particle tracking</span>
+<span class="sd">    Special model properties for tracking inside a Lagrangian plume object</span>
 <span class="sd">    </span>
-<span class="sd">    This new `Particle` class is need to allow dispersed phase particles to </span>
-<span class="sd">    be tracked within the Lagrangian plume element during the solution.  </span>
+<span class="sd">    This new `Particle` class is needed to allow dispersed phase particles to </span>
+<span class="sd">    be tracked within the Lagrangian plume element during the solution and </span>
+<span class="sd">    to exit the plume at the right time.  </span>
 <span class="sd">    </span>
 <span class="sd">    This object inherits the `dispersed_phases.PlumeParticle` object and </span>
 <span class="sd">    adds functionality for three-dimensional positioning and particle </span>
 <span class="sd">    tracking.  All behavior not associated with tracking is identical to </span>
-<span class="sd">    that in the `dispersed_phases.PlumeParticle` object.</span>
+<span class="sd">    that in the `dispersed_phases.PlumeParticle` object.  Moreover, this</span>
+<span class="sd">    object can be used in a `stratified_plume_model.Model` simulation.</span>
 <span class="sd">    </span>
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    x : float</span>
-<span class="sd">        Current position of the `Particle` object in the x-direction (m)</span>
+<span class="sd">        Initial position of the particle in the x-direction (m)</span>
 <span class="sd">    y : float</span>
-<span class="sd">        Current position of the `Particle` object in the y-direction (m)</span>
+<span class="sd">        Initial position of the particle in the y-direction (m)</span>
 <span class="sd">    z : float</span>
-<span class="sd">        Current position of the `Particle` object in the z-direction (m)</span>
+<span class="sd">        Initial position of the particle in the z-direction (m)</span>
 <span class="sd">    dbm_particle : `dbm.FluidParticle` or `dbm.InsolubleParticle` object</span>
 <span class="sd">        Object describing the particle properties and behavior</span>
 <span class="sd">    m0 : ndarray</span>
@@ -869,7 +835,7 @@
 <span class="sd">    T0 : float</span>
 <span class="sd">        Initial temperature of the of `dbm` particle object (K)</span>
 <span class="sd">    nb0 : float</span>
-<span class="sd">        Initial number flux of particles at the release (--)</span>
+<span class="sd">        Initial number flux of particles at the release (#/s)</span>
 <span class="sd">    lambda_1 : float </span>
 <span class="sd">        spreading rate of the dispersed phase in a plume (--)</span>
 <span class="sd">    P : float</span>
@@ -882,26 +848,12 @@
 <span class="sd">        Mass transfer reduction factor (--).</span>
 <span class="sd">    K_T : float, default = 1.</span>
 <span class="sd">        Heat transfer reduction factor (--).</span>
-<span class="sd">    fdis : float, default = 0.01</span>
-<span class="sd">        Fraction of the initial total mass (--) remaining when the particle </span>
-<span class="sd">        should be considered dissolved.</span>
+<span class="sd">    fdis : float, default = 1.e-6</span>
+<span class="sd">        Fraction (--) of the initial mass of each component of the mixture</span>
+<span class="sd">        when that component should be considered totally dissolved.</span>
 <span class="sd">    </span>
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
-<span class="sd">    t : float</span>
-<span class="sd">        Current age of the &#39;Particle&#39; object since its release (s)</span>
-<span class="sd">    x : float</span>
-<span class="sd">        Current position of the `Particle` object in the x-direction (m)</span>
-<span class="sd">    y : float</span>
-<span class="sd">        Current position of the `Particle` object in the y-direction (m)</span>
-<span class="sd">    z : float</span>
-<span class="sd">        Current position of the `Particle` object in the z-direction (m)</span>
-<span class="sd">    integrate : bool</span>
-<span class="sd">        Flag indicating whether or not this particle is inside the bent</span>
-<span class="sd">        plume model and should be integrated</span>
-<span class="sd">    b_local : float</span>
-<span class="sd">        Width of the bent plume model at the location where the particle </span>
-<span class="sd">        exited the plume.</span>
 <span class="sd">    particle : `dbm.FluidParticle` or `dbm.InsolubleParticle` object</span>
 <span class="sd">        Stores the `dbm_particle` object passed to at creation.</span>
 <span class="sd">    composition : str list</span>
@@ -920,14 +872,19 @@
 <span class="sd">        Fraction of initial mass remaining as total dissolution (--)</span>
 <span class="sd">    diss_indices : ndarray bool</span>
 <span class="sd">        Indices of m0 that are non-zero.</span>
+<span class="sd">    t_hyd : float</span>
+<span class="sd">        Formation time for a hydrate skin (s)</span>
 <span class="sd">    nb0 : float</span>
-<span class="sd">        Initial number flux of particles at the release (--)</span>
+<span class="sd">        Initial number flux of particles at the release (#/s)</span>
+<span class="sd">    nbe : float</span>
+<span class="sd">        Number of particles associated with a Lagrangian element (#).  This </span>
+<span class="sd">        number with the mass per particle sets the total mass of particles</span>
+<span class="sd">        inside the Lagrangian element at any given time.  This value is set</span>
+<span class="sd">        by `lmp.bent_plume_ic`.</span>
 <span class="sd">    lambda_1 : float </span>
 <span class="sd">        Spreading rate of the dispersed phase in a plume (--)</span>
 <span class="sd">    m : ndarray</span>
-<span class="sd">        Current masses of the particle components (kg)</span>
-<span class="sd">    T : float</span>
-<span class="sd">        Current temperature of the particle (K)</span>
+<span class="sd">        Masses of the particle components for a single particle (kg)</span>
 <span class="sd">    us : float</span>
 <span class="sd">        Slip velocity (m/s)</span>
 <span class="sd">    rho_p : float</span>
@@ -940,6 +897,28 @@
 <span class="sd">        Mass transfer coefficients (m/s)</span>
 <span class="sd">    beta_T : float</span>
 <span class="sd">        Heat transfer coefficient (m/s)</span>
+<span class="sd">    T : float</span>
+<span class="sd">        Temperature of the particle (K)</span>
+<span class="sd">    integrate : bool</span>
+<span class="sd">        Flag indicating whether or not the particle is still inside the plume,</span>
+<span class="sd">        where its trajectory should continue to be integrated.</span>
+<span class="sd">    t : float</span>
+<span class="sd">        Current time since the particle was released (s)</span>
+<span class="sd">    x : float</span>
+<span class="sd">        Current position of the particle in the x-direction (m)</span>
+<span class="sd">    y : float</span>
+<span class="sd">        Current position of the particle in the y-direction (m)</span>
+<span class="sd">    z : float</span>
+<span class="sd">        Current position of the particle in the z-direction (m)</span>
+<span class="sd">    p_fac : float</span>
+<span class="sd">        Buoyant force reduction factor due to a reduced buoyancy as the</span>
+<span class="sd">        particle moves to the edge of the plume (--)</span>
+<span class="sd">    b_local : float</span>
+<span class="sd">        Width of the bent plume model at the location where the particle </span>
+<span class="sd">        exited the plume.</span>
+<span class="sd">    sbm : `single_bubble_model.Model` object</span>
+<span class="sd">        Model object for tracking the particle outside the plume</span>
+<span class="sd">    </span>
 <span class="sd">    </span>
 <span class="sd">    See Also</span>
 <span class="sd">    --------</span>
@@ -953,6 +932,7 @@
         
         <span class="c"># Particles start inside the plume and should be integrated</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">integrate</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sim_stored</span> <span class="o">=</span> <span class="bp">False</span>
         
         <span class="c"># Store the initial particle locations</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">t</span> <span class="o">=</span> <span class="mf">0.</span>
@@ -963,167 +943,79 @@
         <span class="c"># Update the particle with its current properties</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">m0</span><span class="p">,</span> <span class="n">T0</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">)</span>
     
-<div class="viewcode-block" id="Particle.track"><a class="viewcode-back" href="../bpm/bent_plume_model.Particle.track.html#bent_plume_model.Particle.track">[docs]</a>    <span class="k">def</span> <span class="nf">track</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">q0_local</span><span class="p">,</span> <span class="n">q1_local</span><span class="p">,</span> <span class="n">md</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+<div class="viewcode-block" id="Particle.track"><a class="viewcode-back" href="../bpm/bent_plume_model.Particle.track.html#bent_plume_model.Particle.track">[docs]</a>    <span class="k">def</span> <span class="nf">track</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t_p</span><span class="p">,</span> <span class="n">X_cl</span><span class="p">,</span> <span class="n">X_p</span><span class="p">,</span> <span class="n">q_local</span><span class="p">,</span> <span class="n">Ainv</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Track a particle for one time step of the numerical solution</span>
+<span class="sd">        Track the particle in the Lagragian plume model</span>
 <span class="sd">        </span>
-<span class="sd">        This tracking algorithm uses an analytical solution to track this</span>
-<span class="sd">        dispersed phase particle through the Lagrangian plume element over </span>
-<span class="sd">        one time step of the numerical solution.  The plume velocity, particle</span>
-<span class="sd">        terminal rise velocity, and the entrainment flux is assumed constant</span>
-<span class="sd">        during the tracking over one time step.  The analytical solution is</span>
-<span class="sd">        the solution to::</span>
-<span class="sd">        </span>
-<span class="sd">            dx / dt = u + ue</span>
-<span class="sd">            dy / dt = v + ve</span>
-<span class="sd">            dz / dt = w + us + we</span>
-<span class="sd">        </span>
-<span class="sd">        where (u, v, w) is the velocity of the entrained plume fluid along</span>
-<span class="sd">        the plume trajectory s, (ue, ve, we) is the velocity of the </span>
-<span class="sd">        entraining fluid normal to the plume trajectory s and us is the </span>
-<span class="sd">        vertical rise velocity of the particle.  The entrainment is assumed</span>
-<span class="sd">        to linearly decrease from its value at r = b to zero at the plume </span>
-<span class="sd">        centerline.</span>
-<span class="sd">        </span>
-<span class="sd">        These equations are rotated to a local coordinate system along the </span>
-<span class="sd">        plume axis with origin at the center of the Lagrangian element </span>
-<span class="sd">        before solving.  The initial conditions for the solution are the </span>
-<span class="sd">        particle position at the end of the previous timestep.  After </span>
-<span class="sd">        obtaining the solution, the results are rotated back to the original</span>
-<span class="sd">        coordinate system (x, y, z)</span>
-<span class="sd">        </span>
-<span class="sd">        Because the numerical solution for the plume trajectory uses an </span>
-<span class="sd">        iterative solver of the Runge-Kutta type, the constant plume velocity</span>
-<span class="sd">        (u, v, w) does not yield the exact motion of the plume centerline.  </span>
-<span class="sd">        The final results of the particle tracking are corrected by nudging</span>
-<span class="sd">        the particle by the amount of this discrepancy.</span>
+<span class="sd">        Track the location of the particle within a Lagrangian plume model</span>
+<span class="sd">        element and stop the integration when the particle exits the plume.</span>
 <span class="sd">        </span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        q0_local : `LagElement` object</span>
-<span class="sd">            `LagElement for the end of the previous time step of the numerical</span>
-<span class="sd">            solution.</span>
-<span class="sd">        q0_local : `LagElement` object</span>
-<span class="sd">            `LagElement for the end of the current time step of the numerical</span>
-<span class="sd">            solution.</span>
-<span class="sd">        md : float</span>
-<span class="sd">            Entrainment flux during this time step (kg/s)</span>
-<span class="sd">        dt : float</span>
-<span class="sd">            Duration of the current time step (s)</span>
+<span class="sd">        t_p : float</span>
+<span class="sd">            Time since the particle was released (s)</span>
+<span class="sd">        X_cl : ndarray</span>
+<span class="sd">            Array of Cartesian coordinates (x,y,z) for the plume centerline</span>
+<span class="sd">            (m).</span>
+<span class="sd">        X_p : ndarray</span>
+<span class="sd">            Array of local plume coordinates (l,n,m) for the current </span>
+<span class="sd">            particle position (m)().  This method converts these coordinates, </span>
+<span class="sd">            which are solved by the bent plume model state space solution, to </span>
+<span class="sd">            Cartesian coordinates.</span>
+<span class="sd">        q_local : `LagElement` object</span>
+<span class="sd">            Object that translates the bent plume model state space `t` and </span>
+<span class="sd">            `q` into the comprehensive list of derived variables.</span>
+<span class="sd">        Ainv : ndarray, default = None</span>
+<span class="sd">            Coordinate transformation matrix from the local plume coordinates</span>
+<span class="sd">            (l,n,m) to Cartesian coordinates (x,y,z).  If `Ainv` is known, it</span>
+<span class="sd">            can be passed to this function; otherwise, this function can </span>
+<span class="sd">            solve for `Ainv` using q_local.</span>
 <span class="sd">        </span>
-<span class="sd">        Notes</span>
-<span class="sd">        -----</span>
-<span class="sd">        The result of calling this function is that the `Particle` attributes</span>
-<span class="sd">        x, y, and z and updated with their new position at the end of </span>
-<span class="sd">        particle tracking.  </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        xp : ndarray</span>
+<span class="sd">            Array of Cartesian coordinates (x,y,z) for the current particle </span>
+<span class="sd">            position (m).</span>
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c"># Get the analytical solution for particle motion through the </span>
-        <span class="c"># Lagrangian element</span>
-        <span class="k">def</span> <span class="nf">particle_path</span><span class="p">(</span><span class="n">delta_t</span><span class="p">):</span>
-            <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">            Solution to the governing tracking ODEs in the local coordinates</span>
-<span class="sd">            </span>
-<span class="sd">            Parameters</span>
-<span class="sd">            ----------</span>
-<span class="sd">            delta_t : float</span>
-<span class="sd">                Time step to find the new position.  Not necessarily equal to </span>
-<span class="sd">                dt since we seek the travel time for the particles to </span>
-<span class="sd">                traverse the Lagrangian element.</span>
-<span class="sd">            </span>
-<span class="sd">            Returns</span>
-<span class="sd">            -------</span>
-<span class="sd">            chi : ndarray</span>
-<span class="sd">                Vector of particle positions in the rotated, local coordinate </span>
-<span class="sd">                system.</span>
-<span class="sd">            </span>
-<span class="sd">            &quot;&quot;&quot;</span>
-            <span class="c"># Create a vector to store the solution</span>
-            <span class="n">chi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">chi_0</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
-            
-            <span class="c"># Implement the analytical solution</span>
-            <span class="n">chi</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">chi_0</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">V</span> <span class="o">+</span> <span class="n">up</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="n">delta_t</span>
-            <span class="n">chi</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">up</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">fe</span> <span class="o">+</span> <span class="p">(</span><span class="n">chi_0</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">up</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">fe</span><span class="p">)</span> <span class="o">*</span> \
-                     <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">fe</span> <span class="o">*</span> <span class="n">delta_t</span><span class="p">)</span>
-            <span class="n">chi</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">up</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="n">fe</span> <span class="o">+</span> <span class="p">(</span><span class="n">chi_0</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">up</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="n">fe</span><span class="p">)</span> <span class="o">*</span> \
-                     <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">fe</span> <span class="o">*</span> <span class="n">delta_t</span><span class="p">)</span>
-            
-            <span class="k">return</span> <span class="n">chi</span>
-        
-        <span class="c"># Define an objective function for finding the particle travel time </span>
-        <span class="c"># over the distance ds</span>
-        <span class="k">def</span> <span class="nf">residual</span><span class="p">(</span><span class="n">delta_t</span><span class="p">):</span>
-            <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">            Objective function for finding particle travel times</span>
-<span class="sd">            </span>
-<span class="sd">            Returns the difference between the particle travel distance for a </span>
-<span class="sd">            given estimate of delta_t and the expected length ds along the </span>
-<span class="sd">            Lagrangian element given the current element height h.</span>
-<span class="sd">            </span>
-<span class="sd">            Parameters</span>
-<span class="sd">            ----------</span>
-<span class="sd">            delta_t : float</span>
-<span class="sd">                Time step to find the new position.  Not necessarily equal to </span>
-<span class="sd">                dt since we seek the travel time for the particles to </span>
-<span class="sd">                traverse the Lagrangian element.</span>
-<span class="sd">            </span>
-<span class="sd">            &quot;&quot;&quot;</span>
-            <span class="c"># Get a particle location for the current estimate of delta_t</span>
-            <span class="n">chi</span> <span class="o">=</span> <span class="n">particle_path</span><span class="p">(</span><span class="n">delta_t</span><span class="p">)</span>
-            
-            <span class="c"># Compare the estimate to the true location</span>
-            <span class="k">return</span> <span class="n">chi</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">ds</span> <span class="o">-</span> <span class="n">chi</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">tan</span><span class="p">(</span><span class="n">q1_local</span><span class="o">.</span><span class="n">phi</span> <span class="o">-</span> <span class="n">q0_local</span><span class="o">.</span><span class="n">phi</span><span class="p">)</span>
-        
-        <span class="c"># Do the particle tracking if the particle is still active</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrate</span><span class="p">:</span>
+            <span class="c"># Compute the transformation matrix from local plume coordinates </span>
+            <span class="c"># (l,n,m) to Cartesian coordinates (x,y,z) if needed</span>
+            <span class="k">if</span> <span class="n">Ainv</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">A</span> <span class="o">=</span> <span class="n">lmp</span><span class="o">.</span><span class="n">local_coords</span><span class="p">(</span><span class="n">q_local</span><span class="p">,</span> <span class="n">q_local</span><span class="p">,</span> <span class="mf">0.</span><span class="p">)</span>
+                <span class="n">Ainv</span> <span class="o">=</span> <span class="n">inv</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
             
-            <span class="c"># Calculate the local entrainment frequency</span>
-            <span class="n">fe</span> <span class="o">=</span> <span class="n">md</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">q0_local</span><span class="o">.</span><span class="n">rho_a</span> <span class="o">*</span> <span class="n">q0_local</span><span class="o">.</span><span class="n">b</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> 
-                 <span class="n">q0_local</span><span class="o">.</span><span class="n">h</span><span class="p">)</span>
+            <span class="c"># Update the particle age</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">t</span> <span class="o">=</span> <span class="n">t_p</span>
+            <span class="n">tp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">t</span>
             
-            <span class="c"># Get the distance, ds, moved by the Lagrangian element over this</span>
-            <span class="c"># time step</span>
-            <span class="n">ds</span> <span class="o">=</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">s</span> <span class="o">-</span> <span class="n">q0_local</span><span class="o">.</span><span class="n">s</span>
+            <span class="c"># Get the particle position</span>
+            <span class="n">xp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">Ainv</span><span class="p">,</span> <span class="n">X_p</span><span class="p">)</span> <span class="o">+</span> <span class="n">X_cl</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">xp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">xp</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="n">xp</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
             
-            <span class="c"># Get the local water velocity</span>
-            <span class="n">V</span> <span class="o">=</span> <span class="p">(</span><span class="n">q1_local</span><span class="o">.</span><span class="n">V</span> <span class="o">+</span> <span class="n">q0_local</span><span class="o">.</span><span class="n">V</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.</span>
+            <span class="c"># Compute the particle offset from the plume centerline</span>
+            <span class="n">lp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">X_p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">X_p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">X_p</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
             
-            <span class="c"># Get the rotation matrix to the local coordinate system (l,n,m)</span>
-            <span class="n">A</span> <span class="o">=</span> <span class="n">lmp</span><span class="o">.</span><span class="n">local_coords</span><span class="p">(</span><span class="n">q0_local</span><span class="p">,</span> <span class="n">q1_local</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span>
-            
-            <span class="c"># Get the initial position of the particle in local coordinates</span>
-            <span class="n">chi_0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">q0_local</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> 
-                <span class="n">q0_local</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">-</span> <span class="n">q0_local</span><span class="o">.</span><span class="n">z</span><span class="p">]))</span>
-            
-            <span class="c"># Project the slip velocity onto the local coordinate system</span>
-            <span class="n">up</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">us</span><span class="p">]))</span>
-            
-            <span class="c"># Find the correct particle travel time</span>
-            <span class="n">delta_t</span> <span class="o">=</span> <span class="n">fsolve</span><span class="p">(</span><span class="n">residual</span><span class="p">,</span> <span class="n">dt</span><span class="p">)</span>
-            
-            <span class="c"># Use this time step to find the final particle position</span>
-            <span class="n">chi</span> <span class="o">=</span> <span class="n">particle_path</span><span class="p">(</span><span class="n">delta_t</span><span class="p">)</span>
-            
-            <span class="c"># Find the location of the centerline at the new time</span>
-            <span class="n">chi_c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">V</span> <span class="o">*</span> <span class="n">dt</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">])</span>
-            
-            <span class="c"># Rotate the solution back to the correct coordinate system using </span>
-            <span class="c"># the original coordinate transform</span>
-            <span class="n">Ainv</span> <span class="o">=</span> <span class="n">inv</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
-            <span class="n">xp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">Ainv</span><span class="p">,</span> <span class="n">chi</span><span class="p">)</span>
-            <span class="n">xc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">Ainv</span><span class="p">,</span> <span class="n">chi_c</span><span class="p">)</span>
-            
-            <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">xp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">q1_local</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">xc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">xp</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">q1_local</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">xc</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="n">xp</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">q1_local</span><span class="o">.</span><span class="n">z</span> <span class="o">-</span> <span class="n">xc</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+            <span class="c"># Compute the buoyant force reduction factor</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">p_fac</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">lp</span> <span class="o">/</span> <span class="n">q_local</span><span class="o">.</span><span class="n">b</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_fac</span> <span class="o">&lt;</span> <span class="mf">0.</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">p_fac</span> <span class="o">=</span> <span class="mf">0.</span>
             
             <span class="c"># Check if the particle exited the plume</span>
-            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">chi</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">chi</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">b</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">integrate</span> <span class="o">=</span> <span class="bp">False</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">b_local</span> <span class="o">=</span> <span class="n">q1_local</span><span class="o">.</span><span class="n">b</span>
-            
-            <span class="c"># Compute the particle age</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">t</span> <span class="o">+=</span> <span class="n">delta_t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">lp</span> <span class="o">&gt;</span> <span class="n">q_local</span><span class="o">.</span><span class="n">b</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">p_fac</span> <span class="o">=</span> <span class="mf">0.</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">b_local</span> <span class="o">=</span> <span class="n">q_local</span><span class="o">.</span><span class="n">b</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># Return the time and position when the particle exited the plume</span>
+            <span class="n">tp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">te</span>
+            <span class="n">xp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">xe</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ye</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ze</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">p_fac</span> <span class="o">=</span> <span class="mf">0.</span>
+        
+        <span class="c"># Return the particle position as a matrix</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">tp</span><span class="p">,</span> <span class="n">xp</span><span class="p">)</span>
     </div>
 <div class="viewcode-block" id="Particle.outside"><a class="viewcode-back" href="../bpm/bent_plume_model.Particle.outside.html#bent_plume_model.Particle.outside">[docs]</a>    <span class="k">def</span> <span class="nf">outside</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Ta</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Pa</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1152,7 +1044,7 @@
     </div>
 <div class="viewcode-block" id="Particle.run_sbm"><a class="viewcode-back" href="../bpm/bent_plume_model.Particle.run_sbm.html#bent_plume_model.Particle.run_sbm">[docs]</a>    <span class="k">def</span> <span class="nf">run_sbm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Set up and run the `single_bubble_model` to track outside plume</span>
+<span class="sd">        Run the `single_bubble_model` to track particles outside the plume</span>
 <span class="sd">        </span>
 <span class="sd">        Continues the simulation of the particle outside the plume using </span>
 <span class="sd">        the `single_bubble_model`.  The object containing the simulation </span>
@@ -1288,8 +1180,12 @@
 <span class="sd">        particle.</span>
 <span class="sd">    H_p : ndarray</span>
 <span class="sd">        Total heat flux for each particle (J/s)</span>
+<span class="sd">    t_p : ndarray</span>
+<span class="sd">        Time since release for each particle (s)</span>
+<span class="sd">    X_p : ndarray</span>
+<span class="sd">        Position of each particle in local plume coordinates (l,n,m) (m).</span>
 <span class="sd">    cpe : ndarray</span>
-<span class="sd">        Masses of the chemical components involved in dissolution (kg/m^2 kg)</span>
+<span class="sd">        Masses of the chemical components involved in dissolution (kg)</span>
 <span class="sd">    cte : ndarray</span>
 <span class="sd">        Masses of the passive tracers in the plume (concentration kg)</span>
 <span class="sd">    Pa : float</span>
@@ -1345,7 +1241,8 @@
 <span class="sd">        The cosine of the angle theta (--)</span>
 <span class="sd">    phi : float</span>
 <span class="sd">        The vertical angle from horizontal of the current plume trajectory</span>
-<span class="sd">        (rad in range +/- pi/2)</span>
+<span class="sd">        (rad in range +/- pi/2).  Since z is positive down (depth), phi = </span>
+<span class="sd">        pi/2 point down and -pi/2 points up.</span>
 <span class="sd">    theta : float</span>
 <span class="sd">        The lateral angle in the horizontal plane from the x-axis to the </span>
 <span class="sd">        current plume trajectory (rad in range 0 to 2 pi)</span>
@@ -1355,6 +1252,7 @@
 <span class="sd">    fb : ndarray</span>
 <span class="sd">        Buoyant force for each of the dispersed phase particles in the </span>
 <span class="sd">        `particles` variable as density difference (kg/m^3)</span>
+<span class="sd">    x_p : ndarray</span>
 <span class="sd">    Mp : float</span>
 <span class="sd">        Total mass of dispersed phases in the Lagrangian element (kg)</span>
 <span class="sd">    Fb : float</span>
@@ -1362,7 +1260,7 @@
 <span class="sd">        the Lagrangian element (kg/m^3)</span>
 <span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t0</span><span class="p">,</span> <span class="n">q0</span><span class="p">,</span> <span class="n">tp0</span><span class="p">,</span> <span class="n">sp0</span><span class="p">,</span> <span class="n">D</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">tracers</span><span class="p">,</span> 
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t0</span><span class="p">,</span> <span class="n">q0</span><span class="p">,</span> <span class="n">D</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">tracers</span><span class="p">,</span> 
                  <span class="n">chem_names</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">LagElement</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
         
@@ -1378,9 +1276,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">np</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">particles</span><span class="p">)</span>
         
         <span class="c"># Extract the state variables and compute the derived quantities</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">t0</span><span class="p">,</span> <span class="n">q0</span><span class="p">,</span> <span class="n">tp0</span><span class="p">,</span> <span class="n">sp0</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">t0</span><span class="p">,</span> <span class="n">q0</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="p">)</span>
     
-<div class="viewcode-block" id="LagElement.update"><a class="viewcode-back" href="../bpm/bent_plume_model.LagElement.update.html#bent_plume_model.LagElement.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">tp</span><span class="p">,</span> <span class="n">sp</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="o">=</span><span class="p">[]):</span>
+<div class="viewcode-block" id="LagElement.update"><a class="viewcode-back" href="../bpm/bent_plume_model.LagElement.update.html#bent_plume_model.LagElement.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="o">=</span><span class="p">[]):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Update the `LagElement` object with the current local conditions</span>
 <span class="sd">        </span>
@@ -1393,8 +1291,6 @@
 <span class="sd">            Current time of the simulation (s)</span>
 <span class="sd">        q : ndarray</span>
 <span class="sd">            Current values of the simulation state space, q</span>
-<span class="sd">        sp : ndarray</span>
-<span class="sd">            Current values of the particle locations in (x, y, z)-space (m)</span>
 <span class="sd">        profile : `ambient.Profile`</span>
 <span class="sd">            Ambient CTD data    </span>
 <span class="sd">        p : `ModelParams`</span>
@@ -1423,13 +1319,21 @@
         <span class="n">idx</span> <span class="o">=</span> <span class="mi">11</span>
         <span class="n">M_p</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">H_p</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">t_p</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">X_p</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">np</span><span class="p">):</span>
             <span class="n">M_p</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">q</span><span class="p">[</span><span class="n">idx</span><span class="p">:</span><span class="n">idx</span> <span class="o">+</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">nc</span><span class="p">]</span>
             <span class="n">idx</span> <span class="o">+=</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">nc</span>
             <span class="n">H_p</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">q</span><span class="p">[</span><span class="n">idx</span><span class="p">:</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
-            <span class="n">idx</span> <span class="o">+=</span> <span class="mi">2</span>  <span class="c"># because t_p is not updated</span>
+            <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">t_p</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">q</span><span class="p">[</span><span class="n">idx</span><span class="p">:</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
+            <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">X_p</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">q</span><span class="p">[</span><span class="n">idx</span><span class="p">:</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">3</span><span class="p">])</span>
+            <span class="n">idx</span> <span class="o">+=</span> <span class="mi">3</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">M_p</span> <span class="o">=</span> <span class="n">M_p</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">H_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">H_p</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">t_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">t_p</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">X_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">X_p</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cpe</span> <span class="o">=</span> <span class="n">q</span><span class="p">[</span><span class="n">idx</span><span class="p">:</span><span class="n">idx</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">nchems</span><span class="p">]</span>
         <span class="n">idx</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nchems</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ntracers</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
@@ -1447,15 +1351,15 @@
         <span class="c"># Compute the derived quantities</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">S</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Se</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">T</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">He</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">M</span> <span class="o">*</span> <span class="n">seawater</span><span class="o">.</span><span class="n">cp</span><span class="p">())</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">c_chems</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cpe</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">c_tracers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cte</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rho</span> <span class="o">=</span> <span class="n">seawater</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">S</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Pa</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">c_chems</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cpe</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">M</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">rho</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">c_tracers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cte</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">M</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">rho</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Jx</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Jy</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Jz</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">hvel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">V</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hvel</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">H</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">V</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">rho</span> <span class="o">=</span> <span class="n">seawater</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">S</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Pa</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">M</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rho</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">h</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sin_p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">V</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cos_p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hvel</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">V</span>
@@ -1469,48 +1373,50 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">phi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hvel</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">u</span><span class="p">)</span>
         
+        <span class="c"># Compute the transformation matrix from the local plume coordinates</span>
+        <span class="c"># (l,n,m) to Cartesian coordinates (x,y,z)</span>
+        <span class="n">Ainv</span> <span class="o">=</span> <span class="n">inv</span><span class="p">(</span><span class="n">lmp</span><span class="o">.</span><span class="n">local_coords</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="mf">0.</span><span class="p">))</span>
+        
         <span class="c"># Get the particle characteristics</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">np</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">np</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">np</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
         
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">np</span><span class="p">):</span>
+            <span class="c"># If this is a post-processing call, update the status of the </span>
+            <span class="c"># integration flag</span>
+            <span class="k">if</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">sim_stored</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">X_p</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]):</span>
+                    <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">integrate</span> <span class="o">=</span> <span class="bp">False</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">integrate</span> <span class="o">=</span> <span class="bp">True</span>
+            
             <span class="c"># Update the particles with their current properties</span>
-            <span class="n">m_p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">M_p</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">nb0</span>
+            <span class="n">m_p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">M_p</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">nbe</span>
             <span class="n">T_p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">H_p</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">M_p</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">*</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">cp</span><span class="p">)</span>
             <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">m_p</span><span class="p">,</span> <span class="n">T_p</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Pa</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Sa</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ta</span><span class="p">,</span> 
-                                <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">t</span><span class="p">)</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">t_p</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            
+            <span class="c"># Track the particle in the plume</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">t_p</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_p</span><span class="p">[</span><span class="n">i</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">track</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">t_p</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> 
+                            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">]),</span> 
+                            <span class="bp">self</span><span class="o">.</span><span class="n">X_p</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="bp">self</span><span class="p">,</span> <span class="n">Ainv</span><span class="p">)</span>
             
             <span class="c"># Get the mass of particles following this Lagrangian element</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">mp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">m_p</span><span class="p">)</span> <span class="o">*</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">nbe</span>
             
-            <span class="c"># Get the particle offset from the plume centerline and the </span>
-            <span class="c"># associated buoyant force reduction factor</span>
-            <span class="n">lp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">sp</span><span class="p">[</span><span class="n">i</span><span class="o">*</span><span class="mi">3</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> 
-                 <span class="n">sp</span><span class="p">[</span><span class="n">i</span><span class="o">*</span><span class="mi">3</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">-</span> <span class="n">sp</span><span class="p">[</span><span class="n">i</span><span class="o">*</span><span class="mi">3</span><span class="o">+</span><span class="mi">2</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
-            <span class="n">p_fac</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">lp</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">)</span>
-            
             <span class="c"># Compute the buoyant force coming from this set of particles</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">fb</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rho</span> <span class="o">/</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">rho_p</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">mp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> \
-                         <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rho_a</span> <span class="o">-</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">rho_p</span><span class="p">)</span> <span class="o">*</span> <span class="n">p_fac</span>
+                         <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rho_a</span> <span class="o">-</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">rho_p</span><span class="p">)</span> <span class="o">*</span> \
+                         <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">p_fac</span>
             
             <span class="c"># Force the particle mass and bubble force to zero if the bubble</span>
-            <span class="c"># have dissolved</span>
+            <span class="c"># has dissolved</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">rho</span> <span class="o">==</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">rho_p</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">mp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">fb</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.</span>
-            
-            <span class="c"># Force the particle mass and bubble force to zero if the bubble</span>
-            <span class="c"># is outside the plume</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">integrate</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">mp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">fb</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.</span>
-            
-            <span class="c"># Stop the dissolution once the particle is outside the plume</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">integrate</span><span class="p">:</span>
-                <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">outside</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Ta</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Sa</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Pa</span><span class="p">)</span>
         
         <span class="c"># Compute the net particle mass and buoyant force</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">Mp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mp</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Fb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fb</span><span class="p">)</span>
 
 
@@ -1518,7 +1424,7 @@
 <span class="c"># Functions to plot output from the simulations</span>
 <span class="c"># ----------------------------------------------------------------------------</span>
 </div></div>
-<div class="viewcode-block" id="plot_state_space"><a class="viewcode-back" href="../spm/bent_plume_model.plot_state_space.html#bent_plume_model.plot_state_space">[docs]</a><span class="k">def</span> <span class="nf">plot_state_space</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">sp</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">fig</span><span class="p">):</span>
+<div class="viewcode-block" id="plot_state_space"><a class="viewcode-back" href="../spm/bent_plume_model.plot_state_space.html#bent_plume_model.plot_state_space">[docs]</a><span class="k">def</span> <span class="nf">plot_state_space</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">q_local</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">fig</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plot the Lagrangian model state space</span>
 <span class="sd">    </span>
@@ -1531,10 +1437,13 @@
 <span class="sd">        Array of times computed in the solution (s)</span>
 <span class="sd">    q : ndarray</span>
 <span class="sd">        Array of state space values computed in the solution</span>
-<span class="sd">    sp : ndarray</span>
-<span class="sd">        Trajectory of the each particle in the `particles` list as (x0, y0, </span>
-<span class="sd">        z0, x1, y1, z1, ... xn, yn, zn), where n is the number of dispersed</span>
-<span class="sd">        phase particles in the simulation.</span>
+<span class="sd">    q_local : `LagElement` object</span>
+<span class="sd">        Object that translates the `Model` state space `t` and `q` into the </span>
+<span class="sd">        comprehensive list of derived variables.</span>
+<span class="sd">    profile : `ambient.Profile`</span>
+<span class="sd">        Ambient CTD data</span>
+<span class="sd">    p : `ModelParams`</span>
+<span class="sd">        Container for the fixed model parameters</span>
 <span class="sd">    particles : list of `Particle` objects</span>
 <span class="sd">        List of `Particle` objects describing each dispersed phase in the </span>
 <span class="sd">        simulation</span>
@@ -1554,6 +1463,13 @@
     <span class="n">s</span> <span class="o">=</span> <span class="n">q</span><span class="p">[:,</span><span class="mi">10</span><span class="p">]</span>
     <span class="n">M</span> <span class="o">=</span> <span class="n">q</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span>
     
+    <span class="c"># Extract the particle positions from the q state space</span>
+    <span class="n">xp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">),</span><span class="mi">3</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">particles</span><span class="p">)))</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">)):</span>
+        <span class="n">q_local</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">q</span><span class="p">[</span><span class="n">i</span><span class="p">,:],</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">particles</span><span class="p">)):</span>
+            <span class="n">xp</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="o">*</span><span class="mi">3</span><span class="p">:</span><span class="n">j</span><span class="o">*</span><span class="mi">3</span><span class="o">+</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">q_local</span><span class="o">.</span><span class="n">x_p</span><span class="p">[</span><span class="n">j</span><span class="p">,:]</span>
+    
     <span class="c"># Plot the figure</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
@@ -1563,7 +1479,7 @@
     <span class="n">ax1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">221</span><span class="p">)</span>
     <span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">particles</span><span class="p">)):</span>
-        <span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">sp</span><span class="p">[:,</span><span class="n">i</span><span class="o">*</span><span class="mi">3</span><span class="p">],</span> <span class="n">sp</span><span class="p">[:,</span><span class="n">i</span><span class="o">*</span><span class="mi">3</span> <span class="o">+</span> <span class="mi">2</span><span class="p">],</span> <span class="s">&#39;.:&#39;</span><span class="p">)</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xp</span><span class="p">[:,</span><span class="n">i</span><span class="o">*</span><span class="mi">3</span><span class="p">],</span> <span class="n">xp</span><span class="p">[:,</span><span class="n">i</span><span class="o">*</span><span class="mi">3</span> <span class="o">+</span> <span class="mi">2</span><span class="p">],</span> <span class="s">&#39;.--&#39;</span><span class="p">)</span>
     <span class="n">ax1</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">&#39;x (m)&#39;</span><span class="p">)</span>
     <span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s">&#39;Depth (m)&#39;</span><span class="p">)</span>
     <span class="n">ax1</span><span class="o">.</span><span class="n">invert_yaxis</span><span class="p">()</span>
@@ -1573,7 +1489,7 @@
     <span class="n">ax2</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">222</span><span class="p">)</span>
     <span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">particles</span><span class="p">)):</span>
-        <span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">sp</span><span class="p">[:,</span><span class="n">i</span><span class="o">*</span><span class="mi">3</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span> <span class="n">sp</span><span class="p">[:,</span><span class="n">i</span><span class="o">*</span><span class="mi">3</span> <span class="o">+</span> <span class="mi">2</span><span class="p">],</span> <span class="s">&#39;.:&#39;</span><span class="p">)</span>
+        <span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xp</span><span class="p">[:,</span><span class="n">i</span><span class="o">*</span><span class="mi">3</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span> <span class="n">xp</span><span class="p">[:,</span><span class="n">i</span><span class="o">*</span><span class="mi">3</span> <span class="o">+</span> <span class="mi">2</span><span class="p">],</span> <span class="s">&#39;.--&#39;</span><span class="p">)</span>
     <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">&#39;y (m)&#39;</span><span class="p">)</span>
     <span class="n">ax2</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s">&#39;Depth (m)&#39;</span><span class="p">)</span>
     <span class="n">ax2</span><span class="o">.</span><span class="n">invert_yaxis</span><span class="p">()</span>
@@ -1583,7 +1499,7 @@
     <span class="n">ax3</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">223</span><span class="p">)</span>
     <span class="n">ax3</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">particles</span><span class="p">)):</span>
-        <span class="n">ax3</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">sp</span><span class="p">[:,</span><span class="n">i</span><span class="o">*</span><span class="mi">3</span><span class="p">],</span> <span class="n">sp</span><span class="p">[:,</span><span class="n">i</span><span class="o">*</span><span class="mi">3</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span> <span class="s">&#39;.:&#39;</span><span class="p">)</span>
+        <span class="n">ax3</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xp</span><span class="p">[:,</span><span class="n">i</span><span class="o">*</span><span class="mi">3</span><span class="p">],</span> <span class="n">xp</span><span class="p">[:,</span><span class="n">i</span><span class="o">*</span><span class="mi">3</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span> <span class="s">&#39;.--&#39;</span><span class="p">)</span>
     <span class="n">ax3</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">&#39;x (m)&#39;</span><span class="p">)</span>
     <span class="n">ax3</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s">&#39;y (m)&#39;</span><span class="p">)</span>
     <span class="n">ax3</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">b</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s">&#39;major&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">&#39;0.65&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s">&#39;-&#39;</span><span class="p">)</span>
@@ -1598,7 +1514,7 @@
     <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
 
 </div>
-<div class="viewcode-block" id="plot_all_variables"><a class="viewcode-back" href="../spm/bent_plume_model.plot_all_variables.html#bent_plume_model.plot_all_variables">[docs]</a><span class="k">def</span> <span class="nf">plot_all_variables</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">tp</span><span class="p">,</span> <span class="n">sp</span><span class="p">,</span> <span class="n">q_local</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">tracked</span><span class="p">,</span> 
+<div class="viewcode-block" id="plot_all_variables"><a class="viewcode-back" href="../spm/bent_plume_model.plot_all_variables.html#bent_plume_model.plot_all_variables">[docs]</a><span class="k">def</span> <span class="nf">plot_all_variables</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">q_local</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">tracked</span><span class="p">,</span> 
     <span class="n">fig</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plot a comprehensive suite of simulation results</span>
@@ -1613,10 +1529,6 @@
 <span class="sd">        Array of times computed in the solution (s)</span>
 <span class="sd">    q : ndarray</span>
 <span class="sd">        Array of state space values computed in the solution</span>
-<span class="sd">    sp : ndarray</span>
-<span class="sd">        Trajectory of the each particle in the `particles` list as (x0, y0, </span>
-<span class="sd">        z0, x1, y1, z1, ... xn, yn, zn), where n is the number of dispersed</span>
-<span class="sd">        phase particles in the simulation.</span>
 <span class="sd">    q_local : `LagElement` object</span>
 <span class="sd">        Object that translates the `Model` state space `t` and `q` into the </span>
 <span class="sd">        comprehensive list of derived variables.</span>
@@ -1638,17 +1550,15 @@
     <span class="n">formatter</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">ticker</span><span class="o">.</span><span class="n">ScalarFormatter</span><span class="p">(</span><span class="n">useOffset</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
     
     <span class="c"># Create a second Lagrangian element in order to compute entrainment</span>
-    <span class="n">q0_local</span> <span class="o">=</span> <span class="n">LagElement</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">q</span><span class="p">[</span><span class="mi">0</span><span class="p">,:],</span> <span class="n">q_local</span><span class="o">.</span><span class="n">D</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span>
-                          <span class="n">q_local</span><span class="o">.</span><span class="n">tracers</span><span class="p">,</span> <span class="n">q_local</span><span class="o">.</span><span class="n">chem_names</span><span class="p">)</span>
+    <span class="n">q0_local</span> <span class="o">=</span> <span class="n">LagElement</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">q</span><span class="p">[</span><span class="mi">0</span><span class="p">,:],</span> <span class="n">q_local</span><span class="o">.</span><span class="n">D</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> 
+        <span class="n">q_local</span><span class="o">.</span><span class="n">tracers</span><span class="p">,</span> <span class="n">q_local</span><span class="o">.</span><span class="n">chem_names</span><span class="p">)</span>
     <span class="n">n_part</span> <span class="o">=</span> <span class="n">q0_local</span><span class="o">.</span><span class="n">np</span>
     <span class="n">pchems</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_part</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">composition</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">pchems</span><span class="p">:</span>
             <span class="n">pchems</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">composition</span><span class="p">)</span>
     
-    <span class="c"># Although it may be faster to extract the derived variables using</span>
-    <span class="c"># equations such as q[:,1] / q[:,0], we use the LagElement so that </span>
-    <span class="c"># all state-space translations are centralized in that single location.</span>
+    <span class="c"># Store the derived variables</span>
     <span class="n">M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
     <span class="n">S</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
     <span class="n">T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
@@ -1656,6 +1566,7 @@
     <span class="n">Hp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">),</span> <span class="n">n_part</span><span class="p">))</span>
     <span class="n">Mp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">),</span> <span class="n">n_part</span><span class="p">))</span>
     <span class="n">Tp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">),</span> <span class="n">n_part</span><span class="p">))</span>
+    <span class="n">xp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">),</span> <span class="mi">3</span><span class="o">*</span><span class="n">n_part</span><span class="p">))</span>
     <span class="n">u</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
     <span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
     <span class="n">w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
@@ -1679,9 +1590,8 @@
     
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">)):</span>
         <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">q0_local</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">q</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,:],</span> <span class="n">tp</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">sp</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">profile</span><span class="p">,</span> 
-                <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="p">)</span>
-        <span class="n">q_local</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">q</span><span class="p">[</span><span class="n">i</span><span class="p">,:],</span> <span class="n">tp</span><span class="p">[</span><span class="n">i</span><span class="p">,:],</span> <span class="n">sp</span><span class="p">[</span><span class="n">i</span><span class="p">,:],</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="p">)</span>
+            <span class="n">q0_local</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">q</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,:],</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="p">)</span>
+        <span class="n">q_local</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">q</span><span class="p">[</span><span class="n">i</span><span class="p">,:],</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="p">)</span>
         <span class="n">M</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">q_local</span><span class="o">.</span><span class="n">M</span>
         <span class="n">S</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">q_local</span><span class="o">.</span><span class="n">S</span>
         <span class="n">T</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">q_local</span><span class="o">.</span><span class="n">T</span>
@@ -1689,6 +1599,7 @@
             <span class="n">Mpf</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">q_local</span><span class="o">.</span><span class="n">M_p</span><span class="p">[</span><span class="n">j</span><span class="p">])]</span> <span class="o">=</span> <span class="n">q_local</span><span class="o">.</span><span class="n">M_p</span><span class="p">[</span><span class="n">j</span><span class="p">][:]</span>
             <span class="n">Mp</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">m</span><span class="p">[:])</span>
             <span class="n">Tp</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">particles</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
+            <span class="n">xp</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="o">*</span><span class="mi">3</span><span class="p">:</span><span class="n">j</span><span class="o">*</span><span class="mi">3</span><span class="o">+</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">q_local</span><span class="o">.</span><span class="n">x_p</span><span class="p">[</span><span class="n">j</span><span class="p">,:]</span>
         <span class="n">Hp</span><span class="p">[</span><span class="n">i</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">q_local</span><span class="o">.</span><span class="n">H_p</span>
         <span class="n">u</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">q_local</span><span class="o">.</span><span class="n">u</span>
         <span class="n">v</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">q_local</span><span class="o">.</span><span class="n">v</span>
@@ -1729,7 +1640,7 @@
     <span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">x2</span><span class="p">,</span> <span class="n">z</span> <span class="o">+</span> <span class="n">z2</span><span class="p">,</span> <span class="s">&#39;b--&#39;</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">particles</span><span class="p">)):</span>
         <span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="s">&#39;o&#39;</span><span class="p">)</span>
-        <span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">sp</span><span class="p">[:,</span><span class="n">i</span><span class="o">*</span><span class="mi">3</span><span class="p">],</span> <span class="n">sp</span><span class="p">[:,</span><span class="n">i</span><span class="o">*</span><span class="mi">3</span><span class="o">+</span><span class="mi">2</span><span class="p">],</span> <span class="s">&#39;.:&#39;</span><span class="p">)</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xp</span><span class="p">[:,</span><span class="n">i</span><span class="o">*</span><span class="mi">3</span><span class="p">],</span> <span class="n">xp</span><span class="p">[:,</span><span class="n">i</span><span class="o">*</span><span class="mi">3</span><span class="o">+</span><span class="mi">2</span><span class="p">],</span> <span class="s">&#39;.--&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">tracked</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">integrate</span> <span class="ow">is</span> <span class="bp">False</span> <span class="ow">and</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">z</span> <span class="o">&gt;</span> <span class="mf">0.</span><span class="p">:</span>
                 <span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">sbm</span><span class="o">.</span><span class="n">y</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">sbm</span><span class="o">.</span><span class="n">y</span><span class="p">[:,</span><span class="mi">2</span><span class="p">],</span> 
@@ -1746,7 +1657,7 @@
     <span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">y</span> <span class="o">+</span> <span class="n">y2</span><span class="p">,</span> <span class="n">z</span> <span class="o">+</span> <span class="n">z2</span><span class="p">,</span> <span class="s">&#39;b--&#39;</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">particles</span><span class="p">)):</span>
         <span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="s">&#39;o&#39;</span><span class="p">)</span>
-        <span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">sp</span><span class="p">[:,</span><span class="n">i</span><span class="o">*</span><span class="mi">3</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span> <span class="n">sp</span><span class="p">[:,</span><span class="n">i</span><span class="o">*</span><span class="mi">3</span><span class="o">+</span><span class="mi">2</span><span class="p">],</span> <span class="s">&#39;.:&#39;</span><span class="p">)</span>
+        <span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xp</span><span class="p">[:,</span><span class="n">i</span><span class="o">*</span><span class="mi">3</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span> <span class="n">xp</span><span class="p">[:,</span><span class="n">i</span><span class="o">*</span><span class="mi">3</span><span class="o">+</span><span class="mi">2</span><span class="p">],</span> <span class="s">&#39;.--&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">tracked</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">integrate</span> <span class="ow">is</span> <span class="bp">False</span> <span class="ow">and</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">z</span> <span class="o">&gt;</span> <span class="mf">0.</span><span class="p">:</span>
                 <span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">sbm</span><span class="o">.</span><span class="n">y</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">sbm</span><span class="o">.</span><span class="n">y</span><span class="p">[:,</span><span class="mi">2</span><span class="p">],</span> 
@@ -1763,7 +1674,7 @@
     <span class="n">ax3</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">x2</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="n">y2</span><span class="p">,</span> <span class="s">&#39;b--&#39;</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">particles</span><span class="p">)):</span>
         <span class="n">ax3</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="s">&#39;o&#39;</span><span class="p">)</span>
-        <span class="n">ax3</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">sp</span><span class="p">[:,</span><span class="n">i</span><span class="o">*</span><span class="mi">3</span><span class="p">],</span> <span class="n">sp</span><span class="p">[:,</span><span class="n">i</span><span class="o">*</span><span class="mi">3</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span> <span class="s">&#39;.:&#39;</span><span class="p">)</span>
+        <span class="n">ax3</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xp</span><span class="p">[:,</span><span class="n">i</span><span class="o">*</span><span class="mi">3</span><span class="p">],</span> <span class="n">xp</span><span class="p">[:,</span><span class="n">i</span><span class="o">*</span><span class="mi">3</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span> <span class="s">&#39;.--&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">tracked</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">integrate</span> <span class="ow">is</span> <span class="bp">False</span> <span class="ow">and</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">z</span> <span class="o">&gt;</span> <span class="mf">0.</span><span class="p">:</span>
                 <span class="n">ax3</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">sbm</span><span class="o">.</span><span class="n">y</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">sbm</span><span class="o">.</span><span class="n">y</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> 
@@ -1875,27 +1786,28 @@
     <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
     
     <span class="c"># Plot the particle mass and temperature</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">ticklabel_format</span><span class="p">(</span><span class="n">useOffset</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s">&#39;y&#39;</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-    <span class="n">fig</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">if</span> <span class="n">n_part</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ticklabel_format</span><span class="p">(</span><span class="n">useOffset</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s">&#39;y&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="n">fig</span> <span class="o">+=</span> <span class="mi">1</span>
     
-    <span class="n">ax1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">121</span><span class="p">)</span>
-    <span class="n">ax1</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_major_formatter</span><span class="p">(</span><span class="n">formatter</span><span class="p">)</span>
-    <span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">Mp</span> <span class="o">/</span> <span class="mf">1e-6</span><span class="p">,</span> <span class="s">&#39;b-&#39;</span><span class="p">)</span>
-    <span class="n">ax1</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">&#39;s (m)&#39;</span><span class="p">)</span>
-    <span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s">&#39;m (mg)&#39;</span><span class="p">)</span>
-    <span class="n">ax1</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">b</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s">&#39;major&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">&#39;0.5&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s">&#39;-&#39;</span><span class="p">)</span>
+        <span class="n">ax1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">121</span><span class="p">)</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_major_formatter</span><span class="p">(</span><span class="n">formatter</span><span class="p">)</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">Mp</span> <span class="o">/</span> <span class="mf">1e-6</span><span class="p">,</span> <span class="s">&#39;b-&#39;</span><span class="p">)</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">&#39;s (m)&#39;</span><span class="p">)</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s">&#39;m (mg)&#39;</span><span class="p">)</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">b</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s">&#39;major&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">&#39;0.5&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s">&#39;-&#39;</span><span class="p">)</span>
     
-    <span class="n">ax2</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">122</span><span class="p">)</span>
-    <span class="n">ax2</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_major_formatter</span><span class="p">(</span><span class="n">formatter</span><span class="p">)</span>
-    <span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">Tp</span> <span class="o">-</span> <span class="mf">273.15</span><span class="p">,</span> <span class="s">&#39;b-&#39;</span><span class="p">)</span>
-    <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">&#39;s (m)&#39;</span><span class="p">)</span>
-    <span class="n">ax2</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s">&#39;Temperature (deg C)&#39;</span><span class="p">)</span>
-    <span class="n">ax2</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">b</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s">&#39;major&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">&#39;0.5&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s">&#39;-&#39;</span><span class="p">)</span>
+        <span class="n">ax2</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">122</span><span class="p">)</span>
+        <span class="n">ax2</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_major_formatter</span><span class="p">(</span><span class="n">formatter</span><span class="p">)</span>
+        <span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">Tp</span> <span class="o">-</span> <span class="mf">273.15</span><span class="p">,</span> <span class="s">&#39;b-&#39;</span><span class="p">)</span>
+        <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">&#39;s (m)&#39;</span><span class="p">)</span>
+        <span class="n">ax2</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s">&#39;Temperature (deg C)&#39;</span><span class="p">)</span>
+        <span class="n">ax2</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">b</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s">&#39;major&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">&#39;0.5&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s">&#39;-&#39;</span><span class="p">)</span>
     
-    <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
 
 </div>
 <div class="viewcode-block" id="width_projection"><a class="viewcode-back" href="../spm/bent_plume_model.width_projection.html#bent_plume_model.width_projection">[docs]</a><span class="k">def</span> <span class="nf">width_projection</span><span class="p">(</span><span class="n">Sx</span><span class="p">,</span> <span class="n">Sy</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>

@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.14',
+        VERSION:     '0.1.16',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -590,9 +590,13 @@
         <span class="n">n_tot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moles</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
         
         <span class="c"># Get the total number of moles in gas phase using the first </span>
-        <span class="c"># component in the mixture (note that this is independent of </span>
+        <span class="c"># non-zero component in the mixture (note that this is independent of </span>
         <span class="c"># which component you pick):</span>
-        <span class="n">ng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">((</span><span class="n">n_tot</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="n">xi</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">n_tot</span><span class="p">)))</span><span class="o">/</span><span class="p">(</span><span class="n">xi</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="n">xi</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="n">m</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mf">0.</span><span class="p">:</span>
+            <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">ng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">((</span><span class="n">n_tot</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="n">xi</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="n">idx</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">n_tot</span><span class="p">)))</span> <span class="o">/</span> 
+            <span class="p">(</span><span class="n">xi</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="n">idx</span><span class="p">]</span><span class="o">-</span><span class="n">xi</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="n">idx</span><span class="p">]))</span>
         
         <span class="c"># Get the moles of each component in gas (line 1) and liquid (line 2) </span>
         <span class="c"># phase</span>
@@ -754,11 +758,11 @@
         
         <span class="c"># Use root-finding to get the critical formation pressure</span>
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">m_gases</span><span class="p">)</span> <span class="o">==</span> <span class="mf">0.</span><span class="p">:</span>
-            <span class="c"># Set T_hyd to the freezing point of pure water.  In this way, </span>
-            <span class="c"># no ocean temperatures will be found to be below the hydrate</span>
-            <span class="c"># stability temperature, which is the desired behavior since </span>
-            <span class="c"># there are not hydrate forming compounds in the mixture.</span>
-            <span class="n">T_hyd</span> <span class="o">=</span> <span class="mf">273.15</span>
+            <span class="c"># Set T_hyd to zero. In this way, no ocean temperatures will be</span>
+            <span class="c"># found to be below the hydrate stability temperature, which is</span>
+            <span class="c"># the desired behavior since there are not hydrate forming</span>
+            <span class="c"># compounds in the mixture.</span>
+            <span class="n">T_hyd</span> <span class="o">=</span> <span class="mf">0.</span>
             
         <span class="k">else</span><span class="p">:</span>
             <span class="c"># Use the K_vsi method to find the hydrate stability temperature</span>
@@ -1383,12 +1387,7 @@
         <span class="n">kh</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">kh_insitu</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kh_0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">neg_dH_solR</span><span class="p">,</span> 
                              <span class="bp">self</span><span class="o">.</span><span class="n">nu_bar</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">K_salt</span><span class="p">)</span>
         <span class="n">Cs</span> <span class="o">=</span> <span class="n">dbm_f</span><span class="o">.</span><span class="n">sw_solubility</span><span class="p">(</span><span class="n">f</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">fp_type</span><span class="p">,:],</span> <span class="n">kh</span><span class="p">)</span>
-        
-        <span class="c"># Check hydrate stability</span>
-        <span class="n">K_hyd</span> <span class="o">=</span> <span class="mf">1.</span>
-        <span class="n">T_hyd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hydrate_stability</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">T</span> <span class="o">&lt;</span> <span class="n">T_hyd</span><span class="p">:</span>
-            <span class="n">K_hyd</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="n">K_hyd</span> <span class="o">=</span> <span class="mf">1.0</span>
         
         <span class="c"># Shape-specific properties</span>
         <span class="k">if</span> <span class="n">shape</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
@@ -2084,71 +2083,63 @@
     
     <span class="c"># Follow the procedure on page 266ff of Michelsen and Mollerup (2007).    </span>
     <span class="c"># Start with three iterations of successive substitution</span>
-    <span class="n">K</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">xi</span><span class="p">,</span> <span class="n">exit_flag</span> <span class="o">=</span> <span class="n">successive_substitution</span><span class="p">(</span>
+    <span class="n">K</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">xi</span><span class="p">,</span> <span class="n">exit_flag</span><span class="p">,</span> <span class="n">steps</span> <span class="o">=</span> <span class="n">successive_substitution</span><span class="p">(</span>
                                  <span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">Pc</span><span class="p">,</span> <span class="n">Tc</span><span class="p">,</span> <span class="n">omega</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">Aij</span><span class="p">,</span> 
                                  <span class="n">Bij</span><span class="p">,</span> <span class="n">delta_groups</span><span class="p">,</span> <span class="n">calc_delta</span><span class="p">,</span> <span class="n">K</span><span class="p">)</span>
     
-    <span class="c"># Test the outcome of the iterations to determine how to proceed.</span>
-    <span class="k">if</span> <span class="n">exit_flag</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="c"># The solution already converged.</span>
-        <span class="k">pass</span>
+    <span class="c"># Continue iterating if necessary until the solution converges</span>
+    <span class="k">while</span> <span class="n">exit_flag</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
         
-    <span class="k">else</span><span class="p">:</span>
-        <span class="c"># The solution has not converged, test the total Gibbs energy to </span>
-        <span class="c"># decide how to proceed.</span>
-        <span class="n">Delta_G_RT</span><span class="p">,</span> <span class="n">tpdx</span><span class="p">,</span> <span class="n">tpdy</span><span class="p">,</span> <span class="n">phi_liq</span><span class="p">,</span> <span class="n">phi_gas</span> <span class="o">=</span> <span class="n">gibbs_energy</span><span class="p">(</span><span class="n">K</span><span class="p">)</span>
-        
-        <span class="k">if</span> <span class="n">Delta_G_RT</span> <span class="o">&lt;</span> <span class="mf">0.</span><span class="p">:</span>
-            <span class="c"># The current composition is converging on a lower total Gibbs</span>
-            <span class="c"># energy than the feed: continue successive substitution</span>
-            <span class="n">K</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">xi</span><span class="p">,</span> <span class="n">exit_flag</span> <span class="o">=</span> <span class="n">successive_substitution</span><span class="p">(</span>
-                                         <span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">Pc</span><span class="p">,</span> <span class="n">Tc</span><span class="p">,</span> <span class="n">omega</span><span class="p">,</span> 
-                                         <span class="n">delta</span><span class="p">,</span> <span class="n">Aij</span><span class="p">,</span> <span class="n">Bij</span><span class="p">,</span>  <span class="n">delta_groups</span><span class="p">,</span> 
-                                         <span class="n">calc_delta</span><span class="p">,</span> <span class="n">K</span><span class="p">)</span>
-        
-        <span class="k">elif</span> <span class="n">tpdy</span> <span class="o">&lt;</span> <span class="mf">0.</span><span class="p">:</span>
-            <span class="c"># The feed is unstable, but we need a better estimate of K</span>
-            <span class="n">K</span> <span class="o">=</span> <span class="n">phi_zi</span> <span class="o">/</span> <span class="n">phi_gas</span>
+        <span class="k">if</span> <span class="n">exit_flag</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c"># Test the total Gibbs energy to decide how to proceed.</span>
+            <span class="n">Delta_G_RT</span><span class="p">,</span> <span class="n">tpdx</span><span class="p">,</span> <span class="n">tpdy</span><span class="p">,</span> <span class="n">phi_liq</span><span class="p">,</span> <span class="n">phi_gas</span> <span class="o">=</span> <span class="n">gibbs_energy</span><span class="p">(</span><span class="n">K</span><span class="p">)</span>
             
-            <span class="c"># Continue with successive substitution</span>
-            <span class="n">K</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">xi</span><span class="p">,</span> <span class="n">exit_flag</span> <span class="o">=</span> <span class="n">successive_substitution</span><span class="p">(</span>
-                                         <span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">Pc</span><span class="p">,</span> <span class="n">Tc</span><span class="p">,</span> <span class="n">omega</span><span class="p">,</span> 
-                                         <span class="n">delta</span><span class="p">,</span> <span class="n">Aij</span><span class="p">,</span> <span class="n">Bij</span><span class="p">,</span>  <span class="n">delta_groups</span><span class="p">,</span> 
-                                         <span class="n">calc_delta</span><span class="p">,</span> <span class="n">K</span><span class="p">)</span>
-        
-        <span class="k">elif</span> <span class="n">tpdx</span> <span class="o">&lt;</span> <span class="mf">0.</span><span class="p">:</span>
-            <span class="c"># The feed is unstable, but we need a better estimate of K</span>
-            <span class="n">K</span> <span class="o">=</span> <span class="n">phi_liq</span> <span class="o">/</span> <span class="n">phi_zi</span>
-            
-            <span class="c"># Continue with successive substitution</span>
-            <span class="n">K</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">xi</span><span class="p">,</span> <span class="n">exit_flag</span> <span class="o">=</span> <span class="n">successive_substitution</span><span class="p">(</span>
-                                         <span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">Pc</span><span class="p">,</span> <span class="n">Tc</span><span class="p">,</span> <span class="n">omega</span><span class="p">,</span> 
-                                         <span class="n">delta</span><span class="p">,</span> <span class="n">Aij</span><span class="p">,</span> <span class="n">Bij</span><span class="p">,</span>  <span class="n">delta_groups</span><span class="p">,</span> 
-                                         <span class="n">calc_delta</span><span class="p">,</span> <span class="n">K</span><span class="p">)</span>
-        
+            <span class="k">if</span> <span class="n">Delta_G_RT</span> <span class="o">&lt;</span> <span class="mf">0.</span><span class="p">:</span>
+                <span class="c"># The current composition is converging on a lower total Gibbs</span>
+                <span class="c"># energy than the feed: continue successive substitution</span>
+                <span class="n">phases</span> <span class="o">=</span> <span class="mi">2</span>
+                
+            <span class="k">elif</span> <span class="n">tpdy</span> <span class="o">&lt;</span> <span class="mf">0.</span><span class="p">:</span>
+                <span class="c"># The feed is unstable, but we need a better estimate of K</span>
+                <span class="n">K</span> <span class="o">=</span> <span class="n">phi_zi</span> <span class="o">/</span> <span class="n">phi_gas</span>
+                <span class="n">phases</span> <span class="o">=</span> <span class="mi">2</span>
+                
+            <span class="k">elif</span> <span class="n">tpdx</span> <span class="o">&lt;</span> <span class="mf">0.</span><span class="p">:</span>
+                <span class="c"># The feed is unstable, but we need a better estimate of K</span>
+                <span class="n">K</span> <span class="o">=</span> <span class="n">phi_liq</span> <span class="o">/</span> <span class="n">phi_zi</span>
+                <span class="n">phases</span> <span class="o">=</span> <span class="mi">2</span>
+                
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c"># We are not sure of the stability of the feed:  do stability</span>
+                <span class="c"># analysis.</span>
+                <span class="n">K</span><span class="p">,</span> <span class="n">phases</span> <span class="o">=</span> <span class="n">stability_analysis</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">Pc</span><span class="p">,</span> <span class="n">Tc</span><span class="p">,</span> <span class="n">omega</span><span class="p">,</span> 
+                                               <span class="n">delta</span><span class="p">,</span> <span class="n">Aij</span><span class="p">,</span> <span class="n">Bij</span><span class="p">,</span> <span class="n">delta_groups</span><span class="p">,</span>
+                                               <span class="n">calc_delta</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">zi</span><span class="p">,</span> <span class="n">di</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="c"># We are not sure of the stability of the feed:  do stability </span>
-            <span class="c"># analysis.</span>
-            <span class="n">K</span><span class="p">,</span> <span class="n">phases</span> <span class="o">=</span> <span class="n">stability_analysis</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">Pc</span><span class="p">,</span> <span class="n">Tc</span><span class="p">,</span> <span class="n">omega</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> 
+            <span class="c"># We need to do stability analysis to proceed</span>
+            <span class="n">K</span><span class="p">,</span> <span class="n">phases</span> <span class="o">=</span> <span class="n">stability_analysis</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">Pc</span><span class="p">,</span> <span class="n">Tc</span><span class="p">,</span> <span class="n">omega</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span>
                                            <span class="n">Aij</span><span class="p">,</span> <span class="n">Bij</span><span class="p">,</span> <span class="n">delta_groups</span><span class="p">,</span> 
                                            <span class="n">calc_delta</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">zi</span><span class="p">,</span> <span class="n">di</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">phases</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="c"># The mixture is unstable, continue with successive </span>
-                <span class="c"># substitution</span>
-                <span class="n">K</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">xi</span><span class="p">,</span> <span class="n">exit_flag</span> <span class="o">=</span> <span class="n">successive_substitution</span><span class="p">(</span>
-                                             <span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">Pc</span><span class="p">,</span> <span class="n">Tc</span><span class="p">,</span> <span class="n">omega</span><span class="p">,</span> 
-                                             <span class="n">delta</span><span class="p">,</span> <span class="n">Aij</span><span class="p">,</span> <span class="n">Bij</span><span class="p">,</span>  <span class="n">delta_groups</span><span class="p">,</span> 
-                                             <span class="n">calc_delta</span><span class="p">,</span> <span class="n">K</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="c"># The mixture is single-phase</span>
-                <span class="n">xi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">zi</span><span class="p">)))</span>
-                <span class="k">if</span> <span class="n">beta</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">:</span>
-                    <span class="n">beta</span> <span class="o">=</span> <span class="mf">1.</span>
-                    <span class="n">xi</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">zi</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">beta</span> <span class="o">=</span> <span class="mf">0.</span>
-                    <span class="n">xi</span><span class="p">[</span><span class="mi">1</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">zi</span>
         
+        <span class="c"># Based on the updated estimate of K and phases, keep iterating or</span>
+        <span class="c"># stop</span>
+        <span class="k">if</span> <span class="n">phases</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="c"># The mixture is unstable, continue with successive </span>
+            <span class="c"># substitution</span>
+            <span class="n">K</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">xi</span><span class="p">,</span> <span class="n">exit_flag</span><span class="p">,</span> <span class="n">steps</span> <span class="o">=</span> <span class="n">successive_substitution</span><span class="p">(</span>
+                                         <span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">Pc</span><span class="p">,</span> <span class="n">Tc</span><span class="p">,</span> <span class="n">omega</span><span class="p">,</span> 
+                                         <span class="n">delta</span><span class="p">,</span> <span class="n">Aij</span><span class="p">,</span> <span class="n">Bij</span><span class="p">,</span>  <span class="n">delta_groups</span><span class="p">,</span> 
+                                         <span class="n">calc_delta</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">steps</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># The mixture is single-phase</span>
+            <span class="n">xi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">zi</span><span class="p">)))</span>
+            <span class="k">if</span> <span class="n">beta</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">:</span>
+                <span class="n">beta</span> <span class="o">=</span> <span class="mf">1.</span>
+                <span class="n">xi</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">zi</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">beta</span> <span class="o">=</span> <span class="mf">0.</span>
+                <span class="n">xi</span><span class="p">[</span><span class="mi">1</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">zi</span>
+    
     <span class="c"># Return the optimized mixture composition</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">xi</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">K</span><span class="p">)</span>
 
@@ -2373,7 +2364,7 @@
 
 </div>
 <div class="viewcode-block" id="successive_substitution"><a class="viewcode-back" href="../dbm/dbm.successive_substitution.html#dbm.successive_substitution">[docs]</a><span class="k">def</span> <span class="nf">successive_substitution</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">max_iter</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">Pc</span><span class="p">,</span> <span class="n">Tc</span><span class="p">,</span> <span class="n">omega</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">Aij</span><span class="p">,</span> 
-                            <span class="n">Bij</span><span class="p">,</span> <span class="n">delta_groups</span><span class="p">,</span> <span class="n">calc_delta</span><span class="p">,</span> <span class="n">K</span><span class="p">):</span>
+                            <span class="n">Bij</span><span class="p">,</span> <span class="n">delta_groups</span><span class="p">,</span> <span class="n">calc_delta</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">steps</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Find K-factors by successive substitution</span>
 <span class="sd">    </span>
@@ -2422,11 +2413,26 @@
 <span class="sd">        Initial guess for the partition coefficients.  If K = None, this </span>
 <span class="sd">        function will use initial estimates from Wilson (see Michelsen and</span>
 <span class="sd">        Mollerup, 2007, page 259, equation 26)</span>
+<span class="sd">    steps : int (default = 0)</span>
+<span class="sd">        Number of previous iteration steps</span>
 <span class="sd">    </span>
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    K : ndarray, size (nc)</span>
 <span class="sd">        Final value of the K-factors</span>
+<span class="sd">    beta : float</span>
+<span class="sd">        Fraction of gas or liquid (--)</span>
+<span class="sd">    xi : ndarray, size(2, nc)</span>
+<span class="sd">        Mole fraction of each component in the mixture.  Row 1 gives the</span>
+<span class="sd">        values for the gas phase and Row 2 gives the values for the liquid </span>
+<span class="sd">        phase (--)</span>
+<span class="sd">    exit_flag : int</span>
+<span class="sd">        Flag indicating how the solution finished:  1: converged in the </span>
+<span class="sd">        allowable number of iterations, 0: did not converge and did not find</span>
+<span class="sd">        any indication that it might be single phase, and -1: did not </span>
+<span class="sd">        converge, but it looks like it might be single phase.</span>
+<span class="sd">    steps : int</span>
+<span class="sd">        Total number of interation steps so far</span>
 <span class="sd">    </span>
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
@@ -2475,29 +2481,43 @@
         <span class="n">K_new</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">K_new</span><span class="p">)]</span> <span class="o">=</span> <span class="mf">0.</span>
         
         <span class="c"># Return an updated value for the K factors</span>
-        <span class="k">return</span> <span class="n">K_new</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">K_new</span><span class="p">,</span> <span class="n">beta</span><span class="p">)</span>
     
     <span class="c"># Set up the iteration parameters</span>
     <span class="n">tol</span> <span class="o">=</span> <span class="mf">1.49012e-8</span>  <span class="c"># Suggested by McCain (1990)</span>
     <span class="n">err</span> <span class="o">=</span> <span class="mf">1.</span>
-    <span class="n">steps</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">stop</span> <span class="o">=</span> <span class="bp">False</span>
     
     <span class="c"># Iterate to find the final value of K factor using successive </span>
     <span class="c"># substitution</span>
-    <span class="k">while</span> <span class="n">err</span> <span class="o">&gt;</span> <span class="n">tol</span> <span class="ow">and</span> <span class="n">steps</span> <span class="o">&lt;</span> <span class="n">max_iter</span><span class="p">:</span>
+    <span class="k">while</span> <span class="n">err</span> <span class="o">&gt;</span> <span class="n">tol</span> <span class="ow">and</span> <span class="n">steps</span> <span class="o">&lt;</span> <span class="n">max_iter</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">stop</span><span class="p">:</span>
         <span class="c"># Save the current value of K factor</span>
         <span class="n">K_old</span> <span class="o">=</span> <span class="n">K</span>
         
         <span class="c"># Update the estimate of K factor using the present fugacities</span>
-        <span class="n">K</span> <span class="o">=</span> <span class="n">update_K</span><span class="p">(</span><span class="n">K</span><span class="p">)</span>
-        
-        <span class="c"># Compute the current error basedo on the squared relative error </span>
-        <span class="c"># suggested by McCain (1990) and update the iteration counter</span>
-        <span class="n">err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nansum</span><span class="p">((</span><span class="n">K</span> <span class="o">-</span> <span class="n">K_old</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="n">K</span> <span class="o">*</span> <span class="n">K_old</span><span class="p">))</span>
+        <span class="n">K</span><span class="p">,</span> <span class="n">beta</span> <span class="o">=</span> <span class="n">update_K</span><span class="p">(</span><span class="n">K</span><span class="p">)</span>
         <span class="n">steps</span> <span class="o">+=</span> <span class="mi">1</span>
+        
+        <span class="k">if</span> <span class="n">beta</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">beta</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c"># The current estimate thinks it might be single-phase. </span>
+            <span class="k">if</span> <span class="n">steps</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="c"># we should do stability analysis to check if this is single</span>
+                <span class="c"># phase or not...stop iterating</span>
+                <span class="n">stop</span> <span class="o">=</span> <span class="bp">True</span>
+                <span class="n">steps</span> <span class="o">+=</span> <span class="mi">1</span>
+            
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># Compute the current error based on the squared relative error </span>
+            <span class="c"># suggested by McCain (1990) and update the iteration counter</span>
+            <span class="n">err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nansum</span><span class="p">((</span><span class="n">K</span> <span class="o">-</span> <span class="n">K_old</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="n">K</span> <span class="o">*</span> <span class="n">K_old</span><span class="p">))</span>
+            <span class="n">steps</span> <span class="o">+=</span> <span class="mi">1</span>
     
     <span class="c"># Determine the exit condition</span>
-    <span class="k">if</span> <span class="n">steps</span> <span class="o">&lt;</span> <span class="n">max_iter</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">stop</span><span class="p">:</span>
+        <span class="c"># We are converging on single phase, but need to do stability analysis</span>
+        <span class="c"># to check</span>
+        <span class="n">flag</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="k">elif</span> <span class="n">steps</span> <span class="o">&lt;</span> <span class="n">max_iter</span><span class="p">:</span>
         <span class="c"># This solution is converged</span>
         <span class="n">flag</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="k">else</span><span class="p">:</span>
@@ -2505,7 +2525,7 @@
     
     <span class="c"># Update the equilibrium and return the last value of K-factor</span>
     <span class="n">xi</span><span class="p">,</span> <span class="n">beta</span> <span class="o">=</span> <span class="n">gas_liq_eq</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">K</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">xi</span><span class="p">,</span> <span class="n">flag</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">xi</span><span class="p">,</span> <span class="n">flag</span><span class="p">,</span> <span class="n">steps</span><span class="p">)</span>
 
 </div>
 <div class="viewcode-block" id="gas_liq_eq"><a class="viewcode-back" href="../dbm/dbm.gas_liq_eq.html#dbm.gas_liq_eq">[docs]</a><span class="k">def</span> <span class="nf">gas_liq_eq</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">K</span><span class="p">):</span>

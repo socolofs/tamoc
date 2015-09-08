@@ -100,47 +100,49 @@ def derivs(t, q, q0_local, q1_local, profile, p, particles):
     # Compute mass and heat transfer for each particle
     for i in range(len(particles)):
         
-        # Track each particle's mass transfer separately
-        dm_p = np.zeros(q1_local.nchems)
-        
-        # Dissolution
-        if particles[i].particle.issoluble:
-            for j in range(q1_local.nchems):
+        if particles[i].integrate:
+            # Only simulate particles inside the plume
+            
+            # Track each particle's mass transfer separately
+            dm_p = np.zeros(q1_local.nchems)
+            
+            # Dissolution
+            if particles[i].particle.issoluble:
+                for j in range(q1_local.nchems):
+                    
+                    # Conservation of particle mass for a single chemical jx
+                    qp[idx] = - particles[i].A * particles[i].nbe * \
+                              particles[i].beta[j] * (particles[i].Cs[j] - 
+                              q1_local.c_chems[j]) * dtp_dt[i]
+                    dm_p[j] = qp[idx]
+                    
+                    # Update continuous phase temperature with heat of solution
+                    qp[2] += qp[idx] * particles[i].particle.neg_dH_solR[j] \
+                             * p.Ru / particles[i].particle.M[j]
+                    idx += 1
                 
-                # Conservation of particle mass for a single chemical j
-                qp[idx] = - particles[i].A * particles[i].nbe * \
-                          particles[i].beta[j] * (particles[i].Cs[j] - 
-                          q1_local.c_chems[j]) * dtp_dt[i]
-                dm_p[j] = qp[idx]
-                
-                # Update continuous phase temperature with heat of solution
-                qp[2] += qp[idx] * particles[i].particle.neg_dH_solR[j] * p.Ru / \
-                         particles[i].particle.M[j]
+            else:
+                # Non-dissolving particles have one component
+                qp[idx] = 0.
                 idx += 1
             
-        else:
-            # Non-dissolving particles have one component
-            qp[idx] = 0.
+            # Update the total mass dissolved
+            dm += dm_p
+            
+            # Heat transfer between the particle and the ambient
+            qp[idx] = - particles[i].A * particles[i].nbe * \
+                        particles[i].rho_p * particles[i].cp * \
+                        particles[i].beta_T * (particles[i].T - \
+                        q1_local.T) * dtp_dt[i]
+            
+            # Heat loss due to mass loss by dissolution
+            qp[idx] += np.sum(dm_p) * particles[i].cp * particles[i].T
+            
+            # Take the heat leaving the particle and put it in the continuous 
+            # phase fluid
+            qp[2] -= qp[idx]
             idx += 1
-        
-        # Update the total mass dissolved
-        dm += dm_p
-        
-        # Heat transfer between the particle and the ambient
-        qp[idx] = - particles[i].A * particles[i].nbe * particles[i].rho_p * \
-                  particles[i].cp * particles[i].beta_T * (particles[i].T - 
-                  q1_local.T) * dtp_dt[i]
-        
-        # Heat loss due to mass loss by dissolution
-        qp[idx] += np.sum(dm_p) * particles[i].cp * particles[i].T
-        
-        # Take the heat leaving the particle and put it in the continuous 
-        # phase fluid
-        qp[2] -= qp[idx]
-        idx += 1
-        
-        # Track the particles in the plume
-        if particles[i].integrate:
+            
             # Particle age
             qp[idx] = dtp_dt[i]
             idx += 1
@@ -155,7 +157,7 @@ def derivs(t, q, q0_local, q1_local, profile, p, particles):
             idx += 1
             
         else:
-            idx += 4
+            idx += particles[i].particle.nc + 5
     
     # Conservation equations for the dissolved constituents in the plume
     for i in range(q1_local.nchems):
@@ -163,7 +165,7 @@ def derivs(t, q, q0_local, q1_local, profile, p, particles):
         idx += 1
     
     # Conservation equation for the passive tracers in the plume
-    qp[idx:] = md * q1_local.ca_tracers
+    qp[idx:] = md / q1_local.rho_a * q1_local.ca_tracers
     
     # Return the slopes
     return qp
@@ -241,6 +243,7 @@ def calculate(t0, q0, q0_local, profile, p, particles, derivs, dt_max,
     k = 0
     psteps = 30.
     stop = False
+    neutral_counter = 0
     while r.successful() and not stop:
         
         # Print progress to the screen
@@ -251,9 +254,10 @@ def calculate(t0, q0, q0_local, profile, p, particles, derivs, dt_max,
         # Perform one step of the integration
         r.set_f_params(q0_local, q1_local, profile, p, particles)
         r.integrate(t[-1] + dt_max, step=True)
+        q1_local.update(r.t, r.y, profile, p, particles)
         
         # Correct the temperature
-        r = correct_temperature(r, q1_local, profile, p, particles)
+        r = correct_temperature(r, particles)
         
         # Remove particle solution for particles outside the plume
         r = correct_particle_tracking(r, particles)
@@ -264,10 +268,22 @@ def calculate(t0, q0, q0_local, profile, p, particles, derivs, dt_max,
         
         # Update the Lagrangian elements for the next time step
         q0_local = q0_hold
-        q1_local.update(t[-1], q[-1], profile, p, particles)
         q0_hold = deepcopy(q1_local)
         
+        # Check if this element passed through a region of neutral 
+        # buoyancy
+        if np.sign(q0_local.rho_a - q0_local.rho) != \
+            np.sign(q1_local.rho_a - q1_local.rho):
+            # Check for numerical instability
+            if np.maximum(np.abs(q0_local.rho_a - q0_local.rho), 
+                np.abs(q1_local.rho_a - q1_local.rho)) > 1.e-10:
+                # Update neutral buoyancy level counter
+                neutral_counter += 1
+        
         # Evaluate the stop criteria
+        if neutral_counter >= 2:
+            # Passed through the second neutral buoyany level
+            stop = True
         if q[-1][10] / q1_local.D > sd_max:
             # Progressed desired distance along the plume centerline
             stop = True
@@ -295,7 +311,7 @@ def calculate(t0, q0, q0_local, profile, p, particles, derivs, dt_max,
     return (t, q)
 
 
-def correct_temperature(r, q_local, profile, p, particles):
+def correct_temperature(r, particles):
     """
     Make sure the correct temperature is stored in the state space solution
     
@@ -328,20 +344,6 @@ def correct_temperature(r, q_local, profile, p, particles):
         intrinsic version of these data are used when the solver makes 
         calculations; hence, editing this file does not change the state
         space stored in the actual solver.
-    tp : ndarray
-        Array of current particle ages, one entry for each particle in the 
-        `particles` list.
-    sp : ndarray
-        Array of current particle positions, one entry for each particle in
-        the `particles` list.  The array is organized as (x0, y0, z0, x1, 
-        y1, z1, ... xn, yn, zn) for n particles.
-    q_local : `bent_plume_model.LagElement`
-        Object containing the numerical solution at the initial condition
-    profile : `ambient.Profile` object
-        The ambient CTD object used by the simulation.
-    p : `ModelParams` object
-        Object containing the fixed model parameters for the bent
-        plume model.
     particles : list of `Particle` objects
         List of `bent_plume_model.Particle` objects containing the dispersed 
         phase local conditions and behavior.
@@ -353,12 +355,6 @@ def correct_temperature(r, q_local, profile, p, particles):
         as were used in the calcualtion.
     
     """
-    # Update the Lagrangian element state space with the current solution.
-    # This will check whether heat transfer is turned off and will return 
-    # the value of the particle temperature that was used in the calculation
-    # step.
-    q_local.update(r.t, r.y, profile, p, particles)
-    
     # Find the heat conservation equation in the model state space for the 
     # particles and replace r.y with the correct values.
     idx = 11
@@ -408,26 +404,37 @@ def correct_particle_tracking(r, particles):
         as were used in the calcualtion.
     
     """
+    # Skip through the single-phase state space
+    idx = 11
+
     # Check each particle to determine whether they are inside or outside
     # the plume
-    
     for i in range(len(particles)):
         if not particles[i].integrate:
-            # This particle is outside the plume...find the particle position 
-            # in the state space solution
-            idx = 11
+            # Skip the masses, temperature, and time
+            idx += particles[i].particle.nc + 2
             
-            for i in range(len(particles)):
-                # Skip the particle mass, heat, and time (time is always 
-                # computed properly)
-                idx += particles[i].particle.nc + 3
-                
-                # Replace the (l,n,m) coordinates with np.nan
-                r.y[idx:idx+3] = np.nan
-                
-                # Skip forward in the state space solution to the start of 
-                # the next particle solution
-                idx += 3
+            # Particle is outside the plume; replace the coordinates with 
+            # np.nan
+            r.y[idx:idx+3] = np.nan
+            idx += 3
+            
+        else:
+            # Skip the masses, temperature, time, and coordinates
+            idx += particles[i].particle.nc + 5
+        
+        # Check if the integration should stop
+        if particles[i].p_fac == 0.:
+            # Stop tracking the particle inside the plume
+            particles[i].integrate = False
+            
+            # Store the properties at the exit point
+            particles[i].te = particles[i].t
+            particles[i].xe = particles[i].x
+            particles[i].ye = particles[i].y
+            particles[i].ze = particles[i].z
+            particles[i].me = particles[i].m
+            particles[i].Te = particles[i].T
     
     # Return the corrected solution
     return r
@@ -484,7 +491,7 @@ def entrainment(q0_local, q1_local, p):
     # projected onto the plume centerline
     a1 = 2. * q1_local.b * np.sqrt(q1_local.sin_p**2 + q1_local.sin_t**2 - 
          q1_local.sin_p**2 * q1_local.sin_t**2) * q1_local.h
-    if (q1_local.s - q0_local.s) / q1_local.b <= 1.e-9:
+    if (q1_local.s - q0_local.s) / q1_local.b <= 1.e-3:
         # The plume is not progressing along the centerline; assume the
         # expansion and curvature corrections are small since delta s / b is
         # very small.

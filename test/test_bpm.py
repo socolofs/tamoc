@@ -24,6 +24,20 @@ have been validated against measurements.
 """
 # S. Socolofsky, November 2014, Texas A&M University <socolofs@tamu.edu>.
 
+from tamoc import seawater
+from tamoc import ambient
+from tamoc import dbm
+import test_sbm
+from tamoc import dispersed_phases
+from tamoc import bent_plume_model
+from tamoc import lmp
+
+import numpy as np
+from numpy.testing import *
+
+# ----------------------------------------------------------------------------
+# Helper Functions
+# ----------------------------------------------------------------------------
 
 
 def test_bpm():
@@ -31,4 +45,4 @@ def test_bpm():
     docstring for test_bpm
     
     """
-    assert True
+    pass
