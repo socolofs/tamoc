@@ -1343,7 +1343,7 @@ class LagElement(object):
             # Update the particles with their current properties
             m_p = self.M_p[i] / particles[i].nbe
             T_p = self.H_p[i] / (np.sum(self.M_p[i]) * particles[i].cp)
-            particles[i].update(m_p, T_p, self.Pa, self.Sa, self.Ta, 
+            particles[i].update(m_p, T_p, self.Pa, self.S, self.T, 
                                 self.t_p[i])
             
             # Track the particle in the plume
