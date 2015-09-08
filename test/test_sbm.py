@@ -62,7 +62,7 @@ def make_ctd_file():
     __location__ = os.path.realpath(os.path.join(os.getcwd(),
                                     os.path.dirname(__file__), 
                                     'output'))
-    nc_file = os.path.join(__location__,file)
+    nc_file = os.path.join(__location__,'test_BM54.nc')
     
     try:
         # Load the dataset if it exists
