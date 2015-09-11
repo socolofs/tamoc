@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 DBM Module
 ==========
@@ -45,6 +46,9 @@ the discrete bubble model have not been ported to Fortran and reside in the
 from tamoc import chemical_properties as chem
 from tamoc import dbm_f
 from tamoc import seawater
+# # JG # # #
+from tamoc import sintef
+# # JG # # #
 
 import os
 import numpy as np
@@ -90,11 +94,6 @@ class FluidMixture(object):
         for hydocarbons.  If `air` is False (default value), these built
         in methods are used.  If `air` is True, then these methods are 
         replaced with correlations between air and seawater.
-    sigma_correction : float
-        Correction factor to adjust the interfacial tension value supplied by
-        the default model to a value measured for the mixture of interest.
-        The correction factor should be computed as sigma_measured / 
-        sigma_model at a single P and T value.
     
     Attributes
     ----------
@@ -137,7 +136,7 @@ class FluidMixture(object):
     
     """
     def __init__(self, composition, delta=None, user_data={}, 
-                 delta_groups=None, air=False, sigma_correction=1.):
+                 delta_groups=None, air=False):
         super(FluidMixture, self).__init__()
         
         # Check the data type of the inputs and fix if necessary
@@ -258,9 +257,6 @@ class FluidMixture(object):
         
         # Store whether or not the fluid is air
         self.air = air
-        
-        # Store the interfacial tension correction factor
-        self.sigma_correction = sigma_correction
     
     def masses(self, n):
         """
@@ -491,10 +487,16 @@ class FluidMixture(object):
             Tc = np.sum(self.Tc * xi)
             
             # Get the interfacial tension
-            sigma = 0.111 * delta_rho**1.024 * (T / Tc)**(-1.25)
+            sigma = 0.111 * delta_rho**1.024 * (T / Tc)**(-1.25) 
             
-            # Adjust the interfacial tension to a measured value
-            sigma = self.sigma_correction * sigma
+            sigma[1] = (0.02569/0.066691)*sigma[1]
+            # updated value to 0.066691 (value at (T,S,P) = (297.5944,25,101325).
+            # # print 0.111*((delta_rho[1])**1.024)*((T / Tc)**(-1.25))
+            #print sigma_p
+            # ADDED TO FORCE THE ESTIMATED INTERFACIAL TENSION to match the value
+            # measured by Abdelrahim at
+            # P = 1.01325e5 # Pa and T = 297.5944 # K (= 76°F)
+            # for the liquid phase. Values true only for DWH oil.
         
         # Return the Interfacial tension
         return sigma
@@ -550,13 +552,28 @@ class FluidMixture(object):
         n_tot = self.moles(m)
         
         # Get the total number of moles in gas phase using the first 
-        # non-zero component in the mixture (note that this is independent of 
+        # component in the mixture (note that this is independent of 
         # which component you pick):
-        idx = 0
-        while m[idx] <= 0.:
-            idx += 1
-        ng = np.abs((n_tot[idx] - (xi[1,idx] * np.sum(n_tot))) / 
-            (xi[0,idx]-xi[1,idx]))
+        #ng = np.abs((n_tot[6] - (xi[1,6] * np.sum(n_tot)))/(xi[0,6]-xi[1,6]))
+        #print np.abs((n_tot[-1] - (xi[1,-1] * np.sum(n_tot)))/(xi[0,-1]-xi[1,-1]))
+        #print np.abs((n_tot[1] - (xi[1,1] * np.sum(n_tot)))/(xi[0,1]-xi[1,1]))
+        #print ((n_tot[-1] - (xi[1,-1] * np.sum(n_tot)))/(xi[0,-1]-xi[1,-1]))
+        #print np.abs((n_tot[0] - (xi[1,0] * np.sum(n_tot)))/(xi[0,0]-xi[1,0]))
+        #print ((n_tot[0] - (xi[1,0] * np.sum(n_tot)))/(xi[0,0]-xi[1,0]))
+        #print ng
+        #print np.sum(n_tot)
+        #print xi[0,6]
+        #print xi[1,6]
+        #print n_tot[6]
+        for index in range(np.size(m)):
+            if m[index]>0:
+                ng = np.abs((n_tot[index] - (xi[1,index] * np.sum(n_tot)))/(xi[0,index]-xi[1,index]))
+                break
+        #print '- - - - -- - - - -- - -'
+        #print m
+        #print ng
+        
+        #ng = np.abs((n_tot[0] - (xi[1,0] * np.sum(n_tot)))/(xi[0,0]-xi[1,0]))
         
         # Get the moles of each component in gas (line 1) and liquid (line 2) 
         # phase
@@ -718,11 +735,11 @@ class FluidMixture(object):
         
         # Use root-finding to get the critical formation pressure
         if np.sum(m_gases) == 0.:
-            # Set T_hyd to zero. In this way, no ocean temperatures will be
-            # found to be below the hydrate stability temperature, which is
-            # the desired behavior since there are not hydrate forming
-            # compounds in the mixture.
-            T_hyd = 0.
+            # Set T_hyd to the freezing point of pure water.  In this way, 
+            # no ocean temperatures will be found to be below the hydrate
+            # stability temperature, which is the desired behavior since 
+            # there are not hydrate forming compounds in the mixture.
+            T_hyd = 273.15
             
         else:
             # Use the K_vsi method to find the hydrate stability temperature
@@ -776,11 +793,6 @@ class FluidParticle(FluidMixture):
         for hydocarbons.  If `air` is False (default value), these built
         in methods are used.  If `air` is True, then these methods are 
         replaced with correlations between air and seawater.
-    sigma_correction : float
-        Correction factor to adjust the interfacial tension value supplied by
-        the default model to a value measured for the mixture of interest.
-        The correction factor should be computed as sigma_measured / 
-        sigma_model at a single P and T value.
     
     Notes
     -----
@@ -807,10 +819,9 @@ class FluidParticle(FluidMixture):
     
     """
     def __init__(self, composition, fp_type=0., delta=None, user_data={},
-                 delta_groups=None, air=False, sigma_correction=1.):
+                 delta_groups=None, air=False):
         super(FluidParticle, self).__init__(composition, delta, user_data,
-                                            delta_groups, air, 
-                                            sigma_correction)
+                                            delta_groups, air)
         
         # Store the input variables
         self.fp_type = fp_type
@@ -1274,6 +1285,18 @@ class FluidParticle(FluidMixture):
         
         return beta
     
+    # # # JG # # #
+    #def equilibrium(self, m, T, P):
+    #    """I am trying to be able to access the  equilibrium calculations
+    #    """
+    #    #print m
+    #    #print T
+    #    #print P
+    #    #print self.Pc
+    #    (m, xi_, K_) = self.particle.equilibrium(m, T, P)
+    #    return (m, xi_, K_)
+    # # # JG # # #
+    
     def return_all(self, m, T, P, Sa, Ta, status=-1):
         """
         Compute all of the dynamic properties of the bubble in an efficient
@@ -1328,32 +1351,132 @@ class FluidParticle(FluidMixture):
         coefficient when hydrate shells are predicted to be present.
         
         """
+        
+        # # # JG # # #
+        #print ' ... . . . .. . . . .. . . . '
+        #print m
+        #print ' ... . . . .. . . . .. . . . '
+        (m_, xi_, K_) = self.equilibrium(m, T, P)
+        #print ' ... . . . .. . . . .. . . . '
+        #print m_
+        #print ' ... . . . .. . . . .. . . . '
+        
+        
+        density_gas = FluidMixture.density(self, m_[0,:], T, P)[0, 0]
+        density_liq = FluidMixture.density(self, m_[1,:], T, P)[1, 0]
+        Volume_gas  = np.sum(m_,1)[0]/density_gas
+        Volume_liq = np.sum(m_,1)[1]/density_liq
+        # BEWARE! If no gas, density_gas and Volume_gas are NaN. Same for
+        # density_liq and Volume_liq if there is no liquid.
+        if np.isnan(density_liq):
+            rho_p = density_gas
+            sigma = FluidMixture.interface_tension(self, m_[0,:], T, Sa, P)[0, 0] # 0 for gas.
+            liq_prop = 0 # 0 means gas, 1 means liquid
+        elif np.isnan(density_gas):
+            rho_p = density_liq
+            sigma = FluidMixture.interface_tension(self, m_[1,:], T, Sa, P)[1, 0] # 1 for liq.
+            liq_prop = 1 # 0 means gas, 1 means liquid
+        else:
+            rho_p = np.array([np.sum(m)/(Volume_liq + Volume_gas)])
+            de = (6.0 * np.sum(m) / (np.pi * rho_p))**(1.0/3.0)
+            # Estimate the thickness of an (assumed uniform) liquid film around
+            # the bubble, if there is more gas than liquid:
+            if Volume_gas>Volume_liq:
+                d_film = (Volume_liq/Volume_gas)*(de/2)/3
+                if d_film > 1e-6: # arbitrary limit of 1 micrometer
+                    sigma = FluidMixture.interface_tension(self, m_[1,:], T, Sa, P)[1, 0] # 1 for liq.
+                    liq_prop = 1 # 0 means gas, 1 means liquid
+                else:
+                    sigma = FluidMixture.interface_tension(self, m_[0,:], T, Sa, P)[0, 0] # 0 for gas.
+                    liq_prop = 0 # 0 means gas, 1 means liquid
+            else: # more liquid than gas, we use the liquid interfacial tension:
+                sigma = FluidMixture.interface_tension(self, m_[1,:], T, Sa, P)[1, 0] # 1 for liq.
+                liq_prop = 1 # 0 means gas, 1 means liquid
+        
+        de = (6.0 * np.sum(m) / (np.pi * rho_p))**(1.0/3.0)
+        
+        
+        # For viscosity, let's just assume that the phase with the larger volume
+        # determines it:
+        if np.isnan(Volume_gas): # first we set a NaN volume to zero
+            Volume_gas = 0       # to be able to see if it is smaller or
+        if np.isnan(Volume_liq): # bigger that another volume.
+            Volume_liq = 0
+        if Volume_gas>Volume_liq: # > 50% gas:
+            mu_p = FluidMixture.viscosity(self, m_[0], T, P)[0, 0] # 0 for gas.
+        else: # > 50% liquid:
+            mu_p = FluidMixture.viscosity(self, m_[1], T, P)[1, 0] # 1 for liq.
+        #mu_p = FluidMixture.viscosity(self, m_[liq_prop], T, P)[liq_prop, 0]
+        
+        #print ',,,,,,,,,,,,,,;;;;;;;,,,,;;;;,,;;;;,,;,,;,,;;;;;,'
+        #print rho_p
+        #print sigma
+        #print mu_p
+        #print liq_prop
+        #print m_[0]
+        #print FluidMixture.viscosity(self, m_[0], T, P)[0, 0]
+        #print FluidMixture.viscosity(self, m_[1], T, P)[1, 0]
+        
+        # # # JG # # #
+        
         # Ambient properties of seawater
         rho = seawater.density(Ta, Sa, P)
         mu = seawater.mu(Ta, Sa, P)
-        sigma = self.interface_tension(m, T, Sa, P)
+        #sigma = self.interface_tension(m, T, Sa, P)
         D = dbm_f.diffusivity(mu, self.Vb)
         k = seawater.k(Ta, Sa, P) / (rho * seawater.cp())
         
         # Particle density, equivalent diameter and shape
-        rho_p = dbm_f.density(T, P, m, self.M, self.Pc, self.Tc, self.Vc, 
-                              self.omega, self.delta, self.Aij, self.Bij, 
-                              self.delta_groups, 
-                              self.calc_delta)[self.fp_type, 0]
-        de = (6.0 * np.sum(m) / (np.pi * rho_p))**(1.0/3.0)
+        #rho_p = dbm_f.density(T, P, m, self.M, self.Pc, self.Tc, self.Vc, 
+        #                      self.omega, self.delta, self.Aij, self.Bij, 
+        #                      self.delta_groups, 
+        #                      self.calc_delta)[self.fp_type, 0]
+        #de = (6.0 * np.sum(m) / (np.pi * rho_p))**(1.0/3.0)
         shape = dbm_f.particle_shape(de, rho_p, rho, mu, sigma)
         
         # Other particle properties
-        mu_p = self.viscosity(m, T, P)
+        #mu_p = self.viscosity(m, T, P)
                 
         # Solubility
-        f = dbm_f.fugacity(T, P, m, self.M, self.Pc, self.Tc, self.omega, 
-                           self.delta, self.Aij, self.Bij, 
-                           self.delta_groups, self.calc_delta)
+        #f = dbm_f.fugacity(T, P, m, self.M, self.Pc, self.Tc, self.omega, 
+        #                   self.delta, self.Aij, self.Bij, 
+        #                   self.delta_groups, self.calc_delta)
         kh = dbm_f.kh_insitu(T, P, Sa, self.kh_0, self.neg_dH_solR, 
                              self.nu_bar, self.M, self.K_salt)
-        Cs = dbm_f.sw_solubility(f[self.fp_type,:], kh)
-        K_hyd = 1.0
+        #Cs = dbm_f.sw_solubility(f[self.fp_type,:], kh)
+        
+        # # # JG # # #
+        # liq_prop = 1 if liquid, 0 if gas
+        f = dbm_f.fugacity(T, P, m_[liq_prop,:], self.M, self.Pc, self.Tc, self.omega, 
+                        self.delta, self.Aij, self.Bij, 
+                        self.delta_groups, self.calc_delta)
+        Cs = dbm_f.sw_solubility(f[liq_prop,:], kh)
+        #print Cs
+        self.fp_type = liq_prop
+        
+        dmax_particle = sintef.de_max(sigma, rho_p,rho)
+        if dmax_particle<de:
+            print 'Current particle diameter, [m]:'
+            print de
+            print 'maximum stable diameter, [m]:'
+            print dmax_particle
+            print 'sigma:'
+            print sigma
+            print 'rho_p:'
+            print rho_p
+            print 'rho:'
+            print rho
+        
+        # # # JG # # #
+        
+        # Check hydrate stability
+        K_hyd = 1.
+        T_hyd = self.hydrate_stability(m, P)
+        if T < T_hyd:
+            K_hyd = 1.0
+            
+        #print '.................'
+        #print D[0:5]
         
         # Shape-specific properties
         if shape == 1:
@@ -2009,6 +2132,8 @@ def equil_MM(m, T, P, M, Pc, Tc, omega, delta, Aij, Bij, delta_groups,
     phi_zi = f_zi / (zi * P)
     di = np.log(zi) + np.log(phi_zi)
     
+    #print 'hello'
+    
     # Compute the total Gibbs energy
     def gibbs_energy(K):
         """
@@ -2049,73 +2174,79 @@ def equil_MM(m, T, P, M, Pc, Tc, omega, delta, Aij, Bij, delta_groups,
     
     # Follow the procedure on page 266ff of Michelsen and Mollerup (2007).    
     # Start with three iterations of successive substitution
-    K, beta, xi, exit_flag, steps = successive_substitution(
+    K, beta, xi, exit_flag = successive_substitution(
                                  m, T, P, 3, M, Pc, Tc, omega, delta, Aij, 
-                                 Bij, delta_groups, calc_delta, K)
+                                 Bij, delta_groups, calc_delta, K, zi, di)
     
-    # Continue iterating if necessary until the solution converges
-    while exit_flag <= 0:
-        # Test the total Gibbs energy to decide how to proceed.
+    # Test the outcome of the iterations to determine how to proceed.
+    if exit_flag > 0:
+        #print '1'
+        # The solution already converged.
+        pass
+        
+    else:
+        # The solution has not converged, test the total Gibbs energy to 
+        # decide how to proceed.
         Delta_G_RT, tpdx, tpdy, phi_liq, phi_gas = gibbs_energy(K)
         
-        if exit_flag == 0:
-            
-            if Delta_G_RT < 0.:
-                # The current composition is converging on a lower total Gibbs
-                # energy than the feed: continue successive substitution
-                phases = 2
-                
-            elif tpdy < 0.:
-                # The feed is unstable, but we need a better estimate of K
-                K = phi_zi / phi_gas
-                phases = 2
-                
-            elif tpdx < 0.:
-                # The feed is unstable, but we need a better estimate of K
-                K = phi_liq / phi_zi
-                phases = 2
-                
-            else:
-                # We are not sure of the stability of the feed:  do stability
-                # analysis.
-                K, phases = stability_analysis(m, T, P, M, Pc, Tc, omega, 
-                                               delta, Aij, Bij, delta_groups,
-                                               calc_delta, K, zi, di)
-        else:
-            # Successive substitution thinks this is single-phase...check
-            # with stability analysis
-            K_st, phases = stability_analysis(m, T, P, M, Pc, Tc, omega, 
-                                           delta, Aij, Bij, delta_groups,
-                                           calc_delta, K, zi, di)
-            
-            # Keep the K-values with the lowest Gibbs energy
-            Delta_G_RT_st, tpdx_st, tpdy_st, phi_liq_st, phi_gas_st = \
-                gibbs_energy(K)
-            if Delta_G_RT_st < Delta_G_RT:
-                K = K_st
-            
-        if phases > 1:
-            # The mixture is unstable and unconverged, continue with
-            # successive substitution
-            K, beta, xi, exit_flag, steps = successive_substitution(
-                                         m, T, P, np.inf, M, Pc, Tc, omega, 
+        max_nb_iter = np.inf#100 # default was np.inf
+        #print '2'
+        if Delta_G_RT < 0.:
+            # The current composition is converging on a lower total Gibbs
+            # energy than the feed: continue successive substitution
+            K, beta, xi, exit_flag = successive_substitution(
+                                         m, T, P, max_nb_iter, M, Pc, Tc, omega, 
                                          delta, Aij, Bij,  delta_groups, 
-                                         calc_delta, K, steps)
+                                         calc_delta, K, zi, di)
+            #K, beta, xi, exit_flag = successive_substitution(
+            #                             m, T, P, np.inf, M, Pc, Tc, omega, 
+            #                             delta, Aij, Bij,  delta_groups, 
+            #                             calc_delta, K)
+        
+        elif tpdy < 0.:
+            # The feed is unstable, but we need a better estimate of K
+            K = phi_zi / phi_gas
+            #print '3'
+            # Continue with successive substitution
+            K, beta, xi, exit_flag = successive_substitution(
+                                         m, T, P, max_nb_iter, M, Pc, Tc, omega, 
+                                         delta, Aij, Bij,  delta_groups, 
+                                         calc_delta, K, zi, di)
+        
+        elif tpdx < 0.:
+            # The feed is unstable, but we need a better estimate of K
+            K = phi_liq / phi_zi
+            #print '4'
+            # Continue with successive substitution
+            K, beta, xi, exit_flag = successive_substitution(
+                                         m, T, P, max_nb_iter, M, Pc, Tc, omega, 
+                                         delta, Aij, Bij,  delta_groups, 
+                                         calc_delta, K, zi, di)
+        
         else:
-            # The mixture is single-phase and converged
-            exit_flag = 1
-            xi = np.zeros((2,len(zi)))
-            if beta > 0.5:
-                # Pure gas
-                beta = 1.
-                xi[0,:] = zi
-                K = np.zeros(K.shape) + np.nan
+            # We are not sure of the stability of the feed:  do stability 
+            # analysis.
+            #print '5'
+            K, phases = stability_analysis(m, T, P, M, Pc, Tc, omega, delta, 
+                                           Aij, Bij, delta_groups, 
+                                           calc_delta, K, zi, di)
+            if phases > 1:
+                # The mixture is unstable, continue with successive 
+                # substitution
+                K, beta, xi, exit_flag = successive_substitution(
+                                             m, T, P, max_nb_iter, M, Pc, Tc, omega, 
+                                             delta, Aij, Bij,  delta_groups, 
+                                             calc_delta, K, zi, di)
             else:
-                # Pure liquid
-                beta = 0.
-                xi[1,:] = zi
-                K = np.zeros(K.shape) + np.nan
-    
+                # The mixture is single-phase
+                xi = np.zeros((2,len(zi)))
+                if beta > 0.5:
+                    beta = 1.
+                    xi[0,:] = zi
+                else:
+                    beta = 0.
+                    xi[1,:] = zi
+        
     # Return the optimized mixture composition
     return (xi, beta, K)
 
@@ -2272,8 +2403,10 @@ def stability_analysis(m, T, P, M, Pc, Tc, omega, delta, Aij, Bij,
         tol = 1.49012e-8  # Use same value as for K-factor iteration
         err = 1.
         
+        #max_iter = 50
         # Iterate to find the final value of W
         while err > tol:
+        #while err > tol:
             # Save the current value of W
             W_old = W
             
@@ -2306,12 +2439,12 @@ def stability_analysis(m, T, P, M, Pc, Tc, omega, delta, Aij, Bij,
     # First, do a test vapor-like composition
     W = K * zi
     W_gas, tm_gas, phases_gas = find_W(W, 0)
-    K_gas = W_gas / zi
+    K_gas = W_gas / (zi * np.sum(W_gas))
     
     # Second, to be conservative, do a test liquid-like composition
     W = zi / K
     W_liq, tm_liq, phases_liq = find_W(W, 1)
-    K_liq = zi / W_liq
+    K_liq = zi * np.sum(W_liq)/ W_liq
     
     if phases_gas > 1 and phases_liq > 1:
         if tm_gas < tm_liq:
@@ -2328,6 +2461,7 @@ def stability_analysis(m, T, P, M, Pc, Tc, omega, delta, Aij, Bij,
         phases = 2
     elif phases_liq > 1:
         # This is probably a liquid-like mixture
+        print Option 3
         K = K_liq
         phases = 2
     else:
@@ -2340,7 +2474,7 @@ def stability_analysis(m, T, P, M, Pc, Tc, omega, delta, Aij, Bij,
 
 
 def successive_substitution(m, T, P, max_iter, M, Pc, Tc, omega, delta, Aij, 
-                            Bij, delta_groups, calc_delta, K, steps=0):
+                            Bij, delta_groups, calc_delta, K, zi, di):
     """
     Find K-factors by successive substitution
     
@@ -2389,26 +2523,11 @@ def successive_substitution(m, T, P, max_iter, M, Pc, Tc, omega, delta, Aij,
         Initial guess for the partition coefficients.  If K = None, this 
         function will use initial estimates from Wilson (see Michelsen and
         Mollerup, 2007, page 259, equation 26)
-    steps : int (default = 0)
-        Number of previous iteration steps
     
     Returns
     -------
     K : ndarray, size (nc)
         Final value of the K-factors
-    beta : float
-        Fraction of gas or liquid (--)
-    xi : ndarray, size(2, nc)
-        Mole fraction of each component in the mixture.  Row 1 gives the
-        values for the gas phase and Row 2 gives the values for the liquid 
-        phase (--)
-    exit_flag : int
-        Flag indicating how the solution finished:  1: converged in the 
-        allowable number of iterations, 0: did not converge and did not find
-        any indication that it might be single phase, and -1: did not 
-        converge, but it looks like it might be single phase.
-    steps : int
-        Total number of interation steps so far
     
     Notes
     -----
@@ -2418,7 +2537,7 @@ def successive_substitution(m, T, P, max_iter, M, Pc, Tc, omega, delta, Aij,
     
     """
     # Update the value of K using successive substitution
-    def update_K(K):
+    def update_K(K, zi, di,steps):
         """
         Evaluate the update function for finding K-factor
         
@@ -2440,61 +2559,97 @@ def successive_substitution(m, T, P, max_iter, M, Pc, Tc, omega, delta, Aij,
             New guess for K-factor
         
         """
-        
+        #print 'uh.'
+        # Initialize by assuming two phases:
+        is_single_phase = 0.
         # Get the mixture composition for the current K-factor
         xi, beta = gas_liq_eq(m, M, K)
-        
+        if (beta==0. or beta==1.) and (steps>3.):
+            #print 'hey?'
+            (K,phases) = stability_analysis(m, T, P, M, Pc, Tc, omega, delta, Aij, Bij, 
+                       delta_groups, calc_delta, K, zi, di)
+            print phases
+            if phases==1.:
+                #print 'hoy'
+                #xi = np.zeros((2,len(zi)))
+                #if beta == 1.:
+                #    xi[0,:] = zi
+                #else:
+                #    xi[1,:] = zi # beta == 0.
+                is_single_phase = 1.
+                #raise ValueError('Single-phase')
+    
         # Get tha gas and liquid fugacities for the current composition
         f_gas = dbm_f.fugacity(T, P, xi[0,:]*M, M, Pc, Tc, omega, delta, 
                                Aij, Bij, delta_groups, calc_delta)[0,:]
         f_liq = dbm_f.fugacity(T, P, xi[1,:]*M, M, Pc, Tc, omega, delta, 
                                Aij, Bij, delta_groups, calc_delta)[1,:]
-        
+    
         # Update K using K = (phi_liq / phi_gas)
         K_new = (f_liq / (xi[1,:] * P)) / (f_gas / (xi[0,:] * P))
-        
+    
         # If the mass of any component in the mixture is zero, make sure the
         # K-factor is also zero.
         K_new[np.isnan(K_new)] = 0.
+        #print ' sum of K-factors:'
+        #print np.sum(K_new)
         
         # Return an updated value for the K factors
-        return (K_new, beta)
+        return (K_new,is_single_phase,beta)
     
     # Set up the iteration parameters
     tol = 1.49012e-8  # Suggested by McCain (1990)
     err = 1.
+    steps = 0
+    
+    #print max_iter
     
     # Iterate to find the final value of K factor using successive 
     # substitution
-    stop = False
-    while err > tol and steps < max_iter and not stop:
+    while err > tol and steps < max_iter:
+        #print steps
+        #print err
         # Save the current value of K factor
         K_old = K
-        
+        #print K
         # Update the estimate of K factor using the present fugacities
-        K, beta = update_K(K)
-        steps += 1
-        if steps > 3 and (beta == 0. or beta == 1.):
-            stop = True
+        #K = update_K(K, zi, di,steps)
+        (K,is_single_phase,beta) = update_K(K, zi, di,steps)
+        #print K_new
+        if is_single_phase==1.:
+            #print 'he.'
+            #print zi
+            xi = np.zeros((2,len(zi)))
+            if beta == 1.:
+                xi[0,:] = zi
+            else:
+                #print 'ooooO'
+                xi[1,:] = zi # beta == 0.
+            # This solution is converged
+            flag = 1
+            return (K, beta, xi, flag)
+            #print 'should not be printed...'
         
-        # Compute the current error based on the squared relative error 
+        # Compute the current error basedo on the squared relative error 
         # suggested by McCain (1990) and update the iteration counter
         err = np.nansum((K - K_old)**2 / (K * K_old))
+        print steps, K
+        steps += 1
+        #print err
+        #print (K - K_old)
     
+    
+    #print 'aha'
     # Determine the exit condition
-    if stop:
-        # Successive subsitution thinks this is single-phase
-        flag = -1
-    elif steps < max_iter:
+    if steps < max_iter:
         # This solution is converged
         flag = 1
     else:
-        # No decision has been reached
         flag = 0
     
     # Update the equilibrium and return the last value of K-factor
     xi, beta = gas_liq_eq(m, M, K)
-    return (K, beta, xi, flag, steps)
+    return (K, beta, xi, flag)
 
 
 def gas_liq_eq(m, M, K):

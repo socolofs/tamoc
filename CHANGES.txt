@@ -12,6 +12,12 @@ V0.1.16, September 2015 --
      successive_substitution is finding single-phase tendency without 
      converging:  stability analysis is initiated sooner, which solves the 
      issue.  
+   . Added a new parameter to the dbm.FluidMixture and dbm.FluidParticle 
+     object creator called sigma_correction which can specify the value of
+     the interface tension from a measurement divided by the value of the 
+     interface tension given by the default model.  This capability is 
+     recommended for use by the interface tension equation developer to 
+     adjust the model for measured data when available.
 V0.1.15, August 2015 -- 
    . Changed the way the bent plume model tracks the particles inside the 
      plume.  Previous versions did the particle tracking outside the main 
