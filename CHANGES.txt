@@ -1,3 +1,14 @@
+V0.1.17, September 2015 --
+   . Updated the K_salt values for O2, N2, and Ar with data from Weiss (1970).
+   . Changed the way simulation results are saved to the netCDF format files
+     so that whether or not the user provided external chemical properties 
+     data and whether or not the user provided the delta_groups variable, the
+     save/load commands figure out what was done and do the right things.  In
+     past versions, the user had to tell the load command what the user_data
+     and delta_groups variables were.  This is no longer required.
+   . Updated the bent plume model save_sim and load_sim methods so that if
+     the particles are tracked in the farfield, the tracking solutions are
+     saved.
 V0.1.16, September 2015 --
    . Fixed the way the model keeps track of particles that exit the plume.  
      The solution from the previous version of the model is not changed, but

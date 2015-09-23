@@ -47,6 +47,7 @@ from tamoc import dbm
 
 import numpy as np
 from scipy.optimize import fsolve
+import unicodedata
 from copy import copy
 
 
@@ -604,24 +605,31 @@ def save_particle_to_nc_file(nc, chem_names, particles, K_T0):
     
     # Count the number of particles
     nparticles = nc.createDimension('nparticles', len(particles))
+    ngroups = nc.createDimension('ngroups', 15)
     if len(chem_names) > 0:
         nchems = nc.createDimension('nchems', len(chem_names))
     else:
         nchems = nc.createDimension('nchems', 1)
+    num = nc.createDimension('num', 1)
     
     # Save the particle composition
     nc.composition = ' '.join(chem_names)
     
     # Create the dataset descriptions for all the particle variables
-    particle_type = nc.createVariable('particle_type', 'i4', ('nparticles',))
+    particle_type = nc.createVariable('particle_type', 'i4', ('num',))
     particle_type.long_name = 'dispersed_phases Particle type'
     particle_type.standard_name = 'particle_type'
-    particle_type.units = '0: Single, 1:Plume'
+    particle_type.units = '0: Single, 1:Plume, 2:Bent plume particle'
     
     issoluble = nc.createVariable('issoluble', 'i4', ('nparticles',))
     issoluble.long_name = 'solubility (0: false, 1: true)'
     issoluble.standard_name = 'issoluble'
     issoluble.units = 'boolean'
+    
+    isair = nc.createVariable('isair', 'i4', ('nparticles',))
+    isair.long_name = 'fluid is air (0: false, 1: true)'
+    isair.standard_name = 'isair'
+    isair.units = 'boolean'
     
     isfluid = nc.createVariable('isfluid', 'i4', ('nparticles',))
     isfluid.long_name = 'Fluid status (0: false, 1: true)'
@@ -633,6 +641,16 @@ def save_particle_to_nc_file(nc, chem_names, particles, K_T0):
     iscompressible.long_name = 'Compressibility (0: false, 1: true)'
     iscompressible.standard_name = 'iscompressible'
     iscompressible.units = 'boolean'
+    
+    calc_delta = nc.createVariable('calc_delta', 'i4', ('nparticles',))
+    calc_delta.long_name = 'Calculate delta (-1: false, 1: true)'
+    calc_delta.standard_name = 'calc_delta'
+    calc_delta.units = 'boolean'
+    
+    extern_data = nc.createVariable('extern_data', 'i4', ('nparticles',))
+    extern_data.long_name = 'External chem database (0: false, 1: true)'
+    extern_data.standard_name = 'extern_data'
+    extern_data.units = 'boolean'
     
     fp_type = nc.createVariable('fp_type', 'i4', ('nparticles',))
     fp_type.long_name = 'fluid phase (0: gas, 1: liquid, 2: solid)'
@@ -659,6 +677,18 @@ def save_particle_to_nc_file(nc, chem_names, particles, K_T0):
     co.standard_name = 'co'
     co.units = 'K^(-1)'
         
+    sigma_correction = nc.createVariable('sigma_correction', 'f8', 
+        ('nparticles',))
+    sigma_correction.long_name = 'interfacial tension reduction factor (--)'
+    sigma_correction.standard_name = 'sigma_correction'
+    sigma_correction.units = 'nondimensional'
+    
+    delta_groups = nc.createVariable('delta_groups', 'f8', ('nparticles', 
+        'nchems', 'ngroups'))
+    delta_groups.long_name = 'group contribution method delta groups'
+    delta_groups.standard_name = 'delta_groups'
+    delta_groups.units = 'nondimensional'
+    
     m0 = nc.createVariable('m0', 'f8', ('nparticles', 'nchems'))
     m0.long_name = 'initial mass flux'
     m0.standard_name = 'm0'
@@ -689,17 +719,183 @@ def save_particle_to_nc_file(nc, chem_names, particles, K_T0):
     t_hyd.standard_name = 't_hyd'
     t_hyd.units = 's'
     
-    if isinstance(particles[0], PlumeParticle):
-        
+    # Check if these are plume particle objects
+    try:
+        particles[0].integrate
+        # Must be bent_plume_model.Particle object
+        particle_type[0] = 2
         nb0 = nc.createVariable('nb0', 'f8', ('nparticles'))
         nb0.long_name = 'initial bubble number flux'
         nb0.standard_name = 'nb0'
         nb0.units = 's^(-1)'
         
+        nbe = nc.createVariable('nbe', 'f8', ('nparticles'))
+        nbe.long_name = 'number of bubbles following plume element'
+        nbe.standard_name = 'nbe'
+        nbe.units = 'count'
+        
         lambda_1 = nc.createVariable('lambda_1', 'f8', ('nparticles'))
         lambda_1.long_name = 'bubble spreading ratio'
         lambda_1.standard_name = 'lambda_1'
         lambda_1.units = 'nondimensional'
+        
+        integrate = nc.createVariable('integrate', 'i4', ('nparticles',))
+        integrate.long_name = 'Particle status (0: false, 1: true)'
+        integrate.standard_name = 'integrate'
+        integrate.units = 'boolean'
+        
+        sim_stored = nc.createVariable('sim_stored', 'i4', ('nparticles',))
+        sim_stored.long_name = 'Tracking state (0: false, 1: true)'
+        sim_stored.standard_name = 'sim_stored'
+        sim_stored.units = 'boolean'
+        
+        farfield = nc.createVariable('farfield', 'i4', ('nparticles',))
+        farfield.long_name = 'Farfield simualtion (0: false, 1: true)'
+        farfield.standard_name = 'farfield'
+        farfield.units = 'boolean'
+        
+        tp = nc.createVariable('tp', 'f8', ('nparticles'))
+        tp.long_name = 'time'
+        tp.standard_name = 't'
+        tp.units = 's'
+        
+        xp = nc.createVariable('xp', 'f8', ('nparticles'))
+        xp.long_name = 'x-coordinate'
+        xp.standard_name = 'x'
+        xp.units = 'm'
+        
+        yp = nc.createVariable('yp', 'f8', ('nparticles'))
+        yp.long_name = 'y-coordinate'
+        yp.standard_name = 'y'
+        yp.units = 'm'
+        
+        zp = nc.createVariable('zp', 'f8', ('nparticles'))
+        zp.long_name = 'z-coordinate'
+        zp.standard_name = 'z'
+        zp.units = 'm'
+        zp.axis = 'Z'
+        zp.positive = 'down'
+         
+        te = nc.createVariable('te', 'f8', ('nparticles'))
+        te.long_name = 'particle exit time'
+        te.standard_name = 'te'
+        te.units = 's'
+        
+        xe = nc.createVariable('xe', 'f8', ('nparticles'))
+        xe.long_name = 'particle exit x-coordinate'
+        xe.standard_name = 'xe'
+        xe.units = 'm'
+        
+        ye = nc.createVariable('ye', 'f8', ('nparticles'))
+        ye.long_name = 'particle exit y-coordinate'
+        ye.standard_name = 'ye'
+        ye.units = 'm'
+        
+        ze = nc.createVariable('ze', 'f8', ('nparticles'))
+        ze.long_name = 'particle exit z-coordinate'
+        ze.standard_name = 'ze'
+        ze.units = 'm'
+        ze.axis = 'Z'
+        ze.positive = 'down'
+    
+    except AttributeError:
+        try:
+            particles[0].nb0
+            # Must be PlumeParticle object
+            particle_type[0] = 1
+            nb0 = nc.createVariable('nb0', 'f8', ('nparticles'))
+            nb0.long_name = 'initial bubble number flux'
+            nb0.standard_name = 'nb0'
+            nb0.units = 's^(-1)'
+            
+            lambda_1 = nc.createVariable('lambda_1', 'f8', ('nparticles'))
+            lambda_1.long_name = 'bubble spreading ratio'
+            lambda_1.standard_name = 'lambda_1'
+            lambda_1.units = 'nondimensional'
+        
+        except AttributeError:
+            particle_type[0] = 0
+   
+    # Check if we need to reserve space to store an external chemical data
+    # base of user_data
+    next_chems = 0
+    for i in range(len(particles)):
+        if particles[i].particle.issoluble:
+            if len(particles[i].particle.user_data) > next_chems:
+                next_chems = len(particles[i].particle.user_data)
+                user_composition = particles[i].particle.user_data.keys()
+    
+    if next_chems > 0:
+        next_chems = nc.createDimension('next_chems', next_chems)
+        nc.user_composition = ' '.join(user_composition)
+        M = nc.createVariable('M', 'f8', ('nparticles', 'next_chems'))
+        M.long_name = 'molecular weight'
+        M.standard_name = 'M'
+        M.units = 'kg/mol'
+        
+        Pc = nc.createVariable('Pc', 'f8', ('nparticles', 'next_chems'))
+        Pc.long_name = 'pressure at the critical point'
+        Pc.standard_name = 'Pc'
+        Pc.units = 'Pa'
+        
+        Tc = nc.createVariable('Tc', 'f8', ('nparticles', 'next_chems'))
+        Tc.long_name = 'temperature at the critical point'
+        Tc.standard_name = 'Tc'
+        Tc.units = 'K'
+        
+        Vc = nc.createVariable('Vc', 'f8', ('nparticles', 'next_chems'))
+        Vc.long_name = 'molar volume at the critical point'
+        Vc.standard_name = 'Vc'
+        Vc.units = 'm^3/mol'
+        
+        Tb = nc.createVariable('Tb', 'f8', ('nparticles', 'next_chems'))
+        Tb.long_name = 'boiling point'
+        Tb.standard_name = 'Tb'
+        Tb.units = 'K'
+        
+        Vb = nc.createVariable('Vb', 'f8', ('nparticles', 'next_chems'))
+        Vb.long_name = 'molar volume at the boiling point'
+        Vb.standard_name = 'Vb'
+        Vb.units = 'm^3/mol'
+        
+        omega = nc.createVariable('omega', 'f8', ('nparticles', 
+            'next_chems'))
+        omega.long_name = 'acentric factor'
+        omega.standard_name = 'omega'
+        omega.units = 'nondimensional'
+        
+        kh_0 = nc.createVariable('kh_0', 'f8', ('nparticles', 'next_chems'))
+        kh_0.long_name = 'Henrys law constant at 298.15 K'
+        kh_0.standard_name = 'kh_0'
+        kh_0.units = 'kg/(m^3 Pa)'
+        
+        neg_dH_solR = nc.createVariable('neg_dH_solR', 'f8', ('nparticles', 
+            'next_chems'))
+        neg_dH_solR.long_name = 'negative of the enthalpy of solution / R'
+        neg_dH_solR.standard_name = 'neg_dH_solR'
+        neg_dH_solR.units = 'K'
+        
+        nu_bar = nc.createVariable('nu_bar', 'f8', ('nparticles', 
+            'next_chems'))
+        nu_bar.long_name = 'specific volume at infinite dilution'
+        nu_bar.standard_name = 'nu_bar'
+        nu_bar.units = 'm^3/mol'
+        
+        B = nc.createVariable('B', 'f8', ('nparticles', 'next_chems'))
+        B.long_name = 'diffusivity model coefficient B'
+        B.standard_name = 'B'
+        B.units = 'm^2/s'
+        
+        dE = nc.createVariable('dE', 'f8', ('nparticles', 'next_chems'))
+        dE.long_name = 'diffusivity model coefficient dE'
+        dE.standard_name = 'dE'
+        dE.units = 'J/mol'
+        
+        K_salt = nc.createVariable('K_salt', 'f8', ('nparticles', 
+            'next_chems'))
+        K_salt.long_name = 'Setschenow salting out correction for solubility'
+        K_salt.standard_name = 'K_salt'
+        K_salt.units = 'm^3/mol'
     
     # Store the values for each particle in the list
     for i in range(len(particles)):
@@ -708,8 +904,35 @@ def save_particle_to_nc_file(nc, chem_names, particles, K_T0):
         if particles[i].particle.issoluble:
             issoluble[i] = 1
             isfluid[i] = 1
+            isair[i] = particles[i].particle.isair
             iscompressible[i] = 1
             fp_type[i] = particles[i].particle.fp_type
+            calc_delta[i] = particles[i].particle.calc_delta
+            if len(particles[i].particle.user_data) == 0:
+                extern_data[i] = 0
+            else:
+                extern_data[i] = 1
+                user_data = particles[i].particle.user_data
+                for j in range(len(user_composition)):
+                    M[i,j] = user_data[user_composition[j]]['M']
+                    Pc[i,j] = user_data[user_composition[j]]['Pc']
+                    Tc[i,j] = user_data[user_composition[j]]['Tc']
+                    Vc[i,j] = user_data[user_composition[j]]['Vc']
+                    Tb[i,j] = user_data[user_composition[j]]['Tb']
+                    Vb[i,j] = user_data[user_composition[j]]['Vb']
+                    omega[i,j] = user_data[user_composition[j]]['omega']
+                    kh_0[i,j] = user_data[user_composition[j]]['kh_0']
+                    neg_dH_solR[i,j] = \
+                        user_data[user_composition[j]]['-dH_solR']
+                    nu_bar[i,j] = user_data[user_composition[j]]['nu_bar']
+                    B[i,j] = user_data[user_composition[j]]['B']
+                    dE[i,j] = user_data[user_composition[j]]['dE']
+                    K_salt[i,j] = user_data[user_composition[j]]['K_salt']
+            sigma_correction[i] = particles[i].particle.sigma_correction
+            if particles[i].particle.calc_delta:
+                delta_groups[i,:,:] = particles[i].particle.delta_groups
+            else:
+                delta_groups[i,:,:] = np.zeros((len(chem_names),15))
             m0[i,:] = particles[i].m0
             rho_p[i] = -1.
             gamma[i] = -1.
@@ -717,6 +940,7 @@ def save_particle_to_nc_file(nc, chem_names, particles, K_T0):
             co[i] = -1.
         else:
             issoluble[i] = 0
+            isair[i] = 0
             if particles[i].particle.isfluid:
                 isfluid[i] = 1
             else:
@@ -726,6 +950,10 @@ def save_particle_to_nc_file(nc, chem_names, particles, K_T0):
             else:
                 iscompressible[i] = 0
             fp_type[i] = 3
+            calc_delta[i] = -1
+            extern_data[i] = 0
+            delta_groups[i,:,:] = np.zeros((len(chem_names),15))
+            sigma_correction[i] = 1.
             m0[i,0] = particles[i].m0
             rho_p[i] = particles[i].particle.rho_p
             gamma[i] = particles[i].particle.gamma
@@ -733,22 +961,37 @@ def save_particle_to_nc_file(nc, chem_names, particles, K_T0):
             co[i] = particles[i].particle.co
         
         # Store the variables needed to create dispersed_phases SingleParticle
-        # of PlumeParticle objects
+        # or PlumeParticle objects
         T0[i] = particles[i].T0
         K[i] = particles[i].K
         K_T[i] = K_T0[i]
         fdis[i] = particles[i].fdis
         t_hyd[i] = particles[i].t_hyd
-        if isinstance(particles[i], PlumeParticle):
-            particle_type[i] = 1
+        
+        if particle_type[0] == 1 or particle_type[0] == 2:
             nb0[i] = particles[i].nb0
             lambda_1[i] = particles[i].lambda_1
-        else:
-            particle_type[i] = 0
+        
+        if particle_type[0] == 2:
+            nb0[i] = particles[i].nb0
+            nbe[i] = particles[i].nbe
+            lambda_1[i] = particles[i].lambda_1
+            integrate[i] = particles[i].integrate
+            sim_stored[i] = particles[i].sim_stored
+            farfield[i] = particles[i].farfield
+            tp[i] = particles[i].t
+            xp[i] = particles[i].x
+            yp[i] = particles[i].y
+            zp[i] = particles[i].z
+            try:
+                te[i] = particles[i].te
+                xe[i] = particles[i].xe
+                ye[i] = particles[i].ye
+                ze[i] = particles[i].ze
+            except:
+                pass
 
-
-def load_particle_from_nc_file(nc, particle_type, X0=None, user_data={}, 
-                               delta_groups=None):
+def load_particle_from_nc_file(nc):
     """
     Read the complete `particles` list from a netCDF output file
     
@@ -770,7 +1013,7 @@ def load_particle_from_nc_file(nc, particle_type, X0=None, user_data={},
     
     """
     # All particles have the same composition
-    chem_names = nc.composition.split()
+    chem_names = str(nc.composition).split()
     
     # Load each particle object separately
     particles = []
@@ -778,9 +1021,49 @@ def load_particle_from_nc_file(nc, particle_type, X0=None, user_data={},
         
         # Create the correct dbm object
         if nc.variables['issoluble'][i]:
+            if nc.variables['extern_data'][i]:
+                user_data = {}
+                user_composition = str(nc.user_composition).split()
+                for j in range(len(user_composition)):
+                    user_data[user_composition[j]] = {}
+                    user_data[user_composition[j]]['M'] = \
+                        nc.variables['M'][i,j]
+                    user_data[user_composition[j]]['Pc'] = \
+                        nc.variables['Pc'][i,j]
+                    user_data[user_composition[j]]['Tc'] = \
+                        nc.variables['Tc'][i,j]
+                    user_data[user_composition[j]]['Vc'] = \
+                        nc.variables['Vc'][i,j]
+                    user_data[user_composition[j]]['Tb'] = \
+                        nc.variables['Tb'][i,j]
+                    user_data[user_composition[j]]['Vb'] = \
+                        nc.variables['Vb'][i,j]
+                    user_data[user_composition[j]]['omega'] = \
+                        nc.variables['omega'][i,j]
+                    user_data[user_composition[j]]['kh_0'] = \
+                        nc.variables['kh_0'][i,j]
+                    user_data[user_composition[j]]['-dH_solR'] = \
+                        nc.variables['neg_dH_solR'][i,j]
+                    user_data[user_composition[j]]['nu_bar'] = \
+                        nc.variables['nu_bar'][i,j]
+                    user_data[user_composition[j]]['B'] = \
+                        nc.variables['B'][i,j]
+                    user_data[user_composition[j]]['dE'] = \
+                        nc.variables['dE'][i,j]
+                    user_data[user_composition[j]]['K_salt'] = \
+                        nc.variables['K_salt'][i,j]
+            else:
+                user_data = {}
+            if nc.variables['calc_delta'][i]:
+                delta_groups = nc.variables['delta_groups'][i,:,:]
+            else:
+                delta_groups = None
             particle = dbm.FluidParticle(chem_names, 
-                fp_type=nc.variables['fp_type'][i], user_data=user_data, 
-                 delta_groups=delta_groups)
+                fp_type=nc.variables['fp_type'][i], 
+                user_data=user_data, 
+                delta_groups=delta_groups, 
+                isair=nc.variables['isair'][i], 
+                sigma_correction=nc.variables['sigma_correction'][i])
             m0 = nc.variables['m0'][i,:]
         else:
             if nc.variables['isfluid'][i]:
@@ -799,15 +1082,27 @@ def load_particle_from_nc_file(nc, particle_type, X0=None, user_data={},
             m0 = nc.variables['m0'][i,0]
         
         # Create the right dispersed_phases object
-        if particle_type == 2:
+        if nc.variables['particle_type'][0] == 2:
             from tamoc import bent_plume_model as bpm
-            particle = bpm.Particle(X0[0], X0[1], X0[2], particle, m0, 
+            particle = bpm.Particle(nc.variables['xp'][i], 
+                nc.variables['yp'][i], nc.variables['zp'][i], particle, m0, 
                 nc.variables['T0'][i], nc.variables['nb0'][i], 
                 nc.variables['lambda_1'][i], nc.variables['P'][0], 
                 nc.variables['Sa'][0], nc.variables['Ta'][0], 
                 nc.variables['K'][i], nc.variables['K_T'][i], 
                 nc.variables['fdis'][i], nc.variables['t_hyd'][i])
-        elif particle_type == 1:
+            particle.nbe = nc.variables['nbe'][i]
+            particle.t = nc.variables['tp'][i]
+            particle.integrate = nc.variables['integrate'][i]
+            particle.sim_stored = nc.variables['sim_stored'][i]
+            particle.farfield = nc.variables['farfield'][i]
+            if nc.variables['te'][i] > 0.:
+                particle.te = nc.variables['te'][i]
+                particle.xe = nc.variables['xe'][i]
+                particle.ye = nc.variables['ye'][i]
+                particle.ze = nc.variables['ze'][i]
+                
+        elif nc.variables['particle_type'][0] == 1:
             particle  = PlumeParticle(particle, m0, 
                 nc.variables['T0'][i], nc.variables['nb0'][i], 
                 nc.variables['lambda_1'][i], nc.variables['P'][0], 

@@ -175,13 +175,12 @@ class Model(object):
     previous simulation stored in `simfile`.
     
     """
-    def __init__(self, profile=None, simfile=None, user_data={}, 
-                 delta_groups=None):
+    def __init__(self, profile=None, simfile=None):
         super(Model, self).__init__()
         
         if profile is None:
             # Create a Model object from a saved file
-            self.load_sim(simfile, user_data, delta_groups)
+            self.load_sim(simfile)
         else:
             # Create a new Model object
             self.profile = profile
@@ -339,39 +338,43 @@ class Model(object):
         p = nc.createDimension('profile', 1)
         ns = nc.createDimension('ns', len(self.y[0,:]))
         
-        # Store the dbm particle object instantiation variables
-        dispersed_phases.save_particle_to_nc_file(nc, 
-            self.particle.composition, self.particle, self.K_T0)
-        
-        # Store the solution independent variable
-        t = nc.createVariable('t', 'f8', ('z',))
-        t.long_name = 'time coordinate'
-        t.standard_name = 'time'
-        t.units = 'seconds since release'
-        t.axis = 'T'
-        t[:] = self.t
-        
-        # Store the solution state space...position
-        y = nc.createVariable('y', 'f8', ('z', 'ns',))
-        y.long_name = 'solution state space'
-        y.standard_name = 'y'
-        y.units = 'variable'
-        y.coordinate = 't'
-        for i in range(len(nc.dimensions['ns'])):
-            y[0:len(self.t),i] = self.y[:,i]
-        
-        # Store the model initial conditions        
+        # Create variables for the model initial conditions
         K_T0 = nc.createVariable('K_T0', 'f8', ('profile',))
         K_T0.long_name = 'Initial heat transfer reduction factor'
         K_T0.standard_name = 'K_T0'
         K_T0.units = 'nondimensional'
-        K_T0[0] = self.K_T0
         
         delta_t = nc.createVariable('delta_t', 'f8', ('profile',))
         delta_t.long_name = 'maximum simulation output time step'
         delta_t.standard_name = 'delta_t'
         delta_t.units = 'seconds'
+        
+        # Create variables for the independent variable
+        t = nc.createVariable('t', 'f8', ('z',))
+        t.long_name = 'time coordinate'
+        t.standard_name = 'time'
+        t.units = 'seconds since release'
+        t.axis = 'T'
+        
+        # Create variables for the state space
+        y = nc.createVariable('y', 'f8', ('z', 'ns',))
+        y.long_name = 'solution state space'
+        y.standard_name = 'y'
+        y.units = 'variable'
+        y.coordinate = 't'
+        
+        # Store the initial conditions and model setup
+        K_T0[0] = self.K_T0
         delta_t[0] = self.delta_t
+        
+        # Store the dbm particle object
+        dispersed_phases.save_particle_to_nc_file(nc, 
+            self.particle.composition, self.particle, self.K_T0)
+        
+        # Save the model simulation result
+        t[:] = self.t
+        for i in range(len(nc.dimensions['ns'])):
+            y[0:len(self.t),i] = self.y[:,i]
         
         # Close the netCDF dataset
         nc.close()
@@ -443,7 +446,7 @@ class Model(object):
         # Otherwise:
         np.savetxt(fname, data)
     
-    def load_sim(self, fname, user_data={}, delta_groups=None):
+    def load_sim(self, fname):
         """
         Load in a saved simulation result file for post-processing
         
@@ -476,8 +479,7 @@ class Model(object):
         
         # Load in the dispersed_phases.Particle object
         self.particle = \
-            dispersed_phases.load_particle_from_nc_file(nc, 0, 
-                user_data=user_data, delta_groups=delta_groups)[0][0]
+            dispersed_phases.load_particle_from_nc_file(nc)[0][0]
         
         # Extract the state space data
         self.t = nc.variables['t'][:]

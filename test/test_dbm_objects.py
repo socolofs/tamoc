@@ -95,7 +95,7 @@ def test_objects():
                   5.00000000e-06])
     dE = np.array([18380.044045116938, 19636.083501503061, 
                    16747.19275181])
-    K_salt = np.array([0.0001301, 0.00013826, 0.0001323])
+    K_salt = np.array([0.000169, 0.0001834, 0.0001323])
     
     # Initiate a simple mixture from a composition list
     air = dbm.FluidMixture(comp)
@@ -131,7 +131,7 @@ def test_objects():
     nu_bar = np.array([3.1999999999999999e-05])
     B = np.array([4.2000000000000004e-06])
     dE = np.array([18380.044045116938])
-    K_salt = np.array([0.0001301])
+    K_salt = np.array([0.000169])
     
     # Initiate a single-component mixture from a list
     o2 = dbm.FluidMixture([comp])

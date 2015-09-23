@@ -352,99 +352,144 @@ class Model(object):
         nc.tracers = ' '.join(self.tracers)
         nc.chem_names = ' '.join(self.chem_names)
         
-        # Save the standard variables for the particles objects
-        dispersed_phases.save_particle_to_nc_file(nc, self.chem_names, 
-            self.particles, self.K_T0)
-        
-        # Store the independent variable
-        t = nc.createVariable('t', 'f8', ('t', 'profile',))
-        t.long_name = 'time along the plume centerline'
-        t.standard_name = 'time'
-        t.units = 's'
-        t.axis = 'T'
-        t.n_times = len(self.t)
-        t[:,0] = self.t[:]
-        
-        # Store the dependent variables
-        q = nc.createVariable('q', 'f8', ('t', 'ns',))
-        q.long_name = 'Lagranian plume model state space'
-        q.standard_name = 'q'
-        q.units = 'variable'
-        for i in range(len(nc.dimensions['ns'])):
-            q[:,i] = self.q[:,i]
-        
-        # Store the remaining parameter values needed to define this 
-        # simulation
+        # Create variables to store the initial conditions
         x0 = nc.createVariable('x0', 'f8', ('params',))
         x0.long_name = 'Initial value of the x-coordinate'
         x0.standard_name = 'x0'
         x0.units = 'm'
-        x0[0] = self.X[0]
+        
         y0 = nc.createVariable('y0', 'f8', ('params',))
         y0.long_name = 'Initial value of the y-coordinate'
         y0.standard_name = 'y0'
         y0.units = 'm'
-        y0[0] = self.X[1]
+        
         z0 = nc.createVariable('z0', 'f8', ('params',))
         z0.long_name = 'Initial depth below the water surface'
         z0.standard_name = 'depth'
         z0.units = 'm'
         z0.axis = 'Z'
         z0.positive = 'down'
-        z0[0] = self.X[2]
+        
         D = nc.createVariable('D', 'f8', ('params',))
         D.long_name = 'Orifice diameter'
         D.standard_name = 'diameter'
         D.units = 'm'
-        D[0] = self.D
+        
         Vj = nc.createVariable('Vj', 'f8', ('params',))
         Vj.long_name = 'Discharge velocity'
         Vj.standard_name = 'Vj'
         Vj.units = 'm'
-        Vj[0] = self.Vj
+        
         phi_0 = nc.createVariable('phi_0', 'f8', ('params',))
         phi_0.long_name = 'Discharge vertical angle to horizontal'
         phi_0.standard_name = 'phi_0'
         phi_0.units = 'rad'
-        phi_0[0] = self.phi_0
+        
         theta_0 = nc.createVariable('theta_0', 'f8', ('params',))
         theta_0.long_name = 'Discharge horizontal angle to x-axis'
         theta_0.standard_name = 'theta_0'
         theta_0.units = 'rad'
-        theta_0[0] = self.theta_0
+        
         Sj = nc.createVariable('Sj', 'f8', ('params',))
         Sj.long_name = 'Discharge salinity'
         Sj.standard_name = 'Sj'
         Sj.units = 'psu'
-        Sj[0] = self.Sj
+        
         Tj = nc.createVariable('Tj', 'f8', ('params',))
         Tj.long_name = 'Discharge temperature'
         Tj.standard_name = 'Tj'
         Tj.units = 'K'
-        Tj[0] = self.Tj
+        
         cj = nc.createVariable('cj', 'f8', ('params',))
         cj.long_name = 'Discharge tracer concentration'
         cj.standard_name = 'cj'
         cj.units = 'nondimensional'
-        cj[0] = self.cj
+        
+        Ta = nc.createVariable('Ta', 'f8', ('params',))
+        Ta.long_name = 'ambient temperature at the release point'
+        Ta.standard_name = 'Ta'
+        Ta.units = 'K'
+        
+        Sa = nc.createVariable('Sa', 'f8', ('params',))
+        Sa.long_name = 'ambient salinity at the release point'
+        Sa.standard_name = 'Sa'
+        Sa.units = 'psu'
+        
+        P = nc.createVariable('P', 'f8', ('params',))
+        P.long_name = 'ambient pressure at the release point'
+        P.standard_name = 'P'
+        P.units = 'Pa'
+        
+        # Create variables for the simulation setup
         track = nc.createVariable('track', 'i4', ('params',))
         track.long_name = 'SBM Status (0: false, 1: true)'
         track.standard_name = 'track'
         track.units = 'boolean'
-        if self.track:
-            track[0] = 1
-        else:
-            track[0] = 0
+        
         dt_max = nc.createVariable('dt_max', 'f8', ('params',))
         dt_max.long_name = 'Simulation maximum duration'
         dt_max.standard_name = 'dt_max'
         dt_max.units = 's'
-        dt_max[0] = self.dt_max
+        
         sd_max = nc.createVariable('sd_max', 'f8', ('params',))
         sd_max.long_name = 'Maximum distance along centerline s/D'
         sd_max.standard_name = 'sd_max'
         sd_max.units = 'nondimensional'
+        
+        # Create a variable for the independent variable
+        t = nc.createVariable('t', 'f8', ('t', 'profile',))
+        t.long_name = 'time along the plume centerline'
+        t.standard_name = 'time'
+        t.units = 's'
+        t.axis = 'T'
+        t.n_times = len(self.t)
+        
+        # Create a variable for the model state space
+        q = nc.createVariable('q', 'f8', ('t', 'ns',))
+        q.long_name = 'Lagranian plume model state space'
+        q.standard_name = 'q'
+        q.units = 'variable'
+        
+        # Store the model initial conditions
+        x0[0] = self.X[0]
+        y0[0] = self.X[1]
+        z0[0] = self.X[2]
+        D[0] = self.D
+        Vj[0] = self.Vj
+        phi_0[0] = self.phi_0
+        theta_0[0] = self.theta_0
+        Sj[0] = self.Sj
+        Tj[0] = self.Tj
+        cj[0] = self.cj
+        Ta[0], Sa[0], P[0] = self.profile.get_values(np.max(self.X[2]), 
+            ['temperature', 'salinity', 'pressure'])
+        
+        # Store the model setup
+        if self.track:
+            track[0] = 1
+        else:
+            track[0] = 0
+        dt_max[0] = self.dt_max
         sd_max[0] = self.sd_max
+        
+        # Save the dispersed phase particles
+        dispersed_phases.save_particle_to_nc_file(nc, self.chem_names, 
+            self.particles, self.K_T0)
+        
+        # Save the tracked particles if they exist
+        for i in range(len(self.particles)):
+            if self.particles[i].farfield:
+                fname_sbm = fname.split('.nc')[0] + '%3.3d.nc' % i
+                self.particles[i].sbm.save_sim(fname_sbm, profile_path, 
+                    profile_info)
+        
+        # Store the plume simulation solution
+        t[:,0] = self.t[:]
+        for i in range(len(nc.dimensions['ns'])):
+            q[:,i] = self.q[:,i]
+        
+        # Store any single bubble model simulations
+        
         
         # Close the netCDF dataset
         nc.close()
@@ -602,7 +647,7 @@ class Model(object):
         
         # Create the Particle objects
         self.particles, self.chem_names = \
-            dispersed_phases.load_particle_from_nc_file(nc, 2, self.X)
+            dispersed_phases.load_particle_from_nc_file(nc)
         
         # Extract the remaining model constants
         self.D = nc.variables['D'][0]
@@ -630,11 +675,20 @@ class Model(object):
         self.t = np.zeros(nt)
         self.t[:] = nc.variables['t'][0:nt,0]
         self.q = np.zeros((nt, ns))
+        for i in range(ns):
+            self.q[:,i] = nc.variables['q'][0:nt,i]
         
         # Create the local Lagrangian plume element
         self.q_local = LagElement(self.t[0], self.q[0,:], self.D, 
                        self.profile, self.p, self.particles, self.tracers, 
                        self.chem_names)
+        
+        # Load in any farfield tracking results
+        for i in range(len(self.particles)):
+            if self.particles[i].farfield:
+                fname_sbm = fname.split('.nc')[0] + '%3.3d.nc' % i
+                self.particles[i].sbm = \
+                    single_bubble_model.Model(simfile=fname_sbm)
         
         # Close the netCDF dataset
         nc.close()
@@ -882,6 +936,7 @@ class Particle(dispersed_phases.PlumeParticle):
         # Particles start inside the plume and should be integrated
         self.integrate = True
         self.sim_stored = False
+        self.farfield = False
         
         # Store the initial particle locations
         self.t = 0.
@@ -1022,6 +1077,9 @@ class Particle(dispersed_phases.PlumeParticle):
         # Run the simulation
         self.sbm.simulate(self.particle, X0, de, yk, self.T, self.K, self.K_T, 
                           self.fdis, 100000.)
+        
+        # Set flag indicating that far-field solution was computed
+        self.farfield = True
 
 
 # ----------------------------------------------------------------------------

@@ -67,8 +67,8 @@ def base_state():
     Bij = np.zeros((15,15))
     delta_groups = np.zeros((4,15))
     calc_delta = -1
-    K_salt = np.array([1.38258177e-04, 1.30098414e-04, 4.89598575e-05,
-                       1.32300000e-04])
+    K_salt = np.array([0.0001834, 0.000169, 0.0001694,
+                       0.0001323])
     
     # Give the properties of seawater at this state
     rho = 999.194667977339
@@ -88,7 +88,7 @@ def base_state():
     # Give the particle properties that should come back from the dbm_f
     # and dbm object function calls
     rho_p_S = 2.4134439874603251
-    Cs_S = np.array([0.02674101, 0.01776448, 0.00112628, 0.00118188])
+    Cs_S = np.array([ 0.02535491, 0.01696806, 0.00097718, 0.00118188])
     sigma_S = 00.043023878167355374
     
     # Also, give the fortran function answers for this state

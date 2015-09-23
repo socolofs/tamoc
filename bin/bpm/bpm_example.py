@@ -162,7 +162,7 @@ def crossflow_plume(fig):
     particles = []
     
     # Large bubbles
-    Q_N = 5. / 60. / 1000.
+    Q_N = 0.5 / 60. / 1000.
     de0 = 0.008
     T0 = Tj
     lambda_1 = 1.
@@ -172,7 +172,7 @@ def crossflow_plume(fig):
         P, Sa, Ta, K=1., K_T=1., fdis=1.e-6))
     
     # Small bubbles
-    Q_N = 5. / 60. / 1000.
+    Q_N = 0.5 / 60. / 1000.
     de0 = 0.0003
     T0 = Tj
     lambda_1 = 1.

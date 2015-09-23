@@ -292,7 +292,8 @@ class Model(object):
         
         # Create the netCDF dataset object
         title = 'Simulation results for the TAMOC Stratified Plume Model'
-        nc = model_share.tamoc_nc_file(fname, title, profile_path, profile_info)
+        nc = model_share.tamoc_nc_file(fname, title, profile_path, 
+            profile_info)
         
         # Create variables for the dimensions
         z = nc.createDimension('z', None)
@@ -301,10 +302,42 @@ class Model(object):
         nso = nc.createDimension('nso', len(self.yo_local.y0))
         params = nc.createDimension('params', 1)
         
-        # Create variables for the dispersed_phases.PlumeParticle objects
-        dispersed_phases.save_particle_to_nc_file(nc, self.chem_names, 
-            self.particles, self.K_T0)
+        # Create variables for the initial conditions and model setup
+        R = nc.createVariable('R', 'f8', ('params',))
+        R.long_name = 'radius of the release point'
+        R.standard_name = 'R'
+        R.units = 'm'
         
+        Ta = nc.createVariable('Ta', 'f8', ('params',))
+        Ta.long_name = 'ambient temperature at the release point'
+        Ta.standard_name = 'Ta'
+        Ta.units = 'K'
+        
+        Sa = nc.createVariable('Sa', 'f8', ('params',))
+        Sa.long_name = 'ambient salinity at the release point'
+        Sa.standard_name = 'Sa'
+        Sa.units = 'psu'
+        
+        P = nc.createVariable('P', 'f8', ('params',))
+        P.long_name = 'ambient pressure at the release point'
+        P.standard_name = 'P'
+        P.units = 'Pa'
+        
+        maxit = nc.createVariable('maxit', 'f8', ('params',))
+        maxit.long_name = 'maximum allowable number of iterations'
+        maxit.standard_name = 'maxit'
+        maxit.units = 'nondimensional'
+        
+        toler = nc.createVariable('toler', 'f8', ('params',))
+        toler.long_name = 'relative error tolerance for convergence'
+        toler.standard_name = 'toler'
+        toler.units = 'nondimensional'
+        
+        delta_z = nc.createVariable('delta_z', 'f8', ('params',))
+        delta_z.long_name = 'maximum step size in output'
+        delta_z.standard_name = 'delta_z'
+        delta_z.units = 'm'
+
         # Create the independent variables (depth for inner and outer plumes)
         z = nc.createVariable('z', 'f8', ('z', 'profile',))
         z.long_name = 'depth below the water surface'
@@ -312,10 +345,6 @@ class Model(object):
         z.units = 'm'
         z.axis = 'Z'
         z.positive = 'down'
-        z.n_inner = len(self.zi)
-        z.n_outer = len(self.zo)
-        z[:,0] = self.zi[:]
-        z[:,1] = self.zo[:]
         
         # Create the dependent variables (inner and outer plumes)
         yi = nc.createVariable('yi', 'f8', ('z', 'nsi',))
@@ -323,55 +352,36 @@ class Model(object):
         yi.standard_name = 'yi'
         yi.units = 'variable'
         yi.coordinate = 'z'
-        for i in range(len(nc.dimensions['nsi'])):
-            yi[0:len(self.zi),i] = self.yi[:,i]
         
         yo = nc.createVariable('yo', 'f8', ('z', 'nso',))
         yo.long_name = 'outer plume state space'
         yo.standard_name = 'yo'
         yo.units = 'variable'
         yo.coordinate = 'z'
+        
+        # Store the initial conditions
+        R[0] = self.R
+        Ta[0], Sa[0], P[0] = self.profile.get_values(np.max(self.zi), 
+            ['temperature', 'salinity', 'pressure'])
+        maxit[0] = self.maxit
+        toler[0] = self.toler
+        delta_z[0] = self.delta_z
+        
+        # Store all of the dispersed phase particles
+        dispersed_phases.save_particle_to_nc_file(nc, self.chem_names, 
+            self.particles, self.K_T0)
+        
+        # Save the dependent variable solution
+        z.n_inner = len(self.zi)
+        z.n_outer = len(self.zo)
+        z[:,0] = self.zi[:]
+        z[:,1] = self.zo[:]
+        
+        # Save the state space solutions for the inner and outer plumes
+        for i in range(len(nc.dimensions['nsi'])):
+            yi[0:len(self.zi),i] = self.yi[:,i]
         for i in range(len(nc.dimensions['nso'])):
             yo[0:len(self.zo),i] = self.yo[:,i]
-        
-        # Store the remaining variables needed to define this simulation
-        R = nc.createVariable('R', 'f8', ('params',))
-        R.long_name = 'radius of the release point'
-        R.standard_name = 'R'
-        R.units = 'm'
-        R[0] = self.R
-        Ta_p, Sa_p, P_p = self.profile.get_values(np.max(self.zi), 
-                          ['temperature', 'salinity', 'pressure'])
-        Ta = nc.createVariable('Ta', 'f8', ('params',))
-        Ta.long_name = 'ambient temperature at the release point'
-        Ta.standard_name = 'Ta'
-        Ta.units = 'K'
-        Ta[0] = Ta_p
-        Sa = nc.createVariable('Sa', 'f8', ('params',))
-        Sa.long_name = 'ambient salinity at the release point'
-        Sa.standard_name = 'Sa'
-        Sa.units = 'psu'
-        Sa[0] = Sa_p
-        P = nc.createVariable('P', 'f8', ('params',))
-        P.long_name = 'ambient pressure at the release point'
-        P.standard_name = 'P'
-        P.units = 'Pa'
-        P[0] = P_p
-        maxit = nc.createVariable('maxit', 'f8', ('params',))
-        maxit.long_name = 'maximum allowable number of iterations'
-        maxit.standard_name = 'maxit'
-        maxit.units = 'nondimensional'
-        maxit[0] = self.maxit
-        toler = nc.createVariable('toler', 'f8', ('params',))
-        toler.long_name = 'relative error tolerance for convergence'
-        toler.standard_name = 'toler'
-        toler.units = 'nondimensional'
-        toler[0] = self.toler
-        delta_z = nc.createVariable('delta_z', 'f8', ('params',))
-        delta_z.long_name = 'maximum step size in output'
-        delta_z.standard_name = 'delta_z'
-        delta_z.units = 'm'
-        delta_z[0] = self.delta_z
         
         # Close the netCDF dataset
         nc.close()
@@ -531,7 +541,7 @@ class Model(object):
         
         # Create the dispersed_phases.PlumeParticle objects
         self.particles, self.chem_names = \
-            dispersed_phases.load_particle_from_nc_file(nc, 1)
+            dispersed_phases.load_particle_from_nc_file(nc)
         
         # Create the remaining model attributes
         nzi = nc.variables['z'].n_inner

@@ -108,7 +108,7 @@ if __name__ == '__main__':
     # Create the dispersed phase particles
     composition = ['oxygen', 'nitrogen', 'argon']
     yk = np.array([1.0, 0., 0.])
-    o2 = dbm.FluidParticle(composition, air=True)
+    o2 = dbm.FluidParticle(composition, isair=True)
     z0 = 46.
     bubbles = []
     

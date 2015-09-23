@@ -90,11 +90,13 @@ class FluidMixture(object):
         for hydocarbons.  If `air` is False (default value), these built
         in methods are used.  If `air` is True, then these methods are 
         replaced with correlations between air and seawater.
-    sigma_correction : float
+    sigma_correction : ndarray, default = np.array([1; 1])
         Correction factor to adjust the interfacial tension value supplied by
         the default model to a value measured for the mixture of interest.
         The correction factor should be computed as sigma_measured / 
-        sigma_model at a single P and T value.
+        sigma_model at a single P and T value.  sigma_correction should be a
+        two-element array, the first element is for the gas phase and the 
+        second element is for the liquid phase.  
     
     Attributes
     ----------
@@ -137,7 +139,8 @@ class FluidMixture(object):
     
     """
     def __init__(self, composition, delta=None, user_data={}, 
-                 delta_groups=None, air=False, sigma_correction=1.):
+                 delta_groups=None, isair=False, 
+                 sigma_correction=np.array([1.; 1.])):
         super(FluidMixture, self).__init__()
         
         # Check the data type of the inputs and fix if necessary
@@ -164,6 +167,7 @@ class FluidMixture(object):
         
         # Store all of the chemical data
         self.chem_db = chem.data
+        self.user_data = user_data
         
         # Initialize the chemical composition variables used in TAMOC
         self.M = np.zeros(self.nc)
@@ -257,7 +261,7 @@ class FluidMixture(object):
         self.Ru = 8.314510  # (J/(kg K))
         
         # Store whether or not the fluid is air
-        self.air = air
+        self.isair = isair
         
         # Store the interfacial tension correction factor
         self.sigma_correction = sigma_correction
@@ -470,7 +474,7 @@ class FluidMixture(object):
             interfacial tension for gas (row 1) and liquid (row 2) (N/m)
         
         """
-        if self.air:
+        if self.isair:
             # Use the surface tension of seawater with air
             sigma_0 = seawater.sigma(T, S)
             sigma = np.array([[sigma_0], [sigma_0]])
@@ -770,17 +774,19 @@ class FluidParticle(FluidMixture):
         Jaubert (2012) group contribution method for binary interaction 
         coefficients.  Default is None, in which case the values in `delta`
         will be used.
-    air : bool
+    isair : bool
         Flag indicating whether or not fluid is air.  The methods for 
         viscosity and interfacial tension below use correlations developed
-        for hydocarbons.  If `air` is False (default value), these built
-        in methods are used.  If `air` is True, then these methods are 
+        for hydocarbons.  If `isair` is False (default value), these built
+        in methods are used.  If `isair` is True, then these methods are 
         replaced with correlations between air and seawater.
     sigma_correction : float
         Correction factor to adjust the interfacial tension value supplied by
         the default model to a value measured for the mixture of interest.
         The correction factor should be computed as sigma_measured / 
-        sigma_model at a single P and T value.
+        sigma_model at a single P and T value.  For the FluidParticle class, 
+        sigma_correction is a scalar applied to the phase defined by 
+        fp_type.
     
     Notes
     -----
@@ -807,9 +813,9 @@ class FluidParticle(FluidMixture):
     
     """
     def __init__(self, composition, fp_type=0., delta=None, user_data={},
-                 delta_groups=None, air=False, sigma_correction=1.):
+                 delta_groups=None, isair=False, sigma_correction=1.):
         super(FluidParticle, self).__init__(composition, delta, user_data,
-                                            delta_groups, air, 
+                                            delta_groups, isair, 
                                             sigma_correction)
         
         # Store the input variables
@@ -1414,12 +1420,6 @@ class InsolubleParticle(object):
         Defines the fluid type (0 = gas, 1 = liquid) that is expected to be 
         contained in the particle.  This is needed because the heat transfer
         equations are different for gas and liquid.  The default value is 1.
-    air : bool
-        Flag indicating whether or not fluid is air.  The methods for 
-        viscosity and interfacial tension below use correlations developed
-        for hydocarbons.  If `air` is False (default value), these built
-        in methods are used.  If `air` is True, then these methods are 
-        replaced with correlations between air and seawater.
     
     Attributes
     ----------
@@ -1450,7 +1450,7 @@ class InsolubleParticle(object):
     
     """
     def __init__(self, isfluid, iscompressible, rho_p=930., gamma=30., 
-                 beta=0.0007, co=2.90075e-9, fp_type=1, air=False):
+                 beta=0.0007, co=2.90075e-9, fp_type=1):
         super(InsolubleParticle, self).__init__()
         
         # Store the input variables
@@ -1468,7 +1468,6 @@ class InsolubleParticle(object):
         self.issoluble = False
         self.nc = 1
         self.composition = ['inert']
-        self.air = air
     
     def density(self, T, P, Sa, Ta):
         """
