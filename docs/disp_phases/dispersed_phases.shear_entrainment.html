@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.16',
+        VERSION:     '0.1.17',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -65,13 +65,13 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">September 08, 2015</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">October 13, 2015</td>
 </tr>
 </tbody>
 </table>
 <dl class="function">
 <dt id="dispersed_phases.shear_entrainment">
-<code class="descclassname">dispersed_phases.</code><code class="descname">shear_entrainment</code><span class="sig-paren">(</span><em>U</em>, <em>Ua</em>, <em>rho</em>, <em>rho_a</em>, <em>b</em>, <em>sin_p</em>, <em>cos_p</em>, <em>cos_t</em>, <em>p</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/dispersed_phases.py#L834"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/dispersed_phases.html#shear_entrainment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dispersed_phases.shear_entrainment" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">dispersed_phases.</code><code class="descname">shear_entrainment</code><span class="sig-paren">(</span><em>U</em>, <em>Us</em>, <em>rho</em>, <em>rho_a</em>, <em>b</em>, <em>sin_p</em>, <em>p</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/Projects/NFBC/tamoc/tamoc/dispersed_phases.py#L1127"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/dispersed_phases.html#shear_entrainment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dispersed_phases.shear_entrainment" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the entrainment coefficient for shear entrainment</p>
 <p>Computes the entrainment coefficient for the shear entrainment for a top
 hat model.  This code can be used by both the bent plume model and the 
@@ -86,9 +86,10 @@ model works for pure jets, pure plumes, and buoyant jets.</p>
 <blockquote>
 <div><p>Top hat velocity of entrained plume water (m/s)</p>
 </div></blockquote>
-<p><strong>Ua</strong> : float</p>
+<p><strong>Us</strong> : float</p>
 <blockquote>
-<div><p>Magnitude of the velocity of the crossflow along th theta axis (m/s)</p>
+<div><p>Component of the ambient current projected along the plume 
+centerline (m/s)</p>
 </div></blockquote>
 <p><strong>rho</strong> : float</p>
 <blockquote>
@@ -101,16 +102,8 @@ model works for pure jets, pure plumes, and buoyant jets.</p>
 <p><strong>sin_p</strong> : float</p>
 <blockquote>
 <div><p>Sine of the angle phi from the horizontal with down being positive (up 
-is - pi/2)</p>
-</div></blockquote>
-<p><strong>cos_p</strong> : float</p>
-<blockquote>
-<div><p>Sine of the angle phi from the horizontal with down being positive 
-(up is - pi/2)</p>
-</div></blockquote>
-<p><strong>cos_t</strong> : float</p>
-<blockquote>
-<div><p>Cosine of the angle theta from the crossflow direction</p>
+is - pi/2)
+Cosine of the angle theta from the crossflow direction</p>
 </div></blockquote>
 <p><strong>p</strong> : <a class="reference internal" href="../modules/bpm.html#bent_plume_model.ModelParams" title="bent_plume_model.ModelParams"><code class="xref py py-obj docutils literal"><span class="pre">bent_plume_model.ModelParams</span></code></a> or <a class="reference internal" href="../spm/stratified_plume_model.ModelParams.html#stratified_plume_model.ModelParams" title="stratified_plume_model.ModelParams"><code class="xref py py-obj docutils literal"><span class="pre">stratified_plume_model.ModelParams</span></code></a></p>
 <blockquote>

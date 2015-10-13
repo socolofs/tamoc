@@ -12,7 +12,8 @@ from tamoc import ambient
 
 import os
 import numpy as np
-from numpy.testing import *
+from numpy.testing import assert_array_almost_equal
+from numpy.testing import assert_approx_equal
 from scipy.interpolate import interp1d
 from datetime import datetime
 from netCDF4 import Dataset, date2num, num2date

@@ -35,7 +35,8 @@ from tamoc import stratified_plume_model
 from tamoc import smp as simp
 
 import numpy as np
-from numpy.testing import *
+from numpy.testing import assert_array_almost_equal
+from numpy.testing import assert_approx_equal
 
 # ----------------------------------------------------------------------------
 # Helper Functions
@@ -133,7 +134,7 @@ def get_sim_data():
 
 def check_sim(particles, R, maxit, toler, delta_z, spm):
     """
-    Check the results of a simulation agains known values
+    Check the results of a simulation against known values
     
     Check the simulation results for the simulation defined above in 
     `get_sim_data()`.  This is used by the `test_simulate()` and 

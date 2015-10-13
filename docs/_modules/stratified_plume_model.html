@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.16',
+        VERSION:     '0.1.17',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -343,7 +343,8 @@
         
         <span class="c"># Create the netCDF dataset object</span>
         <span class="n">title</span> <span class="o">=</span> <span class="s">&#39;Simulation results for the TAMOC Stratified Plume Model&#39;</span>
-        <span class="n">nc</span> <span class="o">=</span> <span class="n">model_share</span><span class="o">.</span><span class="n">tamoc_nc_file</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">profile_path</span><span class="p">,</span> <span class="n">profile_info</span><span class="p">)</span>
+        <span class="n">nc</span> <span class="o">=</span> <span class="n">model_share</span><span class="o">.</span><span class="n">tamoc_nc_file</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">profile_path</span><span class="p">,</span> 
+            <span class="n">profile_info</span><span class="p">)</span>
         
         <span class="c"># Create variables for the dimensions</span>
         <span class="n">z</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createDimension</span><span class="p">(</span><span class="s">&#39;z&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
@@ -352,10 +353,42 @@
         <span class="n">nso</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createDimension</span><span class="p">(</span><span class="s">&#39;nso&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">yo_local</span><span class="o">.</span><span class="n">y0</span><span class="p">))</span>
         <span class="n">params</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createDimension</span><span class="p">(</span><span class="s">&#39;params&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         
-        <span class="c"># Create variables for the dispersed_phases.PlumeParticle objects</span>
-        <span class="n">dispersed_phases</span><span class="o">.</span><span class="n">save_particle_to_nc_file</span><span class="p">(</span><span class="n">nc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chem_names</span><span class="p">,</span> 
-            <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">K_T0</span><span class="p">)</span>
+        <span class="c"># Create variables for the initial conditions and model setup</span>
+        <span class="n">R</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;R&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;params&#39;</span><span class="p">,))</span>
+        <span class="n">R</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;radius of the release point&#39;</span>
+        <span class="n">R</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;R&#39;</span>
+        <span class="n">R</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;m&#39;</span>
         
+        <span class="n">Ta</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;Ta&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;params&#39;</span><span class="p">,))</span>
+        <span class="n">Ta</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;ambient temperature at the release point&#39;</span>
+        <span class="n">Ta</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;Ta&#39;</span>
+        <span class="n">Ta</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;K&#39;</span>
+        
+        <span class="n">Sa</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;Sa&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;params&#39;</span><span class="p">,))</span>
+        <span class="n">Sa</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;ambient salinity at the release point&#39;</span>
+        <span class="n">Sa</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;Sa&#39;</span>
+        <span class="n">Sa</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;psu&#39;</span>
+        
+        <span class="n">P</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;P&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;params&#39;</span><span class="p">,))</span>
+        <span class="n">P</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;ambient pressure at the release point&#39;</span>
+        <span class="n">P</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;P&#39;</span>
+        <span class="n">P</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;Pa&#39;</span>
+        
+        <span class="n">maxit</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;maxit&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;params&#39;</span><span class="p">,))</span>
+        <span class="n">maxit</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;maximum allowable number of iterations&#39;</span>
+        <span class="n">maxit</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;maxit&#39;</span>
+        <span class="n">maxit</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;nondimensional&#39;</span>
+        
+        <span class="n">toler</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;toler&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;params&#39;</span><span class="p">,))</span>
+        <span class="n">toler</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;relative error tolerance for convergence&#39;</span>
+        <span class="n">toler</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;toler&#39;</span>
+        <span class="n">toler</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;nondimensional&#39;</span>
+        
+        <span class="n">delta_z</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;delta_z&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;params&#39;</span><span class="p">,))</span>
+        <span class="n">delta_z</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;maximum step size in output&#39;</span>
+        <span class="n">delta_z</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;delta_z&#39;</span>
+        <span class="n">delta_z</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;m&#39;</span>
+
         <span class="c"># Create the independent variables (depth for inner and outer plumes)</span>
         <span class="n">z</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;z&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;z&#39;</span><span class="p">,</span> <span class="s">&#39;profile&#39;</span><span class="p">,))</span>
         <span class="n">z</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;depth below the water surface&#39;</span>
@@ -363,10 +396,6 @@
         <span class="n">z</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;m&#39;</span>
         <span class="n">z</span><span class="o">.</span><span class="n">axis</span> <span class="o">=</span> <span class="s">&#39;Z&#39;</span>
         <span class="n">z</span><span class="o">.</span><span class="n">positive</span> <span class="o">=</span> <span class="s">&#39;down&#39;</span>
-        <span class="n">z</span><span class="o">.</span><span class="n">n_inner</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">zi</span><span class="p">)</span>
-        <span class="n">z</span><span class="o">.</span><span class="n">n_outer</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">zo</span><span class="p">)</span>
-        <span class="n">z</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zi</span><span class="p">[:]</span>
-        <span class="n">z</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zo</span><span class="p">[:]</span>
         
         <span class="c"># Create the dependent variables (inner and outer plumes)</span>
         <span class="n">yi</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;yi&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;z&#39;</span><span class="p">,</span> <span class="s">&#39;nsi&#39;</span><span class="p">,))</span>
@@ -374,55 +403,36 @@
         <span class="n">yi</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;yi&#39;</span>
         <span class="n">yi</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;variable&#39;</span>
         <span class="n">yi</span><span class="o">.</span><span class="n">coordinate</span> <span class="o">=</span> <span class="s">&#39;z&#39;</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">nc</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s">&#39;nsi&#39;</span><span class="p">])):</span>
-            <span class="n">yi</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">zi</span><span class="p">),</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">yi</span><span class="p">[:,</span><span class="n">i</span><span class="p">]</span>
         
         <span class="n">yo</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;yo&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;z&#39;</span><span class="p">,</span> <span class="s">&#39;nso&#39;</span><span class="p">,))</span>
         <span class="n">yo</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;outer plume state space&#39;</span>
         <span class="n">yo</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;yo&#39;</span>
         <span class="n">yo</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;variable&#39;</span>
         <span class="n">yo</span><span class="o">.</span><span class="n">coordinate</span> <span class="o">=</span> <span class="s">&#39;z&#39;</span>
+        
+        <span class="c"># Store the initial conditions</span>
+        <span class="n">R</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">R</span>
+        <span class="n">Ta</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">Sa</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">P</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">zi</span><span class="p">),</span> 
+            <span class="p">[</span><span class="s">&#39;temperature&#39;</span><span class="p">,</span> <span class="s">&#39;salinity&#39;</span><span class="p">,</span> <span class="s">&#39;pressure&#39;</span><span class="p">])</span>
+        <span class="n">maxit</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxit</span>
+        <span class="n">toler</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">toler</span>
+        <span class="n">delta_z</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta_z</span>
+        
+        <span class="c"># Store all of the dispersed phase particles</span>
+        <span class="n">dispersed_phases</span><span class="o">.</span><span class="n">save_particle_to_nc_file</span><span class="p">(</span><span class="n">nc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chem_names</span><span class="p">,</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">K_T0</span><span class="p">)</span>
+        
+        <span class="c"># Save the dependent variable solution</span>
+        <span class="n">z</span><span class="o">.</span><span class="n">n_inner</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">zi</span><span class="p">)</span>
+        <span class="n">z</span><span class="o">.</span><span class="n">n_outer</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">zo</span><span class="p">)</span>
+        <span class="n">z</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zi</span><span class="p">[:]</span>
+        <span class="n">z</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zo</span><span class="p">[:]</span>
+        
+        <span class="c"># Save the state space solutions for the inner and outer plumes</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">nc</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s">&#39;nsi&#39;</span><span class="p">])):</span>
+            <span class="n">yi</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">zi</span><span class="p">),</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">yi</span><span class="p">[:,</span><span class="n">i</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">nc</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s">&#39;nso&#39;</span><span class="p">])):</span>
             <span class="n">yo</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">zo</span><span class="p">),</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">yo</span><span class="p">[:,</span><span class="n">i</span><span class="p">]</span>
-        
-        <span class="c"># Store the remaining variables needed to define this simulation</span>
-        <span class="n">R</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;R&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;params&#39;</span><span class="p">,))</span>
-        <span class="n">R</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;radius of the release point&#39;</span>
-        <span class="n">R</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;R&#39;</span>
-        <span class="n">R</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;m&#39;</span>
-        <span class="n">R</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">R</span>
-        <span class="n">Ta_p</span><span class="p">,</span> <span class="n">Sa_p</span><span class="p">,</span> <span class="n">P_p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">zi</span><span class="p">),</span> 
-                          <span class="p">[</span><span class="s">&#39;temperature&#39;</span><span class="p">,</span> <span class="s">&#39;salinity&#39;</span><span class="p">,</span> <span class="s">&#39;pressure&#39;</span><span class="p">])</span>
-        <span class="n">Ta</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;Ta&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;params&#39;</span><span class="p">,))</span>
-        <span class="n">Ta</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;ambient temperature at the release point&#39;</span>
-        <span class="n">Ta</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;Ta&#39;</span>
-        <span class="n">Ta</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;K&#39;</span>
-        <span class="n">Ta</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">Ta_p</span>
-        <span class="n">Sa</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;Sa&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;params&#39;</span><span class="p">,))</span>
-        <span class="n">Sa</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;ambient salinity at the release point&#39;</span>
-        <span class="n">Sa</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;Sa&#39;</span>
-        <span class="n">Sa</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;psu&#39;</span>
-        <span class="n">Sa</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">Sa_p</span>
-        <span class="n">P</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;P&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;params&#39;</span><span class="p">,))</span>
-        <span class="n">P</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;ambient pressure at the release point&#39;</span>
-        <span class="n">P</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;P&#39;</span>
-        <span class="n">P</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;Pa&#39;</span>
-        <span class="n">P</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">P_p</span>
-        <span class="n">maxit</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;maxit&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;params&#39;</span><span class="p">,))</span>
-        <span class="n">maxit</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;maximum allowable number of iterations&#39;</span>
-        <span class="n">maxit</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;maxit&#39;</span>
-        <span class="n">maxit</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;nondimensional&#39;</span>
-        <span class="n">maxit</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxit</span>
-        <span class="n">toler</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;toler&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;params&#39;</span><span class="p">,))</span>
-        <span class="n">toler</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;relative error tolerance for convergence&#39;</span>
-        <span class="n">toler</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;toler&#39;</span>
-        <span class="n">toler</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;nondimensional&#39;</span>
-        <span class="n">toler</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">toler</span>
-        <span class="n">delta_z</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;delta_z&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;params&#39;</span><span class="p">,))</span>
-        <span class="n">delta_z</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;maximum step size in output&#39;</span>
-        <span class="n">delta_z</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;delta_z&#39;</span>
-        <span class="n">delta_z</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;m&#39;</span>
-        <span class="n">delta_z</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta_z</span>
         
         <span class="c"># Close the netCDF dataset</span>
         <span class="n">nc</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
@@ -477,10 +487,10 @@
         <span class="c"># Create the header string that contains the column descriptions</span>
         <span class="c"># for the inner plume</span>
         <span class="n">p_list</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;Stratified Plume Model ASCII Output File </span><span class="se">\n</span><span class="s">&#39;</span><span class="p">]</span>
-        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;Created: &#39;</span> <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(</span><span class="s">&#39; &#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;Created: &#39;</span> <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(</span><span class="s">&#39; &#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;</span><span class="se">\n\n</span><span class="s">&#39;</span><span class="p">)</span>
         <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;Simulation based on CTD data in:</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
         <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">profile_path</span><span class="p">)</span>
-        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n\n</span><span class="s">&#39;</span><span class="p">)</span>
         <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">profile_info</span><span class="p">)</span>
         <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n\n</span><span class="s">&#39;</span><span class="p">)</span>
         <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;Column Descriptions:</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
@@ -498,7 +508,18 @@
                     <span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">composition</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">i</span><span class="p">))</span>
             <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;    </span><span class="si">%d</span><span class="s">:  Total heat flux of particle </span><span class="si">%d</span><span class="s"> in J/s</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span>
-                          <span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+                <span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+            <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;    </span><span class="si">%d</span><span class="s">:  Age of particle </span><span class="si">%d</span><span class="s"> in s</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+            <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;    </span><span class="si">%d</span><span class="s">:  x-position of particle </span><span class="si">%d</span><span class="s"> in m</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> 
+                <span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+            <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;    </span><span class="si">%d</span><span class="s">:  y-position of particle </span><span class="si">%d</span><span class="s"> in m</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> 
+                <span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+            <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;    </span><span class="si">%d</span><span class="s">:  depth of particle </span><span class="si">%d</span><span class="s"> in m</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> 
+                <span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">yi_local</span><span class="o">.</span><span class="n">nchems</span><span class="p">):</span>
             <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;    </span><span class="si">%d</span><span class="s">:  Dissolved mass flux of </span><span class="si">%s</span><span class="s"> in kg/s</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> 
@@ -508,10 +529,10 @@
         <span class="c"># Create the header string that contains the column descriptions</span>
         <span class="c"># for the outer plume</span>
         <span class="n">p_list</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;Stratified Plume Model ASCII Output File </span><span class="se">\n</span><span class="s">&#39;</span><span class="p">]</span>
-        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;Created: &#39;</span> <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(</span><span class="s">&#39; &#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;Created: &#39;</span> <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(</span><span class="s">&#39; &#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;</span><span class="se">\n\n</span><span class="s">&#39;</span><span class="p">)</span>
         <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;Simulation based on CTD data in:</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
         <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">profile_path</span><span class="p">)</span>
-        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n\n</span><span class="s">&#39;</span><span class="p">)</span>
         <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">profile_info</span><span class="p">)</span>
         <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n\n</span><span class="s">&#39;</span><span class="p">)</span>
         <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;Column Descriptions:</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
@@ -582,7 +603,7 @@
         
         <span class="c"># Create the dispersed_phases.PlumeParticle objects</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chem_names</span> <span class="o">=</span> \
-            <span class="n">dispersed_phases</span><span class="o">.</span><span class="n">load_particle_from_nc_file</span><span class="p">(</span><span class="n">nc</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">dispersed_phases</span><span class="o">.</span><span class="n">load_particle_from_nc_file</span><span class="p">(</span><span class="n">nc</span><span class="p">)</span>
         
         <span class="c"># Create the remaining model attributes</span>
         <span class="n">nzi</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;z&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">n_inner</span>
@@ -993,7 +1014,7 @@
         
         <span class="c"># Get the shear entrainment coefficient</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">alpha_s</span> <span class="o">=</span> <span class="n">dispersed_phases</span><span class="o">.</span><span class="n">shear_entrainment</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> 
-                       <span class="bp">self</span><span class="o">.</span><span class="n">rho</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rho_a</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+                       <span class="bp">self</span><span class="o">.</span><span class="n">rho</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rho_a</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
 </div></div>
 <div class="viewcode-block" id="OuterPlume"><a class="viewcode-back" href="../spm/stratified_plume_model.OuterPlume.html#stratified_plume_model.OuterPlume">[docs]</a><span class="k">class</span> <span class="nc">OuterPlume</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -1409,34 +1430,140 @@
 <span class="sd">    ea : float</span>
 <span class="sd">        Maximum value of the relative error for the given error tests.</span>
 <span class="sd">    </span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The error statistics are computed for the peel heights, trap heights, </span>
+<span class="sd">    intrusion layer fluxes, inner plume flux at the base of each intrusion</span>
+<span class="sd">    layer, the maximum flow rates, and maximum momentum fluxes, and the </span>
+<span class="sd">    total height of the plume.  The largest absolute relative error is </span>
+<span class="sd">    returned.</span>
+<span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">metrics</span><span class="p">(</span><span class="n">zi</span><span class="p">,</span> <span class="n">yi</span><span class="p">,</span> <span class="n">zo</span><span class="p">,</span> <span class="n">yo</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the characteristic plume scales</span>
+<span class="sd">        </span>
+<span class="sd">        Compute the characteristic plume length and flow rate scales from a</span>
+<span class="sd">        given state space solution.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters </span>
+<span class="sd">        ----------</span>
+<span class="sd">        zi : ndarray</span>
+<span class="sd">            Inner plume solution heights (m)</span>
+<span class="sd">        yi : ndarray</span>
+<span class="sd">            Inner plume state space solution</span>
+<span class="sd">        zo : ndarray</span>
+<span class="sd">            Outer plume solution heights (m)</span>
+<span class="sd">        yo : ndarray</span>
+<span class="sd">            Outer plume state space solution</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        hp : ndarray</span>
+<span class="sd">            Peel heights (m)</span>
+<span class="sd">        ht : ndarray</span>
+<span class="sd">            Trap heights (m)</span>
+<span class="sd">        qi : ndarray</span>
+<span class="sd">            Intrusion layer flow rates (m^3/s)</span>
+<span class="sd">        q : ndarray</span>
+<span class="sd">            Inner plume flow rates, Q1 (m^3/s)</span>
+<span class="sd">        </span>
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        The algorithm in this method starts at the top peel and works its </span>
+<span class="sd">        way down the outer plumes to find all the peels.  We return the </span>
+<span class="sd">        results flipped up/down so that the first element of each returned</span>
+<span class="sd">        array will the data for the lowest peel, and the elements at the </span>
+<span class="sd">        top will be for the highest peel.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Find each of the peels</span>
+        <span class="n">p_top</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">p_bot</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">peels</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">peel</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">yo</span><span class="p">[:,</span><span class="mi">0</span><span class="p">])):</span>
+            <span class="k">if</span> <span class="n">peel</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">yo</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mf">0.</span><span class="p">:</span>
+                <span class="c"># This is the top of a new peel</span>
+                <span class="n">peel</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="n">p_top</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                <span class="n">peels</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">peel</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">yo</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c"># this is the bottom of the current peel</span>
+                <span class="n">peel</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">p_bot</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">peel</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="c"># Need to close the last peel</span>
+            <span class="n">peel</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">p_bot</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+        <span class="n">p_top</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">p_top</span><span class="p">)</span>
+        <span class="n">p_bot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">p_bot</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">peels</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c"># Get all the peel heights</span>
+            <span class="n">hp</span> <span class="o">=</span> <span class="n">zi</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">zo</span><span class="p">[</span><span class="n">p_top</span><span class="p">]</span>
+            
+            <span class="c"># Get all the heights at the bottom of each intrusion</span>
+            <span class="n">ht</span> <span class="o">=</span> <span class="n">zi</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">zo</span><span class="p">[</span><span class="n">p_bot</span><span class="p">]</span>
+            
+            <span class="c"># Get the intrusion layer fluxes</span>
+            <span class="n">qi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">peels</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">peels</span><span class="p">):</span>
+                <span class="n">qi</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">yo</span><span class="p">[</span><span class="n">p_top</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="p">:</span> <span class="n">p_bot</span><span class="p">[</span><span class="n">i</span><span class="p">]])</span>
+            
+            <span class="c"># Get the volume flux at the bottom of each intrusion layer</span>
+            <span class="n">y_inner</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">flipud</span><span class="p">(</span><span class="n">zi</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">flipud</span><span class="p">(</span><span class="n">yi</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">())</span>
+            <span class="n">q</span> <span class="o">=</span> <span class="n">y_inner</span><span class="p">(</span><span class="n">zi</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">ht</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># There were not peels</span>
+            <span class="n">hp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.</span><span class="p">])</span>
+            <span class="n">ht</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.</span><span class="p">])</span>
+            <span class="n">qi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.</span><span class="p">])</span>
+            <span class="n">q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.</span><span class="p">])</span>
+        
+        <span class="k">return</span> <span class="p">(</span><span class="n">peels</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">flipud</span><span class="p">(</span><span class="n">hp</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">flipud</span><span class="p">(</span><span class="n">ht</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">flipud</span><span class="p">(</span><span class="n">qi</span><span class="p">),</span> 
+            <span class="n">np</span><span class="o">.</span><span class="n">flipud</span><span class="p">(</span><span class="n">q</span><span class="p">))</span>
+    
+    <span class="c"># Find the characteristic plume scales</span>
+    <span class="n">peels</span><span class="p">,</span> <span class="n">hp</span><span class="p">,</span> <span class="n">ht</span><span class="p">,</span> <span class="n">qi</span><span class="p">,</span> <span class="n">q</span> <span class="o">=</span> <span class="n">metrics</span><span class="p">(</span><span class="n">zi</span><span class="p">,</span> <span class="n">yi</span><span class="p">,</span> <span class="n">zo</span><span class="p">,</span> <span class="n">yo</span><span class="p">)</span>
+    <span class="n">peels_old</span><span class="p">,</span> <span class="n">hp_old</span><span class="p">,</span> <span class="n">ht_old</span><span class="p">,</span> <span class="n">qi_old</span><span class="p">,</span> <span class="n">q_old</span> <span class="o">=</span> <span class="n">metrics</span><span class="p">(</span><span class="n">zi_old</span><span class="p">,</span> <span class="n">yi_old</span><span class="p">,</span> 
+        <span class="n">zo_old</span><span class="p">,</span> <span class="n">yo_old</span><span class="p">)</span>
+    
+    <span class="c"># Compute the error statistics</span>
     <span class="n">ea</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="c"># Volume flux maxima should not change much:</span>
+    
+    <span class="c"># Peel characteristics</span>
+    <span class="k">if</span> <span class="n">peels</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">peels</span><span class="p">,</span> <span class="n">peels_old</span><span class="p">]))</span>
+        <span class="n">hp_ea</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">((</span><span class="n">hp</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">p</span><span class="p">]</span> <span class="o">-</span> <span class="n">hp_old</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">p</span><span class="p">])</span> <span class="o">/</span> <span class="n">hp</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">p</span><span class="p">]))</span>
+        <span class="n">ht_ea</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">((</span><span class="n">ht</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">p</span><span class="p">]</span> <span class="o">-</span> <span class="n">ht_old</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">p</span><span class="p">])</span> <span class="o">/</span> <span class="n">ht</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">p</span><span class="p">]))</span>
+        <span class="n">qi_ea</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">((</span><span class="n">qi</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">p</span><span class="p">]</span> <span class="o">-</span> <span class="n">qi_old</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">p</span><span class="p">])</span> <span class="o">/</span> <span class="n">qi</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">p</span><span class="p">]))</span>
+        <span class="n">q_ea</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">((</span><span class="n">q</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">p</span><span class="p">]</span> <span class="o">-</span> <span class="n">q_old</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">p</span><span class="p">])</span> <span class="o">/</span> <span class="n">q</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">p</span><span class="p">]))</span>
+        <span class="n">ea</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">hp_ea</span><span class="p">))</span>
+        <span class="n">ea</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">ht_ea</span><span class="p">))</span>
+        <span class="n">ea</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">qi_ea</span><span class="p">))</span>
+        <span class="n">ea</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">q_ea</span><span class="p">))</span>
+    
+    <span class="c"># Volume flux maxima</span>
     <span class="n">Qi_ea</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">yi</span><span class="p">[:,</span><span class="mi">0</span><span class="p">])</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">yi_old</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]))</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">yi</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]))</span>
     <span class="n">Qo_ea</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="o">-</span><span class="n">yo</span><span class="p">[:,</span><span class="mi">0</span><span class="p">])</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="o">-</span><span class="n">yo_old</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]))</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="o">-</span><span class="n">yo</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]))</span>
     <span class="n">ea</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Qi_ea</span><span class="p">)</span>
     <span class="n">ea</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Qo_ea</span><span class="p">)</span>
     
-    <span class="c"># Momentum flux maxima should not change much:</span>
+    <span class="c"># Momentum flux maxima</span>
     <span class="n">Ji_ea</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">yi</span><span class="p">[:,</span><span class="mi">1</span><span class="p">])</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">yi_old</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]))</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">yi</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]))</span>
     <span class="n">Jo_ea</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">yo</span><span class="p">[:,</span><span class="mi">1</span><span class="p">])</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">yo_old</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]))</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">yo</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]))</span>
     <span class="n">ea</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Ji_ea</span><span class="p">)</span>
     <span class="n">ea</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Jo_ea</span><span class="p">)</span>
     
-    <span class="c"># The height of the inner plume should be stable:</span>
+    <span class="c"># The height of the inner plume</span>
     <span class="n">Hi</span> <span class="o">=</span> <span class="n">zi</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">zi</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">Hi_old</span> <span class="o">=</span> <span class="n">zi_old</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">zi_old</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">H_ea</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">((</span><span class="n">Hi</span> <span class="o">-</span> <span class="n">Hi_old</span><span class="p">)</span> <span class="o">/</span> <span class="n">Hi</span><span class="p">)</span>
     <span class="n">ea</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">H_ea</span><span class="p">)</span>
     
-    <span class="c"># The volume flux at the top of the inner plume should be stable:</span>
-    <span class="n">Qtop_ea</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">((</span><span class="n">yi</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">yi_old</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">yi</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
-    <span class="n">ea</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Qtop_ea</span><span class="p">)</span>
-    
-    <span class="c"># TODO (S. Socolofsky, August 4, 2013): Build in the capability to find</span>
-    <span class="c"># and count intrusion layers.  </span>
-    <span class="n">ea</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ea</span><span class="p">)</span>
-    
+    <span class="c"># Return the largest error term</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">ea</span><span class="p">)</span>
 
 <span class="c"># ----------------------------------------------------------------------------</span>

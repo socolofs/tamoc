@@ -59,6 +59,6 @@ if __name__ == '__main__':
                  'Results of ./bubbles.py script')
     
     # Save the data for importing into Matlab
-    sbm.save_txt('./bubble.txt', '../../test/output/test_bm54.nc', 
+    sbm.save_txt('./bubble', '../../test/output/test_bm54.nc', 
                  'Results of ./bubbles.py script')
 

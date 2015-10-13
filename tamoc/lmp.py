@@ -77,9 +77,9 @@ def derivs(t, q, q0_local, q1_local, profile, p, particles):
     # Conservation of continuous phase momentum.  Note that z is positive
     # down (depth).
     qp[3] = md * q1_local.ua
-    qp[4] = 0.
+    qp[4] = md * q1_local.va
     qp[5] = - p.g / (p.gamma * p.rho_r) * (q1_local.Fb + q1_local.M * 
-            (q1_local.rho_a - q1_local.rho))
+            (q1_local.rho_a - q1_local.rho)) + md * q1_local.wa
     
     # Constant h/V thickeness to velocity ratio
     qp[6] = 0.
@@ -244,6 +244,7 @@ def calculate(t0, q0, q0_local, profile, p, particles, derivs, dt_max,
     psteps = 30.
     stop = False
     neutral_counter = 0
+    top_counter = 0
     while r.successful() and not stop:
         
         # Print progress to the screen
@@ -270,18 +271,20 @@ def calculate(t0, q0, q0_local, profile, p, particles, derivs, dt_max,
         q0_local = q0_hold
         q0_hold = deepcopy(q1_local)
         
-        # Check if this element passed through a region of neutral 
-        # buoyancy
-        if np.sign(q0_local.rho_a - q0_local.rho) != \
-            np.sign(q1_local.rho_a - q1_local.rho):
-            # Check for numerical instability
-            if np.maximum(np.abs(q0_local.rho_a - q0_local.rho), 
-                np.abs(q1_local.rho_a - q1_local.rho)) > 1.e-10:
+        # Check if the plume has reached a maximum rise height yet
+        if np.sign(q0_local.Jz) != np.sign(q1_local.Jz):
+            top_counter += 1
+        
+        # Check if the plume is at neutral buoyancy in an intrusion layer
+        # (e.g., after the top of the plume)
+        if top_counter > 0:
+            if np.sign(q0_local.rho_a - q0_local.rho) != \
+                np.sign(q1_local.rho_a - q1_local.rho):
                 # Update neutral buoyancy level counter
                 neutral_counter += 1
         
         # Evaluate the stop criteria
-        if neutral_counter >= 2:
+        if neutral_counter >= 1:
             # Passed through the second neutral buoyany level
             stop = True
         if q[-1][10] / q1_local.D > sd_max:
@@ -477,20 +480,37 @@ def entrainment(q0_local, q1_local, p):
     element.  
     
     """
-    # Get the shear entrainment coefficient for the top-hat model    
-    alpha_s = dispersed_phases.shear_entrainment(q1_local.V, q1_local.ua, 
-        q1_local.rho, q1_local.rho_a, q1_local.b, q1_local.sin_p, 
-        q1_local.cos_p, q1_local.cos_t, p)
+    # Find the magnitude and direction of the velocity vector in q1_local
+    Ua = np.sqrt(q1_local.ua**2 + q1_local.va**2 + q1_local.wa**2)
+    Phi_a = np.arctan2(q1_local.wa, np.sqrt(q1_local.ua**2 + q1_local.va**2))
+    Theta_a = np.arctan2(q1_local.va, q1_local.ua)
+    
+    # Get the component of the ambient current along the plume centerline
+    Us = Ua * np.cos(q1_local.phi - Phi_a) * np.cos(q1_local.theta - Theta_a)
+    
+    # Get the sines and cosines of the new angles
+    sin_t = np.sin(q1_local.theta - Theta_a)
+    sin_p = np.sin(q1_local.phi - Phi_a)
+    cos_t = np.cos(q1_local.theta - Theta_a)
+    cos_p = np.cos(q1_local.phi - Phi_a)
+    cos_t0 = np.cos(q0_local.theta - Theta_a)
+    cos_p0 = np.cos(q0_local.phi - Phi_a)
+    
+    # Get the shear entrainment coefficient for the top-hat model.  In this
+    # equation, phi has to be with reference to the gravity vector; hence, 
+    # we pass phi for the fixed coordinate system, but theta has to be the
+    # angle from the crossflow direction, so be pass theta - theta_a.
+    alpha_s = dispersed_phases.shear_entrainment(q1_local.V, Us, 
+        q1_local.rho, q1_local.rho_a, q1_local.b, q1_local.sin_p, p)
     
     # Total shear entrainment (kg/s)
-    md_s = q1_local.rho_a * np.abs(q1_local.V - q1_local.ua * 
-           q1_local.cos_p * q1_local.cos_t) * alpha_s * ( 2. * np.pi * 
-           q1_local.b * q1_local.h)
+    md_s = q1_local.rho_a * np.abs(q1_local.V - Us) * alpha_s * ( 2. 
+           * np.pi * q1_local.b * q1_local.h)
          
     # Compute the projected area entrainment terms...first, the crossflow 
     # projected onto the plume centerline
-    a1 = 2. * q1_local.b * np.sqrt(q1_local.sin_p**2 + q1_local.sin_t**2 - 
-         q1_local.sin_p**2 * q1_local.sin_t**2) * q1_local.h
+    a1 = 2. * q1_local.b * np.sqrt(sin_p**2 + sin_t**2 - sin_p**2 * 
+         sin_t**2) * q1_local.h
     if (q1_local.s - q0_local.s) / q1_local.b <= 1.e-3:
         # The plume is not progressing along the centerline; assume the
         # expansion and curvature corrections are small since delta s / b is
@@ -500,14 +520,13 @@ def entrainment(q0_local, q1_local, p):
     else:
         # Second, correction for plume expansion
         a2 = np.pi * q1_local.b * (q1_local.b - q0_local.b) / (q1_local.s - 
-             q0_local.s) * q1_local.h * q1_local.cos_p * q1_local.cos_t
+             q0_local.s) * q1_local.h * cos_p * cos_t
         # Third, correction for plume curvature
-        a3 = np.pi * q1_local.b**2 / 2. * (q1_local.cos_p * 
-             q1_local.cos_t - q0_local.cos_p * q0_local.cos_t) / (q1_local.s 
-             - q0_local.s) * q1_local.h
+        a3 = np.pi * q1_local.b**2 / 2. * (cos_p * cos_t - cos_p0 * 
+             cos_t0) / (q1_local.s - q0_local.s) * q1_local.h
     
     # Get the total projected area for the forced entraiment
-    if np.abs(q1_local.v) <= 1.e-9 and np.abs(q1_local.w) <= 1.e-9:
+    if np.abs(sin_t) <= 1.e-9 and np.abs(sin_p) <= 1.e-9:
         # Jet is in co-flow, shear entrainment model takes care of this case
         # by itself
         A = 0.
@@ -515,7 +534,7 @@ def entrainment(q0_local, q1_local, p):
         A = a1 + a2 + a3
     
     # Total forced entrainment (kg/s)
-    md_f = q1_local.rho_a * q1_local.ua * A
+    md_f = q1_local.rho_a * Ua * A
     
     # Obtain the total entrainment using the maximum hypothesis from Lee and 
     # Cheung (1990)

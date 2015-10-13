@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.16',
+        VERSION:     '0.1.17',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -64,13 +64,13 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">September 08, 2015</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">October 13, 2015</td>
 </tr>
 </tbody>
 </table>
 <dl class="class">
 <dt id="dbm.FluidMixture">
-<em class="property">class </em><code class="descclassname">dbm.</code><code class="descname">FluidMixture</code><span class="sig-paren">(</span><em>composition</em>, <em>delta=None</em>, <em>user_data={}</em>, <em>delta_groups=None</em>, <em>air=False</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/dbm.py#L53"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/dbm.html#FluidMixture"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dbm.FluidMixture" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dbm.</code><code class="descname">FluidMixture</code><span class="sig-paren">(</span><em>composition, delta=None, user_data={}, delta_groups=None, isair=False, sigma_correction=array([[ 1.],        [ 1.]])</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/Projects/NFBC/tamoc/tamoc/dbm.py#L53"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/dbm.html#FluidMixture"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dbm.FluidMixture" title="Permalink to this definition">¶</a></dt>
 <dd><p>Class object for a fluid mixture</p>
 <p>This object defines the behavior of a fluid mixture defined as a standard
 thermodynamic system.  The mixture may contain just liquid phase, a 
@@ -112,12 +112,21 @@ coefficients.  Default is None, in which case the values in <em class="xref py p
 will be used.</p>
 </div></blockquote>
 <p><strong>air</strong> : bool</p>
-<blockquote class="last">
+<blockquote>
 <div><p>Flag indicating whether or not fluid is air.  The methods for 
 viscosity and interfacial tension below use correlations developed
 for hydocarbons.  If <em class="xref py py-obj">air</em> is False (default value), these built
 in methods are used.  If <em class="xref py py-obj">air</em> is True, then these methods are 
 replaced with correlations between air and seawater.</p>
+</div></blockquote>
+<p><strong>sigma_correction</strong> : ndarray, default = np.array([[1], [1]])</p>
+<blockquote class="last">
+<div><p>Correction factor to adjust the interfacial tension value supplied by
+the default model to a value measured for the mixture of interest.
+The correction factor should be computed as sigma_measured / 
+sigma_model at a single P and T value.  sigma_correction should be a
+two-element array, the first element is for the gas phase and the 
+second element is for the liquid phase.</p>
 </div></blockquote>
 </td>
 </tr>

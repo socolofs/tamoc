@@ -436,10 +436,10 @@ class Model(object):
         # Create the header string that contains the column descriptions
         # for the inner plume
         p_list = ['Stratified Plume Model ASCII Output File \n']
-        p_list.append('Created: ' + datetime.today().isoformat(' ') + '\n')
+        p_list.append('Created: ' + datetime.today().isoformat(' ') + '\n\n')
         p_list.append('Simulation based on CTD data in:\n')
         p_list.append(profile_path)
-        p_list.append('\n')
+        p_list.append('\n\n')
         p_list.append(profile_info)
         p_list.append('\n\n')
         p_list.append('Column Descriptions:\n')
@@ -457,7 +457,18 @@ class Model(object):
                     (idx, self.particles[i].composition[j], i))
             idx += 1
             p_list.append('    %d:  Total heat flux of particle %d in J/s\n' %
-                          (idx, i))
+                (idx, i))
+            idx += 1
+            p_list.append('    %d:  Age of particle %d in s\n' % (idx, i))
+            idx += 1
+            p_list.append('    %d:  x-position of particle %d in m\n' % 
+                (idx, i))
+            idx += 1
+            p_list.append('    %d:  y-position of particle %d in m\n' % 
+                (idx, i))
+            idx += 1
+            p_list.append('    %d:  depth of particle %d in m\n' % 
+                (idx, i))
         for i in range(self.yi_local.nchems):
             idx += 1
             p_list.append('    %d:  Dissolved mass flux of %s in kg/s\n' % 
@@ -467,10 +478,10 @@ class Model(object):
         # Create the header string that contains the column descriptions
         # for the outer plume
         p_list = ['Stratified Plume Model ASCII Output File \n']
-        p_list.append('Created: ' + datetime.today().isoformat(' ') + '\n')
+        p_list.append('Created: ' + datetime.today().isoformat(' ') + '\n\n')
         p_list.append('Simulation based on CTD data in:\n')
         p_list.append(profile_path)
-        p_list.append('\n')
+        p_list.append('\n\n')
         p_list.append(profile_info)
         p_list.append('\n\n')
         p_list.append('Column Descriptions:\n')
@@ -952,7 +963,7 @@ class InnerPlume(object):
         
         # Get the shear entrainment coefficient
         self.alpha_s = dispersed_phases.shear_entrainment(self.u, 0., 
-                       self.rho, self.rho_a, self.b, -1., 0., 1., p)
+                       self.rho, self.rho_a, self.b, -1., p)
 
 class OuterPlume(object):
     """
@@ -1368,34 +1379,140 @@ def err_check(zi, yi, zo, yo, zi_old, yi_old, zo_old, yo_old, yi_local,
     ea : float
         Maximum value of the relative error for the given error tests.
     
+    Notes
+    -----
+    The error statistics are computed for the peel heights, trap heights, 
+    intrusion layer fluxes, inner plume flux at the base of each intrusion
+    layer, the maximum flow rates, and maximum momentum fluxes, and the 
+    total height of the plume.  The largest absolute relative error is 
+    returned.
+    
     """
+    def metrics(zi, yi, zo, yo):
+        """
+        Compute the characteristic plume scales
+        
+        Compute the characteristic plume length and flow rate scales from a
+        given state space solution.
+        
+        Parameters 
+        ----------
+        zi : ndarray
+            Inner plume solution heights (m)
+        yi : ndarray
+            Inner plume state space solution
+        zo : ndarray
+            Outer plume solution heights (m)
+        yo : ndarray
+            Outer plume state space solution
+        
+        Returns
+        -------
+        hp : ndarray
+            Peel heights (m)
+        ht : ndarray
+            Trap heights (m)
+        qi : ndarray
+            Intrusion layer flow rates (m^3/s)
+        q : ndarray
+            Inner plume flow rates, Q1 (m^3/s)
+        
+        Notes
+        -----
+        The algorithm in this method starts at the top peel and works its 
+        way down the outer plumes to find all the peels.  We return the 
+        results flipped up/down so that the first element of each returned
+        array will the data for the lowest peel, and the elements at the 
+        top will be for the highest peel.
+        
+        """
+        # Find each of the peels
+        p_top = []
+        p_bot = []
+        peels = 0
+        peel = 0
+        for i in range(len(yo[:,0])):
+            if peel == 0 and np.abs(yo[i,0]) > 0.:
+                # This is the top of a new peel
+                peel = 1
+                p_top.append(i)
+                peels += 1
+            if peel == 1 and yo[i,0] == 0:
+                # this is the bottom of the current peel
+                peel = 0
+                p_bot.append(i-1)
+        if peel == 1:
+            # Need to close the last peel
+            peel = 0
+            p_bot.append(i)
+        p_top = np.array(p_top)
+        p_bot = np.array(p_bot)
+        
+        if peels > 0:
+            # Get all the peel heights
+            hp = zi[0] - zo[p_top]
+            
+            # Get all the heights at the bottom of each intrusion
+            ht = zi[0] - zo[p_bot]
+            
+            # Get the intrusion layer fluxes
+            qi = np.zeros(peels)
+            for i in range(peels):
+                qi[i] = np.max(yo[p_top[i] : p_bot[i]])
+            
+            # Get the volume flux at the bottom of each intrusion layer
+            y_inner = interp1d(np.flipud(zi), np.flipud(yi).transpose())
+            q = y_inner(zi[0] - ht)[0]
+        
+        else:
+            # There were not peels
+            hp = np.array([0.])
+            ht = np.array([0.])
+            qi = np.array([0.])
+            q = np.array([0.])
+        
+        return (peels, np.flipud(hp), np.flipud(ht), np.flipud(qi), 
+            np.flipud(q))
+    
+    # Find the characteristic plume scales
+    peels, hp, ht, qi, q = metrics(zi, yi, zo, yo)
+    peels_old, hp_old, ht_old, qi_old, q_old = metrics(zi_old, yi_old, 
+        zo_old, yo_old)
+    
+    # Compute the error statistics
     ea = []
-    # Volume flux maxima should not change much:
+    
+    # Peel characteristics
+    if peels > 0:
+        p = np.min(np.array([peels, peels_old]))
+        hp_ea = np.max(np.abs((hp[0:p] - hp_old[0:p]) / hp[0:p]))
+        ht_ea = np.max(np.abs((ht[0:p] - ht_old[0:p]) / ht[0:p]))
+        qi_ea = np.max(np.abs((qi[0:p] - qi_old[0:p]) / qi[0:p]))
+        q_ea = np.max(np.abs((q[0:p] - q_old[0:p]) / q[0:p]))
+        ea.append(np.max(hp_ea))
+        ea.append(np.max(ht_ea))
+        ea.append(np.max(qi_ea))
+        ea.append(np.max(q_ea))
+    
+    # Volume flux maxima
     Qi_ea = np.abs((np.max(yi[:,0]) - np.max(yi_old[:,0])) / np.max(yi[:,0]))
     Qo_ea = np.abs((np.max(-yo[:,0]) - np.max(-yo_old[:,0])) / np.max(-yo[:,0]))
     ea.append(Qi_ea)
     ea.append(Qo_ea)
     
-    # Momentum flux maxima should not change much:
+    # Momentum flux maxima
     Ji_ea = np.abs((np.max(yi[:,1]) - np.max(yi_old[:,1])) / np.max(yi[:,1]))
     Jo_ea = np.abs((np.max(yo[:,1]) - np.max(yo_old[:,1])) / np.max(yo[:,1]))
     ea.append(Ji_ea)
     ea.append(Jo_ea)
     
-    # The height of the inner plume should be stable:
+    # The height of the inner plume
     Hi = zi[0] - zi[-1]
     Hi_old = zi_old[0] - zi_old[-1]
     H_ea = np.abs((Hi - Hi_old) / Hi)
     ea.append(H_ea)
     
-    # The volume flux at the top of the inner plume should be stable:
-    Qtop_ea = np.abs((yi[-1,0] - yi_old[-1,0]) / yi[-1,0])
-    ea.append(Qtop_ea)
-    
-    # TODO (S. Socolofsky, August 4, 2013): Build in the capability to find
-    # and count intrusion layers.  
-    ea = np.array(ea)
-    
+    # Return the largest error term
     return np.max(ea)
 
 # ----------------------------------------------------------------------------

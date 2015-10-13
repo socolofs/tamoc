@@ -48,8 +48,13 @@ if __name__ == '__main__':
     # You can re-run the simulation with different parameters by calling 
     # the simulate method.
     print '\nRe-running simulation with de = 0.01 m:'
-    sbm.simulate(sbm.particle.particle, sbm.z0, 0.01, sbm.yk, sbm.T0, 
-        K=sbm.K, K_T=sbm.K_T, fdis=sbm.fdis, delta_t=sbm.delta_t)
+    z0 = sbm.y[0,2]
+    yk = sbm.particle.particle.mol_frac(sbm.particle.m0)
+    T0 = sbm.particle.T0
+    K = sbm.particle.K
+    fdis = sbm.particle.fdis
+    sbm.simulate(sbm.particle.particle, z0, 0.01, yk, T0, 
+        K=K, K_T=sbm.K_T0, fdis=fdis, delta_t=sbm.delta_t)
     sbm.post_process()
     
     # You an also load stored simulation data to replace the current 

@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.16',
+        VERSION:     '0.1.17',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -159,7 +159,7 @@
     <span class="c"># Create the dispersed phase particles</span>
     <span class="n">composition</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;oxygen&#39;</span><span class="p">,</span> <span class="s">&#39;nitrogen&#39;</span><span class="p">,</span> <span class="s">&#39;argon&#39;</span><span class="p">]</span>
     <span class="n">yk</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">])</span>
-    <span class="n">o2</span> <span class="o">=</span> <span class="n">dbm</span><span class="o">.</span><span class="n">FluidParticle</span><span class="p">(</span><span class="n">composition</span><span class="p">,</span> <span class="n">air</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">o2</span> <span class="o">=</span> <span class="n">dbm</span><span class="o">.</span><span class="n">FluidParticle</span><span class="p">(</span><span class="n">composition</span><span class="p">,</span> <span class="n">isair</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
     <span class="n">z0</span> <span class="o">=</span> <span class="mf">46.</span>
     <span class="n">bubbles</span> <span class="o">=</span> <span class="p">[]</span>
     
@@ -179,7 +179,7 @@
     
     <span class="c"># Initialize a simulation</span>
     <span class="n">R</span> <span class="o">=</span> <span class="mf">6.5</span> <span class="o">/</span> <span class="mf">2.</span>
-    <span class="n">spm</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">bubbles</span><span class="p">,</span> <span class="n">z0</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">maxit</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">delta_z</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">)</span>
+    <span class="n">spm</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">bubbles</span><span class="p">,</span> <span class="n">z0</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">maxit</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">delta_z</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">)</span>
     
     <span class="c"># Save the model results</span>
     <span class="n">spm</span><span class="o">.</span><span class="n">save_sim</span><span class="p">(</span><span class="s">&#39;../../test/output/spm_gas.nc&#39;</span><span class="p">,</span> <span class="s">&#39;../../test/output/lake.nc&#39;</span><span class="p">,</span> 

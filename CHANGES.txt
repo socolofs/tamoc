@@ -1,4 +1,4 @@
-V0.1.17, September 2015 --
+V0.1.17, October 2015 --
    . Updated the K_salt values for O2, N2, and Ar with data from Weiss (1970).
    . Changed the way simulation results are saved to the netCDF format files
      so that whether or not the user provided external chemical properties 
@@ -9,6 +9,38 @@ V0.1.17, September 2015 --
    . Updated the bent plume model save_sim and load_sim methods so that if
      the particles are tracked in the farfield, the tracking solutions are
      saved.
+   . Updated the save_txt methods for all models so that they are called 
+     the same way and to ensure that all data in the state space is reported
+     properly in the header files.
+   . Updated all ./bin examples to ensure they are compatible with the present
+     model version.
+   . Changed the criteria for convergence for the stratified plume model.  
+     Added a check for the trap heights, peel heights, intrusion layer flux, 
+     and inner plume volume flux at the base of each peeling region.  Kept
+     all of the former criteria on maximum flow rates and momentum fluxes.
+     Removed the criteria that the volume flux at the top of the plume should
+     match between simulations; this is replaced by the volume flux checkes
+     for each peel.  The new criteria seem to be consistent with previous 
+     versions (i.e., equally stringent), but more stable--these criteria are
+     now fixed to plume features and not fixed depths.
+   . Updated the bent plume model so that currents can come from any direction
+     and can change direction during a simulation.  This allows the model to 
+     accept velocity profiles with three-dimensional currents.  Add the 
+     currents to the ambient profile object as 'ua', 'va', and 'wa'; note 
+     that z is positive down so that upwelling is a negative vertical 
+     velocity.
+   . Updated the test cases of the bent plume model so that the tests are 
+     comprehensive.  Previous test files had a place-holder for the bent
+     plume model, but without any tests.  
+   . Replaced the from numpy.testing import * command with more specific 
+     imports that only grab the functions used.  These commands were in the 
+     test files and invoked the nosetester.py test.  The edit makes it so 
+     that the nosetester.py test is no longer executed when importing from 
+     numpy.testing. 
+   . Updated the p_fac calculation for the bent plume model Particle object
+     to give the best match with the experimental data in crossflows.
+   . Updated the initial guess for the Kvsi method for the discrete bubble
+     model hydrate stability calculation to work better at lower pressure.
 V0.1.16, September 2015 --
    . Fixed the way the model keeps track of particles that exit the plume.  
      The solution from the previous version of the model is not changed, but

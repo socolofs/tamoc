@@ -18,7 +18,8 @@ have been validated against measurements.
 from tamoc import dbm
 
 import numpy as np
-from numpy.testing import *
+from numpy.testing import assert_array_almost_equal
+from numpy.testing import assert_approx_equal
 
 # ----------------------------------------------------------------------------
 # Helper functions

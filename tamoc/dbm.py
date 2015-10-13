@@ -90,7 +90,7 @@ class FluidMixture(object):
         for hydocarbons.  If `air` is False (default value), these built
         in methods are used.  If `air` is True, then these methods are 
         replaced with correlations between air and seawater.
-    sigma_correction : ndarray, default = np.array([1; 1])
+    sigma_correction : ndarray, default = np.array([[1], [1]])
         Correction factor to adjust the interfacial tension value supplied by
         the default model to a value measured for the mixture of interest.
         The correction factor should be computed as sigma_measured / 
@@ -140,7 +140,7 @@ class FluidMixture(object):
     """
     def __init__(self, composition, delta=None, user_data={}, 
                  delta_groups=None, isair=False, 
-                 sigma_correction=np.array([1.; 1.])):
+                 sigma_correction=np.array([[1.], [1.]])):
         super(FluidMixture, self).__init__()
         
         # Check the data type of the inputs and fix if necessary
@@ -730,7 +730,7 @@ class FluidMixture(object):
             
         else:
             # Use the K_vsi method to find the hydrate stability temperature
-            T_hyd = fsolve(residual, 283.15)
+            T_hyd = fsolve(residual, 260.)
         
         # Return the formation temperature
         return T_hyd

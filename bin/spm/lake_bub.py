@@ -128,7 +128,7 @@ if __name__ == '__main__':
     
     # Initialize a simulation
     R = 6.5 / 2.
-    spm.simulate(bubbles, z0, R, maxit=5, delta_z = 0.2)
+    spm.simulate(bubbles, z0, R, maxit=50, delta_z = 0.2)
     
     # Save the model results
     spm.save_sim('../../test/output/spm_gas.nc', '../../test/output/lake.nc', 

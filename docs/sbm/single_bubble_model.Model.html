@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.16',
+        VERSION:     '0.1.17',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -64,13 +64,13 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">September 08, 2015</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">October 13, 2015</td>
 </tr>
 </tbody>
 </table>
 <dl class="class">
 <dt id="single_bubble_model.Model">
-<em class="property">class </em><code class="descclassname">single_bubble_model.</code><code class="descname">Model</code><span class="sig-paren">(</span><em>profile=None</em>, <em>simfile=None</em>, <em>user_data={}</em>, <em>delta_groups=None</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/single_bubble_model.py#L99"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/single_bubble_model.html#Model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#single_bubble_model.Model" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">single_bubble_model.</code><code class="descname">Model</code><span class="sig-paren">(</span><em>profile=None</em>, <em>simfile=None</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/Projects/NFBC/tamoc/tamoc/single_bubble_model.py#L99"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/single_bubble_model.html#Model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#single_bubble_model.Model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Master class object for controlling and post-processing the simulation</p>
 <p>This is the main program interface, and the only object or function in 
 this module that the user should call.  At instantiation, the model 
@@ -179,7 +179,7 @@ previous simulation stored in <em class="xref py py-obj">simfile</em>.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="single_bubble_model.Model.load_sim.html#single_bubble_model.Model.load_sim" title="single_bubble_model.Model.load_sim"><code class="xref py py-obj docutils literal"><span class="pre">load_sim</span></code></a>(fname[,&nbsp;user_data,&nbsp;delta_groups])</td>
+<tr class="row-odd"><td><a class="reference internal" href="single_bubble_model.Model.load_sim.html#single_bubble_model.Model.load_sim" title="single_bubble_model.Model.load_sim"><code class="xref py py-obj docutils literal"><span class="pre">load_sim</span></code></a>(fname)</td>
 <td>Load in a saved simulation result file for post-processing</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="single_bubble_model.Model.post_process.html#single_bubble_model.Model.post_process" title="single_bubble_model.Model.post_process"><code class="xref py py-obj docutils literal"><span class="pre">post_process</span></code></a>([fig])</td>
@@ -188,7 +188,7 @@ previous simulation stored in <em class="xref py py-obj">simfile</em>.</p>
 <tr class="row-odd"><td><a class="reference internal" href="single_bubble_model.Model.save_sim.html#single_bubble_model.Model.save_sim" title="single_bubble_model.Model.save_sim"><code class="xref py py-obj docutils literal"><span class="pre">save_sim</span></code></a>(fname,&nbsp;profile_path,&nbsp;profile_info)</td>
 <td>Save the current simulation results</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="single_bubble_model.Model.save_txt.html#single_bubble_model.Model.save_txt" title="single_bubble_model.Model.save_txt"><code class="xref py py-obj docutils literal"><span class="pre">save_txt</span></code></a>(fname,&nbsp;profile_path,&nbsp;profile_info)</td>
+<tr class="row-even"><td><a class="reference internal" href="single_bubble_model.Model.save_txt.html#single_bubble_model.Model.save_txt" title="single_bubble_model.Model.save_txt"><code class="xref py py-obj docutils literal"><span class="pre">save_txt</span></code></a>(base_name,&nbsp;profile_path,&nbsp;profile_info)</td>
 <td>Save the state space in ascii text format for exporting</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="single_bubble_model.Model.simulate.html#single_bubble_model.Model.simulate" title="single_bubble_model.Model.simulate"><code class="xref py py-obj docutils literal"><span class="pre">simulate</span></code></a>(particle,&nbsp;X0,&nbsp;de,&nbsp;yk[,&nbsp;T0,&nbsp;K,&nbsp;K_T,&nbsp;...])</td>
@@ -208,10 +208,10 @@ previous simulation stored in <em class="xref py py-obj">simfile</em>.</p>
 <tr class="row-even"><td><a class="reference internal" href="single_bubble_model.Model.save_sim.html#single_bubble_model.Model.save_sim" title="single_bubble_model.Model.save_sim"><code class="xref py py-obj docutils literal"><span class="pre">Model.save_sim</span></code></a>(fname,&nbsp;profile_path,&nbsp;profile_info)</td>
 <td>Save the current simulation results</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="single_bubble_model.Model.save_txt.html#single_bubble_model.Model.save_txt" title="single_bubble_model.Model.save_txt"><code class="xref py py-obj docutils literal"><span class="pre">Model.save_txt</span></code></a>(fname,&nbsp;profile_path,&nbsp;profile_info)</td>
+<tr class="row-odd"><td><a class="reference internal" href="single_bubble_model.Model.save_txt.html#single_bubble_model.Model.save_txt" title="single_bubble_model.Model.save_txt"><code class="xref py py-obj docutils literal"><span class="pre">Model.save_txt</span></code></a>(base_name,&nbsp;profile_path,&nbsp;...)</td>
 <td>Save the state space in ascii text format for exporting</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="single_bubble_model.Model.load_sim.html#single_bubble_model.Model.load_sim" title="single_bubble_model.Model.load_sim"><code class="xref py py-obj docutils literal"><span class="pre">Model.load_sim</span></code></a>(fname[,&nbsp;user_data,&nbsp;delta_groups])</td>
+<tr class="row-even"><td><a class="reference internal" href="single_bubble_model.Model.load_sim.html#single_bubble_model.Model.load_sim" title="single_bubble_model.Model.load_sim"><code class="xref py py-obj docutils literal"><span class="pre">Model.load_sim</span></code></a>(fname)</td>
 <td>Load in a saved simulation result file for post-processing</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="single_bubble_model.Model.post_process.html#single_bubble_model.Model.post_process" title="single_bubble_model.Model.post_process"><code class="xref py py-obj docutils literal"><span class="pre">Model.post_process</span></code></a>([fig])</td>

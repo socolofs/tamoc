@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.16',
+        VERSION:     '0.1.17',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -403,99 +403,144 @@
         <span class="n">nc</span><span class="o">.</span><span class="n">tracers</span> <span class="o">=</span> <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tracers</span><span class="p">)</span>
         <span class="n">nc</span><span class="o">.</span><span class="n">chem_names</span> <span class="o">=</span> <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chem_names</span><span class="p">)</span>
         
-        <span class="c"># Save the standard variables for the particles objects</span>
-        <span class="n">dispersed_phases</span><span class="o">.</span><span class="n">save_particle_to_nc_file</span><span class="p">(</span><span class="n">nc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chem_names</span><span class="p">,</span> 
-            <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">K_T0</span><span class="p">)</span>
-        
-        <span class="c"># Store the independent variable</span>
-        <span class="n">t</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;t&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;t&#39;</span><span class="p">,</span> <span class="s">&#39;profile&#39;</span><span class="p">,))</span>
-        <span class="n">t</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;time along the plume centerline&#39;</span>
-        <span class="n">t</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;time&#39;</span>
-        <span class="n">t</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;s&#39;</span>
-        <span class="n">t</span><span class="o">.</span><span class="n">axis</span> <span class="o">=</span> <span class="s">&#39;T&#39;</span>
-        <span class="n">t</span><span class="o">.</span><span class="n">n_times</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">)</span>
-        <span class="n">t</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">[:]</span>
-        
-        <span class="c"># Store the dependent variables</span>
-        <span class="n">q</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;q&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;t&#39;</span><span class="p">,</span> <span class="s">&#39;ns&#39;</span><span class="p">,))</span>
-        <span class="n">q</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;Lagranian plume model state space&#39;</span>
-        <span class="n">q</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;q&#39;</span>
-        <span class="n">q</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;variable&#39;</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">nc</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s">&#39;ns&#39;</span><span class="p">])):</span>
-            <span class="n">q</span><span class="p">[:,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">[:,</span><span class="n">i</span><span class="p">]</span>
-        
-        <span class="c"># Store the remaining parameter values needed to define this </span>
-        <span class="c"># simulation</span>
+        <span class="c"># Create variables to store the initial conditions</span>
         <span class="n">x0</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;x0&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;params&#39;</span><span class="p">,))</span>
         <span class="n">x0</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;Initial value of the x-coordinate&#39;</span>
         <span class="n">x0</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;x0&#39;</span>
         <span class="n">x0</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;m&#39;</span>
-        <span class="n">x0</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        
         <span class="n">y0</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;y0&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;params&#39;</span><span class="p">,))</span>
         <span class="n">y0</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;Initial value of the y-coordinate&#39;</span>
         <span class="n">y0</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;y0&#39;</span>
         <span class="n">y0</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;m&#39;</span>
-        <span class="n">y0</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        
         <span class="n">z0</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;z0&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;params&#39;</span><span class="p">,))</span>
         <span class="n">z0</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;Initial depth below the water surface&#39;</span>
         <span class="n">z0</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;depth&#39;</span>
         <span class="n">z0</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;m&#39;</span>
         <span class="n">z0</span><span class="o">.</span><span class="n">axis</span> <span class="o">=</span> <span class="s">&#39;Z&#39;</span>
         <span class="n">z0</span><span class="o">.</span><span class="n">positive</span> <span class="o">=</span> <span class="s">&#39;down&#39;</span>
-        <span class="n">z0</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        
         <span class="n">D</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;D&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;params&#39;</span><span class="p">,))</span>
         <span class="n">D</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;Orifice diameter&#39;</span>
         <span class="n">D</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;diameter&#39;</span>
         <span class="n">D</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;m&#39;</span>
-        <span class="n">D</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">D</span>
+        
         <span class="n">Vj</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;Vj&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;params&#39;</span><span class="p">,))</span>
         <span class="n">Vj</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;Discharge velocity&#39;</span>
         <span class="n">Vj</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;Vj&#39;</span>
         <span class="n">Vj</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;m&#39;</span>
-        <span class="n">Vj</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Vj</span>
+        
         <span class="n">phi_0</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;phi_0&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;params&#39;</span><span class="p">,))</span>
         <span class="n">phi_0</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;Discharge vertical angle to horizontal&#39;</span>
         <span class="n">phi_0</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;phi_0&#39;</span>
         <span class="n">phi_0</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;rad&#39;</span>
-        <span class="n">phi_0</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi_0</span>
+        
         <span class="n">theta_0</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;theta_0&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;params&#39;</span><span class="p">,))</span>
         <span class="n">theta_0</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;Discharge horizontal angle to x-axis&#39;</span>
         <span class="n">theta_0</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;theta_0&#39;</span>
         <span class="n">theta_0</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;rad&#39;</span>
-        <span class="n">theta_0</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">theta_0</span>
+        
         <span class="n">Sj</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;Sj&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;params&#39;</span><span class="p">,))</span>
         <span class="n">Sj</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;Discharge salinity&#39;</span>
         <span class="n">Sj</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;Sj&#39;</span>
         <span class="n">Sj</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;psu&#39;</span>
-        <span class="n">Sj</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Sj</span>
+        
         <span class="n">Tj</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;Tj&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;params&#39;</span><span class="p">,))</span>
         <span class="n">Tj</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;Discharge temperature&#39;</span>
         <span class="n">Tj</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;Tj&#39;</span>
         <span class="n">Tj</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;K&#39;</span>
-        <span class="n">Tj</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tj</span>
+        
         <span class="n">cj</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;cj&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;params&#39;</span><span class="p">,))</span>
         <span class="n">cj</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;Discharge tracer concentration&#39;</span>
         <span class="n">cj</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;cj&#39;</span>
         <span class="n">cj</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;nondimensional&#39;</span>
-        <span class="n">cj</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cj</span>
+        
+        <span class="n">Ta</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;Ta&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;params&#39;</span><span class="p">,))</span>
+        <span class="n">Ta</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;ambient temperature at the release point&#39;</span>
+        <span class="n">Ta</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;Ta&#39;</span>
+        <span class="n">Ta</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;K&#39;</span>
+        
+        <span class="n">Sa</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;Sa&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;params&#39;</span><span class="p">,))</span>
+        <span class="n">Sa</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;ambient salinity at the release point&#39;</span>
+        <span class="n">Sa</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;Sa&#39;</span>
+        <span class="n">Sa</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;psu&#39;</span>
+        
+        <span class="n">P</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;P&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;params&#39;</span><span class="p">,))</span>
+        <span class="n">P</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;ambient pressure at the release point&#39;</span>
+        <span class="n">P</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;P&#39;</span>
+        <span class="n">P</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;Pa&#39;</span>
+        
+        <span class="c"># Create variables for the simulation setup</span>
         <span class="n">track</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;track&#39;</span><span class="p">,</span> <span class="s">&#39;i4&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;params&#39;</span><span class="p">,))</span>
         <span class="n">track</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;SBM Status (0: false, 1: true)&#39;</span>
         <span class="n">track</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;track&#39;</span>
         <span class="n">track</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;boolean&#39;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">track</span><span class="p">:</span>
-            <span class="n">track</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">track</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        
         <span class="n">dt_max</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;dt_max&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;params&#39;</span><span class="p">,))</span>
         <span class="n">dt_max</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;Simulation maximum duration&#39;</span>
         <span class="n">dt_max</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;dt_max&#39;</span>
         <span class="n">dt_max</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;s&#39;</span>
-        <span class="n">dt_max</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt_max</span>
+        
         <span class="n">sd_max</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;sd_max&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;params&#39;</span><span class="p">,))</span>
         <span class="n">sd_max</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;Maximum distance along centerline s/D&#39;</span>
         <span class="n">sd_max</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;sd_max&#39;</span>
         <span class="n">sd_max</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;nondimensional&#39;</span>
+        
+        <span class="c"># Create a variable for the independent variable</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;t&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;t&#39;</span><span class="p">,</span> <span class="s">&#39;profile&#39;</span><span class="p">,))</span>
+        <span class="n">t</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;time along the plume centerline&#39;</span>
+        <span class="n">t</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;time&#39;</span>
+        <span class="n">t</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;s&#39;</span>
+        <span class="n">t</span><span class="o">.</span><span class="n">axis</span> <span class="o">=</span> <span class="s">&#39;T&#39;</span>
+        <span class="n">t</span><span class="o">.</span><span class="n">n_times</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">)</span>
+        
+        <span class="c"># Create a variable for the model state space</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;q&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;t&#39;</span><span class="p">,</span> <span class="s">&#39;ns&#39;</span><span class="p">,))</span>
+        <span class="n">q</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;Lagranian plume model state space&#39;</span>
+        <span class="n">q</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;q&#39;</span>
+        <span class="n">q</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;variable&#39;</span>
+        
+        <span class="c"># Store the model initial conditions</span>
+        <span class="n">x0</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">y0</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">z0</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">D</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">D</span>
+        <span class="n">Vj</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Vj</span>
+        <span class="n">phi_0</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi_0</span>
+        <span class="n">theta_0</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">theta_0</span>
+        <span class="n">Sj</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Sj</span>
+        <span class="n">Tj</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tj</span>
+        <span class="n">cj</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cj</span>
+        <span class="n">Ta</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">Sa</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">P</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span> 
+            <span class="p">[</span><span class="s">&#39;temperature&#39;</span><span class="p">,</span> <span class="s">&#39;salinity&#39;</span><span class="p">,</span> <span class="s">&#39;pressure&#39;</span><span class="p">])</span>
+        
+        <span class="c"># Store the model setup</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">track</span><span class="p">:</span>
+            <span class="n">track</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">track</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">dt_max</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt_max</span>
         <span class="n">sd_max</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sd_max</span>
+        
+        <span class="c"># Save the dispersed phase particles</span>
+        <span class="n">dispersed_phases</span><span class="o">.</span><span class="n">save_particle_to_nc_file</span><span class="p">(</span><span class="n">nc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chem_names</span><span class="p">,</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">K_T0</span><span class="p">)</span>
+        
+        <span class="c"># Save the tracked particles if they exist</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">farfield</span><span class="p">:</span>
+                <span class="n">fname_sbm</span> <span class="o">=</span> <span class="n">fname</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.nc&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s">&#39;</span><span class="si">%3.3d</span><span class="s">.nc&#39;</span> <span class="o">%</span> <span class="n">i</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">sbm</span><span class="o">.</span><span class="n">save_sim</span><span class="p">(</span><span class="n">fname_sbm</span><span class="p">,</span> <span class="n">profile_path</span><span class="p">,</span> 
+                    <span class="n">profile_info</span><span class="p">)</span>
+        
+        <span class="c"># Store the plume simulation solution</span>
+        <span class="n">t</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">[:]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">nc</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s">&#39;ns&#39;</span><span class="p">])):</span>
+            <span class="n">q</span><span class="p">[:,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">[:,</span><span class="n">i</span><span class="p">]</span>
+        
+        <span class="c"># Store any single bubble model simulations</span>
+        
         
         <span class="c"># Close the netCDF dataset</span>
         <span class="n">nc</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
@@ -512,7 +557,11 @@
 <span class="sd">        base_name : str</span>
 <span class="sd">            Base file name for the output file.  This method will append the</span>
 <span class="sd">            .txt file extension to the data output and write a second file</span>
-<span class="sd">            with the header information called &lt;base_name._header.txt.</span>
+<span class="sd">            with the header information called base_name_header.txt.  If the</span>
+<span class="sd">            particles that left the plume were tracked in the farfield, it</span>
+<span class="sd">            will also save the trajectory of those particles as </span>
+<span class="sd">            base_name_nnn.txt (output data) and base_name_nnn_header.txt </span>
+<span class="sd">            (header data for far field data).  </span>
 <span class="sd">        profile_path : str</span>
 <span class="sd">            String stating the file path to the ambient profile data relative </span>
 <span class="sd">            to the directory where `fname` will be saved.  </span>
@@ -551,10 +600,10 @@
         <span class="c"># Create the header string that contains the column descriptions </span>
         <span class="c"># for the Lagrangian plume state space</span>
         <span class="n">p_list</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;Lagrangian Plume Model ASCII Output File </span><span class="se">\n</span><span class="s">&#39;</span><span class="p">]</span>
-        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;Created: &#39;</span> <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(</span><span class="s">&#39; &#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;Created: &#39;</span> <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(</span><span class="s">&#39; &#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;</span><span class="se">\n\n</span><span class="s">&#39;</span><span class="p">)</span>
         <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;Simulation based on CTD data in:</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
         <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">profile_path</span><span class="p">)</span>
-        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n\n</span><span class="s">&#39;</span><span class="p">)</span>
         <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">profile_info</span><span class="p">)</span>
         <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n\n</span><span class="s">&#39;</span><span class="p">)</span>
         <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;Column Descriptions:</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
@@ -572,7 +621,7 @@
         <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;    11: distance along plume centerline (m)</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
         <span class="n">idx</span> <span class="o">=</span> <span class="mi">11</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">)):</span>
-            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chem_names</span><span class="p">)):</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">m0</span><span class="p">)):</span>
                 <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span>
                 <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                     <span class="s">&#39;    </span><span class="si">%d</span><span class="s">: Total mass flux of </span><span class="si">%s</span><span class="s"> in particle </span><span class="si">%d</span><span class="s"> (kg/s)</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span>
@@ -607,6 +656,13 @@
         <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="n">base_name</span> <span class="o">+</span> <span class="s">&#39;.txt&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">base_name</span> <span class="o">+</span> <span class="s">&#39;_header.txt&#39;</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">dat_file</span><span class="p">:</span>
             <span class="n">dat_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
+        
+        <span class="c"># Save the tracked particles if they exist</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">farfield</span><span class="p">:</span>
+                <span class="n">fname_sbm</span> <span class="o">=</span> <span class="n">base_name</span> <span class="o">+</span> <span class="s">&#39;</span><span class="si">%3.3d</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">i</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">sbm</span><span class="o">.</span><span class="n">save_txt</span><span class="p">(</span><span class="n">fname_sbm</span><span class="p">,</span> <span class="n">profile_path</span><span class="p">,</span> 
+                    <span class="n">profile_info</span><span class="p">)</span>
     </div>
 <div class="viewcode-block" id="Model.load_sim"><a class="viewcode-back" href="../bpm/bent_plume_model.Model.load_sim.html#bent_plume_model.Model.load_sim">[docs]</a>    <span class="k">def</span> <span class="nf">load_sim</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -653,7 +709,7 @@
         
         <span class="c"># Create the Particle objects</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chem_names</span> <span class="o">=</span> \
-            <span class="n">dispersed_phases</span><span class="o">.</span><span class="n">load_particle_from_nc_file</span><span class="p">(</span><span class="n">nc</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">)</span>
+            <span class="n">dispersed_phases</span><span class="o">.</span><span class="n">load_particle_from_nc_file</span><span class="p">(</span><span class="n">nc</span><span class="p">)</span>
         
         <span class="c"># Extract the remaining model constants</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">D</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;D&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
@@ -681,11 +737,20 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">nt</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;t&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="n">nt</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nt</span><span class="p">,</span> <span class="n">ns</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ns</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">[:,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;q&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="n">nt</span><span class="p">,</span><span class="n">i</span><span class="p">]</span>
         
         <span class="c"># Create the local Lagrangian plume element</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">q_local</span> <span class="o">=</span> <span class="n">LagElement</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">[</span><span class="mi">0</span><span class="p">,:],</span> <span class="bp">self</span><span class="o">.</span><span class="n">D</span><span class="p">,</span> 
                        <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracers</span><span class="p">,</span> 
                        <span class="bp">self</span><span class="o">.</span><span class="n">chem_names</span><span class="p">)</span>
+        
+        <span class="c"># Load in any farfield tracking results</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">farfield</span><span class="p">:</span>
+                <span class="n">fname_sbm</span> <span class="o">=</span> <span class="n">fname</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.nc&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s">&#39;</span><span class="si">%3.3d</span><span class="s">.nc&#39;</span> <span class="o">%</span> <span class="n">i</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">sbm</span> <span class="o">=</span> \
+                    <span class="n">single_bubble_model</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">simfile</span><span class="o">=</span><span class="n">fname_sbm</span><span class="p">)</span>
         
         <span class="c"># Close the netCDF dataset</span>
         <span class="n">nc</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
@@ -933,6 +998,7 @@
         <span class="c"># Particles start inside the plume and should be integrated</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">integrate</span> <span class="o">=</span> <span class="bp">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sim_stored</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">farfield</span> <span class="o">=</span> <span class="bp">False</span>
         
         <span class="c"># Store the initial particle locations</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">t</span> <span class="o">=</span> <span class="mf">0.</span>
@@ -999,7 +1065,7 @@
             <span class="n">lp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">X_p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">X_p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">X_p</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
             
             <span class="c"># Compute the buoyant force reduction factor</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">p_fac</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">lp</span> <span class="o">/</span> <span class="n">q_local</span><span class="o">.</span><span class="n">b</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">p_fac</span> <span class="o">=</span> <span class="p">(</span><span class="n">q_local</span><span class="o">.</span><span class="n">b</span> <span class="o">-</span> <span class="n">lp</span><span class="p">)</span><span class="o">**</span><span class="mi">4</span> <span class="o">/</span> <span class="n">q_local</span><span class="o">.</span><span class="n">b</span><span class="o">**</span><span class="mi">4</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_fac</span> <span class="o">&lt;</span> <span class="mf">0.</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">p_fac</span> <span class="o">=</span> <span class="mf">0.</span>
             
@@ -1072,7 +1138,10 @@
         
         <span class="c"># Run the simulation</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sbm</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">particle</span><span class="p">,</span> <span class="n">X0</span><span class="p">,</span> <span class="n">de</span><span class="p">,</span> <span class="n">yk</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">K_T</span><span class="p">,</span> 
-                          <span class="bp">self</span><span class="o">.</span><span class="n">fdis</span><span class="p">,</span> <span class="mf">100000.</span><span class="p">)</span>
+                          <span class="bp">self</span><span class="o">.</span><span class="n">fdis</span><span class="p">,</span> <span class="n">delta_t</span><span class="o">=</span><span class="mf">100000.</span><span class="p">)</span>
+        
+        <span class="c"># Set flag indicating that far-field solution was computed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">farfield</span> <span class="o">=</span> <span class="bp">True</span>
 
 
 <span class="c"># ----------------------------------------------------------------------------</span>
@@ -1342,8 +1411,9 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">cte</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
         
         <span class="c"># Get the local ambient conditions</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">Pa</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ta</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Sa</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ua</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">,</span>
-            <span class="p">[</span><span class="s">&#39;pressure&#39;</span><span class="p">,</span> <span class="s">&#39;temperature&#39;</span><span class="p">,</span> <span class="s">&#39;salinity&#39;</span><span class="p">,</span> <span class="s">&#39;ua&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Pa</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ta</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Sa</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ua</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">va</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">wa</span> <span class="o">=</span> \
+            <span class="n">profile</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;pressure&#39;</span><span class="p">,</span> <span class="s">&#39;temperature&#39;</span><span class="p">,</span> 
+            <span class="s">&#39;salinity&#39;</span><span class="p">,</span> <span class="s">&#39;ua&#39;</span><span class="p">,</span> <span class="s">&#39;va&#39;</span><span class="p">,</span> <span class="s">&#39;wa&#39;</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ca_chems</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chem_names</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ca_tracers</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracers</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rho_a</span> <span class="o">=</span> <span class="n">seawater</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Ta</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Sa</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Pa</span><span class="p">)</span>
@@ -1394,7 +1464,7 @@
             <span class="c"># Update the particles with their current properties</span>
             <span class="n">m_p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">M_p</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">nbe</span>
             <span class="n">T_p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">H_p</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">M_p</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">*</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">cp</span><span class="p">)</span>
-            <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">m_p</span><span class="p">,</span> <span class="n">T_p</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Pa</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Sa</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ta</span><span class="p">,</span> 
+            <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">m_p</span><span class="p">,</span> <span class="n">T_p</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Pa</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">S</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> 
                                 <span class="bp">self</span><span class="o">.</span><span class="n">t_p</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
             
             <span class="c"># Track the particle in the plume</span>

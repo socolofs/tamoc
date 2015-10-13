@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.16',
+        VERSION:     '0.1.17',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -98,6 +98,7 @@
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">fsolve</span>
+<span class="kn">import</span> <span class="nn">unicodedata</span>
 <span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">copy</span>
 
 
@@ -655,24 +656,31 @@
     
     <span class="c"># Count the number of particles</span>
     <span class="n">nparticles</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createDimension</span><span class="p">(</span><span class="s">&#39;nparticles&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">particles</span><span class="p">))</span>
+    <span class="n">ngroups</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createDimension</span><span class="p">(</span><span class="s">&#39;ngroups&#39;</span><span class="p">,</span> <span class="mi">15</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">chem_names</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">nchems</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createDimension</span><span class="p">(</span><span class="s">&#39;nchems&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">chem_names</span><span class="p">))</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">nchems</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createDimension</span><span class="p">(</span><span class="s">&#39;nchems&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">num</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createDimension</span><span class="p">(</span><span class="s">&#39;num&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
     
     <span class="c"># Save the particle composition</span>
     <span class="n">nc</span><span class="o">.</span><span class="n">composition</span> <span class="o">=</span> <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">chem_names</span><span class="p">)</span>
     
     <span class="c"># Create the dataset descriptions for all the particle variables</span>
-    <span class="n">particle_type</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;particle_type&#39;</span><span class="p">,</span> <span class="s">&#39;i4&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;nparticles&#39;</span><span class="p">,))</span>
+    <span class="n">particle_type</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;particle_type&#39;</span><span class="p">,</span> <span class="s">&#39;i4&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;num&#39;</span><span class="p">,))</span>
     <span class="n">particle_type</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;dispersed_phases Particle type&#39;</span>
     <span class="n">particle_type</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;particle_type&#39;</span>
-    <span class="n">particle_type</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;0: Single, 1:Plume&#39;</span>
+    <span class="n">particle_type</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;0: Single, 1:Plume, 2:Bent plume particle&#39;</span>
     
     <span class="n">issoluble</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;issoluble&#39;</span><span class="p">,</span> <span class="s">&#39;i4&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;nparticles&#39;</span><span class="p">,))</span>
     <span class="n">issoluble</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;solubility (0: false, 1: true)&#39;</span>
     <span class="n">issoluble</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;issoluble&#39;</span>
     <span class="n">issoluble</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;boolean&#39;</span>
+    
+    <span class="n">isair</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;isair&#39;</span><span class="p">,</span> <span class="s">&#39;i4&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;nparticles&#39;</span><span class="p">,))</span>
+    <span class="n">isair</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;fluid is air (0: false, 1: true)&#39;</span>
+    <span class="n">isair</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;isair&#39;</span>
+    <span class="n">isair</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;boolean&#39;</span>
     
     <span class="n">isfluid</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;isfluid&#39;</span><span class="p">,</span> <span class="s">&#39;i4&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;nparticles&#39;</span><span class="p">,))</span>
     <span class="n">isfluid</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;Fluid status (0: false, 1: true)&#39;</span>
@@ -684,6 +692,16 @@
     <span class="n">iscompressible</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;Compressibility (0: false, 1: true)&#39;</span>
     <span class="n">iscompressible</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;iscompressible&#39;</span>
     <span class="n">iscompressible</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;boolean&#39;</span>
+    
+    <span class="n">calc_delta</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;calc_delta&#39;</span><span class="p">,</span> <span class="s">&#39;i4&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;nparticles&#39;</span><span class="p">,))</span>
+    <span class="n">calc_delta</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;Calculate delta (-1: false, 1: true)&#39;</span>
+    <span class="n">calc_delta</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;calc_delta&#39;</span>
+    <span class="n">calc_delta</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;boolean&#39;</span>
+    
+    <span class="n">extern_data</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;extern_data&#39;</span><span class="p">,</span> <span class="s">&#39;i4&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;nparticles&#39;</span><span class="p">,))</span>
+    <span class="n">extern_data</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;External chem database (0: false, 1: true)&#39;</span>
+    <span class="n">extern_data</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;extern_data&#39;</span>
+    <span class="n">extern_data</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;boolean&#39;</span>
     
     <span class="n">fp_type</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;fp_type&#39;</span><span class="p">,</span> <span class="s">&#39;i4&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;nparticles&#39;</span><span class="p">,))</span>
     <span class="n">fp_type</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;fluid phase (0: gas, 1: liquid, 2: solid)&#39;</span>
@@ -710,6 +728,18 @@
     <span class="n">co</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;co&#39;</span>
     <span class="n">co</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;K^(-1)&#39;</span>
         
+    <span class="n">sigma_correction</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;sigma_correction&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> 
+        <span class="p">(</span><span class="s">&#39;nparticles&#39;</span><span class="p">,))</span>
+    <span class="n">sigma_correction</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;interfacial tension reduction factor (--)&#39;</span>
+    <span class="n">sigma_correction</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;sigma_correction&#39;</span>
+    <span class="n">sigma_correction</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;nondimensional&#39;</span>
+    
+    <span class="n">delta_groups</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;delta_groups&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;nparticles&#39;</span><span class="p">,</span> 
+        <span class="s">&#39;nchems&#39;</span><span class="p">,</span> <span class="s">&#39;ngroups&#39;</span><span class="p">))</span>
+    <span class="n">delta_groups</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;group contribution method delta groups&#39;</span>
+    <span class="n">delta_groups</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;delta_groups&#39;</span>
+    <span class="n">delta_groups</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;nondimensional&#39;</span>
+    
     <span class="n">m0</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;m0&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;nparticles&#39;</span><span class="p">,</span> <span class="s">&#39;nchems&#39;</span><span class="p">))</span>
     <span class="n">m0</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;initial mass flux&#39;</span>
     <span class="n">m0</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;m0&#39;</span>
@@ -740,17 +770,183 @@
     <span class="n">t_hyd</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;t_hyd&#39;</span>
     <span class="n">t_hyd</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;s&#39;</span>
     
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">PlumeParticle</span><span class="p">):</span>
-        
+    <span class="c"># Check if these are plume particle objects</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">particles</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">integrate</span>
+        <span class="c"># Must be bent_plume_model.Particle object</span>
+        <span class="n">particle_type</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
         <span class="n">nb0</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;nb0&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;nparticles&#39;</span><span class="p">))</span>
         <span class="n">nb0</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;initial bubble number flux&#39;</span>
         <span class="n">nb0</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;nb0&#39;</span>
         <span class="n">nb0</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;s^(-1)&#39;</span>
         
+        <span class="n">nbe</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;nbe&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;nparticles&#39;</span><span class="p">))</span>
+        <span class="n">nbe</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;number of bubbles following plume element&#39;</span>
+        <span class="n">nbe</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;nbe&#39;</span>
+        <span class="n">nbe</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;count&#39;</span>
+        
         <span class="n">lambda_1</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;lambda_1&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;nparticles&#39;</span><span class="p">))</span>
         <span class="n">lambda_1</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;bubble spreading ratio&#39;</span>
         <span class="n">lambda_1</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;lambda_1&#39;</span>
         <span class="n">lambda_1</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;nondimensional&#39;</span>
+        
+        <span class="n">integrate</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;integrate&#39;</span><span class="p">,</span> <span class="s">&#39;i4&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;nparticles&#39;</span><span class="p">,))</span>
+        <span class="n">integrate</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;Particle status (0: false, 1: true)&#39;</span>
+        <span class="n">integrate</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;integrate&#39;</span>
+        <span class="n">integrate</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;boolean&#39;</span>
+        
+        <span class="n">sim_stored</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;sim_stored&#39;</span><span class="p">,</span> <span class="s">&#39;i4&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;nparticles&#39;</span><span class="p">,))</span>
+        <span class="n">sim_stored</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;Tracking state (0: false, 1: true)&#39;</span>
+        <span class="n">sim_stored</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;sim_stored&#39;</span>
+        <span class="n">sim_stored</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;boolean&#39;</span>
+        
+        <span class="n">farfield</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;farfield&#39;</span><span class="p">,</span> <span class="s">&#39;i4&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;nparticles&#39;</span><span class="p">,))</span>
+        <span class="n">farfield</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;Farfield simualtion (0: false, 1: true)&#39;</span>
+        <span class="n">farfield</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;farfield&#39;</span>
+        <span class="n">farfield</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;boolean&#39;</span>
+        
+        <span class="n">tp</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;tp&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;nparticles&#39;</span><span class="p">))</span>
+        <span class="n">tp</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;time&#39;</span>
+        <span class="n">tp</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;t&#39;</span>
+        <span class="n">tp</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;s&#39;</span>
+        
+        <span class="n">xp</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;xp&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;nparticles&#39;</span><span class="p">))</span>
+        <span class="n">xp</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;x-coordinate&#39;</span>
+        <span class="n">xp</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;x&#39;</span>
+        <span class="n">xp</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;m&#39;</span>
+        
+        <span class="n">yp</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;yp&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;nparticles&#39;</span><span class="p">))</span>
+        <span class="n">yp</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;y-coordinate&#39;</span>
+        <span class="n">yp</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;y&#39;</span>
+        <span class="n">yp</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;m&#39;</span>
+        
+        <span class="n">zp</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;zp&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;nparticles&#39;</span><span class="p">))</span>
+        <span class="n">zp</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;z-coordinate&#39;</span>
+        <span class="n">zp</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;z&#39;</span>
+        <span class="n">zp</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;m&#39;</span>
+        <span class="n">zp</span><span class="o">.</span><span class="n">axis</span> <span class="o">=</span> <span class="s">&#39;Z&#39;</span>
+        <span class="n">zp</span><span class="o">.</span><span class="n">positive</span> <span class="o">=</span> <span class="s">&#39;down&#39;</span>
+         
+        <span class="n">te</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;te&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;nparticles&#39;</span><span class="p">))</span>
+        <span class="n">te</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;particle exit time&#39;</span>
+        <span class="n">te</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;te&#39;</span>
+        <span class="n">te</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;s&#39;</span>
+        
+        <span class="n">xe</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;xe&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;nparticles&#39;</span><span class="p">))</span>
+        <span class="n">xe</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;particle exit x-coordinate&#39;</span>
+        <span class="n">xe</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;xe&#39;</span>
+        <span class="n">xe</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;m&#39;</span>
+        
+        <span class="n">ye</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;ye&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;nparticles&#39;</span><span class="p">))</span>
+        <span class="n">ye</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;particle exit y-coordinate&#39;</span>
+        <span class="n">ye</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;ye&#39;</span>
+        <span class="n">ye</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;m&#39;</span>
+        
+        <span class="n">ze</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;ze&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;nparticles&#39;</span><span class="p">))</span>
+        <span class="n">ze</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;particle exit z-coordinate&#39;</span>
+        <span class="n">ze</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;ze&#39;</span>
+        <span class="n">ze</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;m&#39;</span>
+        <span class="n">ze</span><span class="o">.</span><span class="n">axis</span> <span class="o">=</span> <span class="s">&#39;Z&#39;</span>
+        <span class="n">ze</span><span class="o">.</span><span class="n">positive</span> <span class="o">=</span> <span class="s">&#39;down&#39;</span>
+    
+    <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">particles</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">nb0</span>
+            <span class="c"># Must be PlumeParticle object</span>
+            <span class="n">particle_type</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">nb0</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;nb0&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;nparticles&#39;</span><span class="p">))</span>
+            <span class="n">nb0</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;initial bubble number flux&#39;</span>
+            <span class="n">nb0</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;nb0&#39;</span>
+            <span class="n">nb0</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;s^(-1)&#39;</span>
+            
+            <span class="n">lambda_1</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;lambda_1&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;nparticles&#39;</span><span class="p">))</span>
+            <span class="n">lambda_1</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;bubble spreading ratio&#39;</span>
+            <span class="n">lambda_1</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;lambda_1&#39;</span>
+            <span class="n">lambda_1</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;nondimensional&#39;</span>
+        
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="n">particle_type</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+   
+    <span class="c"># Check if we need to reserve space to store an external chemical data</span>
+    <span class="c"># base of user_data</span>
+    <span class="n">next_chems</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">particles</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">issoluble</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">user_data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">next_chems</span><span class="p">:</span>
+                <span class="n">next_chems</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">user_data</span><span class="p">)</span>
+                <span class="n">user_composition</span> <span class="o">=</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">user_data</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+    
+    <span class="k">if</span> <span class="n">next_chems</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">next_chems</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createDimension</span><span class="p">(</span><span class="s">&#39;next_chems&#39;</span><span class="p">,</span> <span class="n">next_chems</span><span class="p">)</span>
+        <span class="n">nc</span><span class="o">.</span><span class="n">user_composition</span> <span class="o">=</span> <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">user_composition</span><span class="p">)</span>
+        <span class="n">M</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;M&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;nparticles&#39;</span><span class="p">,</span> <span class="s">&#39;next_chems&#39;</span><span class="p">))</span>
+        <span class="n">M</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;molecular weight&#39;</span>
+        <span class="n">M</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;M&#39;</span>
+        <span class="n">M</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;kg/mol&#39;</span>
+        
+        <span class="n">Pc</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;Pc&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;nparticles&#39;</span><span class="p">,</span> <span class="s">&#39;next_chems&#39;</span><span class="p">))</span>
+        <span class="n">Pc</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;pressure at the critical point&#39;</span>
+        <span class="n">Pc</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;Pc&#39;</span>
+        <span class="n">Pc</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;Pa&#39;</span>
+        
+        <span class="n">Tc</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;Tc&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;nparticles&#39;</span><span class="p">,</span> <span class="s">&#39;next_chems&#39;</span><span class="p">))</span>
+        <span class="n">Tc</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;temperature at the critical point&#39;</span>
+        <span class="n">Tc</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;Tc&#39;</span>
+        <span class="n">Tc</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;K&#39;</span>
+        
+        <span class="n">Vc</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;Vc&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;nparticles&#39;</span><span class="p">,</span> <span class="s">&#39;next_chems&#39;</span><span class="p">))</span>
+        <span class="n">Vc</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;molar volume at the critical point&#39;</span>
+        <span class="n">Vc</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;Vc&#39;</span>
+        <span class="n">Vc</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;m^3/mol&#39;</span>
+        
+        <span class="n">Tb</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;Tb&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;nparticles&#39;</span><span class="p">,</span> <span class="s">&#39;next_chems&#39;</span><span class="p">))</span>
+        <span class="n">Tb</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;boiling point&#39;</span>
+        <span class="n">Tb</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;Tb&#39;</span>
+        <span class="n">Tb</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;K&#39;</span>
+        
+        <span class="n">Vb</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;Vb&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;nparticles&#39;</span><span class="p">,</span> <span class="s">&#39;next_chems&#39;</span><span class="p">))</span>
+        <span class="n">Vb</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;molar volume at the boiling point&#39;</span>
+        <span class="n">Vb</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;Vb&#39;</span>
+        <span class="n">Vb</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;m^3/mol&#39;</span>
+        
+        <span class="n">omega</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;omega&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;nparticles&#39;</span><span class="p">,</span> 
+            <span class="s">&#39;next_chems&#39;</span><span class="p">))</span>
+        <span class="n">omega</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;acentric factor&#39;</span>
+        <span class="n">omega</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;omega&#39;</span>
+        <span class="n">omega</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;nondimensional&#39;</span>
+        
+        <span class="n">kh_0</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;kh_0&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;nparticles&#39;</span><span class="p">,</span> <span class="s">&#39;next_chems&#39;</span><span class="p">))</span>
+        <span class="n">kh_0</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;Henrys law constant at 298.15 K&#39;</span>
+        <span class="n">kh_0</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;kh_0&#39;</span>
+        <span class="n">kh_0</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;kg/(m^3 Pa)&#39;</span>
+        
+        <span class="n">neg_dH_solR</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;neg_dH_solR&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;nparticles&#39;</span><span class="p">,</span> 
+            <span class="s">&#39;next_chems&#39;</span><span class="p">))</span>
+        <span class="n">neg_dH_solR</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;negative of the enthalpy of solution / R&#39;</span>
+        <span class="n">neg_dH_solR</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;neg_dH_solR&#39;</span>
+        <span class="n">neg_dH_solR</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;K&#39;</span>
+        
+        <span class="n">nu_bar</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;nu_bar&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;nparticles&#39;</span><span class="p">,</span> 
+            <span class="s">&#39;next_chems&#39;</span><span class="p">))</span>
+        <span class="n">nu_bar</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;specific volume at infinite dilution&#39;</span>
+        <span class="n">nu_bar</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;nu_bar&#39;</span>
+        <span class="n">nu_bar</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;m^3/mol&#39;</span>
+        
+        <span class="n">B</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;B&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;nparticles&#39;</span><span class="p">,</span> <span class="s">&#39;next_chems&#39;</span><span class="p">))</span>
+        <span class="n">B</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;diffusivity model coefficient B&#39;</span>
+        <span class="n">B</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;B&#39;</span>
+        <span class="n">B</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;m^2/s&#39;</span>
+        
+        <span class="n">dE</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;dE&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;nparticles&#39;</span><span class="p">,</span> <span class="s">&#39;next_chems&#39;</span><span class="p">))</span>
+        <span class="n">dE</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;diffusivity model coefficient dE&#39;</span>
+        <span class="n">dE</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;dE&#39;</span>
+        <span class="n">dE</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;J/mol&#39;</span>
+        
+        <span class="n">K_salt</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;K_salt&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;nparticles&#39;</span><span class="p">,</span> 
+            <span class="s">&#39;next_chems&#39;</span><span class="p">))</span>
+        <span class="n">K_salt</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;Setschenow salting out correction for solubility&#39;</span>
+        <span class="n">K_salt</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;K_salt&#39;</span>
+        <span class="n">K_salt</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;m^3/mol&#39;</span>
     
     <span class="c"># Store the values for each particle in the list</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">particles</span><span class="p">)):</span>
@@ -759,8 +955,35 @@
         <span class="k">if</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">issoluble</span><span class="p">:</span>
             <span class="n">issoluble</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
             <span class="n">isfluid</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">isair</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">isair</span>
             <span class="n">iscompressible</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
             <span class="n">fp_type</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">fp_type</span>
+            <span class="n">calc_delta</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">calc_delta</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">user_data</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">extern_data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">extern_data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="n">user_data</span> <span class="o">=</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">user_data</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">user_composition</span><span class="p">)):</span>
+                    <span class="n">M</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_data</span><span class="p">[</span><span class="n">user_composition</span><span class="p">[</span><span class="n">j</span><span class="p">]][</span><span class="s">&#39;M&#39;</span><span class="p">]</span>
+                    <span class="n">Pc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_data</span><span class="p">[</span><span class="n">user_composition</span><span class="p">[</span><span class="n">j</span><span class="p">]][</span><span class="s">&#39;Pc&#39;</span><span class="p">]</span>
+                    <span class="n">Tc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_data</span><span class="p">[</span><span class="n">user_composition</span><span class="p">[</span><span class="n">j</span><span class="p">]][</span><span class="s">&#39;Tc&#39;</span><span class="p">]</span>
+                    <span class="n">Vc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_data</span><span class="p">[</span><span class="n">user_composition</span><span class="p">[</span><span class="n">j</span><span class="p">]][</span><span class="s">&#39;Vc&#39;</span><span class="p">]</span>
+                    <span class="n">Tb</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_data</span><span class="p">[</span><span class="n">user_composition</span><span class="p">[</span><span class="n">j</span><span class="p">]][</span><span class="s">&#39;Tb&#39;</span><span class="p">]</span>
+                    <span class="n">Vb</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_data</span><span class="p">[</span><span class="n">user_composition</span><span class="p">[</span><span class="n">j</span><span class="p">]][</span><span class="s">&#39;Vb&#39;</span><span class="p">]</span>
+                    <span class="n">omega</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_data</span><span class="p">[</span><span class="n">user_composition</span><span class="p">[</span><span class="n">j</span><span class="p">]][</span><span class="s">&#39;omega&#39;</span><span class="p">]</span>
+                    <span class="n">kh_0</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_data</span><span class="p">[</span><span class="n">user_composition</span><span class="p">[</span><span class="n">j</span><span class="p">]][</span><span class="s">&#39;kh_0&#39;</span><span class="p">]</span>
+                    <span class="n">neg_dH_solR</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> \
+                        <span class="n">user_data</span><span class="p">[</span><span class="n">user_composition</span><span class="p">[</span><span class="n">j</span><span class="p">]][</span><span class="s">&#39;-dH_solR&#39;</span><span class="p">]</span>
+                    <span class="n">nu_bar</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_data</span><span class="p">[</span><span class="n">user_composition</span><span class="p">[</span><span class="n">j</span><span class="p">]][</span><span class="s">&#39;nu_bar&#39;</span><span class="p">]</span>
+                    <span class="n">B</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_data</span><span class="p">[</span><span class="n">user_composition</span><span class="p">[</span><span class="n">j</span><span class="p">]][</span><span class="s">&#39;B&#39;</span><span class="p">]</span>
+                    <span class="n">dE</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_data</span><span class="p">[</span><span class="n">user_composition</span><span class="p">[</span><span class="n">j</span><span class="p">]][</span><span class="s">&#39;dE&#39;</span><span class="p">]</span>
+                    <span class="n">K_salt</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_data</span><span class="p">[</span><span class="n">user_composition</span><span class="p">[</span><span class="n">j</span><span class="p">]][</span><span class="s">&#39;K_salt&#39;</span><span class="p">]</span>
+            <span class="n">sigma_correction</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">sigma_correction</span>
+            <span class="k">if</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">calc_delta</span><span class="p">:</span>
+                <span class="n">delta_groups</span><span class="p">[</span><span class="n">i</span><span class="p">,:,:]</span> <span class="o">=</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">delta_groups</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">delta_groups</span><span class="p">[</span><span class="n">i</span><span class="p">,:,:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">chem_names</span><span class="p">),</span><span class="mi">15</span><span class="p">))</span>
             <span class="n">m0</span><span class="p">[</span><span class="n">i</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">m0</span>
             <span class="n">rho_p</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.</span>
             <span class="n">gamma</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.</span>
@@ -768,6 +991,7 @@
             <span class="n">co</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">issoluble</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">isair</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="k">if</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">isfluid</span><span class="p">:</span>
                 <span class="n">isfluid</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
             <span class="k">else</span><span class="p">:</span>
@@ -777,6 +1001,8 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">iscompressible</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="n">fp_type</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span>
+            <span class="n">calc_delta</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="n">sigma_correction</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.</span>
             <span class="n">m0</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">m0</span>
             <span class="n">rho_p</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">rho_p</span>
             <span class="n">gamma</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">gamma</span>
@@ -784,22 +1010,37 @@
             <span class="n">co</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">co</span>
         
         <span class="c"># Store the variables needed to create dispersed_phases SingleParticle</span>
-        <span class="c"># of PlumeParticle objects</span>
+        <span class="c"># or PlumeParticle objects</span>
         <span class="n">T0</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">T0</span>
         <span class="n">K</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">K</span>
         <span class="n">K_T</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">K_T0</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
         <span class="n">fdis</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">fdis</span>
         <span class="n">t_hyd</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">t_hyd</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">PlumeParticle</span><span class="p">):</span>
-            <span class="n">particle_type</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        
+        <span class="k">if</span> <span class="n">particle_type</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">particle_type</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
             <span class="n">nb0</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">nb0</span>
             <span class="n">lambda_1</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">lambda_1</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">particle_type</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
-
+        
+        <span class="k">if</span> <span class="n">particle_type</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">nb0</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">nb0</span>
+            <span class="n">nbe</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">nbe</span>
+            <span class="n">lambda_1</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">lambda_1</span>
+            <span class="n">integrate</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">integrate</span>
+            <span class="n">sim_stored</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">sim_stored</span>
+            <span class="n">farfield</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">farfield</span>
+            <span class="n">tp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">t</span>
+            <span class="n">xp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">x</span>
+            <span class="n">yp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">y</span>
+            <span class="n">zp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">z</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">te</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">te</span>
+                <span class="n">xe</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">xe</span>
+                <span class="n">ye</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">ye</span>
+                <span class="n">ze</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">ze</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">pass</span>
 </div>
-<div class="viewcode-block" id="load_particle_from_nc_file"><a class="viewcode-back" href="../disp_phases/dispersed_phases.load_particle_from_nc_file.html#dispersed_phases.load_particle_from_nc_file">[docs]</a><span class="k">def</span> <span class="nf">load_particle_from_nc_file</span><span class="p">(</span><span class="n">nc</span><span class="p">,</span> <span class="n">particle_type</span><span class="p">,</span> <span class="n">X0</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">user_data</span><span class="o">=</span><span class="p">{},</span> 
-                               <span class="n">delta_groups</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="load_particle_from_nc_file"><a class="viewcode-back" href="../disp_phases/dispersed_phases.load_particle_from_nc_file.html#dispersed_phases.load_particle_from_nc_file">[docs]</a><span class="k">def</span> <span class="nf">load_particle_from_nc_file</span><span class="p">(</span><span class="n">nc</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Read the complete `particles` list from a netCDF output file</span>
 <span class="sd">    </span>
@@ -821,7 +1062,7 @@
 <span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c"># All particles have the same composition</span>
-    <span class="n">chem_names</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+    <span class="n">chem_names</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">nc</span><span class="o">.</span><span class="n">composition</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
     
     <span class="c"># Load each particle object separately</span>
     <span class="n">particles</span> <span class="o">=</span> <span class="p">[]</span>
@@ -829,9 +1070,49 @@
         
         <span class="c"># Create the correct dbm object</span>
         <span class="k">if</span> <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;issoluble&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;extern_data&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]:</span>
+                <span class="n">user_data</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="n">user_composition</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">nc</span><span class="o">.</span><span class="n">user_composition</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">user_composition</span><span class="p">)):</span>
+                    <span class="n">user_data</span><span class="p">[</span><span class="n">user_composition</span><span class="p">[</span><span class="n">j</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+                    <span class="n">user_data</span><span class="p">[</span><span class="n">user_composition</span><span class="p">[</span><span class="n">j</span><span class="p">]][</span><span class="s">&#39;M&#39;</span><span class="p">]</span> <span class="o">=</span> \
+                        <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;M&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span>
+                    <span class="n">user_data</span><span class="p">[</span><span class="n">user_composition</span><span class="p">[</span><span class="n">j</span><span class="p">]][</span><span class="s">&#39;Pc&#39;</span><span class="p">]</span> <span class="o">=</span> \
+                        <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;Pc&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span>
+                    <span class="n">user_data</span><span class="p">[</span><span class="n">user_composition</span><span class="p">[</span><span class="n">j</span><span class="p">]][</span><span class="s">&#39;Tc&#39;</span><span class="p">]</span> <span class="o">=</span> \
+                        <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;Tc&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span>
+                    <span class="n">user_data</span><span class="p">[</span><span class="n">user_composition</span><span class="p">[</span><span class="n">j</span><span class="p">]][</span><span class="s">&#39;Vc&#39;</span><span class="p">]</span> <span class="o">=</span> \
+                        <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;Vc&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span>
+                    <span class="n">user_data</span><span class="p">[</span><span class="n">user_composition</span><span class="p">[</span><span class="n">j</span><span class="p">]][</span><span class="s">&#39;Tb&#39;</span><span class="p">]</span> <span class="o">=</span> \
+                        <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;Tb&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span>
+                    <span class="n">user_data</span><span class="p">[</span><span class="n">user_composition</span><span class="p">[</span><span class="n">j</span><span class="p">]][</span><span class="s">&#39;Vb&#39;</span><span class="p">]</span> <span class="o">=</span> \
+                        <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;Vb&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span>
+                    <span class="n">user_data</span><span class="p">[</span><span class="n">user_composition</span><span class="p">[</span><span class="n">j</span><span class="p">]][</span><span class="s">&#39;omega&#39;</span><span class="p">]</span> <span class="o">=</span> \
+                        <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;omega&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span>
+                    <span class="n">user_data</span><span class="p">[</span><span class="n">user_composition</span><span class="p">[</span><span class="n">j</span><span class="p">]][</span><span class="s">&#39;kh_0&#39;</span><span class="p">]</span> <span class="o">=</span> \
+                        <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;kh_0&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span>
+                    <span class="n">user_data</span><span class="p">[</span><span class="n">user_composition</span><span class="p">[</span><span class="n">j</span><span class="p">]][</span><span class="s">&#39;-dH_solR&#39;</span><span class="p">]</span> <span class="o">=</span> \
+                        <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;neg_dH_solR&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span>
+                    <span class="n">user_data</span><span class="p">[</span><span class="n">user_composition</span><span class="p">[</span><span class="n">j</span><span class="p">]][</span><span class="s">&#39;nu_bar&#39;</span><span class="p">]</span> <span class="o">=</span> \
+                        <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;nu_bar&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span>
+                    <span class="n">user_data</span><span class="p">[</span><span class="n">user_composition</span><span class="p">[</span><span class="n">j</span><span class="p">]][</span><span class="s">&#39;B&#39;</span><span class="p">]</span> <span class="o">=</span> \
+                        <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;B&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span>
+                    <span class="n">user_data</span><span class="p">[</span><span class="n">user_composition</span><span class="p">[</span><span class="n">j</span><span class="p">]][</span><span class="s">&#39;dE&#39;</span><span class="p">]</span> <span class="o">=</span> \
+                        <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;dE&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span>
+                    <span class="n">user_data</span><span class="p">[</span><span class="n">user_composition</span><span class="p">[</span><span class="n">j</span><span class="p">]][</span><span class="s">&#39;K_salt&#39;</span><span class="p">]</span> <span class="o">=</span> \
+                        <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;K_salt&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">user_data</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">if</span> <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;calc_delta&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]:</span>
+                <span class="n">delta_groups</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;delta_groups&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">,:,:]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">delta_groups</span> <span class="o">=</span> <span class="bp">None</span>
             <span class="n">particle</span> <span class="o">=</span> <span class="n">dbm</span><span class="o">.</span><span class="n">FluidParticle</span><span class="p">(</span><span class="n">chem_names</span><span class="p">,</span> 
-                <span class="n">fp_type</span><span class="o">=</span><span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;fp_type&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="n">user_data</span><span class="o">=</span><span class="n">user_data</span><span class="p">,</span> 
-                 <span class="n">delta_groups</span><span class="o">=</span><span class="n">delta_groups</span><span class="p">)</span>
+                <span class="n">fp_type</span><span class="o">=</span><span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;fp_type&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> 
+                <span class="n">user_data</span><span class="o">=</span><span class="n">user_data</span><span class="p">,</span> 
+                <span class="n">delta_groups</span><span class="o">=</span><span class="n">delta_groups</span><span class="p">,</span> 
+                <span class="n">isair</span><span class="o">=</span><span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;isair&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> 
+                <span class="n">sigma_correction</span><span class="o">=</span><span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;sigma_correction&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">])</span>
             <span class="n">m0</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;m0&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">,:]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;isfluid&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]:</span>
@@ -850,15 +1131,27 @@
             <span class="n">m0</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;m0&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
         
         <span class="c"># Create the right dispersed_phases object</span>
-        <span class="k">if</span> <span class="n">particle_type</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;particle_type&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
             <span class="kn">from</span> <span class="nn">tamoc</span> <span class="kn">import</span> <span class="n">bent_plume_model</span> <span class="k">as</span> <span class="n">bpm</span>
-            <span class="n">particle</span> <span class="o">=</span> <span class="n">bpm</span><span class="o">.</span><span class="n">Particle</span><span class="p">(</span><span class="n">X0</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">X0</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">X0</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">particle</span><span class="p">,</span> <span class="n">m0</span><span class="p">,</span> 
+            <span class="n">particle</span> <span class="o">=</span> <span class="n">bpm</span><span class="o">.</span><span class="n">Particle</span><span class="p">(</span><span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;xp&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> 
+                <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;yp&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;zp&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="n">particle</span><span class="p">,</span> <span class="n">m0</span><span class="p">,</span> 
                 <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;T0&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;nb0&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> 
                 <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;lambda_1&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;P&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> 
                 <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;Sa&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;Ta&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> 
                 <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;K&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;K_T&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> 
                 <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;fdis&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;t_hyd&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">])</span>
-        <span class="k">elif</span> <span class="n">particle_type</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">particle</span><span class="o">.</span><span class="n">nbe</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;nbe&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">particle</span><span class="o">.</span><span class="n">t</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;tp&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">particle</span><span class="o">.</span><span class="n">integrate</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;integrate&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">particle</span><span class="o">.</span><span class="n">sim_stored</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;sim_stored&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">particle</span><span class="o">.</span><span class="n">farfield</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;farfield&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;te&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">0.</span><span class="p">:</span>
+                <span class="n">particle</span><span class="o">.</span><span class="n">te</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;te&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">particle</span><span class="o">.</span><span class="n">xe</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;xe&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">particle</span><span class="o">.</span><span class="n">ye</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;ye&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">particle</span><span class="o">.</span><span class="n">ze</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;ze&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+                
+        <span class="k">elif</span> <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;particle_type&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">particle</span>  <span class="o">=</span> <span class="n">PlumeParticle</span><span class="p">(</span><span class="n">particle</span><span class="p">,</span> <span class="n">m0</span><span class="p">,</span> 
                 <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;T0&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;nb0&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> 
                 <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;lambda_1&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;P&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> 
@@ -882,7 +1175,7 @@
 <span class="c"># Functions for shear entrainment</span>
 <span class="c"># ----------------------------------------------------------------------------</span>
 </div>
-<div class="viewcode-block" id="shear_entrainment"><a class="viewcode-back" href="../disp_phases/dispersed_phases.shear_entrainment.html#dispersed_phases.shear_entrainment">[docs]</a><span class="k">def</span> <span class="nf">shear_entrainment</span><span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="n">Ua</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">rho_a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">sin_p</span><span class="p">,</span> <span class="n">cos_p</span><span class="p">,</span> <span class="n">cos_t</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
+<div class="viewcode-block" id="shear_entrainment"><a class="viewcode-back" href="../disp_phases/dispersed_phases.shear_entrainment.html#dispersed_phases.shear_entrainment">[docs]</a><span class="k">def</span> <span class="nf">shear_entrainment</span><span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="n">Us</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">rho_a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">sin_p</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute the entrainment coefficient for shear entrainment </span>
 <span class="sd">    </span>
@@ -896,8 +1189,9 @@
 <span class="sd">    ----------</span>
 <span class="sd">    U : float</span>
 <span class="sd">        Top hat velocity of entrained plume water (m/s)</span>
-<span class="sd">    Ua : float</span>
-<span class="sd">        Magnitude of the velocity of the crossflow along th theta axis (m/s)</span>
+<span class="sd">    Us : float</span>
+<span class="sd">        Component of the ambient current projected along the plume </span>
+<span class="sd">        centerline (m/s)</span>
 <span class="sd">    rho : float</span>
 <span class="sd">        Density of the entrained plume fluid (kg/m^3)</span>
 <span class="sd">    rho_a : float</span>
@@ -905,10 +1199,6 @@
 <span class="sd">    sin_p : float</span>
 <span class="sd">        Sine of the angle phi from the horizontal with down being positive (up </span>
 <span class="sd">        is - pi/2)</span>
-<span class="sd">    cos_p : float</span>
-<span class="sd">         Sine of the angle phi from the horizontal with down being positive </span>
-<span class="sd">         (up is - pi/2)</span>
-<span class="sd">    cos_t : float</span>
 <span class="sd">        Cosine of the angle theta from the crossflow direction</span>
 <span class="sd">    p : `bent_plume_model.ModelParams` or `stratified_plume_model.ModelParams`</span>
 <span class="sd">        Object containing the present model parameters</span>
@@ -928,8 +1218,8 @@
         <span class="n">alpha_p</span> <span class="o">=</span> <span class="mf">0.</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="c"># This is a plume; compute the densimetric Gaussian Froude number</span>
-        <span class="n">F1</span> <span class="o">=</span> <span class="mf">2.</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">U</span> <span class="o">-</span> <span class="n">Ua</span> <span class="o">*</span> <span class="n">cos_p</span> <span class="o">*</span> <span class="n">cos_t</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">g</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span>
-             <span class="n">rho_a</span> <span class="o">-</span> <span class="n">rho</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">+</span> <span class="mf">1.2</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mf">1.2</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">rho_a</span> <span class="o">*</span> <span class="n">b</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.</span><span class="p">))</span>
+        <span class="n">F1</span> <span class="o">=</span> <span class="mf">2.</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">U</span> <span class="o">-</span> <span class="n">Us</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">g</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">rho_a</span> <span class="o">-</span> <span class="n">rho</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">+</span> 
+             <span class="mf">1.2</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mf">1.2</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">rho_a</span> <span class="o">*</span> <span class="n">b</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.</span><span class="p">))</span>
         
         <span class="c"># Follow Figure 13 in Jirka (2004)</span>
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">F1</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">sin_p</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">p</span><span class="o">.</span><span class="n">alpha_Fr</span> <span class="o">/</span> <span class="mf">0.028</span><span class="p">:</span>
@@ -939,11 +1229,11 @@
                       <span class="n">sin_p</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">rho_a</span> <span class="o">-</span> <span class="n">rho</span><span class="p">)</span>
     
     <span class="c"># Compute the total shear entrainment coefficient for the top-hat model</span>
-    <span class="k">if</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">U</span> <span class="o">-</span> <span class="n">Ua</span> <span class="o">*</span> <span class="n">cos_p</span> <span class="o">*</span> <span class="n">cos_t</span><span class="p">)</span> <span class="o">+</span> <span class="n">U</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">U</span> <span class="o">-</span> <span class="n">Us</span><span class="p">)</span> <span class="o">+</span> <span class="n">U</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">alpha_s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.</span><span class="p">)</span> <span class="o">*</span> <span class="n">alpha_j</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">alpha_s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">alpha_j</span> <span class="o">+</span> <span class="n">alpha_p</span><span class="p">)</span> <span class="o">*</span> <span class="mf">2.</span> <span class="o">*</span> <span class="n">U</span> <span class="o">/</span> \
-                  <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">U</span> <span class="o">-</span> <span class="n">Ua</span> <span class="o">*</span> <span class="n">cos_p</span> <span class="o">*</span> <span class="n">cos_t</span><span class="p">)</span> <span class="o">+</span> <span class="n">U</span><span class="p">)</span>
+                  <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">U</span> <span class="o">-</span> <span class="n">Us</span><span class="p">)</span> <span class="o">+</span> <span class="n">U</span><span class="p">)</span>
     
     <span class="c"># Return the total shear entrainment coefficient</span>
     <span class="k">return</span> <span class="n">alpha_s</span>

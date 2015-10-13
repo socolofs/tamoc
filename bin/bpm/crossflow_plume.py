@@ -1,7 +1,14 @@
 """
-BPM Example
-===========
+Bent Plume Model: Bubble Plume in Crossflow
+===========================================
 
+Use the ``TAMOC`` `bent_plume_model` to simulate a typical bubble plume in a
+laboratory crossflow experiment. This script demonstrates the typical steps
+involved in running the bent bubble model with petroleum fluids in the ocean.
+
+This simulation creates new ambient crossflow data to match a typical 
+laboratory flume and saves the data to the local directory in the file 
+name crossflow_plume.nc.
 
 """
 # S. Socolofsky, October 2014, Texas A&M University <socolofs@tamu.edu>.

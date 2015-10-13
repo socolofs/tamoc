@@ -21,6 +21,8 @@ from tamoc import ambient
 from netCDF4 import Dataset
 from datetime import datetime
 import os
+from warnings import warn
+
 
 # ----------------------------------------------------------------------------
 # Functions to work with netCDF datasets of model output

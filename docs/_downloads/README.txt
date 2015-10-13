@@ -12,6 +12,13 @@ size distributions from source flow conditions.
 For typical usage, please see the ./bin directory of the source distribution
 for various example scripts.
 
+Version 0.1.17: Updated the modeling suite so that all of the save/load 
+                functions are consistent with the present model variables
+                and attributes.  Modified the bent plume model so that 
+                ambient currents can come from any direction (three-
+                dimensional).  Added a new test file for the bent plume 
+                model.  Changed the convergence criteria for the stratified
+                plume model.
 Version 0.1.16: Updated the bent plume model so that post processing is 
                 fully consistent with the simulation results.  Also, added
                 the capability for the bent plume model to stop at the 

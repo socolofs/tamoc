@@ -37,7 +37,8 @@ from netCDF4 import Dataset
 
 import os
 import numpy as np
-from numpy.testing import *
+from numpy.testing import assert_array_almost_equal
+from numpy.testing import assert_approx_equal
 
 # ----------------------------------------------------------------------------
 # Helper functions
@@ -64,15 +65,11 @@ def make_ctd_file():
                                     'output'))
     nc_file = os.path.join(__location__,'test_BM54.nc')
     
-    try:
-        # Load the dataset if it exists
-        nc = Dataset(nc_file)
-        
-    except RuntimeError:
-        # Dataset does not exist, create it using the existing test
-        test_ambient.test_from_ctd()
-        # Now, load the dataset
-        nc = Dataset(nc_file)
+    # Be sure to start with the original, unedited CTD data
+    test_ambient.test_from_ctd()
+    
+    # Load the data into a netCDF file
+    nc = Dataset(nc_file, 'a')
     
     return nc
     
@@ -346,7 +343,8 @@ def test_simulation():
     T0 = 273.15 + 30.
     
     # Run the simulation
-    sbm.simulate(bub, z0, de, mol_frac, T0, K_T=1, fdis=1e-8, delta_t=10.)
+    sbm.simulate(bub, np.array([0., 0., z0]), de, mol_frac, T0, K_T=1, 
+        fdis=1e-8, delta_t=10.)
     
     # Check the solution
     assert sbm.y.shape[0] == 1112
@@ -380,6 +378,7 @@ def test_simulation():
     assert sbm_f.y[0,0] == sbm.y[0,0]  # x0
     assert sbm_f.y[0,1] == sbm.y[0,1]  # y0
     assert sbm_f.y[0,2] == sbm.y[0,2]  # z0
+    
     assert_array_almost_equal(sbm_f.particle.m0, sbm.particle.m0, decimal = 6)
     assert sbm_f.particle.T0 == sbm.particle.T0
     print sbm_f.particle.K_T, sbm.particle.K_T
@@ -425,7 +424,8 @@ def test_simulation():
     T0 = 273.15 + 30.
     
     # Simulate the trajectory through the water column and plot the results
-    sbm.simulate(oil, z0, de, mol_frac, T0, K_T=1, delta_t=10.)
+    sbm.simulate(oil, np.array([0., 0., z0]), de, mol_frac, T0, K_T=1, 
+        delta_t=10.)
     ans = np.array([0.00000000e+00, 0.00000000e+00, 1.16067764e-01,
         1.26136097e-02, 7.57374681e+03])
     for i in range(5):

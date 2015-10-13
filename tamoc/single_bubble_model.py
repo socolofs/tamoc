@@ -379,7 +379,7 @@ class Model(object):
         # Close the netCDF dataset
         nc.close()
     
-    def save_txt(self, fname, profile_path, profile_info):
+    def save_txt(self, base_name, profile_path, profile_info):
         """
         Save the state space in ascii text format for exporting
         
@@ -388,8 +388,10 @@ class Model(object):
         
         Parameters
         ----------
-        fname : str
-            Name of the output file
+        base_name : str
+            The main name of the output file.  This method writes two files:
+            the data are stored in base_name.txt, and the header information
+            describing each row of data are saved in base_name_header.txt.
         profile_path : str
             String stating the file path relative to the directory where
             the output will be saved to the ambient profile data.  
@@ -420,8 +422,12 @@ class Model(object):
         
         # Create the header string that contains the column descriptions
         p_list = ['Single Bubble Model ASCII Output File \n']
-        p_list.append('Created: ' + datetime.today().isoformat(' ') + '\n')
-        p_list.append('\n')
+        p_list.append('Created: ' + datetime.today().isoformat(' ') + '\n\n')
+        p_list.append('Simulation based on CTD data in:\n')
+        p_list.append(profile_path)
+        p_list.append('\n\n')
+        p_list.append(profile_info)
+        p_list.append('\n\n')
         p_list.append('Column Descriptions:\n')
         p_list.append('    0:  Time in s\n')
         p_list.append('    1:  x-coordinate in m\n')
@@ -430,21 +436,14 @@ class Model(object):
         for i in range(len(self.particle.composition)):
             p_list.append('    %d:  Mass of %s in particle in kg\n' % \
                           (i+4, self.particle.composition[i]))
-        p_list.append('    %d: Heat content (m_p * cp * T) in J' % (i+5))
-        p_list.append('\n')
-        p_list.append('Ambient Profile: %s' % (profile_path))
-        p_list.append('Ambient Info:    %s' % (profile_info))
-        p_list.append('\n')
+        p_list.append('    %d:  Heat content (m_p * cp * T) in J\n' % (i+5))
         header = ''.join(p_list)
         
-        # Assemble the output data
+        # Assemble and write the output data
         data = np.hstack((np.atleast_2d(self.t).transpose(), self.y))
-        
-        # Write the text file
-        # For numpy version 1.7.0 or later:
-        # np.savetxt(fname, data, header=header, comments='%')
-        # Otherwise:
-        np.savetxt(fname, data)
+        np.savetxt(base_name + '.txt', data)
+        with open(base_name + '_header.txt', 'w') as txt_file:
+            txt_file.write(header)
     
     def load_sim(self, fname):
         """

@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.16',
+        VERSION:     '0.1.17',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -226,13 +226,12 @@
 <span class="sd">    previous simulation stored in `simfile`.</span>
 <span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">simfile</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">user_data</span><span class="o">=</span><span class="p">{},</span> 
-                 <span class="n">delta_groups</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">simfile</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Model</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
         
         <span class="k">if</span> <span class="n">profile</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="c"># Create a Model object from a saved file</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">load_sim</span><span class="p">(</span><span class="n">simfile</span><span class="p">,</span> <span class="n">user_data</span><span class="p">,</span> <span class="n">delta_groups</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">load_sim</span><span class="p">(</span><span class="n">simfile</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c"># Create a new Model object</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">profile</span> <span class="o">=</span> <span class="n">profile</span>
@@ -390,44 +389,48 @@
         <span class="n">p</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createDimension</span><span class="p">(</span><span class="s">&#39;profile&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">ns</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createDimension</span><span class="p">(</span><span class="s">&#39;ns&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]))</span>
         
-        <span class="c"># Store the dbm particle object instantiation variables</span>
-        <span class="n">dispersed_phases</span><span class="o">.</span><span class="n">save_particle_to_nc_file</span><span class="p">(</span><span class="n">nc</span><span class="p">,</span> 
-            <span class="bp">self</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">composition</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">particle</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">K_T0</span><span class="p">)</span>
-        
-        <span class="c"># Store the solution independent variable</span>
-        <span class="n">t</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;t&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;z&#39;</span><span class="p">,))</span>
-        <span class="n">t</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;time coordinate&#39;</span>
-        <span class="n">t</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;time&#39;</span>
-        <span class="n">t</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;seconds since release&#39;</span>
-        <span class="n">t</span><span class="o">.</span><span class="n">axis</span> <span class="o">=</span> <span class="s">&#39;T&#39;</span>
-        <span class="n">t</span><span class="p">[:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">t</span>
-        
-        <span class="c"># Store the solution state space...position</span>
-        <span class="n">y</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;y&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;z&#39;</span><span class="p">,</span> <span class="s">&#39;ns&#39;</span><span class="p">,))</span>
-        <span class="n">y</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;solution state space&#39;</span>
-        <span class="n">y</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;y&#39;</span>
-        <span class="n">y</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;variable&#39;</span>
-        <span class="n">y</span><span class="o">.</span><span class="n">coordinate</span> <span class="o">=</span> <span class="s">&#39;t&#39;</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">nc</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s">&#39;ns&#39;</span><span class="p">])):</span>
-            <span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">),</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">[:,</span><span class="n">i</span><span class="p">]</span>
-        
-        <span class="c"># Store the model initial conditions        </span>
+        <span class="c"># Create variables for the model initial conditions</span>
         <span class="n">K_T0</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;K_T0&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;profile&#39;</span><span class="p">,))</span>
         <span class="n">K_T0</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;Initial heat transfer reduction factor&#39;</span>
         <span class="n">K_T0</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;K_T0&#39;</span>
         <span class="n">K_T0</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;nondimensional&#39;</span>
-        <span class="n">K_T0</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">K_T0</span>
         
         <span class="n">delta_t</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;delta_t&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;profile&#39;</span><span class="p">,))</span>
         <span class="n">delta_t</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;maximum simulation output time step&#39;</span>
         <span class="n">delta_t</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;delta_t&#39;</span>
         <span class="n">delta_t</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;seconds&#39;</span>
+        
+        <span class="c"># Create variables for the independent variable</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;t&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;z&#39;</span><span class="p">,))</span>
+        <span class="n">t</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;time coordinate&#39;</span>
+        <span class="n">t</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;time&#39;</span>
+        <span class="n">t</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;seconds since release&#39;</span>
+        <span class="n">t</span><span class="o">.</span><span class="n">axis</span> <span class="o">=</span> <span class="s">&#39;T&#39;</span>
+        
+        <span class="c"># Create variables for the state space</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;y&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;z&#39;</span><span class="p">,</span> <span class="s">&#39;ns&#39;</span><span class="p">,))</span>
+        <span class="n">y</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;solution state space&#39;</span>
+        <span class="n">y</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;y&#39;</span>
+        <span class="n">y</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;variable&#39;</span>
+        <span class="n">y</span><span class="o">.</span><span class="n">coordinate</span> <span class="o">=</span> <span class="s">&#39;t&#39;</span>
+        
+        <span class="c"># Store the initial conditions and model setup</span>
+        <span class="n">K_T0</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">K_T0</span>
         <span class="n">delta_t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta_t</span>
+        
+        <span class="c"># Store the dbm particle object</span>
+        <span class="n">dispersed_phases</span><span class="o">.</span><span class="n">save_particle_to_nc_file</span><span class="p">(</span><span class="n">nc</span><span class="p">,</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">composition</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">particle</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">K_T0</span><span class="p">)</span>
+        
+        <span class="c"># Save the model simulation result</span>
+        <span class="n">t</span><span class="p">[:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">t</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">nc</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s">&#39;ns&#39;</span><span class="p">])):</span>
+            <span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">),</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">[:,</span><span class="n">i</span><span class="p">]</span>
         
         <span class="c"># Close the netCDF dataset</span>
         <span class="n">nc</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
     </div>
-<div class="viewcode-block" id="Model.save_txt"><a class="viewcode-back" href="../sbm/single_bubble_model.Model.save_txt.html#single_bubble_model.Model.save_txt">[docs]</a>    <span class="k">def</span> <span class="nf">save_txt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">profile_path</span><span class="p">,</span> <span class="n">profile_info</span><span class="p">):</span>
+<div class="viewcode-block" id="Model.save_txt"><a class="viewcode-back" href="../sbm/single_bubble_model.Model.save_txt.html#single_bubble_model.Model.save_txt">[docs]</a>    <span class="k">def</span> <span class="nf">save_txt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_name</span><span class="p">,</span> <span class="n">profile_path</span><span class="p">,</span> <span class="n">profile_info</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Save the state space in ascii text format for exporting</span>
 <span class="sd">        </span>
@@ -436,8 +439,10 @@
 <span class="sd">        </span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        fname : str</span>
-<span class="sd">            Name of the output file</span>
+<span class="sd">        base_name : str</span>
+<span class="sd">            The main name of the output file.  This method writes two files:</span>
+<span class="sd">            the data are stored in base_name.txt, and the header information</span>
+<span class="sd">            describing each row of data are saved in base_name_header.txt.</span>
 <span class="sd">        profile_path : str</span>
 <span class="sd">            String stating the file path relative to the directory where</span>
 <span class="sd">            the output will be saved to the ambient profile data.  </span>
@@ -468,8 +473,12 @@
         
         <span class="c"># Create the header string that contains the column descriptions</span>
         <span class="n">p_list</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;Single Bubble Model ASCII Output File </span><span class="se">\n</span><span class="s">&#39;</span><span class="p">]</span>
-        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;Created: &#39;</span> <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(</span><span class="s">&#39; &#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
-        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;Created: &#39;</span> <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(</span><span class="s">&#39; &#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;</span><span class="se">\n\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;Simulation based on CTD data in:</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">profile_path</span><span class="p">)</span>
+        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">profile_info</span><span class="p">)</span>
+        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n\n</span><span class="s">&#39;</span><span class="p">)</span>
         <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;Column Descriptions:</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
         <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;    0:  Time in s</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
         <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;    1:  x-coordinate in m</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
@@ -478,23 +487,16 @@
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">composition</span><span class="p">)):</span>
             <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;    </span><span class="si">%d</span><span class="s">:  Mass of </span><span class="si">%s</span><span class="s"> in particle in kg</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> \
                           <span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">4</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">composition</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
-        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;    </span><span class="si">%d</span><span class="s">: Heat content (m_p * cp * T) in J&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">5</span><span class="p">))</span>
-        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
-        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;Ambient Profile: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">profile_path</span><span class="p">))</span>
-        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;Ambient Info:    </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">profile_info</span><span class="p">))</span>
-        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;    </span><span class="si">%d</span><span class="s">:  Heat content (m_p * cp * T) in J</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">5</span><span class="p">))</span>
         <span class="n">header</span> <span class="o">=</span> <span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">p_list</span><span class="p">)</span>
         
-        <span class="c"># Assemble the output data</span>
+        <span class="c"># Assemble and write the output data</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">atleast_2d</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">))</span>
-        
-        <span class="c"># Write the text file</span>
-        <span class="c"># For numpy version 1.7.0 or later:</span>
-        <span class="c"># np.savetxt(fname, data, header=header, comments=&#39;%&#39;)</span>
-        <span class="c"># Otherwise:</span>
-        <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="n">base_name</span> <span class="o">+</span> <span class="s">&#39;.txt&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">base_name</span> <span class="o">+</span> <span class="s">&#39;_header.txt&#39;</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">txt_file</span><span class="p">:</span>
+            <span class="n">txt_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
     </div>
-<div class="viewcode-block" id="Model.load_sim"><a class="viewcode-back" href="../sbm/single_bubble_model.Model.load_sim.html#single_bubble_model.Model.load_sim">[docs]</a>    <span class="k">def</span> <span class="nf">load_sim</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">user_data</span><span class="o">=</span><span class="p">{},</span> <span class="n">delta_groups</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Model.load_sim"><a class="viewcode-back" href="../sbm/single_bubble_model.Model.load_sim.html#single_bubble_model.Model.load_sim">[docs]</a>    <span class="k">def</span> <span class="nf">load_sim</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load in a saved simulation result file for post-processing</span>
 <span class="sd">        </span>
@@ -527,8 +529,7 @@
         
         <span class="c"># Load in the dispersed_phases.Particle object</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">particle</span> <span class="o">=</span> \
-            <span class="n">dispersed_phases</span><span class="o">.</span><span class="n">load_particle_from_nc_file</span><span class="p">(</span><span class="n">nc</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> 
-                <span class="n">user_data</span><span class="o">=</span><span class="n">user_data</span><span class="p">,</span> <span class="n">delta_groups</span><span class="o">=</span><span class="n">delta_groups</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">dispersed_phases</span><span class="o">.</span><span class="n">load_particle_from_nc_file</span><span class="p">(</span><span class="n">nc</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
         
         <span class="c"># Extract the state space data</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">t</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;t&#39;</span><span class="p">][:]</span>

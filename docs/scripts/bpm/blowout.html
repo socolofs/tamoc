@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -16,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.1.7',
+        VERSION:     '0.1.17',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,34 +23,38 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../../index.html" />
-    <link rel="up" title="Bent Plume Model User’s Guide" href="../../bpm/guide.html" />
-    <link rel="next" title="bpm_example" href="bpm_example.html" />
-    <link rel="prev" title="Bent Plume Model User’s Guide" href="../../bpm/guide.html" /> 
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../../contents.html" />
+    <link rel="up" title="Reference" href="../../modules/reference.html" />
+    <link rel="next" title="Unit Tests" href="../../modules/test.html" />
+    <link rel="prev" title="crossflow_plume" href="crossflow_plume.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="../../genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="bpm_example.html" title="bpm_example"
+          <a href="../../modules/test.html" title="Unit Tests"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="../../bpm/guide.html" title="Bent Plume Model User’s Guide"
+          <a href="crossflow_plume.html" title="crossflow_plume"
              accesskey="P">previous</a> |</li>
 <li><a href="../../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
 
-          <li><a href="../../bpm/guide.html" accesskey="U">Bent Plume Model User&#8217;s Guide</a> &raquo;</li> 
+          <li class="nav-item nav-item-1"><a href="../../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="blowout">
 <h1>blowout<a class="headerlink" href="#blowout" title="Permalink to this headline">¶</a></h1>
@@ -62,19 +64,19 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">December 09, 2014</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">October 13, 2015</td>
 </tr>
 </tbody>
 </table>
-<span class="target" id="module-blowout"></span><div class="section" id="stratified-plume-model-blowout-simulation">
-<h2>Stratified Plume Model:  Blowout simulation<a class="headerlink" href="#stratified-plume-model-blowout-simulation" title="Permalink to this headline">¶</a></h2>
-<p>Use the <tt class="docutils literal"><span class="pre">TAMOC</span></tt> <a class="reference internal" href="../../modules/spm.html#module-stratified_plume_model" title="stratified_plume_model"><tt class="xref py py-obj docutils literal"><span class="pre">stratified_plume_model</span></tt></a> to simulate a subsea accidental
+<span class="target" id="module-blowout"></span><div class="section" id="bent-plume-model-blowout-simulation">
+<h2>Bent Plume Model:  Blowout simulation<a class="headerlink" href="#bent-plume-model-blowout-simulation" title="Permalink to this headline">¶</a></h2>
+<p>Use the <code class="docutils literal"><span class="pre">TAMOC</span></code> <a class="reference internal" href="../../modules/bpm.html#module-bent_plume_model" title="bent_plume_model"><code class="xref py py-obj docutils literal"><span class="pre">bent_plume_model</span></code></a> to simulate a subsea accidental
 oil spill plume. This script demonstrates the typical steps involved in
-running the single bubble model with petroleum fluids in the ocean.</p>
+running the bent bubble model with petroleum fluids in the ocean.</p>
 <p>This simulation uses the ambient data stored in the file
 <em class="xref py py-obj">/test/output/test_BM54.nc</em>. This dataset is created by the test files in the
-<em class="xref py py-obj">/test</em> directory. Please be sure that all of the tests pass using <tt class="docutils literal"><span class="pre">py.test</span>
-<span class="pre">-v</span></tt> at the command prompt before trying to run this simulation.</p>
+<em class="xref py py-obj">/test</em> directory. Please be sure that all of the tests pass using <code class="docutils literal"><span class="pre">py.test</span>
+<span class="pre">-v</span></code> at the command prompt before trying to run this simulation.</p>
 </div>
 </div>
 
@@ -82,7 +84,7 @@ running the single bubble model with petroleum fluids in the ocean.</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../../contents.html">
               <img class="logo" src="../../_static/logo_holder.png" alt="Logo"/>
@@ -90,27 +92,29 @@ running the single bubble model with petroleum fluids in the ocean.</p>
   <h3><a href="../../contents.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">blowout</a><ul>
-<li><a class="reference internal" href="#stratified-plume-model-blowout-simulation">Stratified Plume Model:  Blowout simulation</a></li>
+<li><a class="reference internal" href="#bent-plume-model-blowout-simulation">Bent Plume Model:  Blowout simulation</a></li>
 </ul>
 </li>
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="../../bpm/guide.html"
-                        title="previous chapter">Bent Plume Model User&#8217;s Guide</a></p>
+  <p class="topless"><a href="crossflow_plume.html"
+                        title="previous chapter">crossflow_plume</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="bpm_example.html"
-                        title="next chapter">bpm_example</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../../_sources/scripts/bpm/blowout.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
+  <p class="topless"><a href="../../modules/test.html"
+                        title="next chapter">Unit Tests</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/scripts/bpm/blowout.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
 <ul class="this-page-menu">
   <li><a href="/numpy/docs/numpy-docs/scripts/bpm/blowout.rst">Edit page</a></li>
 </ul>
 
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../../search.html" method="get">
       <input type="text" name="q" />
@@ -128,27 +132,20 @@ running the single bubble model with petroleum fluids in the ocean.</p>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="bpm_example.html" title="bpm_example"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="../../bpm/guide.html" title="Bent Plume Model User’s Guide"
-             >previous</a> |</li>
-<li><a href="../../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
-
-          <li><a href="../../bpm/guide.html" >Bent Plume Model User&#8217;s Guide</a> &raquo;</li> 
-      </ul>
-    </div>
     <div class="footer">
-        &copy; Copyright 2014, Scott A. Socolofsky.
-      Last updated on Dec 09, 2014.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      &copy;2015, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      
+      |
+      <a href="../../_sources/scripts/bpm/blowout.txt"
+          rel="nofollow">Page source</a></li>
     </div>
+
+    
+
+    
   </body>
 </html>

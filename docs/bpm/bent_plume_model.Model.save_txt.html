@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.16',
+        VERSION:     '0.1.17',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -60,7 +60,7 @@
 <h1>bent_plume_model.Model.save_txt<a class="headerlink" href="#bent-plume-model-model-save-txt" title="Permalink to this headline">¶</a></h1>
 <dl class="method">
 <dt id="bent_plume_model.Model.save_txt">
-<code class="descclassname">Model.</code><code class="descname">save_txt</code><span class="sig-paren">(</span><em>base_name</em>, <em>profile_path</em>, <em>profile_info</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/projects/NFBC/tamoc/tamoc/bent_plume_model.py#L452"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/bent_plume_model.html#Model.save_txt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bent_plume_model.Model.save_txt" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">Model.</code><code class="descname">save_txt</code><span class="sig-paren">(</span><em>base_name</em>, <em>profile_path</em>, <em>profile_info</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/Projects/NFBC/tamoc/tamoc/bent_plume_model.py#L497"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/bent_plume_model.html#Model.save_txt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bent_plume_model.Model.save_txt" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save the state space in ascii text format for exporting</p>
 <p>Save the state space (dependent and independent variables) in an 
 ascii text file for exporting to other programs (e.g., Matlab).</p>
@@ -72,7 +72,11 @@ ascii text file for exporting to other programs (e.g., Matlab).</p>
 <blockquote>
 <div><p>Base file name for the output file.  This method will append the
 .txt file extension to the data output and write a second file
-with the header information called &lt;base_name._header.txt.</p>
+with the header information called base_name_header.txt.  If the
+particles that left the plume were tracked in the farfield, it
+will also save the trajectory of those particles as 
+base_name_nnn.txt (output data) and base_name_nnn_header.txt 
+(header data for far field data).</p>
 </div></blockquote>
 <p><strong>profile_path</strong> : str</p>
 <blockquote>

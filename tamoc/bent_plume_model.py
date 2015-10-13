@@ -506,7 +506,11 @@ class Model(object):
         base_name : str
             Base file name for the output file.  This method will append the
             .txt file extension to the data output and write a second file
-            with the header information called <base_name._header.txt.
+            with the header information called base_name_header.txt.  If the
+            particles that left the plume were tracked in the farfield, it
+            will also save the trajectory of those particles as 
+            base_name_nnn.txt (output data) and base_name_nnn_header.txt 
+            (header data for far field data).  
         profile_path : str
             String stating the file path to the ambient profile data relative 
             to the directory where `fname` will be saved.  
@@ -545,10 +549,10 @@ class Model(object):
         # Create the header string that contains the column descriptions 
         # for the Lagrangian plume state space
         p_list = ['Lagrangian Plume Model ASCII Output File \n']
-        p_list.append('Created: ' + datetime.today().isoformat(' ') + '\n')
+        p_list.append('Created: ' + datetime.today().isoformat(' ') + '\n\n')
         p_list.append('Simulation based on CTD data in:\n')
         p_list.append(profile_path)
-        p_list.append('\n')
+        p_list.append('\n\n')
         p_list.append(profile_info)
         p_list.append('\n\n')
         p_list.append('Column Descriptions:\n')
@@ -566,7 +570,7 @@ class Model(object):
         p_list.append('    11: distance along plume centerline (m)\n')
         idx = 11
         for i in range(len(self.particles)):
-            for j in range(len(self.chem_names)):
+            for j in range(len(self.particles[i].m0)):
                 idx += 1
                 p_list.append(
                     '    %d: Total mass flux of %s in particle %d (kg/s)\n' %
@@ -601,6 +605,13 @@ class Model(object):
         np.savetxt(base_name + '.txt', data)
         with open(base_name + '_header.txt', 'w') as dat_file:
             dat_file.write(header)
+        
+        # Save the tracked particles if they exist
+        for i in range(len(self.particles)):
+            if self.particles[i].farfield:
+                fname_sbm = base_name + '%3.3d' % i
+                self.particles[i].sbm.save_txt(fname_sbm, profile_path, 
+                    profile_info)
     
     def load_sim(self, fname):
         """
@@ -1003,7 +1014,7 @@ class Particle(dispersed_phases.PlumeParticle):
             lp = np.sqrt(X_p[0]**2 + X_p[1]**2 + X_p[2]**2)
             
             # Compute the buoyant force reduction factor
-            self.p_fac = (1.0 - lp / q_local.b)
+            self.p_fac = (q_local.b - lp)**4 / q_local.b**4
             if self.p_fac < 0.:
                 self.p_fac = 0.
             
@@ -1076,7 +1087,7 @@ class Particle(dispersed_phases.PlumeParticle):
         
         # Run the simulation
         self.sbm.simulate(self.particle, X0, de, yk, self.T, self.K, self.K_T, 
-                          self.fdis, 100000.)
+                          self.fdis, delta_t=100000.)
         
         # Set flag indicating that far-field solution was computed
         self.farfield = True
@@ -1349,8 +1360,9 @@ class LagElement(object):
             self.cte = np.array([])
         
         # Get the local ambient conditions
-        self.Pa, self.Ta, self.Sa, self.ua = profile.get_values(self.z,
-            ['pressure', 'temperature', 'salinity', 'ua'])
+        self.Pa, self.Ta, self.Sa, self.ua, self.va, self.wa = \
+            profile.get_values(self.z, ['pressure', 'temperature', 
+            'salinity', 'ua', 'va', 'wa'])
         self.ca_chems = profile.get_values(self.z, self.chem_names)
         self.ca_tracers = profile.get_values(self.z, self.tracers)
         self.rho_a = seawater.density(self.Ta, self.Sa, self.Pa)

@@ -951,8 +951,6 @@ def save_particle_to_nc_file(nc, chem_names, particles, K_T0):
                 iscompressible[i] = 0
             fp_type[i] = 3
             calc_delta[i] = -1
-            extern_data[i] = 0
-            delta_groups[i,:,:] = np.zeros((len(chem_names),15))
             sigma_correction[i] = 1.
             m0[i,0] = particles[i].m0
             rho_p[i] = particles[i].particle.rho_p
@@ -1126,7 +1124,7 @@ def load_particle_from_nc_file(nc):
 # Functions for shear entrainment
 # ----------------------------------------------------------------------------
 
-def shear_entrainment(U, Ua, rho, rho_a, b, sin_p, cos_p, cos_t, p):
+def shear_entrainment(U, Us, rho, rho_a, b, sin_p, p):
     """
     Compute the entrainment coefficient for shear entrainment 
     
@@ -1140,8 +1138,9 @@ def shear_entrainment(U, Ua, rho, rho_a, b, sin_p, cos_p, cos_t, p):
     ----------
     U : float
         Top hat velocity of entrained plume water (m/s)
-    Ua : float
-        Magnitude of the velocity of the crossflow along th theta axis (m/s)
+    Us : float
+        Component of the ambient current projected along the plume 
+        centerline (m/s)
     rho : float
         Density of the entrained plume fluid (kg/m^3)
     rho_a : float
@@ -1149,10 +1148,6 @@ def shear_entrainment(U, Ua, rho, rho_a, b, sin_p, cos_p, cos_t, p):
     sin_p : float
         Sine of the angle phi from the horizontal with down being positive (up 
         is - pi/2)
-    cos_p : float
-         Sine of the angle phi from the horizontal with down being positive 
-         (up is - pi/2)
-    cos_t : float
         Cosine of the angle theta from the crossflow direction
     p : `bent_plume_model.ModelParams` or `stratified_plume_model.ModelParams`
         Object containing the present model parameters
@@ -1172,8 +1167,8 @@ def shear_entrainment(U, Ua, rho, rho_a, b, sin_p, cos_p, cos_t, p):
         alpha_p = 0.
     else:
         # This is a plume; compute the densimetric Gaussian Froude number
-        F1 = 2. * np.abs(U - Ua * cos_p * cos_t) / np.sqrt(p.g * np.abs(
-             rho_a - rho) * (1. + 1.2**2) / 1.2**2 / rho_a * b / np.sqrt(2.))
+        F1 = 2. * np.abs(U - Us) / np.sqrt(p.g * np.abs(rho_a - rho) * (1. + 
+             1.2**2) / 1.2**2 / rho_a * b / np.sqrt(2.))
         
         # Follow Figure 13 in Jirka (2004)
         if np.abs(F1**2 / sin_p) > p.alpha_Fr / 0.028:
@@ -1183,11 +1178,11 @@ def shear_entrainment(U, Ua, rho, rho_a, b, sin_p, cos_p, cos_t, p):
                       sin_p * np.sign(rho_a - rho)
     
     # Compute the total shear entrainment coefficient for the top-hat model
-    if (np.abs(U - Ua * cos_p * cos_t) + U) == 0:
+    if (np.abs(U - Us) + U) == 0:
         alpha_s = np.sqrt(2.) * alpha_j
     else:
         alpha_s = np.sqrt(2.) * (alpha_j + alpha_p) * 2. * U / \
-                  (np.abs(U - Ua * cos_p * cos_t) + U)
+                  (np.abs(U - Us) + U)
     
     # Return the total shear entrainment coefficient
     return alpha_s
