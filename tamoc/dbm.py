@@ -2647,7 +2647,7 @@ def gas_liq_eq(m, M, K):
         
         # Set up an iterative solution to find beta_var using the optimal
         # root-finding equation
-        tol = 1.e-6
+        tol = 1.e-8
         err = 1.
         
         while err > tol:
