@@ -101,6 +101,7 @@ if __name__ == '__main__':
     # Plot the density profile using the interpolation function
     z = np.linspace(bm54.nc.variables['z'].valid_min, 
                     bm54.nc.variables['z'].valid_max, 250)
+    
     rho = np.zeros(z.shape)
     T = np.zeros(z.shape)
     S = np.zeros(z.shape)
