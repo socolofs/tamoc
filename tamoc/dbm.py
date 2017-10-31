@@ -811,14 +811,14 @@ class FluidParticle(FluidMixture):
     0.22197023589052
     
     """
-    def __init__(self, composition, fp_type=0., delta=None, user_data={},
+    def __init__(self, composition, fp_type=0, delta=None, user_data={},
                  delta_groups=None, isair=False, sigma_correction=1.):
         super(FluidParticle, self).__init__(composition, delta, user_data,
                                             delta_groups, isair, 
                                             sigma_correction)
         
         # Store the input variables
-        self.fp_type = fp_type
+        self.fp_type = np.int(fp_type)
     
     def density(self, m, T, P):
         """
@@ -1459,7 +1459,7 @@ class InsolubleParticle(object):
         self.gamma = gamma
         self.beta = beta
         self.co = co
-        self.fp_type = fp_type
+        self.fp_type = np.int(fp_type)
         
         # Specify that the particle is not soluble and is therefore treated
         # like a single substance and store whether or not the fluid is 
