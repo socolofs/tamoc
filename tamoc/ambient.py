@@ -1457,7 +1457,16 @@ def stabilize(raw):
         else:
             rho_old = copy(rho)
     
-    # Return the acceptable rows
+    # Build an interpolator that contains the stable rows
+    f = interp1d(raw[rows,0], raw[rows,1:].transpose())
+    
+    # Fill the T, S, and P variables of raw with the stabilized data while 
+    # keeping the variability of all the other data on the original grid
+    for i in range(len(raw[:,0])):
+        raw[i,1:3] = f(raw[i,0])[0:2]
+    
+    # Return the acceptable rows...change this to return all rows if you 
+    # do not like how much data is removed.
     return raw[rows,:]
 
 

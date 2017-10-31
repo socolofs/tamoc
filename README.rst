@@ -12,6 +12,20 @@ size distributions from source flow conditions.
 For typical usage, please see the ./bin directory of the source distribution
 for various example scripts.
 
+Version 1.1.0:  Updated various modules to be compatible with Anaconda 
+                Python, including Scipy version 0.17.0 and higher.  Fixed a 
+                couple bugs in the test cases where output files are not 
+                created correctly.  Updated the documentation with some 
+                missing new variables.  
+Version 1.0.0:  Finalized the validation cases and tested the model for 
+                release.  This is the first non-beta version of the model, 
+                and is the version for which journal publications have been
+                prepared.  Most of the changes going forward are expected to
+                be new capabilities and improvements in the user interface:
+                the model solutions are not expected to change appreciably.
+
+Beta versions of the model:
+
 Version 0.1.17: Updated the modeling suite so that all of the save/load 
                 functions are consistent with the present model variables
                 and attributes.  Modified the bent plume model so that 
@@ -131,7 +145,7 @@ This package requires:
 
 * Numpy version 1.6.1 or higher
 
-* Scipy version 0.10.1 or higher
+* Scipy version 0.17.0 or higher
 
 * A modern Fortran compiler
 

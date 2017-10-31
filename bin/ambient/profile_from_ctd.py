@@ -101,6 +101,7 @@ if __name__ == '__main__':
     # Plot the density profile using the interpolation function
     z = np.linspace(bm54.nc.variables['z'].valid_min, 
                     bm54.nc.variables['z'].valid_max, 250)
+    z = bm54.f.x
     
     rho = np.zeros(z.shape)
     T = np.zeros(z.shape)
@@ -113,9 +114,12 @@ if __name__ == '__main__':
         T[i], S[i], C[i], O2[i] = bm54.get_values(z[i], ['temperature', 
             'salinity', 'wetlab_fluorescence', 'oxygen'])
     
-    fig = plt.figure(1)
+    plt.figure(1)
+    plt.clf()
+    plt.show()
+    
     ax1 = plt.subplot(121)
-    ax1.plot(rho, z)
+    ax1.plot(rho, z, '.-')
     ax1.set_xlabel('Density (kg/m^3)')
     ax1.set_ylabel('Depth (m)')
     ax1.invert_yaxis()
@@ -130,7 +134,7 @@ if __name__ == '__main__':
     ax2.invert_yaxis()
     ax2.set_title('Measured data')
     
-    plt.show()
+    plt.draw()
     
     plt.figure(2)
     plt.clf()
@@ -161,6 +165,7 @@ if __name__ == '__main__':
     
     ax3 = plt.subplot(133)
     ax3.plot(S, z, '-', label='Salinity (psu)')
+    print S
     ax3.set_xlabel('CTD component values')
     ax3.set_ylabel('Depth (m)')
     ax3.set_ylim([800, 1500])

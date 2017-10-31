@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Bent Plume Model User’s Guide &mdash; Texas A&amp;M Oilspill Calculator v0.1 Manual</title>
+    <title>Bent Plume Model User’s Guide &mdash; Texas A&amp;M Oilspill Calculator v1.1 Manual</title>
     
     <link rel="stylesheet" href="../_static/scipy.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.17',
+        VERSION:     '1.1.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../contents.html" />
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v1.1 Manual" href="../contents.html" />
     <link rel="next" title="blowout" href="../scripts/bpm/blowout.html" />
     <link rel="prev" title="sbm_file_io" href="../scripts/spm/spm_file_io.html" />
    
@@ -44,7 +44,7 @@
         <li class="right" >
           <a href="../scripts/spm/spm_file_io.html" title="sbm_file_io"
              accesskey="P">previous</a> |</li>
-<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+<li><a href="../index.html">Texas A&M Oilspill Calculator v1.1 Manual</a> &raquo;</li>
  
       </ul>
     </div>  
@@ -60,9 +60,9 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.1</td>
+<tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">1.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">October 13, 2015</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">October 31, 2017</td>
 </tr>
 </tbody>
 </table>
@@ -196,7 +196,7 @@ the simulation:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">dt_max</span> <span class="o">=</span> <span class="mf">60.</span>     <span class="c"># maximum time step to take for output (s)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sd_max</span> <span class="o">=</span> <span class="mf">450.</span>    <span class="c"># maximum number of nozzle diameters to integrate</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">bpm</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">x0</span><span class="p">,</span> <span class="n">D</span><span class="p">,</span> <span class="n">Vj</span><span class="p">,</span> <span class="n">phi_0</span><span class="p">,</span> <span class="n">theta_0</span><span class="p">,</span> <span class="n">Sj</span><span class="p">,</span> <span class="n">Tj</span><span class="p">,</span> <span class="n">cj</span><span class="p">,</span> <span class="n">tracers</span><span class="p">,</span>
-<span class="go">                 particles, dt_max, sd_max)</span>
+<span class="go">                 particles, False, dt_max, sd_max)</span>
 </pre></div>
 </div>
 <p>The above command will echo progress to the screen</p>
@@ -225,8 +225,8 @@ data, and a description of the CTD data:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">f_name</span> <span class="o">=</span> <span class="s">&#39;../test/output/test_blowout&#39;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ctd_description</span> <span class="o">=</span> <span class="s">&#39;CTD data from Brooks McCall in file&#39;</span> <span class="o">+</span> \
 <span class="go">                      &#39;./test/output/test_BM54.nc&#39;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">spm</span><span class="o">.</span><span class="n">save_sim</span><span class="p">(</span><span class="n">f_name</span> <span class="o">+</span> <span class="s">&#39;.nc&#39;</span><span class="p">,</span> <span class="n">ctd_file</span><span class="p">,</span> <span class="n">ctd_description</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">spm</span><span class="o">.</span><span class="n">save_txt</span><span class="p">(</span><span class="n">f_name</span> <span class="o">+</span> <span class="s">&#39;ASCII&#39;</span><span class="p">,</span> <span class="n">ctd_file</span><span class="p">,</span> <span class="n">ctd_description</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bpm</span><span class="o">.</span><span class="n">save_sim</span><span class="p">(</span><span class="n">f_name</span> <span class="o">+</span> <span class="s">&#39;.nc&#39;</span><span class="p">,</span> <span class="n">ctd_file</span><span class="p">,</span> <span class="n">ctd_description</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bpm</span><span class="o">.</span><span class="n">save_txt</span><span class="p">(</span><span class="n">f_name</span> <span class="o">+</span> <span class="s">&#39;ASCII&#39;</span><span class="p">,</span> <span class="n">ctd_file</span><span class="p">,</span> <span class="n">ctd_description</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>

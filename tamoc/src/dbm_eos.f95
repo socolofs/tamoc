@@ -22,6 +22,7 @@
 module EOS_Constants
     
     ! Define constants for use by the Peng-Robinson equation of state
+    ! Ru in J / (mol K)
     implicit none
     integer, parameter :: DP = 8
     real(kind = DP), parameter :: RU = 8.314510D0
@@ -235,7 +236,7 @@ subroutine volume_trans(nc, T, P, mass, Mol_wt, Pc, Tc, Vc, &
     gamma = -99.2558D0 + 301.6201D0 * Zc(:)
     
     ! Account for the temperature dependence (equation 10)
-    f_Tr = beta(:) + (1.0D0 - beta(:)) * exp(gamma(:) * abs(1.0D0-Tc(:) / T))
+    f_Tr = beta(:) + (1.0D0 - beta(:)) * exp(gamma(:) * abs(1.0D0-T / Tc(:)))
     
     ! Compute the volume translation for the critical point (equation 9)
     cc = (0.3074D0 - Zc(:)) * Ru * Tc(:) / Pc(:)

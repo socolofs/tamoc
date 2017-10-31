@@ -1461,7 +1461,8 @@ def err_check(zi, yi, zo, yo, zi_old, yi_old, zo_old, yo_old, yi_local,
                 qi[i] = np.max(yo[p_top[i] : p_bot[i]])
             
             # Get the volume flux at the bottom of each intrusion layer
-            y_inner = interp1d(np.flipud(zi), np.flipud(yi).transpose())
+            y_inner = interp1d(np.flipud(zi), np.flipud(yi).transpose(), 
+                      fill_value='extrapolate')
             q = y_inner(zi[0] - ht)[0]
         
         else:
@@ -1635,7 +1636,7 @@ def particle_from_mb0(profile, z0, dbm_particle, yk, mb0, de, lambda_1,
     
     # Create the particle object
     return dispersed_phases.PlumeParticle(dbm_particle, m0, T0, nb0, lambda_1,
-                                          P, Sa, Ta, K, K_T, fdis)
+                                          P, Sa, Ta, K, K_T, fdis, t_hyd)
 
 def plot_state_space(zi, yi, zo, yo, yi_local, yo_local, particles, profile, 
                      p, fig):

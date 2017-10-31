@@ -162,7 +162,7 @@ def k(T, S, P):
     """
     Compute the thermal conductivity of seawater
     
-    Evaluates the thermal conductivity of seawateras a function of 
+    Evaluates the thermal conductivity of seawater as a function of 
     temperature, pressure, and salinity following equations in Sharqawy et 
     al. (2010), Table 4.
     

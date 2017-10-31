@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>ambient &mdash; Texas A&amp;M Oilspill Calculator v0.1 Manual</title>
+    <title>ambient &mdash; Texas A&amp;M Oilspill Calculator v1.1 Manual</title>
     
     <link rel="stylesheet" href="../_static/scipy.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.17',
+        VERSION:     '1.1.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Texas A&amp;M Oilspill Calculator v0.1 Manual" href="../contents.html" />
+    <link rel="top" title="Texas A&amp;M Oilspill Calculator v1.1 Manual" href="../contents.html" />
     <link rel="up" title="Module code" href="index.html" />
    
   
@@ -37,7 +37,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
-<li><a href="../index.html">Texas A&M Oilspill Calculator v0.1 Manual</a> &raquo;</li>
+<li><a href="../index.html">Texas A&M Oilspill Calculator v1.1 Manual</a> &raquo;</li>
 
           <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
@@ -1508,7 +1508,16 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">rho_old</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="n">rho</span><span class="p">)</span>
     
-    <span class="c"># Return the acceptable rows</span>
+    <span class="c"># Build an interpolator that contains the stable rows</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="n">raw</span><span class="p">[</span><span class="n">rows</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">raw</span><span class="p">[</span><span class="n">rows</span><span class="p">,</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">transpose</span><span class="p">())</span>
+    
+    <span class="c"># Fill the T, S, and P variables of raw with the stabilized data while </span>
+    <span class="c"># keeping the variability of all the other data on the original grid</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">raw</span><span class="p">[:,</span><span class="mi">0</span><span class="p">])):</span>
+        <span class="n">raw</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">1</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">raw</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">0</span><span class="p">])[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span>
+    
+    <span class="c"># Return the acceptable rows...change this to return all rows if you </span>
+    <span class="c"># do not like how much data is removed.</span>
     <span class="k">return</span> <span class="n">raw</span><span class="p">[</span><span class="n">rows</span><span class="p">,:]</span>
 
 </div>

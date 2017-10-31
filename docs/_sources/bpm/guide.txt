@@ -141,7 +141,7 @@ the simulation::
    >>> dt_max = 60.     # maximum time step to take for output (s)
    >>> sd_max = 450.    # maximum number of nozzle diameters to integrate
    >>> bpm.simulate(x0, D, Vj, phi_0, theta_0, Sj, Tj, cj, tracers, 
-                    particles, dt_max, sd_max)
+                    particles, False, dt_max, sd_max)
 
 The above command will echo progress to the screen
 
@@ -171,6 +171,6 @@ data, and a description of the CTD data::
    >>> f_name = '../test/output/test_blowout'
    >>> ctd_description = 'CTD data from Brooks McCall in file' + \
                          './test/output/test_BM54.nc'
-   >>> spm.save_sim(f_name + '.nc', ctd_file, ctd_description)
-   >>> spm.save_txt(f_name + 'ASCII', ctd_file, ctd_description)
+   >>> bpm.save_sim(f_name + '.nc', ctd_file, ctd_description)
+   >>> bpm.save_txt(f_name + 'ASCII', ctd_file, ctd_description)
 

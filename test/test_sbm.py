@@ -368,7 +368,7 @@ def test_simulation():
     sbm.save_sim('./output/sbm_data.nc', './test_BM54.nc', 
                  'Results of ./test_sbm.py script')
     
-    sbm.save_txt('./output/sbm_data.txt', './test_BM54.nc', 
+    sbm.save_txt('./output/sbm_data', './test_BM54.nc', 
                  'Results of ./test_sbm.py script')
     
     # Reload the simulation

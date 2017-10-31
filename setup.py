@@ -80,9 +80,9 @@ if __name__ == '__main__':
     
     setup(
         name = 'TAMOC',
-        version = '0.1.17',
+        version = '1.1.0',
         description = 'Texas A&M Oilspill Calculator',
-        long_description = open('README.txt').read(),
+        long_description = open('README.rst').read(),
         license = 'LICENSE.txt',
         author = 'Scott A. Socolofsky',
         author_email = 'socolofs@tamu.edu',

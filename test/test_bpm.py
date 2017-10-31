@@ -568,7 +568,7 @@ def test_files():
     
     # Save the simulation to a netCDF file
     fname = './output/bpm_data.nc'
-    profile_path = './test_bm54.nc'
+    profile_path = './test_BM54.nc'
     profile_info = 'Results of ./test_bpm.py script'
     bpm.save_sim(fname, profile_path, profile_info)
     

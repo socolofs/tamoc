@@ -156,14 +156,13 @@ class FluidMixture(object):
         if delta is None:
             self.delta = np.zeros((self.nc, self.nc))
         else:
-            if delta.shape[0] is self.nc:
-                if delta.shape[1] is self.nc:
-                    self.delta = delta
-                else:
-                    print '\nError: Delta wrong shape, should be (%d, %d)' % \
-                          (self.nc, self.nc)
-                    print 'Set to np.zeros((%d, %d))\n' % (self.nc, self.nc)
-                    self.delta = np.zeros((self.nc, self.nc))
+            if (delta.shape[0] == self.nc) and (delta.shape[1]==self.nc):
+                self.delta = delta
+            else:
+                print '\nError: Delta wrong shape, should be (%d, %d)' % \
+                    (self.nc, self.nc)
+                print 'Set to np.zeros((%d, %d))\n' % (self.nc, self.nc)
+                self.delta = np.zeros((self.nc, self.nc))
         
         # Store all of the chemical data
         self.chem_db = chem.data
@@ -214,8 +213,8 @@ class FluidMixture(object):
             self.neg_dH_solR[i] = properties['-dH_solR']
             if properties['nu_bar'] < 0.:
                 # Use empirical equation from Jonas Gros
-                self.nu_bar[i] = (1.148236984 * self.M[i] + 6.789136822) \
-                                 / 100.**3
+                self.nu_bar[i] = (1.148236984 * self.M[i]*1000. + 
+                    6.789136822) / 100.**3
             else:
                 self.nu_bar[i] = properties['nu_bar']
             
@@ -689,7 +688,7 @@ class FluidMixture(object):
         """
         # Get the mole fraction of the gas components in the K_vsi model in 
         # the order assumed in the model.
-        gases = ['methane', 'ethane', 'propane', 'i-butane', 'n-butane', 
+        gases = ['methane', 'ethane', 'propane', 'isobutane', 'n-butane', 
                  'nitrogen', 'carbon_dioxide', 'hydrogen_sulfide']
         m_gases = np.zeros(len(gases))
         for i in range(len(gases)):
