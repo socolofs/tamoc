@@ -1525,7 +1525,7 @@ def compute_pressure(z, T, S, fs_loc):
     
     """
     # Get the sign of the z-data for the midpoint of the dataset
-    z_sign = np.sign(z[len(z) / 2])
+    z_sign = int(np.sign(z[len(z) / 2]))
     
     # Initialize an array for storing the pressures
     P0 = 101325.0 

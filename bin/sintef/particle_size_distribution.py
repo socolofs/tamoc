@@ -35,7 +35,7 @@ if __name__ == '__main__':
     mu_gas = 0.00002
     sigma_gas = 0.06
     rho_oil = 599.3
-    m_oil = 3450.
+    m_oil = 34.5
     mu_oil = 0.0002
     sigma_oil = 0.015
     rho = 1037.1

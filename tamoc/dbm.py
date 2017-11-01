@@ -818,7 +818,7 @@ class FluidParticle(FluidMixture):
                                             sigma_correction)
         
         # Store the input variables
-        self.fp_type = np.int(fp_type)
+        self.fp_type = int(fp_type)
     
     def density(self, m, T, P):
         """
@@ -1459,7 +1459,7 @@ class InsolubleParticle(object):
         self.gamma = gamma
         self.beta = beta
         self.co = co
-        self.fp_type = np.int(fp_type)
+        self.fp_type = int(fp_type)
         
         # Specify that the particle is not soluble and is therefore treated
         # like a single substance and store whether or not the fluid is 
