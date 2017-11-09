@@ -1,55 +1,39 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>dbm.stability_analysis &mdash; Texas A&amp;M Oilspill Calculator v1.1 Manual</title>
-    
+    <title>dbm.stability_analysis &#8212; Texas A&amp;M Oilspill Calculator v1.1 Manual</title>
     <link rel="stylesheet" href="../_static/scipy.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.1.0',
+        VERSION:     '1.1.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Texas A&amp;M Oilspill Calculator v1.1 Manual" href="../contents.html" />
-    <link rel="up" title="Reference" href="../modules/reference.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="dbm.gas_liq_eq" href="dbm.gas_liq_eq.html" />
     <link rel="prev" title="dbm.successive_substitution" href="dbm.successive_substitution.html" />
    
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="dbm.gas_liq_eq.html" title="dbm.gas_liq_eq"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="dbm.successive_substitution.html" title="dbm.successive_substitution"
-             accesskey="P">previous</a> |</li>
-<li><a href="../index.html">Texas A&M Oilspill Calculator v1.1 Manual</a> &raquo;</li>
-
-          <li class="nav-item nav-item-1"><a href="../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
-      </ul>
-    </div>  
+  <body>
+  
 
     <div class="document">
       <div class="documentwrapper">
@@ -64,13 +48,13 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">1.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">October 31, 2017</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">Nov 08, 2017</td>
 </tr>
 </tbody>
 </table>
 <dl class="function">
 <dt id="dbm.stability_analysis">
-<code class="descclassname">dbm.</code><code class="descname">stability_analysis</code><span class="sig-paren">(</span><em>m</em>, <em>T</em>, <em>P</em>, <em>M</em>, <em>Pc</em>, <em>Tc</em>, <em>omega</em>, <em>delta</em>, <em>Aij</em>, <em>Bij</em>, <em>delta_groups</em>, <em>calc_delta</em>, <em>K</em>, <em>zi</em>, <em>di</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/Projects/NFBC/tamoc/tamoc/dbm.py#L2121"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/dbm.html#stability_analysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dbm.stability_analysis" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">dbm.</code><code class="descname">stability_analysis</code><span class="sig-paren">(</span><em>m</em>, <em>T</em>, <em>P</em>, <em>M</em>, <em>Pc</em>, <em>Tc</em>, <em>omega</em>, <em>delta</em>, <em>Aij</em>, <em>Bij</em>, <em>delta_groups</em>, <em>calc_delta</em>, <em>K</em>, <em>zi</em>, <em>di</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dbm.html#stability_analysis"><span class="viewcode-link">[source]</span></a><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.13.3/numpy/../../../../../Dropbox/socolofs/Projects/NFBC/tamoc/tamoc/dbm.py#L2119"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dbm.stability_analysis" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform stability analysis to determine the stability of a mixture</p>
 <p>Perform the stabilty analysis steps in Michelsen and Mollerup (2007) to
 determine the stability of a mixture</p>
@@ -105,7 +89,7 @@ liquid, kg)</p>
 </div></blockquote>
 <p><strong>omega</strong> : ndarray, size (nc)</p>
 <blockquote>
-<div><p>Acentric factors (&#8211;)</p>
+<div><p>Acentric factors (–)</p>
 </div></blockquote>
 <p><strong>delta</strong> : ndarray, size (nc, nc)</p>
 <blockquote>
@@ -170,35 +154,36 @@ Mollerup, 2007, page 259, equation 26)</p>
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../contents.html">
               <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
-            </a></p>
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="dbm.successive_substitution.html"
-                        title="previous chapter">dbm.successive_substitution</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="dbm.gas_liq_eq.html"
-                        title="next chapter">dbm.gas_liq_eq</a></p>
+            </a></p><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../contents.html">Documentation overview</a><ul>
+  <li><a href="../modules/dbm.html">Overview of Discrete Bubble Model (DBM) Module</a><ul>
+      <li>Previous: <a href="dbm.successive_substitution.html" title="previous chapter">dbm.successive_substitution</a></li>
+      <li>Next: <a href="dbm.gas_liq_eq.html" title="next chapter">dbm.gas_liq_eq</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/dbm/dbm.stability_analysis.txt"
+      <li><a href="../_sources/dbm/dbm.stability_analysis.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <ul class="this-page-menu">
-  <li><a href="/numpy/docs/numpy-docs/dbm/dbm.stability_analysis.rst">Edit page</a></li>
+  <li><a href="/numpy/docs/numpy-docs/dbm/dbm.stability_analysis.rst.rst">Edit page</a></li>
 </ul>
 
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
 
@@ -210,12 +195,12 @@ Mollerup, 2007, page 259, equation 26)</p>
       &copy;2015, Scott A. Socolofsky.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
-      <a href="../_sources/dbm/dbm.stability_analysis.txt"
-          rel="nofollow">Page source</a></li>
+      <a href="../_sources/dbm/dbm.stability_analysis.rst.txt"
+          rel="nofollow">Page source</a>
     </div>
 
     

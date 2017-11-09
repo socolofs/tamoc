@@ -1,55 +1,39 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>lmp.local_coords &mdash; Texas A&amp;M Oilspill Calculator v1.1 Manual</title>
-    
+    <title>lmp.local_coords &#8212; Texas A&amp;M Oilspill Calculator v1.1 Manual</title>
     <link rel="stylesheet" href="../_static/scipy.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.1.0',
+        VERSION:     '1.1.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Texas A&amp;M Oilspill Calculator v1.1 Manual" href="../contents.html" />
-    <link rel="up" title="Reference" href="../modules/reference.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="lmp.main_ic" href="lmp.main_ic.html" />
     <link rel="prev" title="lmp.entrainment" href="lmp.entrainment.html" />
    
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="lmp.main_ic.html" title="lmp.main_ic"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="lmp.entrainment.html" title="lmp.entrainment"
-             accesskey="P">previous</a> |</li>
-<li><a href="../index.html">Texas A&M Oilspill Calculator v1.1 Manual</a> &raquo;</li>
-
-          <li class="nav-item nav-item-1"><a href="../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
-      </ul>
-    </div>  
+  <body>
+  
 
     <div class="document">
       <div class="documentwrapper">
@@ -64,13 +48,13 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">1.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">October 31, 2017</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">Nov 08, 2017</td>
 </tr>
 </tbody>
 </table>
 <dl class="function">
 <dt id="lmp.local_coords">
-<code class="descclassname">lmp.</code><code class="descname">local_coords</code><span class="sig-paren">(</span><em>q0_local</em>, <em>q1_local</em>, <em>ds</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/Projects/NFBC/tamoc/tamoc/lmp.py#L633"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/lmp.html#local_coords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lmp.local_coords" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">lmp.</code><code class="descname">local_coords</code><span class="sig-paren">(</span><em>q0_local</em>, <em>q1_local</em>, <em>ds</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lmp.html#local_coords"><span class="viewcode-link">[source]</span></a><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.13.3/numpy/../../../../../Dropbox/socolofs/Projects/NFBC/tamoc/tamoc/lmp.py#L633"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lmp.local_coords" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the rotation matrix from (x, y, z) to (l, n, m)</p>
 <p>Computes the rotation matrix from the local Cartesian coordinate system
 (x - xi, y - yi, z - zi), where (xi, yi, zi) is the current location of
@@ -102,8 +86,8 @@ in <em class="xref py py-obj">q0_local</em> and <em class="xref py py-obj">q1_lo
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>A</strong> : ndarray</p>
 <blockquote class="last">
-<div><p>Rotation matrix from (x, y, z)&#8217; to (l, n, m).  The inverse of this
-matrix will convert back from (l, n, m) to (x, y, z)&#8217;.</p>
+<div><p>Rotation matrix from (x, y, z)’ to (l, n, m).  The inverse of this
+matrix will convert back from (l, n, m) to (x, y, z)’.</p>
 </div></blockquote>
 </td>
 </tr>
@@ -125,35 +109,36 @@ matrix will convert back from (l, n, m) to (x, y, z)&#8217;.</p>
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../contents.html">
               <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
-            </a></p>
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="lmp.entrainment.html"
-                        title="previous chapter">lmp.entrainment</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="lmp.main_ic.html"
-                        title="next chapter">lmp.main_ic</a></p>
+            </a></p><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../contents.html">Documentation overview</a><ul>
+  <li><a href="../modules/bpm.html">Overview of Bent Plume Model Module</a><ul>
+      <li>Previous: <a href="lmp.entrainment.html" title="previous chapter">lmp.entrainment</a></li>
+      <li>Next: <a href="lmp.main_ic.html" title="next chapter">lmp.main_ic</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/bpm/lmp.local_coords.txt"
+      <li><a href="../_sources/bpm/lmp.local_coords.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <ul class="this-page-menu">
-  <li><a href="/numpy/docs/numpy-docs/bpm/lmp.local_coords.rst">Edit page</a></li>
+  <li><a href="/numpy/docs/numpy-docs/bpm/lmp.local_coords.rst.rst">Edit page</a></li>
 </ul>
 
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
 
@@ -165,12 +150,12 @@ matrix will convert back from (l, n, m) to (x, y, z)&#8217;.</p>
       &copy;2015, Scott A. Socolofsky.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
-      <a href="../_sources/bpm/lmp.local_coords.txt"
-          rel="nofollow">Page source</a></li>
+      <a href="../_sources/bpm/lmp.local_coords.rst.txt"
+          rel="nofollow">Page source</a>
     </div>
 
     

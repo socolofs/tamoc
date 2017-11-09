@@ -1,51 +1,38 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Overview of Bent Plume Model Module &mdash; Texas A&amp;M Oilspill Calculator v1.1 Manual</title>
-    
+    <title>Overview of Bent Plume Model Module &#8212; Texas A&amp;M Oilspill Calculator v1.1 Manual</title>
     <link rel="stylesheet" href="../_static/scipy.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.1.0',
+        VERSION:     '1.1.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Texas A&amp;M Oilspill Calculator v1.1 Manual" href="../contents.html" />
-    <link rel="up" title="Reference" href="reference.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
     <link rel="prev" title="smp.outer_fr" href="../spm/smp.outer_fr.html" />
    
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="../spm/smp.outer_fr.html" title="smp.outer_fr"
-             accesskey="P">previous</a> |</li>
-<li><a href="../index.html">Texas A&M Oilspill Calculator v1.1 Manual</a> &raquo;</li>
-
-          <li class="nav-item nav-item-1"><a href="reference.html" accesskey="U">Reference</a> &raquo;</li> 
-      </ul>
-    </div>  
+  <body>
+  
 
     <div class="document">
       <div class="documentwrapper">
@@ -60,7 +47,7 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">1.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">October 31, 2017</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">Nov 08, 2017</td>
 </tr>
 </tbody>
 </table>
@@ -110,7 +97,7 @@ complex state space and governing equations.</dd>
 <h2>Class Objects<a class="headerlink" href="#class-objects" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="bent_plume_model.Model">
-<em class="property">class </em><code class="descclassname">bent_plume_model.</code><code class="descname">Model</code><span class="sig-paren">(</span><em>profile=None</em>, <em>simfile=None</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/Projects/NFBC/tamoc/tamoc/bent_plume_model.py#L70"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/bent_plume_model.html#Model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bent_plume_model.Model" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">bent_plume_model.</code><code class="descname">Model</code><span class="sig-paren">(</span><em>profile=None</em>, <em>simfile=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bent_plume_model.html#Model"><span class="viewcode-link">[source]</span></a><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.13.3/numpy/../../../../../Dropbox/socolofs/Projects/NFBC/tamoc/tamoc/bent_plume_model.py#L70"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bent_plume_model.Model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Master class object for controlling and post-processing the simulation</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -140,74 +127,74 @@ simulation run.</p>
 <p class="rubric">Attributes</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="3%" />
-<col width="97%" />
+<col width="4%" />
+<col width="96%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td>profile</td>
+<tr class="row-odd"><td><strong>profile</strong></td>
 <td>(<a class="reference internal" href="ambient.html#ambient.Profile" title="ambient.Profile"><code class="xref py py-obj docutils literal"><span class="pre">ambient.Profile</span></code></a>) Ambient CTD data</td>
 </tr>
-<tr class="row-even"><td>got_profile</td>
+<tr class="row-even"><td><strong>got_profile</strong></td>
 <td>(bool) Flag indicating whether or not the profile object was successfully loaded into the <a class="reference internal" href="#bent_plume_model.Model" title="bent_plume_model.Model"><code class="xref py py-obj docutils literal"><span class="pre">Model</span></code></a> object memory</td>
 </tr>
-<tr class="row-odd"><td>p</td>
+<tr class="row-odd"><td><strong>p</strong></td>
 <td>(<a class="reference internal" href="#bent_plume_model.ModelParams" title="bent_plume_model.ModelParams"><code class="xref py py-obj docutils literal"><span class="pre">ModelParams</span></code></a>) Container for the fixed model parameters</td>
 </tr>
-<tr class="row-even"><td>sim_stored</td>
+<tr class="row-even"><td><strong>sim_stored</strong></td>
 <td>(bool) Flag indicating whether or not a simulation result is stored in the object memory</td>
 </tr>
-<tr class="row-odd"><td>X</td>
+<tr class="row-odd"><td><strong>X</strong></td>
 <td>(ndarray) Release location (x, y, z) in (m)</td>
 </tr>
-<tr class="row-even"><td>D</td>
+<tr class="row-even"><td><strong>D</strong></td>
 <td>(float) Diameter for the equivalent circular cross-section of the release (m)</td>
 </tr>
-<tr class="row-odd"><td>Vj</td>
+<tr class="row-odd"><td><strong>Vj</strong></td>
 <td>(float) Scalar value of the magnitude of the discharge velocity for continuous phase fluid in the discharge.  This variable should be 0. or None for a pure multiphase discharge.</td>
 </tr>
-<tr class="row-even"><td>phi_0</td>
+<tr class="row-even"><td><strong>phi_0</strong></td>
 <td>(float) Vertical angle from the horizontal for the discharge orientation (rad in range +/- pi/2)</td>
 </tr>
-<tr class="row-odd"><td>theta_0</td>
+<tr class="row-odd"><td><strong>theta_0</strong></td>
 <td>(float) Horizontal angle from the x-axis for the discharge orientation.  The x-axis is taken in the direction of the ambient current.  (rad in range 0 to 2 pi)</td>
 </tr>
-<tr class="row-even"><td>Sj</td>
+<tr class="row-even"><td><strong>Sj</strong></td>
 <td>(float) Salinity of the continuous phase fluid in the discharge (psu)</td>
 </tr>
-<tr class="row-odd"><td>Tj</td>
+<tr class="row-odd"><td><strong>Tj</strong></td>
 <td>(float) Temperature of the continuous phase fluid in the discharge (T)</td>
 </tr>
-<tr class="row-even"><td>cj</td>
+<tr class="row-even"><td><strong>cj</strong></td>
 <td>(ndarray) Concentration of passive tracers in the discharge (user-defined)</td>
 </tr>
-<tr class="row-odd"><td>tracers</td>
-<td>(string list) List of passive tracers in the discharge.  These can be chemicals present in the ambient <a class="reference external" href="http://docs.python.org/library/profile.html#module-profile" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">profile</span></code></a> data, and if so, entrainment of these chemicals will change the concentrations computed for these tracers. However, none of these concentrations are used in the dissolution of the dispersed phase.  Hence, <em class="xref py py-obj">tracers</em> should not contain any chemicals present in the dispersed phase particles.</td>
+<tr class="row-odd"><td><strong>tracers</strong></td>
+<td>(string list) List of passive tracers in the discharge.  These can be chemicals present in the ambient <a class="reference external" href="https://docs.python.org/2/library/profile.html#module-profile" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">profile</span></code></a> data, and if so, entrainment of these chemicals will change the concentrations computed for these tracers. However, none of these concentrations are used in the dissolution of the dispersed phase.  Hence, <em class="xref py py-obj">tracers</em> should not contain any chemicals present in the dispersed phase particles.</td>
 </tr>
-<tr class="row-even"><td>particles</td>
+<tr class="row-even"><td><strong>particles</strong></td>
 <td>(list of <a class="reference internal" href="#bent_plume_model.Particle" title="bent_plume_model.Particle"><code class="xref py py-obj docutils literal"><span class="pre">Particle</span></code></a> objects) List of <a class="reference internal" href="#bent_plume_model.Particle" title="bent_plume_model.Particle"><code class="xref py py-obj docutils literal"><span class="pre">Particle</span></code></a> objects describing each dispersed phase in the simulation</td>
 </tr>
-<tr class="row-odd"><td>track</td>
+<tr class="row-odd"><td><strong>track</strong></td>
 <td>(bool) Flag indicating whether or not to track the particle through the water column using the <a class="reference internal" href="sbm.html#module-single_bubble_model" title="single_bubble_model"><code class="xref py py-obj docutils literal"><span class="pre">single_bubble_model</span></code></a>.</td>
 </tr>
-<tr class="row-even"><td>dt_max</td>
+<tr class="row-even"><td><strong>dt_max</strong></td>
 <td>(float) Maximum step size to take in the storage of the simulation solution (s)</td>
 </tr>
-<tr class="row-odd"><td>sd_max</td>
+<tr class="row-odd"><td><strong>sd_max</strong></td>
 <td>(float) Maximum number of orifice diameters to compute the solution along the plume centerline (m/m)</td>
 </tr>
-<tr class="row-even"><td>K_T0</td>
+<tr class="row-even"><td><strong>K_T0</strong></td>
 <td>(ndarray) Array of heat transfer reduction factors for the particle objects which is used to restart heat transfer after the simulation ends since during simulation, heat transfer is turned off.</td>
 </tr>
-<tr class="row-odd"><td>chem_names</td>
+<tr class="row-odd"><td><strong>chem_names</strong></td>
 <td>(string list) List of chemical parameters to track for the dissolution.  Only the parameters in this list will be used to set background concentration for the dissolution, and the concentrations of these parameters are computed separately from those listed in <em class="xref py py-obj">tracers</em> or inputed from the discharge through <em class="xref py py-obj">cj</em>.</td>
 </tr>
-<tr class="row-even"><td>q_local</td>
+<tr class="row-even"><td><strong>q_local</strong></td>
 <td>(<a class="reference internal" href="#bent_plume_model.LagElement" title="bent_plume_model.LagElement"><code class="xref py py-obj docutils literal"><span class="pre">LagElement</span></code></a> object) Object that translates the <a class="reference internal" href="#bent_plume_model.Model" title="bent_plume_model.Model"><code class="xref py py-obj docutils literal"><span class="pre">Model</span></code></a> state space <em class="xref py py-obj">t</em> and <em class="xref py py-obj">q</em> into the comprehensive list of derived variables.</td>
 </tr>
-<tr class="row-odd"><td>t</td>
+<tr class="row-odd"><td><strong>t</strong></td>
 <td>(ndarray) Array of times computed in the solution (s)</td>
 </tr>
-<tr class="row-even"><td>q</td>
+<tr class="row-even"><td><strong>q</strong></td>
 <td>(ndarray) Array of state space values computed in the solution</td>
 </tr>
 </tbody>
@@ -234,7 +221,7 @@ simulation run.</p>
 <tr class="row-odd"><td><a class="reference internal" href="../bpm/bent_plume_model.Model.save_txt.html#bent_plume_model.Model.save_txt" title="bent_plume_model.Model.save_txt"><code class="xref py py-obj docutils literal"><span class="pre">save_txt</span></code></a>(base_name,&nbsp;profile_path,&nbsp;profile_info)</td>
 <td>Save the state space in ascii text format for exporting</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="../bpm/bent_plume_model.Model.simulate.html#bent_plume_model.Model.simulate" title="bent_plume_model.Model.simulate"><code class="xref py py-obj docutils literal"><span class="pre">simulate</span></code></a>(X,&nbsp;D,&nbsp;Vj,&nbsp;phi_0,&nbsp;theta_0,&nbsp;Sj,&nbsp;Tj,&nbsp;...)</td>
+<tr class="row-even"><td><a class="reference internal" href="../bpm/bent_plume_model.Model.simulate.html#bent_plume_model.Model.simulate" title="bent_plume_model.Model.simulate"><code class="xref py py-obj docutils literal"><span class="pre">simulate</span></code></a>(X,&nbsp;D,&nbsp;Vj,&nbsp;phi_0,&nbsp;theta_0,&nbsp;Sj,&nbsp;Tj,&nbsp;…)</td>
 <td>Simulate the plume dynamics from given initial conditions</td>
 </tr>
 </tbody>
@@ -243,7 +230,7 @@ simulation run.</p>
 
 <dl class="class">
 <dt id="bent_plume_model.ModelParams">
-<em class="property">class </em><code class="descclassname">bent_plume_model.</code><code class="descname">ModelParams</code><span class="sig-paren">(</span><em>profile</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/Projects/NFBC/tamoc/tamoc/bent_plume_model.py#L770"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/bent_plume_model.html#ModelParams"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bent_plume_model.ModelParams" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">bent_plume_model.</code><code class="descname">ModelParams</code><span class="sig-paren">(</span><em>profile</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bent_plume_model.html#ModelParams"><span class="viewcode-link">[source]</span></a><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.13.3/numpy/../../../../../Dropbox/socolofs/Projects/NFBC/tamoc/tamoc/bent_plume_model.py#L770"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bent_plume_model.ModelParams" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fixed model parameters for the bent plume model</p>
 <p>This class stores the set of model parameters that should not be adjusted
 by the user and that are needed by the bent plume model.</p>
@@ -265,29 +252,29 @@ by the user and that are needed by the bent plume model.</p>
 <p class="rubric">Attributes</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="7%" />
-<col width="93%" />
+<col width="11%" />
+<col width="89%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td>alpha_j</td>
+<tr class="row-odd"><td><strong>alpha_j</strong></td>
 <td>(float) Jet shear entrainment coefficient.</td>
 </tr>
-<tr class="row-even"><td>alpha_Fr</td>
+<tr class="row-even"><td><strong>alpha_Fr</strong></td>
 <td>(float) Plume entrainment coefficient in Froude-number expression.</td>
 </tr>
-<tr class="row-odd"><td>gamma</td>
+<tr class="row-odd"><td><strong>gamma</strong></td>
 <td>(float) Momentum amplification factor</td>
 </tr>
-<tr class="row-even"><td>Fr_0</td>
+<tr class="row-even"><td><strong>Fr_0</strong></td>
 <td>(float) Initial plume Froude number for the Wuest et al. (1992) multiphase plume initial conditions</td>
 </tr>
-<tr class="row-odd"><td>rho_r</td>
+<tr class="row-odd"><td><strong>rho_r</strong></td>
 <td>(float) Reference density (kg/m^3) evaluated at mid-depth of the water body.</td>
 </tr>
-<tr class="row-even"><td>g</td>
+<tr class="row-even"><td><strong>g</strong></td>
 <td>(float) Acceleration of gravity (m/s^2)</td>
 </tr>
-<tr class="row-odd"><td>Ru</td>
+<tr class="row-odd"><td><strong>Ru</strong></td>
 <td>(float) Ideal gas constant (J/mol/K)</td>
 </tr>
 </tbody>
@@ -296,7 +283,7 @@ by the user and that are needed by the bent plume model.</p>
 
 <dl class="class">
 <dt id="bent_plume_model.Particle">
-<em class="property">class </em><code class="descclassname">bent_plume_model.</code><code class="descname">Particle</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>z</em>, <em>dbm_particle</em>, <em>m0</em>, <em>T0</em>, <em>nb0</em>, <em>lambda_1</em>, <em>P</em>, <em>Sa</em>, <em>Ta</em>, <em>K=1.0</em>, <em>K_T=1.0</em>, <em>fdis=1e-06</em>, <em>t_hyd=0.0</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/Projects/NFBC/tamoc/tamoc/bent_plume_model.py#L822"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/bent_plume_model.html#Particle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bent_plume_model.Particle" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">bent_plume_model.</code><code class="descname">Particle</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>z</em>, <em>dbm_particle</em>, <em>m0</em>, <em>T0</em>, <em>nb0</em>, <em>lambda_1</em>, <em>P</em>, <em>Sa</em>, <em>Ta</em>, <em>K=1.0</em>, <em>K_T=1.0</em>, <em>fdis=1e-06</em>, <em>t_hyd=0.0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bent_plume_model.html#Particle"><span class="viewcode-link">[source]</span></a><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.13.3/numpy/../../../../../Dropbox/socolofs/Projects/NFBC/tamoc/tamoc/bent_plume_model.py#L822"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bent_plume_model.Particle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Special model properties for tracking inside a Lagrangian plume object</p>
 <p>This new <a class="reference internal" href="#bent_plume_model.Particle" title="bent_plume_model.Particle"><code class="xref py py-obj docutils literal"><span class="pre">Particle</span></code></a> class is needed to allow dispersed phase particles to 
 be tracked within the Lagrangian plume element during the solution and 
@@ -341,7 +328,7 @@ object can be used in a <a class="reference internal" href="../spm/stratified_pl
 </div></blockquote>
 <p><strong>lambda_1</strong> : float</p>
 <blockquote>
-<div><p>spreading rate of the dispersed phase in a plume (&#8211;)</p>
+<div><p>spreading rate of the dispersed phase in a plume (–)</p>
 </div></blockquote>
 <p><strong>P</strong> : float</p>
 <blockquote>
@@ -357,15 +344,15 @@ object can be used in a <a class="reference internal" href="../spm/stratified_pl
 </div></blockquote>
 <p><strong>K</strong> : float, default = 1.</p>
 <blockquote>
-<div><p>Mass transfer reduction factor (&#8211;).</p>
+<div><p>Mass transfer reduction factor (–).</p>
 </div></blockquote>
 <p><strong>K_T</strong> : float, default = 1.</p>
 <blockquote>
-<div><p>Heat transfer reduction factor (&#8211;).</p>
+<div><p>Heat transfer reduction factor (–).</p>
 </div></blockquote>
 <p><strong>fdis</strong> : float, default = 1.e-6</p>
 <blockquote class="last">
-<div><p>Fraction (&#8211;) of the initial mass of each component of the mixture
+<div><p>Fraction (–) of the initial mass of each component of the mixture
 when that component should be considered totally dissolved.</p>
 </div></blockquote>
 </td>
@@ -379,95 +366,95 @@ when that component should be considered totally dissolved.</p>
 <p class="rubric">Attributes</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="5%" />
-<col width="95%" />
+<col width="6%" />
+<col width="94%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td>particle</td>
+<tr class="row-odd"><td><strong>particle</strong></td>
 <td>(<a class="reference internal" href="dbm.html#dbm.FluidParticle" title="dbm.FluidParticle"><code class="xref py py-obj docutils literal"><span class="pre">dbm.FluidParticle</span></code></a> or <a class="reference internal" href="dbm.html#dbm.InsolubleParticle" title="dbm.InsolubleParticle"><code class="xref py py-obj docutils literal"><span class="pre">dbm.InsolubleParticle</span></code></a> object) Stores the <em class="xref py py-obj">dbm_particle</em> object passed to at creation.</td>
 </tr>
-<tr class="row-even"><td>composition</td>
+<tr class="row-even"><td><strong>composition</strong></td>
 <td>(str list) Copy of the <em class="xref py py-obj">composition</em> attribute of the <em class="xref py py-obj">dbm_particle</em> object.</td>
 </tr>
-<tr class="row-odd"><td>m0</td>
+<tr class="row-odd"><td><strong>m0</strong></td>
 <td>(ndarray) Initial masses (kg) of one particle for the particle components</td>
 </tr>
-<tr class="row-even"><td>T0</td>
+<tr class="row-even"><td><strong>T0</strong></td>
 <td>(float) Initial temperature (K) of the particle</td>
 </tr>
-<tr class="row-odd"><td>cp</td>
+<tr class="row-odd"><td><strong>cp</strong></td>
 <td>(float) Heat capacity at constant pressure (J/(kg K)) of the particle.</td>
 </tr>
-<tr class="row-even"><td>K</td>
-<td>(float) Mass transfer reduction factor (&#8211;)</td>
+<tr class="row-even"><td><strong>K</strong></td>
+<td>(float) Mass transfer reduction factor (–)</td>
 </tr>
-<tr class="row-odd"><td>K_T</td>
-<td>(float) Heat transfer reduction factor (&#8211;)</td>
+<tr class="row-odd"><td><strong>K_T</strong></td>
+<td>(float) Heat transfer reduction factor (–)</td>
 </tr>
-<tr class="row-even"><td>fdis</td>
-<td>(float) Fraction of initial mass remaining as total dissolution (&#8211;)</td>
+<tr class="row-even"><td><strong>fdis</strong></td>
+<td>(float) Fraction of initial mass remaining as total dissolution (–)</td>
 </tr>
-<tr class="row-odd"><td>diss_indices</td>
+<tr class="row-odd"><td><strong>diss_indices</strong></td>
 <td>(ndarray bool) Indices of m0 that are non-zero.</td>
 </tr>
-<tr class="row-even"><td>t_hyd</td>
+<tr class="row-even"><td><strong>t_hyd</strong></td>
 <td>(float) Formation time for a hydrate skin (s)</td>
 </tr>
-<tr class="row-odd"><td>nb0</td>
+<tr class="row-odd"><td><strong>nb0</strong></td>
 <td>(float) Initial number flux of particles at the release (#/s)</td>
 </tr>
-<tr class="row-even"><td>nbe</td>
+<tr class="row-even"><td><strong>nbe</strong></td>
 <td>(float) Number of particles associated with a Lagrangian element (#).  This number with the mass per particle sets the total mass of particles inside the Lagrangian element at any given time.  This value is set by <a class="reference internal" href="../bpm/lmp.bent_plume_ic.html#lmp.bent_plume_ic" title="lmp.bent_plume_ic"><code class="xref py py-obj docutils literal"><span class="pre">lmp.bent_plume_ic</span></code></a>.</td>
 </tr>
-<tr class="row-odd"><td>lambda_1</td>
-<td>(float) Spreading rate of the dispersed phase in a plume (&#8211;)</td>
+<tr class="row-odd"><td><strong>lambda_1</strong></td>
+<td>(float) Spreading rate of the dispersed phase in a plume (–)</td>
 </tr>
-<tr class="row-even"><td>m</td>
+<tr class="row-even"><td><strong>m</strong></td>
 <td>(ndarray) Masses of the particle components for a single particle (kg)</td>
 </tr>
-<tr class="row-odd"><td>us</td>
+<tr class="row-odd"><td><strong>us</strong></td>
 <td>(float) Slip velocity (m/s)</td>
 </tr>
-<tr class="row-even"><td>rho_p</td>
+<tr class="row-even"><td><strong>rho_p</strong></td>
 <td>(float) Particle density (kg/m^3)</td>
 </tr>
-<tr class="row-odd"><td>A</td>
+<tr class="row-odd"><td><strong>A</strong></td>
 <td>(float) Particle surface area (m^2)</td>
 </tr>
-<tr class="row-even"><td>Cs</td>
+<tr class="row-even"><td><strong>Cs</strong></td>
 <td>(ndarray) Solubility of each dissolving component in the particle (kg/m^3)</td>
 </tr>
-<tr class="row-odd"><td>beta</td>
+<tr class="row-odd"><td><strong>beta</strong></td>
 <td>(ndarray) Mass transfer coefficients (m/s)</td>
 </tr>
-<tr class="row-even"><td>beta_T</td>
+<tr class="row-even"><td><strong>beta_T</strong></td>
 <td>(float) Heat transfer coefficient (m/s)</td>
 </tr>
-<tr class="row-odd"><td>T</td>
+<tr class="row-odd"><td><strong>T</strong></td>
 <td>(float) Temperature of the particle (K)</td>
 </tr>
-<tr class="row-even"><td>integrate</td>
+<tr class="row-even"><td><strong>integrate</strong></td>
 <td>(bool) Flag indicating whether or not the particle is still inside the plume, where its trajectory should continue to be integrated.</td>
 </tr>
-<tr class="row-odd"><td>t</td>
+<tr class="row-odd"><td><strong>t</strong></td>
 <td>(float) Current time since the particle was released (s)</td>
 </tr>
-<tr class="row-even"><td>x</td>
+<tr class="row-even"><td><strong>x</strong></td>
 <td>(float) Current position of the particle in the x-direction (m)</td>
 </tr>
-<tr class="row-odd"><td>y</td>
+<tr class="row-odd"><td><strong>y</strong></td>
 <td>(float) Current position of the particle in the y-direction (m)</td>
 </tr>
-<tr class="row-even"><td>z</td>
+<tr class="row-even"><td><strong>z</strong></td>
 <td>(float) Current position of the particle in the z-direction (m)</td>
 </tr>
-<tr class="row-odd"><td>p_fac</td>
-<td>(float) Buoyant force reduction factor due to a reduced buoyancy as the particle moves to the edge of the plume (&#8211;)</td>
+<tr class="row-odd"><td><strong>p_fac</strong></td>
+<td>(float) Buoyant force reduction factor due to a reduced buoyancy as the particle moves to the edge of the plume (–)</td>
 </tr>
-<tr class="row-even"><td>b_local</td>
+<tr class="row-even"><td><strong>b_local</strong></td>
 <td>(float) Width of the bent plume model at the location where the particle exited the plume.</td>
 </tr>
-<tr class="row-odd"><td>sbm</td>
+<tr class="row-odd"><td><strong>sbm</strong></td>
 <td>(<a class="reference internal" href="../sbm/single_bubble_model.Model.html#single_bubble_model.Model" title="single_bubble_model.Model"><code class="xref py py-obj docutils literal"><span class="pre">single_bubble_model.Model</span></code></a> object) Model object for tracking the particle outside the plume</td>
 </tr>
 </tbody>
@@ -479,8 +466,14 @@ when that component should be considered totally dissolved.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="../bpm/bent_plume_model.Particle.outside.html#bent_plume_model.Particle.outside" title="bent_plume_model.Particle.outside"><code class="xref py py-obj docutils literal"><span class="pre">outside</span></code></a>(Ta,&nbsp;Sa,&nbsp;Pa)</td>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">diameter</span></code>(m,&nbsp;T,&nbsp;P,&nbsp;Sa,&nbsp;Ta)</td>
+<td>Compute the diameter of a particle from mass and density</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../bpm/bent_plume_model.Particle.outside.html#bent_plume_model.Particle.outside" title="bent_plume_model.Particle.outside"><code class="xref py py-obj docutils literal"><span class="pre">outside</span></code></a>(Ta,&nbsp;Sa,&nbsp;Pa)</td>
 <td>Remove the effect of particles if they are outside the plume</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">properties</span></code>(m,&nbsp;T,&nbsp;P,&nbsp;Sa,&nbsp;Ta,&nbsp;t)</td>
+<td>Return the particle properties from the discrete bubble model</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="../bpm/bent_plume_model.Particle.run_sbm.html#bent_plume_model.Particle.run_sbm" title="bent_plume_model.Particle.run_sbm"><code class="xref py py-obj docutils literal"><span class="pre">run_sbm</span></code></a>(profile)</td>
 <td>Run the <a class="reference internal" href="sbm.html#module-single_bubble_model" title="single_bubble_model"><code class="xref py py-obj docutils literal"><span class="pre">single_bubble_model</span></code></a> to track particles outside the plume</td>
@@ -488,13 +481,16 @@ when that component should be considered totally dissolved.</p>
 <tr class="row-odd"><td><a class="reference internal" href="../bpm/bent_plume_model.Particle.track.html#bent_plume_model.Particle.track" title="bent_plume_model.Particle.track"><code class="xref py py-obj docutils literal"><span class="pre">track</span></code></a>(t_p,&nbsp;X_cl,&nbsp;X_p,&nbsp;q_local[,&nbsp;Ainv])</td>
 <td>Track the particle in the Lagragian plume model</td>
 </tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">update</span></code>(m,&nbsp;T,&nbsp;P,&nbsp;Sa,&nbsp;Ta,&nbsp;t)</td>
+<td>Store the instantaneous values of the particle properties</td>
+</tr>
 </tbody>
 </table>
 </dd></dl>
 
 <dl class="class">
 <dt id="bent_plume_model.LagElement">
-<em class="property">class </em><code class="descclassname">bent_plume_model.</code><code class="descname">LagElement</code><span class="sig-paren">(</span><em>t0</em>, <em>q0</em>, <em>D</em>, <em>profile</em>, <em>p</em>, <em>particles</em>, <em>tracers</em>, <em>chem_names</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/Projects/NFBC/tamoc/tamoc/bent_plume_model.py#L1100"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/bent_plume_model.html#LagElement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bent_plume_model.LagElement" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">bent_plume_model.</code><code class="descname">LagElement</code><span class="sig-paren">(</span><em>t0</em>, <em>q0</em>, <em>D</em>, <em>profile</em>, <em>p</em>, <em>particles</em>, <em>tracers</em>, <em>chem_names</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bent_plume_model.html#LagElement"><span class="viewcode-link">[source]</span></a><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.13.3/numpy/../../../../../Dropbox/socolofs/Projects/NFBC/tamoc/tamoc/bent_plume_model.py#L1100"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bent_plume_model.LagElement" title="Permalink to this definition">¶</a></dt>
 <dd><p>Manages the Lagragian plume element state space and derived variables</p>
 <p>Translates the state space variables for a Lagrangian plume element into
 its individual parts and derived quantitites.</p>
@@ -530,7 +526,7 @@ simulation</p>
 <p><strong>tracers</strong> : string list</p>
 <blockquote>
 <div><p>List of passive tracers in the discharge.  These can be chemicals 
-present in the ambient <a class="reference external" href="http://docs.python.org/library/profile.html#module-profile" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">profile</span></code></a> data, and if so, entrainment of these
+present in the ambient <a class="reference external" href="https://docs.python.org/2/library/profile.html#module-profile" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">profile</span></code></a> data, and if so, entrainment of these
 chemicals will change the concentrations computed for these tracers.
 However, none of these concentrations are used in the dissolution of 
 the dispersed phase.  Hence, <em class="xref py py-obj">tracers</em> should not contain any 
@@ -551,182 +547,182 @@ the discharge through <em class="xref py py-obj">cj</em>.</p>
 <p class="rubric">Attributes</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="3%" />
-<col width="97%" />
+<col width="4%" />
+<col width="96%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td>t0</td>
+<tr class="row-odd"><td><strong>t0</strong></td>
 <td>(float) Initial time of the simulation (s)</td>
 </tr>
-<tr class="row-even"><td>q0</td>
+<tr class="row-even"><td><strong>q0</strong></td>
 <td>(ndarray) Initial values of the simulation state space, q</td>
 </tr>
-<tr class="row-odd"><td>D</td>
+<tr class="row-odd"><td><strong>D</strong></td>
 <td>(float) Diameter for the equivalent circular cross-section of the release (m)</td>
 </tr>
-<tr class="row-even"><td>tracers</td>
-<td>(string list) List of passive tracers in the discharge.  These can be chemicals present in the ambient <a class="reference external" href="http://docs.python.org/library/profile.html#module-profile" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">profile</span></code></a> data, and if so, entrainment of these chemicals will change the concentrations computed for these tracers. However, none of these concentrations are used in the dissolution of the dispersed phase.  Hence, <em class="xref py py-obj">tracers</em> should not contain any chemicals present in the dispersed phase particles.</td>
+<tr class="row-even"><td><strong>tracers</strong></td>
+<td>(string list) List of passive tracers in the discharge.  These can be chemicals present in the ambient <a class="reference external" href="https://docs.python.org/2/library/profile.html#module-profile" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">profile</span></code></a> data, and if so, entrainment of these chemicals will change the concentrations computed for these tracers. However, none of these concentrations are used in the dissolution of the dispersed phase.  Hence, <em class="xref py py-obj">tracers</em> should not contain any chemicals present in the dispersed phase particles.</td>
 </tr>
-<tr class="row-odd"><td>chem_names</td>
+<tr class="row-odd"><td><strong>chem_names</strong></td>
 <td>(string list) List of chemical parameters to track for the dissolution.  Only the parameters in this list will be used to set background concentration for the dissolution, and the concentrations of these parameters are computed separately from those listed in <em class="xref py py-obj">tracers</em> or inputed from the discharge through <em class="xref py py-obj">cj</em>.</td>
 </tr>
-<tr class="row-even"><td>len</td>
-<td>(int) Number of variables in the state space q (&#8211;)</td>
+<tr class="row-even"><td><strong>len</strong></td>
+<td>(int) Number of variables in the state space q (–)</td>
 </tr>
-<tr class="row-odd"><td>ntracers</td>
-<td>(int) Number of passive chemical tracers (&#8211;)</td>
+<tr class="row-odd"><td><strong>ntracers</strong></td>
+<td>(int) Number of passive chemical tracers (–)</td>
 </tr>
-<tr class="row-even"><td>nchems</td>
-<td>(int) Number of chemicals tracked for dissolution of the dispersed phase particles (&#8211;)</td>
+<tr class="row-even"><td><strong>nchems</strong></td>
+<td>(int) Number of chemicals tracked for dissolution of the dispersed phase particles (–)</td>
 </tr>
-<tr class="row-odd"><td>np</td>
-<td>(int) Number of dispersed phase particles (&#8211;)</td>
+<tr class="row-odd"><td><strong>np</strong></td>
+<td>(int) Number of dispersed phase particles (–)</td>
 </tr>
-<tr class="row-even"><td>t</td>
+<tr class="row-even"><td><strong>t</strong></td>
 <td>(float) Independent variable for the current time (s)</td>
 </tr>
-<tr class="row-odd"><td>q</td>
+<tr class="row-odd"><td><strong>q</strong></td>
 <td>(ndarray) Dependent variable for the current state space</td>
 </tr>
-<tr class="row-even"><td>M</td>
+<tr class="row-even"><td><strong>M</strong></td>
 <td>(float) Mass of the Lagrangian element (kg)</td>
 </tr>
-<tr class="row-odd"><td>Se</td>
+<tr class="row-odd"><td><strong>Se</strong></td>
 <td>(float) Salt in the Lagrangian element (psu kg)</td>
 </tr>
-<tr class="row-even"><td>He</td>
+<tr class="row-even"><td><strong>He</strong></td>
 <td>(float) Heat of the Lagrangian element (J)</td>
 </tr>
-<tr class="row-odd"><td>Jx</td>
+<tr class="row-odd"><td><strong>Jx</strong></td>
 <td>(float) Dynamic momentum of the Lagrangian element in the x-direction (kg m/s)</td>
 </tr>
-<tr class="row-even"><td>Jy</td>
+<tr class="row-even"><td><strong>Jy</strong></td>
 <td>(float) Dynamic momentum of the Lagrangian element in the y-direction (kg m/s)</td>
 </tr>
-<tr class="row-odd"><td>Jz</td>
+<tr class="row-odd"><td><strong>Jz</strong></td>
 <td>(float) Dynamic momentum of the Lagrangian element in the z-direction (kg m/s)</td>
 </tr>
-<tr class="row-even"><td>H</td>
+<tr class="row-even"><td><strong>H</strong></td>
 <td>(float) Relative thickness of the Lagrangian element h/V (s)</td>
 </tr>
-<tr class="row-odd"><td>x</td>
+<tr class="row-odd"><td><strong>x</strong></td>
 <td>(float) Current x-position of the Lagrangian element (m)</td>
 </tr>
-<tr class="row-even"><td>y</td>
+<tr class="row-even"><td><strong>y</strong></td>
 <td>(float) Current y-position of the Lagrangian element (m)</td>
 </tr>
-<tr class="row-odd"><td>z</td>
+<tr class="row-odd"><td><strong>z</strong></td>
 <td>(float) Current z-position of the Lagrangian element (m)</td>
 </tr>
-<tr class="row-even"><td>s</td>
+<tr class="row-even"><td><strong>s</strong></td>
 <td>(float) Current s-position along the centerline of the plume for the Lagrangian element (m)</td>
 </tr>
-<tr class="row-odd"><td>M_p</td>
+<tr class="row-odd"><td><strong>M_p</strong></td>
 <td>(dict of ndarrays) For integer key: the total mass fluxes (kg/s) of each component in a particle.</td>
 </tr>
-<tr class="row-even"><td>H_p</td>
+<tr class="row-even"><td><strong>H_p</strong></td>
 <td>(ndarray) Total heat flux for each particle (J/s)</td>
 </tr>
-<tr class="row-odd"><td>t_p</td>
+<tr class="row-odd"><td><strong>t_p</strong></td>
 <td>(ndarray) Time since release for each particle (s)</td>
 </tr>
-<tr class="row-even"><td>X_p</td>
+<tr class="row-even"><td><strong>X_p</strong></td>
 <td>(ndarray) Position of each particle in local plume coordinates (l,n,m) (m).</td>
 </tr>
-<tr class="row-odd"><td>cpe</td>
+<tr class="row-odd"><td><strong>cpe</strong></td>
 <td>(ndarray) Masses of the chemical components involved in dissolution (kg)</td>
 </tr>
-<tr class="row-even"><td>cte</td>
+<tr class="row-even"><td><strong>cte</strong></td>
 <td>(ndarray) Masses of the passive tracers in the plume (concentration kg)</td>
 </tr>
-<tr class="row-odd"><td>Pa</td>
+<tr class="row-odd"><td><strong>Pa</strong></td>
 <td>(float) Ambient pressure at the current element location (Pa)</td>
 </tr>
-<tr class="row-even"><td>Ta</td>
+<tr class="row-even"><td><strong>Ta</strong></td>
 <td>(float) Ambient temperature at the current element location (K)</td>
 </tr>
-<tr class="row-odd"><td>Sa</td>
+<tr class="row-odd"><td><strong>Sa</strong></td>
 <td>(float) Ambient salinity at the current element location (psu)</td>
 </tr>
-<tr class="row-even"><td>ua</td>
+<tr class="row-even"><td><strong>ua</strong></td>
 <td>(float) Crossflow velocity in the x-direction at the current element location (m/s)</td>
 </tr>
-<tr class="row-odd"><td>ca_chems</td>
+<tr class="row-odd"><td><strong>ca_chems</strong></td>
 <td>(ndarray) Ambient concentration of the chemical components involved in dissolution at the current element location (kg/m^3)</td>
 </tr>
-<tr class="row-even"><td>ca_tracers :</td>
+<tr class="row-even"><td><strong>ca_tracers :</strong></td>
 <td>Ambient concentration of the passive tracers in the plume at the current element location (concentration)</td>
 </tr>
-<tr class="row-odd"><td>rho_a</td>
+<tr class="row-odd"><td><strong>rho_a</strong></td>
 <td>(float) Ambient density at the current element location (kg/m^3)</td>
 </tr>
-<tr class="row-even"><td>S</td>
+<tr class="row-even"><td><strong>S</strong></td>
 <td>(float) Salinity of the Lagrangian element (psu)</td>
 </tr>
-<tr class="row-odd"><td>T</td>
+<tr class="row-odd"><td><strong>T</strong></td>
 <td>(float) Temperature of the Lagrangian element (T)</td>
 </tr>
-<tr class="row-even"><td>c_chems :</td>
+<tr class="row-even"><td><strong>c_chems :</strong></td>
 <td>Concentration of the chemical components involved in dissolution for the Lagrangian element (kg/m^3)</td>
 </tr>
-<tr class="row-odd"><td>c_tracers :</td>
+<tr class="row-odd"><td><strong>c_tracers :</strong></td>
 <td>Concentration of the passive tracers in the Lagrangian element (concentration)</td>
 </tr>
-<tr class="row-even"><td>u</td>
+<tr class="row-even"><td><strong>u</strong></td>
 <td>(float) Velocity in the x-direction of the Lagrangian element (m/s)</td>
 </tr>
-<tr class="row-odd"><td>v</td>
+<tr class="row-odd"><td><strong>v</strong></td>
 <td>(float) Velocity in the y-direction of the Lagrangian element (m/s)</td>
 </tr>
-<tr class="row-even"><td>w</td>
+<tr class="row-even"><td><strong>w</strong></td>
 <td>(float) Velocity in the z-direction of the Lagrangian element (m/s)</td>
 </tr>
-<tr class="row-odd"><td>hvel</td>
+<tr class="row-odd"><td><strong>hvel</strong></td>
 <td>(float) Velocity in the horizontal plane for the Lagrangian element (m/s)</td>
 </tr>
-<tr class="row-even"><td>V</td>
+<tr class="row-even"><td><strong>V</strong></td>
 <td>(float) Velocity in the s-direction of the Lagrangian element (m/s)</td>
 </tr>
-<tr class="row-odd"><td>h</td>
+<tr class="row-odd"><td><strong>h</strong></td>
 <td>(float) Current thickness of the Lagrangian element (m)</td>
 </tr>
-<tr class="row-even"><td>rho</td>
+<tr class="row-even"><td><strong>rho</strong></td>
 <td>(float) Density of the entrained seawater in the Lagrangian element (kg/m^3)</td>
 </tr>
-<tr class="row-odd"><td>b</td>
+<tr class="row-odd"><td><strong>b</strong></td>
 <td>(float) Half-width of the Lagrangian element (m)</td>
 </tr>
-<tr class="row-even"><td>sin_p</td>
-<td>(float) The sine of the angle phi (&#8211;)</td>
+<tr class="row-even"><td><strong>sin_p</strong></td>
+<td>(float) The sine of the angle phi (–)</td>
 </tr>
-<tr class="row-odd"><td>cos_p</td>
-<td>(float) The cosine of the angle phi (&#8211;)</td>
+<tr class="row-odd"><td><strong>cos_p</strong></td>
+<td>(float) The cosine of the angle phi (–)</td>
 </tr>
-<tr class="row-even"><td>sin_t</td>
-<td>(float) The sine of the angle theta (&#8211;)</td>
+<tr class="row-even"><td><strong>sin_t</strong></td>
+<td>(float) The sine of the angle theta (–)</td>
 </tr>
-<tr class="row-odd"><td>cos_t</td>
-<td>(float) The cosine of the angle theta (&#8211;)</td>
+<tr class="row-odd"><td><strong>cos_t</strong></td>
+<td>(float) The cosine of the angle theta (–)</td>
 </tr>
-<tr class="row-even"><td>phi</td>
+<tr class="row-even"><td><strong>phi</strong></td>
 <td>(float) The vertical angle from horizontal of the current plume trajectory (rad in range +/- pi/2).  Since z is positive down (depth), phi = pi/2 point down and -pi/2 points up.</td>
 </tr>
-<tr class="row-odd"><td>theta</td>
+<tr class="row-odd"><td><strong>theta</strong></td>
 <td>(float) The lateral angle in the horizontal plane from the x-axis to the current plume trajectory (rad in range 0 to 2 pi)</td>
 </tr>
-<tr class="row-even"><td>mp</td>
+<tr class="row-even"><td><strong>mp</strong></td>
 <td>(ndarray) Masses of each of the dispersed phase particles in the <em class="xref py py-obj">particles</em> variable</td>
 </tr>
-<tr class="row-odd"><td>fb</td>
+<tr class="row-odd"><td><strong>fb</strong></td>
 <td>(ndarray) Buoyant force for each of the dispersed phase particles in the <em class="xref py py-obj">particles</em> variable as density difference (kg/m^3)</td>
 </tr>
-<tr class="row-even"><td>x_p</td>
+<tr class="row-even"><td><strong>x_p</strong></td>
 <td>(ndarray)</td>
 </tr>
-<tr class="row-odd"><td>Mp</td>
+<tr class="row-odd"><td><strong>Mp</strong></td>
 <td>(float) Total mass of dispersed phases in the Lagrangian element (kg)</td>
 </tr>
-<tr class="row-even"><td>Fb</td>
+<tr class="row-even"><td><strong>Fb</strong></td>
 <td>(float) Total buoyant force as density difference of the dispersed phases in the Lagrangian element (kg/m^3)</td>
 </tr>
 </tbody>
@@ -754,10 +750,10 @@ the discharge through <em class="xref py py-obj">cj</em>.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="../spm/bent_plume_model.plot_state_space.html#bent_plume_model.plot_state_space" title="bent_plume_model.plot_state_space"><code class="xref py py-obj docutils literal"><span class="pre">plot_state_space</span></code></a>(t,&nbsp;q,&nbsp;q_local,&nbsp;profile,&nbsp;p,&nbsp;...)</td>
+<tr class="row-odd"><td><a class="reference internal" href="../spm/bent_plume_model.plot_state_space.html#bent_plume_model.plot_state_space" title="bent_plume_model.plot_state_space"><code class="xref py py-obj docutils literal"><span class="pre">plot_state_space</span></code></a>(t,&nbsp;q,&nbsp;q_local,&nbsp;profile,&nbsp;p,&nbsp;…)</td>
 <td>Plot the Lagrangian model state space</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="../spm/bent_plume_model.plot_all_variables.html#bent_plume_model.plot_all_variables" title="bent_plume_model.plot_all_variables"><code class="xref py py-obj docutils literal"><span class="pre">plot_all_variables</span></code></a>(t,&nbsp;q,&nbsp;q_local,&nbsp;profile,&nbsp;...)</td>
+<tr class="row-even"><td><a class="reference internal" href="../spm/bent_plume_model.plot_all_variables.html#bent_plume_model.plot_all_variables" title="bent_plume_model.plot_all_variables"><code class="xref py py-obj docutils literal"><span class="pre">plot_all_variables</span></code></a>(t,&nbsp;q,&nbsp;q_local,&nbsp;profile,&nbsp;…)</td>
 <td>Plot a comprehensive suite of simulation results</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="../spm/bent_plume_model.width_projection.html#bent_plume_model.width_projection" title="bent_plume_model.width_projection"><code class="xref py py-obj docutils literal"><span class="pre">width_projection</span></code></a>(Sx,&nbsp;Sy,&nbsp;b)</td>
@@ -777,10 +773,10 @@ functions contained in this module are detailed in the following.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="../bpm/lmp.derivs.html#lmp.derivs" title="lmp.derivs"><code class="xref py py-obj docutils literal"><span class="pre">derivs</span></code></a>(t,&nbsp;q,&nbsp;q0_local,&nbsp;q1_local,&nbsp;profile,&nbsp;p,&nbsp;...)</td>
+<tr class="row-odd"><td><a class="reference internal" href="../bpm/lmp.derivs.html#lmp.derivs" title="lmp.derivs"><code class="xref py py-obj docutils literal"><span class="pre">derivs</span></code></a>(t,&nbsp;q,&nbsp;q0_local,&nbsp;q1_local,&nbsp;profile,&nbsp;p,&nbsp;…)</td>
 <td>Calculate the derivatives for the system of ODEs for a Lagrangian plume</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="../bpm/lmp.calculate.html#lmp.calculate" title="lmp.calculate"><code class="xref py py-obj docutils literal"><span class="pre">calculate</span></code></a>(t0,&nbsp;q0,&nbsp;q0_local,&nbsp;profile,&nbsp;p,&nbsp;...)</td>
+<tr class="row-even"><td><a class="reference internal" href="../bpm/lmp.calculate.html#lmp.calculate" title="lmp.calculate"><code class="xref py py-obj docutils literal"><span class="pre">calculate</span></code></a>(t0,&nbsp;q0,&nbsp;q0_local,&nbsp;profile,&nbsp;p,&nbsp;…)</td>
 <td>Integrate an the Lagrangian plume solution</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="../bpm/lmp.entrainment.html#lmp.entrainment" title="lmp.entrainment"><code class="xref py py-obj docutils literal"><span class="pre">entrainment</span></code></a>(q0_local,&nbsp;q1_local,&nbsp;p)</td>
@@ -789,10 +785,10 @@ functions contained in this module are detailed in the following.</p>
 <tr class="row-even"><td><a class="reference internal" href="../bpm/lmp.local_coords.html#lmp.local_coords" title="lmp.local_coords"><code class="xref py py-obj docutils literal"><span class="pre">local_coords</span></code></a>(q0_local,&nbsp;q1_local,&nbsp;ds)</td>
 <td>Compute the rotation matrix from (x, y, z) to (l, n, m)</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="../bpm/lmp.main_ic.html#lmp.main_ic" title="lmp.main_ic"><code class="xref py py-obj docutils literal"><span class="pre">main_ic</span></code></a>(profile,&nbsp;particles,&nbsp;X,&nbsp;D,&nbsp;Vj,&nbsp;phi_0,&nbsp;...)</td>
+<tr class="row-odd"><td><a class="reference internal" href="../bpm/lmp.main_ic.html#lmp.main_ic" title="lmp.main_ic"><code class="xref py py-obj docutils literal"><span class="pre">main_ic</span></code></a>(profile,&nbsp;particles,&nbsp;X,&nbsp;D,&nbsp;Vj,&nbsp;phi_0,&nbsp;…)</td>
 <td>Compute the initial conditions for the Lagrangian plume state space</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="../bpm/lmp.bent_plume_ic.html#lmp.bent_plume_ic" title="lmp.bent_plume_ic"><code class="xref py py-obj docutils literal"><span class="pre">bent_plume_ic</span></code></a>(profile,&nbsp;particles,&nbsp;Qj,&nbsp;A,&nbsp;D,&nbsp;...)</td>
+<tr class="row-even"><td><a class="reference internal" href="../bpm/lmp.bent_plume_ic.html#lmp.bent_plume_ic" title="lmp.bent_plume_ic"><code class="xref py py-obj docutils literal"><span class="pre">bent_plume_ic</span></code></a>(profile,&nbsp;particles,&nbsp;Qj,&nbsp;A,&nbsp;D,&nbsp;…)</td>
 <td>Build the Lagragian plume state space given the initial conditions</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="../bpm/lmp.zfe_volume_flux.html#lmp.zfe_volume_flux" title="lmp.zfe_volume_flux"><code class="xref py py-obj docutils literal"><span class="pre">zfe_volume_flux</span></code></a>(profile,&nbsp;X0,&nbsp;R,&nbsp;Vj,&nbsp;Sj,&nbsp;Tj)</td>
@@ -831,32 +827,33 @@ functions contained in this module are detailed in the following.</p>
 </ul>
 </li>
 </ul>
-
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="../spm/smp.outer_fr.html"
-                        title="previous chapter">smp.outer_fr</a></p>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../contents.html">Documentation overview</a><ul>
+      <li>Previous: <a href="../spm/smp.outer_fr.html" title="previous chapter">smp.outer_fr</a></li>
+  </ul></li>
+</ul>
+</div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/modules/bpm.txt"
+      <li><a href="../_sources/modules/bpm.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <ul class="this-page-menu">
-  <li><a href="/numpy/docs/numpy-docs/modules/bpm.rst">Edit page</a></li>
+  <li><a href="/numpy/docs/numpy-docs/modules/bpm.rst.rst">Edit page</a></li>
 </ul>
 
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
 
@@ -868,12 +865,12 @@ functions contained in this module are detailed in the following.</p>
       &copy;2015, Scott A. Socolofsky.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
-      <a href="../_sources/modules/bpm.txt"
-          rel="nofollow">Page source</a></li>
+      <a href="../_sources/modules/bpm.rst.txt"
+          rel="nofollow">Page source</a>
     </div>
 
     

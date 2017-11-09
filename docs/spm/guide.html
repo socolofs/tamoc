@@ -1,53 +1,39 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Stratified Plume Model User’s Guide &mdash; Texas A&amp;M Oilspill Calculator v1.1 Manual</title>
-    
+    <title>Stratified Plume Model User’s Guide &#8212; Texas A&amp;M Oilspill Calculator v1.1 Manual</title>
     <link rel="stylesheet" href="../_static/scipy.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.1.0',
+        VERSION:     '1.1.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Texas A&amp;M Oilspill Calculator v1.1 Manual" href="../contents.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="lake_bub" href="../scripts/spm/lake_bub.html" />
     <link rel="prev" title="seep_bubble" href="../scripts/sbm/seep_bubble.html" />
    
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="../scripts/spm/lake_bub.html" title="lake_bub"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="../scripts/sbm/seep_bubble.html" title="seep_bubble"
-             accesskey="P">previous</a> |</li>
-<li><a href="../index.html">Texas A&M Oilspill Calculator v1.1 Manual</a> &raquo;</li>
- 
-      </ul>
-    </div>  
+  <body>
+  
 
     <div class="document">
       <div class="documentwrapper">
@@ -55,14 +41,14 @@
           <div class="body" role="main">
             
   <div class="section" id="stratified-plume-model-user-s-guide">
-<h1>Stratified Plume Model User&#8217;s Guide<a class="headerlink" href="#stratified-plume-model-user-s-guide" title="Permalink to this headline">¶</a></h1>
+<h1>Stratified Plume Model User’s Guide<a class="headerlink" href="#stratified-plume-model-user-s-guide" title="Permalink to this headline">¶</a></h1>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">1.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">October 31, 2017</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">Nov 08, 2017</td>
 </tr>
 </tbody>
 </table>
@@ -89,14 +75,14 @@ with the source code.</p>
 available in the <code class="docutils literal"><span class="pre">./notebooks</span></code> directory of the source code distribution.
 To open the notebook, execute the following command at a command prompt for
 within the <code class="docutils literal"><span class="pre">./notebooks</span></code> directory:</p>
-<div class="highlight-python"><div class="highlight"><pre>ipython notebook --pylab inline
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">ipython</span> <span class="n">notebook</span> <span class="o">--</span><span class="n">pylab</span> <span class="n">inline</span>
 </pre></div>
 </div>
 <p>The notebook will open in a web browser.  Click on the <code class="docutils literal"><span class="pre">Blowout_sim</span></code> link
 on the IPy Ipython Dashboard.  This will open the Submarine Accidental Oil
 Spill Calculator IPy Notebook.  Edit the executable lines that are indicated
 by comments that begin as:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="c"># Enter...</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># Enter...</span>
 </pre></div>
 </div>
 <p>You can run the simulation by clicking <code class="docutils literal"><span class="pre">Run</span> <span class="pre">All</span></code> from the left task panes.
@@ -110,7 +96,7 @@ post-process simulations using the <a class="reference internal" href="../module
 running these examples, be sure to install the <code class="docutils literal"><span class="pre">TAMOC</span></code> package and run
 all of the tests in the <code class="docutils literal"><span class="pre">./test</span></code> directory.  The commands below should
 be executed in an IPython session.  Start IPython by executing:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">ipython</span> <span class="o">--</span><span class="n">pylab</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">ipython</span> <span class="o">--</span><span class="n">pylab</span>
 </pre></div>
 </div>
 <p>at the command prompt.  The <code class="docutils literal"><span class="pre">--pylab</span></code> flag is needed to get the correct
@@ -124,21 +110,21 @@ data created by the <code class="docutils literal"><span class="pre">TAMOC</span
 directory. Open a CTD file as follows (path names in this tutorial are from
 any subdirectory of the <code class="docutils literal"><span class="pre">TAMOC</span></code> source distribution, e.g.,
 <code class="docutils literal"><span class="pre">./notebooks</span></code>):</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">ctd_file</span> <span class="o">=</span> <span class="s">&#39;../test/output/test_BM54.nc&#39;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">ctd</span> <span class="o">=</span> <span class="n">ambient</span><span class="o">.</span><span class="n">Profile</span><span class="p">(</span><span class="n">ctd_file</span><span class="p">,</span> <span class="n">chem_names</span><span class="o">=</span><span class="s">&#39;all&#39;</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ctd_file</span> <span class="o">=</span> <span class="s1">&#39;../test/output/test_BM54.nc&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ctd</span> <span class="o">=</span> <span class="n">ambient</span><span class="o">.</span><span class="n">Profile</span><span class="p">(</span><span class="n">ctd_file</span><span class="p">,</span> <span class="n">chem_names</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Once the CTD data are loaded as an <a class="reference internal" href="../modules/ambient.html#ambient.Profile" title="ambient.Profile"><code class="xref py py-obj docutils literal"><span class="pre">ambient.Profile</span></code></a> object, a
 <a class="reference internal" href="../modules/sbm.html#module-single_bubble_model" title="single_bubble_model"><code class="xref py py-obj docutils literal"><span class="pre">single_bubble_model</span></code></a> object can be initialized:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">spm</span> <span class="o">=</span> <span class="n">stratified_plume_model</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">ctd</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">spm</span> <span class="o">=</span> <span class="n">stratified_plume_model</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">ctd</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The initial conditions for the release include the depth and discharge
 characteristics.  A few are universal to the simulation and should be
 specified right away:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">z0</span> <span class="o">=</span> <span class="mf">1000.</span>        <span class="c"># release depth (m)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">R</span> <span class="o">=</span> <span class="mf">0.15</span>          <span class="c"># radius of release region (m)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">T0</span> <span class="o">=</span> <span class="mf">273.15</span> <span class="o">+</span> <span class="mf">30.</span> <span class="c"># temperature of released fluids (K)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">z0</span> <span class="o">=</span> <span class="mf">1000.</span>        <span class="c1"># release depth (m)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">R</span> <span class="o">=</span> <span class="mf">0.15</span>          <span class="c1"># radius of release region (m)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">T0</span> <span class="o">=</span> <span class="mf">273.15</span> <span class="o">+</span> <span class="mf">30.</span> <span class="c1"># temperature of released fluids (K)</span>
 </pre></div>
 </div>
 <p>The remaining initial conditions are the dispersed phases that make up the
@@ -146,7 +132,7 @@ plume.  These should be passed to the <a class="reference internal" href="strati
 object as a list of <em class="xref py py-obj">stratified_plume_model.Particle</em> objects. First, open an
 empty list, then create <em class="xref py py-obj">stratified_plume_model.Particle</em> objects and append
 them to the list.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">disp_phases</span> <span class="o">=</span> <span class="p">[]</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">disp_phases</span> <span class="o">=</span> <span class="p">[]</span>
 </pre></div>
 </div>
 <div class="section" id="gas-bubbles">
@@ -155,7 +141,7 @@ them to the list.</p>
 gas bubbles to add to the simulation.  The first step is to create a <a class="reference internal" href="../modules/dbm.html#module-dbm" title="dbm"><code class="xref py py-obj docutils literal"><span class="pre">dbm</span></code></a>
 particle object.  In this case, we choose a dissolvable particle of natural
 gas:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">composition</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;methane&#39;</span><span class="p">,</span> <span class="s">&#39;ethane&#39;</span><span class="p">,</span> <span class="s">&#39;propane&#39;</span><span class="p">,</span> <span class="s">&#39;oxygen&#39;</span><span class="p">]</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">composition</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;methane&#39;</span><span class="p">,</span> <span class="s1">&#39;ethane&#39;</span><span class="p">,</span> <span class="s1">&#39;propane&#39;</span><span class="p">,</span> <span class="s1">&#39;oxygen&#39;</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">mol_frac</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.93</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">gas</span> <span class="o">=</span> <span class="n">dbm</span><span class="o">.</span><span class="n">FluidParticle</span><span class="p">(</span><span class="n">composition</span><span class="p">)</span>
 </pre></div>
@@ -168,13 +154,13 @@ applicable to reservoir aeration plumes; the latter for a blowout.  In any
 case, neither function is necessary as long as you can initialize a
 <em class="xref py py-obj">stratified_plume_model.Particle</em> object.  Here, we use the function that
 is based on the mass flux and create six different sized bubbles:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="c"># Initial bubble diameter (m)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Initial bubble diameter (m)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">de</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.04</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.0075</span><span class="p">,</span> <span class="mf">0.005</span><span class="p">])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c"># Total mass flux (kg/s) of gas in each bubble size class</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Total mass flux (kg/s) of gas in each bubble size class</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">m0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]</span> <span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c"># Associate spreading ratio (--)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Associate spreading ratio (--)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">lambda_1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.75</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.85</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c"># Append to the disp_phases list</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Append to the disp_phases list</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">de</span><span class="p">)):</span>
 <span class="go">        disp_phases.append(stratified_plume_model.particle_from_mb0(ctd,</span>
 <span class="go">            z0, gas, mol_frac, m0[i], de[i], lambda_1[i], T0))</span>
@@ -186,18 +172,18 @@ is based on the mass flux and create six different sized bubbles:</p>
 <p>Following the same procedure as for the gas but with different equations of
 state, liquid droplets can be added to the simulation. Start, by defining a
 new set of equations of state. Here, we assume a non-dissolving oil phase:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">composition</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;inert&#39;</span><span class="p">]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">rho_o</span> <span class="o">=</span> <span class="mf">890.</span>     <span class="c"># density in kg/m^3</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">gamma</span> <span class="o">=</span> <span class="mf">30.</span>      <span class="c"># API gravity in deg API</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">beta</span> <span class="o">=</span> <span class="mf">0.0007</span>    <span class="c"># thermal expansion coefficient in K^(-1)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">co</span> <span class="o">=</span> <span class="mf">2.90075e-9</span>  <span class="c"># isothermal compressibility coefficient in Pa^(-1)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">oil</span> <span class="o">=</span> <span class="n">dbm</span><span class="o">.</span><span class="n">InsolubleParticle</span><span class="p">(</span><span class="bp">True</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span> <span class="n">rho_o</span><span class="p">,</span> <span class="n">gamma</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">co</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">composition</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;inert&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rho_o</span> <span class="o">=</span> <span class="mf">890.</span>     <span class="c1"># density in kg/m^3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gamma</span> <span class="o">=</span> <span class="mf">30.</span>      <span class="c1"># API gravity in deg API</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">beta</span> <span class="o">=</span> <span class="mf">0.0007</span>    <span class="c1"># thermal expansion coefficient in K^(-1)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">co</span> <span class="o">=</span> <span class="mf">2.90075e-9</span>  <span class="c1"># isothermal compressibility coefficient in Pa^(-1)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">oil</span> <span class="o">=</span> <span class="n">dbm</span><span class="o">.</span><span class="n">InsolubleParticle</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">rho_o</span><span class="p">,</span> <span class="n">gamma</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">co</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Then, define the droplet characteristics and append them to the
 <code class="docutils literal"><span class="pre">disp_phases</span></code> list as we did for the gas bubbles. Note that all particles go
 in the same list and could be in any order:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">de</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.02</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.0075</span><span class="p">,</span> <span class="mf">0.005</span><span class="p">,</span> <span class="mf">0.003</span><span class="p">])</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">de</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.02</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.0075</span><span class="p">,</span> <span class="mf">0.005</span><span class="p">,</span> <span class="mf">0.003</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">m0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="mf">5.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">lambda_1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.85</span><span class="p">,</span> <span class="mf">0.90</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">,</span> <span class="mf">1.</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">de</span><span class="p">)):</span>
@@ -210,7 +196,7 @@ in the same list and could be in any order:</p>
 <h3>Run the Simulation<a class="headerlink" href="#run-the-simulation" title="Permalink to this headline">¶</a></h3>
 <p>At this point, all of the initial conditions are defined, and we can run
 the simulation:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">max_iterations</span> <span class="o">=</span> <span class="mi">15</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">max_iterations</span> <span class="o">=</span> <span class="mi">15</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">err_tolerance</span> <span class="o">=</span> <span class="mf">0.2</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">output_dz_max</span> <span class="o">=</span> <span class="mf">10.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">spm</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">disp_phases</span><span class="p">,</span> <span class="n">z0</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">maxit</span><span class="o">=</span><span class="n">max_iterations</span><span class="p">,</span>
@@ -227,11 +213,11 @@ continue analysis within the TAMOC Python package, or an ascii text file for
 importing to another analysis package, such as Excel or Matlab. To save the
 data, specify a base output name with relative file path, a path to the CTD
 data, and a description of the CTD data:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">f_name</span> <span class="o">=</span> <span class="s">&#39;../test/output/ntbk_blowout&#39;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">ctd_description</span> <span class="o">=</span> <span class="s">&#39;CTD data from Brooks McCall in file&#39;</span> <span class="o">+</span> \
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">f_name</span> <span class="o">=</span> <span class="s1">&#39;../test/output/ntbk_blowout&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ctd_description</span> <span class="o">=</span> <span class="s1">&#39;CTD data from Brooks McCall in file&#39;</span> <span class="o">+</span> \
 <span class="go">                      &#39;./test/output/test_BM54.nc&#39;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">spm</span><span class="o">.</span><span class="n">save_sim</span><span class="p">(</span><span class="n">f_name</span> <span class="o">+</span> <span class="s">&#39;.nc&#39;</span><span class="p">,</span> <span class="n">ctd_file</span><span class="p">,</span> <span class="n">ctd_description</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">spm</span><span class="o">.</span><span class="n">save_txt</span><span class="p">(</span><span class="n">f_name</span> <span class="o">+</span> <span class="s">&#39;ASCII&#39;</span><span class="p">,</span> <span class="n">ctd_file</span><span class="p">,</span> <span class="n">ctd_description</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spm</span><span class="o">.</span><span class="n">save_sim</span><span class="p">(</span><span class="n">f_name</span> <span class="o">+</span> <span class="s1">&#39;.nc&#39;</span><span class="p">,</span> <span class="n">ctd_file</span><span class="p">,</span> <span class="n">ctd_description</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spm</span><span class="o">.</span><span class="n">save_txt</span><span class="p">(</span><span class="n">f_name</span> <span class="o">+</span> <span class="s1">&#39;ASCII&#39;</span><span class="p">,</span> <span class="n">ctd_file</span><span class="p">,</span> <span class="n">ctd_description</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -249,7 +235,7 @@ data, and a description of the CTD data:</p>
             </a></p>
   <h3><a href="../contents.html">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">Stratified Plume Model User&#8217;s Guide</a><ul>
+<li><a class="reference internal" href="#">Stratified Plume Model User’s Guide</a><ul>
 <li><a class="reference internal" href="#scripts">Scripts</a></li>
 <li><a class="reference internal" href="#notebooks">Notebooks</a></li>
 <li><a class="reference internal" href="#examples">Examples</a><ul>
@@ -262,35 +248,34 @@ data, and a description of the CTD data:</p>
 </ul>
 </li>
 </ul>
-
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="../scripts/sbm/seep_bubble.html"
-                        title="previous chapter">seep_bubble</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="../scripts/spm/lake_bub.html"
-                        title="next chapter">lake_bub</a></p>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../contents.html">Documentation overview</a><ul>
+      <li>Previous: <a href="../scripts/sbm/seep_bubble.html" title="previous chapter">seep_bubble</a></li>
+      <li>Next: <a href="../scripts/spm/lake_bub.html" title="next chapter">lake_bub</a></li>
+  </ul></li>
+</ul>
+</div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/spm/guide.txt"
+      <li><a href="../_sources/spm/guide.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <ul class="this-page-menu">
-  <li><a href="/numpy/docs/numpy-docs/spm/guide.rst">Edit page</a></li>
+  <li><a href="/numpy/docs/numpy-docs/spm/guide.rst.rst">Edit page</a></li>
 </ul>
 
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
 
@@ -302,12 +287,12 @@ data, and a description of the CTD data:</p>
       &copy;2015, Scott A. Socolofsky.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
-      <a href="../_sources/spm/guide.txt"
-          rel="nofollow">Page source</a></li>
+      <a href="../_sources/spm/guide.rst.txt"
+          rel="nofollow">Page source</a>
     </div>
 
     

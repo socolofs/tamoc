@@ -1,51 +1,38 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Overview of Discrete Bubble Model (DBM) Module &mdash; Texas A&amp;M Oilspill Calculator v1.1 Manual</title>
-    
+    <title>Overview of Discrete Bubble Model (DBM) Module &#8212; Texas A&amp;M Oilspill Calculator v1.1 Manual</title>
     <link rel="stylesheet" href="../_static/scipy.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.1.0',
+        VERSION:     '1.1.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Texas A&amp;M Oilspill Calculator v1.1 Manual" href="../contents.html" />
-    <link rel="up" title="Reference" href="reference.html" />
-    <link rel="prev" title="Sources of Data in ChemData.csv" href="../chem/ChemData_ReadMe.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="chemical_properties.load_data" href="../chem/chemical_properties.load_data.html" />
    
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="../chem/ChemData_ReadMe.html" title="Sources of Data in ChemData.csv"
-             accesskey="P">previous</a> |</li>
-<li><a href="../index.html">Texas A&M Oilspill Calculator v1.1 Manual</a> &raquo;</li>
-
-          <li class="nav-item nav-item-1"><a href="reference.html" accesskey="U">Reference</a> &raquo;</li> 
-      </ul>
-    </div>  
+  <body>
+  
 
     <div class="document">
       <div class="documentwrapper">
@@ -60,7 +47,7 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">1.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">October 31, 2017</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">Nov 08, 2017</td>
 </tr>
 </tbody>
 </table>
@@ -79,14 +66,14 @@ and ensure proper behavior for the equations of state.</p>
 <p>The functions defining most equations of state and fluid particle physics are
 contained in the <code class="docutils literal"><span class="pre">dbm_f</span></code> library.  <code class="docutils literal"><span class="pre">dbm_f</span></code> contains object code compiled
 from the Fortran sources:</p>
-<div class="highlight-python"><div class="highlight"><pre>./src/dbm_eos.f95
-./src/dbm_phys.f95
-./src/math_funcs.f95
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">src</span><span class="o">/</span><span class="n">dbm_eos</span><span class="o">.</span><span class="n">f95</span>
+<span class="o">./</span><span class="n">src</span><span class="o">/</span><span class="n">dbm_phys</span><span class="o">.</span><span class="n">f95</span>
+<span class="o">./</span><span class="n">src</span><span class="o">/</span><span class="n">math_funcs</span><span class="o">.</span><span class="n">f95</span>
 </pre></div>
 </div>
 <p>There are two additional functions defined in this module to complete the 
 equations of state calculations.  These are:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">dbm</span><span class="o">.</span><span class="n">equilibrium</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">dbm</span><span class="o">.</span><span class="n">equilibrium</span>
 <span class="n">dbm</span><span class="o">.</span><span class="n">gas_liq_eq</span>
 </pre></div>
 </div>
@@ -104,7 +91,7 @@ the discrete bubble model have not been ported to Fortran and reside in the
 <h2>Class Objects<a class="headerlink" href="#class-objects" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="dbm.FluidMixture">
-<em class="property">class </em><code class="descclassname">dbm.</code><code class="descname">FluidMixture</code><span class="sig-paren">(</span><em>composition, delta=None, user_data={}, delta_groups=None, isair=False, sigma_correction=array([[ 1.],        [ 1.]])</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/Projects/NFBC/tamoc/tamoc/dbm.py#L53"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/dbm.html#FluidMixture"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dbm.FluidMixture" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dbm.</code><code class="descname">FluidMixture</code><span class="sig-paren">(</span><em>composition, delta=None, user_data={}, delta_groups=None, isair=False, sigma_correction=array([[ 1.],        [ 1.]])</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dbm.html#FluidMixture"><span class="viewcode-link">[source]</span></a><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.13.3/numpy/../../../../../Dropbox/socolofs/Projects/NFBC/tamoc/tamoc/dbm.py#L53"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dbm.FluidMixture" title="Permalink to this definition">¶</a></dt>
 <dd><p>Class object for a fluid mixture</p>
 <p>This object defines the behavior of a fluid mixture defined as a standard
 thermodynamic system.  The mixture may contain just liquid phase, a 
@@ -171,7 +158,7 @@ second element is for the liquid phase.</p>
 <p class="last"><a class="reference internal" href="chem.html#module-chemical_properties" title="chemical_properties"><code class="xref py py-obj docutils literal"><span class="pre">chemical_properties</span></code></a>, <a class="reference internal" href="#dbm.FluidParticle" title="dbm.FluidParticle"><code class="xref py py-obj docutils literal"><span class="pre">FluidParticle</span></code></a>, <a class="reference internal" href="#dbm.InsolubleParticle" title="dbm.InsolubleParticle"><code class="xref py py-obj docutils literal"><span class="pre">InsolubleParticle</span></code></a></p>
 </div>
 <p class="rubric">Examples</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">air</span> <span class="o">=</span> <span class="n">FluidMixture</span><span class="p">([</span><span class="s">&#39;nitrogen&#39;</span><span class="p">,</span> <span class="s">&#39;oxygen&#39;</span><span class="p">])</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">air</span> <span class="o">=</span> <span class="n">FluidMixture</span><span class="p">([</span><span class="s1">&#39;nitrogen&#39;</span><span class="p">,</span> <span class="s1">&#39;oxygen&#39;</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">yk</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.79</span><span class="p">,</span> <span class="mf">0.21</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">air</span><span class="o">.</span><span class="n">masses</span><span class="p">(</span><span class="n">yk</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">air</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="mf">273.15</span><span class="o">+</span><span class="mf">10.</span><span class="p">,</span> <span class="mf">101325.</span><span class="p">)</span>
@@ -182,44 +169,44 @@ second element is for the liquid phase.</p>
 <p class="rubric">Attributes</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="12%" />
-<col width="88%" />
+<col width="15%" />
+<col width="85%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td>nc</td>
+<tr class="row-odd"><td><strong>nc</strong></td>
 <td>(integer) Number of chemical components in the mixture</td>
 </tr>
-<tr class="row-even"><td>issoluble</td>
+<tr class="row-even"><td><strong>issoluble</strong></td>
 <td>(logical, True) Indicates the object contents are soluble</td>
 </tr>
-<tr class="row-odd"><td>M</td>
+<tr class="row-odd"><td><strong>M</strong></td>
 <td>(ndarray, size (nc)) Molecular weights (kg/mol)</td>
 </tr>
-<tr class="row-even"><td>Pc</td>
+<tr class="row-even"><td><strong>Pc</strong></td>
 <td>(ndarray, size (nc)) Critical pressures (Pa)</td>
 </tr>
-<tr class="row-odd"><td>Tc</td>
+<tr class="row-odd"><td><strong>Tc</strong></td>
 <td>(ndarray, size (nc)) Critical temperatures (K)</td>
 </tr>
-<tr class="row-even"><td>omega</td>
-<td>(ndarray, size (nc)) Acentric factors (&#8211;)</td>
+<tr class="row-even"><td><strong>omega</strong></td>
+<td>(ndarray, size (nc)) Acentric factors (–)</td>
 </tr>
-<tr class="row-odd"><td>kh_0</td>
-<td>(ndarray, size (nc)) Henry&#8217;s law constants at 298.15 K and 101325 Pa (kg/(m^3 Pa))</td>
+<tr class="row-odd"><td><strong>kh_0</strong></td>
+<td>(ndarray, size (nc)) Henry’s law constants at 298.15 K and 101325 Pa (kg/(m^3 Pa))</td>
 </tr>
-<tr class="row-even"><td>neg_dH_solR</td>
+<tr class="row-even"><td><strong>neg_dH_solR</strong></td>
 <td>(ndarray, size (nc)) The negative of the enthalpies of solution / Ru (K).</td>
 </tr>
-<tr class="row-odd"><td>nu_bar</td>
+<tr class="row-odd"><td><strong>nu_bar</strong></td>
 <td>(ndarray, size (nc)) Partial molar volumes at infinite dilution (m^3/mol)</td>
 </tr>
-<tr class="row-even"><td>B</td>
+<tr class="row-even"><td><strong>B</strong></td>
 <td>(ndarray, size (nc)) White and Houghton (1966) pre-exponential factor (m^2/s)</td>
 </tr>
-<tr class="row-odd"><td>dE</td>
+<tr class="row-odd"><td><strong>dE</strong></td>
 <td>(ndarray, size (nc)) Activation energy (J/mol)</td>
 </tr>
-<tr class="row-even"><td>K_salt</td>
+<tr class="row-even"><td><strong>K_salt</strong></td>
 <td>(Setschenow constants (m^3/mol))</td>
 </tr>
 </tbody>
@@ -250,13 +237,13 @@ second element is for the liquid phase.</p>
 <td>Computes the interfacial tension between gas/liquid and water</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="../dbm/dbm.FluidMixture.mass_frac.html#dbm.FluidMixture.mass_frac" title="dbm.FluidMixture.mass_frac"><code class="xref py py-obj docutils literal"><span class="pre">mass_frac</span></code></a>(n)</td>
-<td>Calculate the mass fraction (&#8211;) from the number of moles of each  component in a mixture.</td>
+<td>Calculate the mass fraction (–) from the number of moles of each  component in a mixture.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="../dbm/dbm.FluidMixture.masses.html#dbm.FluidMixture.masses" title="dbm.FluidMixture.masses"><code class="xref py py-obj docutils literal"><span class="pre">masses</span></code></a>(n)</td>
 <td>Convert the moles of each component in a mixture to their masses (kg).</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="../dbm/dbm.FluidMixture.mol_frac.html#dbm.FluidMixture.mol_frac" title="dbm.FluidMixture.mol_frac"><code class="xref py py-obj docutils literal"><span class="pre">mol_frac</span></code></a>(m)</td>
-<td>Calcualte the mole fraction (&#8211;) from the masses of each component in  a mixture.</td>
+<td>Calcualte the mole fraction (–) from the masses of each component in  a mixture.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="../dbm/dbm.FluidMixture.moles.html#dbm.FluidMixture.moles" title="dbm.FluidMixture.moles"><code class="xref py py-obj docutils literal"><span class="pre">moles</span></code></a>(m)</td>
 <td>Convert the masses of each component in a mixture to their moles  (mol).</td>
@@ -276,7 +263,7 @@ second element is for the liquid phase.</p>
 
 <dl class="class">
 <dt id="dbm.FluidParticle">
-<em class="property">class </em><code class="descclassname">dbm.</code><code class="descname">FluidParticle</code><span class="sig-paren">(</span><em>composition</em>, <em>fp_type=0.0</em>, <em>delta=None</em>, <em>user_data={}</em>, <em>delta_groups=None</em>, <em>isair=False</em>, <em>sigma_correction=1.0</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/Projects/NFBC/tamoc/tamoc/dbm.py#L738"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/dbm.html#FluidParticle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dbm.FluidParticle" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dbm.</code><code class="descname">FluidParticle</code><span class="sig-paren">(</span><em>composition</em>, <em>fp_type=0</em>, <em>delta=None</em>, <em>user_data={}</em>, <em>delta_groups=None</em>, <em>isair=False</em>, <em>sigma_correction=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dbm.html#FluidParticle"><span class="viewcode-link">[source]</span></a><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.13.3/numpy/../../../../../Dropbox/socolofs/Projects/NFBC/tamoc/tamoc/dbm.py#L736"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dbm.FluidParticle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Class object for a soluble fluid particle</p>
 <p>This object defines the behavior of a soluble fluid particle.  The object
 inherits the internal variables and methods from the <a class="reference internal" href="#dbm.FluidMixture" title="dbm.FluidMixture"><code class="xref py py-obj docutils literal"><span class="pre">FluidMixture</span></code></a> 
@@ -351,7 +338,7 @@ fp_type.</p>
 <p class="rubric">Notes</p>
 <p>The attributes are identical to those defined for a <a class="reference internal" href="#dbm.FluidMixture" title="dbm.FluidMixture"><code class="xref py py-obj docutils literal"><span class="pre">FluidMixture</span></code></a></p>
 <p class="rubric">Examples</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">bub</span> <span class="o">=</span> <span class="n">FluidParticle</span><span class="p">([</span><span class="s">&#39;nitrogen&#39;</span><span class="p">,</span> <span class="s">&#39;oxygen&#39;</span><span class="p">],</span> <span class="n">fp_type</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bub</span> <span class="o">=</span> <span class="n">FluidParticle</span><span class="p">([</span><span class="s1">&#39;nitrogen&#39;</span><span class="p">,</span> <span class="s1">&#39;oxygen&#39;</span><span class="p">],</span> <span class="n">fp_type</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">yk</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.79</span><span class="p">,</span> <span class="mf">0.21</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">T</span> <span class="o">=</span> <span class="mf">273.15</span> <span class="o">+</span> <span class="mf">30.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">P</span> <span class="o">=</span> <span class="mf">10.e5</span>
@@ -397,7 +384,7 @@ fp_type.</p>
 <td>Computes the interfacial tension between the particle and water</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="../dbm/dbm.FluidParticle.mass_frac.html#dbm.FluidParticle.mass_frac" title="dbm.FluidParticle.mass_frac"><code class="xref py py-obj docutils literal"><span class="pre">mass_frac</span></code></a>(n)</td>
-<td>Calculate the mass fraction (&#8211;) from the number of moles of each  component in a mixture.</td>
+<td>Calculate the mass fraction (–) from the number of moles of each  component in a mixture.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="../dbm/dbm.FluidParticle.mass_transfer.html#dbm.FluidParticle.mass_transfer" title="dbm.FluidParticle.mass_transfer"><code class="xref py py-obj docutils literal"><span class="pre">mass_transfer</span></code></a>(m,&nbsp;T,&nbsp;P,&nbsp;Sa,&nbsp;Ta[,&nbsp;status])</td>
 <td>Compute the mass transfer coefficients (m/s) for each component in a</td>
@@ -409,7 +396,7 @@ fp_type.</p>
 <td>Find the masses (kg) of each component in a particle with equivalent  spherical diameter <em class="xref py py-obj">de</em> and mole fractions <em class="xref py py-obj">yk</em>.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="../dbm/dbm.FluidParticle.mol_frac.html#dbm.FluidParticle.mol_frac" title="dbm.FluidParticle.mol_frac"><code class="xref py py-obj docutils literal"><span class="pre">mol_frac</span></code></a>(m)</td>
-<td>Calcualte the mole fraction (&#8211;) from the masses of each component in  a mixture.</td>
+<td>Calcualte the mole fraction (–) from the masses of each component in  a mixture.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="../dbm/dbm.FluidParticle.moles.html#dbm.FluidParticle.moles" title="dbm.FluidParticle.moles"><code class="xref py py-obj docutils literal"><span class="pre">moles</span></code></a>(m)</td>
 <td>Convert the masses of each component in a mixture to their moles  (mol).</td>
@@ -441,7 +428,7 @@ fp_type.</p>
 
 <dl class="class">
 <dt id="dbm.InsolubleParticle">
-<em class="property">class </em><code class="descclassname">dbm.</code><code class="descname">InsolubleParticle</code><span class="sig-paren">(</span><em>isfluid</em>, <em>iscompressible</em>, <em>rho_p=930.0</em>, <em>gamma=30.0</em>, <em>beta=0.0007</em>, <em>co=2.90075e-09</em>, <em>fp_type=1</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/Projects/NFBC/tamoc/tamoc/dbm.py#L1389"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/dbm.html#InsolubleParticle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dbm.InsolubleParticle" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dbm.</code><code class="descname">InsolubleParticle</code><span class="sig-paren">(</span><em>isfluid</em>, <em>iscompressible</em>, <em>rho_p=930.0</em>, <em>gamma=30.0</em>, <em>beta=0.0007</em>, <em>co=2.90075e-09</em>, <em>fp_type=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dbm.html#InsolubleParticle"><span class="viewcode-link">[source]</span></a><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.13.3/numpy/../../../../../Dropbox/socolofs/Projects/NFBC/tamoc/tamoc/dbm.py#L1387"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dbm.InsolubleParticle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Class object for an insoluble (inert) fluid particle</p>
 <p>This object defines the behavior of an inert fluid particle.  The purpose
 of this class is to simulate particle that cannot be described by the 
@@ -496,7 +483,7 @@ equations are different for gas and liquid.  The default value is 1.</p>
 <p class="last"><a class="reference internal" href="#dbm.FluidMixture" title="dbm.FluidMixture"><code class="xref py py-obj docutils literal"><span class="pre">FluidMixture</span></code></a>, <a class="reference internal" href="chem.html#module-chemical_properties" title="chemical_properties"><code class="xref py py-obj docutils literal"><span class="pre">chemical_properties</span></code></a>, <a class="reference internal" href="#dbm.FluidParticle" title="dbm.FluidParticle"><code class="xref py py-obj docutils literal"><span class="pre">FluidParticle</span></code></a></p>
 </div>
 <p class="rubric">Examples</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">oil</span> <span class="o">=</span> <span class="n">InsolubleParticle</span><span class="p">(</span><span class="bp">True</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">oil</span> <span class="o">=</span> <span class="n">InsolubleParticle</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">T</span> <span class="o">=</span> <span class="mf">273.15</span> <span class="o">+</span> <span class="mf">30.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">P</span> <span class="o">=</span> <span class="mf">10.e5</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">Sa</span> <span class="o">=</span> <span class="mf">35.</span>
@@ -512,17 +499,17 @@ equations are different for gas and liquid.  The default value is 1.</p>
 <p class="rubric">Attributes</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="17%" />
-<col width="83%" />
+<col width="22%" />
+<col width="78%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td>composition</td>
-<td>(string list) Set equal to [&#8216;inert&#8217;]</td>
+<tr class="row-odd"><td><strong>composition</strong></td>
+<td>(string list) Set equal to [‘inert’]</td>
 </tr>
-<tr class="row-even"><td>nc</td>
+<tr class="row-even"><td><strong>nc</strong></td>
 <td>(integer) Number of components, set equal to 1</td>
 </tr>
-<tr class="row-odd"><td>issoluble</td>
+<tr class="row-odd"><td><strong>issoluble</strong></td>
 <td>(logical, False) Indicates the particle is not soluble</td>
 </tr>
 </tbody>
@@ -577,13 +564,13 @@ equations are different for gas and liquid.  The default value is 1.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="../dbm/dbm.equil_MM.html#dbm.equil_MM" title="dbm.equil_MM"><code class="xref py py-obj docutils literal"><span class="pre">equil_MM</span></code></a>(m,&nbsp;T,&nbsp;P,&nbsp;M,&nbsp;Pc,&nbsp;Tc,&nbsp;omega,&nbsp;delta,&nbsp;...)</td>
+<tr class="row-odd"><td><a class="reference internal" href="../dbm/dbm.equil_MM.html#dbm.equil_MM" title="dbm.equil_MM"><code class="xref py py-obj docutils literal"><span class="pre">equil_MM</span></code></a>(m,&nbsp;T,&nbsp;P,&nbsp;M,&nbsp;Pc,&nbsp;Tc,&nbsp;omega,&nbsp;delta,&nbsp;…)</td>
 <td>Compute the equilibrium composition of a mixture using the P-R EOS</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="../dbm/dbm.successive_substitution.html#dbm.successive_substitution" title="dbm.successive_substitution"><code class="xref py py-obj docutils literal"><span class="pre">successive_substitution</span></code></a>(m,&nbsp;T,&nbsp;P,&nbsp;max_iter,&nbsp;...)</td>
+<tr class="row-even"><td><a class="reference internal" href="../dbm/dbm.successive_substitution.html#dbm.successive_substitution" title="dbm.successive_substitution"><code class="xref py py-obj docutils literal"><span class="pre">successive_substitution</span></code></a>(m,&nbsp;T,&nbsp;P,&nbsp;max_iter,&nbsp;…)</td>
 <td>Find K-factors by successive substitution</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="../dbm/dbm.stability_analysis.html#dbm.stability_analysis" title="dbm.stability_analysis"><code class="xref py py-obj docutils literal"><span class="pre">stability_analysis</span></code></a>(m,&nbsp;T,&nbsp;P,&nbsp;M,&nbsp;Pc,&nbsp;Tc,&nbsp;...)</td>
+<tr class="row-odd"><td><a class="reference internal" href="../dbm/dbm.stability_analysis.html#dbm.stability_analysis" title="dbm.stability_analysis"><code class="xref py py-obj docutils literal"><span class="pre">stability_analysis</span></code></a>(m,&nbsp;T,&nbsp;P,&nbsp;M,&nbsp;Pc,&nbsp;Tc,&nbsp;…)</td>
 <td>Perform stability analysis to determine the stability of a mixture</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="../dbm/dbm.gas_liq_eq.html#dbm.gas_liq_eq" title="dbm.gas_liq_eq"><code class="xref py py-obj docutils literal"><span class="pre">gas_liq_eq</span></code></a>(m,&nbsp;M,&nbsp;K)</td>
@@ -617,32 +604,33 @@ equations are different for gas and liquid.  The default value is 1.</p>
 </ul>
 </li>
 </ul>
-
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="../chem/ChemData_ReadMe.html"
-                        title="previous chapter">Sources of Data in ChemData.csv</a></p>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../contents.html">Documentation overview</a><ul>
+      <li>Previous: <a href="../chem/chemical_properties.load_data.html" title="previous chapter">chemical_properties.load_data</a></li>
+  </ul></li>
+</ul>
+</div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/modules/dbm.txt"
+      <li><a href="../_sources/modules/dbm.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <ul class="this-page-menu">
-  <li><a href="/numpy/docs/numpy-docs/modules/dbm.rst">Edit page</a></li>
+  <li><a href="/numpy/docs/numpy-docs/modules/dbm.rst.rst">Edit page</a></li>
 </ul>
 
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
 
@@ -654,12 +642,12 @@ equations are different for gas and liquid.  The default value is 1.</p>
       &copy;2015, Scott A. Socolofsky.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
-      <a href="../_sources/modules/dbm.txt"
-          rel="nofollow">Page source</a></li>
+      <a href="../_sources/modules/dbm.rst.txt"
+          rel="nofollow">Page source</a>
     </div>
 
     

@@ -56,7 +56,7 @@ def get_ctd_profile():
     used to demonstrate how to append data to a Profiile object.
     
     """
-        # Get the path to the input file
+    # Get the path to the input file
     __location__ = os.path.realpath(os.path.join(os.getcwd(),
                                     os.path.dirname(__file__), 
                                     '../../tamoc/data'))

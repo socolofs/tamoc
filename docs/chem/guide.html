@@ -1,53 +1,39 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Chemical Properties Users Guide &mdash; Texas A&amp;M Oilspill Calculator v1.1 Manual</title>
-    
+    <title>Chemical Properties Users Guide &#8212; Texas A&amp;M Oilspill Calculator v1.1 Manual</title>
     <link rel="stylesheet" href="../_static/scipy.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.1.0',
+        VERSION:     '1.1.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Texas A&amp;M Oilspill Calculator v1.1 Manual" href="../contents.html" />
-    <link rel="next" title="Discrete Bubble Model Users Guide" href="../dbm/guide.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="dbm.gas_liq_eq" href="chem.load_data.html" />
     <link rel="prev" title="Seawater Module Users Guide" href="../seawater/guide.html" />
    
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="../dbm/guide.html" title="Discrete Bubble Model Users Guide"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="../seawater/guide.html" title="Seawater Module Users Guide"
-             accesskey="P">previous</a> |</li>
-<li><a href="../index.html">Texas A&M Oilspill Calculator v1.1 Manual</a> &raquo;</li>
- 
-      </ul>
-    </div>  
+  <body>
+  
 
     <div class="document">
       <div class="documentwrapper">
@@ -62,10 +48,22 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">1.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">October 31, 2017</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">Nov 08, 2017</td>
 </tr>
 </tbody>
 </table>
+<div class="section" id="scripts">
+<h2>Scripts<a class="headerlink" href="#scripts" title="Permalink to this headline">¶</a></h2>
+<p>the <code class="docutils literal"><span class="pre">TAMOC</span></code> files associated with chemical properties data include the
+following</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="chem.load_data.html">dbm.gas_liq_eq</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ChemData_ReadMe.html">Sources of Data in ChemData.csv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chemical_properties.load_data.html">chemical_properties.load_data</a></li>
+</ul>
+</div>
+</div>
 <div class="section" id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
 <p>The main purpose of this script is to load in the default chemical property
@@ -80,7 +78,7 @@ to these databases.</p>
 <h2>Usage within <code class="docutils literal"><span class="pre">TAMOC</span></code><a class="headerlink" href="#usage-within-tamoc" title="Permalink to this headline">¶</a></h2>
 <p>To load the data, simply import the script and optionally assign a new
 namespace for storing the databases:</p>
-<div class="highlight-python"><div class="highlight"><pre>&gt;&gt; import chemical_properties as chem
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span> <span class="kn">import</span> <span class="nn">chemical_properties</span> <span class="k">as</span> <span class="nn">chem</span>
 </pre></div>
 </div>
 <p>After import, two new dictionaries will be created, one with the properties
@@ -89,53 +87,53 @@ namespace for storing the databases:</p>
 a chemical component, and the second set of keys choosing a particular
 property.</p>
 <p>As an example:</p>
-<div class="highlight-python"><div class="highlight"><pre>&gt;&gt; chem.data.keys()
-[&#39;benzene&#39;,
- &#39;n-decane&#39;,
- &#39;nitrogen&#39;,
- &#39;3-methylpentane&#39;,
- &#39;hydrogen&#39;,
- &#39;neohexane&#39;,
- &#39;carbon_monoxide&#39;,
- &#39;n-butane&#39;,
- &#39;carbon_dioxide&#39;,
- &#39;ethylbenzene&#39;,
- &#39;isopentane&#39;,
- &#39;isobutane&#39;,
- &#39;propane&#39;,
- &#39;n-heptane&#39;,
- &#39;water&#39;,
- &#39;2-methylpentane&#39;,
- &#39;n-pentane&#39;,
- &#39;toluene&#39;,
- &#39;n-hexane&#39;,
- &#39;neopentane&#39;,
- &#39;oxygen&#39;,
- &#39;hydrogen_sulfide&#39;,
- &#39;argon&#39;,
- &#39;2-3-dimethylbutane&#39;,
- &#39;ethane&#39;,
- &#39;sulfure_dioxide&#39;,
- &#39;methane&#39;]
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span> <span class="n">chem</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+<span class="p">[</span><span class="s1">&#39;benzene&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;n-decane&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;nitrogen&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;3-methylpentane&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;hydrogen&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;neohexane&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;carbon_monoxide&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;n-butane&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;carbon_dioxide&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;ethylbenzene&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;isopentane&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;isobutane&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;propane&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;n-heptane&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;water&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;2-methylpentane&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;n-pentane&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;toluene&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;n-hexane&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;neopentane&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;oxygen&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;hydrogen_sulfide&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;argon&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;2-3-dimethylbutane&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;ethane&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;sulfure_dioxide&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;methane&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
 <p>Focusing on the nested dictionary for one of these keys, we have:</p>
-<div class="highlight-python"><div class="highlight"><pre>&gt;&gt; chem.data[&#39;oxygen&#39;].keys()
-[&#39;B&#39;, &#39;dH_solR&#39;, &#39;dE&#39;, &#39;M&#39;, &#39;Pc&#39;, &#39;nu_bar&#39;, &#39;kh_0&#39;, &#39;omega&#39;, &#39;Tc&#39;]
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span> <span class="n">chem</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;oxygen&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+<span class="p">[</span><span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="s1">&#39;dH_solR&#39;</span><span class="p">,</span> <span class="s1">&#39;dE&#39;</span><span class="p">,</span> <span class="s1">&#39;M&#39;</span><span class="p">,</span> <span class="s1">&#39;Pc&#39;</span><span class="p">,</span> <span class="s1">&#39;nu_bar&#39;</span><span class="p">,</span> <span class="s1">&#39;kh_0&#39;</span><span class="p">,</span> <span class="s1">&#39;omega&#39;</span><span class="p">,</span> <span class="s1">&#39;Tc&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
 <p>To access the value for one of these keys, just use the double-nested
 index:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">chem</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;oxygen&#39;</span><span class="p">][</span><span class="s">&#39;M&#39;</span><span class="p">]</span>    <span class="c"># Molecular weight</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">chem</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;oxygen&#39;</span><span class="p">][</span><span class="s1">&#39;M&#39;</span><span class="p">]</span>    <span class="c1"># Molecular weight</span>
 <span class="go">0.031998800000000001</span>
 </pre></div>
 </div>
 <p>The <em class="xref py py-obj">chem.units</em> database provides access to the units of each of these
 variables.  Because the units are independent of the chemical, the units
 database only includes the second dictionary of keys:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">chem</span><span class="o">.</span><span class="n">units</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">chem</span><span class="o">.</span><span class="n">units</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
 <span class="go">[&#39;Pc&#39;, &#39;nu_bar&#39;, &#39;Compound&#39;, &#39;kh_0&#39;, &#39;omega&#39;, &#39;B&#39;, &#39;dE&#39;, &#39;M&#39;, &#39;Tc&#39;, &#39;dH_solR&#39;]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">chem</span><span class="o">.</span><span class="n">units</span><span class="p">[</span><span class="s">&#39;M&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">chem</span><span class="o">.</span><span class="n">units</span><span class="p">[</span><span class="s1">&#39;M&#39;</span><span class="p">]</span>
 <span class="go">&#39;(kg/mol)&#39;</span>
 </pre></div>
 </div>
@@ -146,7 +144,7 @@ database only includes the second dictionary of keys:</p>
 compounds not in the default database.  The easiest way to do this is to
 create a new database, for instance <code class="docutils literal"><span class="pre">./Inputs/my_data.csv</span></code> that contains
 the needed compounds.  This can be done for instance with:</p>
-<div class="highlight-python"><div class="highlight"><pre>&gt;&gt; data, units = chemical_properties.load_data(&#39;./Input/my_data.csv&#39;)
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span> <span class="n">data</span><span class="p">,</span> <span class="n">units</span> <span class="o">=</span> <span class="n">chemical_properties</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s1">&#39;./Input/my_data.csv&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>In the discrete bubble model <a class="reference internal" href="../modules/dbm.html#module-dbm" title="dbm"><code class="xref py py-obj docutils literal"><span class="pre">dbm</span></code></a>, <code class="docutils literal"><span class="pre">TAMOC</span></code> imports the default data
@@ -173,41 +171,41 @@ database, unless one desires to override the default property values.</p>
   <h3><a href="../contents.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Chemical Properties Users Guide</a><ul>
+<li><a class="reference internal" href="#scripts">Scripts</a></li>
 <li><a class="reference internal" href="#examples">Examples</a></li>
 <li><a class="reference internal" href="#usage-within-tamoc">Usage within <code class="docutils literal"><span class="pre">TAMOC</span></code></a></li>
 <li><a class="reference internal" href="#usage-to-import-user-defined-data">Usage to Import User-Defined Data</a></li>
 </ul>
 </li>
 </ul>
-
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="../seawater/guide.html"
-                        title="previous chapter">Seawater Module Users Guide</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="../dbm/guide.html"
-                        title="next chapter">Discrete Bubble Model Users Guide</a></p>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../contents.html">Documentation overview</a><ul>
+      <li>Previous: <a href="../seawater/guide.html" title="previous chapter">Seawater Module Users Guide</a></li>
+      <li>Next: <a href="chem.load_data.html" title="next chapter">dbm.gas_liq_eq</a></li>
+  </ul></li>
+</ul>
+</div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/chem/guide.txt"
+      <li><a href="../_sources/chem/guide.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <ul class="this-page-menu">
-  <li><a href="/numpy/docs/numpy-docs/chem/guide.rst">Edit page</a></li>
+  <li><a href="/numpy/docs/numpy-docs/chem/guide.rst.rst">Edit page</a></li>
 </ul>
 
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
 
@@ -219,12 +217,12 @@ database, unless one desires to override the default property values.</p>
       &copy;2015, Scott A. Socolofsky.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
-      <a href="../_sources/chem/guide.txt"
-          rel="nofollow">Page source</a></li>
+      <a href="../_sources/chem/guide.rst.txt"
+          rel="nofollow">Page source</a>
     </div>
 
     

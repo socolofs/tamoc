@@ -1,55 +1,38 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>ambient.create_nc_db &mdash; Texas A&amp;M Oilspill Calculator v1.1 Manual</title>
-    
+    <title>ambient.create_nc_db &#8212; Texas A&amp;M Oilspill Calculator v1.1 Manual</title>
     <link rel="stylesheet" href="../_static/scipy.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.1.0',
+        VERSION:     '1.1.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Texas A&amp;M Oilspill Calculator v1.1 Manual" href="../contents.html" />
-    <link rel="up" title="Reference" href="../modules/reference.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="ambient.fill_nc_db" href="ambient.fill_nc_db.html" />
-    <link rel="prev" title="ambient.Profile.close_nc" href="ambient.Profile.close_nc.html" />
    
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="ambient.fill_nc_db.html" title="ambient.fill_nc_db"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="ambient.Profile.close_nc.html" title="ambient.Profile.close_nc"
-             accesskey="P">previous</a> |</li>
-<li><a href="../index.html">Texas A&M Oilspill Calculator v1.1 Manual</a> &raquo;</li>
-
-          <li class="nav-item nav-item-1"><a href="../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
-      </ul>
-    </div>  
+  <body>
+  
 
     <div class="document">
       <div class="documentwrapper">
@@ -64,13 +47,13 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">1.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">October 31, 2017</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">Nov 08, 2017</td>
 </tr>
 </tbody>
 </table>
 <dl class="function">
 <dt id="ambient.create_nc_db">
-<code class="descclassname">ambient.</code><code class="descname">create_nc_db</code><span class="sig-paren">(</span><em>nc_file</em>, <em>summary</em>, <em>source</em>, <em>sea_name</em>, <em>p_lat</em>, <em>p_lon</em>, <em>p_time</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/Projects/NFBC/tamoc/tamoc/ambient.py#L677"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/ambient.html#create_nc_db"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ambient.create_nc_db" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">ambient.</code><code class="descname">create_nc_db</code><span class="sig-paren">(</span><em>nc_file</em>, <em>summary</em>, <em>source</em>, <em>sea_name</em>, <em>p_lat</em>, <em>p_lon</em>, <em>p_time</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ambient.html#create_nc_db"><span class="viewcode-link">[source]</span></a><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.13.3/numpy/../../../../../Dropbox/socolofs/Projects/NFBC/tamoc/tamoc/ambient.py#L677"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ambient.create_nc_db" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create an empty netCDF4-classic dataset to store ambient data</p>
 <p>Creates an netCDF dataset file in netCDF4-classic format for use in 
 storing ambient profile data.  This function creates the minimum data
@@ -115,7 +98,7 @@ at <a class="reference external" href="http://www.nodc.noaa.gov/General/NODC-Arc
 <blockquote>
 <div><p>Time the profile was taken in seconds since 1970-01-01 00:00:00 0:00
 following a julian calendar.  See Examples section for how to create
-this variable using Python&#8217;s <a class="reference external" href="http://docs.python.org/library/datetime.html#module-datetime" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">datetime</span></code></a> module and the netCDF4 modules
+this variable using Python’s <a class="reference external" href="https://docs.python.org/2/library/datetime.html#module-datetime" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">datetime</span></code></a> module and the netCDF4 modules
 <code class="xref py py-obj docutils literal"><span class="pre">netCDF4.date2num</span></code> and <code class="xref py py-obj docutils literal"><span class="pre">netCDF4.num2date</span></code>.</p>
 </div></blockquote>
 </td>
@@ -144,12 +127,12 @@ here <a class="reference external" href="https://code.google.com/p/netcdf4-pytho
 the tutorial.  The classic format is equivalent to having the single 
 group <em class="xref py py-obj">root_grp</em>.</p>
 <p class="rubric">Examples</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">netCDF4</span> <span class="kn">import</span> <span class="n">num2date</span><span class="p">,</span> <span class="n">date2num</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">nc_file</span> <span class="o">=</span> <span class="s">&#39;./test/output/test.nc&#39;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">summary</span> <span class="o">=</span> <span class="s">&#39;Test file&#39;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">source</span> <span class="o">=</span> <span class="s">&#39;None&#39;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">sea_name</span> <span class="o">=</span> <span class="s">&#39;No Sea Name&#39;</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">netCDF4</span> <span class="k">import</span> <span class="n">num2date</span><span class="p">,</span> <span class="n">date2num</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nc_file</span> <span class="o">=</span> <span class="s1">&#39;./test/output/test.nc&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">summary</span> <span class="o">=</span> <span class="s1">&#39;Test file&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">source</span> <span class="o">=</span> <span class="s1">&#39;None&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sea_name</span> <span class="o">=</span> <span class="s1">&#39;No Sea Name&#39;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">p_lat</span> <span class="o">=</span> <span class="mf">28.5</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">p_lon</span> <span class="o">=</span> <span class="mf">270.7</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">p_time</span> <span class="o">=</span> <span class="n">date2num</span><span class="p">(</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2010</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">30</span><span class="p">),</span> 
@@ -157,7 +140,7 @@ group <em class="xref py py-obj">root_grp</em>.</p>
 <span class="go">        calendar = &#39;julian&#39;)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">nc</span> <span class="o">=</span> <span class="n">create_nc_db</span><span class="p">(</span><span class="n">nc_file</span><span class="p">,</span> <span class="n">summary</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">sea_name</span><span class="p">,</span> <span class="n">p_lat</span><span class="p">,</span> 
 <span class="go">        p_lon, p_time)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">nc</span><span class="o">.</span><span class="n">variables</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">nc</span><span class="o">.</span><span class="n">variables</span>
 <span class="go">OrderedDict([(&#39;time&#39;, &lt;netCDF4.Variable object at 0x76f2978&gt;), </span>
 <span class="go">             (&#39;lat&#39;, &lt;netCDF4.Variable object at 0x76f2a98&gt;), </span>
 <span class="go">             (&#39;lon&#39;, &lt;netCDF4.Variable object at 0x76f2ae0&gt;), </span>
@@ -165,14 +148,14 @@ group <em class="xref py py-obj">root_grp</em>.</p>
 <span class="go">             (&#39;temperature&#39;, &lt;netCDF4.Variable object at 0x76f2b70&gt;), </span>
 <span class="go">             (&#39;salinity&#39;, &lt;netCDF4.Variable object at 0x76f2bb8&gt;), </span>
 <span class="go">             (&#39;pressure&#39;, &lt;netCDF4.Variable object at 0x76f2c00&gt;)])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">num2date</span><span class="p">(</span><span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;time&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> 
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">num2date</span><span class="p">(</span><span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> 
 <span class="go">        units = &#39;seconds since 1970-01-01 00:00:00 0:00&#39;, </span>
 <span class="go">        calendar = &#39;julian&#39;)</span>
 <span class="go">2010-05-30 00:00:00</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">z_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">1500.</span><span class="p">,</span> <span class="mf">30.</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;z&#39;</span><span class="p">][:]</span> <span class="o">=</span> <span class="n">z_data</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;z&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">valid_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">z_data</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;z&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">][:]</span> <span class="o">=</span> <span class="n">z_data</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">valid_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">z_data</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">]</span>
 <span class="go">float64 z(u&#39;z&#39;,)</span>
 <span class="go">    long_name: depth below the water surface</span>
 <span class="go">    standard_name: depth</span>
@@ -198,35 +181,35 @@ group <em class="xref py py-obj">root_grp</em>.</p>
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../contents.html">
               <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
-            </a></p>
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="ambient.Profile.close_nc.html"
-                        title="previous chapter">ambient.Profile.close_nc</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="ambient.fill_nc_db.html"
-                        title="next chapter">ambient.fill_nc_db</a></p>
+            </a></p><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../contents.html">Documentation overview</a><ul>
+  <li><a href="../modules/ambient.html">Overview of Ambient Module</a><ul>
+      <li>Next: <a href="ambient.fill_nc_db.html" title="next chapter">ambient.fill_nc_db</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/ambient/ambient.create_nc_db.txt"
+      <li><a href="../_sources/ambient/ambient.create_nc_db.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <ul class="this-page-menu">
-  <li><a href="/numpy/docs/numpy-docs/ambient/ambient.create_nc_db.rst">Edit page</a></li>
+  <li><a href="/numpy/docs/numpy-docs/ambient/ambient.create_nc_db.rst.rst">Edit page</a></li>
 </ul>
 
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
 
@@ -238,12 +221,12 @@ group <em class="xref py py-obj">root_grp</em>.</p>
       &copy;2015, Scott A. Socolofsky.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
-      <a href="../_sources/ambient/ambient.create_nc_db.txt"
-          rel="nofollow">Page source</a></li>
+      <a href="../_sources/ambient/ambient.create_nc_db.rst.txt"
+          rel="nofollow">Page source</a>
     </div>
 
     

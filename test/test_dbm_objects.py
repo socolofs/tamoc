@@ -110,12 +110,12 @@ def test_objects():
                     B, dE, K_salt)
     
     # Initiate a simple mixture from a composition list with delta specified
-    air = dbm.FluidMixture(comp, delta)
+    air = dbm.FluidMixture(comp, delta = delta)
     mixture_attributes(air, comp, 3)
     chem_properties(air, delta, M, Pc, Tc, omega, kh_0, neg_dH_solR, nu_bar, 
                     B, dE, K_salt)
     
-    bub = dbm.FluidParticle(comp, delta)
+    bub = dbm.FluidParticle(comp, delta = delta)
     mixture_attributes(bub, comp, 3)
     chem_properties(bub, delta, M, Pc, Tc, omega, kh_0, neg_dH_solR, nu_bar, 
                     B, dE, K_salt)

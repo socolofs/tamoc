@@ -1,47 +1,37 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>seawater &mdash; Texas A&amp;M Oilspill Calculator v1.1 Manual</title>
-    
+    <title>seawater &#8212; Texas A&amp;M Oilspill Calculator v1.1 Manual</title>
     <link rel="stylesheet" href="../_static/scipy.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.1.0',
+        VERSION:     '1.1.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Texas A&amp;M Oilspill Calculator v1.1 Manual" href="../contents.html" />
-    <link rel="up" title="Module code" href="index.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
    
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-<li><a href="../index.html">Texas A&M Oilspill Calculator v1.1 Manual</a> &raquo;</li>
-
-          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
-      </ul>
-    </div>  
+  <body>
+  
 
     <div class="document">
       <div class="documentwrapper">
@@ -49,7 +39,7 @@
           <div class="body" role="main">
             
   <h1>Source code for seawater</h1><div class="highlight"><pre>
-<span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Equations of State for Seawater</span>
 <span class="sd">===============================</span>
 
@@ -60,12 +50,12 @@
 <span class="sd">official seawater equation of state.</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="c"># S. Socolofsky, March 2013, Texas A&amp;M University &lt;socolofs@tamu.edu&gt;.</span>
+<span class="c1"># S. Socolofsky, March 2013, Texas A&amp;M University &lt;socolofs@tamu.edu&gt;.</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
-<span class="c"># Define some universal constants</span>
-<span class="n">g</span> <span class="o">=</span> <span class="mf">9.81</span>       <span class="c"># Acceleration of gravity (m/s^2)</span>
+<span class="c1"># Define some universal constants</span>
+<span class="n">g</span> <span class="o">=</span> <span class="mf">9.81</span>       <span class="c1"># Acceleration of gravity (m/s^2)</span>
 
 <div class="viewcode-block" id="density"><a class="viewcode-back" href="../seawater/seawater.density.html#seawater.density">[docs]</a><span class="k">def</span> <span class="nf">density</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">P</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -90,11 +80,11 @@
 <span class="sd">        seawater density (kg/m^3)</span>
 <span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c"># Convert T to dec C and P to bar</span>
+    <span class="c1"># Convert T to dec C and P to bar</span>
     <span class="n">T</span> <span class="o">=</span> <span class="n">T</span> <span class="o">-</span> <span class="mf">273.15</span>
     <span class="n">P</span> <span class="o">=</span> <span class="n">P</span> <span class="o">*</span> <span class="mf">1.e-5</span>
     
-    <span class="c"># Compute the density at atmospheric pressure</span>
+    <span class="c1"># Compute the density at atmospheric pressure</span>
     <span class="n">rho_sw_0</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="mf">999.842594</span> <span class="o">+</span> <span class="mf">6.793952e-2</span> <span class="o">*</span> <span class="n">T</span> <span class="o">-</span> <span class="mf">9.095290e-3</span> <span class="o">*</span> <span class="n">T</span><span class="o">**</span><span class="mi">2</span> 
                 <span class="o">+</span> <span class="mf">1.001685e-4</span> <span class="o">*</span> <span class="n">T</span><span class="o">**</span><span class="mi">3</span> <span class="o">-</span> <span class="mf">1.120083e-6</span> <span class="o">*</span> <span class="n">T</span><span class="o">**</span><span class="mi">4</span> <span class="o">+</span> <span class="mf">6.536332e-9</span> <span class="o">*</span> <span class="n">T</span><span class="o">**</span><span class="mi">5</span> 
@@ -104,7 +94,7 @@
                 <span class="o">-</span> <span class="mf">1.6546e-6</span> <span class="o">*</span> <span class="n">T</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">S</span><span class="o">**</span><span class="p">(</span><span class="mf">3.</span><span class="o">/</span><span class="mf">2.</span><span class="p">)</span>
                 <span class="p">)</span>
     
-    <span class="c"># Compute the pressure correction coefficient</span>
+    <span class="c1"># Compute the pressure correction coefficient</span>
     <span class="n">K</span> <span class="o">=</span> <span class="p">(</span>
          <span class="mf">19652.21</span> <span class="o">+</span> <span class="mf">148.4206</span> <span class="o">*</span> <span class="n">T</span> <span class="o">-</span> <span class="mf">2.327105</span> <span class="o">*</span> <span class="n">T</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mf">1.360477e-2</span> <span class="o">*</span> <span class="n">T</span><span class="o">**</span><span class="mi">3</span> 
          <span class="o">-</span> <span class="mf">5.155288e-5</span> <span class="o">*</span> <span class="n">T</span><span class="o">**</span><span class="mi">4</span> <span class="o">+</span> <span class="mf">3.239908</span> <span class="o">*</span> <span class="n">P</span> <span class="o">+</span> <span class="mf">1.43713e-3</span> <span class="o">*</span> <span class="n">T</span> <span class="o">*</span> <span class="n">P</span> 
@@ -119,8 +109,8 @@
          <span class="o">+</span> <span class="mf">2.0816e-8</span> <span class="o">*</span> <span class="n">T</span> <span class="o">*</span> <span class="n">P</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">S</span> <span class="o">+</span> <span class="mf">9.1697e-10</span> <span class="o">*</span> <span class="n">T</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">P</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">S</span>
          <span class="p">)</span>
     
-    <span class="k">return</span> <span class="n">rho_sw_0</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">P</span> <span class="o">/</span> <span class="n">K</span><span class="p">)</span>
-</div>
+    <span class="k">return</span> <span class="n">rho_sw_0</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">P</span> <span class="o">/</span> <span class="n">K</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="mu"><a class="viewcode-back" href="../seawater/seawater.mu.html#seawater.mu">[docs]</a><span class="k">def</span> <span class="nf">mu</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">P</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute the viscosity of seawater</span>
@@ -145,31 +135,31 @@
 <span class="sd">        dynamic viscosity of seawater (Pa s)</span>
 <span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c"># The following equations use Temperature in deg C</span>
+    <span class="c1"># The following equations use Temperature in deg C</span>
     <span class="n">T</span> <span class="o">=</span> <span class="n">T</span> <span class="o">-</span> <span class="mf">273.15</span>
     
-    <span class="c"># Get the fit coefficients</span>
+    <span class="c1"># Get the fit coefficients</span>
     <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.5700386464E-01</span><span class="p">,</span> <span class="mf">6.4992620050E+01</span><span class="p">,</span> <span class="o">-</span><span class="mf">9.1296496657E+01</span><span class="p">,</span>
                   <span class="mf">4.2844324477E-05</span><span class="p">,</span> <span class="mf">1.5409136040E+00</span><span class="p">,</span> <span class="mf">1.9981117208E-02</span><span class="p">,</span>
                   <span class="o">-</span><span class="mf">9.5203865864E-05</span><span class="p">,</span> <span class="mf">7.9739318223E+00</span><span class="p">,</span> <span class="o">-</span><span class="mf">7.5614568881E-02</span><span class="p">,</span>
                   <span class="mf">4.7237011074E-04</span><span class="p">])</span>
                   
-    <span class="c"># Compute the viscosity of pure water at given temperature</span>
+    <span class="c1"># Compute the viscosity of pure water at given temperature</span>
     <span class="n">mu_w</span> <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="mf">1.</span><span class="o">/</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">T</span> <span class="o">+</span> <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">a</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
     
-    <span class="c"># Correct for salinity</span>
+    <span class="c1"># Correct for salinity</span>
     <span class="n">S</span> <span class="o">=</span> <span class="n">S</span> <span class="o">/</span> <span class="mf">1000.</span>
     <span class="n">A</span> <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">+</span> <span class="n">a</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">*</span> <span class="n">T</span> <span class="o">+</span> <span class="n">a</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">*</span> <span class="n">T</span><span class="o">**</span><span class="mi">2</span>
     <span class="n">B</span> <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span> <span class="o">+</span> <span class="n">a</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span> <span class="o">*</span> <span class="n">T</span> <span class="o">+</span> <span class="n">a</span><span class="p">[</span><span class="mi">9</span><span class="p">]</span> <span class="o">*</span> <span class="n">T</span><span class="o">**</span><span class="mi">2</span>
     <span class="n">mu_0</span> <span class="o">=</span> <span class="n">mu_w</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">+</span> <span class="n">A</span> <span class="o">*</span> <span class="n">S</span> <span class="o">+</span> <span class="n">B</span> <span class="o">*</span> <span class="n">S</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
     
-    <span class="c"># And finally for pressure</span>
+    <span class="c1"># And finally for pressure</span>
     <span class="n">P</span> <span class="o">=</span> <span class="n">P</span> <span class="o">*</span> <span class="mf">0.00014503773800721815</span>
     <span class="n">mu</span> <span class="o">=</span> <span class="n">mu_0</span> <span class="o">*</span> <span class="p">(</span><span class="mf">0.9994</span> <span class="o">+</span> <span class="mf">4.0295e-5</span> <span class="o">*</span> <span class="n">P</span> <span class="o">+</span> <span class="mf">3.1062e-9</span> <span class="o">*</span> <span class="n">P</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
     
-    <span class="c"># Return the in situ dynamic viscosity</span>
-    <span class="k">return</span> <span class="n">mu</span>
-</div>
+    <span class="c1"># Return the in situ dynamic viscosity</span>
+    <span class="k">return</span> <span class="n">mu</span></div>
+
 <div class="viewcode-block" id="sigma"><a class="viewcode-back" href="../seawater/seawater.sigma.html#seawater.sigma">[docs]</a><span class="k">def</span> <span class="nf">sigma</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">S</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute the surface tension of seawater</span>
@@ -190,25 +180,25 @@
 <span class="sd">        interfacial tension of air in seawater (N/m)</span>
 <span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c"># Equations in Sharqawy using deg C and g/kg</span>
+    <span class="c1"># Equations in Sharqawy using deg C and g/kg</span>
     <span class="n">T</span> <span class="o">=</span> <span class="n">T</span> <span class="o">-</span> <span class="mf">273.15</span>
     <span class="n">S</span> <span class="o">=</span> <span class="n">S</span> <span class="o">/</span> <span class="mf">1000.</span>
     
-    <span class="c"># Use equations (27) for pure water surface tension (N/m)</span>
+    <span class="c1"># Use equations (27) for pure water surface tension (N/m)</span>
     <span class="n">sigma_w</span> <span class="o">=</span> <span class="mf">0.2358</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="p">(</span><span class="n">T</span> <span class="o">+</span> <span class="mf">273.15</span><span class="p">)</span> <span class="o">/</span> <span class="mf">647.096</span><span class="p">)</span><span class="o">**</span><span class="mf">1.256</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="mf">0.625</span> <span class="o">*</span> 
               <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="p">(</span><span class="n">T</span> <span class="o">+</span> <span class="mf">273.15</span><span class="p">)</span> <span class="o">/</span> <span class="mf">647.096</span><span class="p">))</span>
     
-    <span class="c"># Equation (28) gives the salinity correction</span>
+    <span class="c1"># Equation (28) gives the salinity correction</span>
     <span class="k">if</span> <span class="n">T</span> <span class="o">&lt;</span> <span class="mi">40</span><span class="p">:</span>
-        <span class="c"># Salinity correction only valid [0, 40] deg C</span>
+        <span class="c1"># Salinity correction only valid [0, 40] deg C</span>
         <span class="n">sigma</span> <span class="o">=</span> <span class="n">sigma_w</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">+</span> <span class="p">(</span><span class="mf">0.000226</span> <span class="o">*</span> <span class="n">T</span> <span class="o">+</span> <span class="mf">0.00946</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">1.</span> <span class="o">+</span> <span class="mf">0.0331</span> <span class="o">*</span> 
                 <span class="n">S</span><span class="p">))</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="c"># No available salinity correction for hot cases</span>
+        <span class="c1"># No available salinity correction for hot cases</span>
         <span class="n">sigma</span> <span class="o">=</span> <span class="n">sigma_w</span>
     
-    <span class="k">return</span> <span class="n">sigma</span>
-</div>
+    <span class="k">return</span> <span class="n">sigma</span></div>
+
 <div class="viewcode-block" id="k"><a class="viewcode-back" href="../seawater/seawater.k.html#seawater.k">[docs]</a><span class="k">def</span> <span class="nf">k</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">P</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute the thermal conductivity of seawater</span>
@@ -239,28 +229,28 @@
 <span class="sd">    30 deg C.  </span>
 <span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c"># Thermal conductivity equations use T_68 in deg C</span>
+    <span class="c1"># Thermal conductivity equations use T_68 in deg C</span>
     <span class="n">T_68</span> <span class="o">=</span> <span class="p">(</span><span class="n">T</span> <span class="o">-</span> <span class="mf">0.0682875</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="mf">0.00025</span><span class="p">)</span>
     <span class="n">T_68</span>  <span class="o">=</span> <span class="n">T_68</span> <span class="o">-</span> <span class="mf">273.15</span>
     
-    <span class="c"># Salinity is in g/kg and pressure in MPa</span>
+    <span class="c1"># Salinity is in g/kg and pressure in MPa</span>
     <span class="n">S</span> <span class="o">=</span> <span class="n">S</span> <span class="o">/</span> <span class="mf">1000.</span>
     <span class="n">P</span> <span class="o">=</span> <span class="n">P</span> <span class="o">*</span> <span class="mf">1e-6</span>
     
-    <span class="c"># Compute the thermal conductivity from Table 4</span>
+    <span class="c1"># Compute the thermal conductivity from Table 4</span>
     <span class="k">if</span> <span class="n">T_68</span> <span class="o">&lt;</span> <span class="mf">30.</span><span class="p">:</span>
-        <span class="c"># Equation (15)</span>
+        <span class="c1"># Equation (15)</span>
         <span class="n">k_sw</span> <span class="o">=</span> <span class="mf">0.55286</span> <span class="o">+</span> <span class="mf">3.4025e-4</span> <span class="o">*</span> <span class="n">P</span> <span class="o">+</span> <span class="mf">1.8364e-3</span> <span class="o">*</span> <span class="n">T_68</span> <span class="o">-</span> <span class="mf">3.3058e-7</span> <span class="o">*</span> \
                <span class="n">T_68</span><span class="o">**</span><span class="mi">3</span>
         
     <span class="k">else</span><span class="p">:</span>
-        <span class="c"># Equation (13)</span>
+        <span class="c1"># Equation (13)</span>
         <span class="n">k_sw</span> <span class="o">=</span> <span class="mf">10.</span><span class="o">**</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="mf">240.</span> <span class="o">+</span> <span class="mf">0.0002</span> <span class="o">*</span> <span class="n">S</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.434</span> <span class="o">*</span> <span class="p">(</span><span class="mf">2.3</span> <span class="o">-</span> <span class="p">(</span><span class="mf">343.5</span> <span class="o">+</span> 
                <span class="mf">0.037</span> <span class="o">*</span> <span class="n">S</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">T_68</span> <span class="o">+</span> <span class="mf">273.15</span><span class="p">))</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="p">(</span><span class="n">T_68</span> <span class="o">+</span> <span class="mf">273.15</span><span class="p">)</span> <span class="o">/</span> 
                <span class="p">(</span><span class="mf">647.</span> <span class="o">+</span> <span class="mf">0.03</span> <span class="o">*</span> <span class="n">S</span><span class="p">))</span> <span class="o">**</span> <span class="mf">0.333</span><span class="p">)</span> <span class="o">/</span> <span class="mf">1000.</span>
     
-    <span class="k">return</span> <span class="n">k_sw</span>
-    </div>
+    <span class="k">return</span> <span class="n">k_sw</span></div>
+    
 <div class="viewcode-block" id="cp"><a class="viewcode-back" href="../seawater/seawater.cp.html#seawater.cp">[docs]</a><span class="k">def</span> <span class="nf">cp</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute the heat capacity of seawater at fixed conditions</span>
@@ -291,8 +281,9 @@
 <span class="sd">    rho_0.  This is known as the Boussinesq approximation.  </span>
 <span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="mf">3997.4</span>
-</pre></div></div>
+    <span class="k">return</span> <span class="mf">3997.4</span></div>
+
+</pre></div>
 
           </div>
         </div>
@@ -301,19 +292,24 @@
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../contents.html">
               <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
-            </a></p>
+            </a></p><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../contents.html">Documentation overview</a><ul>
+  <li><a href="index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
 
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
 
@@ -325,8 +321,8 @@
       &copy;2015, Scott A. Socolofsky.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
     </div>
 

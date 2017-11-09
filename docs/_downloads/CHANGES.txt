@@ -1,3 +1,14 @@
+V1.1.1, November 2017 --
+   . Updated the way interp1d is used inside the ambient.get_values command
+     for scalar input.  The model assumed a row vector would be created, but
+     a column is returned.  In newer versions of numpy, this seems to create
+     a problem.  Used .transpose() to switch column into a row.
+   . Updated some of the examples in the ./bin directory so that they only 
+     read data from the ./tamoc/data directory which comes with tamoc.  In 
+     some of the examples, I was using data in ./test/output, but this data
+     may not exist if the user has not run any of the tests yet.  
+   . Updates all of the test cases to be compatible with the small changes
+     in the dbm module that were included in version 1.1.0.  All test cases
 V1.1.0, October 2017 --
    . Updated particles_from_mb0 in the stratified plume model to pass the
      variable t_hyd to dispersed_phases.PlumeParticle.
@@ -10,7 +21,9 @@ V1.1.0, October 2017 --
      all examples are compatible with the present version of the code.
    . Updated dbm.py to be compatible with newer versions of Scipy.
    . Fixed an error in the test_sbm.py in which a required output file is 
-     created with a double .txt extension.  
+     created with a double .txt extension.
+   . Updated the discrete bubble model so that fp_type is always an integer
+     since it is used as an index to arrays.
 V1.0.0, October 2015 -- 
    . Finalized all validation cases and tested model for release as version
      1.0.0.  

@@ -1,53 +1,39 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Params Module User’s Guide &mdash; Texas A&amp;M Oilspill Calculator v1.1 Manual</title>
-    
+    <title>Params Module User’s Guide &#8212; Texas A&amp;M Oilspill Calculator v1.1 Manual</title>
     <link rel="stylesheet" href="../_static/scipy.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.1.0',
+        VERSION:     '1.1.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Texas A&amp;M Oilspill Calculator v1.1 Manual" href="../contents.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="scales" href="../scripts/params/scales.html" />
     <link rel="prev" title="particle_size_distribution" href="../scripts/sintef/particle_size_distribution.html" />
    
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="../scripts/params/scales.html" title="scales"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="../scripts/sintef/particle_size_distribution.html" title="particle_size_distribution"
-             accesskey="P">previous</a> |</li>
-<li><a href="../index.html">Texas A&M Oilspill Calculator v1.1 Manual</a> &raquo;</li>
- 
-      </ul>
-    </div>  
+  <body>
+  
 
     <div class="document">
       <div class="documentwrapper">
@@ -55,14 +41,14 @@
           <div class="body" role="main">
             
   <div class="section" id="params-module-user-s-guide">
-<h1>Params Module User&#8217;s Guide<a class="headerlink" href="#params-module-user-s-guide" title="Permalink to this headline">¶</a></h1>
+<h1>Params Module User’s Guide<a class="headerlink" href="#params-module-user-s-guide" title="Permalink to this headline">¶</a></h1>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">1.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">October 31, 2017</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">Nov 08, 2017</td>
 </tr>
 </tbody>
 </table>
@@ -92,35 +78,35 @@ tasks as setting up the <a class="reference internal" href="../modules/spm.html#
 to read in ambient CTD data and create a list of dispersed phase
 <em class="xref py py-obj">stratified_plume_model.Particle</em> objects.  For more details on the data
 needed to run the plume models, see the examples in the <a href="#id1"><span class="problematic" id="id2">`Stratified Plume
-Model User&#8217;s Guide`_</span></a></p>
+Model User's Guide`_</span></a></p>
 <p>Before running the examples here, be sure to install the <code class="docutils literal"><span class="pre">TAMOC</span></code> package and
 run all of the tests in the <code class="docutils literal"><span class="pre">./test</span></code> directory. The commands below should be
 executed in an IPython session. Start IPython by executing:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">ipython</span> <span class="o">--</span><span class="n">pylab</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">ipython</span> <span class="o">--</span><span class="n">pylab</span>
 </pre></div>
 </div>
 <p>at the command prompt.</p>
 <p>Import the <code class="docutils literal"><span class="pre">TAMOC</span></code> modules that will be needed for this example:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">tamoc</span> <span class="kn">import</span> <span class="n">ambient</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">tamoc</span> <span class="kn">import</span> <span class="n">dbm</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">tamoc</span> <span class="kn">import</span> <span class="n">stratified_plume_model</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">tamoc</span> <span class="kn">import</span> <span class="n">params</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">tamoc</span> <span class="k">import</span> <span class="n">ambient</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">tamoc</span> <span class="k">import</span> <span class="n">dbm</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">tamoc</span> <span class="k">import</span> <span class="n">stratified_plume_model</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">tamoc</span> <span class="k">import</span> <span class="n">params</span>
 </pre></div>
 </div>
-<p>To compute the &#8220;<em>in situ</em>&#8221; properties of the dispersed phase particles, we
+<p>To compute the “<em>in situ</em>” properties of the dispersed phase particles, we
 need to have ambient CTD data:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">profile</span> <span class="o">=</span> <span class="n">ambient</span><span class="o">.</span><span class="n">Profile</span><span class="p">(</span><span class="s">&#39;../test/output/test_BM54.nc&#39;</span><span class="p">,</span> <span class="n">chem_names</span><span class="o">=</span><span class="s">&#39;all&#39;</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">profile</span> <span class="o">=</span> <span class="n">ambient</span><span class="o">.</span><span class="n">Profile</span><span class="p">(</span><span class="s1">&#39;../test/output/test_BM54.nc&#39;</span><span class="p">,</span> <span class="n">chem_names</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The next step is to select a release depth and temperature for the plume
 origin:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">z0</span> <span class="o">=</span> <span class="mf">1000.</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">z0</span> <span class="o">=</span> <span class="mf">1000.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">T0</span> <span class="o">=</span> <span class="mf">273.15</span> <span class="o">+</span> <span class="mf">35.</span>
 </pre></div>
 </div>
 <p>For this example, we will consider a pure gas release with the following
 properties:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">composition</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;methane&#39;</span><span class="p">,</span> <span class="s">&#39;ethane&#39;</span><span class="p">,</span> <span class="s">&#39;propane&#39;</span><span class="p">,</span> <span class="s">&#39;oxygen&#39;</span><span class="p">]</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">composition</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;methane&#39;</span><span class="p">,</span> <span class="s1">&#39;ethane&#39;</span><span class="p">,</span> <span class="s1">&#39;propane&#39;</span><span class="p">,</span> <span class="s1">&#39;oxygen&#39;</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">yk</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.93</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">gas</span> <span class="o">=</span> <span class="n">dbm</span><span class="o">.</span><span class="n">FluidParticle</span><span class="p">(</span><span class="n">composition</span><span class="p">)</span>
 </pre></div>
@@ -129,7 +115,7 @@ properties:</p>
 In this example, we will consider one particle size class. the <a class="reference internal" href="../scripts/params/scales.html#module-scales" title="scales"><code class="xref py py-obj docutils literal"><span class="pre">scales</span></code></a> script
 listed above demonstrates how to include multiple particles in the
 simulation:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">disp_phases</span> <span class="o">=</span> <span class="p">[]</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">disp_phases</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">mb0</span> <span class="o">=</span> <span class="mf">8.0</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">de</span> <span class="o">=</span> <span class="mf">0.01</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">lambda_1</span> <span class="o">=</span> <span class="mf">0.85</span>
@@ -137,7 +123,7 @@ simulation:</p>
 </pre></div>
 </div>
 <p>The inputs are now collected to create the <a class="reference internal" href="../modules/params.html#params.Scales" title="params.Scales"><code class="xref py py-obj docutils literal"><span class="pre">params.Scales</span></code></a> object:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">Scales</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">disp_phases</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">Scales</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">disp_phases</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The <a class="reference internal" href="../modules/params.html#params.Scales" title="params.Scales"><code class="xref py py-obj docutils literal"><span class="pre">params.Scales</span></code></a> object performs two basic functions.  The first job of
@@ -145,7 +131,7 @@ the object is to compute the key independent variables describing the plume
 simulation.  This is accomplished by the <em class="xref py py-obj">params.get_variables</em> method.  This
 method is used by all the other internal methods, and would not normally be
 called by the user.  However, its functionality is demonstrated here:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">ua</span><span class="p">)</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">get_variables</span><span class="p">(</span><span class="n">z0</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">ua</span><span class="p">)</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">get_variables</span><span class="p">(</span><span class="n">z0</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">B</span>
 <span class="go">0.85410643976609724</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">N</span>
@@ -159,7 +145,7 @@ called by the user.  However, its functionality is demonstrated here:</p>
 <p>The second, and more important, role of the <a class="reference internal" href="../modules/params.html#params.Scales" title="params.Scales"><code class="xref py py-obj docutils literal"><span class="pre">params.Scales</span></code></a> object is to
 compute the characteristic scales of a given simulation setup.  For the
 geometric scales, this is achieved as follows:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">h_T</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">h_T</span><span class="p">(</span><span class="n">z0</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">h_T</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">h_T</span><span class="p">(</span><span class="n">z0</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">h_T</span>
 <span class="go">329.25679149878414</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">h_P</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">h_P</span><span class="p">(</span><span class="n">z0</span><span class="p">)</span>
@@ -177,7 +163,7 @@ geometric scales, this is achieved as follows:</p>
 chosen by the user), the slip velocity of the bubbles (computed by the
 <em class="xref py py-obj">get_variables</em> method above), or the critical crossflow velocity, defined
 as the velocity at which <code class="docutils literal"><span class="pre">h_S</span> <span class="pre">=</span> <span class="pre">h_P</span></code>.  This is computed as follows:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">ua_crit</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">u_inf_crit</span><span class="p">(</span><span class="n">z0</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ua_crit</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">u_inf_crit</span><span class="p">(</span><span class="n">z0</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ua_crit</span>
 <span class="go">0.14348700121799565</span>
 </pre></div>
@@ -196,41 +182,40 @@ as the velocity at which <code class="docutils literal"><span class="pre">h_S</s
             </a></p>
   <h3><a href="../contents.html">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">Params Module User&#8217;s Guide</a><ul>
+<li><a class="reference internal" href="#">Params Module User’s Guide</a><ul>
 <li><a class="reference internal" href="#scripts">Scripts</a></li>
 <li><a class="reference internal" href="#examples">Examples</a></li>
 </ul>
 </li>
 </ul>
-
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="../scripts/sintef/particle_size_distribution.html"
-                        title="previous chapter">particle_size_distribution</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="../scripts/params/scales.html"
-                        title="next chapter">scales</a></p>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../contents.html">Documentation overview</a><ul>
+      <li>Previous: <a href="../scripts/sintef/particle_size_distribution.html" title="previous chapter">particle_size_distribution</a></li>
+      <li>Next: <a href="../scripts/params/scales.html" title="next chapter">scales</a></li>
+  </ul></li>
+</ul>
+</div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/params/guide.txt"
+      <li><a href="../_sources/params/guide.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <ul class="this-page-menu">
-  <li><a href="/numpy/docs/numpy-docs/params/guide.rst">Edit page</a></li>
+  <li><a href="/numpy/docs/numpy-docs/params/guide.rst.rst">Edit page</a></li>
 </ul>
 
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
 
@@ -242,12 +227,12 @@ as the velocity at which <code class="docutils literal"><span class="pre">h_S</s
       &copy;2015, Scott A. Socolofsky.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
-      <a href="../_sources/params/guide.txt"
-          rel="nofollow">Page source</a></li>
+      <a href="../_sources/params/guide.rst.txt"
+          rel="nofollow">Page source</a>
     </div>
 
     

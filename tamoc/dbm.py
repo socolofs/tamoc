@@ -601,9 +601,7 @@ class FluidMixture(object):
         It is assumed that the mixture is at the same pressure as the ambient 
         seawater and that the temperature at the interface is that of the 
         mixture.
-        
-        Notes
-        -----
+
         Uses the Fortran subroutines in ``./src/dbm_eos.f95``.
         
         """

@@ -1,55 +1,39 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>profile_from_roms &mdash; Texas A&amp;M Oilspill Calculator v1.1 Manual</title>
-    
+    <title>profile_from_roms &#8212; Texas A&amp;M Oilspill Calculator v1.1 Manual</title>
     <link rel="stylesheet" href="../../_static/scipy.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '1.1.0',
+        VERSION:     '1.1.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="Texas A&amp;M Oilspill Calculator v1.1 Manual" href="../../contents.html" />
-    <link rel="up" title="Reference" href="../../modules/reference.html" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="profile_extending" href="profile_extending.html" />
-    <link rel="prev" title="profile_from_txt" href="profile_from_txt.html" />
+    <link rel="prev" title="profile_from_lab" href="profile_from_lab.html" />
    
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="profile_extending.html" title="profile_extending"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="profile_from_txt.html" title="profile_from_txt"
-             accesskey="P">previous</a> |</li>
-<li><a href="../../index.html">Texas A&M Oilspill Calculator v1.1 Manual</a> &raquo;</li>
-
-          <li class="nav-item nav-item-1"><a href="../../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
-      </ul>
-    </div>  
+  <body>
+  
 
     <div class="document">
       <div class="documentwrapper">
@@ -64,7 +48,7 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">1.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">October 31, 2017</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">Nov 08, 2017</td>
 </tr>
 </tbody>
 </table>
@@ -82,9 +66,9 @@ provided to the script file to generate fully-annotated Profile objects.</p>
 <div class="section" id="requires">
 <h3>Requires<a class="headerlink" href="#requires" title="Permalink to this headline">¶</a></h3>
 <p>The ROMS netCDF files do not directly store the depth information, and the 
-external package <em class="xref py py-obj">octant.roms</em> is used to tranlsate the ROMS data.  In 
+external package <code class="xref py py-obj docutils literal"><span class="pre">octant.roms</span></code> is used to tranlsate the ROMS data.  In 
 addition, this script reads ROMS data from a THREDDS server in the file:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="s">&#39;http://barataria.tamu.edu:8080/thredds/dodsC/ROMS_Daily/08122012/&#39;</span> <span class="o">+</span>     <span class="s">&#39;ocean_his_08122012_24.nc&#39;</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="s1">&#39;http://barataria.tamu.edu:8080/thredds/dodsC/ROMS_Daily/08122012/&#39;</span> <span class="o">+</span>     <span class="s1">&#39;ocean_his_08122012_24.nc&#39;</span>
 </pre></div>
 </div>
 </div>
@@ -92,7 +76,7 @@ addition, this script reads ROMS data from a THREDDS server in the file:</p>
 <h3>Returns<a class="headerlink" href="#returns" title="Permalink to this headline">¶</a></h3>
 <p>This script generates a <a class="reference internal" href="../../modules/ambient.html#ambient.Profile" title="ambient.Profile"><code class="xref py py-obj docutils literal"><span class="pre">ambient.Profile</span></code></a> object, whose netCDF file is written
 to the file:</p>
-<div class="highlight-python"><div class="highlight"><pre>./Profiles/Profiles/roms.nc
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">Profiles</span><span class="o">/</span><span class="n">Profiles</span><span class="o">/</span><span class="n">roms</span><span class="o">.</span><span class="n">nc</span>
 </pre></div>
 </div>
 </div>
@@ -120,35 +104,36 @@ to the file:</p>
 </ul>
 </li>
 </ul>
-
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="profile_from_txt.html"
-                        title="previous chapter">profile_from_txt</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="profile_extending.html"
-                        title="next chapter">profile_extending</a></p>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../contents.html">Documentation overview</a><ul>
+  <li><a href="../../ambient/guide.html">Ambient Module Users Guide</a><ul>
+      <li>Previous: <a href="profile_from_lab.html" title="previous chapter">profile_from_lab</a></li>
+      <li>Next: <a href="profile_extending.html" title="next chapter">profile_extending</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../../_sources/scripts/ambient/profile_from_roms.txt"
+      <li><a href="../../_sources/scripts/ambient/profile_from_roms.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <ul class="this-page-menu">
-  <li><a href="/numpy/docs/numpy-docs/scripts/ambient/profile_from_roms.rst">Edit page</a></li>
+  <li><a href="/numpy/docs/numpy-docs/scripts/ambient/profile_from_roms.rst.rst">Edit page</a></li>
 </ul>
 
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
 
@@ -160,12 +145,12 @@ to the file:</p>
       &copy;2015, Scott A. Socolofsky.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
-      <a href="../../_sources/scripts/ambient/profile_from_roms.txt"
-          rel="nofollow">Page source</a></li>
+      <a href="../../_sources/scripts/ambient/profile_from_roms.rst.txt"
+          rel="nofollow">Page source</a>
     </div>
 
     

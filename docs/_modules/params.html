@@ -1,47 +1,37 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>params &mdash; Texas A&amp;M Oilspill Calculator v1.1 Manual</title>
-    
+    <title>params &#8212; Texas A&amp;M Oilspill Calculator v1.1 Manual</title>
     <link rel="stylesheet" href="../_static/scipy.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.1.0',
+        VERSION:     '1.1.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Texas A&amp;M Oilspill Calculator v1.1 Manual" href="../contents.html" />
-    <link rel="up" title="Module code" href="index.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
    
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-<li><a href="../index.html">Texas A&M Oilspill Calculator v1.1 Manual</a> &raquo;</li>
-
-          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
-      </ul>
-    </div>  
+  <body>
+  
 
     <div class="document">
       <div class="documentwrapper">
@@ -49,7 +39,7 @@
           <div class="body" role="main">
             
   <h1>Source code for params</h1><div class="highlight"><pre>
-<span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Params Module</span>
 <span class="sd">=============</span>
 
@@ -60,14 +50,14 @@
 <span class="sd">uses this information to recommend the appropriate simulation model.  </span>
 
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="c"># S. Socolofsky, October 2013, Texas A&amp;M University &lt;socolofs@tamu.edu&gt;.</span>
+<span class="c1"># S. Socolofsky, October 2013, Texas A&amp;M University &lt;socolofs@tamu.edu&gt;.</span>
 
-<span class="kn">from</span> <span class="nn">tamoc</span> <span class="kn">import</span> <span class="n">seawater</span>
+<span class="kn">from</span> <span class="nn">tamoc</span> <span class="k">import</span> <span class="n">seawater</span>
 
-<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">fsolve</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="k">import</span> <span class="n">fsolve</span>
 
 <div class="viewcode-block" id="Scales"><a class="viewcode-back" href="../modules/params.html#params.Scales">[docs]</a><span class="k">class</span> <span class="nc">Scales</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -94,16 +84,16 @@
 <span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">particles</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">Scales</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
-        <span class="c"># Check the data type of the inputs and fix if necessary</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Scales</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="c1"># Check the data type of the inputs and fix if necessary</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">particles</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="n">particles</span> <span class="o">=</span> <span class="p">[</span><span class="n">particles</span><span class="p">]</span>
         
-        <span class="c"># Store the ambient profile data and close any open netCDF files</span>
+        <span class="c1"># Store the ambient profile data and close any open netCDF files</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">profile</span> <span class="o">=</span> <span class="n">profile</span>
         <span class="n">profile</span><span class="o">.</span><span class="n">close_nc</span><span class="p">()</span>
         
-        <span class="c"># Store the dispersed phase particles</span>
+        <span class="c1"># Store the dispersed phase particles</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">particles</span> <span class="o">=</span> <span class="n">particles</span>
     
     <span class="k">def</span> <span class="nf">simulate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z_0</span><span class="p">,</span> <span class="n">u_inf</span><span class="p">):</span>
@@ -111,53 +101,53 @@
 <span class="sd">        docstring for simulate</span>
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c"># Get the empirical model parameters</span>
+        <span class="c1"># Get the empirical model parameters</span>
         <span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">u_slip</span><span class="p">,</span> <span class="n">u_inf</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_variables</span><span class="p">(</span><span class="n">z_0</span><span class="p">,</span> <span class="n">u_inf</span><span class="p">)</span>
         
-        <span class="c"># Report the results of the calculations to the screen</span>
-        <span class="k">print</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">-- TEXAS A&amp;M OIL-SPILL CALCULATOR (TAMOC) --&#39;</span>
-        <span class="k">print</span> <span class="s">&#39;-- Empirical Plume Model                  --</span><span class="se">\n</span><span class="s">&#39;</span>
+        <span class="c1"># Report the results of the calculations to the screen</span>
+        <span class="nb">print</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">-- TEXAS A&amp;M OIL-SPILL CALCULATOR (TAMOC) --&#39;</span>
+        <span class="nb">print</span> <span class="s1">&#39;-- Empirical Plume Model                  --</span><span class="se">\n</span><span class="s1">&#39;</span>
         <span class="n">epm_soln</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">epm_soln</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;Model Parameters:</span><span class="se">\n\n</span><span class="s">&#39;</span><span class="p">)</span>
-        <span class="n">epm_soln</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;   z       = </span><span class="si">%f</span><span class="s"> (m)</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">z_0</span><span class="p">)</span>
-        <span class="n">epm_soln</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;   B       = </span><span class="si">%f</span><span class="s"> (m^4/s^3)</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">B</span><span class="p">)</span>
-        <span class="n">epm_soln</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;   N       = </span><span class="si">%f</span><span class="s"> (s^(-1))</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">N</span><span class="p">)</span>
-        <span class="n">epm_soln</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;   u_slip  = </span><span class="si">%f</span><span class="s"> (m/s)</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">u_slip</span><span class="p">)</span>
-        <span class="n">epm_soln</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;   ua      = </span><span class="si">%f</span><span class="s"> (m/s)</span><span class="se">\n\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">u_inf</span><span class="p">)</span>
-        <span class="n">epm_soln</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;Model Solution:</span><span class="se">\n\n</span><span class="s">&#39;</span><span class="p">)</span>
-        <span class="n">epm_soln</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;   h_T     = </span><span class="si">%f</span><span class="s"> (m)</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">h_T</span><span class="p">(</span><span class="n">z_0</span><span class="p">))</span>
-        <span class="n">epm_soln</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;   h_P     = </span><span class="si">%f</span><span class="s"> (m)</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">h_P</span><span class="p">(</span><span class="n">z_0</span><span class="p">))</span>
-        <span class="n">epm_soln</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;   h_S     = </span><span class="si">%f</span><span class="s"> (m)</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">h_S</span><span class="p">(</span><span class="n">z_0</span><span class="p">,</span> <span class="n">u_inf</span><span class="p">))</span>
-        <span class="n">epm_soln</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;   ua_crit = </span><span class="si">%f</span><span class="s"> (m/s)</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">u_inf_crit</span><span class="p">(</span><span class="n">z_0</span><span class="p">))</span>
-        <span class="k">print</span> <span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">epm_soln</span><span class="p">)</span>
+        <span class="n">epm_soln</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Model Parameters:</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">epm_soln</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;   z       = </span><span class="si">%f</span><span class="s1"> (m)</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">z_0</span><span class="p">)</span>
+        <span class="n">epm_soln</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;   B       = </span><span class="si">%f</span><span class="s1"> (m^4/s^3)</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">B</span><span class="p">)</span>
+        <span class="n">epm_soln</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;   N       = </span><span class="si">%f</span><span class="s1"> (s^(-1))</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">N</span><span class="p">)</span>
+        <span class="n">epm_soln</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;   u_slip  = </span><span class="si">%f</span><span class="s1"> (m/s)</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">u_slip</span><span class="p">)</span>
+        <span class="n">epm_soln</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;   ua      = </span><span class="si">%f</span><span class="s1"> (m/s)</span><span class="se">\n\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">u_inf</span><span class="p">)</span>
+        <span class="n">epm_soln</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Model Solution:</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">epm_soln</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;   h_T     = </span><span class="si">%f</span><span class="s1"> (m)</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">h_T</span><span class="p">(</span><span class="n">z_0</span><span class="p">))</span>
+        <span class="n">epm_soln</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;   h_P     = </span><span class="si">%f</span><span class="s1"> (m)</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">h_P</span><span class="p">(</span><span class="n">z_0</span><span class="p">))</span>
+        <span class="n">epm_soln</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;   h_S     = </span><span class="si">%f</span><span class="s1"> (m)</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">h_S</span><span class="p">(</span><span class="n">z_0</span><span class="p">,</span> <span class="n">u_inf</span><span class="p">))</span>
+        <span class="n">epm_soln</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;   ua_crit = </span><span class="si">%f</span><span class="s1"> (m/s)</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">u_inf_crit</span><span class="p">(</span><span class="n">z_0</span><span class="p">))</span>
+        <span class="nb">print</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">epm_soln</span><span class="p">)</span>
     
     <span class="k">def</span> <span class="nf">save_txt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z0</span><span class="p">,</span> <span class="n">u_inf</span><span class="p">,</span> <span class="n">base_name</span><span class="p">,</span> <span class="n">profile_path</span><span class="p">,</span> <span class="n">profile_info</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Save the results to a text file</span>
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c"># Create the header information</span>
-        <span class="n">p_list</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;Empirical Plume Model ASCII output File </span><span class="se">\n</span><span class="s">&#39;</span><span class="p">]</span>
-        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;Created: &#39;</span> <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(</span><span class="s">&#39; &#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
-        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;Simulation based on CTD data in:</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="c1"># Create the header information</span>
+        <span class="n">p_list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Empirical Plume Model ASCII output File </span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">]</span>
+        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Created: &#39;</span> <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Simulation based on CTD data in:</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">profile_path</span><span class="p">)</span>
-        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">profile_info</span><span class="p">)</span>
-        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n\n</span><span class="s">&#39;</span><span class="p">)</span>
-        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;Row Descriptions:</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
-        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;    0: release depth (m)</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
-        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;    1: trap height h_T (m)</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
-        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;    2: peel height h_P (m)</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
-        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;    3: separation height h_S (m)</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
-        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;    4: critical crossflow u_inf_crit (m/s)</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
-        <span class="n">header</span> <span class="o">=</span> <span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">p_list</span><span class="p">)</span>
+        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Row Descriptions:</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;    0: release depth (m)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;    1: trap height h_T (m)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;    2: peel height h_P (m)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;    3: separation height h_S (m)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;    4: critical crossflow u_inf_crit (m/s)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">p_list</span><span class="p">)</span>
         
-        <span class="c"># Assemble and write the solution data</span>
+        <span class="c1"># Assemble and write the solution data</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">z0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">h_T</span><span class="p">(</span><span class="n">z0</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">h_P</span><span class="p">(</span><span class="n">z0</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">h_S</span><span class="p">(</span><span class="n">z0</span><span class="p">,</span> <span class="n">u_inf</span><span class="p">),</span> 
                <span class="bp">self</span><span class="o">.</span><span class="n">u_inf_crit</span><span class="p">(</span><span class="n">z0</span><span class="p">)])</span>
-        <span class="k">print</span> <span class="n">data</span>
-        <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="n">base_name</span> <span class="o">+</span> <span class="s">&#39;.txt&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">base_name</span> <span class="o">+</span> <span class="s">&#39;_header.txt&#39;</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">dat_file</span><span class="p">:</span>
+        <span class="nb">print</span> <span class="n">data</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="n">base_name</span> <span class="o">+</span> <span class="s1">&#39;.txt&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">base_name</span> <span class="o">+</span> <span class="s1">&#39;_header.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">dat_file</span><span class="p">:</span>
             <span class="n">dat_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
     
 <div class="viewcode-block" id="Scales.get_variables"><a class="viewcode-back" href="../params/params.Scales.get_variables.html#params.Scales.get_variables">[docs]</a>    <span class="k">def</span> <span class="nf">get_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z0</span><span class="p">,</span> <span class="n">u_inf</span><span class="p">):</span>
@@ -205,12 +195,12 @@
 <span class="sd">        in papers by Socolofsky and Adams (e.g., Socolofsky et al. 2011).</span>
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c"># Get the ambient data from the CTD profile</span>
-        <span class="n">Ta</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">P</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="n">z0</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;temperature&#39;</span><span class="p">,</span> <span class="s">&#39;salinity&#39;</span><span class="p">,</span>
-                                            <span class="s">&#39;pressure&#39;</span><span class="p">])</span>
+        <span class="c1"># Get the ambient data from the CTD profile</span>
+        <span class="n">Ta</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">P</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="n">z0</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;temperature&#39;</span><span class="p">,</span> <span class="s1">&#39;salinity&#39;</span><span class="p">,</span>
+                                            <span class="s1">&#39;pressure&#39;</span><span class="p">])</span>
         <span class="n">rho</span> <span class="o">=</span> <span class="n">seawater</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">Ta</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
         
-        <span class="c"># Compute the properties of each dispersed-phase particle</span>
+        <span class="c1"># Compute the properties of each dispersed-phase particle</span>
         <span class="n">us</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">))</span>
         <span class="n">rho_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">))</span>
         <span class="n">m_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">))</span>
@@ -220,33 +210,33 @@
             <span class="n">T0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">T0</span>
             <span class="n">m_p</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">m0</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">nb0</span>
             <span class="k">if</span> <span class="n">m_p</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">0.</span><span class="p">:</span>
-                <span class="c"># Particles exist, get properties.  Make sure the algorithm </span>
-                <span class="c"># uses the dirty bubble properties since this is supposed</span>
-                <span class="c"># to be the rise velocity averaged over the whole plume.</span>
+                <span class="c1"># Particles exist, get properties.  Make sure the algorithm </span>
+                <span class="c1"># uses the dirty bubble properties since this is supposed</span>
+                <span class="c1"># to be the rise velocity averaged over the whole plume.</span>
                 <span class="n">us</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">rho_p</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">properties</span><span class="p">(</span><span class="n">m0</span><span class="p">,</span> <span class="n">T0</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> 
                                  <span class="n">Ta</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span>
                 <span class="n">B_p</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">rho</span> <span class="o">-</span> <span class="n">rho_p</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">/</span> <span class="n">rho</span> <span class="o">*</span> <span class="mf">9.81</span> <span class="o">*</span> <span class="p">(</span><span class="n">m_p</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="n">rho_p</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="c"># Particles dissolved, set to ambient conditions</span>
+                <span class="c1"># Particles dissolved, set to ambient conditions</span>
                 <span class="n">us</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.</span>
                 <span class="n">rho_p</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">rho</span>
                 <span class="n">B_p</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.</span>
         
-        <span class="c"># Select the correct slip velocity</span>
+        <span class="c1"># Select the correct slip velocity</span>
         <span class="n">u_slip</span> <span class="o">=</span> <span class="n">us</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">B_p</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">B_p</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
                 <span class="n">u_slip</span> <span class="o">=</span> <span class="n">us</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
         
-        <span class="c"># Compute the total buoyancy flux</span>
+        <span class="c1"># Compute the total buoyancy flux</span>
         <span class="n">B</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">B_p</span><span class="p">)</span>
         
-        <span class="c"># Get the ambient buoyancy frequency</span>
+        <span class="c1"># Get the ambient buoyancy frequency</span>
         <span class="n">N</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">buoyancy_frequency</span><span class="p">(</span><span class="n">z0</span><span class="p">)</span>
         
-        <span class="c"># Return the governing parameters</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">u_slip</span><span class="p">,</span> <span class="n">u_inf</span><span class="p">)</span>
-    </div>
+        <span class="c1"># Return the governing parameters</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">u_slip</span><span class="p">,</span> <span class="n">u_inf</span><span class="p">)</span></div>
+    
 <div class="viewcode-block" id="Scales.h_T"><a class="viewcode-back" href="../params/params.Scales.h_T.html#params.Scales.h_T">[docs]</a>    <span class="k">def</span> <span class="nf">h_T</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute the trap height for the lowest intrusion</span>
@@ -266,15 +256,15 @@
 <span class="sd">            above the bottom (m)</span>
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c"># Get the governing variables</span>
+        <span class="c1"># Get the governing variables</span>
         <span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">u_slip</span><span class="p">,</span> <span class="n">u_inf</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_variables</span><span class="p">(</span><span class="n">z0</span><span class="p">,</span> <span class="mf">0.</span><span class="p">)</span>
         
-        <span class="c"># Compute U_N</span>
+        <span class="c1"># Compute U_N</span>
         <span class="n">U_N</span> <span class="o">=</span> <span class="n">u_slip</span> <span class="o">/</span> <span class="p">(</span><span class="n">B</span> <span class="o">*</span> <span class="n">N</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="mf">4.</span><span class="p">)</span>
         
-        <span class="c"># Compute the correlation equation</span>
-        <span class="k">return</span> <span class="mf">2.9</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">U_N</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="mf">28.09</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">B</span> <span class="o">/</span> <span class="n">N</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="mf">4.</span><span class="p">)</span>
-    </div>
+        <span class="c1"># Compute the correlation equation</span>
+        <span class="k">return</span> <span class="mf">2.9</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">U_N</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="mf">28.09</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">B</span> <span class="o">/</span> <span class="n">N</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="mf">4.</span><span class="p">)</span></div>
+    
 <div class="viewcode-block" id="Scales.h_P"><a class="viewcode-back" href="../params/params.Scales.h_P.html#params.Scales.h_P">[docs]</a>    <span class="k">def</span> <span class="nf">h_P</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute the peel height for the lowest intrusion</span>
@@ -295,15 +285,15 @@
 <span class="sd">            above the bottom (m)</span>
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c"># Get the governing variables</span>
+        <span class="c1"># Get the governing variables</span>
         <span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">u_slip</span><span class="p">,</span> <span class="n">u_inf</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_variables</span><span class="p">(</span><span class="n">z0</span><span class="p">,</span> <span class="mf">0.</span><span class="p">)</span>
         
-        <span class="c"># Compute U_N</span>
+        <span class="c1"># Compute U_N</span>
         <span class="n">U_N</span> <span class="o">=</span> <span class="n">u_slip</span> <span class="o">/</span> <span class="p">(</span><span class="n">B</span> <span class="o">*</span> <span class="n">N</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="mf">4.</span><span class="p">)</span>
         
-        <span class="c"># Compute the correlation equation</span>
-        <span class="k">return</span> <span class="mf">5.2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">U_N</span> <span class="o">-</span> <span class="mf">1.8</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="mf">10.24</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">B</span> <span class="o">/</span> <span class="n">N</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="mf">4.</span><span class="p">)</span>
-    </div>
+        <span class="c1"># Compute the correlation equation</span>
+        <span class="k">return</span> <span class="mf">5.2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">U_N</span> <span class="o">-</span> <span class="mf">1.8</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="mf">10.24</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">B</span> <span class="o">/</span> <span class="n">N</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="mf">4.</span><span class="p">)</span></div>
+    
 <div class="viewcode-block" id="Scales.h_S"><a class="viewcode-back" href="../params/params.Scales.h_S.html#params.Scales.h_S">[docs]</a>    <span class="k">def</span> <span class="nf">h_S</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z0</span><span class="p">,</span> <span class="n">u_inf</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute the cross-flow separation height</span>
@@ -326,12 +316,12 @@
 <span class="sd">            (m)</span>
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c"># Get the governing variables</span>
+        <span class="c1"># Get the governing variables</span>
         <span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">u_slip</span><span class="p">,</span> <span class="n">u_inf</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_variables</span><span class="p">(</span><span class="n">z0</span><span class="p">,</span> <span class="n">u_inf</span><span class="p">)</span>
         
-        <span class="c"># Compute the correlation equation</span>
-        <span class="k">return</span> <span class="mf">5.1</span> <span class="o">*</span> <span class="n">B</span> <span class="o">/</span> <span class="p">(</span><span class="n">u_inf</span> <span class="o">*</span> <span class="n">u_slip</span><span class="o">**</span><span class="mf">2.4</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="mf">0.88</span><span class="p">)</span>
-    </div>
+        <span class="c1"># Compute the correlation equation</span>
+        <span class="k">return</span> <span class="mf">5.1</span> <span class="o">*</span> <span class="n">B</span> <span class="o">/</span> <span class="p">(</span><span class="n">u_inf</span> <span class="o">*</span> <span class="n">u_slip</span><span class="o">**</span><span class="mf">2.4</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="mf">0.88</span><span class="p">)</span></div>
+    
 <div class="viewcode-block" id="Scales.lambda_1"><a class="viewcode-back" href="../params/params.Scales.lambda_1.html#params.Scales.lambda_1">[docs]</a>    <span class="k">def</span> <span class="nf">lambda_1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z0</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute the spreading ratio of particle n at the given depth</span>
@@ -355,24 +345,24 @@
 <span class="sd">            dispersed-phase particle.</span>
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c"># Get the governing variables</span>
+        <span class="c1"># Get the governing variables</span>
         <span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">u_slip</span><span class="p">,</span> <span class="n">u_inf</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_variables</span><span class="p">(</span><span class="n">z0</span><span class="p">,</span> <span class="mf">0.</span><span class="p">)</span>
         
-        <span class="c"># Compute the slip velocity for the selected dispersed-phase particle.</span>
-        <span class="c"># Make sure the algorithm uses the dirty bubble properties since this</span>
-        <span class="c"># is supposed to be the rise velocity averaged over the whole plume.</span>
-        <span class="n">Ta</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">P</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="n">z0</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;temperature&#39;</span><span class="p">,</span> <span class="s">&#39;salinity&#39;</span><span class="p">,</span>
-                                            <span class="s">&#39;pressure&#39;</span><span class="p">])</span>
+        <span class="c1"># Compute the slip velocity for the selected dispersed-phase particle.</span>
+        <span class="c1"># Make sure the algorithm uses the dirty bubble properties since this</span>
+        <span class="c1"># is supposed to be the rise velocity averaged over the whole plume.</span>
+        <span class="n">Ta</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">P</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="n">z0</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;temperature&#39;</span><span class="p">,</span> <span class="s1">&#39;salinity&#39;</span><span class="p">,</span>
+                                            <span class="s1">&#39;pressure&#39;</span><span class="p">])</span>
         <span class="n">u_slip</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">properties</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">m0</span><span class="p">,</span> 
                                               <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">T0</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> 
                                               <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         
-        <span class="c"># Compute the particle value of U_N</span>
+        <span class="c1"># Compute the particle value of U_N</span>
         <span class="n">U_N</span> <span class="o">=</span> <span class="n">u_slip</span> <span class="o">/</span> <span class="p">(</span><span class="n">B</span> <span class="o">*</span> <span class="n">N</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="mf">4.</span><span class="p">)</span>
         
-        <span class="c"># Get the spreading ratio</span>
-        <span class="k">return</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="mf">0.19</span> <span class="o">*</span> <span class="n">U_N</span><span class="o">**</span><span class="p">(</span><span class="mf">0.61</span><span class="p">)</span>
-    </div>
+        <span class="c1"># Get the spreading ratio</span>
+        <span class="k">return</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="mf">0.19</span> <span class="o">*</span> <span class="n">U_N</span><span class="o">**</span><span class="p">(</span><span class="mf">0.61</span><span class="p">)</span></div>
+    
 <div class="viewcode-block" id="Scales.u_inf_crit"><a class="viewcode-back" href="../params/params.Scales.u_inf_crit.html#params.Scales.u_inf_crit">[docs]</a>    <span class="k">def</span> <span class="nf">u_inf_crit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Determine the critical cross-flow velocity</span>
@@ -392,10 +382,10 @@
 <span class="sd">        </span>
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c"># Get h_P, which is independent of the crossflow velocity</span>
+        <span class="c1"># Get h_P, which is independent of the crossflow velocity</span>
         <span class="n">h_P</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">h_P</span><span class="p">(</span><span class="n">z0</span><span class="p">)</span>
         
-        <span class="c"># Define an objective function for root finding</span>
+        <span class="c1"># Define an objective function for root finding</span>
         <span class="k">def</span> <span class="nf">residual</span><span class="p">(</span><span class="n">us</span><span class="p">):</span>
             <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">            Residual for use in root finding to find u_inf_crit</span>
@@ -406,9 +396,10 @@
 <span class="sd">            &quot;&quot;&quot;</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">h_S</span><span class="p">(</span><span class="n">z0</span><span class="p">,</span> <span class="n">us</span><span class="p">)</span> <span class="o">-</span> <span class="n">h_P</span>
         
-        <span class="c"># Return the critical crossflow velocity</span>
-        <span class="k">return</span> <span class="n">fsolve</span><span class="p">(</span><span class="n">residual</span><span class="p">,</span> <span class="mf">0.0001</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-</pre></div></div></div>
+        <span class="c1"># Return the critical crossflow velocity</span>
+        <span class="k">return</span> <span class="n">fsolve</span><span class="p">(</span><span class="n">residual</span><span class="p">,</span> <span class="mf">0.0001</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span></div></div>
+
+</pre></div>
 
           </div>
         </div>
@@ -417,19 +408,24 @@
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../contents.html">
               <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
-            </a></p>
+            </a></p><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../contents.html">Documentation overview</a><ul>
+  <li><a href="index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
 
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
 
@@ -441,8 +437,8 @@
       &copy;2015, Scott A. Socolofsky.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
     </div>
 

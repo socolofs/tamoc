@@ -1,55 +1,39 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>dbm.successive_substitution &mdash; Texas A&amp;M Oilspill Calculator v1.1 Manual</title>
-    
+    <title>dbm.successive_substitution &#8212; Texas A&amp;M Oilspill Calculator v1.1 Manual</title>
     <link rel="stylesheet" href="../_static/scipy.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.1.0',
+        VERSION:     '1.1.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Texas A&amp;M Oilspill Calculator v1.1 Manual" href="../contents.html" />
-    <link rel="up" title="Reference" href="../modules/reference.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="dbm.stability_analysis" href="dbm.stability_analysis.html" />
     <link rel="prev" title="dbm.equil_MM" href="dbm.equil_MM.html" />
    
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="dbm.stability_analysis.html" title="dbm.stability_analysis"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="dbm.equil_MM.html" title="dbm.equil_MM"
-             accesskey="P">previous</a> |</li>
-<li><a href="../index.html">Texas A&M Oilspill Calculator v1.1 Manual</a> &raquo;</li>
-
-          <li class="nav-item nav-item-1"><a href="../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
-      </ul>
-    </div>  
+  <body>
+  
 
     <div class="document">
       <div class="documentwrapper">
@@ -64,13 +48,13 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">1.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">October 31, 2017</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">Nov 08, 2017</td>
 </tr>
 </tbody>
 </table>
 <dl class="function">
 <dt id="dbm.successive_substitution">
-<code class="descclassname">dbm.</code><code class="descname">successive_substitution</code><span class="sig-paren">(</span><em>m</em>, <em>T</em>, <em>P</em>, <em>max_iter</em>, <em>M</em>, <em>Pc</em>, <em>Tc</em>, <em>omega</em>, <em>delta</em>, <em>Aij</em>, <em>Bij</em>, <em>delta_groups</em>, <em>calc_delta</em>, <em>K</em>, <em>steps=0</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/Projects/NFBC/tamoc/tamoc/dbm.py#L2340"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/dbm.html#successive_substitution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dbm.successive_substitution" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">dbm.</code><code class="descname">successive_substitution</code><span class="sig-paren">(</span><em>m</em>, <em>T</em>, <em>P</em>, <em>max_iter</em>, <em>M</em>, <em>Pc</em>, <em>Tc</em>, <em>omega</em>, <em>delta</em>, <em>Aij</em>, <em>Bij</em>, <em>delta_groups</em>, <em>calc_delta</em>, <em>K</em>, <em>steps=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dbm.html#successive_substitution"><span class="viewcode-link">[source]</span></a><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.13.3/numpy/../../../../../Dropbox/socolofs/Projects/NFBC/tamoc/tamoc/dbm.py#L2338"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dbm.successive_substitution" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find K-factors by successive substitution</p>
 <p>Iterate to find a converged set of K-factors defining the gas/liquid
 partitioning of a mixture using successive substitution.  We follow the
@@ -112,7 +96,7 @@ beware that you may create an infinite loop.</p>
 </div></blockquote>
 <p><strong>omega</strong> : ndarray, size (nc)</p>
 <blockquote>
-<div><p>Acentric factors (&#8211;)</p>
+<div><p>Acentric factors (–)</p>
 </div></blockquote>
 <p><strong>delta</strong> : ndarray, size (nc, nc)</p>
 <blockquote>
@@ -158,13 +142,13 @@ Mollerup, 2007, page 259, equation 26)</p>
 </div></blockquote>
 <p><strong>beta</strong> : float</p>
 <blockquote>
-<div><p>Fraction of gas or liquid (&#8211;)</p>
+<div><p>Fraction of gas or liquid (–)</p>
 </div></blockquote>
 <p><strong>xi</strong> : ndarray, size(2, nc)</p>
 <blockquote>
 <div><p>Mole fraction of each component in the mixture.  Row 1 gives the
 values for the gas phase and Row 2 gives the values for the liquid 
-phase (&#8211;)</p>
+phase (–)</p>
 </div></blockquote>
 <p><strong>exit_flag</strong> : int</p>
 <blockquote>
@@ -197,35 +181,36 @@ tolerance criteria are reached.</p>
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../contents.html">
               <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
-            </a></p>
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="dbm.equil_MM.html"
-                        title="previous chapter">dbm.equil_MM</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="dbm.stability_analysis.html"
-                        title="next chapter">dbm.stability_analysis</a></p>
+            </a></p><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../contents.html">Documentation overview</a><ul>
+  <li><a href="../modules/dbm.html">Overview of Discrete Bubble Model (DBM) Module</a><ul>
+      <li>Previous: <a href="dbm.equil_MM.html" title="previous chapter">dbm.equil_MM</a></li>
+      <li>Next: <a href="dbm.stability_analysis.html" title="next chapter">dbm.stability_analysis</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/dbm/dbm.successive_substitution.txt"
+      <li><a href="../_sources/dbm/dbm.successive_substitution.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <ul class="this-page-menu">
-  <li><a href="/numpy/docs/numpy-docs/dbm/dbm.successive_substitution.rst">Edit page</a></li>
+  <li><a href="/numpy/docs/numpy-docs/dbm/dbm.successive_substitution.rst.rst">Edit page</a></li>
 </ul>
 
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
 
@@ -237,12 +222,12 @@ tolerance criteria are reached.</p>
       &copy;2015, Scott A. Socolofsky.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
-      <a href="../_sources/dbm/dbm.successive_substitution.txt"
-          rel="nofollow">Page source</a></li>
+      <a href="../_sources/dbm/dbm.successive_substitution.rst.txt"
+          rel="nofollow">Page source</a>
     </div>
 
     

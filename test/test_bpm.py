@@ -246,35 +246,40 @@ def check_sim(X0, D, Vj, phi_0, theta_0, Sj, Tj, cj, tracers,
     assert bpm.sim_stored == True
     assert bpm.t[0] == 0.
     ans = np.array([4.36126913e+00, 1.54951631e+02, 4.97776191e+06,
-         9.58555729e-16, 0.00000000e+00, -1.56544030e+01, 1.67158177e-02,
-         0.00000000e+00, 0.00000000e+00, 3.00000000e+02, 0.00000000e+00,
-         9.82464741e-06, 0.00000000e+00, 0.00000000e+00, 5.60671151e+00,
-         0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
-         1.47912970e+01, 8.44106983e+06, 0.00000000e+00, 0.00000000e+00, 
-         0.00000000e+00, 0.00000000e+00, 1.73577225e-05, 0.00000000e+00,
+         9.58555731e-16, 0.00000000e+00, -1.56544031e+01,
+         1.67158177e-02, 0.00000000e+00, 0.00000000e+00,
+         3.00000000e+02, 0.00000000e+00, 9.82463141e-06,
+         0.00000000e+00, 0.00000000e+00, 5.60670238e+00,
+         0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
+         0.00000000e+00, 1.47912969e+01, 8.44106982e+06,
+         0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
+         0.00000000e+00, 1.73577225e-05, 0.00000000e+00,
          0.00000000e+00, 4.36126913e+00])
     for i in range(len(ans)):
         assert_approx_equal(bpm.q[0,i], ans[i], significant=6)
-    assert_approx_equal(bpm.t[-1], 754.04736669800025, significant=6)
-    ans = np.array([2.09574253e+04, 7.60091497e+05, 2.42850840e+10,
-         3.14295961e+03, 0.00000000e+00, 3.01315430e+03,
-         1.67158177e-02, 1.12825728e+02, 0.00000000e+00,
-         1.87428805e+02, 2.28955401e+02, 7.69089860e-06,
-         0.00000000e+00, 0.00000000e+00, 4.45603683e+00,
-         4.13949514e+02, np.nan, np.nan, np.nan, 1.47912970e+01, 8.56994318e+06,
-         5.43208177e+02, np.nan, np.nan, np.nan, 9.87531012e-02, 0.00000000e+00,
+    assert_approx_equal(bpm.t[-1], 754.04743746254962, significant=6)
+    ans = np.array([2.09574277e+04, 7.60091581e+05, 2.42850867e+10,
+         3.14295996e+03, 0.00000000e+00, 3.01315440e+03,
+         1.67158177e-02, 1.12825739e+02, 0.00000000e+00,
+         1.87428810e+02, 2.28955413e+02, 7.69082580e-06,
+         0.00000000e+00, 0.00000000e+00, 4.45599465e+00,
+         4.13949516e+02,         np.nan,         np.nan,
+                 np.nan, 1.47912969e+01, 8.56994317e+06,
+         5.43208258e+02,         np.nan,         np.nan,
+                 np.nan, 9.87531122e-02, 0.00000000e+00,
          0.00000000e+00, 4.36126913e+00])
     for i in range(len(ans)):
         assert_approx_equal(bpm.q[-1,i], ans[i], significant=6)
     
     # Check the tracking data for the particles that left the plume    
     assert bpm.particles[0].farfield == True
-    ans = np.array([1.42244397e+02, 0.00000000e+00, 5.72266167e-01,
-         2.99769601e-06, 0.00000000e+00, 0.00000000e+00, 1.79994396e+00])
+    ans = np.array([1.42109058e+02, 0.00000000e+00, 8.44025880e-01,
+         3.00267642e-06, 0.00000000e+00, 0.00000000e+00,
+         1.80293441e+00])
     for i in range(len(ans)):
         assert_approx_equal(bpm.particles[0].sbm.y[-1,i], ans[i], 
             significant=6)
-    ans = np.array([2.04628607e+02, 0.00000000e+00, 1.82583965e+00,
+    ans = np.array([2.04628617e+02, 0.00000000e+00, 1.82583548e+00,
          4.63392573e-04, 2.78240576e+02])
     for i in range(len(ans)):
         assert_approx_equal(bpm.particles[1].sbm.y[-1,i], ans[i], 
@@ -472,12 +477,12 @@ def test_plume_objs():
     assert q_local.y == q0[8]
     assert q_local.z == q0[9]
     assert q_local.s == q0[10]
-    assert_array_almost_equal(q_local.M_p[0], np.array([9.82464741e-06, 
+    assert_array_almost_equal(q_local.M_p[0], np.array([9.82463141e-06, 
         0.00000000e+00, 0.00000000e+00]), decimal=6)
-    assert_array_almost_equal(q_local.M_p[1], np.array([14.79129695]), 
+    assert_array_almost_equal(q_local.M_p[1], np.array([14.79129693]), 
         decimal=6)
-    assert_approx_equal(q_local.H_p[0], 5.60671151e+00, significant=8)
-    assert_approx_equal(q_local.H_p[1], 8.44106983e+06, significant=8)
+    assert_approx_equal(q_local.H_p[0], 5.60670238e+00, significant=8)
+    assert_approx_equal(q_local.H_p[1], 8.44106982e+06, significant=8)
     assert_array_almost_equal(q_local.t_p, np.array([0., 0.]), decimal=6)
     assert_array_almost_equal(q_local.X_p[0], np.array([0., 0., 0.]), 
         decimal=6)
@@ -502,12 +507,12 @@ def test_plume_objs():
         decimal=6)
     assert_array_almost_equal(q_local.c_tracers, np.array([1028.32228186]), 
         decimal=8)
-    assert_approx_equal(q_local.u, 2.1978825442499866e-16, significant=8)
+    assert_approx_equal(q_local.u, 2.1978825486814211e-16, significant=8)
     assert_approx_equal(q_local.v, 0., significant=8)
-    assert_approx_equal(q_local.w, -3.5894145900356542, significant=8)
-    assert_approx_equal(q_local.hvel, 2.1978825442499866e-16, significant=8)
-    assert_approx_equal(q_local.V, 3.5894145900356542, significant=8)
-    assert_approx_equal(q_local.h, 0.059999999999999998, significant=8)
+    assert_approx_equal(q_local.w, -3.5894145972727363, significant=8)
+    assert_approx_equal(q_local.hvel, 2.1978825486814211e-16, significant=8)
+    assert_approx_equal(q_local.V, 3.5894145972727363, significant=8)
+    assert_approx_equal(q_local.h, 0.060000000000000005, significant=8)
     assert_approx_equal(q_local.b, 0.15000000000000002, significant=8)
     assert_approx_equal(q_local.sin_p, -1., significant=8)
     assert_approx_equal(q_local.cos_p, 6.123233995736766e-17, significant=8)
@@ -515,14 +520,14 @@ def test_plume_objs():
     assert_approx_equal(q_local.cos_t, 1., significant=8)
     assert_approx_equal(q_local.phi, -1.5707963267948966, significant=8)
     assert_approx_equal(q_local.theta, 0., significant=8)
-    assert_array_almost_equal(q_local.mp, np.array([9.82464741e-06,
-        1.47912970e+01]), decimal=6)
-    assert_array_almost_equal(q_local.fb, np.array([2.29862739e-01,
-        2.46294355e+03]), decimal=6)
+    assert_approx_equal(q_local.fb[0], 2.29871281e-01, significant=8)
+    assert_approx_equal(q_local.fb[1], 2.46294355e+03, significant=8)
+    assert_array_almost_equal(q_local.mp, np.array([9.82463141e-06,
+        1.47912969e+01]), decimal=6)
     assert_array_almost_equal(q_local.x_p, np.array([[0., 0., 300.],[0., 0., 
         300.]]), decimal=6)
     assert_array_almost_equal(q_local.t_p, np.array([ 0.,  0.]), decimal=6)
-    assert_approx_equal(q_local.Fb, 2463.1734131757453, significant=8)
+    assert_approx_equal(q_local.Fb, 2463.1734167520308, significant=8)
 
 def test_simulate():
     """

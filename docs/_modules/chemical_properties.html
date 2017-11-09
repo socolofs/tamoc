@@ -1,47 +1,37 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>chemical_properties &mdash; Texas A&amp;M Oilspill Calculator v1.1 Manual</title>
-    
+    <title>chemical_properties &#8212; Texas A&amp;M Oilspill Calculator v1.1 Manual</title>
     <link rel="stylesheet" href="../_static/scipy.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.1.0',
+        VERSION:     '1.1.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Texas A&amp;M Oilspill Calculator v1.1 Manual" href="../contents.html" />
-    <link rel="up" title="Module code" href="index.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
    
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-<li><a href="../index.html">Texas A&M Oilspill Calculator v1.1 Manual</a> &raquo;</li>
-
-          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
-      </ul>
-    </div>  
+  <body>
+  
 
     <div class="document">
       <div class="documentwrapper">
@@ -49,7 +39,7 @@
           <div class="body" role="main">
             
   <h1>Source code for chemical_properties</h1><div class="highlight"><pre>
-<span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Chemical Properties Script</span>
 <span class="sd">==========================</span>
 
@@ -130,8 +120,8 @@
 <span class="sd">&#39;(kg/mol)&#39;</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="c"># S. Socolofsky, January 2012, Texas A&amp;M University &lt;socolofs@tamu.edu&gt;.</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="c1"># S. Socolofsky, January 2012, Texas A&amp;M University &lt;socolofs@tamu.edu&gt;.</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">os</span>
 
 
@@ -164,40 +154,40 @@
 <span class="sd">    storage location.</span>
 <span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c"># Set up counters to keep track of what has been and has not been read</span>
+    <span class="c1"># Set up counters to keep track of what has been and has not been read</span>
     <span class="n">readnames</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
     <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
     
-    <span class="c"># Read in and parse the data from the chemistry data file.</span>
+    <span class="c1"># Read in and parse the data from the chemistry data file.</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span> <span class="k">as</span> <span class="n">datfile</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">datfile</span><span class="p">:</span>
             
-            <span class="n">entries</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;,&#39;</span><span class="p">)</span>
+            <span class="n">entries</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
             
-            <span class="c"># Remove blank RHS column (Excel randomly includes extra columns)</span>
+            <span class="c1"># Remove blank RHS column (Excel randomly includes extra columns)</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">entries</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">entries</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="ow">is</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">entries</span> <span class="o">=</span> <span class="n">entries</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">entries</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
             
-            <span class="c"># Identify and store the data</span>
-            <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;%&#39;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="c"># This is a header line</span>
+            <span class="c1"># Identify and store the data</span>
+            <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;%&#39;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># This is a header line</span>
                 
-                <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;(&#39;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="c"># This line contains the units</span>
-                    <span class="n">header_units</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;,&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;(&#39;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="c1"># This line contains the units</span>
+                    <span class="n">header_units</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
                 
                 <span class="k">elif</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">entries</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">and</span><span class="p">(</span><span class="n">readnames</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">):</span>
-                    <span class="c"># This line contains the variable names</span>
-                    <span class="n">header_keys</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;,&#39;</span><span class="p">)</span>
+                    <span class="c1"># This line contains the variable names</span>
+                    <span class="n">header_keys</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
                     <span class="n">readnames</span> <span class="o">=</span> <span class="mi">1</span>
                 
             <span class="k">else</span><span class="p">:</span>
-                <span class="c"># This is a data line</span>
+                <span class="c1"># This is a data line</span>
                 <span class="n">data</span><span class="p">[</span><span class="n">entries</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
                 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">entries</span><span class="p">)):</span>
                     <span class="n">data</span><span class="p">[</span><span class="n">entries</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="n">header_keys</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">(</span><span class="n">entries</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
             
-    <span class="c"># Add the units to two different dictionaries</span>
+    <span class="c1"># Add the units to two different dictionaries</span>
     <span class="n">read_units</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">header_units</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
         <span class="n">read_units</span><span class="p">[</span><span class="n">header_keys</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="n">header_units</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
@@ -205,61 +195,63 @@
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">header_units</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
         <span class="n">units</span><span class="p">[</span><span class="n">header_keys</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="n">header_units</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
                       
-    <span class="c"># Convert to SI units.  If you add a new unit to the file ChemData.csv, </span>
-    <span class="c"># then you should include a check for it here.</span>
+    <span class="c1"># Convert to SI units.  If you add a new unit to the file ChemData.csv, </span>
+    <span class="c1"># then you should include a check for it here.</span>
     <span class="k">for</span> <span class="n">chemical</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">read_units</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">read_units</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;g/mol&#39;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="c"># Convert to kg/mol</span>
+            <span class="k">if</span> <span class="n">read_units</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;g/mol&#39;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># Convert to kg/mol</span>
                 <span class="n">data</span><span class="p">[</span><span class="n">chemical</span><span class="p">][</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">chemical</span><span class="p">][</span><span class="n">variable</span><span class="p">]</span> <span class="o">/</span> <span class="mf">1000.</span>
-                <span class="n">units</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;(kg/mol)&#39;</span>
+                <span class="n">units</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;(kg/mol)&#39;</span>
             
-            <span class="k">if</span> <span class="n">read_units</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;psia&#39;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="c"># Convert to Pa</span>
+            <span class="k">if</span> <span class="n">read_units</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;psia&#39;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># Convert to Pa</span>
                 <span class="n">data</span><span class="p">[</span><span class="n">chemical</span><span class="p">][</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">chemical</span><span class="p">][</span><span class="n">variable</span><span class="p">]</span> <span class="o">*</span> <span class="mf">6894.76</span>
-                <span class="n">units</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;(Pa)&#39;</span>
+                <span class="n">units</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;(Pa)&#39;</span>
             
-            <span class="k">if</span> <span class="n">read_units</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;F&#39;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="c"># Convert to K</span>
+            <span class="k">if</span> <span class="n">read_units</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;F&#39;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># Convert to K</span>
                 <span class="n">data</span><span class="p">[</span><span class="n">chemical</span><span class="p">][</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">chemical</span><span class="p">][</span><span class="n">variable</span><span class="p">]</span> <span class="o">-</span> <span class="mf">32.</span><span class="p">)</span> <span class="o">*</span> \
                                            <span class="mf">5.</span> <span class="o">/</span> <span class="mf">9.</span> <span class="o">+</span> <span class="mf">273.15</span>
-                <span class="n">units</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;(K)&#39;</span>
+                <span class="n">units</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;(K)&#39;</span>
             
-            <span class="k">if</span> <span class="n">read_units</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;mol/dm^3 atm&#39;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="c"># Convert to kg/(m^3 Pa)</span>
+            <span class="k">if</span> <span class="n">read_units</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;mol/dm^3 atm&#39;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># Convert to kg/(m^3 Pa)</span>
                 <span class="n">data</span><span class="p">[</span><span class="n">chemical</span><span class="p">][</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">chemical</span><span class="p">][</span><span class="n">variable</span><span class="p">]</span> <span class="o">*</span> \
                                            <span class="mf">1000.</span> <span class="o">/</span> <span class="mf">101325.</span> <span class="o">*</span> \
-                                           <span class="n">data</span><span class="p">[</span><span class="n">chemical</span><span class="p">][</span><span class="s">&#39;M&#39;</span><span class="p">])</span>
-                <span class="n">units</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;(kg/(m^3 Pa))&#39;</span>
+                                           <span class="n">data</span><span class="p">[</span><span class="n">chemical</span><span class="p">][</span><span class="s1">&#39;M&#39;</span><span class="p">])</span>
+                <span class="n">units</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;(kg/(m^3 Pa))&#39;</span>
             
-            <span class="k">if</span> <span class="n">read_units</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;mm^2/s&#39;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="c"># Convert to m^3/s</span>
+            <span class="k">if</span> <span class="n">read_units</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;mm^2/s&#39;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># Convert to m^3/s</span>
                 <span class="n">data</span><span class="p">[</span><span class="n">chemical</span><span class="p">][</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">chemical</span><span class="p">][</span><span class="n">variable</span><span class="p">]</span> <span class="o">/</span> <span class="mf">1000.</span><span class="o">**</span><span class="mi">2</span>
-                <span class="n">units</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;(m^3/s)&#39;</span>
+                <span class="n">units</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;(m^3/s)&#39;</span>
             
-            <span class="k">if</span> <span class="n">read_units</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;cal/mol&#39;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="c"># Convert to J/mol</span>
+            <span class="k">if</span> <span class="n">read_units</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;cal/mol&#39;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># Convert to J/mol</span>
                 <span class="n">data</span><span class="p">[</span><span class="n">chemical</span><span class="p">][</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">chemical</span><span class="p">][</span><span class="n">variable</span><span class="p">]</span> <span class="o">/</span> <span class="mf">0.238846</span>
-                <span class="n">units</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;(J/mol)&#39;</span>
+                <span class="n">units</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;(J/mol)&#39;</span>
             
-            <span class="k">if</span> <span class="n">read_units</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;L/mol&#39;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="c"># Convert to m^3/mol</span>
+            <span class="k">if</span> <span class="n">read_units</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;L/mol&#39;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># Convert to m^3/mol</span>
                 <span class="n">data</span><span class="p">[</span><span class="n">chemical</span><span class="p">][</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">chemical</span><span class="p">][</span><span class="n">variable</span><span class="p">]</span> <span class="o">/</span> <span class="mf">1000.</span>
-                <span class="n">units</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;(m^3/mol)&#39;</span>
+                <span class="n">units</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;(m^3/mol)&#39;</span>
             
-    <span class="k">return</span> <span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">units</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">units</span><span class="p">)</span></div>
 
-</div>
-<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;tamoc.chemical_properties&#39;</span><span class="p">:</span>
-    <span class="c"># Get the relative path to the ./tamoc/data directory</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;tamoc.chemical_properties&#39;</span><span class="p">:</span>
+    <span class="c1"># Get the relative path to the ./tamoc/data directory</span>
     <span class="n">__location__</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> 
-                                    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">__file__</span><span class="p">),</span> <span class="s">&#39;data&#39;</span><span class="p">))</span>
+                                    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s1">&#39;data&#39;</span><span class="p">))</span>
     
-    <span class="c"># Create the full relative path to the default data in ChemData.csv</span>
-    <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">__location__</span><span class="p">,</span><span class="s">&#39;ChemData.csv&#39;</span><span class="p">)</span>
+    <span class="c1"># Create the full relative path to the default data in ChemData.csv</span>
+    <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">__location__</span><span class="p">,</span><span class="s1">&#39;ChemData.csv&#39;</span><span class="p">)</span>
     
-    <span class="c"># Load in the default data and their units</span>
+    <span class="c1"># Load in the default data and their units</span>
     <span class="n">data</span><span class="p">,</span> <span class="n">units</span> <span class="o">=</span> <span class="n">load_data</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+
+
 </pre></div>
 
           </div>
@@ -269,19 +261,24 @@
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../contents.html">
               <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
-            </a></p>
+            </a></p><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../contents.html">Documentation overview</a><ul>
+  <li><a href="index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
 
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
 
@@ -293,8 +290,8 @@
       &copy;2015, Scott A. Socolofsky.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
     </div>
 

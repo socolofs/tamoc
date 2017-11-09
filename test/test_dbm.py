@@ -77,9 +77,9 @@ def base_state():
     
     # Give the particle properties that should come back from the dbm_f
     # and dbm object function calls
-    rho_p = 2.4134439874603251
-    Cs = np.array([0.03147573, 0.02070961, 0.00119322, 0.0013814 ])
-    sigma = 0.041867943548989081
+    rho_p = 2.4134402697361361
+    Cs = np.array([0.03147573, 0.02070961, 0.00119098, 0.0013814 ])
+    sigma = 0.041867943708892935
     
     # At seawater salinity:
     S_S = 35.
@@ -88,12 +88,12 @@ def base_state():
     
     # Give the particle properties that should come back from the dbm_f
     # and dbm object function calls
-    rho_p_S = 2.4134439874603251
-    Cs_S = np.array([ 0.02535491, 0.01696806, 0.00097718, 0.00118188])
-    sigma_S = 00.043023878167355374
+    rho_p_S = 2.4134402697361361
+    Cs_S = np.array([ 0.02535491, 0.01696806, 0.00097535, 0.00118188])
+    sigma_S = 0.043023878167355374
     
     # Also, give the fortran function answers for this state
-    mu_p = 1.8438154300701761e-05
+    mu_p = 1.8438154276225057e-05
     D = np.array([1.41620605e-09, 1.61034760e-09, 1.56772544e-09,
          1.35720048e-09])
     D_S = np.array([1.30803909e-09, 1.48735249e-09, 1.44798573e-09,
@@ -244,8 +244,8 @@ def test_sphere():
     # Set the variable inputs that may change is physical properties are 
     # updated.
     de = 0.0001
-    mass = np.array([9.54298067e-13,   2.92409151e-13,   1.62778891e-14,
-         6.91210040e-16])
+    mass = np.array([9.54296597e-13, 2.92408701e-13, 1.62778641e-14,
+        6.91208976e-16])
     fp_type = 0
     
     # Choose a thermodynamic state and composition
@@ -257,16 +257,16 @@ def test_sphere():
     # Give the particle properties that should come back from the dbm_f
     # and dbm object function calls
     shape = 1
-    us = 0.004577842585865009
-    A = 3.1415926535897971e-08
+    us = 0.004577842602244148
+    A = 3.1415926535897957e-08
     beta = np.array([0.00011146, 0.00012211, 0.0001198, 0.00010814])
     beta_T = 0.0037826310843623603
     
     # Give the particle properties that should come back from the dbm_f
     # and dbm object function calls
     shape_S = 1
-    us_S =  0.004399537153852735
-    A_S = 3.1415926535897971e-08
+    us_S =  0.004399537169232339
+    A_S = 3.1415926535897957e-08
     beta_S = np.array([0.00010414, 0.00011409, 0.00011193, 0.00010104])
     beta_T_S = 0.0036760250874190332
         
@@ -298,8 +298,8 @@ def test_ellipsoid():
     # Set the variable inputs that may change is physical properties are 
     # updated.
     de = 0.00055
-    mass = np.array([1.58771341e-10, 4.86495725e-11, 2.70823380e-12,
-                     1.15000070e-13])
+    mass = np.array([1.58771096e-10, 4.86494976e-11, 2.70822963e-12,
+        1.14999893e-13])
     fp_type = 0
     
     # Choose a thermodynamic state and composition
@@ -311,8 +311,8 @@ def test_ellipsoid():
     # Give the particle properties that should come back from the dbm_f
     # and dbm object function calls
     shape = 2
-    us = 0.05804556411101922
-    A = 9.5033177634981476e-07
+    us = 0.05804556426362543
+    A = 9.5033177771091327e-07
     beta = np.array([9.64924845e-05, 1.05243812e-04, 1.03352837e-04,
                      9.37579986e-05])
     beta_T = 0.0023227561695939032
@@ -320,8 +320,8 @@ def test_ellipsoid():
     # Give the particle properties that should come back from the dbm_f
     # and dbm object function calls
     shape_S = 2
-    us_S = 0.05617970668201891
-    A_S = 9.5033177634981476e-07
+    us_S = 0.056179706827748754
+    A_S = 9.5033177771091327e-07
     beta_S = np.array([8.99749784e-05, 9.81341113e-05, 9.63711082e-05,
                        8.74255049e-05])
     beta_T_S = 0.0022462557308422313
@@ -354,8 +354,8 @@ def test_spherical_cap():
     # Set the variable inputs that may change is physical properties are 
     # updated.
     de = 0.0123
-    mass = np.array([1.77582178e-06, 5.44134540e-07, 3.02909867e-08,
-                     1.28624995e-09])
+    mass = np.array([1.77581904e-06, 5.44133701e-07, 3.02909400e-08,
+        1.28624797e-09])
     fp_type = 0
     
     # Choose a thermodynamic state and composition
@@ -367,16 +367,16 @@ def test_spherical_cap():
     # Give the particle properties that should come back from the dbm_f
     # and dbm object function calls
     shape = 3
-    us = 0.246678631595525
-    A = 0.0008041858466133534
+    us = 0.24667863205554724
+    A = 0.0008041858466133636
     beta = np.array([0.00014766, 0.00015745, 0.00015536, 0.00014455])
     beta_T = 0.0014943559651345536
     
     # Give the particle properties that should come back from the dbm_f
     # and dbm object function calls
     shape_S = 3
-    us_S = 0.2466864509525978
-    A_S = 0.0008041855794805891
+    us_S = 0.2466864514005606
+    A_S = 0.0008041855794806015
     beta_S = np.array([0.00014191, 0.00015132, 0.00014931, 0.00013892])
     beta_T_S = 0.0014746858094273542
     

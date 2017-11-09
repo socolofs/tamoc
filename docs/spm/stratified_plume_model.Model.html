@@ -1,55 +1,39 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>stratified_plume_model.Model &mdash; Texas A&amp;M Oilspill Calculator v1.1 Manual</title>
-    
+    <title>stratified_plume_model.Model &#8212; Texas A&amp;M Oilspill Calculator v1.1 Manual</title>
     <link rel="stylesheet" href="../_static/scipy.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.1.0',
+        VERSION:     '1.1.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Texas A&amp;M Oilspill Calculator v1.1 Manual" href="../contents.html" />
-    <link rel="up" title="Reference" href="../modules/reference.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="stratified_plume_model.Model.load_sim" href="stratified_plume_model.Model.load_sim.html" />
-    <link rel="prev" title="smp.outer_fr" href="smp.outer_fr.html" />
+    <link rel="prev" title="single_bubble_model.ModelParams" href="../sbm/single_bubble_model.ModelParams.html" />
    
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="stratified_plume_model.Model.load_sim.html" title="stratified_plume_model.Model.load_sim"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="smp.outer_fr.html" title="smp.outer_fr"
-             accesskey="P">previous</a> |</li>
-<li><a href="../index.html">Texas A&M Oilspill Calculator v1.1 Manual</a> &raquo;</li>
-
-          <li class="nav-item nav-item-1"><a href="../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
-      </ul>
-    </div>  
+  <body>
+  
 
     <div class="document">
       <div class="documentwrapper">
@@ -64,13 +48,13 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">1.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">October 31, 2017</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">Nov 08, 2017</td>
 </tr>
 </tbody>
 </table>
 <dl class="class">
 <dt id="stratified_plume_model.Model">
-<em class="property">class </em><code class="descclassname">stratified_plume_model.</code><code class="descname">Model</code><span class="sig-paren">(</span><em>profile=None</em>, <em>simfile=None</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/Projects/NFBC/tamoc/tamoc/stratified_plume_model.py#L56"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/stratified_plume_model.html#Model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stratified_plume_model.Model" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">stratified_plume_model.</code><code class="descname">Model</code><span class="sig-paren">(</span><em>profile=None</em>, <em>simfile=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/stratified_plume_model.html#Model"><span class="viewcode-link">[source]</span></a><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.13.3/numpy/../../../../../Dropbox/socolofs/Projects/NFBC/tamoc/tamoc/stratified_plume_model.py#L56"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stratified_plume_model.Model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Master class object for controlling and post-processing the simulation</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -100,56 +84,56 @@ simulation run.</p>
 <p class="rubric">Attributes</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="4%" />
-<col width="96%" />
+<col width="5%" />
+<col width="95%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td>profile</td>
+<tr class="row-odd"><td><strong>profile</strong></td>
 <td>(<a class="reference internal" href="../modules/ambient.html#ambient.Profile" title="ambient.Profile"><code class="xref py py-obj docutils literal"><span class="pre">ambient.Profile</span></code></a>) Ambient CTD data</td>
 </tr>
-<tr class="row-even"><td>got_profile</td>
+<tr class="row-even"><td><strong>got_profile</strong></td>
 <td>(bool) Flag indicating whether or not the profile object was successfully loaded into the <a class="reference internal" href="#stratified_plume_model.Model" title="stratified_plume_model.Model"><code class="xref py py-obj docutils literal"><span class="pre">Model</span></code></a> object memory.    p : <a class="reference internal" href="stratified_plume_model.ModelParams.html#stratified_plume_model.ModelParams" title="stratified_plume_model.ModelParams"><code class="xref py py-obj docutils literal"><span class="pre">ModelParams</span></code></a> Container for the fixed model parameters</td>
 </tr>
-<tr class="row-odd"><td>sim_stored</td>
+<tr class="row-odd"><td><strong>sim_stored</strong></td>
 <td>(bool) Flag indicating whether or not a simulation result is stored in the object memory</td>
 </tr>
-<tr class="row-even"><td>particles</td>
+<tr class="row-even"><td><strong>particles</strong></td>
 <td>(list) List of <a class="reference internal" href="../modules/disp_phases.html#dispersed_phases.PlumeParticle" title="dispersed_phases.PlumeParticle"><code class="xref py py-obj docutils literal"><span class="pre">dispersed_phases.PlumeParticle</span></code></a> objects describing each dispersed phase in the simulation</td>
 </tr>
-<tr class="row-odd"><td>K_T0</td>
+<tr class="row-odd"><td><strong>K_T0</strong></td>
 <td>(ndarray) Array of the initial values of K_T for each of the dispersed phase particles.  Since this solution is iterative, heat transfer needs to be re-initialized at the start of each iteration, and thus, it is not sufficient to rely on the value of K_T stored inside the <em class="xref py py-obj">particles</em> list.</td>
 </tr>
-<tr class="row-even"><td>R</td>
+<tr class="row-even"><td><strong>R</strong></td>
 <td>(float) Radius of the release point (m)</td>
 </tr>
-<tr class="row-odd"><td>maxit</td>
+<tr class="row-odd"><td><strong>maxit</strong></td>
 <td>(float) Maximum number of iterations allowed in the interative solution</td>
 </tr>
-<tr class="row-even"><td>toler</td>
+<tr class="row-even"><td><strong>toler</strong></td>
 <td>(float) Relative error sufficient to consider the iterative solution to have converged</td>
 </tr>
-<tr class="row-odd"><td>delta_z</td>
+<tr class="row-odd"><td><strong>delta_z</strong></td>
 <td>(float) Maximum step size to take in the storage of the simulation solution (m)</td>
 </tr>
-<tr class="row-even"><td>chem_names</td>
+<tr class="row-even"><td><strong>chem_names</strong></td>
 <td>(list) List of chemical parameters to track for the dissolution</td>
 </tr>
-<tr class="row-odd"><td>zi</td>
+<tr class="row-odd"><td><strong>zi</strong></td>
 <td>(ndarray) Array of depths for the inner plume solution (m)</td>
 </tr>
-<tr class="row-even"><td>yi</td>
+<tr class="row-even"><td><strong>yi</strong></td>
 <td>(ndarray) Array of state space values computed for the inner plume solution</td>
 </tr>
-<tr class="row-odd"><td>zo</td>
+<tr class="row-odd"><td><strong>zo</strong></td>
 <td>(ndarray) Array of depths for the outer plume solution (m)</td>
 </tr>
-<tr class="row-even"><td>yo</td>
+<tr class="row-even"><td><strong>yo</strong></td>
 <td>(ndarray) Array of state space values computed for the outer plume solution</td>
 </tr>
-<tr class="row-odd"><td>yi_local</td>
+<tr class="row-odd"><td><strong>yi_local</strong></td>
 <td>(<a class="reference internal" href="stratified_plume_model.InnerPlume.html#stratified_plume_model.InnerPlume" title="stratified_plume_model.InnerPlume"><code class="xref py py-obj docutils literal"><span class="pre">InnerPlume</span></code></a> object) Object that translates the <em class="xref py py-obj">yi</em> state space into the comprehensive list of derived variables.</td>
 </tr>
-<tr class="row-even"><td>yo_local</td>
+<tr class="row-even"><td><strong>yo_local</strong></td>
 <td>(<a class="reference internal" href="stratified_plume_model.OuterPlume.html#stratified_plume_model.OuterPlume" title="stratified_plume_model.OuterPlume"><code class="xref py py-obj docutils literal"><span class="pre">OuterPlume</span></code></a> object) Object that translates the <em class="xref py py-obj">yo</em> state space into the comprehensive list of derived variables.</td>
 </tr>
 </tbody>
@@ -176,7 +160,7 @@ simulation run.</p>
 <tr class="row-odd"><td><a class="reference internal" href="stratified_plume_model.Model.save_txt.html#stratified_plume_model.Model.save_txt" title="stratified_plume_model.Model.save_txt"><code class="xref py py-obj docutils literal"><span class="pre">save_txt</span></code></a>(base_name,&nbsp;profile_path,&nbsp;profile_info)</td>
 <td>Save the state space in ascii text format for exporting</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="stratified_plume_model.Model.simulate.html#stratified_plume_model.Model.simulate" title="stratified_plume_model.Model.simulate"><code class="xref py py-obj docutils literal"><span class="pre">simulate</span></code></a>(particles,&nbsp;z,&nbsp;R[,&nbsp;maxit,&nbsp;toler,&nbsp;...])</td>
+<tr class="row-even"><td><a class="reference internal" href="stratified_plume_model.Model.simulate.html#stratified_plume_model.Model.simulate" title="stratified_plume_model.Model.simulate"><code class="xref py py-obj docutils literal"><span class="pre">simulate</span></code></a>(particles,&nbsp;z,&nbsp;R[,&nbsp;maxit,&nbsp;toler,&nbsp;…])</td>
 <td>Simulate the plume dynamics from given initial conditions</td>
 </tr>
 </tbody>
@@ -187,13 +171,13 @@ simulation run.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="stratified_plume_model.Model.simulate.html#stratified_plume_model.Model.simulate" title="stratified_plume_model.Model.simulate"><code class="xref py py-obj docutils literal"><span class="pre">Model.simulate</span></code></a>(particles,&nbsp;z,&nbsp;R[,&nbsp;maxit,&nbsp;...])</td>
+<tr class="row-odd"><td><a class="reference internal" href="stratified_plume_model.Model.simulate.html#stratified_plume_model.Model.simulate" title="stratified_plume_model.Model.simulate"><code class="xref py py-obj docutils literal"><span class="pre">Model.simulate</span></code></a>(particles,&nbsp;z,&nbsp;R[,&nbsp;maxit,&nbsp;…])</td>
 <td>Simulate the plume dynamics from given initial conditions</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="stratified_plume_model.Model.save_sim.html#stratified_plume_model.Model.save_sim" title="stratified_plume_model.Model.save_sim"><code class="xref py py-obj docutils literal"><span class="pre">Model.save_sim</span></code></a>(fname,&nbsp;profile_path,&nbsp;profile_info)</td>
 <td>Save the current simulation results</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="stratified_plume_model.Model.save_txt.html#stratified_plume_model.Model.save_txt" title="stratified_plume_model.Model.save_txt"><code class="xref py py-obj docutils literal"><span class="pre">Model.save_txt</span></code></a>(base_name,&nbsp;profile_path,&nbsp;...)</td>
+<tr class="row-odd"><td><a class="reference internal" href="stratified_plume_model.Model.save_txt.html#stratified_plume_model.Model.save_txt" title="stratified_plume_model.Model.save_txt"><code class="xref py py-obj docutils literal"><span class="pre">Model.save_txt</span></code></a>(base_name,&nbsp;profile_path,&nbsp;…)</td>
 <td>Save the state space in ascii text format for exporting</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="stratified_plume_model.Model.load_sim.html#stratified_plume_model.Model.load_sim" title="stratified_plume_model.Model.load_sim"><code class="xref py py-obj docutils literal"><span class="pre">Model.load_sim</span></code></a>(fname)</td>
@@ -219,35 +203,36 @@ simulation run.</p>
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../contents.html">
               <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
-            </a></p>
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="smp.outer_fr.html"
-                        title="previous chapter">smp.outer_fr</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="stratified_plume_model.Model.load_sim.html"
-                        title="next chapter">stratified_plume_model.Model.load_sim</a></p>
+            </a></p><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../contents.html">Documentation overview</a><ul>
+  <li><a href="../modules/reference.html">Reference</a><ul>
+      <li>Previous: <a href="../sbm/single_bubble_model.ModelParams.html" title="previous chapter">single_bubble_model.ModelParams</a></li>
+      <li>Next: <a href="stratified_plume_model.Model.load_sim.html" title="next chapter">stratified_plume_model.Model.load_sim</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/spm/stratified_plume_model.Model.txt"
+      <li><a href="../_sources/spm/stratified_plume_model.Model.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <ul class="this-page-menu">
-  <li><a href="/numpy/docs/numpy-docs/spm/stratified_plume_model.Model.rst">Edit page</a></li>
+  <li><a href="/numpy/docs/numpy-docs/spm/stratified_plume_model.Model.rst.rst">Edit page</a></li>
 </ul>
 
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
 
@@ -259,12 +244,12 @@ simulation run.</p>
       &copy;2015, Scott A. Socolofsky.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
-      <a href="../_sources/spm/stratified_plume_model.Model.txt"
-          rel="nofollow">Page source</a></li>
+      <a href="../_sources/spm/stratified_plume_model.Model.rst.txt"
+          rel="nofollow">Page source</a>
     </div>
 
     

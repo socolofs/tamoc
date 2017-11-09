@@ -26,15 +26,8 @@ import numpy as np
 
 if __name__ == '__main__':
 
-    # Get the ambient CTD profile data
-    nc = '../../test/output/lake.nc'
-    try:
-        # Open the lake dataset as a Profile object if it exists
-        lake = ambient.Profile(nc, chem_names=['oxygen', 'nitrogen', 'argon'])
-        
-    except RuntimeError:
-        # Create the lake netCDF dataset and get the Profile object
-        lake = lake_bub.get_lake_data()
+    # Create the lake netCDF dataset and get the Profile object
+    lake = lake_bub.get_lake_data()
     
     # Create the stratified plume model object
     spm = stratified_plume_model.Model(lake)

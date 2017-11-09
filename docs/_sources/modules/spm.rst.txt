@@ -1,0 +1,60 @@
+#########################################
+Overview of Stratified Plume Model Module
+#########################################
+
+:Release: |version|
+:Date: |today|
+
+.. currentmodule:: stratified_plume_model
+
+.. automodule:: stratified_plume_model
+
+Class Objects
+=============
+
+.. autoclass:: Model
+
+.. autoclass:: ModelParams
+
+.. autoclass:: InnerPlume
+
+.. autoclass:: OuterPlume
+
+Module Functions
+================
+
+.. autosummary::
+   :toctree: ../spm
+
+   inner_main
+   outer_main
+   err_check
+   particle_from_Q
+   particle_from_mb0
+   plot_state_space
+   plot_all_variables
+
+Module Functions in `smp` 
+==========================
+
+The numerical work of the `stratified_plume_model` is segregated into the 
+`simp` module with the idea that in the future this module could be moved to
+Fortran in order to have a stand-alone solution.  The functions contained
+in this module are detailed in the following.
+
+.. currentmodule:: smp
+
+.. autosummary::
+   :toctree: ../spm
+
+   derivs_inner
+   derivs_outer
+   calculate
+   correct_temperature
+   cp_model
+   main_ic
+   inner_plume_ic
+   outer_surf
+   outer_dis
+   outer_cpic
+   outer_fr

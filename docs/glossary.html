@@ -1,45 +1,37 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Glossary &mdash; Texas A&amp;M Oilspill Calculator v1.1 Manual</title>
-    
+    <title>Glossary &#8212; Texas A&amp;M Oilspill Calculator v1.1 Manual</title>
     <link rel="stylesheet" href="_static/scipy.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.1.0',
+        VERSION:     '1.1.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Texas A&amp;M Oilspill Calculator v1.1 Manual" href="contents.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
    
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-<li><a href="index.html">Texas A&M Oilspill Calculator v1.1 Manual</a> &raquo;</li>
- 
-      </ul>
-    </div>  
+  <body>
+  
 
     <div class="document">
       <div class="documentwrapper">
@@ -54,7 +46,7 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">1.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">October 31, 2017</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">Nov 08, 2017</td>
 </tr>
 </tbody>
 </table>
@@ -65,17 +57,17 @@ on the numerical Python packages NumPy and SciPy, please see <a class="reference
 <div class="section" id="terms">
 <h2>Terms<a class="headerlink" href="#terms" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><em>Ambient</em> &#8211; Refers to the fluid surrounding a bubble, drop, or plume.
+<li><em>Ambient</em> – Refers to the fluid surrounding a bubble, drop, or plume.
 For the <code class="docutils literal"><span class="pre">TAMOC</span></code> package, this is usually seawater, but it could also be
 freshwater.  Properties of the ambient fluid are computed using the
 module <a class="reference internal" href="modules/seawater.html#module-seawater" title="seawater"><code class="xref py py-obj docutils literal"><span class="pre">seawater</span></code></a>.</li>
-<li><em>Continuous Phase</em> &#8211; The general term referring to the bulk fluid (e.g.,
+<li><em>Continuous Phase</em> – The general term referring to the bulk fluid (e.g.,
 water or air) that is the host for one or more particulate, or dispersed,
 phases (e.g., bubbles, drops, or solid particles).</li>
-<li><em>CTD Profile</em> &#8211; A vertical profile of ambient seawater properties, usually
+<li><em>CTD Profile</em> – A vertical profile of ambient seawater properties, usually
 containing conductivity (salinity), temperature, depth, and other chemical
 constituents, such as oxygen, fluorescence, etc.</li>
-<li><em>Discrete Bubble Model (DBM)</em> &#8211; The model proposed by McGinnis et al.
+<li><em>Discrete Bubble Model (DBM)</em> – The model proposed by McGinnis et al.
 (2006) to account for bubble/droplet-scale processes. One bubble, droplet or
 particle is tracked and all fluxes in and out of the fluid particle are
 evaluated, primarily from correlations in Clift et al. (1978). These fluxes
@@ -84,23 +76,23 @@ with identical properties that make up the total flux of multiphase
 components. It is possible to have multiple size classes to approximate a
 particle size distribution, but each particle within a given bin of the
 distribution and at the same location will have the same properties.</li>
-<li><em>Dispersed Phase</em> &#8211; The general term referring the fluid particles (e.g.,
+<li><em>Dispersed Phase</em> – The general term referring the fluid particles (e.g.,
 bubbles, drops, or solid particles) dispersed, or spread out, in another
 continuous fluid phase (e.g., water or air).</li>
-<li><em>Fluid Particle</em> &#8211; The general term for a dispersed phase particle of
+<li><em>Fluid Particle</em> – The general term for a dispersed phase particle of
 liquid or gas; a collective term for bubbles and drops.</li>
-<li><em>Intrusion</em> &#8211; A horizontal layer forming at a level of neutral buoyancy and
+<li><em>Intrusion</em> – A horizontal layer forming at a level of neutral buoyancy and
 that is squeezed into the layer by buoyancy forces. In certain contexts,
 especially the far field, an intrusion may be referred to as a plume, but
 this usage of the word plume has a different technical meaning than the mean
 of plume in the <code class="docutils literal"><span class="pre">TAMOC</span></code> package; hence, we use the term intrusion
 exclusively for horizontal layers of fluid at neutral buoyancy.</li>
-<li><em>Momentum Jet</em> &#8211; A plume that has significant momentum originating from the
+<li><em>Momentum Jet</em> – A plume that has significant momentum originating from the
 leak exit conditions.</li>
-<li><em>Nearfield</em> &#8211; The region of a leak plume where vertical momentum is
+<li><em>Nearfield</em> – The region of a leak plume where vertical momentum is
 affected by buoyancy.  Typically much less than one kilometer radius from
 the centerline of a plume.</li>
-<li><em>Peng-Robinson Equation of State</em> &#8211; One of several cubic equations of state
+<li><em>Peng-Robinson Equation of State</em> – One of several cubic equations of state
 to account for non-ideal fluid behavior. It was developed particularly with
 the goal of estimating liquid densities from standard chemical and
 thermodynamic properties (e.g., molecular weight, critical point temperature
@@ -108,30 +100,30 @@ and pressure, accentric factor, etc.). The Peng-Robinson equation of state
 provides the <em>Z</em>-factor for the compressibility in the ideal gas law to
 estimate the density and the fugacity coefficients to estimate the chemical
 activity, needed to establish solubility.</li>
-<li><em>Plume</em> &#8211; Term referring vertically-rising cloud of dispersed phase
+<li><em>Plume</em> – Term referring vertically-rising cloud of dispersed phase
 particles and entrained ambient fluid, similar in appearance to the plume of
 smoke rising from a chimney. Momentum in a plume is dominated by buoyancy
 effects, here caused either by the drag of the dispersed phase particles or
 the negative buoyancy of the entrained ambient seawater.</li>
-<li><em>Single Bubble Model (SBM)</em> &#8211; A numerical model to predict the rise of a
+<li><em>Single Bubble Model (SBM)</em> – A numerical model to predict the rise of a
 single fluid particle through quiescent or flowing ambient fluid. This model
 uses the discrete bubble model to predict the fluid particle fate and
 computes the trajectory by the superposition of the rise velocity and the
 ambient currents. In the single bubble model, there is no collective
 buoyancy that induces a vertical velocity of the fluid phase; for that case,
 a plume model is needed (e.g., the stratified plume model).</li>
-<li><em>Slip Velocity</em> &#8211; Taken as the terminal rise velocity of a fluid particle
+<li><em>Slip Velocity</em> – Taken as the terminal rise velocity of a fluid particle
 in quiescent ambient conditions.  This is used to determine the net drag
 force on the water column due to a collection of fluid particles and to
 track the movement of fluid particles through the water column.  Turbulence
 is known to alter the quiescent terminal rise velocity; this effect is not
 accounted for in the current <code class="docutils literal"><span class="pre">TAMOC</span></code> methods.</li>
-<li><em>Stratified Plume Model (SPM)</em> &#8211; A numerical model to predict the dynamics
+<li><em>Stratified Plume Model (SPM)</em> – A numerical model to predict the dynamics
 of a multiphase plume rising in a stagnant stratified ambient fluid. This
 model uses the discrete bubble model to predict the fluid particle fate and
 computes the trajectory by solving the integral plume conservation equations
 for a double plume integral model, as in Socolofsky et al. (2008).</li>
-<li><em>Bent Plume Model (BPM)</em> &#8211; A numerical model to predict the dynamics
+<li><em>Bent Plume Model (BPM)</em> – A numerical model to predict the dynamics
 of a multiphase plume rising in a flowing ambient fluid. This
 model uses the discrete bubble model to predict the fluid particle fate and
 computes the trajectory by solving the integral plume conservation equations
@@ -156,29 +148,32 @@ for a Lagrangian plume model, as in Lee and Cheung (1990).</li>
 </ul>
 </li>
 </ul>
-
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="contents.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/glossary.txt"
+      <li><a href="_sources/glossary.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <ul class="this-page-menu">
-  <li><a href="/numpy/docs/numpy-docs/glossary.rst">Edit page</a></li>
+  <li><a href="/numpy/docs/numpy-docs/glossary.rst.rst">Edit page</a></li>
 </ul>
 
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
 
@@ -190,12 +185,12 @@ for a Lagrangian plume model, as in Lee and Cheung (1990).</li>
       &copy;2015, Scott A. Socolofsky.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
-      <a href="_sources/glossary.txt"
-          rel="nofollow">Page source</a></li>
+      <a href="_sources/glossary.rst.txt"
+          rel="nofollow">Page source</a>
     </div>
 
     

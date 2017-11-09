@@ -317,7 +317,7 @@ class Profile(object):
                 z = np.array([z])
             else:
                 z = np.array(z)
-        
+
         # Catch the out of range error.  This should only occur when an ODE
         # solver gets close to the boundary; thus, it is acceptable to revert
         # to the solution at the boundary
@@ -338,9 +338,9 @@ class Profile(object):
             
             # Interpolate the data and insert into the output array
             if z.shape[0] == 1:
-                # f(z) will be a row vector
+                # f(z) will be a column vector
                 ans = np.zeros(len(names))
-                interp_data = self.f(z)[i_cols]
+                interp_data = self.f(z)[i_cols].transpose()
                 ans[ans_cols] = interp_data
             else:
                 # f(z) will be a 2d matrix

@@ -1,53 +1,39 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Discrete Bubble Model Users Guide &mdash; Texas A&amp;M Oilspill Calculator v1.1 Manual</title>
-    
+    <title>Discrete Bubble Model Users Guide &#8212; Texas A&amp;M Oilspill Calculator v1.1 Manual</title>
     <link rel="stylesheet" href="../_static/scipy.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.1.0',
+        VERSION:     '1.1.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Texas A&amp;M Oilspill Calculator v1.1 Manual" href="../contents.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="air_eos" href="../scripts/dbm/air_eos.html" />
     <link rel="prev" title="Chemical Properties Users Guide" href="../chem/guide.html" />
    
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="../scripts/dbm/air_eos.html" title="air_eos"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="../chem/guide.html" title="Chemical Properties Users Guide"
-             accesskey="P">previous</a> |</li>
-<li><a href="../index.html">Texas A&M Oilspill Calculator v1.1 Manual</a> &raquo;</li>
- 
-      </ul>
-    </div>  
+  <body>
+  
 
     <div class="document">
       <div class="documentwrapper">
@@ -62,7 +48,7 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">1.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">October 31, 2017</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">Nov 08, 2017</td>
 </tr>
 </tbody>
 </table>
@@ -105,19 +91,19 @@ object provides an interface to the Peng-Robinson equation of state for any
 mixture of chemicals.</p>
 <p>As an example, consider a natural gas containing the following compounds with
 given mole fractions in the mixture:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">composition</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;methane&#39;</span><span class="p">,</span> <span class="s">&#39;ethane&#39;</span><span class="p">,</span> <span class="s">&#39;propane&#39;</span><span class="p">,</span> <span class="s">&#39;n-butane&#39;</span><span class="p">]</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">composition</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;methane&#39;</span><span class="p">,</span> <span class="s1">&#39;ethane&#39;</span><span class="p">,</span> <span class="s1">&#39;propane&#39;</span><span class="p">,</span> <span class="s1">&#39;n-butane&#39;</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">yk</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.86</span><span class="p">,</span> <span class="mf">0.06</span><span class="p">,</span> <span class="mf">0.04</span><span class="p">,</span> <span class="mf">0.04</span><span class="p">])</span>
 </pre></div>
 </div>
 <p>If the binary interaction coefficients are going to be taken as default, then
 we can initialize a <a class="reference internal" href="../modules/dbm.html#dbm.FluidMixture" title="dbm.FluidMixture"><code class="xref py py-obj docutils literal"><span class="pre">dbm.FluidMixture</span></code></a> object as follows:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">dbm</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">dbm</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">gas</span> <span class="o">=</span> <span class="n">dbm</span><span class="o">.</span><span class="n">FluidMixture</span><span class="p">(</span><span class="n">composition</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>This has now loaded all of the chemical properties of this mixture.  As an
 example, the molecular weights of each compound are:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">gas</span><span class="o">.</span><span class="n">M</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">gas</span><span class="o">.</span><span class="n">M</span>
 <span class="go">array([ 0.0160426,  0.0300694,  0.0440962,  0.058123 ])</span>
 </pre></div>
 </div>
@@ -125,7 +111,7 @@ example, the molecular weights of each compound are:</p>
 thermodynamic state and composition masses. The fundamental quantity
 describing the variables of the mixture are the masses. In this example,
 consider one mole of gas:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">gas</span><span class="o">.</span><span class="n">masses</span><span class="p">(</span><span class="n">yk</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">gas</span><span class="o">.</span><span class="n">masses</span><span class="p">(</span><span class="n">yk</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">T</span> <span class="o">=</span> <span class="mf">273.15</span> <span class="o">+</span> <span class="mf">10.0</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">P</span> <span class="o">=</span> <span class="mf">101325.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">S</span> <span class="o">=</span> <span class="mf">34.5</span>
@@ -133,7 +119,7 @@ consider one mole of gas:</p>
 </div>
 <p>The salinity is only used to calculate solubilities in water.  Consider
 several common properties of interest:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">gas</span><span class="o">.</span><span class="n">mass_frac</span><span class="p">(</span><span class="n">yk</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">gas</span><span class="o">.</span><span class="n">mass_frac</span><span class="p">(</span><span class="n">yk</span><span class="p">)</span>
 <span class="go">array([ 0.70070791,  0.09163045,  0.08958287,  0.11807877])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">gas</span><span class="o">.</span><span class="n">mol_frac</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
 <span class="go">array([ 0.86,  0.06,  0.04,  0.04])</span>
@@ -160,7 +146,7 @@ the user generally must look at the density to determine which phase (here, we
 have 0.85 kg/m^3, which is a gas).</p>
 <p>If the same mixture is brought to deepwater conditions, there would be both
 gas and liquid present:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">P</span> <span class="o">=</span> <span class="mf">490e5</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">P</span> <span class="o">=</span> <span class="mf">490e5</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">gas</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
 <span class="go">array([[ 372.55019405],</span>
 <span class="go">       [ 409.80668791]])</span>
@@ -171,7 +157,7 @@ equilibrium with each other. Instead, this function reports the density of gas
 or liquid if each had the mass composition specified by <em class="xref py py-obj">m</em>.</p>
 <p>To evaluate the equilibrium composition, one must use the
 <a class="reference internal" href="dbm.FluidMixture.equilibrium.html#dbm.FluidMixture.equilibrium" title="dbm.FluidMixture.equilibrium"><code class="xref py py-obj docutils literal"><span class="pre">dbm.FluidMixture.equilibrium</span></code></a> method.  As an example for this mixture:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">T</span> <span class="o">=</span> <span class="mf">273.15</span> <span class="o">+</span> <span class="mf">4.1</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">T</span> <span class="o">=</span> <span class="mf">273.15</span> <span class="o">+</span> <span class="mf">4.1</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">P</span> <span class="o">=</span> <span class="mf">49.5e5</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">gas</span><span class="o">.</span><span class="n">equilibrium</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
 <span class="go">array([[ 0.01349742,  0.00168584,  0.00129938,  0.00092275],</span>
@@ -191,7 +177,7 @@ that the <a class="reference internal" href="../modules/dbm.html#dbm.FluidPartic
 also contains shape information so that concepts like rise velocity have
 meaning.</p>
 <p>If we consider the same mixture as above:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">composition</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;methane&#39;</span><span class="p">,</span> <span class="s">&#39;ethane&#39;</span><span class="p">,</span> <span class="s">&#39;propane&#39;</span><span class="p">,</span> <span class="s">&#39;n-butane&#39;</span><span class="p">]</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">composition</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;methane&#39;</span><span class="p">,</span> <span class="s1">&#39;ethane&#39;</span><span class="p">,</span> <span class="s1">&#39;propane&#39;</span><span class="p">,</span> <span class="s1">&#39;n-butane&#39;</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">yk</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.86</span><span class="p">,</span> <span class="mf">0.06</span><span class="p">,</span> <span class="mf">0.04</span><span class="p">,</span> <span class="mf">0.04</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">dbm</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">bub</span> <span class="o">=</span> <span class="n">dbm</span><span class="o">.</span><span class="n">FluidParticle</span><span class="p">(</span><span class="n">composition</span><span class="p">,</span> <span class="n">fp_type</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
@@ -199,7 +185,7 @@ meaning.</p>
 </div>
 <p>We can specify the thermodynamic state similarly to before (though, consider
 a hot reservoir fluid in deep water):</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">T</span> <span class="o">=</span> <span class="mf">273.15</span> <span class="o">+</span> <span class="mf">125.0</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">T</span> <span class="o">=</span> <span class="mf">273.15</span> <span class="o">+</span> <span class="mf">125.0</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">P</span> <span class="o">=</span> <span class="mf">150.0e5</span>
 </pre></div>
 </div>
@@ -208,14 +194,14 @@ single bubble or droplet.  Typically, we know the mole or mass fractions of
 the components of the bubble or droplet and a characteristic fluid particle
 size.  Hence, the method <a class="reference internal" href="dbm.FluidParticle.masses_by_diameter.html#dbm.FluidParticle.masses_by_diameter" title="dbm.FluidParticle.masses_by_diameter"><code class="xref py py-obj docutils literal"><span class="pre">dbm.FluidParticle.masses_by_diameter</span></code></a> is very
 helpful for determining the actual masses of each component in the mixture:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">bub</span><span class="o">.</span><span class="n">masses_by_diameter</span><span class="p">(</span><span class="mf">0.005</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">yk</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">m</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">bub</span><span class="o">.</span><span class="n">masses_by_diameter</span><span class="p">(</span><span class="mf">0.005</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">yk</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">m</span>
 <span class="go">[  4.54192150e-06   5.93939802e-07   5.80667574e-07   7.65375279e-07]</span>
 </pre></div>
 </div>
 <p>Once the masses <em class="xref py py-obj">m</em> are known, it is a simple matter to determine the
 particle physical and transport attributes:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">Ta</span> <span class="o">=</span> <span class="mf">273.15</span> <span class="o">+</span> <span class="mf">4.1</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Ta</span> <span class="o">=</span> <span class="mf">273.15</span> <span class="o">+</span> <span class="mf">4.1</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">Sa</span> <span class="o">=</span> <span class="mf">35.4</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">bub</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
 <span class="go">99.036200340444182</span>
@@ -249,25 +235,25 @@ properties of the particle yet provide an interface to the physics methods,
 such as slip velocity.</p>
 <p>Consider a sand particle.  This particle is insoluble and incompressible.
 The <a class="reference internal" href="../modules/dbm.html#module-dbm" title="dbm"><code class="xref py py-obj docutils literal"><span class="pre">dbm</span></code></a> module can describe this particle as follows:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">dbm</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">sand</span> <span class="o">=</span> <span class="n">dbm</span><span class="o">.</span><span class="n">InsolubleParticle</span><span class="p">(</span><span class="n">isfluid</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">iscompressible</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">dbm</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sand</span> <span class="o">=</span> <span class="n">dbm</span><span class="o">.</span><span class="n">InsolubleParticle</span><span class="p">(</span><span class="n">isfluid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">iscompressible</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
 <span class="go">                                 rho_p=2500.)</span>
 </pre></div>
 </div>
 <p>Again, the mass must be established before the properties of the particle
 can be interrogated:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">T</span> <span class="o">=</span> <span class="mf">273.15</span> <span class="o">+</span> <span class="mf">10.0</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">T</span> <span class="o">=</span> <span class="mf">273.15</span> <span class="o">+</span> <span class="mf">10.0</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">P</span> <span class="o">=</span> <span class="mf">10.0e5</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">Ta</span> <span class="o">=</span> <span class="mf">273.15</span> <span class="o">+</span> <span class="mf">4.1</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">Sa</span> <span class="o">=</span> <span class="mf">35.4</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">sand</span><span class="o">.</span><span class="n">mass_by_diameter</span><span class="p">(</span><span class="mf">0.005</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">m</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">m</span>
 <span class="go">0.000163624617374</span>
 </pre></div>
 </div>
 <p>Then, all of the fluid properties relevant to an insoluble particle can
 be calculated:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">sand</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sand</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">)</span>
 <span class="go">2500.0</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sand</span><span class="o">.</span><span class="n">particle_shape</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">)</span>
 <span class="go">(4,                           # 4 : rigid sphere</span>
@@ -310,35 +296,34 @@ be calculated:</p>
 </ul>
 </li>
 </ul>
-
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="../chem/guide.html"
-                        title="previous chapter">Chemical Properties Users Guide</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="../scripts/dbm/air_eos.html"
-                        title="next chapter">air_eos</a></p>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../contents.html">Documentation overview</a><ul>
+      <li>Previous: <a href="../chem/guide.html" title="previous chapter">Chemical Properties Users Guide</a></li>
+      <li>Next: <a href="../scripts/dbm/air_eos.html" title="next chapter">air_eos</a></li>
+  </ul></li>
+</ul>
+</div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/dbm/guide.txt"
+      <li><a href="../_sources/dbm/guide.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <ul class="this-page-menu">
-  <li><a href="/numpy/docs/numpy-docs/dbm/guide.rst">Edit page</a></li>
+  <li><a href="/numpy/docs/numpy-docs/dbm/guide.rst.rst">Edit page</a></li>
 </ul>
 
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
 
@@ -350,12 +335,12 @@ be calculated:</p>
       &copy;2015, Scott A. Socolofsky.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
-      <a href="../_sources/dbm/guide.txt"
-          rel="nofollow">Page source</a></li>
+      <a href="../_sources/dbm/guide.rst.txt"
+          rel="nofollow">Page source</a>
     </div>
 
     

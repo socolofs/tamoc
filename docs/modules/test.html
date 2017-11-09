@@ -1,49 +1,38 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Unit Tests &mdash; Texas A&amp;M Oilspill Calculator v1.1 Manual</title>
-    
+    <title>Unit Tests &#8212; Texas A&amp;M Oilspill Calculator v1.1 Manual</title>
     <link rel="stylesheet" href="../_static/scipy.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.1.0',
+        VERSION:     '1.1.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Texas A&amp;M Oilspill Calculator v1.1 Manual" href="../contents.html" />
-    <link rel="prev" title="blowout" href="../scripts/bpm/blowout.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="bent_plume_model.width_projection" href="../bpm/bent_plume_model.width_projection.html" />
    
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="../scripts/bpm/blowout.html" title="blowout"
-             accesskey="P">previous</a> |</li>
-<li><a href="../index.html">Texas A&M Oilspill Calculator v1.1 Manual</a> &raquo;</li>
- 
-      </ul>
-    </div>  
+  <body>
+  
 
     <div class="document">
       <div class="documentwrapper">
@@ -58,7 +47,7 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">1.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">October 31, 2017</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">Nov 08, 2017</td>
 </tr>
 </tbody>
 </table>
@@ -67,7 +56,7 @@ functionality of the package.  To run the tests, install
 <a class="reference external" href="http://pytest.org/latest/">pytest</a> into your Python distribution.  Then,
 from a directory within the source files of the distribution, execute at
 the command prompt:</p>
-<div class="highlight-python"><div class="highlight"><pre>% py.test -v
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">py</span><span class="o">.</span><span class="n">test</span> <span class="o">-</span><span class="n">v</span>
 </pre></div>
 </div>
 <p>If any of the tests fail, first delete the <code class="docutils literal"><span class="pre">__pycache__</span></code> directory from the
@@ -83,7 +72,7 @@ write data to and read data from the <code class="docutils literal"><span class=
 had problems with opening and closing the files using py.test. If deleting
 <code class="docutils literal"><span class="pre">__pycache__</span></code> does not solve the problem, the ROMS test can be run from
 within IPython using:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">test_ambient</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">test_ambient</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">test_ambient</span><span class="o">.</span><span class="n">test_from_roms</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -96,7 +85,7 @@ within IPython using:</p>
 <div class="section" id="notes">
 <h3>Notes<a class="headerlink" href="#notes" title="Permalink to this headline">¶</a></h3>
 <p>All of the tests defined herein check the general behavior of each of the
-programmed function&#8211;this is not a comparison against measured data. The
+programmed function–this is not a comparison against measured data. The
 results of the hand calculations entered below as sample solutions have been
 ground-truthed for their reasonableness. However, passing these tests only
 means the programs and their interfaces are working as expected, not that they
@@ -108,13 +97,13 @@ have been validated against measurements.</p>
 <p>Unit tests for the <a class="reference internal" href="dbm.html#module-dbm" title="dbm"><code class="xref py py-obj docutils literal"><span class="pre">dbm</span></code></a> module of <code class="docutils literal"><span class="pre">TAMOC</span></code></p>
 <p>Provides testing of the functions defined in <code class="docutils literal"><span class="pre">dbm_f</span></code>.</p>
 <p><code class="docutils literal"><span class="pre">dbm_f</span></code> is a library created by <code class="docutils literal"><span class="pre">f2py</span></code> from the source code:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">dbm_eos</span><span class="o">.</span><span class="n">f95</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">dbm_eos</span><span class="o">.</span><span class="n">f95</span>
 <span class="n">dbm_phys</span><span class="o">.</span><span class="n">f95</span>
 <span class="n">math_funcs</span><span class="o">.</span><span class="n">f95</span>
 </pre></div>
 </div>
 <p>It can be compiled using:</p>
-<div class="highlight-python"><div class="highlight"><pre>f2py -c -m dbm_f dbm_eos.f95 dbm_phys.f95 math_funcs.f95
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">f2py</span> <span class="o">-</span><span class="n">c</span> <span class="o">-</span><span class="n">m</span> <span class="n">dbm_f</span> <span class="n">dbm_eos</span><span class="o">.</span><span class="n">f95</span> <span class="n">dbm_phys</span><span class="o">.</span><span class="n">f95</span> <span class="n">math_funcs</span><span class="o">.</span><span class="n">f95</span>
 </pre></div>
 </div>
 <p>This module tests direct calling of the <code class="docutils literal"><span class="pre">dbm_f</span></code> functions from Python as 
@@ -122,7 +111,7 @@ well as calls to the functions implemented in <a class="reference internal" href
 <div class="section" id="id1">
 <h3>Notes<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
 <p>All of the tests defined herein check the general behavior of each of the
-programmed function&#8211;this is not a comparison against measured data. The
+programmed function–this is not a comparison against measured data. The
 results of the hand calculations entered below as sample solutions have been
 ground-truthed for their reasonableness. However, passing these tests only
 means the programs and their interfaces are working as expected, not that they
@@ -138,7 +127,7 @@ module to control ambient data and the <a class="reference internal" href="dbm.h
 behavior.  These tests check the behavior of the object, the results of
 the simulations, and the read/write algorithms.</p>
 <p>The ambient data used here are from the <em class="xref py py-obj">ctd_BM54.cnv</em> dataset, stored as:</p>
-<div class="highlight-python"><div class="highlight"><pre>./test/output/test_BM54.nc
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">test</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="n">test_BM54</span><span class="o">.</span><span class="n">nc</span>
 </pre></div>
 </div>
 <p>This netCDF file is written by the <code class="xref py py-obj docutils literal"><span class="pre">test_ambient.test_from_ctd</span></code> function, 
@@ -146,7 +135,7 @@ which is run in the following as needed to ensure the dataset is available.</p>
 <div class="section" id="id2">
 <h3>Notes<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
 <p>All of the tests defined herein check the general behavior of each of the
-programmed function&#8211;this is not a comparison against measured data. The
+programmed function–this is not a comparison against measured data. The
 results of the hand calculations entered below as sample solutions have been
 ground-truthed for their reasonableness. However, passing these tests only
 means the programs and their interfaces are working as expected, not that they
@@ -162,7 +151,7 @@ module to control ambient data and the <a class="reference internal" href="dbm.h
 behavior.  These tests check the behavior of the object, the results of
 the simulations, and the read/write algorithms.</p>
 <p>The ambient data used here are from the <em class="xref py py-obj">ctd_BM54.cnv</em> dataset, stored as:</p>
-<div class="highlight-python"><div class="highlight"><pre>./test/output/test_BM54.nc
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">test</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="n">test_BM54</span><span class="o">.</span><span class="n">nc</span>
 </pre></div>
 </div>
 <p>This netCDF file is written by the <code class="xref py py-obj docutils literal"><span class="pre">test_ambient.test_from_ctd</span></code> function, 
@@ -170,7 +159,7 @@ which is run in the following as needed to ensure the dataset is available.</p>
 <div class="section" id="id3">
 <h3>Notes<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
 <p>All of the tests defined herein check the general behavior of each of the
-programmed function&#8211;this is not a comparison against measured data. The
+programmed function–this is not a comparison against measured data. The
 results of the hand calculations entered below as sample solutions have been
 ground-truthed for their reasonableness. However, passing these tests only
 means the programs and their interfaces are working as expected, not that they
@@ -186,7 +175,7 @@ external data source or disk access.</p>
 <div class="section" id="id4">
 <h3>Notes<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
 <p>All of the tests defined herein check the general behavior of each of the
-programmed functions&#8211;this is not a comparison against measured data. The
+programmed functions–this is not a comparison against measured data. The
 results of the hand calculations entered below as sample solutions have been
 ground-truthed for their reasonableness. However, passing these tests only
 means the programs and their interfaces are working as expected, not that they
@@ -201,7 +190,7 @@ This module uses the <a class="reference internal" href="ambient.html#module-amb
 module to predict particle behavior. These tests check the behavior of the
 <a class="reference internal" href="params.html#params.Scales" title="params.Scales"><code class="xref py py-obj docutils literal"><span class="pre">params.Scales</span></code></a> object and the results of its methods.</p>
 <p>The ambient data used here are from the <em class="xref py py-obj">ctd_BM54.cnv</em> dataset, stored as:</p>
-<div class="highlight-python"><div class="highlight"><pre>./test/output/test_BM54.nc
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">test</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="n">test_BM54</span><span class="o">.</span><span class="n">nc</span>
 </pre></div>
 </div>
 <p>This netCDF file is written by the <code class="xref py py-obj docutils literal"><span class="pre">test_ambient.test_from_ctd</span></code> function, 
@@ -210,7 +199,7 @@ available.</p>
 <div class="section" id="id5">
 <h3>Notes<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
 <p>All of the tests defined herein check the general behavior of each of the
-programmed functions&#8211;this is not a comparison against measured data. The
+programmed functions–this is not a comparison against measured data. The
 results of the hand calculations entered below as sample solutions have been
 ground-truthed for their reasonableness. However, passing these tests only
 means the programs and their interfaces are working as expected, not that they
@@ -259,32 +248,33 @@ have been validated against measurements.</p>
 </ul>
 </li>
 </ul>
-
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="../scripts/bpm/blowout.html"
-                        title="previous chapter">blowout</a></p>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../contents.html">Documentation overview</a><ul>
+      <li>Previous: <a href="../bpm/bent_plume_model.width_projection.html" title="previous chapter">bent_plume_model.width_projection</a></li>
+  </ul></li>
+</ul>
+</div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/modules/test.txt"
+      <li><a href="../_sources/modules/test.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <ul class="this-page-menu">
-  <li><a href="/numpy/docs/numpy-docs/modules/test.rst">Edit page</a></li>
+  <li><a href="/numpy/docs/numpy-docs/modules/test.rst.rst">Edit page</a></li>
 </ul>
 
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
 
@@ -296,12 +286,12 @@ have been validated against measurements.</p>
       &copy;2015, Scott A. Socolofsky.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
-      <a href="../_sources/modules/test.txt"
-          rel="nofollow">Page source</a></li>
+      <a href="../_sources/modules/test.rst.txt"
+          rel="nofollow">Page source</a>
     </div>
 
     

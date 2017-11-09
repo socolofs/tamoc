@@ -1,3 +1,14 @@
+V1.1.1, November 2017 --
+   . Updated the way interp1d is used inside the ambient.get_values command
+     for scalar input.  The model assumed a row vector would be created, but
+     a column is returned.  In newer versions of numpy, this seems to create
+     a problem.  Used .transpose() to switch column into a row.
+   . Updated some of the examples in the ./bin directory so that they only 
+     read data from the ./tamoc/data directory which comes with tamoc.  In 
+     some of the examples, I was using data in ./test/output, but this data
+     may not exist if the user has not run any of the tests yet.  
+   . Updates all of the test cases to be compatible with the small changes
+     in the dbm module that were included in version 1.1.0.  All test cases
 V1.1.0, October 2017 --
    . Updated particles_from_mb0 in the stratified plume model to pass the
      variable t_hyd to dispersed_phases.PlumeParticle.

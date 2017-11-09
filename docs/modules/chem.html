@@ -1,55 +1,39 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Overview of Chemical Properties &mdash; Texas A&amp;M Oilspill Calculator v1.1 Manual</title>
-    
+    <title>Overview of Chemical Properties &#8212; Texas A&amp;M Oilspill Calculator v1.1 Manual</title>
     <link rel="stylesheet" href="../_static/scipy.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.1.0',
+        VERSION:     '1.1.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Texas A&amp;M Oilspill Calculator v1.1 Manual" href="../contents.html" />
-    <link rel="up" title="Reference" href="reference.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="chemical_properties.load_data" href="../chem/chemical_properties.load_data.html" />
     <link rel="prev" title="seawater.cp" href="../seawater/seawater.cp.html" />
    
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="../chem/chemical_properties.load_data.html" title="chemical_properties.load_data"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="../seawater/seawater.cp.html" title="seawater.cp"
-             accesskey="P">previous</a> |</li>
-<li><a href="../index.html">Texas A&M Oilspill Calculator v1.1 Manual</a> &raquo;</li>
-
-          <li class="nav-item nav-item-1"><a href="reference.html" accesskey="U">Reference</a> &raquo;</li> 
-      </ul>
-    </div>  
+  <body>
+  
 
     <div class="document">
       <div class="documentwrapper">
@@ -64,7 +48,7 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">1.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">October 31, 2017</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">Nov 08, 2017</td>
 </tr>
 </tbody>
 </table>
@@ -81,7 +65,7 @@ denoted by <em class="xref py py-obj">%, the last row of pure text is taken as t
 the last row with `()</em> is taken as the units.  The columns should include
 a key name (e.g., <em class="xref py py-obj">methane</em>), the molecular weight, critical point pressure, 
 critical point temperature, critical point molar volumne, boiling point 
-temperature, molar volume at the boiling point, acentric factor, Henry&#8217;s
+temperature, molar volume at the boiling point, acentric factor, Henry’s
 law constant at 298.15 K, negative of the enthalpy of dilution, parameters
 <em class="xref py py-obj">B</em> and <em class="xref py py-obj">dE</em> of the diffusivity model (no longer used), and the Setschenow 
 salting out correction constant.  For unknown parameter values, use -9999.</p>
@@ -109,8 +93,8 @@ Tc : temperature at the critical point (K)
 Vc : molar volume at the critical point (m^3/mol)
 Tb : boiling point (K)
 Vb : molar volume at the boiling point (m^3/mol)
-omega : acentric factor (&#8211;)
-kh_0 : Henry&#8217;s law constant at 298.15 K (kg/(m^3 Pa))
+omega : acentric factor (–)
+kh_0 : Henry’s law constant at 298.15 K (kg/(m^3 Pa))
 -dH_solR : negative of the enthalpy of solution / R (K)
 nu_bar : specific volume at infinite dilution (m^3/mol)
 B : diffusivity model coefficient (m^2/s)
@@ -138,10 +122,10 @@ first priority to parameter keys found in the user-specified database.</p>
 </div>
 <div class="section" id="examples">
 <h3>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">tamoc</span> <span class="kn">import</span> <span class="n">chemical_properties</span> <span class="k">as</span> <span class="n">chem</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">chem</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;oxygen&#39;</span><span class="p">][</span><span class="s">&#39;M&#39;</span><span class="p">]</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">tamoc</span> <span class="k">import</span> <span class="n">chemical_properties</span> <span class="k">as</span> <span class="n">chem</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">chem</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;oxygen&#39;</span><span class="p">][</span><span class="s1">&#39;M&#39;</span><span class="p">]</span>
 <span class="go">0.031998800000000001</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">chem</span><span class="o">.</span><span class="n">units</span><span class="p">[</span><span class="s">&#39;M&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">chem</span><span class="o">.</span><span class="n">units</span><span class="p">[</span><span class="s1">&#39;M&#39;</span><span class="p">]</span>
 <span class="go">&#39;(kg/mol)&#39;</span>
 </pre></div>
 </div>
@@ -165,20 +149,20 @@ first priority to parameter keys found in the user-specified database.</p>
 <h2>Input Data Documentation<a class="headerlink" href="#input-data-documentation" title="Permalink to this headline">¶</a></h2>
 <p>This script loads the chemical properties database into the name space.  If
 the import command is:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">chemical_properties</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">chemical_properties</span>
 </pre></div>
 </div>
 <p>then the database is in the <code class="docutils literal"><span class="pre">chemical_properties</span></code> namespace.  The <code class="docutils literal"><span class="pre">TAMOC</span></code>
 package usually imports using:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">chemical_properties</span> <span class="kn">as</span> <span class="nn">chem</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">chemical_properties</span> <span class="k">as</span> <span class="nn">chem</span>
 </pre></div>
 </div>
 <p>so that the database is in the <code class="docutils literal"><span class="pre">chem</span></code> namespace.</p>
 <p>The data loaded into these namespaces is stored in the file:</p>
-<div class="highlight-python"><div class="highlight"><pre>./data/ChemData.csv
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">data</span><span class="o">/</span><span class="n">ChemData</span><span class="o">.</span><span class="n">csv</span>
 </pre></div>
 </div>
-<p>The format for these data is described in <a class="reference internal" href="../chem/ChemData_ReadMe.html"><em>Sources of Data in ChemData.csv</em></a></p>
+<p>The format for these data is described in <a class="reference internal" href="../chem/ChemData_ReadMe.html"><span class="doc">Sources of Data in ChemData.csv</span></a></p>
 </div>
 </div>
 
@@ -207,35 +191,34 @@ package usually imports using:</p>
 </ul>
 </li>
 </ul>
-
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="../seawater/seawater.cp.html"
-                        title="previous chapter">seawater.cp</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="../chem/chemical_properties.load_data.html"
-                        title="next chapter">chemical_properties.load_data</a></p>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../contents.html">Documentation overview</a><ul>
+      <li>Previous: <a href="../seawater/seawater.cp.html" title="previous chapter">seawater.cp</a></li>
+      <li>Next: <a href="../chem/chemical_properties.load_data.html" title="next chapter">chemical_properties.load_data</a></li>
+  </ul></li>
+</ul>
+</div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/modules/chem.txt"
+      <li><a href="../_sources/modules/chem.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <ul class="this-page-menu">
-  <li><a href="/numpy/docs/numpy-docs/modules/chem.rst">Edit page</a></li>
+  <li><a href="/numpy/docs/numpy-docs/modules/chem.rst.rst">Edit page</a></li>
 </ul>
 
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
 
@@ -247,12 +230,12 @@ package usually imports using:</p>
       &copy;2015, Scott A. Socolofsky.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
-      <a href="../_sources/modules/chem.txt"
-          rel="nofollow">Page source</a></li>
+      <a href="../_sources/modules/chem.rst.txt"
+          rel="nofollow">Page source</a>
     </div>
 
     

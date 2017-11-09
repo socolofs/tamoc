@@ -1,0 +1,41 @@
+###############################
+Overview of Chemical Properties
+###############################
+
+:Release: |version|
+:Date: |today|
+
+.. currentmodule:: chemical_properties
+
+.. automodule:: chemical_properties
+
+Module Functions
+================
+
+.. currentmodule:: chemical_properties
+
+.. autosummary::
+   :toctree: ../chem
+
+   load_data
+
+Input Data Documentation
+========================
+
+This script loads the chemical properties database into the name space.  If
+the import command is::
+
+   import chemical_properties
+
+then the database is in the ``chemical_properties`` namespace.  The ``TAMOC``
+package usually imports using::
+
+   import chemical_properties as chem
+
+so that the database is in the ``chem`` namespace.  
+
+The data loaded into these namespaces is stored in the file::
+
+   ./data/ChemData.csv
+
+The format for these data is described in :doc:`../chem/ChemData_ReadMe`

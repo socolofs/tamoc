@@ -1,55 +1,39 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>dispersed_phases.SingleParticle &mdash; Texas A&amp;M Oilspill Calculator v1.1 Manual</title>
-    
+    <title>dispersed_phases.SingleParticle &#8212; Texas A&amp;M Oilspill Calculator v1.1 Manual</title>
     <link rel="stylesheet" href="../_static/scipy.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.1.0',
+        VERSION:     '1.1.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Texas A&amp;M Oilspill Calculator v1.1 Manual" href="../contents.html" />
-    <link rel="up" title="Reference" href="../modules/reference.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="dispersed_phases.SingleParticle.diameter" href="dispersed_phases.SingleParticle.diameter.html" />
-    <link rel="prev" title="dispersed_phases.particles_state_space" href="dispersed_phases.particles_state_space.html" />
+    <link rel="prev" title="dbm.InsolubleParticle.viscosity" href="../dbm/dbm.InsolubleParticle.viscosity.html" />
    
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="dispersed_phases.SingleParticle.diameter.html" title="dispersed_phases.SingleParticle.diameter"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="dispersed_phases.particles_state_space.html" title="dispersed_phases.particles_state_space"
-             accesskey="P">previous</a> |</li>
-<li><a href="../index.html">Texas A&M Oilspill Calculator v1.1 Manual</a> &raquo;</li>
-
-          <li class="nav-item nav-item-1"><a href="../modules/reference.html" accesskey="U">Reference</a> &raquo;</li> 
-      </ul>
-    </div>  
+  <body>
+  
 
     <div class="document">
       <div class="documentwrapper">
@@ -64,13 +48,13 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">1.1</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">October 31, 2017</td>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">Nov 08, 2017</td>
 </tr>
 </tbody>
 </table>
 <dl class="class">
 <dt id="dispersed_phases.SingleParticle">
-<em class="property">class </em><code class="descclassname">dispersed_phases.</code><code class="descname">SingleParticle</code><span class="sig-paren">(</span><em>dbm_particle</em>, <em>m0</em>, <em>T0</em>, <em>K=1.0</em>, <em>K_T=1.0</em>, <em>fdis=1e-06</em>, <em>t_hyd=0.0</em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.9.2/numpy/../../../../../../../../Dropbox/socolofs/Projects/NFBC/tamoc/tamoc/dispersed_phases.py#L58"><span class="viewcode-link">[source]</span></a><a class="reference internal" href="../_modules/dispersed_phases.html#SingleParticle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dispersed_phases.SingleParticle" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dispersed_phases.</code><code class="descname">SingleParticle</code><span class="sig-paren">(</span><em>dbm_particle</em>, <em>m0</em>, <em>T0</em>, <em>K=1.0</em>, <em>K_T=1.0</em>, <em>fdis=1e-06</em>, <em>t_hyd=0.0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dispersed_phases.html#SingleParticle"><span class="viewcode-link">[source]</span></a><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.13.3/numpy/../../../../../Dropbox/socolofs/Projects/NFBC/tamoc/tamoc/dispersed_phases.py#L58"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dispersed_phases.SingleParticle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Interface to the <a class="reference internal" href="../modules/dbm.html#module-dbm" title="dbm"><code class="xref py py-obj docutils literal"><span class="pre">dbm</span></code></a> module and container for model parameters</p>
 <p>This class provides a uniform interface to the <a class="reference internal" href="../modules/dbm.html#module-dbm" title="dbm"><code class="xref py py-obj docutils literal"><span class="pre">dbm</span></code></a> module objects and
 methods and stores the particle-specific model parameters.  Because the
@@ -102,15 +86,15 @@ dissolved.</p>
 </div></blockquote>
 <p><strong>K</strong> : float, default = 1.</p>
 <blockquote>
-<div><p>Mass transfer reduction factor (&#8211;).</p>
+<div><p>Mass transfer reduction factor (–).</p>
 </div></blockquote>
 <p><strong>K_T</strong> : float, default = 1.</p>
 <blockquote>
-<div><p>Heat transfer reduction factor (&#8211;).</p>
+<div><p>Heat transfer reduction factor (–).</p>
 </div></blockquote>
 <p><strong>fdis</strong> : float, default = 1e-6</p>
 <blockquote>
-<div><p>Fraction of the initial total mass (&#8211;) remaining when the particle 
+<div><p>Fraction of the initial total mass (–) remaining when the particle 
 should be considered dissolved.</p>
 </div></blockquote>
 <p><strong>t_hyd</strong> : float, default = 0.</p>
@@ -141,35 +125,35 @@ the ambient temperature.</p>
 <p class="rubric">Attributes</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="10%" />
-<col width="90%" />
+<col width="13%" />
+<col width="88%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td>particle</td>
+<tr class="row-odd"><td><strong>particle</strong></td>
 <td>(<a class="reference internal" href="../modules/dbm.html#dbm.FluidParticle" title="dbm.FluidParticle"><code class="xref py py-obj docutils literal"><span class="pre">dbm.FluidParticle</span></code></a> or <a class="reference internal" href="../modules/dbm.html#dbm.InsolubleParticle" title="dbm.InsolubleParticle"><code class="xref py py-obj docutils literal"><span class="pre">dbm.InsolubleParticle</span></code></a> object) Stores the <em class="xref py py-obj">dbm_particle</em> object passed to <em class="xref py py-obj">__init__()</em>.</td>
 </tr>
-<tr class="row-even"><td>composition</td>
+<tr class="row-even"><td><strong>composition</strong></td>
 <td>(str list) Copy of the <em class="xref py py-obj">composition</em> attribute of the <em class="xref py py-obj">dbm_particle</em> object.</td>
 </tr>
-<tr class="row-odd"><td>m0</td>
+<tr class="row-odd"><td><strong>m0</strong></td>
 <td>(ndarray) Initial masses (kg) of the particle components</td>
 </tr>
-<tr class="row-even"><td>T0</td>
+<tr class="row-even"><td><strong>T0</strong></td>
 <td>(float) Initial temperature (K) of the particle</td>
 </tr>
-<tr class="row-odd"><td>cp</td>
+<tr class="row-odd"><td><strong>cp</strong></td>
 <td>(float) Heat capacity at constant pressure (J/(kg K)) of the particle.</td>
 </tr>
-<tr class="row-even"><td>K</td>
-<td>(float) Mass transfer reduction factor (&#8211;)</td>
+<tr class="row-even"><td><strong>K</strong></td>
+<td>(float) Mass transfer reduction factor (–)</td>
 </tr>
-<tr class="row-odd"><td>K_T</td>
-<td>(float) Heat transfer reduction factor (&#8211;)</td>
+<tr class="row-odd"><td><strong>K_T</strong></td>
+<td>(float) Heat transfer reduction factor (–)</td>
 </tr>
-<tr class="row-even"><td>fdis</td>
-<td>(float) Fraction of initial mass remaining as total dissolution (&#8211;)</td>
+<tr class="row-even"><td><strong>fdis</strong></td>
+<td>(float) Fraction of initial mass remaining as total dissolution (–)</td>
 </tr>
-<tr class="row-odd"><td>diss_indices</td>
+<tr class="row-odd"><td><strong>diss_indices</strong></td>
 <td>(ndarray bool) Indices of m0 that are non-zero.</td>
 </tr>
 </tbody>
@@ -215,35 +199,36 @@ the ambient temperature.</p>
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../contents.html">
               <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
-            </a></p>
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="dispersed_phases.particles_state_space.html"
-                        title="previous chapter">dispersed_phases.particles_state_space</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="dispersed_phases.SingleParticle.diameter.html"
-                        title="next chapter">dispersed_phases.SingleParticle.diameter</a></p>
+            </a></p><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../contents.html">Documentation overview</a><ul>
+  <li><a href="../modules/reference.html">Reference</a><ul>
+      <li>Previous: <a href="../dbm/dbm.InsolubleParticle.viscosity.html" title="previous chapter">dbm.InsolubleParticle.viscosity</a></li>
+      <li>Next: <a href="dispersed_phases.SingleParticle.diameter.html" title="next chapter">dispersed_phases.SingleParticle.diameter</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/disp_phases/dispersed_phases.SingleParticle.txt"
+      <li><a href="../_sources/disp_phases/dispersed_phases.SingleParticle.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <ul class="this-page-menu">
-  <li><a href="/numpy/docs/numpy-docs/disp_phases/dispersed_phases.SingleParticle.rst">Edit page</a></li>
+  <li><a href="/numpy/docs/numpy-docs/disp_phases/dispersed_phases.SingleParticle.rst.rst">Edit page</a></li>
 </ul>
 
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
 
@@ -255,12 +240,12 @@ the ambient temperature.</p>
       &copy;2015, Scott A. Socolofsky.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
-      <a href="../_sources/disp_phases/dispersed_phases.SingleParticle.txt"
-          rel="nofollow">Page source</a></li>
+      <a href="../_sources/disp_phases/dispersed_phases.SingleParticle.rst.txt"
+          rel="nofollow">Page source</a>
     </div>
 
     

@@ -1,47 +1,37 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>single_bubble_model &mdash; Texas A&amp;M Oilspill Calculator v1.1 Manual</title>
-    
+    <title>single_bubble_model &#8212; Texas A&amp;M Oilspill Calculator v1.1 Manual</title>
     <link rel="stylesheet" href="../_static/scipy.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.1.0',
+        VERSION:     '1.1.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Texas A&amp;M Oilspill Calculator v1.1 Manual" href="../contents.html" />
-    <link rel="up" title="Module code" href="index.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
    
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-<li><a href="../index.html">Texas A&M Oilspill Calculator v1.1 Manual</a> &raquo;</li>
-
-          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
-      </ul>
-    </div>  
+  <body>
+  
 
     <div class="document">
       <div class="documentwrapper">
@@ -49,7 +39,7 @@
           <div class="body" role="main">
             
   <h1>Source code for single_bubble_model</h1><div class="highlight"><pre>
-<span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Single Bubble Model</span>
 <span class="sd">===================</span>
 
@@ -127,24 +117,24 @@
 <span class="sd">to break up into multiple bubbles.</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="c"># S. Socolofsky, November 2014, Texas A&amp;M University &lt;socolofs@tamu.edu&gt;.</span>
+<span class="c1"># S. Socolofsky, November 2014, Texas A&amp;M University &lt;socolofs@tamu.edu&gt;.</span>
 
-<span class="kn">from</span> <span class="nn">tamoc</span> <span class="kn">import</span> <span class="n">model_share</span>
-<span class="kn">from</span> <span class="nn">tamoc</span> <span class="kn">import</span> <span class="n">seawater</span>
-<span class="kn">from</span> <span class="nn">tamoc</span> <span class="kn">import</span> <span class="n">ambient</span>
-<span class="kn">from</span> <span class="nn">tamoc</span> <span class="kn">import</span> <span class="n">dbm</span>
-<span class="kn">from</span> <span class="nn">tamoc</span> <span class="kn">import</span> <span class="n">dispersed_phases</span>
+<span class="kn">from</span> <span class="nn">tamoc</span> <span class="k">import</span> <span class="n">model_share</span>
+<span class="kn">from</span> <span class="nn">tamoc</span> <span class="k">import</span> <span class="n">seawater</span>
+<span class="kn">from</span> <span class="nn">tamoc</span> <span class="k">import</span> <span class="n">ambient</span>
+<span class="kn">from</span> <span class="nn">tamoc</span> <span class="k">import</span> <span class="n">dbm</span>
+<span class="kn">from</span> <span class="nn">tamoc</span> <span class="k">import</span> <span class="n">dispersed_phases</span>
 
-<span class="kn">from</span> <span class="nn">netCDF4</span> <span class="kn">import</span> <span class="n">Dataset</span>
-<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">netCDF4</span> <span class="k">import</span> <span class="n">Dataset</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
-<span class="kn">import</span> <span class="nn">matplotlib</span> <span class="kn">as</span> <span class="nn">mpl</span>
-<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">copy</span>
-<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">integrate</span>
-<span class="kn">from</span> <span class="nn">string</span> <span class="kn">import</span> <span class="n">join</span><span class="p">,</span> <span class="n">capwords</span>
-<span class="kn">from</span> <span class="nn">warnings</span> <span class="kn">import</span> <span class="n">warn</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">matplotlib</span> <span class="k">as</span> <span class="nn">mpl</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="k">import</span> <span class="n">copy</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="k">import</span> <span class="n">integrate</span>
+<span class="kn">from</span> <span class="nn">string</span> <span class="k">import</span> <span class="n">join</span><span class="p">,</span> <span class="n">capwords</span>
+<span class="kn">from</span> <span class="nn">warnings</span> <span class="k">import</span> <span class="n">warn</span>
 <span class="kn">import</span> <span class="nn">os</span>
 
 <div class="viewcode-block" id="Model"><a class="viewcode-back" href="../sbm/single_bubble_model.Model.html#single_bubble_model.Model">[docs]</a><span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -226,22 +216,22 @@
 <span class="sd">    previous simulation stored in `simfile`.</span>
 <span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">simfile</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">Model</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">simfile</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Model</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         
-        <span class="k">if</span> <span class="n">profile</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="c"># Create a Model object from a saved file</span>
+        <span class="k">if</span> <span class="n">profile</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Create a Model object from a saved file</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">load_sim</span><span class="p">(</span><span class="n">simfile</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="c"># Create a new Model object</span>
+            <span class="c1"># Create a new Model object</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">profile</span> <span class="o">=</span> <span class="n">profile</span>
             <span class="n">profile</span><span class="o">.</span><span class="n">close_nc</span><span class="p">()</span>
             
-            <span class="c"># Enter the model parameters that the user cannot adjust</span>
+            <span class="c1"># Enter the model parameters that the user cannot adjust</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">p</span> <span class="o">=</span> <span class="n">ModelParams</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">sim_stored</span> <span class="o">=</span> <span class="bp">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sim_stored</span> <span class="o">=</span> <span class="kc">False</span>
     
-<div class="viewcode-block" id="Model.simulate"><a class="viewcode-back" href="../sbm/single_bubble_model.Model.simulate.html#single_bubble_model.Model.simulate">[docs]</a>    <span class="k">def</span> <span class="nf">simulate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">particle</span><span class="p">,</span> <span class="n">X0</span><span class="p">,</span> <span class="n">de</span><span class="p">,</span> <span class="n">yk</span><span class="p">,</span> <span class="n">T0</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">K_T</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> 
+<div class="viewcode-block" id="Model.simulate"><a class="viewcode-back" href="../sbm/single_bubble_model.Model.simulate.html#single_bubble_model.Model.simulate">[docs]</a>    <span class="k">def</span> <span class="nf">simulate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">particle</span><span class="p">,</span> <span class="n">X0</span><span class="p">,</span> <span class="n">de</span><span class="p">,</span> <span class="n">yk</span><span class="p">,</span> <span class="n">T0</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">K_T</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> 
                  <span class="n">fdis</span><span class="o">=</span><span class="mf">1.e-6</span><span class="p">,</span> <span class="n">t_hyd</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">delta_t</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Simulate the trajectory of a particle from given initial conditions</span>
@@ -300,51 +290,51 @@
 <span class="sd">        change during simulation.</span>
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c"># Check the initial position and make it an array.</span>
+        <span class="c1"># Check the initial position and make it an array.</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">X0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">X0</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
                 <span class="n">X0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="n">X0</span><span class="p">])</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">X0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">X0</span><span class="p">)</span>
         
-        <span class="c"># Make sure yk is an ndarray</span>
+        <span class="c1"># Make sure yk is an ndarray</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">yk</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">yk</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
                 <span class="n">yk</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">yk</span><span class="p">])</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">yk</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">yk</span><span class="p">)</span>
         
-        <span class="c"># Check if the right number of elements are in yk</span>
+        <span class="c1"># Check if the right number of elements are in yk</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">yk</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">particle</span><span class="o">.</span><span class="n">composition</span><span class="p">):</span>
-            <span class="k">print</span> <span class="s">&#39;Wrong number of mole fractions:&#39;</span>
-            <span class="k">print</span> <span class="s">&#39;   yk : </span><span class="si">%d</span><span class="s"> entries&#39;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">yk</span><span class="p">)</span>
-            <span class="k">print</span> <span class="s">&#39;   composition : </span><span class="si">%d</span><span class="s"> components</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> \
+            <span class="nb">print</span> <span class="s1">&#39;Wrong number of mole fractions:&#39;</span>
+            <span class="nb">print</span> <span class="s1">&#39;   yk : </span><span class="si">%d</span><span class="s1"> entries&#39;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">yk</span><span class="p">)</span>
+            <span class="nb">print</span> <span class="s1">&#39;   composition : </span><span class="si">%d</span><span class="s1"> components</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> \
                                     <span class="nb">len</span><span class="p">(</span><span class="n">particle</span><span class="o">.</span><span class="n">composition</span><span class="p">)</span>
             <span class="k">return</span>
         
-        <span class="c"># Save the input variables that are not part of the self.particle</span>
-        <span class="c"># object</span>
+        <span class="c1"># Save the input variables that are not part of the self.particle</span>
+        <span class="c1"># object</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">K_T0</span> <span class="o">=</span> <span class="n">K_T</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">delta_t</span> <span class="o">=</span> <span class="n">delta_t</span>
         
-        <span class="c"># Get the initial conditions for the simulation run</span>
+        <span class="c1"># Get the initial conditions for the simulation run</span>
         <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">particle</span><span class="p">,</span> <span class="n">y0</span><span class="p">)</span> <span class="o">=</span> <span class="n">sbm_ic</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="n">particle</span><span class="p">,</span> <span class="n">X0</span><span class="p">,</span> <span class="n">de</span><span class="p">,</span> <span class="n">yk</span><span class="p">,</span> <span class="n">T0</span><span class="p">,</span> 
                                      <span class="n">K</span><span class="p">,</span> <span class="n">K_T</span><span class="p">,</span> <span class="n">fdis</span><span class="p">,</span> <span class="n">t_hyd</span><span class="p">)</span>
         
-        <span class="c"># Open the simulation module</span>
-        <span class="k">print</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">-- TEXAS A&amp;M OIL-SPILL CALCULATOR (TAMOC) --&#39;</span>
-        <span class="k">print</span> <span class="s">&#39;-- Single Bubble Model                    --</span><span class="se">\n</span><span class="s">&#39;</span>
+        <span class="c1"># Open the simulation module</span>
+        <span class="nb">print</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">-- TEXAS A&amp;M OIL-SPILL CALCULATOR (TAMOC) --&#39;</span>
+        <span class="nb">print</span> <span class="s1">&#39;-- Single Bubble Model                    --</span><span class="se">\n</span><span class="s1">&#39;</span>
         
-        <span class="c"># Calculate the trajectory</span>
-        <span class="k">print</span> <span class="s">&#39;Calculate the trajectory...&#39;</span>
+        <span class="c1"># Calculate the trajectory</span>
+        <span class="nb">print</span> <span class="s1">&#39;Calculate the trajectory...&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">calculate_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">particle</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">,</span> 
                                         <span class="n">y0</span><span class="p">,</span> <span class="n">delta_t</span><span class="p">)</span>
-        <span class="k">print</span> <span class="s">&#39;Simulation complete.</span><span class="se">\n</span><span class="s"> &#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sim_stored</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="nb">print</span> <span class="s1">&#39;Simulation complete.</span><span class="se">\n</span><span class="s1"> &#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sim_stored</span> <span class="o">=</span> <span class="kc">True</span>
         
-        <span class="c"># Restart heat transfer</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">K_T</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">K_T0</span>
-    </div>
+        <span class="c1"># Restart heat transfer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">K_T</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">K_T0</span></div>
+    
 <div class="viewcode-block" id="Model.save_sim"><a class="viewcode-back" href="../sbm/single_bubble_model.Model.save_sim.html#single_bubble_model.Model.save_sim">[docs]</a>    <span class="k">def</span> <span class="nf">save_sim</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">profile_path</span><span class="p">,</span> <span class="n">profile_info</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Save the current simulation results</span>
@@ -375,61 +365,61 @@
 <span class="sd">        so that the ambient data can be identified if they have been moved.</span>
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_stored</span> <span class="ow">is</span> <span class="bp">False</span><span class="p">:</span>
-            <span class="k">print</span> <span class="s">&#39;No simulation results to store...&#39;</span>
-            <span class="k">print</span> <span class="s">&#39;Saved nothing to netCDF file.</span><span class="se">\n</span><span class="s">&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_stored</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="nb">print</span> <span class="s1">&#39;No simulation results to store...&#39;</span>
+            <span class="nb">print</span> <span class="s1">&#39;Saved nothing to netCDF file.</span><span class="se">\n</span><span class="s1">&#39;</span>
             <span class="k">return</span>
         
-        <span class="c"># Create the netCDF dataset object</span>
-        <span class="n">title</span> <span class="o">=</span> <span class="s">&#39;Simulation results for the TAMOC Single Bubble Model&#39;</span>
+        <span class="c1"># Create the netCDF dataset object</span>
+        <span class="n">title</span> <span class="o">=</span> <span class="s1">&#39;Simulation results for the TAMOC Single Bubble Model&#39;</span>
         <span class="n">nc</span> <span class="o">=</span> <span class="n">model_share</span><span class="o">.</span><span class="n">tamoc_nc_file</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">profile_path</span><span class="p">,</span> <span class="n">profile_info</span><span class="p">)</span>
         
-        <span class="c"># Create variables for the dimensions</span>
-        <span class="n">z</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createDimension</span><span class="p">(</span><span class="s">&#39;z&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
-        <span class="n">p</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createDimension</span><span class="p">(</span><span class="s">&#39;profile&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="n">ns</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createDimension</span><span class="p">(</span><span class="s">&#39;ns&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]))</span>
+        <span class="c1"># Create variables for the dimensions</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createDimension</span><span class="p">(</span><span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createDimension</span><span class="p">(</span><span class="s1">&#39;profile&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">ns</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createDimension</span><span class="p">(</span><span class="s1">&#39;ns&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]))</span>
         
-        <span class="c"># Create variables for the model initial conditions</span>
-        <span class="n">K_T0</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;K_T0&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;profile&#39;</span><span class="p">,))</span>
-        <span class="n">K_T0</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;Initial heat transfer reduction factor&#39;</span>
-        <span class="n">K_T0</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;K_T0&#39;</span>
-        <span class="n">K_T0</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;nondimensional&#39;</span>
+        <span class="c1"># Create variables for the model initial conditions</span>
+        <span class="n">K_T0</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s1">&#39;K_T0&#39;</span><span class="p">,</span> <span class="s1">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;profile&#39;</span><span class="p">,))</span>
+        <span class="n">K_T0</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s1">&#39;Initial heat transfer reduction factor&#39;</span>
+        <span class="n">K_T0</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s1">&#39;K_T0&#39;</span>
+        <span class="n">K_T0</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s1">&#39;nondimensional&#39;</span>
         
-        <span class="n">delta_t</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;delta_t&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;profile&#39;</span><span class="p">,))</span>
-        <span class="n">delta_t</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;maximum simulation output time step&#39;</span>
-        <span class="n">delta_t</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;delta_t&#39;</span>
-        <span class="n">delta_t</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;seconds&#39;</span>
+        <span class="n">delta_t</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s1">&#39;delta_t&#39;</span><span class="p">,</span> <span class="s1">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;profile&#39;</span><span class="p">,))</span>
+        <span class="n">delta_t</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s1">&#39;maximum simulation output time step&#39;</span>
+        <span class="n">delta_t</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s1">&#39;delta_t&#39;</span>
+        <span class="n">delta_t</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s1">&#39;seconds&#39;</span>
         
-        <span class="c"># Create variables for the independent variable</span>
-        <span class="n">t</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;t&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;z&#39;</span><span class="p">,))</span>
-        <span class="n">t</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;time coordinate&#39;</span>
-        <span class="n">t</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;time&#39;</span>
-        <span class="n">t</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;seconds since release&#39;</span>
-        <span class="n">t</span><span class="o">.</span><span class="n">axis</span> <span class="o">=</span> <span class="s">&#39;T&#39;</span>
+        <span class="c1"># Create variables for the independent variable</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s1">&#39;t&#39;</span><span class="p">,</span> <span class="s1">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;z&#39;</span><span class="p">,))</span>
+        <span class="n">t</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s1">&#39;time coordinate&#39;</span>
+        <span class="n">t</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s1">&#39;time&#39;</span>
+        <span class="n">t</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s1">&#39;seconds since release&#39;</span>
+        <span class="n">t</span><span class="o">.</span><span class="n">axis</span> <span class="o">=</span> <span class="s1">&#39;T&#39;</span>
         
-        <span class="c"># Create variables for the state space</span>
-        <span class="n">y</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s">&#39;y&#39;</span><span class="p">,</span> <span class="s">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;z&#39;</span><span class="p">,</span> <span class="s">&#39;ns&#39;</span><span class="p">,))</span>
-        <span class="n">y</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;solution state space&#39;</span>
-        <span class="n">y</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s">&#39;y&#39;</span>
-        <span class="n">y</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;variable&#39;</span>
-        <span class="n">y</span><span class="o">.</span><span class="n">coordinate</span> <span class="o">=</span> <span class="s">&#39;t&#39;</span>
+        <span class="c1"># Create variables for the state space</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="s1">&#39;ns&#39;</span><span class="p">,))</span>
+        <span class="n">y</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s1">&#39;solution state space&#39;</span>
+        <span class="n">y</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s1">&#39;y&#39;</span>
+        <span class="n">y</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s1">&#39;variable&#39;</span>
+        <span class="n">y</span><span class="o">.</span><span class="n">coordinate</span> <span class="o">=</span> <span class="s1">&#39;t&#39;</span>
         
-        <span class="c"># Store the initial conditions and model setup</span>
+        <span class="c1"># Store the initial conditions and model setup</span>
         <span class="n">K_T0</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">K_T0</span>
         <span class="n">delta_t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta_t</span>
         
-        <span class="c"># Store the dbm particle object</span>
+        <span class="c1"># Store the dbm particle object</span>
         <span class="n">dispersed_phases</span><span class="o">.</span><span class="n">save_particle_to_nc_file</span><span class="p">(</span><span class="n">nc</span><span class="p">,</span> 
             <span class="bp">self</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">composition</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">particle</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">K_T0</span><span class="p">)</span>
         
-        <span class="c"># Save the model simulation result</span>
+        <span class="c1"># Save the model simulation result</span>
         <span class="n">t</span><span class="p">[:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">t</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">nc</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s">&#39;ns&#39;</span><span class="p">])):</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">nc</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s1">&#39;ns&#39;</span><span class="p">])):</span>
             <span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">),</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">[:,</span><span class="n">i</span><span class="p">]</span>
         
-        <span class="c"># Close the netCDF dataset</span>
-        <span class="n">nc</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-    </div>
+        <span class="c1"># Close the netCDF dataset</span>
+        <span class="n">nc</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+    
 <div class="viewcode-block" id="Model.save_txt"><a class="viewcode-back" href="../sbm/single_bubble_model.Model.save_txt.html#single_bubble_model.Model.save_txt">[docs]</a>    <span class="k">def</span> <span class="nf">save_txt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_name</span><span class="p">,</span> <span class="n">profile_path</span><span class="p">,</span> <span class="n">profile_info</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Save the state space in ascii text format for exporting</span>
@@ -466,36 +456,36 @@
 <span class="sd">        The file is written using the `numpy.savetxt` method.</span>
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_stored</span> <span class="ow">is</span> <span class="bp">False</span><span class="p">:</span>
-            <span class="k">print</span> <span class="s">&#39;No simulation results to store...&#39;</span>
-            <span class="k">print</span> <span class="s">&#39;Saved nothing to txt file.</span><span class="se">\n</span><span class="s">&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_stored</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="nb">print</span> <span class="s1">&#39;No simulation results to store...&#39;</span>
+            <span class="nb">print</span> <span class="s1">&#39;Saved nothing to txt file.</span><span class="se">\n</span><span class="s1">&#39;</span>
             <span class="k">return</span>
         
-        <span class="c"># Create the header string that contains the column descriptions</span>
-        <span class="n">p_list</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;Single Bubble Model ASCII Output File </span><span class="se">\n</span><span class="s">&#39;</span><span class="p">]</span>
-        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;Created: &#39;</span> <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(</span><span class="s">&#39; &#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;</span><span class="se">\n\n</span><span class="s">&#39;</span><span class="p">)</span>
-        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;Simulation based on CTD data in:</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="c1"># Create the header string that contains the column descriptions</span>
+        <span class="n">p_list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Single Bubble Model ASCII Output File </span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">]</span>
+        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Created: &#39;</span> <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Simulation based on CTD data in:</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">profile_path</span><span class="p">)</span>
-        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">profile_info</span><span class="p">)</span>
-        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n\n</span><span class="s">&#39;</span><span class="p">)</span>
-        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;Column Descriptions:</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
-        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;    0:  Time in s</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
-        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;    1:  x-coordinate in m</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
-        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;    2:  y-coordinate in m</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
-        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;    3:  Depth in m</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Column Descriptions:</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;    0:  Time in s</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;    1:  x-coordinate in m</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;    2:  y-coordinate in m</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;    3:  Depth in m</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">composition</span><span class="p">)):</span>
-            <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;    </span><span class="si">%d</span><span class="s">:  Mass of </span><span class="si">%s</span><span class="s"> in particle in kg</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> \
+            <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;    </span><span class="si">%d</span><span class="s1">:  Mass of </span><span class="si">%s</span><span class="s1"> in particle in kg</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> \
                           <span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">4</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">composition</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
-        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;    </span><span class="si">%d</span><span class="s">:  Heat content (m_p * cp * T) in J</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">5</span><span class="p">))</span>
-        <span class="n">header</span> <span class="o">=</span> <span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">p_list</span><span class="p">)</span>
+        <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;    </span><span class="si">%d</span><span class="s1">:  Heat content (m_p * cp * T) in J</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">5</span><span class="p">))</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">p_list</span><span class="p">)</span>
         
-        <span class="c"># Assemble and write the output data</span>
+        <span class="c1"># Assemble and write the output data</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">atleast_2d</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">))</span>
-        <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="n">base_name</span> <span class="o">+</span> <span class="s">&#39;.txt&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">base_name</span> <span class="o">+</span> <span class="s">&#39;_header.txt&#39;</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">txt_file</span><span class="p">:</span>
-            <span class="n">txt_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
-    </div>
+        <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="n">base_name</span> <span class="o">+</span> <span class="s1">&#39;.txt&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">base_name</span> <span class="o">+</span> <span class="s1">&#39;_header.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">txt_file</span><span class="p">:</span>
+            <span class="n">txt_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">header</span><span class="p">)</span></div>
+    
 <div class="viewcode-block" id="Model.load_sim"><a class="viewcode-back" href="../sbm/single_bubble_model.Model.load_sim.html#single_bubble_model.Model.load_sim">[docs]</a>    <span class="k">def</span> <span class="nf">load_sim</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load in a saved simulation result file for post-processing</span>
@@ -517,35 +507,35 @@
 <span class="sd">        steps of loading the `Model` object attributes will be performed.</span>
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c"># Open the netCDF dataset object containing the simulation results</span>
+        <span class="c1"># Open the netCDF dataset object containing the simulation results</span>
         <span class="n">nc</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
         
-        <span class="c"># Try to open the profile data</span>
+        <span class="c1"># Try to open the profile data</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">profile</span> <span class="o">=</span> <span class="n">model_share</span><span class="o">.</span><span class="n">profile_from_model_savefile</span><span class="p">(</span><span class="n">nc</span><span class="p">,</span> <span class="n">fname</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">p</span> <span class="o">=</span> <span class="n">ModelParams</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">p</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">p</span> <span class="o">=</span> <span class="kc">None</span>
         
-        <span class="c"># Load in the dispersed_phases.Particle object</span>
+        <span class="c1"># Load in the dispersed_phases.Particle object</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">particle</span> <span class="o">=</span> \
             <span class="n">dispersed_phases</span><span class="o">.</span><span class="n">load_particle_from_nc_file</span><span class="p">(</span><span class="n">nc</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
         
-        <span class="c"># Extract the state space data</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">t</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;t&#39;</span><span class="p">][:]</span>
-        <span class="n">ns</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">nc</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s">&#39;ns&#39;</span><span class="p">])</span>
+        <span class="c1"># Extract the state space data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">t</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">][:]</span>
+        <span class="n">ns</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">nc</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s1">&#39;ns&#39;</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">),</span> <span class="n">ns</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ns</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">[:,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;y&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">),</span> <span class="n">i</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">[:,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">),</span> <span class="n">i</span><span class="p">]</span>
         
-        <span class="c"># Extract the initial conditions</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">K_T0</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;K_T0&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">delta_t</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s">&#39;delta_t&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="c1"># Extract the initial conditions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">K_T0</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;K_T0&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">delta_t</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;delta_t&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
         
-        <span class="c"># Close the netCDF dataset</span>
+        <span class="c1"># Close the netCDF dataset</span>
         <span class="n">nc</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sim_stored</span> <span class="o">=</span> <span class="bp">True</span>
-    </div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sim_stored</span> <span class="o">=</span> <span class="kc">True</span></div>
+    
 <div class="viewcode-block" id="Model.post_process"><a class="viewcode-back" href="../sbm/single_bubble_model.Model.post_process.html#single_bubble_model.Model.post_process">[docs]</a>    <span class="k">def</span> <span class="nf">post_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fig</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Plot the simulation state space and key interrogation parameters</span>
@@ -563,18 +553,18 @@
 <span class="sd">        plot_state_space</span>
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_stored</span> <span class="ow">is</span> <span class="bp">False</span><span class="p">:</span>
-            <span class="k">print</span> <span class="s">&#39;No simulation results to plot...&#39;</span>
-            <span class="k">print</span> <span class="s">&#39;Plotting nothing.</span><span class="se">\n</span><span class="s">&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_stored</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="nb">print</span> <span class="s1">&#39;No simulation results to plot...&#39;</span>
+            <span class="nb">print</span> <span class="s1">&#39;Plotting nothing.</span><span class="se">\n</span><span class="s1">&#39;</span>
             <span class="k">return</span>
         
-        <span class="c"># Plot the results        </span>
-        <span class="k">print</span> <span class="s">&#39;Plotting the results...&#39;</span>
+        <span class="c1"># Plot the results        </span>
+        <span class="nb">print</span> <span class="s1">&#39;Plotting the results...&#39;</span>
         <span class="n">plot_state_space</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">particle</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">,</span> 
                          <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">fig</span><span class="p">)</span>
-        <span class="k">print</span> <span class="s">&#39;Done.</span><span class="se">\n</span><span class="s">&#39;</span>
+        <span class="nb">print</span> <span class="s1">&#39;Done.</span><span class="se">\n</span><span class="s1">&#39;</span></div></div>
     
-</div></div>
+
 <div class="viewcode-block" id="ModelParams"><a class="viewcode-back" href="../sbm/single_bubble_model.ModelParams.html#single_bubble_model.ModelParams">[docs]</a><span class="k">class</span> <span class="nc">ModelParams</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Fixed model parameters for the single bubble model</span>
@@ -598,23 +588,23 @@
 <span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">ModelParams</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ModelParams</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         
-        <span class="c"># Store a reference density for the water column</span>
+        <span class="c1"># Store a reference density for the water column</span>
         <span class="n">z_ave</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">z_max</span> <span class="o">-</span> <span class="p">(</span><span class="n">profile</span><span class="o">.</span><span class="n">z_max</span> <span class="o">-</span> <span class="n">profile</span><span class="o">.</span><span class="n">z_min</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.</span>
-        <span class="n">T</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">P</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="n">z_ave</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;temperature&#39;</span><span class="p">,</span> <span class="s">&#39;salinity&#39;</span><span class="p">,</span> 
-                                     <span class="s">&#39;pressure&#39;</span><span class="p">])</span>
+        <span class="n">T</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">P</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="n">z_ave</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;temperature&#39;</span><span class="p">,</span> <span class="s1">&#39;salinity&#39;</span><span class="p">,</span> 
+                                     <span class="s1">&#39;pressure&#39;</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rho_r</span> <span class="o">=</span> <span class="n">seawater</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
         
-        <span class="c"># Store some physical constants</span>
+        <span class="c1"># Store some physical constants</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">g</span> <span class="o">=</span> <span class="mf">9.81</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">Ru</span> <span class="o">=</span> <span class="mf">8.314510</span>  
+        <span class="bp">self</span><span class="o">.</span><span class="n">Ru</span> <span class="o">=</span> <span class="mf">8.314510</span>  </div>
 
 
-<span class="c"># ----------------------------------------------------------------------------</span>
-<span class="c"># Functions to compute the trajectory</span>
-<span class="c"># ----------------------------------------------------------------------------</span>
-</div>
+<span class="c1"># ----------------------------------------------------------------------------</span>
+<span class="c1"># Functions to compute the trajectory</span>
+<span class="c1"># ----------------------------------------------------------------------------</span>
+
 <div class="viewcode-block" id="calculate_path"><a class="viewcode-back" href="../sbm/single_bubble_model.calculate_path.html#single_bubble_model.calculate_path">[docs]</a><span class="k">def</span> <span class="nf">calculate_path</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">particle</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">delta_t</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate the trajectory of a particle</span>
@@ -655,65 +645,65 @@
 <span class="sd">        &gt;&gt;&gt; T = y[-1] / (np.sum(y[1:-1]) * particle.cp)</span>
 <span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c"># Create the integrator object:  use &quot;vode&quot; with &quot;backward </span>
-    <span class="c"># differentiation formula&quot; for stiff ODEs</span>
-    <span class="n">r</span> <span class="o">=</span> <span class="n">integrate</span><span class="o">.</span><span class="n">ode</span><span class="p">(</span><span class="n">derivs</span><span class="p">)</span><span class="o">.</span><span class="n">set_integrator</span><span class="p">(</span><span class="s">&#39;vode&#39;</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s">&#39;bdf&#39;</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1.e-6</span><span class="p">,</span> 
+    <span class="c1"># Create the integrator object:  use &quot;vode&quot; with &quot;backward </span>
+    <span class="c1"># differentiation formula&quot; for stiff ODEs</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">integrate</span><span class="o">.</span><span class="n">ode</span><span class="p">(</span><span class="n">derivs</span><span class="p">)</span><span class="o">.</span><span class="n">set_integrator</span><span class="p">(</span><span class="s1">&#39;vode&#39;</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;bdf&#39;</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1.e-6</span><span class="p">,</span> 
         <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">max_step</span><span class="o">=</span><span class="n">delta_t</span><span class="p">)</span>
     
-    <span class="c"># Initialize the state space</span>
+    <span class="c1"># Initialize the state space</span>
     <span class="n">t0</span> <span class="o">=</span> <span class="mf">0.</span>
     <span class="n">r</span><span class="o">.</span><span class="n">set_initial_value</span><span class="p">(</span><span class="n">y0</span><span class="p">,</span> <span class="n">t0</span><span class="p">)</span>
     
-    <span class="c"># Set passing variables for derivs method</span>
+    <span class="c1"># Set passing variables for derivs method</span>
     <span class="n">r</span><span class="o">.</span><span class="n">set_f_params</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">particle</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
     
-    <span class="c"># Create vectors (using the list data type) to store the solution</span>
+    <span class="c1"># Create vectors (using the list data type) to store the solution</span>
     <span class="n">t</span> <span class="o">=</span> <span class="p">[</span><span class="n">t0</span><span class="p">]</span>
     <span class="n">y</span> <span class="o">=</span> <span class="p">[</span><span class="n">y0</span><span class="p">]</span>
     
-    <span class="c"># Integrate to the free surface (profile.z_min)</span>
+    <span class="c1"># Integrate to the free surface (profile.z_min)</span>
     <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">psteps</span> <span class="o">=</span> <span class="mf">10.</span>
-    <span class="n">stop</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="n">stop</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="k">while</span> <span class="n">r</span><span class="o">.</span><span class="n">successful</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">stop</span><span class="p">:</span>
         
-        <span class="c"># Print progress to the screen</span>
+        <span class="c1"># Print progress to the screen</span>
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">remainder</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">(</span><span class="n">k</span><span class="p">),</span> <span class="n">psteps</span><span class="p">)</span> <span class="o">==</span> <span class="mf">0.</span><span class="p">:</span>
-            <span class="k">print</span> <span class="s">&#39;    Depth:  </span><span class="si">%g</span><span class="s"> (m), t:  </span><span class="si">%g</span><span class="s"> (s), k: </span><span class="si">%d</span><span class="s">&#39;</span> <span class="o">%</span> \
+            <span class="nb">print</span> <span class="s1">&#39;    Depth:  </span><span class="si">%g</span><span class="s1"> (m), t:  </span><span class="si">%g</span><span class="s1"> (s), k: </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> \
                 <span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">k</span><span class="p">)</span>
         
-        <span class="c"># Perform one step of the integration</span>
-        <span class="n">r</span><span class="o">.</span><span class="n">integrate</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">delta_t</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="c1"># Perform one step of the integration</span>
+        <span class="n">r</span><span class="o">.</span><span class="n">integrate</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">delta_t</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         
-        <span class="c"># Store the results</span>
+        <span class="c1"># Store the results</span>
         <span class="k">if</span> <span class="n">particle</span><span class="o">.</span><span class="n">K_T</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="c"># Make the state-space heat correct</span>
-            <span class="n">Ta</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="s">&#39;temperature&#39;</span><span class="p">)</span>
+            <span class="c1"># Make the state-space heat correct</span>
+            <span class="n">Ta</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="s1">&#39;temperature&#39;</span><span class="p">)</span>
             <span class="n">r</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="n">particle</span><span class="o">.</span><span class="n">cp</span> <span class="o">*</span> <span class="n">Ta</span>
         <span class="n">t</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">t</span><span class="p">)</span>
         <span class="n">y</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
         <span class="n">k</span> <span class="o">+=</span> <span class="mi">1</span>
         
-        <span class="c"># Evaluate stop criteria</span>
+        <span class="c1"># Evaluate stop criteria</span>
         <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">successful</span><span class="p">():</span>
-            <span class="c"># Check if bubble dissolved (us = 0) or reached the free surface</span>
+            <span class="c1"># Check if bubble dissolved (us = 0) or reached the free surface</span>
             <span class="n">us</span> <span class="o">=</span> <span class="o">-</span> <span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">2</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">t</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
             <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">profile</span><span class="o">.</span><span class="n">z_min</span> <span class="ow">or</span> <span class="n">us</span> <span class="o">&lt;=</span> <span class="mf">0.</span><span class="p">:</span>
-                <span class="n">stop</span> <span class="o">=</span> <span class="bp">True</span>
+                <span class="n">stop</span> <span class="o">=</span> <span class="kc">True</span>
     
-    <span class="c"># Remove any negative depths due to overshooting the free surface</span>
+    <span class="c1"># Remove any negative depths due to overshooting the free surface</span>
     <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
     <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
     <span class="n">rows</span> <span class="o">=</span> <span class="n">y</span><span class="p">[:,</span><span class="mi">2</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">0</span>
     <span class="n">t</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="n">rows</span><span class="p">]</span>
     <span class="n">y</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="n">rows</span><span class="p">,:]</span> 
     
-    <span class="c"># Return the solution</span>
-    <span class="k">print</span> <span class="s">&#39;    Depth:  </span><span class="si">%g</span><span class="s"> (m), t:  </span><span class="si">%g</span><span class="s"> (s), k: </span><span class="si">%d</span><span class="s">&#39;</span> <span class="o">%</span> \
+    <span class="c1"># Return the solution</span>
+    <span class="nb">print</span> <span class="s1">&#39;    Depth:  </span><span class="si">%g</span><span class="s1"> (m), t:  </span><span class="si">%g</span><span class="s1"> (s), k: </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> \
         <span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">k</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span></div>
 
-</div>
+
 <div class="viewcode-block" id="derivs"><a class="viewcode-back" href="../sbm/single_bubble_model.derivs.html#single_bubble_model.derivs">[docs]</a><span class="k">def</span> <span class="nf">derivs</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">particle</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute the RHS of the ODE for the trajectory of a single particle</span>
@@ -743,43 +733,43 @@
 <span class="sd">    function should not generally be called by the user.</span>
 <span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c"># Set up the output variable</span>
+    <span class="c1"># Set up the output variable</span>
     <span class="n">yp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
     
-    <span class="c"># Extract the state space variables for speed and ease of reading code</span>
+    <span class="c1"># Extract the state space variables for speed and ease of reading code</span>
     <span class="n">z</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
     <span class="n">m</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">T</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="o">*</span> <span class="n">particle</span><span class="o">.</span><span class="n">cp</span><span class="p">)</span>
     
-    <span class="c"># Get the ambient profile data</span>
-    <span class="n">Ta</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">P</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;temperature&#39;</span><span class="p">,</span> <span class="s">&#39;salinity&#39;</span><span class="p">,</span> <span class="s">&#39;pressure&#39;</span><span class="p">])</span>
-    <span class="n">ua</span><span class="p">,</span> <span class="n">va</span><span class="p">,</span> <span class="n">wa</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;ua&#39;</span><span class="p">,</span> <span class="s">&#39;va&#39;</span><span class="p">,</span> <span class="s">&#39;wa&#39;</span><span class="p">])</span>
+    <span class="c1"># Get the ambient profile data</span>
+    <span class="n">Ta</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">P</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;temperature&#39;</span><span class="p">,</span> <span class="s1">&#39;salinity&#39;</span><span class="p">,</span> <span class="s1">&#39;pressure&#39;</span><span class="p">])</span>
+    <span class="n">ua</span><span class="p">,</span> <span class="n">va</span><span class="p">,</span> <span class="n">wa</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;ua&#39;</span><span class="p">,</span> <span class="s1">&#39;va&#39;</span><span class="p">,</span> <span class="s1">&#39;wa&#39;</span><span class="p">])</span>
     <span class="n">C</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">particle</span><span class="o">.</span><span class="n">composition</span><span class="p">)</span>
     
-    <span class="c"># Get the particle properties</span>
+    <span class="c1"># Get the particle properties</span>
     <span class="p">(</span><span class="n">us</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">Cs</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">beta_T</span><span class="p">,</span> <span class="n">T</span><span class="p">)</span> <span class="o">=</span> <span class="n">particle</span><span class="o">.</span><span class="n">properties</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> 
                                                               <span class="n">Ta</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
     
-    <span class="c"># Advection</span>
+    <span class="c1"># Advection</span>
     <span class="n">yp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">ua</span>
     <span class="n">yp</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">va</span>
     <span class="n">yp</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">us</span> <span class="o">-</span> <span class="n">wa</span>
     
-    <span class="c"># Dissolution</span>
+    <span class="c1"># Dissolution</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">Cs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">yp</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span> <span class="n">A</span> <span class="o">*</span> <span class="n">beta</span><span class="p">[:]</span> <span class="o">*</span> <span class="p">(</span><span class="n">Cs</span><span class="p">[:]</span> <span class="o">-</span> <span class="n">C</span><span class="p">[:])</span>
     
-    <span class="c"># Account for heat transfer (ignore heat of solution since it is </span>
-    <span class="c"># negligible in the beginning as the particle approaches equilibrium)</span>
+    <span class="c1"># Account for heat transfer (ignore heat of solution since it is </span>
+    <span class="c1"># negligible in the beginning as the particle approaches equilibrium)</span>
     <span class="n">yp</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span>  <span class="o">-</span> <span class="n">rho_p</span> <span class="o">*</span> <span class="n">particle</span><span class="o">.</span><span class="n">cp</span> <span class="o">*</span> <span class="n">A</span> <span class="o">*</span> <span class="n">beta_T</span> <span class="o">*</span> <span class="p">(</span><span class="n">T</span> <span class="o">-</span> <span class="n">Ta</span><span class="p">)</span>
     
-    <span class="c"># Account for heat lost due to decrease in mass</span>
+    <span class="c1"># Account for heat lost due to decrease in mass</span>
     <span class="n">yp</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="n">particle</span><span class="o">.</span><span class="n">cp</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">yp</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="n">T</span>
     
-    <span class="c"># Return the derivatives</span>
-    <span class="k">return</span> <span class="n">yp</span>
+    <span class="c1"># Return the derivatives</span>
+    <span class="k">return</span> <span class="n">yp</span></div>
 
-</div>
+
 <div class="viewcode-block" id="sbm_ic"><a class="viewcode-back" href="../sbm/single_bubble_model.sbm_ic.html#single_bubble_model.sbm_ic">[docs]</a><span class="k">def</span> <span class="nf">sbm_ic</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">particle</span><span class="p">,</span> <span class="n">X0</span><span class="p">,</span> <span class="n">de</span><span class="p">,</span> <span class="n">yk</span><span class="p">,</span> <span class="n">T0</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">K_T</span><span class="p">,</span> <span class="n">fdis</span><span class="p">,</span> <span class="n">t_hyd</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Set the initial conditions for a single bubble model simulation</span>
@@ -846,25 +836,25 @@
 <span class="sd">    passed to this function.</span>
 <span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c"># Get the particle initial conditions from the dispersed_phases module</span>
+    <span class="c1"># Get the particle initial conditions from the dispersed_phases module</span>
     <span class="n">m0</span><span class="p">,</span> <span class="n">T0</span><span class="p">,</span> <span class="n">nb0</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span> <span class="o">=</span> <span class="n">dispersed_phases</span><span class="o">.</span><span class="n">initial_conditions</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> 
-        <span class="n">X0</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">particle</span><span class="p">,</span> <span class="n">yk</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">de</span><span class="p">,</span> <span class="n">T0</span><span class="p">)</span>
+        <span class="n">X0</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">particle</span><span class="p">,</span> <span class="n">yk</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">de</span><span class="p">,</span> <span class="n">T0</span><span class="p">)</span>
     
-    <span class="c"># Initialize a LagrangianParticle object</span>
+    <span class="c1"># Initialize a LagrangianParticle object</span>
     <span class="n">particle</span> <span class="o">=</span> <span class="n">dispersed_phases</span><span class="o">.</span><span class="n">SingleParticle</span><span class="p">(</span><span class="n">particle</span><span class="p">,</span> <span class="n">m0</span><span class="p">,</span> <span class="n">T0</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">K_T</span><span class="p">,</span> 
                <span class="n">fdis</span><span class="p">,</span> <span class="n">t_hyd</span><span class="p">)</span>
     
-    <span class="c"># Assemble the state space</span>
+    <span class="c1"># Assemble the state space</span>
     <span class="n">y0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">X0</span><span class="p">,</span> <span class="n">m0</span><span class="p">,</span> <span class="n">T0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">m0</span><span class="p">)</span> <span class="o">*</span> <span class="n">particle</span><span class="o">.</span><span class="n">cp</span><span class="p">))</span>
     
-    <span class="c"># Return the particle object and the state space</span>
-    <span class="k">return</span> <span class="p">(</span><span class="n">particle</span><span class="p">,</span> <span class="n">y0</span><span class="p">)</span>
+    <span class="c1"># Return the particle object and the state space</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">particle</span><span class="p">,</span> <span class="n">y0</span><span class="p">)</span></div>
 
 
-<span class="c"># ----------------------------------------------------------------------------</span>
-<span class="c"># Functions to post process the simulation solution</span>
-<span class="c"># ----------------------------------------------------------------------------</span>
-</div>
+<span class="c1"># ----------------------------------------------------------------------------</span>
+<span class="c1"># Functions to post process the simulation solution</span>
+<span class="c1"># ----------------------------------------------------------------------------</span>
+
 <div class="viewcode-block" id="plot_state_space"><a class="viewcode-back" href="../sbm/single_bubble_model.plot_state_space.html#single_bubble_model.plot_state_space">[docs]</a><span class="k">def</span> <span class="nf">plot_state_space</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">particle</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">fig</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create the basic plots to interrogate the solution for the particle path</span>
@@ -900,7 +890,7 @@
 <span class="sd">    3. Solubility, mass transfer, and surface area</span>
 <span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c"># Extract the state space variables</span>
+    <span class="c1"># Extract the state space variables</span>
     <span class="n">xi</span> <span class="o">=</span> <span class="n">y</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">yi</span> <span class="o">=</span> <span class="n">y</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">zi</span> <span class="o">=</span> <span class="n">y</span><span class="p">[:,</span><span class="mi">2</span><span class="p">]</span>
@@ -908,7 +898,7 @@
     <span class="n">T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="n">i</span><span class="p">,:])</span> <span class="o">*</span> <span class="n">particle</span><span class="o">.</span><span class="n">cp</span><span class="p">)</span> 
                  <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">zi</span><span class="p">))])</span>
     
-    <span class="c"># Compute the diameter and save the ambient temperature</span>
+    <span class="c1"># Compute the diameter and save the ambient temperature</span>
     <span class="n">rho_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
     <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
     <span class="n">Cs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">t</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">len</span><span class="p">(</span><span class="n">particle</span><span class="o">.</span><span class="n">composition</span><span class="p">)))</span>
@@ -922,8 +912,8 @@
     <span class="n">N</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
     <span class="n">T_fun</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">)):</span>
-        <span class="n">Ta</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">Sa</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">P</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="n">zi</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="p">[</span><span class="s">&#39;temperature&#39;</span><span class="p">,</span> 
-                             <span class="s">&#39;salinity&#39;</span><span class="p">,</span> <span class="s">&#39;pressure&#39;</span><span class="p">])</span>
+        <span class="n">Ta</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">Sa</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">P</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="n">zi</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;temperature&#39;</span><span class="p">,</span> 
+                             <span class="s1">&#39;salinity&#39;</span><span class="p">,</span> <span class="s1">&#39;pressure&#39;</span><span class="p">])</span>
         <span class="n">N</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">buoyancy_frequency</span><span class="p">(</span><span class="n">zi</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">h</span><span class="o">=</span><span class="mf">0.005</span><span class="p">)</span>
         <span class="p">(</span><span class="n">us</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">rho_p</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">Cs_local</span><span class="p">,</span> <span class="n">beta_local</span><span class="p">,</span> <span class="n">beta_T</span><span class="p">,</span> <span class="n">T_fun</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">=</span> \
             <span class="n">particle</span><span class="o">.</span><span class="n">properties</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="n">i</span><span class="p">,:],</span> <span class="n">T</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">P</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">Sa</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">Ta</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
@@ -934,171 +924,172 @@
                    <span class="n">Sa</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">Ta</span><span class="p">[</span><span class="n">i</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">de</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">particle</span><span class="o">.</span><span class="n">diameter</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="n">i</span><span class="p">,:],</span> <span class="n">T</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">P</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">Sa</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">Ta</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
     
-    <span class="c"># Start by plotting the raw state space versus t</span>
+    <span class="c1"># Start by plotting the raw state space versus t</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
     
-    <span class="c"># Depth</span>
+    <span class="c1"># Depth</span>
     <span class="n">ax1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">221</span><span class="p">)</span>
     <span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">zi</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
-    <span class="n">ax1</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">&#39;Depth (m)&#39;</span><span class="p">)</span>
-    <span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s">&#39;Time (s)&#39;</span><span class="p">)</span>
-    <span class="n">ax1</span><span class="o">.</span><span class="n">locator_params</span><span class="p">(</span><span class="n">tight</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">nbins</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
-    <span class="n">ax1</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Depth (m)&#39;</span><span class="p">)</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Time (s)&#39;</span><span class="p">)</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">locator_params</span><span class="p">(</span><span class="n">tight</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">nbins</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
     
-    <span class="c"># Slip Velocity</span>
+    <span class="c1"># Slip Velocity</span>
     <span class="n">ax2</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">222</span><span class="p">)</span>
     <span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">us</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
-    <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">&#39;Slip velocity (m/s)&#39;</span><span class="p">)</span>
-    <span class="n">ax2</span><span class="o">.</span><span class="n">locator_params</span><span class="p">(</span><span class="n">tight</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">nbins</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
-    <span class="n">ax2</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Slip velocity (m/s)&#39;</span><span class="p">)</span>
+    <span class="n">ax2</span><span class="o">.</span><span class="n">locator_params</span><span class="p">(</span><span class="n">tight</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">nbins</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+    <span class="n">ax2</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
     
-    <span class="c"># Masses</span>
+    <span class="c1"># Masses</span>
     <span class="n">ax3</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">223</span><span class="p">)</span>
     <span class="n">ax3</span><span class="o">.</span><span class="n">semilogx</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
-    <span class="n">ax3</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">&#39;Component masses (kg)&#39;</span><span class="p">)</span>
-    <span class="n">ax3</span><span class="o">.</span><span class="n">locator_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s">&#39;y&#39;</span><span class="p">,</span> <span class="n">tight</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">nbins</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
-    <span class="c">#ax3.xaxis.set_major_locator(mpl.ticker.LogLocator(base=1e2))</span>
-    <span class="n">ax3</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">ax3</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Component masses (kg)&#39;</span><span class="p">)</span>
+    <span class="n">ax3</span><span class="o">.</span><span class="n">locator_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="n">tight</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">nbins</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+    <span class="c1">#ax3.xaxis.set_major_locator(mpl.ticker.LogLocator(base=1e2))</span>
+    <span class="n">ax3</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
     
-    <span class="c"># Heat</span>
+    <span class="c1"># Heat</span>
     <span class="n">ax4</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">224</span><span class="p">)</span>
     <span class="n">ax4</span><span class="o">.</span><span class="n">semilogx</span><span class="p">(</span><span class="n">y</span><span class="p">[:,</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">t</span><span class="p">)</span>
-    <span class="n">ax4</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">&#39;Heat (J)&#39;</span><span class="p">)</span>
-    <span class="n">ax4</span><span class="o">.</span><span class="n">locator_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s">&#39;y&#39;</span><span class="p">,</span> <span class="n">tight</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">nbins</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
-    <span class="c">#ax4.xaxis.set_major_locator(mpl.ticker.LogLocator(base=1e2))</span>
-    <span class="n">ax4</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">ax4</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Heat (J)&#39;</span><span class="p">)</span>
+    <span class="n">ax4</span><span class="o">.</span><span class="n">locator_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="n">tight</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">nbins</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+    <span class="c1">#ax4.xaxis.set_major_locator(mpl.ticker.LogLocator(base=1e2))</span>
+    <span class="n">ax4</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
     
     <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
     
-    <span class="c"># Plot derived variables related to diameter</span>
+    <span class="c1"># Plot derived variables related to diameter</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">fig</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
     
-    <span class="c"># Diameter</span>
+    <span class="c1"># Diameter</span>
     <span class="n">ax1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">221</span><span class="p">)</span>
     <span class="n">ax1</span><span class="o">.</span><span class="n">semilogx</span><span class="p">(</span><span class="n">de</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">,</span> <span class="n">zi</span><span class="p">)</span>
-    <span class="n">ax1</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">&#39;Diameter (mm)&#39;</span><span class="p">)</span>
-    <span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s">&#39;Depth (m)&#39;</span><span class="p">)</span>
-    <span class="n">ax1</span><span class="o">.</span><span class="n">locator_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s">&#39;y&#39;</span><span class="p">,</span> <span class="n">tight</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">nbins</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
-    <span class="c">#ax1.xaxis.set_major_locator(mpl.ticker.LogLocator(base=1e2))</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Diameter (mm)&#39;</span><span class="p">)</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Depth (m)&#39;</span><span class="p">)</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">locator_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="n">tight</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">nbins</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+    <span class="c1">#ax1.xaxis.set_major_locator(mpl.ticker.LogLocator(base=1e2))</span>
     <span class="n">ax1</span><span class="o">.</span><span class="n">invert_yaxis</span><span class="p">()</span>
-    <span class="n">ax1</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
     
-    <span class="c"># Shape</span>
+    <span class="c1"># Shape</span>
     <span class="n">ax2</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">222</span><span class="p">)</span>
     <span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">zi</span><span class="p">)</span>
-    <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">&#39;Shape (--)&#39;</span><span class="p">)</span>
+    <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Shape (--)&#39;</span><span class="p">)</span>
     <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
     <span class="n">ax2</span><span class="o">.</span><span class="n">invert_yaxis</span><span class="p">()</span>
-    <span class="n">ax2</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">which</span><span class="o">=</span><span class="s">&#39;major&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s">&#39;x&#39;</span><span class="p">)</span>
-    <span class="n">ax2</span><span class="o">.</span><span class="n">locator_params</span><span class="p">(</span><span class="n">tight</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">nbins</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
-    <span class="n">ax2</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">ax2</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">which</span><span class="o">=</span><span class="s1">&#39;major&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">)</span>
+    <span class="n">ax2</span><span class="o">.</span><span class="n">locator_params</span><span class="p">(</span><span class="n">tight</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">nbins</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+    <span class="n">ax2</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
     
-    <span class="c"># Density</span>
+    <span class="c1"># Density</span>
     <span class="n">ax3</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">223</span><span class="p">)</span>
     <span class="n">ax3</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rho_p</span><span class="p">,</span> <span class="n">zi</span><span class="p">)</span>
-    <span class="n">ax3</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">&#39;Density (kg)&#39;</span><span class="p">)</span>
-    <span class="n">ax3</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s">&#39;Depth (m)&#39;</span><span class="p">)</span>
+    <span class="n">ax3</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Density (kg)&#39;</span><span class="p">)</span>
+    <span class="n">ax3</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Depth (m)&#39;</span><span class="p">)</span>
     <span class="n">ax3</span><span class="o">.</span><span class="n">invert_yaxis</span><span class="p">()</span>
-    <span class="n">ax3</span><span class="o">.</span><span class="n">locator_params</span><span class="p">(</span><span class="n">tight</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">nbins</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
-    <span class="n">ax3</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">ax3</span><span class="o">.</span><span class="n">locator_params</span><span class="p">(</span><span class="n">tight</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">nbins</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+    <span class="n">ax3</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
     
-    <span class="c"># Temperature</span>
+    <span class="c1"># Temperature</span>
     <span class="n">ax4</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">224</span><span class="p">)</span>
     <span class="n">ax4</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">zi</span><span class="p">)</span>
     <span class="n">ax4</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">T_fun</span><span class="p">,</span> <span class="n">zi</span><span class="p">)</span>
     <span class="n">ax4</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">Ta</span><span class="p">,</span> <span class="n">zi</span><span class="p">)</span>
-    <span class="n">ax4</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">&#39;Temperature (K)&#39;</span><span class="p">)</span>
+    <span class="n">ax4</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Temperature (K)&#39;</span><span class="p">)</span>
     <span class="n">ax4</span><span class="o">.</span><span class="n">invert_yaxis</span><span class="p">()</span>
-    <span class="n">ax4</span><span class="o">.</span><span class="n">locator_params</span><span class="p">(</span><span class="n">tight</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">nbins</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
-    <span class="n">ax4</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">ax4</span><span class="o">.</span><span class="n">locator_params</span><span class="p">(</span><span class="n">tight</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">nbins</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+    <span class="n">ax4</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
     
     <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
     
-    <span class="c"># Plot dissolution data</span>
+    <span class="c1"># Plot dissolution data</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">fig</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
     
-    <span class="c"># Masses</span>
+    <span class="c1"># Masses</span>
     <span class="n">ax1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">221</span><span class="p">)</span>
     <span class="n">ax1</span><span class="o">.</span><span class="n">semilogx</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">zi</span><span class="p">)</span>
-    <span class="n">ax1</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">&#39;Component masses (kg)&#39;</span><span class="p">)</span>
-    <span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s">&#39;Depth (m)&#39;</span><span class="p">)</span>
-    <span class="n">ax1</span><span class="o">.</span><span class="n">locator_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s">&#39;y&#39;</span><span class="p">,</span> <span class="n">tight</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">nbins</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
-    <span class="c">#ax1.xaxis.set_major_locator(mpl.ticker.LogLocator(base=1e2))</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Component masses (kg)&#39;</span><span class="p">)</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Depth (m)&#39;</span><span class="p">)</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">locator_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="n">tight</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">nbins</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+    <span class="c1">#ax1.xaxis.set_major_locator(mpl.ticker.LogLocator(base=1e2))</span>
     <span class="n">ax1</span><span class="o">.</span><span class="n">invert_yaxis</span><span class="p">()</span>
-    <span class="n">ax1</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
     
-    <span class="c"># Solubility</span>
+    <span class="c1"># Solubility</span>
     <span class="n">ax2</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">222</span><span class="p">)</span>
     <span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">Cs</span><span class="p">,</span> <span class="n">zi</span><span class="p">)</span>
-    <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">&#39;Solubility (kg/m^3)&#39;</span><span class="p">)</span>
-    <span class="n">ax2</span><span class="o">.</span><span class="n">locator_params</span><span class="p">(</span><span class="n">tight</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">nbins</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+    <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Solubility (kg/m^3)&#39;</span><span class="p">)</span>
+    <span class="n">ax2</span><span class="o">.</span><span class="n">locator_params</span><span class="p">(</span><span class="n">tight</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">nbins</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
     <span class="n">ax2</span><span class="o">.</span><span class="n">invert_yaxis</span><span class="p">()</span>
-    <span class="n">ax2</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">ax2</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
     
-    <span class="c"># Mass transfer coefficient</span>
+    <span class="c1"># Mass transfer coefficient</span>
     <span class="n">ax3</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">223</span><span class="p">)</span>
     <span class="n">ax3</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">beta</span><span class="p">,</span> <span class="n">zi</span><span class="p">)</span>
-    <span class="n">ax3</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">&#39;Mass transfer (m/s)&#39;</span><span class="p">)</span>
+    <span class="n">ax3</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Mass transfer (m/s)&#39;</span><span class="p">)</span>
     <span class="n">ax3</span><span class="o">.</span><span class="n">invert_yaxis</span><span class="p">()</span>
-    <span class="n">ax3</span><span class="o">.</span><span class="n">locator_params</span><span class="p">(</span><span class="n">tight</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">nbins</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
-    <span class="n">ax3</span><span class="o">.</span><span class="n">ticklabel_format</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s">&#39;sci&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s">&#39;x&#39;</span><span class="p">,</span> <span class="n">scilimits</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">))</span>
-    <span class="n">ax3</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">ax3</span><span class="o">.</span><span class="n">locator_params</span><span class="p">(</span><span class="n">tight</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">nbins</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+    <span class="n">ax3</span><span class="o">.</span><span class="n">ticklabel_format</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s1">&#39;sci&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">scilimits</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">))</span>
+    <span class="n">ax3</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
     
-    <span class="c"># Area</span>
+    <span class="c1"># Area</span>
     <span class="n">ax4</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">224</span><span class="p">)</span>
     <span class="n">ax4</span><span class="o">.</span><span class="n">semilogx</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">zi</span><span class="p">)</span>
-    <span class="n">ax4</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">&#39;Surface area (m^2)&#39;</span><span class="p">)</span>
-    <span class="n">ax4</span><span class="o">.</span><span class="n">locator_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s">&#39;y&#39;</span><span class="p">,</span> <span class="n">tight</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">nbins</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
-    <span class="c">#ax4.xaxis.set_major_locator(mpl.ticker.LogLocator(base=1e2))</span>
+    <span class="n">ax4</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Surface area (m^2)&#39;</span><span class="p">)</span>
+    <span class="n">ax4</span><span class="o">.</span><span class="n">locator_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="n">tight</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">nbins</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+    <span class="c1">#ax4.xaxis.set_major_locator(mpl.ticker.LogLocator(base=1e2))</span>
     <span class="n">ax4</span><span class="o">.</span><span class="n">invert_yaxis</span><span class="p">()</span>
-    <span class="n">ax4</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">ax4</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
     
     <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
     
-    <span class="c"># Plot dissolution data</span>
+    <span class="c1"># Plot dissolution data</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">fig</span><span class="o">+</span><span class="mi">3</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
     
-    <span class="c"># CTD Temperature</span>
+    <span class="c1"># CTD Temperature</span>
     <span class="n">ax1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">221</span><span class="p">)</span>
     <span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">Ta</span> <span class="o">-</span> <span class="mf">273.15</span><span class="p">,</span> <span class="n">zi</span><span class="p">)</span>
-    <span class="n">ax1</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">&#39;Temperature (deg C)&#39;</span><span class="p">)</span>
-    <span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s">&#39;Depth (m)&#39;</span><span class="p">)</span>
-    <span class="n">ax1</span><span class="o">.</span><span class="n">locator_params</span><span class="p">(</span><span class="n">tight</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">nbins</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Temperature (deg C)&#39;</span><span class="p">)</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Depth (m)&#39;</span><span class="p">)</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">locator_params</span><span class="p">(</span><span class="n">tight</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">nbins</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
     <span class="n">ax1</span><span class="o">.</span><span class="n">invert_yaxis</span><span class="p">()</span>
-    <span class="n">ax1</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
     
     <span class="n">ax2</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">222</span><span class="p">)</span>
     <span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">Sa</span><span class="p">,</span> <span class="n">zi</span><span class="p">)</span>
-    <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">&#39;Salinity (psu)&#39;</span><span class="p">)</span>
-    <span class="n">ax2</span><span class="o">.</span><span class="n">locator_params</span><span class="p">(</span><span class="n">tight</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">nbins</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+    <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Salinity (psu)&#39;</span><span class="p">)</span>
+    <span class="n">ax2</span><span class="o">.</span><span class="n">locator_params</span><span class="p">(</span><span class="n">tight</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">nbins</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
     <span class="n">ax2</span><span class="o">.</span><span class="n">invert_yaxis</span><span class="p">()</span>
-    <span class="n">ax2</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">ax2</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
     
     <span class="n">ax3</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">223</span><span class="p">)</span>
     <span class="n">ax3</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">zi</span><span class="p">)</span>
-    <span class="n">ax3</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">&#39;Pressure (Pa)&#39;</span><span class="p">)</span>
-    <span class="n">ax3</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s">&#39;Depth (m)&#39;</span><span class="p">)</span>
-    <span class="n">ax3</span><span class="o">.</span><span class="n">locator_params</span><span class="p">(</span><span class="n">tight</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">nbins</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+    <span class="n">ax3</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Pressure (Pa)&#39;</span><span class="p">)</span>
+    <span class="n">ax3</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Depth (m)&#39;</span><span class="p">)</span>
+    <span class="n">ax3</span><span class="o">.</span><span class="n">locator_params</span><span class="p">(</span><span class="n">tight</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">nbins</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
     <span class="n">ax3</span><span class="o">.</span><span class="n">invert_yaxis</span><span class="p">()</span>
-    <span class="n">ax3</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">ax3</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
     
     <span class="n">ax4</span><span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">224</span><span class="p">)</span>
     <span class="n">ax4</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">zi</span><span class="p">)</span>
-    <span class="n">ax4</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">&#39;Buoyancy Frequency (1/s)&#39;</span><span class="p">)</span>
-    <span class="n">ax4</span><span class="o">.</span><span class="n">locator_params</span><span class="p">(</span><span class="n">tight</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">nbins</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+    <span class="n">ax4</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Buoyancy Frequency (1/s)&#39;</span><span class="p">)</span>
+    <span class="n">ax4</span><span class="o">.</span><span class="n">locator_params</span><span class="p">(</span><span class="n">tight</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">nbins</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
     <span class="n">ax4</span><span class="o">.</span><span class="n">invert_yaxis</span><span class="p">()</span>
-    <span class="n">ax4</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">ax4</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
     
-    <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
-</pre></div></div>
+    <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span></div>
+
+</pre></div>
 
           </div>
         </div>
@@ -1107,19 +1098,24 @@
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../contents.html">
               <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
-            </a></p>
+            </a></p><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../contents.html">Documentation overview</a><ul>
+  <li><a href="index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
 
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
 
@@ -1131,8 +1127,8 @@
       &copy;2015, Scott A. Socolofsky.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
     </div>
 
