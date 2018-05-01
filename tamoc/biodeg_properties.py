@@ -1,35 +1,30 @@
 """
-Chemical Properties Script
-==========================
+Biodegradation Properties Script
+================================
 
-Create a dictionary of chemical properties
+Create a dictionary of biodegradation properties
 
 This script creates a dictionary of the properties of several hydrocarbons and
 chemicals of environmental interest in a global dictionary for use by other
-programs that need to know chemical properties.
+programs that need to know biodegradation properties.
 
 Parameters
 ----------
-The chemical data are stored in ``./data/ChemData.csv``. Header rows are 
+The biodegradation data are stored in ``./data/BioData.csv``. Header rows are 
 denoted by `%, the last row of pure text is taken as the variable names and
 the last row with `()` is taken as the units.  The columns should include
-a key name (e.g., `methane`), the molecular weight, critical point pressure, 
-critical point temperature, critical point molar volumne, boiling point 
-temperature, molar volume at the boiling point, acentric factor, Henry's
-law constant at 298.15 K, negative of the enthalpy of dilution, parameters
-`B` and `dE` of the diffusivity model (no longer used), and the Setschenow 
-salting out correction constant.  For unknown parameter values, use -9999.
+a key name (e.g., `methane`), the first-order decay constant, and the 
+biodegrdation lag time.  For unknown parameter values, use -9999.
 
 For the data provided by the model, the data sources and more details are
-documented in the file ``../docs/ChemData_ReadMe.txt``.
+documented in the file ``../docs/BioData_ReadMe.txt``.
 
 This module can read in any number of columns of chemical data, including
-parameters not listed below.  Units will be converted to standard SI units, 
-and the conversion function will operate on g/mol, psia, F, mol/dm^3 atm, 
-mm^2/s, cal/mol.  The returned variables `units` will contain the final
-set of units for the database.  To use the TAMOC suite of models, all 
-parameters listed below in the `data` dictionary must be provided with the
-variable names listed.  
+parameters not listed below. Units will be converted to standard SI units,
+and the conversion function will operate on 1/d and d. The returned variables
+`units` will contain the final set of units for the database. To use the
+TAMOC suite of models, all parameters listed below in the `data` dictionary
+must be provided with the variable names listed.
 
 Returns
 -------
@@ -38,32 +33,21 @@ data : dict
     and the following list of secondary keys matched with the numerical
     value of each variable:
        
-       M : molecular weight (kg/mol)
-       Pc : pressure at the critical point (Pa)
-       Tc : temperature at the critical point (K)
-       Vc : molar volume at the critical point (m^3/mol)
-       Tb : boiling point (K)
-       Vb : molar volume at the boiling point (m^3/mol)
-       omega : acentric factor (--)
-       kh_0 : Henry's law constant at 298.15 K (kg/(m^3 Pa))
-       -dH_solR : negative of the enthalpy of solution / R (K)
-       nu_bar : specific volume at infinite dilution (m^3/mol)
-       B : diffusivity model coefficient (m^2/s)
-       dE : diffusivity model coefficient (J/mol)
-       K_salt : Setschenow salting out correction for solubility (m^3/mol)
+       k_bio : first-order biodegradation rate constant (1/s)
+       t_bio : biodegradation lag time (s)
 
 units : dict
-    dictionary with the same keys as the variables names listed above 
-    (e.g., M, Pc, Tc, etc.) linked to a string containing the units of 
+    dictionary with the same keys as the variable names listed above 
+    (e.g., k_bio, t_bio, etc.) linked to a string containing the units of 
     each variable.
 
 Notes
 -----
-To use the properties database distributed by TAMOC, simply import this 
-file in Python:  the results will be returned in `chemical_properties.data`.
-To import a user-defined database of properties, use the function 
-``load_data`` provided in this module.  The ``TAMOC`` suite of models will
-pull data from both the default and any user-specified database, giving
+To use the properties database distributed by TAMOC, simply import this file
+in Python: the results will be returned in `biodeg_properties.data`. To
+import a user-defined database of properties, use the function ``load_data``
+provided in the `chemical_properties` module. The ``TAMOC`` suite of models
+will pull data from both the default and any user-specified database, giving
 first priority to parameter keys found in the user-specified database.
 
 See also
@@ -72,15 +56,16 @@ See also
 
 Examples
 --------
->>> from tamoc import chemical_properties as chem
->>> chem.data['oxygen']['M']
-0.031998800000000001
->>> chem.units['M']
-'(kg/mol)'
+>>> from tamoc import biodeg_properties as biodeg
+>>> biodeg.data['methane']['k_bio']
+x.xxxxx
+>>> biodeg.units['k_bio']
+'(1/s)'
 
 """
 # S. Socolofsky, January 2012, Texas A&M University <socolofs@tamu.edu>.
 import numpy as np
+import chemical_properties as chem_data
 import os
 
 
@@ -198,51 +183,26 @@ def load_data(fname):
             
             if read_units[variable].find('1/d') >= 0:
                 # Convert to 1/s
-                data[chemical][variable] = data[chemical][variable] / 86400.
+                data[chemica][variable] = data[chemical][variable] / 86400.
                 units[variable] = '(1/s)'
             
-            if read_units[variable].find('(d)') >= 0.:
+            if read_units[variable].find('d') >= 0.:
                 # Convert to s
                 data[chemical][variable] = data[chemical][variable] * 86400.
                 units[variable] = '(s)'
             
     return (data, units)
 
-def tamoc_data():
-    """
-    Load the supplied chemical properties file from the `TAMOC` distribution 
-    
-    Reads in the chemical properties file provided with `TAMOC`, creates a
-    dictionary of the columns in the file, and performs some units
-    conversions as necessary to have the data in SI mks units.
-    
-    Returns
-    -------
-    data : dict
-        dictionary of the properties for each column in the data file
-    units : dict
-        corresponding dictionary of units for each property in data
-    
-    Notes
-    -----
-    This function read in the the default chemical data in
-    ./tamoc/data/chemdata.csv. 
-    
-    """
+
+if __name__ == 'tamoc.chemical_properties':
     # Get the relative path to the ./tamoc/data directory
     __location__ = os.path.realpath(os.path.join(os.getcwd(), 
                                     os.path.dirname(__file__), 'data'))
     
     # Create the full relative path to the default data in ChemData.csv
-    chem_fname = os.path.join(__location__,'ChemData.csv')
-    bio_fname = os.path.join(__location__,'BioData.csv')
+    fname = os.path.join(__location__,'ChemData.csv')
     
     # Load in the default data and their units
-    chem_data, chem_units = load_data(chem_fname)
-    bio_data, bio_units = load_data(bio_fname)
-    
-    # Return the results
-    return (chem_data, chem_units, bio_data, bio_units)
-
+    data, units = load_data(fname)
 
 

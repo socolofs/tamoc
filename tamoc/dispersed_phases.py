@@ -92,6 +92,9 @@ class SingleParticle(object):
         bubble methods for t less than t_hyd and by dirty bubble methods
         thereafter.  The default behavior is to assume the particle is dirty
         or hydrate covered from the release.
+    lag_time : bool, default = True.
+        Flag that indicates whether (True) or not (False) to use the
+        biodegradation lag times data.
     
     Attributes
     ----------
@@ -134,7 +137,7 @@ class SingleParticle(object):
     
     """
     def __init__(self, dbm_particle, m0, T0, K=1., K_T=1., fdis=1.e-6, 
-                 t_hyd=0.):
+                 t_hyd=0., lag_time=True):
         super(SingleParticle, self).__init__()
         
         # Make sure the masses are in a numpy array
@@ -150,12 +153,14 @@ class SingleParticle(object):
         self.m0 = m0
         self.T0 = T0
         self.cp = seawater.cp() * 0.5
+        self.lag_time = lag_time
         
         # Store the particle-specific model parameters
         self.K = K
         self.K_T = K_T
         self.fdis = fdis
         self.t_hyd = t_hyd
+        self.lag_time = lag_time
         
         # Store parameters to track the dissolution of the initial masses
         self.diss_indices = self.m0 > 0
@@ -298,6 +303,26 @@ class SingleParticle(object):
         
         # Return the diameter
         return de
+    
+    def biodegradation_rate(self, t):
+        """
+        Compute the biodegradation rate constants
+        
+        Computes the biodegradation rate constants using the method in the
+        `dbm` module.  
+        
+        Parameters
+        ----------
+        t : float
+            current simulation time (s)
+        
+        Returns
+        -------
+        k_bio : ndarray, size (nc)
+            first-order biodegradation rate constants (1/s)
+        
+        """
+        return self.particle.biodegradation_rate(t, self.lag_time)
 
 
 class PlumeParticle(SingleParticle):
@@ -339,6 +364,10 @@ class PlumeParticle(SingleParticle):
         bubble methods for t less than t_hyd and by dirty bubble methods
         thereafter.  The default behavior is to assume the particle is dirty
         or hydrate covered from the release.
+    lag_time : bool, default = True.
+        Flag that indicates whether (True) or not (False) to use the
+        biodegradation lag times data.
+    
     
     Attributes
     ----------
@@ -395,9 +424,9 @@ class PlumeParticle(SingleParticle):
     
     """
     def __init__(self, dbm_particle, m0, T0, nb0, lambda_1, P, Sa, Ta, 
-                 K=1., K_T=1., fdis=1.e-6, t_hyd=0.):
+                 K=1., K_T=1., fdis=1.e-6, t_hyd=0., lag_time=True):
         super(PlumeParticle, self).__init__(dbm_particle, m0, T0, K, K_T, 
-                                            fdis, t_hyd)
+                                            fdis, t_hyd, lag_time)
         
         # Store the input variables related to the particle description
         self.nb0 = nb0
@@ -447,6 +476,7 @@ class PlumeParticle(SingleParticle):
         if np.sum(self.m) > 0.:
             self.us,  self.rho_p,  self.A, self.Cs, self.beta, \
                 self.beta_T, self.T = self.properties(m, T, P, Sa, Ta, t)
+            self.k_bio = self.biodegradation_rate(t)
         else:
             self.us = 0.
             self.rho_p = seawater.density(Ta, Sa, P)
@@ -455,6 +485,7 @@ class PlumeParticle(SingleParticle):
             self.beta = np.zeros(len(self.composition))
             self.beta_T = 0.
             self.T = Ta
+            self.k_bio = np.zeros(len(self.composition))
 
 
 # ----------------------------------------------------------------------------

@@ -256,10 +256,12 @@ def test_ic():
     K_T = 1.
     fdis = 1.e-4
     t_hyd = 0.
+    lag_time = True
     
     # Get the initial conditions
     (bub_obj, y0) = single_bubble_model.sbm_ic(profile, bub, 
-                    np.array([0., 0., z0]), de, yk, T0, K, K_T, fdis, t_hyd)
+                    np.array([0., 0., z0]), de, yk, T0, K, K_T, fdis, t_hyd,
+                    lag_time)
     
     # Check the initial condition values
     assert y0[0] == 0.

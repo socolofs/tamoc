@@ -72,7 +72,8 @@ if __name__ == '__main__':
     (m0, T0, nb0, P, Sa, Ta) = dispersed_phases.initial_conditions(
         ctd, z0, gas, yk, mb0, 2, de, Tj)
     disp_phases.append(bent_plume_model.Particle(0., 0., z0, gas, m0, T0, 
-        nb0, lambda_1, P, Sa, Ta, K=1., K_T=1., fdis=1.e-6, t_hyd=0.))
+        nb0, lambda_1, P, Sa, Ta, K=1., K_T=1., fdis=1.e-6, t_hyd=0.,
+        lag_time=False))
     
     # Smaller free gas bubbles
     mb0 = 5.         # total mass flux in kg/s
@@ -81,22 +82,26 @@ if __name__ == '__main__':
     (m0, T0, nb0, P, Sa, Ta) = dispersed_phases.initial_conditions(
         ctd, z0, gas, yk, mb0, 2, de, Tj)
     disp_phases.append(bent_plume_model.Particle(0., 0., z0, gas, m0, T0, 
-        nb0, lambda_1, P, Sa, Ta, K=1., K_T=1., fdis=1.e-6, t_hyd=0.))
+        nb0, lambda_1, P, Sa, Ta, K=1., K_T=1., fdis=1.e-6, t_hyd=0., 
+        lag_time=False))
     
     # Larger oil droplets
     oil = dbm.InsolubleParticle(True, True, rho_p=890., gamma=30., 
-                                beta=0.0007, co=2.90075e-9)
+                                beta=0.0007, co=2.90075e-9, 
+                                k_bio=3.000e-6, 
+                                t_bio=86400.)
     mb0 = 10.         # total mass flux in kg/s
     de = 0.005       # bubble diameter in m
     lambda_1 = 0.9
     (m0, T0, nb0, P, Sa, Ta) = dispersed_phases.initial_conditions(
         ctd, z0, oil, yk, mb0, 2, de, Tj)
     disp_phases.append(bent_plume_model.Particle(0., 0., z0, oil, m0, T0, 
-        nb0, lambda_1, P, Sa, Ta, K=1., K_T=1., fdis=1.e-6, t_hyd=0.))
+        nb0, lambda_1, P, Sa, Ta, K=1., K_T=1., fdis=1.e-6, t_hyd=0.,
+        lag_time=False))
     
     # Run the simulation
     bpm.simulate(np.array([0., 0., z0]), D, U0, phi_0, theta_0,
-        Sj, Tj, cj, chem_name, disp_phases, track=False, dt_max=60.,
+        Sj, Tj, cj, chem_name, disp_phases, track=True, dt_max=60.,
         sd_max = 2000.)
     
     # Plot the full suite of model variables

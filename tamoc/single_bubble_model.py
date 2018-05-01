@@ -191,7 +191,7 @@ class Model(object):
             self.sim_stored = False
     
     def simulate(self, particle, X0, de, yk, T0=None, K=1., K_T=1., 
-                 fdis=1.e-6, t_hyd=0., delta_t=0.1):
+                 fdis=1.e-6, t_hyd=0., lag_time=True, delta_t=0.1):
         """
         Simulate the trajectory of a particle from given initial conditions
         
@@ -231,6 +231,9 @@ class Model(object):
             bubble methods for t less than t_hyd and by dirty bubble methods
             thereafter.  The default behavior is to assume the particle is dirty
             or hydrate covered from the release.
+        lag_time : bool, default = True
+            flag indicating whether the biodegradation rates should include
+            a lag time (True) or not (False).  Default value is True.
         delta_t : float, default = 0.1 s
             Maximum time step to use (s) in the simulation.  The ODE solver
             in `calculate_path` is set up with adaptive step size integration, 
@@ -278,7 +281,7 @@ class Model(object):
         
         # Get the initial conditions for the simulation run
         (self.particle, y0) = sbm_ic(self.profile, particle, X0, de, yk, T0, 
-                                     K, K_T, fdis, t_hyd)
+                                     K, K_T, fdis, t_hyd, lag_time)
         
         # Open the simulation module
         print '\n-- TEXAS A&M OIL-SPILL CALCULATOR (TAMOC) --'
@@ -705,9 +708,11 @@ def derivs(t, y, profile, particle, p):
     ua, va, wa = profile.get_values(z, ['ua', 'va', 'wa'])
     C = profile.get_values(z, particle.composition)
     
-    # Get the particle properties
+    # Get the physical particle properties
     (us, rho_p, A, Cs, beta, beta_T, T) = particle.properties(m, T, P, Sa, 
                                                               Ta, t)
+    # Get the biodegradation rate constants
+    k_bio = particle.biodegradation_rate(t)
     
     # Advection
     yp[0] = ua
@@ -716,20 +721,26 @@ def derivs(t, y, profile, particle, p):
     
     # Dissolution
     if len(Cs) > 0:
-        yp[3:-1] = - A * beta[:] * (Cs[:] - C[:])
+        md_diss = - A * beta[:] * (Cs[:] - C[:])
+    else:
+        md_diss = np.array([0.])
+
+    # Biodegradation
+    md_biodeg = -k_bio * m
+    yp[3:-1] = md_diss + md_biodeg
     
     # Account for heat transfer (ignore heat of solution since it is 
     # negligible in the beginning as the particle approaches equilibrium)
     yp[-1] =  - rho_p * particle.cp * A * beta_T * (T - Ta)
     
     # Account for heat lost due to decrease in mass
-    yp[-1] += particle.cp * np.sum(yp[3:-1]) * T
+    yp[-1] += particle.cp * np.sum(md_diss + md_biodeg) * T
     
     # Return the derivatives
     return yp
 
 
-def sbm_ic(profile, particle, X0, de, yk, T0, K, K_T, fdis, t_hyd):
+def sbm_ic(profile, particle, X0, de, yk, T0, K, K_T, fdis, t_hyd, lag_time):
     """
     Set the initial conditions for a single bubble model simulation
     
@@ -752,18 +763,18 @@ def sbm_ic(profile, particle, X0, de, yk, T0, K, K_T, fdis, t_hyd):
         Initial temperature (K) of the particle at release if not equal 
         to the temperature of the surrounding fluid.  If omitted, the 
         model will set T0 to the ambient temperature.
-    K : float, default = 1.
+    K : float
         Mass transfer reduction factor (--). Pre-multiplies the mass 
         transfer coefficients providing amplification (>1) or retardation 
         (<1) of the dissolution.  
-    K_T : float, default = 1.
+    K_T : float
         Heat transfer reduction factor (--). Pre-multiplies the heat 
         transfer coefficient providing amplification (>1) or retardation 
         (<1) of the heat flux.
-    fdis : float, default = 0.01
+    fdis : float
         Fraction of the initial total mass (--) remaining when the 
         particle should be considered dissolved.
-    t_hyd : float, default = 0.
+    t_hyd : float
         Hydrate film formation time (s).  Mass transfer is computed by clean
         bubble methods for t less than t_hyd and by dirty bubble methods
         thereafter.  The default behavior is to assume the particle is dirty
@@ -801,7 +812,7 @@ def sbm_ic(profile, particle, X0, de, yk, T0, K, K_T, fdis, t_hyd):
     
     # Initialize a LagrangianParticle object
     particle = dispersed_phases.SingleParticle(particle, m0, T0, K, K_T, 
-               fdis, t_hyd)
+               fdis, t_hyd, lag_time)
     
     # Assemble the state space
     y0 = np.hstack((X0, m0, T0 * np.sum(m0) * particle.cp))

@@ -42,7 +42,8 @@ the discrete bubble model have not been ported to Fortran and reside in the
 # S. Socolofsky, July 2013, Texas A&M University <socolofs@tamu.edu>.
 
 # Use these imports for deployment
-from tamoc import chemical_properties as chem
+from tamoc import chemical_properties # as chem
+from tamoc import biodeg_properties as biodeg
 from tamoc import dbm_f
 from tamoc import seawater
 
@@ -165,7 +166,8 @@ class FluidMixture(object):
                 self.delta = np.zeros((self.nc, self.nc))
         
         # Store all of the chemical data
-        self.chem_db = chem.data
+        (self.chem_db, self.chem_units, self.bio_db, self.bio_units) = \
+            chemical_properties.tamoc_data()
         self.user_data = user_data
         
         # Initialize the chemical composition variables used in TAMOC
@@ -182,6 +184,8 @@ class FluidMixture(object):
         self.B = np.zeros(self.nc)
         self.dE = np.zeros(self.nc)
         self.K_salt = np.zeros(self.nc)
+        self.k_bio = np.zeros(self.nc)
+        self.t_bio = np.zeros(self.nc)
         
         # Fill the chemical composition variables from the chem database
         for i in range(self.nc):
@@ -191,13 +195,14 @@ class FluidMixture(object):
             else:
                 # Get the properties from the default dataset supplied with 
                 # TAMOC
-                if composition[i] in chem.data:
-                    properties = chem.data[composition[i]]
+                if composition[i] in self.chem_db:
+                    properties = self.chem_db[composition[i]]
+                    properties.update(self.bio_db[composition[i]])
                 else:
                     print '\nERROR:  %s is not in the ' % composition[i] + \
                           'Chemical Properties database\n' 
             
-            # Store the properties in the object attributes
+            # Store the chemical properties in the object attributes
             self.M[i] = properties['M']
             self.Pc[i] = properties['Pc']
             self.Tc[i] = properties['Tc']
@@ -233,6 +238,16 @@ class FluidMixture(object):
                                  self.nu_bar[i] +  0.083556) / 1000.
             else:
                 self.K_salt[i] = properties['K_salt']
+            
+            # Store the biodegradation properties if they are available
+            if 'k_bio' in properties:
+                self.k_bio[i] = properties['k_bio']
+            else:
+                self.k_bio[i] = 0.
+            if 't_bio' in properties:
+                self.t_bio[i] = properties['t_bio']
+            else:
+                self.t_bio[i] = 0.
         
         # If we are using group contribution method (Privat and Jaubert 2012) 
         # for the binary interaction matrix, then we must import Aij and Bij
@@ -731,6 +746,40 @@ class FluidMixture(object):
         
         # Return the formation temperature
         return T_hyd
+
+    def biodegradation_rate(self, t, lag_time=True):
+        """
+        Determine the biodegradation rate constant
+        
+        Returns the first-order biodegradation rate constant after the 
+        simulation time exceeds the bacterial community response lag time.  
+        
+        Parameters
+        ----------
+        t : float
+            current simulation time (s)
+        lag_time : bool, default = True
+            flag indicating whether the biodegradation rates should include
+            a lag time (True) or not (False).  Default value is True.
+        
+        Returns
+        -------
+        k_bio : ndarray, size (nc)
+            first-order biodegradation rate constants (1/s)
+        
+        Notes
+        -----
+        The user provides both the first-order rate constants and the 
+        constant lag times in the `user_data` provided to the model or
+        using the results in the `TAMOC` dataset ``./data/BioData.csv``.
+        
+        """
+        # Determine the correct values of the rate constant
+        k_bio = np.copy(self.k_bio)
+        if lag_time:
+            k_bio[self.t_bio > t] = 0.
+        
+        return k_bio
 
 
 class FluidParticle(FluidMixture):
@@ -1413,6 +1462,10 @@ class InsolubleParticle(object):
     co : float
         isothermal compressibility coefficient (default value is 
         2.90075e-9 Pa^(-1))
+    k_bio : float
+        first-order biodegradation rate constant (1/s)
+    t_bio : float
+        lag time before onset of first-order biodegradation (s)
     fp_type : integer
         Defines the fluid type (0 = gas, 1 = liquid) that is expected to be 
         contained in the particle.  This is needed because the heat transfer
@@ -1447,7 +1500,8 @@ class InsolubleParticle(object):
     
     """
     def __init__(self, isfluid, iscompressible, rho_p=930., gamma=30., 
-                 beta=0.0007, co=2.90075e-9, fp_type=1):
+                 beta=0.0007, co=2.90075e-9, k_bio=0., t_bio=0.,
+                 fp_type=1):
         super(InsolubleParticle, self).__init__()
         
         # Store the input variables
@@ -1457,6 +1511,8 @@ class InsolubleParticle(object):
         self.gamma = gamma
         self.beta = beta
         self.co = co
+        self.k_bio = k_bio
+        self.t_bio = t_bio
         self.fp_type = int(fp_type)
         
         # Specify that the particle is not soluble and is therefore treated
@@ -1587,6 +1643,41 @@ class InsolubleParticle(object):
         
         return sigma
     
+    def biodegradation_rate(self, t, lag_time):
+        """
+        Determine the biodegradation rate constant
+        
+        Returns the first-order biodegradation rate constant after the 
+        simulation time exceeds the bacterial community response lag time.  
+        
+        Parameters
+        ----------
+        t : float
+            current simulation time (s)
+        lag_time : bool, default = True
+            flag indicating whether the biodegradation rates should include
+            a lag time (True) or not (False).  Default value is True.
+        
+        Returns
+        -------
+        k_bio : ndarray, size (nc)
+            first-order biodegradation rate constant (1/s)
+        
+        Notes
+        -----
+        The duration of the lag time (t_bio) is provided during initialization
+        of an `dbm.InsolubleParticle`.
+        
+        """
+        # Determine the correct value of the rate constant
+        k_bio = np.copy(self.k_bio)
+        if lag_time:
+            if self.t_bio > t:
+                k_bio = 0.
+        
+        return k_bio
+
+
     def mass_by_diameter(self, de, T, P, Sa, Ta):
         """
         Compute the mass (kg) of an inert fluid particle with equivalent 

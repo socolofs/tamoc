@@ -806,8 +806,8 @@ class ModelParams(single_bubble_model.ModelParams):
     def __init__(self, profile):
         super(ModelParams, self).__init__(profile)
         
-        # Set the model parameters to the values in Lee and Cheung (1990)
-        self.alpha_j = 0.057
+        # Set the model parameters to the values in Jirka (2004)
+        self.alpha_j = 0.055
         self.alpha_Fr = 0.544
         self.gamma = 1.10
         
@@ -865,7 +865,15 @@ class Particle(dispersed_phases.PlumeParticle):
     fdis : float, default = 1.e-6
         Fraction (--) of the initial mass of each component of the mixture
         when that component should be considered totally dissolved.
-    
+    t_hyd : float, default = 0.
+        Hydrate film formation time (s).  Mass transfer is computed by clean
+        bubble methods for t less than t_hyd and by dirty bubble methods
+        thereafter.  The default behavior is to assume the particle is dirty
+        or hydrate covered from the release.
+    lag_time : bool, default = True.
+        Flag that indicates whether (True) or not (False) to use the
+        biodegradation lag times data.
+        
     Attributes
     ----------
     particle : `dbm.FluidParticle` or `dbm.InsolubleParticle` object
@@ -940,9 +948,11 @@ class Particle(dispersed_phases.PlumeParticle):
     
     """
     def __init__(self, x, y, z, dbm_particle, m0, T0, nb0, lambda_1, 
-                 P, Sa, Ta, K=1., K_T=1., fdis=1.e-6, t_hyd=0.):
+                 P, Sa, Ta, K=1., K_T=1., fdis=1.e-6, t_hyd=0., 
+                 lag_time=True):
         super(Particle, self).__init__(dbm_particle, m0, T0, nb0, lambda_1, 
-                                       P, Sa, Ta, K, K_T, fdis, t_hyd)
+                                       P, Sa, Ta, K, K_T, fdis, t_hyd,
+                                       lag_time)
         
         # Particles start inside the plume and should be integrated
         self.integrate = True
@@ -1061,7 +1071,7 @@ class Particle(dispersed_phases.PlumeParticle):
         """
         Run the `single_bubble_model` to track particles outside the plume
         
-        Continues the simulation of the particle outside the plume using 
+        Continues the simulation of the particle is outside of the plume using 
         the `single_bubble_model`.  The object containing the simulation 
         and simulation results will be added to the attributes of this 
         Particle object.
@@ -1087,7 +1097,7 @@ class Particle(dispersed_phases.PlumeParticle):
         
         # Run the simulation
         self.sbm.simulate(self.particle, X0, de, yk, self.T, self.K, 
-            self.K_T, self.fdis, delta_t=100000.)
+            self.K_T, self.fdis, self.t_hyd, self.lag_time, delta_t=100000.)
         
         # Set flag indicating that far-field solution was computed
         self.farfield = True
@@ -1400,7 +1410,7 @@ class LagElement(object):
         self.mp = np.zeros(self.np)
         self.fb = np.zeros(self.np)
         self.x_p = np.zeros((self.np, 3))
-        
+
         for i in range(self.np):
             # If this is a post-processing call, update the status of the 
             # integration flag
@@ -1415,6 +1425,10 @@ class LagElement(object):
             T_p = self.H_p[i] / (np.sum(self.M_p[i]) * particles[i].cp)
             particles[i].update(m_p, T_p, self.Pa, self.S, self.T, 
                                 self.t_p[i])
+            
+            # Store biodegradation rates to use with dissolved phase
+            if particles[i].particle.issoluble:
+                self.k_bio = particles[i].k_bio
             
             # Track the particle in the plume
             self.t_p[i], self.x_p[i,:] = particles[i].track(self.t_p[i], 

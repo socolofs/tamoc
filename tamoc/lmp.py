@@ -99,35 +99,44 @@ def derivs(t, q, q0_local, q1_local, profile, p, particles):
     
     # Compute mass and heat transfer for each particle
     for i in range(len(particles)):
-        
+
+        # Only simulate particles inside the plume
         if particles[i].integrate:
-            # Only simulate particles inside the plume
             
-            # Track each particle's mass transfer separately
-            dm_p = np.zeros(q1_local.nchems)
-            
-            # Dissolution
+            # Dissolution and Biodegradation
             if particles[i].particle.issoluble:
-                for j in range(q1_local.nchems):
-                    
-                    # Conservation of particle mass for a single chemical jx
-                    qp[idx] = - particles[i].A * particles[i].nbe * \
-                              particles[i].beta[j] * (particles[i].Cs[j] - 
-                              q1_local.c_chems[j]) * dtp_dt[i]
-                    dm_p[j] = qp[idx]
-                    
-                    # Update continuous phase temperature with heat of solution
-                    qp[2] += qp[idx] * particles[i].particle.neg_dH_solR[j] \
-                             * p.Ru / particles[i].particle.M[j]
-                    idx += 1
+                # Dissolution mass transfer for each particle component
+                dm_pc = - particles[i].A * particles[i].nbe * \
+                           particles[i].beta * (particles[i].Cs - 
+                           q1_local.c_chems) * dtp_dt[i]
+                
+                # Update continuous phase temperature with heat of 
+                # solution
+                qp[2] += np.sum(dm_pc * \
+                         particles[i].particle.neg_dH_solR \
+                         * p.Ru / particles[i].particle.M)
+                
+                # Biodegradation for for each particle component
+                dm_pb = -particles[i].k_bio * particles[i].m * \
+                     particles[i].nbe * dtp_dt[i]
+                
+                # Conservation of mass for dissolution and biodegradation
+                qp[idx:idx+q1_local.nchems] = dm_pc + dm_pb
+                
+                # Update position in state space 
+                idx += q1_local.nchems
                 
             else:
-                # Non-dissolving particles have one component
-                qp[idx] = 0.
+                # No dissolution
+                dm_pc = np.zeros(q1_local.nchems)
+                # Biodegradation for insoluble particles
+                dm_pb = -particles[i].k_bio * particles[i].m * \
+                    particles[i].nbe * dtp_dt[i]
+                qp[idx] = dm_pb
                 idx += 1
             
             # Update the total mass dissolved
-            dm += dm_p
+            dm += dm_pc
             
             # Heat transfer between the particle and the ambient
             qp[idx] = - particles[i].A * particles[i].nbe * \
@@ -135,8 +144,9 @@ def derivs(t, q, q0_local, q1_local, profile, p, particles):
                         particles[i].beta_T * (particles[i].T - \
                         q1_local.T) * dtp_dt[i]
             
-            # Heat loss due to mass loss by dissolution
-            qp[idx] += np.sum(dm_p) * particles[i].cp * particles[i].T
+            # Heat loss due to mass loss
+            qp[idx] += np.sum(dm_pc + dm_pb) * particles[i].cp * \
+                       particles[i].T
             
             # Take the heat leaving the particle and put it in the continuous 
             # phase fluid
@@ -160,9 +170,9 @@ def derivs(t, q, q0_local, q1_local, profile, p, particles):
             idx += particles[i].particle.nc + 5
     
     # Conservation equations for the dissolved constituents in the plume
-    for i in range(q1_local.nchems):
-        qp[idx] = md / q1_local.rho_a * q1_local.ca_chems[i] - dm[i]
-        idx += 1
+    qp[idx:idx+q1_local.nchems] = md / q1_local.rho_a * q1_local.ca_chems \
+        - dm - q1_local.k_bio * q1_local.cpe
+    idx += q1_local.nchems
     
     # Conservation equation for the passive tracers in the plume
     qp[idx:] = md / q1_local.rho_a * q1_local.ca_tracers

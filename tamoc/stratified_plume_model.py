@@ -707,7 +707,7 @@ class ModelParams(single_bubble_model.ModelParams):
         
         # Set the model parameters to the values recommended by Socolofsky
         # et al. (2008)
-        self.alpha_j = 0.057
+        self.alpha_j = 0.055
         self.alpha_Fr = 0.544
         self.alpha_1 = 0.055
         self.alpha_2 = 0.110

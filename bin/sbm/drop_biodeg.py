@@ -1,10 +1,10 @@
 """
-Single Bubble Model:  Inert particles
-=====================================
+Single Bubble Model:  Droplet simulations
+=========================================
 
-Use the ``TAMOC`` `single_bubble_model` to simulate the trajectory of an inert
-particle (e.g., a dead oil) rising through the water column. This script
-demonstrates the typical steps involved in running the single bubble model.
+Use the ``TAMOC`` `single_bubble_model` to simulate the trajectory of a light
+oil droplet rising through the water column. This script demonstrates the
+typical steps involved in running the single bubble model.
 
 It uses the ambient data stored in the file `../test/output/test_bm54.nc`,
 created by the `test_ambient` module.  Please make sure all tests have 
@@ -31,25 +31,28 @@ if __name__ == '__main__':
     # Initialize a single_bubble_model.Model object with this data
     sbm = single_bubble_model.Model(bm54)
     
-    # Create an inert particle that is compressible
-    oil = dbm.InsolubleParticle(True, True, rho_p=840., k_bio=0.001, 
-        t_bio = 0.)
-    mol_frac = np.array([1.])
+    # Create a light oil droplet particle to track
+    composition = ['benzene', 'toluene', 'ethylbenzene']
+    drop = dbm.FluidParticle(composition, fp_type=1.)
+    
+    # Set the mole fractions of each component at release.
+    mol_frac = np.array([0.4, 0.3, 0.3])
     
     # Specify the remaining particle initial conditions
-    de = 0.03
+    de = 0.0005
     z0 = 1000.
     T0 = 273.15 + 30.
     
     # Simulate the trajectory through the water column and plot the results
-    sbm.simulate(oil, z0, de, mol_frac, T0, K_T=1, delta_t=10.)
+    sbm.simulate(drop, z0, de, mol_frac, T0, K=0., K_T=1., fdis=1.e-8, 
+        lag_time=False, delta_t=10.)
     sbm.post_process()
     
     # Save the simulation to a netCDF file
-    sbm.save_sim('./particle.nc', '../../test/output/test_bm54.nc', 
-                 'Results of ./particle.py script')
+    sbm.save_sim('./drop_biodeg.nc', '../../test/output/test_bm54.nc', 
+                 'Results of ./drop_biodeg.py script')
     
     # Save the data for importing into Matlab
-    sbm.save_txt('./particle.txt', '../../test/output/test_bm54.nc', 
-                 'Results of ./particle.py script')
+    sbm.save_txt('./drop_biodeg.txt', '../../test/output/test_bm54.nc', 
+                 'Results of ./drop_biodeg.py script')
 

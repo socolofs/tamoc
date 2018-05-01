@@ -820,7 +820,7 @@ def create_nc_db(nc_file, summary, source, sea_name, p_lat, p_lon, p_time):
     z.axis = 'Z'
     z.positive = 'down'
     z.valid_min = 0.0
-    z.valid_max = 0.0
+    z.valid_max = 12000.0
     
     # Create variables for temperature, salinity, and pressure
     T = nc.createVariable('temperature', 'f8', ('z',))
