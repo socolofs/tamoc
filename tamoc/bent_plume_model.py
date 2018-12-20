@@ -807,7 +807,7 @@ class ModelParams(single_bubble_model.ModelParams):
         super(ModelParams, self).__init__(profile)
         
         # Set the model parameters to the values in Jirka (2004)
-        self.alpha_j = 0.055
+        self.alpha_j = 0.057  # Changed from 0.055 on 11/20/2018
         self.alpha_Fr = 0.544
         self.gamma = 1.10
         

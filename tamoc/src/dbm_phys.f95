@@ -529,6 +529,11 @@ subroutine xfer_kumar_hartland(de, us, rho, mu, D, sigma, mu_p, nc, &
     real(kind = DP) :: C1, C2, n1, n2, n3, n4, Re
     real(kind = DP), dimension(nc) :: Sc, Pe, Sh_rigid, Sh_infty, lambda, Sh
     
+    ! Compute the Reynolds, Schmidt, and Peclet numbers
+    Re = de * us * rho / mu
+    Sc(:) = mu / (rho * D(:))
+    Pe(:) = de * us / D(:)
+    
     ! Constants for the formulas
     C1 = 50.0D0
     C2 = 5.26D-2
@@ -536,11 +541,6 @@ subroutine xfer_kumar_hartland(de, us, rho, mu, D, sigma, mu_p, nc, &
     n2 = 1.0D0 / 3.0D0
     n3 = 1.0D0 / 3.0D0
     n4 = 1.1D0
-    
-    ! Compute the Reynolds, Schmidt, and Peclet numbers
-    Re = de * us * rho / mu
-    Sc(:) = mu / (rho * D(:))
-    Pe(:) = de * us / D(:)
     
     ! Compute equation 16
     Sh_rigid(:) = 2.43D0 + 0.775D0 * Re**0.5D0 * Sc(:)**n2 + 0.0103D0 * Re &

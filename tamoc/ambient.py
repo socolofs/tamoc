@@ -998,8 +998,8 @@ def fill_nc_db(nc, data, var_symbols, var_units, comments, z_col=0):
             # Replace the input data with the interpolated values that match
             # the netCDF z array
             interp_data = np.zeros((z.shape[0],ny+1))
-            interp_data[:,z_col] = z[:]
-            interp_data[:,y_cols] = f(z[:]).transpose()
+            interp_data[:,z_col] = np.array(z[:])
+            interp_data[:,y_cols] = f(np.array(z[:])).transpose()
             data = np.copy(interp_data)
     
     # Handle the dependent variables

@@ -12,6 +12,13 @@ size distributions from source flow conditions.
 For typical usage, please see the ./bin directory of the source distribution
 for various example scripts.
 
+Version 1.2.1:  Corrected minor errors in translating between NetCDF objects
+                and Numpy arrays to avoid a masked-array error and updated
+                the dbm_phys.f95 function for the mass transfer rate by Kumar
+                and Hartland so that the Reynolds number is defined before it
+                is used.
+Version 1.2.0:  Added biodegradation to the fate processes considered in the 
+                discrete bubble model (DBM).
 Version 1.1.1:  Updated the ambient module interpolation method to be 
                 compatible with newer versions of numpy, updated a few of
                 the ./bin examples to only read data provided with TAMOC, and 

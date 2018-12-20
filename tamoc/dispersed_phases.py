@@ -1093,7 +1093,7 @@ def load_particle_from_nc_file(nc):
                 delta_groups=delta_groups, 
                 isair=nc.variables['isair'][i], 
                 sigma_correction=nc.variables['sigma_correction'][i])
-            m0 = nc.variables['m0'][i,:]
+            m0 = np.array(nc.variables['m0'][i,:])
         else:
             if nc.variables['isfluid'][i]:
                 isfluid = True
@@ -1108,7 +1108,7 @@ def load_particle_from_nc_file(nc):
                 gamma=nc.variables['gamma'][i], 
                 beta=nc.variables['beta'][i], 
                 co=nc.variables['co'][i])
-            m0 = nc.variables['m0'][i,0]
+            m0 = np.array([nc.variables['m0'][i,0]])
         
         # Create the right dispersed_phases object
         if nc.variables['particle_type'][0] == 2:

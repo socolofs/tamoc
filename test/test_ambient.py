@@ -184,6 +184,8 @@ def get_profile_obj(nc, chem_names, chem_units):
     y = prf.y[nz,:]
     # Get an interpolated set of values at this same elevation
     yp = prf.f(z)
+    print y
+    print yp
     # Check if the results are within the level of error expected by err
     for i in range(len(name_list)):
         assert np.abs((yp[i] - y[i]) / yp[i]) <= prf.err

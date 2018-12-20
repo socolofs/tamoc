@@ -1,3 +1,11 @@
+V1.2.1, December 2018 --
+   . Updated passing of NetCDF objects to Numpy to avoid problems with 
+     masked-array compatibility.  
+   . Updated the Fortran code in ./src/dbm_phys.f95 in the subroutine
+     xfer_kumar_hartland() so that the Reynolds number, Schmidt number, and
+     Peclet numbers are computed before they are used.
+V1.2.0, December 2017 -- 
+   . Added biodegradation to the fate processes in the model.  
 V1.1.1, November 2017 --
    . Updated the way interp1d is used inside the ambient.get_values command
      for scalar input.  The model assumed a row vector would be created, but
