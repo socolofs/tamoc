@@ -33,6 +33,8 @@ See Also
 """
 # S. Socolofsky, November 2014, Texas A&M University <socolofs@tamu.edu>.
 
+from __future__ import (absolute_import, division, print_function)
+
 from tamoc import model_share
 from tamoc import seawater
 from tamoc import ambient
@@ -206,8 +208,8 @@ class Model(object):
         neighbor = interp1d(np.array([0, self.profile.z_max]), 
                    np.zeros((2, 4 + self.yo_local.nchems)).transpose())
         
-        print '\n-- TEXAS A&M OIL-SPILL CALCULATOR (TAMOC) --'
-        print '-- Stratified Plume Model                 --\n'
+        print('\n-- TEXAS A&M OIL-SPILL CALCULATOR (TAMOC) --')
+        print('-- Stratified Plume Model                 --\n')
         while iter < self.maxit and np.abs(ea) > self.toler:
             
             # Store old solutions to check for convergence
@@ -219,16 +221,16 @@ class Model(object):
                 yo_old = copy(self.yo)
             
             # Enter the main calculation loop
-            print '\nIteration %2.2d---------------------------------------' \
-                  % iter
-            print '\n  Calculate inner plume...'
+            print('\nIteration %2.2d---------------------------------------'
+                  % iter)
+            print('\n  Calculate inner plume...')
             sys.stdout.flush()
             
             self.zi, self.yi, neighbor = inner_main(self.yi_local, 
                 self.yo_local, self.particles, self.profile, self.p, neighbor,
                 self.delta_z)
             
-            print '\n  Calculate outer plume...'
+            print('\n  Calculate outer plume...')
             self.zo, self.yo, neighbor = outer_main(self.yi_local, 
                 self.yo_local, self.particles, self.profile, self.p, neighbor,
                 self.delta_z)
@@ -240,7 +242,7 @@ class Model(object):
                                 yi_old, zo_old, yo_old, self.yi_local,
                                 self.yo_local, self.particles, self.profile, 
                                 self.p)
-                print '\n  Relative error:  %g' % ea
+                print('\n  Relative error:  %g' % ea)
             
             # Plot the state space to help track the convergence
             self.sim_stored = True
@@ -286,8 +288,8 @@ class Model(object):
         
         """
         if self.sim_stored is False:
-            print 'No simulation results to store...'
-            print 'Saved nothing to netCDF file.\n'
+            print('No simulation results to store...')
+            print('Saved nothing to netCDF file.\n')
             return
         
         # Create the netCDF dataset object
@@ -429,8 +431,8 @@ class Model(object):
         
         """
         if self.sim_stored is False:
-            print 'No simulation results to store...'
-            print 'Saved nothing to text file.\n'
+            print('No simulation results to store...')
+            print('Saved nothing to text file.\n')
             return
         
         # Create the header string that contains the column descriptions
@@ -566,10 +568,11 @@ class Model(object):
         self.toler = nc.variables['toler'][0]
         self.delta_z = nc.variables['delta_z'][0]
         if self.got_profile:
-            self.yi_local = InnerPlume(nc.variables['z'][0,0], 
+            self.yi_local = InnerPlume(np.array([nc.variables['z'][0,0]]), 
                 nc.variables['yi'][0,:], self.profile, self.particles, 
                 self.p, self.chem_names)
-            self.yo_local = OuterPlume(nc.variables['z'][nzo-1,1], 
+            self.yo_local = \
+                OuterPlume(np.array([nc.variables['z'][nzo-1,1]]), 
                 nc.variables['yo'][nzo-1,:], self.profile, self.p, 
                 self.chem_names, self.yi_local.b)
         self.zi = nc.variables['z'][0:nzi,0]
@@ -603,16 +606,16 @@ class Model(object):
         
         """
         if self.sim_stored is False:
-            print 'No simulation results available to plot...'
-            print 'Plotting nothing.\n'
+            print('No simulation results available to plot...')
+            print('Plotting nothing.\n')
             return
         
         # Plot the results        
-        print 'Plotting the state space...'
+        print('Plotting the state space...')
         plot_state_space(self.zi, self.yi, self.zo, self.yo, 
                          self.yi_local, self.yo_local, self.particles,
                          self.profile, self.p, fig)
-        print 'Done.\n'
+        print('Done.\n')
     
     def plot_all_variables(self, fig):
         """
@@ -633,16 +636,16 @@ class Model(object):
         
         """
         if self.sim_stored is False:
-            print 'No simulation results available to plot...'
-            print 'Plotting nothing.\n'
+            print('No simulation results available to plot...')
+            print('Plotting nothing.\n')
             return
         
-        # Plot the results        
-        print 'Plotting the full variable suite...'
+        # Plot the results
+        print('Plotting the full variable suite...')
         plot_all_variables(self.zi, self.yi, self.zo, self.yo, 
                            self.yi_local, self.yo_local, self.particles,
                            self.profile, self.p, fig)
-        print 'Done.\n'
+        print('Done.\n')
     
 
 class ModelParams(single_bubble_model.ModelParams):
@@ -1176,7 +1179,7 @@ def inner_main(yi, yo, particles, profile, p, neighbor, delta_z):
     z, y = smp.calculate(yi, yo, particles, profile, p, neighbor, 
                           smp.derivs_inner, yi.z, yi.y, 0., -1., delta_z)
     
-    print '  Done with inner plume calculations...'
+    print('  Done with inner plume calculations...')
     
     # Update yi and build the neighbor matrix
     yi.update(z[-1], y[-1,:], particles, profile, p)
@@ -1273,7 +1276,7 @@ def outer_main(yi, yo, particles, profile, p, neighbor, delta_z):
     yo.update(z0, y0, profile, p, yi.b)
     
     # Integrate down the first outer plume segment
-    print '\n    Top outer plume...'       
+    print('\n    Top outer plume...'       )
     z, y = smp.calculate(yi, yo, particles, profile, p, neighbor,
                           smp.derivs_outer, yo.z, yo.y, profile.z_max, 1., 
                           delta_z)
@@ -1299,7 +1302,7 @@ def outer_main(yi, yo, particles, profile, p, neighbor, delta_z):
         # Integrate the outer plume if it is viable
         if flag is True:
             # Integrate the outer plume
-            print '    - Outer plume %2.2d' % k
+            print('    - Outer plume %2.2d' % k)
             k += 1
             
             # Initialize the outer plume object with these initial conditions
@@ -1323,7 +1326,7 @@ def outer_main(yi, yo, particles, profile, p, neighbor, delta_z):
         # Update the current depth
         z_depth = z_sol[-1]
     
-    print '  Done with outer plume calculations...'
+    print('  Done with outer plume calculations...')
     
     # Build the neighbor matrix
     neighbor = interp1d(z_sol, y_sol.transpose())

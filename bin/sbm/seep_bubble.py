@@ -15,6 +15,8 @@ source of ambient data.
 """
 # S. Socolofsky, July 2013, Texas A&M University <socolofs@tamu.edu>.
 
+from __future__ import (absolute_import, division, print_function)
+
 from tamoc import ambient
 from tamoc import dbm
 from tamoc import seawater

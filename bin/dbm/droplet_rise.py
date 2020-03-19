@@ -19,6 +19,9 @@ In particular, this script demonstrates the methods:
 """
 # S. Socolofsky, July 2013, Texas A&M University <socolofs@tamu.edu>.
 
+from __future__ import (absolute_import, division, print_function, 
+                        unicode_literals)
+
 from tamoc import dbm
 from tamoc import seawater
 

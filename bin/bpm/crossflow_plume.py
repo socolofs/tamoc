@@ -12,6 +12,8 @@ name crossflow_plume.nc.
 
 """
 # S. Socolofsky, October 2014, Texas A&M University <socolofs@tamu.edu>.
+from __future__ import (absolute_import, division, print_function)
+
 from tamoc import seawater, ambient, dbm
 from tamoc import bent_plume_model as bpm
 from tamoc import dispersed_phases
@@ -213,7 +215,7 @@ def crossflow_plume(fig):
     return jlm
 
 
-if __name__ is '__main__':
+if __name__ == '__main__':
     
     # Bubble plume in crossflow
     sim_01 = crossflow_plume(1)

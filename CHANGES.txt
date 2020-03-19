@@ -1,3 +1,35 @@
+V2.0.0, March 2020 --
+   . TAMOC is now updated to be fully Python 3 compatible.  Compatibility 
+     with Python 2.7 is still retained.  Going forward, Python 3 functionality
+     will be ensured, but compatibility with Python 2 will no longer be 
+     ensured.  
+   . Added a new BaseProfile object to the ambient.py module so that ambient
+     Profile objects can be created without using netCDF files.  This new
+     object is inherited by the original Profile object.  All previous 
+     behavior is retained.  Profiles can now be created using netCDF, using
+     numpy arrays, or using lists.  
+   . Added the capability for an ambient.Profile object to be created without
+     data.  In this case, the world-ocean average profile is used.  This data
+     is distributed with TAMOC.
+   . Created a new module particle_size_models.py which also uses psf.py
+     for its function base.  These modules replace the sintef.py module and
+     include particle size models from SINTEF, RPS ASA, and from Wang et al. 
+     (for bubbles only).
+   . Created a new blowout.py module which defines a new Blowout object.  
+     This object facilitates much of the work needed to set up a blowout 
+     simulation using the bent_plume_model.  Once the object is created, 
+     simulations can be run immediately.  Model settings can also be easily
+     changed and the simulations re-run.
+   . Created a new module dbm_utilities.py which makes setting up discrete
+     bubble models for blowout simulations much simpler.  This module is 
+     particularly used by the new blowout.py module.
+   . Update all of the test cases so that they should now all pass on any
+     machine.  Some warnings are thrown, but these are normal parts of the 
+     model and can be ignored.
+   . Updated all test and ./bin examples to be compatible with Python 3 and 
+     to include the new modules.
+   . Updated the documentation to be up-to-date with the current version of
+     the model.
 V1.2.1, December 2018 --
    . Updated passing of NetCDF objects to Numpy to avoid problems with 
      masked-array compatibility.  

@@ -2,7 +2,7 @@
 Ambient Module
 ==============
 
-Define functions, classes, and methods to handle ambient sewater data
+Define functions, classes, and methods to handle ambient seawater data
 
 This module defines functions to read in arbitrary format ambient data files
 (e.g., CTD profiles), manipulate the data to extract profiles with monotonic
@@ -18,9 +18,16 @@ structure.
 These methods are particularly useful to rapidly create ambient profile 
 databases for use by ``TAMOC`` and for archiving data obtained from arbitrary 
 formats in standard format netCDF4-classic files.  These methods also allow
-seemless coupling of ``TAMOC`` simulation modules with general ocean 
+seamless coupling of ``TAMOC`` simulation modules with general ocean 
 circulation models or Lagrangian particle tracking models that store their 
 seawater properties data in netCDF format.
+
+In its original design, the `ambient` module required all `Profile` objects 
+to be stored as netCDF datasets.  In the present version, this requirement
+has been removed so that `Profile` objects can be created from other input
+data types and without storing the data as a netCDF dataset.  The original
+functionality of the `Profile` class, however, is the same, so that seamless
+integration with other other ``TAMOC`` modules is maintained.  
 
 See Also
 --------
@@ -28,7 +35,7 @@ See Also
     Package for creating and manipulating netCDF datasets
 
 `datetime` : 
-    Package to create and manipute dates
+    Package to create and manipulate dates
 
 `numpy.fromfile` :
     Read data from a simple text file in single table format. Similar to the
@@ -48,9 +55,22 @@ See Also
     capabilities in `numpy.loadtxt`, but also allows for missing data, data
     flags, and multiple methods to replace missing data or flags.
 
-
 """
 # S. Socolofsky, July 2013, Texas A&M University <socolofs@tamu.edu>.
+# TODO:  
+# * Create a method to save a numpy profile as a netCDF dataset
+# * Create a method to save the location, summary etc. data for a numpy
+#   profile in the profile attributes
+# * Extract those same attributes from the netCDF file and save them in 
+#   the class object
+# * Rewrite the tests -- they are not very good...these were the first 
+#   tests I ever wrote.
+# * Allow the ambient Profile object to add atmospheric gases after the
+#   profile has been created.  Should take an array of chemical names
+#   as input and then just create the required data within the Profile.
+
+from __future__ import (absolute_import, division, print_function)
+unicode = type(u' ')
 
 from tamoc import seawater
 
@@ -59,42 +79,44 @@ from netCDF4 import num2date, date2num
 from datetime import datetime
 from time import ctime
 
+import os
 import numpy as np
 from scipy.interpolate import interp1d
 from scipy.optimize import fsolve
-from string import join, capwords
 from copy import copy
 
-class Profile(object):
+class BaseProfile(object):
     """
-    Class object for ambient seawater profiles
+    Base functionality for `ambient.Profile` objects
     
-    This object collects the data describing the ambient seawater (e.g., 
-    CTD data, currents, etc.) and provides efficient access to interpolated
-    results at arbitrary depths.  All of the raw data are stored in a 
-    netCDF4-classic format dataset, which resides on the hard-drive.  Profile
-    objects can be initiated either from an open netCDF dataset object or 
-    from a file path to the desired object.  The netCDF dataset is expected
-    to have variables for 'z', 'temperature', 'salinity', and 'pressure' and 
-    any other variables requested at instantiation through the chem_names
-    variable.  
+    Includes the base functionality needed by ambient.Profile objects.  The 
+    intent of this class is that it may provide a simple means to create
+    profile objects without netCDF files and that it can be inherited by the
+    existing Profile object to retain the current behavior unchanged.
     
     Parameters
     ----------
-    nc : netCDF dataset object, path, or str
-        Provides the information necessary to access the netCDF dataset.  If
-        a file path or string is provided, then the netCDF file is opened
-        and the resulting dataset object is stored in self.nc.
+    data : ndarray
+        Array of depth (m), temperature (K), and salinity (psu), and 
+        pressure (Pa) data plus concentrations of any additional dissolved 
+        chemicals (kg/m^3)
     ztsp : str list
         String list containing the variables names for depth, temperature, 
-        salinity, and pressure that are used in the netCDF dataset.
+        salinity, and pressure that are to be used in the .get_values()
+        method.
+    ztsp_units : str list
+        String list containing the units of the variables in the data array
+        for depth, temperature, salinity, and pressure
     chem_names : str list, optional
-        Names of the chemicals (e.g., those constituents in addition to z, T, 
-        S, P) in the netCDF dataset that should be accessible through the 
-        `self.get_values` interpolation method or the `self.get_units` 
-        interrogator.  If `chem_names` = 'all', then all variables in the 
-        netCDF file except for 'time', 'lat', 'lon', and the strings in 
-        `ztsp` will be loaded as ambient chemical data.
+        Names of the chemicals (e.g., those constituents in addition to z, T,
+        S, P) in the dataset that should be accessible through the
+        `self.get_values` interpolation method or the `self.get_units`
+        interrogator.
+    chem_units : str list, optional
+        String list of units for the chemicals in the chem_names array
+    current : various, optional
+        Values to be used for the ambient current data.  See Notes for 
+        details.
     err : float
         The interpolation dataset is a subset of the complete raw dataset 
         stored in the netCDF file.  err sets the acceptable level of 
@@ -102,142 +124,168 @@ class Profile(object):
         `self.get_values` method.  This value is passed to the `coarsen` 
         function to provide an optimal interpolation dataset.
     
-    Attributes
-    ----------
-    nc_open : bool
-        Flag stating whether or not the netCDF dataset is open or closed
-    nchems : int 
-        Number of chemicals in `chem_names`
-    z : ndarray
-        Array containing the complete raw dataset of depths
-    y : ndarray
-        Array containing the complete raw dataset for T, S, P, and chemicals 
-        in `chem_names`. 
-    f_names : str list
-        concatenated string list containing `ztsp` and `chem_names`
-    f_units : str list
-        List of units associated with the variables stored in `f_names`.
-    f : object
-        `scipy.interpolate.interp1d` object containing `z` and `y`.
+    Notes
+    -----
+    The user may pass the current profile data in several ways.  The 
+    'current' variable may be defined as follows:
     
-    See Also 
-    --------
-    netCDF4, create_nc_db, fill_nc_db, coarsen, chemical_properties
-    
-    Examples
-    --------
-    >>> bm54 = Profile('./test/output/test_BM54.nc', chem_names='all')
-    >>> print bm54.nc.variables.keys()
-    ['time', 'lat', 'lon', 'z', 'temperature', 'salinity', 'pressure', 
-    'T', 'wetlab_fluorescence', 'S', 'density', 'oxygen']
-    >>> bm54.get_values(1000.0, ['temperature', 'salinity', 'pressure'])
-    array([  2.78274540e+02,   3.49278396e+01,   1.01933088e+07])
-    >>> bm54.get_units('oxygen')
-    ['kg/m^3']
-    >>> bm54.buoyancy_frequency(1500.)
-    0.00081815
-    >>> bm54.nc_close()
+    current : float
+        This is assumed to be the current velocity along the x-axis and will
+        be uniform over the depth
+    current : ndarray
+        This is assumed to contain the current velocity in the x- and y- (and
+        optionally also z-) directions. If this is a one-dimensional array,
+        then these currents will be assumed to be uniform over the depth. If
+        this is a multi-dimensional array, then these values are assumed to
+        contain a profile of data, with the depth (m) as the first column of
+        data.
     
     """
-    def __init__(self, nc, ztsp=['z', 'temperature', 'salinity', 
-                 'pressure'], chem_names=None, err=0.01):
-        super(Profile, self).__init__()
+    def __init__(self, data, ztsp=['z', 'temperature', 'salinity',
+                 'pressure'], ztsp_units=['m', 'K', 'psu', 'Pa'], 
+                 chem_names=None, chem_units=None, current=None, 
+                 current_units=None, err=0.01):
         
-        # Get the appropriate netCDF dataset object
-        if isinstance(nc, str) or isinstance(nc, unicode):
-            nc = Dataset(nc, 'a')
+        super(BaseProfile, self).__init__()
         
-        # Mark the netCDF file as open
-        self.nc_open = True
-        
-        # Check chem_names
-        if chem_names == 'all':
-            keys = nc.variables.keys()
-            non_chems = ['time', 'lat', 'lon'] + ztsp
-            chem_names = [name for name in keys if name not in non_chems]
-        elif isinstance(chem_names, str):
-            chem_names == [chem_names]
-        
-        # Store the input variables
-        self.nc = nc
+        # Save the input data
+        if isinstance(data, list):
+            self.data = np.array(data)
+        if isinstance(data, np.ndarray) and np.atleast_2d(data).shape[0] > 1:
+            # Profile contained full water column data
+            self.data = data
+        else:
+            # Profile is either empty or contains surface-only data
+            if isinstance(data, np.ndarray):
+                Ts = data[1]
+                Ss = data[2]
+                data, ztsp, ztsp_units, chem_names, chem_units = \
+                    get_world_ocean(Ts, Ss)
+            else:
+                data, ztsp, ztsp_units, chem_names, chem_units = \
+                    get_world_ocean()
+            self.data = data
         self.ztsp = ztsp
-        if chem_names is None:
+        self.ztsp_units = ztsp_units
+        if isinstance(chem_names, str) or isinstance(chem_names, unicode):
+            chem_names == [chem_names]
+        if isinstance(chem_units, str) or isinstance(chem_units, unicode):
+            chem_units == [chem_units]
+        if chem_names == None:
             self.chem_names = []
+            self.chem_units = []
             self.nchems = 0
         else:
             self.chem_names = chem_names
+            self.chem_units = chem_units
             self.nchems = len(chem_names)
         self.err = err
         
-        # Build an interpolation function
-        self.build_interpolator()
+        # Add any uniform currents
+        if current is not None:
+            # Get input data in the expected format
+            if isinstance(current_units, str) or \
+                isinstance(current_units, unicode):
+                # Assume all components have the same units
+                current_units = [current_units] * 3
+            elif len(current_units) == 2:
+                # Add units for a vertical velocity component
+                current_units += [current_units[0]]
+            if isinstance(current, float):
+                # Assume only the x-direction has velocity
+                current = np.array([current, 0., 0.])
+            if isinstance(current, list):
+                # Convert an input list to an array
+                current = np.array(current)
+            if np.atleast_2d(current).shape[0] == 1:
+                if len(current) == 2:
+                    # Add zero vertical velocity to uniform current
+                    current = np.append(current, 0.)
+            else:
+                if current.shape[1] == 3:
+                    # Add a zero vertical velocity to current data
+                    wa = np.zeros((current.shape[0], 1))
+                    current = np.hstack(current, np.atleast_2d(wa))
+            
+            # Convert to standard `tamoc` units
+            current, current_units = convert_units(current, current_units)
+            
+            # Separate the CTD from the chemical data
+            ztsp_data = self.data[:,:4]
+            chem_data = np.atleast_2d(self.data[:,4:])
+            
+            # Add these currents to the self.data array
+            if np.atleast_2d(current).shape[0] == 1:
+                current_data = np.zeros((2,4))
+                current_data[0,0] = self.data[0,0]
+                current_data[1,0] = self.data[-1,0]
+                current_data[:,1] = current[0]
+                current_data[:,2] = current[1]
+                current_data[:,3] = current[2]
+            else:
+                current_data = current
+            current_names = ['z', 'ua', 'va', 'wa']
+            current_units = ['m'] + current_units
+            for component in current_names[1:]:
+                idx = current_names.index(component)
+                ztsp_data = add_data(ztsp_data, 4+idx, component, 
+                                     current_data,  current_names, 
+                                     current_units, 'current', 0)
+                self.ztsp.append(component)
+                self.ztsp_units.append(current_units[idx])
+            self.data = np.hstack((ztsp_data, chem_data))
+            
+        # Build the interpolation function
+        self._build_interpolator()
     
-    def build_interpolator(self):
+    def _build_interpolator(self):
         """
-        Build the interpolator function from the netCDF dataset
-        
-        Extract the raw data from the netCDF dataset using the required
-        variables T, S, and P plus any variables requested by the user through
-        `self.chem_names` and store the resulting data in z and y.  Coarsen
-        the raw dataset to the level specified by `self.err` using the 
-        `coursen` function and put the resulting reduced dataset into the 
-        interpolation function `f`.
+        Build the interpolator function from the profile data
         
         Notes
         -----
-        This function is responsible for creating the object attributes `z`, 
+        This function is responsible for creating the object attributes `z`,
         `y`, `f_names`, `f_units`, and `f`.
         
-        This method is called by the object initializer and by the object 
-        append method.  *It should not be called directly by the user*.
+        This method is called by the object __init__(), append(), and
+        extend_profile_deeper() methods. *It should not be called directly by
+        the user*.
         
         """
-        if self.nc_open is True:
-            # Extract the depths
-            self.z = self.nc.variables[self.ztsp[0]][:]
-            
-            # List the ambient profile components
-            self.f_names = self.ztsp[1:] + self.chem_names
-            
-            # Extract the ambient profile data and units
-            self.f_units = []
-            self.y = np.zeros((self.z.shape[0], len(self.f_names)))
-            for i in range(len(self.f_names)):
-                self.y[:,i] = self.nc.variables[self.f_names[i]][:]
-                self.f_units.append(self.nc.variables[self.f_names[i]].units)
-            
-            # Create the interpolation function 
-            db = np.hstack((np.atleast_2d(self.z).transpose(), self.y))
-            db = coarsen(db, self.err)
-            db = stabilize(db)
-            self.f = interp1d(db[:,0], db[:,1:].transpose())
-            
-            # Set the valid range of the interpolator
-            self.z_max = np.max(self.z)
-            self.z_min = np.min(self.z)
-            
-        else:
-            raise ValueError('The netCDF dataset is already closed so ' + 
-                             'the interpolator cannot be updated.')
+        # Store the independent and dependent variables
+        self.z = self.data[:,0]
+        self.y = self.data[:,1:]
+        
+        # Store the names of all of the variables in the interpolator
+        self.f_names = self.ztsp[1:] + self.chem_names
+        self.f_units = self.ztsp_units[1:] + self.chem_units
+        
+        # Create the interpolation function
+        self.data = coarsen(self.data, self.err)
+        self.data = stabilize(self.data)
+        self.f = interp1d(self.data[:,0], self.data[:,1:].transpose())
+        
+        # Set the valid range of the interpolator
+        self.z_max = np.max(self.z)
+        self.z_min = np.min(self.z)
     
     def append(self, data, var_symbols, var_units, comments, z_col=0):
         """
         Add data to the netCDF dataset and update the object attributes
         
-        This method provides an interface to the `fill_nc_db` function
-        and performs the necessary updates to all affected object attributes.
-        This is the only way that data should be added to a netCDF file 
-        contained in a Profile class object.
+        This method adds new data to a `Profile` object's `self.data` 
+        attribute and updates the other attributes data describe the `Profile`
+        data.  After updating these attributes, this method rebuilds the
+        interpolator to contain the new data.
         
         Parameters
         ----------
         data : ndarray
-            Table of data to add to the netCDF database.  If it contains more
+            Table of data to add to the profile database.  If it contains more
             than one variable, the data are assumed to be arranged in columns.
         var_symbols : string list
             List of string symbol names (e.g., T, S, P, etc.) in the same 
-            order as the columns in the data array.  For chemical properties,
-            use the key names in the chemical_properties.py database.
+            order as the columns in the data array.
         var_units : string list
             List of units associated with each variable in the `var_symbols` 
             list.
@@ -252,35 +300,177 @@ class Profile(object):
         
         Notes
         -----
-        Once a Profile object is created, data should only be added to the 
-        object's netCDF dataset through this append method.  While direct 
-        calls to `ambient.fill_nc_db` will not create errors, the resulting
-        netCDF dataset will no longer be compatible with the Profile object
-        attributes.
+        This method updates the values stored in `data`, `z`, `y`, `f_names`,
+        `f_units`, and rebuilds the interpolator `f` using the 
+        `_build_interpolator()` method.
         
         """
-        if self.nc_open is True:
-            # Make sure the constituent names are in a list
-            if isinstance(var_symbols, str):
-                var_symbols = [var_symbols]
-            
-            # Add the data to the netCDF dataset
-            self.nc = fill_nc_db(self.nc, data, var_symbols, var_units, 
-                                 comments, z_col)
-            
-            # Add the new chemicals to the chem variables
-            for constituent in var_symbols:
-                # Make sure the dependent variable is never listed as a 
-                # chemical
-                if constituent != self.ztsp[0]:
-                    self.chem_names.append(constituent)
+        # Make sure some the necessary input data is in list format
+        if isinstance(var_symbols, str) or isinstance(var_symbols, unicode):
+            var_symbols = [var_symbols]
+        if isinstance(var_units, str) or isinstance(var_units, unicode):
+            var_units = [var_units]
+        if isinstance(comments, str) or isinstance(comments, unicode):
+            comments = [comments]
+        
+        # Add each column of data in the appropriate location
+        for var in var_symbols:
+            # Make sure we never replace the independent variable
+            if var != self.ztsp[0]:
+                
+                # Insert the data in the correct location
+                if var in self.ztsp:
+                    col = self.ztsp.index(var)
+                    self.data = add_data(self.data, col, var, data, 
+                                         var_symbols, var_units, comments, 
+                                         z_col)
+                elif var in self.chem_names:
+                    col = self.chem_names.index(var) + 4
+                    self.data = add_data(self.data, col, var, data, 
+                                         var_symbols, var_units, comments, 
+                                         z_col)
+                else:
+                    idx = var_symbols.index(var)
+                    col = self.data.shape[1] + 1
+                    self.data = add_data(self.data, col, var, data, 
+                                         var_symbols, var_units, comments, 
+                                         z_col)
+                    self.chem_names.append(var)
+                    self.chem_units.append(var_units[idx])
                     self.nchems += 1
+        
+        # Rebuild the interpolator
+        self._build_interpolator()
+    
+    def extend_profile_deeper(self, z_new, h_N=1.0, h=0.01, N=None):
+        """
+        Extend the CTD profile to the depth `z_new` using a fixed buoyancy
+        frequency
+        
+        Extends the depth of a CTD profile to the new depth `z_new` using a 
+        fixed buoyancy frequency to adjust the salinity and keeping all other
+        variables constant below the original depth.  This should only be 
+        used when no ambient data are available and when the bottom of the 
+        original profile is deep enough that it is acceptable to assume all 
+        variables remain constant in the extention except for salinity, which 
+        is increased to maintain the desired buoyancy frequency.
+        
+        The fixed buoyancy frequency used to extend the profile can be 
+        specified in one of two ways:
+        
+        1. Specify `h_N` and `h` and let the method `buoyancy_frequency` 
+           evaluate the buoyancy frequency.  The evaluation depth is taken at
+           the fraction `h_N` of the original CTD depth range, with 
+           `h_N` = 1.0 yielding the lowest depth in the original CTD profile.
+           `h` is passed to `'buoyancy_frequency` unchanged and sets the 
+           length-scale of the finite difference approximation.
+        2. Specify `N` directly as a constant.  In this case, the method
+           `buoyancy_frequency` is not called, and any values passed to 
+           `h_N` or `h` are ignored.
+        
+        Parameters
+        ----------
+        z_new : float
+            New depth for the valid_max of the CTD profile
+        h_N : float, default 1.0
+            Fraction of the water depth (--) at which to compute the buoyancy
+            frequency used to extend the profile
+        h : float, default 0.01
+            Passed to the `buoyancy_frequency()` method.  Fraction of the 
+            water depth (--) to use as the length-scale in a finite-
+            difference approximation to the density gradient.
+        N : float, default is None
+            Optional replacement of `h_N` and `h`, forcing the extension 
+            method to use `N` as the buoyancy frequency.  
+        
+        Notes
+        -----
+        One may extend a profile any number of ways; this method merely
+        provides easy access to one rational method. If other methods are
+        desired, it is recommended to create a new dataset with the desired
+        deeper profile data and then use that dataset to initialize a new
+        `BaseProfile` object.
+        
+        See Also
+        --------
+        buoyancy_frequency
+        
+        """
+        # Get the buoyancy frequency if not already specified
+        if N == None:
+            z = self.z_min + h_N * (self.z_max - self.z_min)
+            N = self.buoyancy_frequency(z, h)
+        
+        # Extract the conditions at the bottom of the initial profile and 
+        # calculate the required density at the base of the new profile 
+        # using the potential density.
+        T, S = self.get_values(self.z_max, self.ztsp[1:3])
+        Pa = 101325.
+        rho_0 = seawater.density(T, S, Pa)
+        rho_1 = N**2 * rho_0 / 9.81 * (z_new - self.z_max) + rho_0
+        
+        # Find the salinity necessary to achieve rho_1 at the new depth
+        def residual(S):
+            """
+            Compute the optimization function for finding S at z_new
             
-            # Rebuild the interpolator
-            self.build_interpolator()
-        else:
-            raise ValueError('The netCDF dataset is already closed so ' + 
-                             'data cannot be added to it.')
+            Keeping the temperature constant, compute the salinity `S` needed
+            to achieve the desired potential density at the bottom of the 
+            new profile, rho_1
+            
+            Parameters
+            ----------
+            S : float
+                Current guess for the new salinity at the base of the extended
+                CTD profile
+            
+            T, S, Pa, and rho_1 inherited from the above calculations
+            
+            Returns
+            -------
+            delta_rho : float
+                Difference between the desired density `rho_1` at the base of 
+                the new profile and the current estimate of `rho` using the 
+                current guess for the salinity `S`.  
+            
+            Notes
+            -----
+            Because compressibility effects should be ignored in estimating 
+            the buoyancy frequency, the pressure `Pa` is used to yield the 
+            potential density.
+            
+            """
+            rho = seawater.density(T, S, Pa)
+            return (rho_1 - rho)
+        
+        S = fsolve(residual, S)
+        
+        # Create an array of data to append at the bottom of the original
+        # profile data
+        z_0 = self.z_max
+        S_0 = self.y[-1,1]
+        z_1 = z_new
+        S_1 = S
+        dz = (z_1 - z_0) / 50.
+        z_new = np.arange(z_0, z_1+dz, dz)
+        z_new[-1] = z_1
+        y_new = np.zeros((z_new.shape[0], self.y.shape[1]))
+        y_new[:,0] = self.y[-1,0]
+        y_new[:,1] = (S_1 - S_0) / (z_1 - z_0) * (z_new - z_0) + S_0
+        y_new[:,2:] = self.y[-1,2:]
+        # Get the right pressure
+        for i in range(len(z_new)-1):
+            y_new[i+1,2] = y_new[i,2] + seawater.density(y_new[i,0], 
+                           y_new[i,1], y_new[i,2]) * 9.81 * (z_new[i+1] - 
+                           z_new[i])
+        
+        # Create the complete new dataset
+        self.y = np.vstack((self.y, y_new[1:,:]))
+        self.z = np.hstack((self.z, z_new[1:]))
+        self.data = np.hstack((np.atleast_2d(self.z).transpose(), self.y))
+        
+        # Update the interpolator.
+        self._build_interpolator()
     
     def get_values(self, z, names):
         """
@@ -308,10 +498,11 @@ class Profile(object):
         
         """
         # Make sure names is a list
-        if isinstance(names, str):
+        if isinstance(names, str) or isinstance(names, unicode):
             names = [names]
         
         # Make sure z is an array
+        #print(type(z))
         if not isinstance(z, np.ndarray):
             if not isinstance(z, list):
                 z = np.array([z])
@@ -379,7 +570,7 @@ class Profile(object):
         
         """
         # Make sure names is a list
-        if isinstance(names, str):
+        if isinstance(names, str) or isinstance(names, unicode):
             names = [names]
         
         # Return the list of units
@@ -401,8 +592,8 @@ class Profile(object):
         Parameters
         ----------
         z : float or ndarray
-            Depth(s) (m) at which data are desired.  The value of `z` must lie 
-            between the `valid_min` and `valid_max` values of `z` in the 
+            Depth(s) (m) at which data are desired.  The value of `z` must 
+            lie between the `valid_min` and `valid_max` values of `z` in the 
             netCDF dataset.
         h : float, default value is 0.01
             Fraction of the water depth (--) to use as the length-scale in a 
@@ -478,8 +669,255 @@ class Profile(object):
             N[i] = np.sqrt(9.81 / rho_0 * (rho_1 - rho_0) / (z1 - z0))
         
         return N[elements]
+
+
+class Profile(BaseProfile):
+    """
+    Class object for ambient seawater profiles
     
-    def extend_profile_deeper(self, z_new, nc_name, h_N=1.0, h=0.01, N=None):
+    This object collects the data describing the ambient seawater (e.g., 
+    CTD data, currents, etc.) and provides efficient access to interpolated
+    results at arbitrary depths.  All of the raw data are stored in a 
+    netCDF4-classic format dataset, which resides on the hard-drive.  Profile
+    objects can be initiated either from an open netCDF dataset object or 
+    from a file path to the desired object.  The netCDF dataset is expected
+    to have variables for 'z', 'temperature', 'salinity', and 'pressure' and 
+    any other variables requested at instantiation through the chem_names
+    variable.  
+    
+    Parameters
+    ----------
+    nc : netCDF dataset object, path, or str
+        Provides the information necessary to access the netCDF dataset.  If
+        a file path or string is provided, then the netCDF file is opened
+        and the resulting dataset object is stored in self.nc.
+    ztsp : str list
+        String list containing the variables names for depth, temperature, 
+        salinity, and pressure that are used in the netCDF dataset.
+    chem_names : str list, optional
+        Names of the chemicals (e.g., those constituents in addition to z, T, 
+        S, P) in the netCDF dataset that should be accessible through the 
+        `self.get_values` interpolation method or the `self.get_units` 
+        interrogator.  If `chem_names` = 'all', then all variables in the 
+        netCDF file except for 'time', 'lat', 'lon', and the strings in 
+        `ztsp` will be loaded as ambient chemical data.
+    err : float
+        The interpolation dataset is a subset of the complete raw dataset 
+        stored in the netCDF file.  err sets the acceptable level of 
+        relative error using linear interpolation expected of the 
+        `self.get_values` method.  This value is passed to the `coarsen` 
+        function to provide an optimal interpolation dataset.
+    
+    Attributes
+    ----------
+    nc_open : bool
+        Flag stating whether or not the netCDF dataset is open or closed
+    nchems : int 
+        Number of chemicals in `chem_names`
+    z : ndarray
+        Array containing the complete raw dataset of depths
+    y : ndarray
+        Array containing the complete raw dataset for T, S, P, and chemicals 
+        in `chem_names`. 
+    f_names : str list
+        concatenated string list containing `ztsp` and `chem_names`
+    f_units : str list
+        List of units associated with the variables stored in `f_names`.
+    f : object
+        `scipy.interpolate.interp1d` object containing `z` and `y`.
+    
+    See Also 
+    --------
+    netCDF4, create_nc_db, fill_nc_db, coarsen, chemical_properties
+    
+    Examples
+    --------
+    >>> bm54 = Profile('./test/output/test_BM54.nc', chem_names='all')
+    >>> print bm54.nc.variables.keys()
+    ['time', 'lat', 'lon', 'z', 'temperature', 'salinity', 'pressure', 
+    'T', 'wetlab_fluorescence', 'S', 'density', 'oxygen']
+    >>> bm54.get_values(1000.0, ['temperature', 'salinity', 'pressure'])
+    array([  2.78274540e+02,   3.49278396e+01,   1.01933088e+07])
+    >>> bm54.get_units('oxygen')
+    ['kg/m^3']
+    >>> bm54.buoyancy_frequency(1500.)
+    0.00081815
+    >>> bm54.nc_close()
+    
+    """
+    def __init__(self, data, ztsp=['z', 'temperature', 'salinity', 
+                 'pressure'], chem_names=None, err=0.01, 
+                 ztsp_units=['m', 'K', 'psu', 'Pa'],
+                 chem_units=None, current=None, current_units=None):
+        
+        # Make sure we use the correct chem_names
+        if isinstance(chem_names, str) or isinstance(chem_names, unicode):
+            chem_names == [chem_names]
+        if isinstance(chem_units, str) or isinstance(chem_units, unicode):
+            chem_units == [chem_units]
+        if chem_names == None:
+            chem_names = []
+            chem_units = []
+        
+        if isinstance(data, str) or isinstance(data, unicode) or \
+            isinstance(data, Dataset):
+            
+            # Profile is in a netCDF dataset
+            data, ztsp, ztsp_units, chem_names, chem_units, err = \
+                self._from_netCDF(data, ztsp, chem_names, err)
+        
+        elif isinstance(data, np.ndarray):
+        
+            # Profile is in a numpy array
+            data, ztsp, ztsp_units, chem_names, chem_units, err, \
+            uniform_current, current_units = self._from_numpy(
+                data, ztsp, chem_names, err, ztsp_units, chem_units, 
+                current, current_units
+            )
+            
+        else:
+            
+            # Use the world ocean average data
+            data, ztsp, ztsp_units, chem_names, chem_units, err, \
+            uniform_current, current_units = self._from_tamoc(
+                data, ztsp, chem_names, err, ztsp_units, chem_units, 
+                current, current_units
+            )
+        
+        # Inherit the BaseProfile capabilities
+        super(Profile, self).__init__(data, ztsp, ztsp_units, chem_names, 
+                                      chem_units, current, current_units, 
+                                      err)
+    
+    def _from_netCDF(self, nc, ztsp, chem_names, err):
+        """
+        Create a Profile object using a netCDF dataset
+        
+        This method produces the original behavior of the `tamoc.ambient` 
+        module with a Profile linked to a netCDF dataset.
+        
+        """
+        # Get the appropriate netCDF dataset object
+        if isinstance(nc, str) or isinstance(nc, unicode):
+            self.nc = Dataset(nc, 'a')
+        else:
+            self.nc = nc
+        self.nc_open = True
+        
+        # Get the correct chem_names is 'all' flag is used
+        if 'all' in chem_names:
+            keys = []
+            for key in self.nc.variables.keys():
+                keys += [key]
+            non_chems = ['time', 'lat', 'lon'] + ztsp
+            chem_names = [name for name in keys if name not in non_chems]
+        
+        # Get the data from the netCDF file
+        data, ztsp_units, chem_units = get_nc_data(self.nc, ztsp, chem_names)
+        
+        return (data, ztsp, ztsp_units, chem_names, chem_units, err)
+    
+    def _from_numpy(self, data, ztsp, chem_names, err, ztsp_units, chem_units,
+                    uniform_current, current_units):
+        """
+        Create a Profile object from a `numpy` array dataset
+        
+        This method produces similar behavior to the original `tamoc.ambient`
+        module but using `numpy` instead of a netCDF dataset.
+        
+        """
+        # Create a profile from a numpy array object
+        self.nc_open = False
+        
+        return (data, ztsp, ztsp_units, chem_names, chem_units, err, 
+                uniform_current, current_units)
+    
+    def _from_tamoc(self, data, ztsp, chem_names, err, ztsp_units, chem_units,
+                    uniform_current, current_units):
+        """
+        Create a Profile object from data distributed with `tamoc`
+        
+        This method reads data from the `tamoc.data` directory that includes
+        the world ocean average temperature and salinity as reported in 
+        Sarmiento and Gruber (2006).
+        
+        """
+        # Create a profile from the world-ocean average
+        self.nc_open = False
+        
+        return (data, ztsp, ztsp_units, chem_names, chem_units, err, 
+                uniform_current, current_units)
+    
+    def append(self, data, var_symbols, var_units, comments=None, z_col=0):
+        """
+        Add data to the netCDF dataset and update the object attributes
+        
+        This method provides an interface to the `fill_nc_db` function
+        and performs the necessary updates to all affected object attributes.
+        This is the only way that data should be added to a netCDF file 
+        contained in a Profile class object.
+        
+        Parameters
+        ----------
+        data : ndarray
+            Table of data to add to the netCDF database.  If it contains more
+            than one variable, the data are assumed to be arranged in columns.
+        var_symbols : string list
+            List of string symbol names (e.g., T, S, P, etc.) in the same 
+            order as the columns in the data array.  For chemical properties,
+            use the key names in the chemical_properties.py database.
+        var_units : string list
+            List of units associated with each variable in the `var_symbols` 
+            list.
+        comments : string list
+            List of comments associated with each variable in the 
+            `var_symbols` list.  As a minimum, this list should include the 
+            indications 'measured' or 'derived' or some similar indication of 
+            source of the data.
+        z_col : integer, default is 0
+            Column number of the column containing the depth data.  The first 
+            column is numbered zero.
+        
+        Notes
+        -----
+        Once a Profile object is created, data should only be added to the 
+        object's netCDF dataset through this append method.  While direct 
+        calls to `ambient.fill_nc_db` will not create errors, the resulting
+        netCDF dataset will no longer be compatible with the Profile object
+        attributes.
+        
+        """
+        if self.nc_open == True:
+            # Make sure the constituent names are in a list
+            if isinstance(var_symbols, str) or \
+                isinstance(var_symbols, unicode):
+                var_symbols = [var_symbols]
+            
+            # Add the data to the netCDF dataset
+            self.nc = fill_nc_db(self.nc, data, var_symbols, var_units, 
+                                 comments, z_col)
+            
+            # Add the new chemicals to the chem variables
+            for constituent in var_symbols:
+                # Make sure the dependent variable is never listed as a 
+                # chemical
+                if constituent != self.ztsp[0]:
+                    self.chem_names.append(constituent)
+                    self.nchems += 1
+            
+            # Get the data from the new netCDF file
+            self.data, self.ztsp_units, self.chem_units = get_nc_data(
+                self.nc, self.ztsp, self.chem_names)
+            
+            # Rebuild the interpolator
+            self._build_interpolator()
+        
+        else:
+            BaseProfile.append(self, data, var_symbols, var_units, comments, 
+                               z_col=0)
+    
+    def extend_profile_deeper(self, z_new, nc_name=None, h_N=1.0, h=0.01,
+                              N=None):
         """
         Extend the CTD profile to the depth `z_new` using a fixed buoyancy
         frequency
@@ -509,7 +947,7 @@ class Profile(object):
         ----------
         z_new : float
             New depth for the valid_max of the CTD profile
-        nc_name : string or path
+        nc_name : string or path, default=None
             Name to use when creating the new netCDF dataset with the deeper
             data generated by this method call.
         h_N : float, default 1.0
@@ -526,7 +964,8 @@ class Profile(object):
         Notes
         -----
         This method does not explicitely return a value; however, it does
-        create a new netCDF dataset with a deeper depth, closes the original 
+        create a Profile object with a deeper depth.  If this object is 
+        based on an open netCDF dataset, then this method closes the original 
         netCDF dataset in the object, and rebuilds the necessary object 
         attributes to be consistent with the new netCDF dataset.  The new 
         netCDF dataset filename is provided by `nc_name`.
@@ -542,76 +981,16 @@ class Profile(object):
         buoyancy_frequency
         
         """
-        # Get the buoyancy frequency if not already specified
-        if N is None:
-            z = self.z_min + h_N * (self.z_max - self.z_min)
-            N = self.buoyancy_frequency(z, h)
+        # Record the present depth of the profile
+        z0 = self.z_max
         
-        # Extract the conditions at the bottom of the initial profile and 
-        # calculate the required density at the base of the new profile 
-        # using the potential density.
-        T, S = self.get_values(self.z_max, self.ztsp[1:3])
-        Pa = 101325.
-        rho_0 = seawater.density(T, S, Pa)
-        rho_1 = N**2 * rho_0 / 9.81 * (z_new - self.z_max) + rho_0
+        # Extend the profile to the desired depth
+        BaseProfile.extend_profile_deeper(self, z_new, h_N=1.0, h=0.01, 
+                                          N=None)
         
-        # Find the salinity necessary to achieve rho_1 at the new depth
-        def residual(S):
-            """
-            Compute the optimization function for finding S at z_new
-            
-            Keeping the temperature constant, compute the salinity `S` needed
-            to achieve the desired potential density at the bottom of the 
-            new profile, rho_1
-            
-            Parameters
-            ----------
-            S : float
-                Current guess for the new salinity at the base of the extended
-                CTD profile
-            
-            T, S, Pa, and rho_1 inherited from the above calculations
-            
-            Returns
-            -------
-            delta_rho : float
-                Difference between the desired density `rho_1` at the base of 
-                the new profile and the current estimate of `rho` using the 
-                current guess for the salinity `S`.  
-            
-            Notes
-            -----
-            Because compressibility effects should be ignored in estimating 
-            the buoyancy frequency, the pressure `Pa` is used to yield the 
-            potential density.
-            
-            """
-            rho = seawater.density(T, S, Pa)
-            return (rho_1 - rho)
-        S = fsolve(residual, S)
-        
-        # Create an array of data to append at the bottom of the original
-        # profild data
-        z_0 = self.z_max
-        S_0 = self.y[-1,1]
-        z_1 = z_new
-        S_1 = S
-        dz = (z_1 - z_0) / 50.
-        z_new = np.arange(z_0, z_1+dz, dz)
-        z_new[-1] = z_1
-        y_new = np.zeros((z_new.shape[0], self.y.shape[1]))
-        y_new[:,0] = self.y[-1,0]
-        y_new[:,1] = (S_1 - S_0) / (z_1 - z_0) * (z_new - z_0) + S_0
-        y_new[:,2:] = self.y[-1,2:]
-        # Get the right pressure
-        for i in range(len(z_new)-1):
-            y_new[i+1,2] = y_new[i,2] + seawater.density(y_new[i,0], 
-                           y_new[i,1], y_new[i,2]) * 9.81 * (z_new[i+1] - 
-                           z_new[i])
-        
-        if self.nc_open is True:
-            # Get the netCDF attributes not already stored in self.z and 
-            # self.y
+        # Update the netCDF dataset if needed
+        if self.nc_open == True:
+            # Get the netCDF attributes for the present dataset
             summary = self.nc.summary
             source = self.nc.source
             sea_name = self.nc.sea_name
@@ -621,27 +1000,18 @@ class Profile(object):
             self.nc.close()
             
             # Create the new netCDF file.
-            extention_text = ': extended from %g to %g' % (self.z_max, z_1)
+            extention_text = ': extended from %g to %g' % (z0, self.z_max)
             source = source + extention_text + ' on date ' + ctime()
             self.nc = create_nc_db(nc_name, summary, source, sea_name, p_lat, 
                                    p_lon, p_time)
             
             # Fill the netCDF file with the extended profile.
-            self.y = np.vstack((self.y, y_new[1:,:]))
-            self.z = np.hstack((self.z, z_new[1:]))
-            data = np.hstack((np.atleast_2d(self.z).transpose(), self.y))
             var_symbols = [self.ztsp[0]] + self.f_names
             var_units = ['m'] + self.get_units(self.f_names)
             comments = ['extended'] * len(var_symbols)
-            self.nc = fill_nc_db(self.nc, data, var_symbols, var_units, 
+            
+            self.nc = fill_nc_db(self.nc, self.data, var_symbols, var_units, 
                                  comments, z_col=0)
-            
-            # Update the interpolator.
-            self.build_interpolator()
-            
-        else:
-            raise RuntimeError('The netCDF dataset is already closed; ' + 
-                               'aborting extension.')
     
     def close_nc(self):
         """
@@ -863,8 +1233,8 @@ def fill_nc_db(nc, data, var_symbols, var_units, comments, z_col=0):
         Table of data to add to the netCDF database.  If it contains more
         than one variable, the data are assumed to be arranged in columns.
     var_symbols : string list
-        List of string symbol names (e.g., T, S, P, etc.) in the same order as 
-        the columns in the data array.  For chemical properties, use the 
+        List of string symbol names (e.g., T, S, P, etc.) in the same order 
+        as the columns in the data array.  For chemical properties, use the 
         key name in the `chemical_properties` database.
     var_units : string list
         List of units associated with each variable in the `var_symbols` list.
@@ -931,11 +1301,11 @@ def fill_nc_db(nc, data, var_symbols, var_units, comments, z_col=0):
     
     """
     # Ensure the correct data types were provided
-    if isinstance(var_symbols, str):
+    if isinstance(var_symbols, str) or isinstance(var_symbols, unicode):
         var_symbols = [var_symbols]
-    if isinstance(var_units, str):
+    if isinstance(var_units, str) or isinstance(var_units, unicode):
         var_units = [var_units]
-    if isinstance(comments, str):
+    if isinstance(comments, str) or isinstance(comments, unicode):
         comments = [comments]
     if isinstance(data, list):
         data = np.array(data)
@@ -1010,8 +1380,8 @@ def fill_nc_db(nc, data, var_symbols, var_units, comments, z_col=0):
             pass
         else:
             # Processes the dependent data depending on the variable type
-            std_name = join(var_symbols[i].split('_'))
-            long_name = capwords(std_name)
+            std_name = ' '.join(var_symbols[i].split('_'))
+            long_name = std_name.capitalize()
             nc = fill_nc_db_variable(nc, data[:,i], var_symbols[i], 
                                      var_units[i], comment=comments[i], 
                                      long_name=long_name, 
@@ -1083,7 +1453,7 @@ def fill_nc_db_variable(nc, values, var_name, units, comment=None,
     
     else:
         # Create a new netCDF dataset variable
-        z_dim = nc.dimensions.keys()[0]
+        z_dim = 'z'
         y = nc.createVariable(var_name, 'f8', (z_dim))
         y[:] = values
         y.long_name = long_name
@@ -1328,6 +1698,107 @@ def extract_profile(data, z_col=0, z_start=50, p_col=None, P_atm=101325.):
     return ctd
 
 
+def get_nc_data(nc, ztsp, chem_names):
+    """
+    Extract named data from a netCDF file
+    
+    """
+    z = nc.variables[ztsp[0]][:]
+    z_units = [nc.variables[ztsp[0]].units]
+    
+    y_names = ztsp[1:] + chem_names
+    y = np.zeros((z.shape[0], len(y_names)))
+    y_units = []
+    for i in range(len(y_names)):
+        y[:,i] = nc.variables[y_names[i]][:]
+        y_units.append(nc.variables[y_names[i]].units)
+    
+    data = np.hstack((np.atleast_2d(z).transpose(), y))
+    ztsp_units = z_units + y_units[0:len(ztsp)]
+    chem_units = y_units[len(ztsp):]
+    
+    return (data, ztsp_units, chem_units)
+
+
+def add_data(data, col, var, new_data, var_symbols, var_units, comments, 
+             z_col):
+    """
+    Add data to a `numpy` array
+    
+    Adds data to a profile data base contained in a `numpy` array.  This 
+    function is similar to `fill_nc_db()`, but operating on `numpy` arrays
+    instead of a netCDF dataset.
+    
+    Parameters
+    ----------
+    data : ndarray
+        `Numpy` array of profile data organized by column.  The first column
+        should be the independent variable (depth), followed sequentially
+        by the dependent variables (temperature, salinity, pressure and any
+        included dissolved chemicals).
+    col : int
+        Number of the column in `data` to be added.
+    var : str
+        String containing the variable name of the new data to add to the
+        profile dataset.
+    new_data : ndarray
+        `Numpy` array containing the new data to be added to the current 
+        dataset.
+    var_symbols : list of str
+        List of strings containing the variable names of the variables 
+        in the new_data dataset.
+    var_units : list of str
+        List of strings containing the units of the variables in the 
+        new_data dataset.
+    comments : str
+        String containing comments for the comment attribute of the variable.
+        For instance, 'Measured', 'Derived quantity', etc.
+    z_col : int, default is 0
+        Column number of the column containing the depth data.  The first 
+        column is numbered zero.
+    
+    Returns
+    -------
+    data : ndarray
+        `Numpy` array of profile data updated with the new variable in 
+        `new_data`.
+    
+    """
+    # Make sure the new data extend to the top and bottom of the existing data
+    if np.min(new_data[:,z_col]) > data[0,0]:
+        ctd = np.zeros((new_data.shape[0]+1, new_data.shape[1]))
+        ctd[0,:] = new_data[0,:]
+        ctd[0,z_col] = data[0,0]
+        ctd[1:,:] = new_data
+        new_data = np.copy(ctd)
+    if np.max(new_data[:,z_col]) < data[-1,0]:
+        ctd = np.zeros((new_data.shape[0]+1, new_data.shape[1]))
+        ctd[-1,:] = new_data[-1,:]
+        ctd[-1,z_col] = data[-1,0]
+        ctd[0:-1,:] = new_data
+        new_data = np.copy(ctd)
+    
+    # Create an interpolation function to map the new data to the exiting
+    # depths
+    y = new_data[:,var_symbols.index(var)]
+    z = new_data[:,z_col]
+    f = interp1d(z, y)
+    
+    # Insert the data where they belong
+    n_cols = data.shape[1]
+    if col < n_cols:
+        # Replace existing data
+        data[:,col] = f(data[:,0]).transpose()
+    else:
+        # Add new data to the dataset
+        ctd = np.zeros((data.shape[0], data.shape[1]+1))
+        ctd[:,0:-1] = data
+        ctd[:,-1] = f(data[:,0]).transpose()
+        data = np.copy(ctd)
+    
+    return data
+
+
 def coarsen(raw, err = 0.01):
     """
     Reduce the size of a raw database for interpolation
@@ -1525,7 +1996,7 @@ def compute_pressure(z, T, S, fs_loc):
     
     """
     # Get the sign of the z-data for the midpoint of the dataset
-    z_sign = int(np.sign(z[len(z) / 2]))
+    z_sign = int(np.sign(z[len(z) // 2]))
     
     # Initialize an array for storing the pressures
     P0 = 101325.0 
@@ -1626,17 +2097,19 @@ def convert_units(data, units):
                'kg/m^3': [1.0, 0., 'kg/m^3'], 
                'kilogram meter-3': [1.0, 0., 'kg/m^3'], 
                'm/s': [1.0, 0., 'm/s'], 
-               'mg/l': [1.e-3, 0., 'kg/m^3']}
+               'mg/l': [1.e-3, 0., 'kg/m^3'],
+               'meter second-1' : [1.0, 0., 'm/s']
+           }
     
     # Make sure the data are a numpy array and the units are a list
-    if isinstance(data, float) or isinstance(data,int):
+    if isinstance(data, float) or isinstance(data, int):
         data = np.array([data])
     if isinstance(data, list):
         data = np.array(data)
-    if isinstance(units, str):
+    if isinstance(units, str) or isinstance(units, unicode):
         units = [units]
-    if isinstance(units, unicode):
-        units = [units]
+    if units == None:
+        units = ['']
     
     # Make sure you can slice through the columns:  must be two-dimensional
     sh = data.shape
@@ -1646,19 +2119,106 @@ def convert_units(data, units):
     if len(units) == 1 and data.shape[1] > 1:
         data = data.transpose()
     
+    # Create an emtpy array to hold the output
+    out_data = np.zeros(data.shape)
+    out_units = []
+    
     # Convert the units
     for i in range(len(units)):
         try:
-            data[:,i] = data[:,i] * convert[units[i]][0] + \
+            out_data[:,i] = data[:,i] * convert[units[i]][0] + \
                         convert[units[i]][1]
-            units[i] = convert[units[i]][2]
+            out_units += [convert[units[i]][2]]
         except KeyError:
-            print 'Do not know how to convert %s to mks units' % units[i]
-            print 'Continuing without converting these units...'
+            print('Do not know how to convert %s to mks units' % units[i])
+            print('Continuing without converting these units...')
+            out_data[:,i] = data[:,i]
+            out_units += units[i]
     
     # Return the converted data in the original shape
-    data = np.reshape(data, sh, 'C')
-    return (data, units)
+    out_data = np.reshape(out_data, sh, 'C')
+    return (out_data, out_units)
+
+
+def get_world_ocean(Ts=290.41, Ss=34.89):
+    """
+    Load the world ocean average CTD data
+    
+    Load the world ocean average temperature, salinity, and oxygen profile
+    data from Levitus et al. (1998) as reported on Page 226 of Sarmiento and
+    Gruber (2006), "Ocean Biogeochemical Dynamics." If surface ocean
+    properties of temperature and salinity are known, then scale the profile
+    to match these properties.
+    
+    Parameters
+    ----------
+    Ts : float, default=290.41
+        Temperature of the ocean surface (K)
+    Ss : float, default=34.89
+        Salinity of the ocean surface (psu)
+    
+    Returns
+    -------
+    data : ndarray
+        Array containing the profile data organized with depth in the 
+        first column, temperature, salinity and pressure in the next three
+        columns and any chemical concentration data in the remaining 
+        columns.
+    ztsp : str list
+        String list containing the variables names for depth, temperature, 
+        salinity, and pressure that are to be used in the Profile data.
+    ztsp_units : str list
+        String list containing the units for depth, temperature, salinity, 
+        and pressure.
+    chem_names : str list
+        Names of the chemicals (e.g., those constituents in addition to z, T,
+        S, P) in the dataset that should be accessible through the
+        `self.get_values` interpolation method or the `self.get_units`
+        interrogator of the `Profile` object.
+    chem_units : str list
+        Names of the units for each constituent in the `chem_names` variable
+    
+    """
+    # Find the path to the world_ocean_ave_ctd.txt file distributed with
+    # `tamoc`
+    __location__ = os.path.realpath(os.path.join(os.getcwd(), 
+                                    os.path.dirname(__file__), 'data'))
+    ctd_fname = os.path.join(__location__,'world_ocean_ave_ctd.dat')
+    
+    # Load the CTD data
+    raw_data = np.loadtxt(ctd_fname, comments='%')
+    
+    # Convert to `tamoc` standard units
+    raw_data[:,1] = raw_data[:,1] + 273.15
+    raw_data[:,3:] = raw_data[:,3:] * 31.9988 / 1.e6
+    
+    # Adjust the temperature and salinity
+    Ts += 273.15
+    S_fac = Ss / raw_data[0,2]
+    for i in range(raw_data.shape[0]):
+        if raw_data[i,1] > Ts:
+            raw_data[i,1] = Ts
+        raw_data[i,2] *= S_fac
+    
+    # Compute the pressure
+    z = raw_data[:,0]
+    Tz = raw_data[:,1]
+    Sz = raw_data[:,2]
+    Pz = compute_pressure(z, Tz, Sz, 0)
+    
+    # Assemble the data in the expected order
+    data = np.zeros((z.shape[0], raw_data.shape[1]+1))
+    data[:,:3] = raw_data[:,:3]
+    data[:,3] = Pz
+    data[:,4:] = raw_data[:,3:]
+    
+    # Create the remaining outputs
+    ztsp = ['z', 'temperature', 'salinity', 'pressure']
+    ztsp_units=['m', 'K', 'psu', 'Pa']
+    chem_names = ['oxygen', 'oxygen_sat']
+    chem_units = ['kg/m^3', 'kg/m^3']
+    
+    return (data, ztsp, ztsp_units, chem_names, chem_units)
 
 
 def load_raw(fname):
@@ -1666,7 +2226,7 @@ def load_raw(fname):
     Read data from a text file.
     
     Read all of the data in a text file `fname` with `*` or `#` as comment
-    characters.  Data are assumed to be sparated by spaces.  
+    characters.  Data are assumed to be separated by spaces.  
     
     Parameters
     ----------
@@ -1715,4 +2275,5 @@ def load_raw(fname):
     
     # Return the raw data as an numpy array
     return np.array(ctd)
+
 

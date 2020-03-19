@@ -1,7 +1,7 @@
 """
 Unit tests for the `bent_plume_model` module of ``TAMOC``
 
-Provides testing of the objects, methods and functions defined in the
+Provides testing of the classes, methods and functions defined in the
 `bent_plume_model` module of ``TAMOC``. These tests check the behavior of the
 object, the results of the simulations, and the read/write algorithms.
 
@@ -23,6 +23,8 @@ have been validated against measurements.
 
 """
 # S. Socolofsky, September 2015, Texas A&M University <socolofs@tamu.edu>.
+
+from __future__ import (absolute_import, division, print_function)
 
 from tamoc import seawater
 from tamoc import ambient

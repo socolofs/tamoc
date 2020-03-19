@@ -78,6 +78,8 @@ to break up into multiple bubbles.
 """
 # S. Socolofsky, November 2014, Texas A&M University <socolofs@tamu.edu>.
 
+from __future__ import (absolute_import, division, print_function)
+
 from tamoc import model_share
 from tamoc import seawater
 from tamoc import ambient
@@ -92,7 +94,6 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 from copy import copy
 from scipy import integrate
-from string import join, capwords
 from warnings import warn
 import os
 
@@ -268,10 +269,10 @@ class Model(object):
         
         # Check if the right number of elements are in yk
         if len(yk) != len(particle.composition):
-            print 'Wrong number of mole fractions:'
-            print '   yk : %d entries' % len(yk)
-            print '   composition : %d components\n' % \
-                                    len(particle.composition)
+            print('Wrong number of mole fractions:')
+            print('   yk : %d entries' % len(yk))
+            print('   composition : %d components\n' % 
+                                    len(particle.composition))
             return
         
         # Save the input variables that are not part of the self.particle
@@ -284,14 +285,14 @@ class Model(object):
                                      K, K_T, fdis, t_hyd, lag_time)
         
         # Open the simulation module
-        print '\n-- TEXAS A&M OIL-SPILL CALCULATOR (TAMOC) --'
-        print '-- Single Bubble Model                    --\n'
+        print('\n-- TEXAS A&M OIL-SPILL CALCULATOR (TAMOC) --')
+        print('-- Single Bubble Model                    --\n')
         
         # Calculate the trajectory
-        print 'Calculate the trajectory...'
+        print('Calculate the trajectory...')
         self.t, self.y = calculate_path(self.profile, self.particle, self.p, 
                                         y0, delta_t)
-        print 'Simulation complete.\n '
+        print('Simulation complete.\n ')
         self.sim_stored = True
         
         # Restart heat transfer
@@ -328,8 +329,8 @@ class Model(object):
         
         """
         if self.sim_stored is False:
-            print 'No simulation results to store...'
-            print 'Saved nothing to netCDF file.\n'
+            print('No simulation results to store...')
+            print('Saved nothing to netCDF file.\n')
             return
         
         # Create the netCDF dataset object
@@ -419,8 +420,8 @@ class Model(object):
         
         """
         if self.sim_stored is False:
-            print 'No simulation results to store...'
-            print 'Saved nothing to txt file.\n'
+            print('No simulation results to store...')
+            print('Saved nothing to txt file.\n')
             return
         
         # Create the header string that contains the column descriptions
@@ -516,15 +517,15 @@ class Model(object):
         
         """
         if self.sim_stored is False:
-            print 'No simulation results to plot...'
-            print 'Plotting nothing.\n'
+            print('No simulation results to plot...')
+            print('Plotting nothing.\n')
             return
         
-        # Plot the results        
-        print 'Plotting the results...'
+        # Plot the results
+        print('Plotting the results...')
         plot_state_space(self.profile, self.particle, self.p, self.t, 
                          self.y, fig)
-        print 'Done.\n'
+        print('Done.\n')
     
 
 class ModelParams(object):
@@ -631,8 +632,8 @@ def calculate_path(profile, particle, p, y0, delta_t):
         
         # Print progress to the screen
         if np.remainder(np.float(k), psteps) == 0.:
-            print '    Depth:  %g (m), t:  %g (s), k: %d' % \
-                (r.y[2], t[-1], k)
+            print('    Depth:  %g (m), t:  %g (s), k: %d' %
+                (r.y[2], t[-1], k))
         
         # Perform one step of the integration
         r.integrate(t[-1] + delta_t, step=True)
@@ -661,8 +662,8 @@ def calculate_path(profile, particle, p, y0, delta_t):
     y = y[rows,:] 
     
     # Return the solution
-    print '    Depth:  %g (m), t:  %g (s), k: %d' % \
-        (y[-1,2], t[-1], k)
+    print('    Depth:  %g (m), t:  %g (s), k: %d' %
+        (y[-1,2], t[-1], k))
     return (t, y)
 
 
@@ -780,8 +781,8 @@ def sbm_ic(profile, particle, X0, de, yk, T0, K, K_T, fdis, t_hyd, lag_time):
         thereafter.  The default behavior is to assume the particle is dirty
         or hydrate covered from the release.
     
-    Return
-    ------
+    Returns
+    -------
     particle : `LagrangianParticle` object
         A `LagrangianParticle` object containing a unified interface to the 
         `dbm` module and the particle-specific model parameters (e.g., mass 

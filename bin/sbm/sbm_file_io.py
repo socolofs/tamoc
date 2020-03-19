@@ -23,6 +23,8 @@ the script to use a different source of ambient data.
 """
 # S. Socolofsky, July 2013, Texas A&M University <socolofs@tamu.edu>.
 
+from __future__ import (absolute_import, division, print_function)
+
 from tamoc import ambient
 from tamoc import dbm
 from tamoc import seawater
@@ -40,14 +42,14 @@ if __name__ == '__main__':
     sbm = single_bubble_model.Model(simfile='./bubble.nc')
     
     # Echo the results to the screen:
-    print 'The results of ./bin/bubble.py have been loaded into memory'
-    print '   len(t)   : %d' % sbm.t.shape[0]
-    print '   shape(y) : %d, %d' % (sbm.y.shape[0], sbm.y.shape[1])
-    print '   composition : %s, ' % sbm.particle.composition
+    print('The results of ./bin/bubble.py have been loaded into memory')
+    print('   len(t)   : %d' % sbm.t.shape[0])
+    print('   shape(y) : %d, %d' % (sbm.y.shape[0], sbm.y.shape[1]))
+    print('   composition : %s, ' % sbm.particle.composition)
     
     # You can re-run the simulation with different parameters by calling 
     # the simulate method.
-    print '\nRe-running simulation with de = 0.01 m:'
+    print('\nRe-running simulation with de = 0.01 m:')
     z0 = sbm.y[0,2]
     yk = sbm.particle.particle.mol_frac(sbm.particle.m0)
     T0 = sbm.particle.T0
@@ -62,10 +64,10 @@ if __name__ == '__main__':
     sbm.load_sim('./particle.nc')
     
     # Echo the results to the screen:
-    print 'The results of ./bin/particle.py have been loaded into memory'
-    print '   len(t)   : %d' % sbm.t.shape[0]
-    print '   shape(y) : %d, %d' % (sbm.y.shape[0], sbm.y.shape[1])
-    print '   composition : %s, ' % sbm.particle.composition
+    print('The results of ./bin/particle.py have been loaded into memory')
+    print('   len(t)   : %d' % sbm.t.shape[0])
+    print('   shape(y) : %d, %d' % (sbm.y.shape[0], sbm.y.shape[1]))
+    print('   composition : %s, ' % sbm.particle.composition)
     
     # Plot these other results starting at figure 5
     sbm.post_process(5)

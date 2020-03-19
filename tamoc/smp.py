@@ -8,6 +8,9 @@ contained in `dispersed_phases`.
 
 """
 # S. Socolofsky, November 2014, Texas A&M University <socolofs@tamu.edu>.
+
+from __future__ import (absolute_import, division, print_function)
+
 from tamoc import seawater
 from tamoc import dispersed_phases
 
@@ -338,7 +341,7 @@ def calculate(yi, yo, particles, profile, p, neighbor, derivs, z0, y0, zf,
         
         # Print progress to the screen
         if np.remainder(np.float(k), psteps) == 0.:
-            print '    Depth:  %g (m), k: %d' % (z[-1], k)
+            print('    Depth:  %g (m), k: %d' % (z[-1], k))
         
         # Perform one step of the integration
         r.integrate(zf, step=True)
@@ -375,7 +378,7 @@ def calculate(yi, yo, particles, profile, p, neighbor, derivs, z0, y0, zf,
     
     # Return the solution
     if np.remainder(np.float(k), psteps) == 0.:
-        print '    Depth:  %g (m), k: %d' % (z[-1], k)
+        print('    Depth:  %g (m), k: %d' % (z[-1], k))
     return (z, y)
 
 def correct_temperature(r, yi, particles, profile, p):

@@ -14,6 +14,9 @@ In particular, this script demonstrates the methods:
 """
 # S. Socolofsky, July 2013, Texas A&M University <socolofs@tamu.edu>.
 
+from __future__ import (absolute_import, division, print_function, 
+                        unicode_literals)
+
 from tamoc import dbm
 
 import numpy as np
@@ -34,23 +37,23 @@ if __name__ == '__main__':
     (mk, xi, K) = oil.equilibrium(m, T, P)
     
     # Print the results to the screen
-    print 'Gas/Liquid Equilibrium Calculations'
-    print '====================================================='
-    print '\nMixture contains: %s' % composition
+    print('Gas/Liquid Equilibrium Calculations')
+    print('=====================================================')
+    print('\nMixture contains: %s' % composition)
     
-    print '\nThermodynamic state is:'
-    print 'T = %g (K)' % T
-    print 'P = %g (Pa)' % P
+    print('\nThermodynamic state is:')
+    print('T = %g (K)' % T)
+    print('P = %g (Pa)' % P)
     
-    print '\nTotal mass in each component in kg is:'
-    print m
+    print('\nTotal mass in each component in kg is:')
+    print(m)
     
-    print '\nAt equilibrium, the masses in gas (top row) and'
-    print 'liquid (bottom row) are:'
-    print mk
+    print('\nAt equilibrium, the masses in gas (top row) and')
+    print('liquid (bottom row) are:')
+    print(mk)
     
-    print '\nThe associated mole fractions are:'
-    print xi
+    print('\nThe associated mole fractions are:')
+    print(xi)
     
-    print '\nAnd the K-factors are:'
-    print K
+    print('\nAnd the K-factors are:')
+    print(K)

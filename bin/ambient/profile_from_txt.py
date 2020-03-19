@@ -21,7 +21,7 @@ Requires
 This script read data from the files::
 
     ./Profiles/Raw_Data/C.dat
-    ./Profiles/Raw_Data/T.dat.
+    ./Profiles/Raw_Data/T.dat
 
 Returns
 -------
@@ -32,6 +32,9 @@ to the file::
 
 """
 # S. Socolofsky, July 2013, Texas A&M University <socolofs@tamu.edu>.
+
+from __future__ import (absolute_import, division, print_function, 
+                        unicode_literals)
 
 from tamoc import ambient
 from tamoc import seawater

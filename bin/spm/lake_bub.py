@@ -13,6 +13,9 @@ exists before running this file.
 
 """
 # S. Socolofsky, August 2013, Texas A&M University <socolofs@tamu.edu>.
+
+from __future__ import (absolute_import, division, print_function)
+
 from tamoc import ambient
 from tamoc import dbm
 from tamoc import stratified_plume_model
@@ -98,7 +101,7 @@ if __name__ == '__main__':
         # Open the lake dataset as a Profile object if it exists
         lake = ambient.Profile(nc, chem_names=['oxygen', 'nitrogen', 'argon'])
         
-    except RuntimeError:
+    except:
         # Create the lake netCDF dataset and get the Profile object
         lake = get_lake_data()
     

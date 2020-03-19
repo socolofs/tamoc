@@ -17,6 +17,8 @@ water.
 """
 # S. Socolofsky, February 2014, Texas A&M University <socolofs@tamu.edu>.
 
+from __future__ import (absolute_import, division, print_function)
+
 from tamoc import dbm
 from tamoc import sintef
 
@@ -24,6 +26,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
+    
+    # Tell user not to use these functions anymore
+    print('\n-------')
+    print('WARNING:  The sintef model is now deprecated.  ')
+    print('          Use the particle_size_models module or the')
+    print('          functions in the psf module instead.\n')
     
     # Enter parameters of the base test case:  20,000 bbl/d, 2000 m depth,
     # GOR of 2000, 30 cm orifice.  Per the results of the modeled oil in 
@@ -46,22 +54,22 @@ if __name__ == '__main__':
                        sigma_gas, rho_oil, m_oil, mu_oil, sigma_oil, rho)
     
     # Return results to the screen
-    print 'Deepwater blowout (GOR = 2000):'
-    print '   d50_gas = %f (mm)' % (d50_gas * 1000.)
-    print '   d50_oil = %f (mm)' % (d50_oil * 1000.)
+    print('Deepwater blowout (GOR = 2000):')
+    print('   d50_gas = %f (mm)' % (d50_gas * 1000.))
+    print('   d50_oil = %f (mm)' % (d50_oil * 1000.))
     
     # Compare to maximum stable bubble/droplet size
     dmax_gas = sintef.de_max(sigma_gas, rho_gas, rho)
     dmax_oil = sintef.de_max(sigma_oil, rho_oil, rho)
-    print '\nMaximum stable particle sizes:'
-    print '   dmax_gas = %f (mm)' % (dmax_gas * 1000.)
-    print '   dmax_oil = %f (mm)' % (dmax_oil * 1000.)
+    print('\nMaximum stable particle sizes:')
+    print('   dmax_gas = %f (mm)' % (dmax_gas * 1000.))
+    print('   dmax_oil = %f (mm)' % (dmax_oil * 1000.))
     
     # If the release were pure oil, ignore the gas contribution
     d50_gas, d50_oil = sintef.modified_We_model(D, 0., 0., 0., 0., rho_oil, 
                        m_oil, mu_oil, sigma_oil, rho)
-    print '\nNo free gas:'
-    print '   d50_oil = %f (mm)' % (d50_oil * 1000.)
+    print('\nNo free gas:')
+    print('   d50_oil = %f (mm)' % (d50_oil * 1000.))
     
     # Generate a gas and oil particle size distribution from the Rosin-
     # Rammler distribution using 30 bins

@@ -47,6 +47,8 @@ See Also
 """
 # S. Socolofsky, November 2014, Texas A&M University <socolofs@tamu.edu>.
 
+from __future__ import (absolute_import, division, print_function)
+
 from tamoc import model_share
 from tamoc import ambient
 from tamoc import seawater
@@ -113,7 +115,7 @@ class Model(object):
     Sj : float
         Salinity of the continuous phase fluid in the discharge (psu)
     Tj : float
-        Temperature of the continuous phase fluid in the discharge (T)
+        Temperature of the continuous phase fluid in the discharge (K)
     cj : ndarray
         Concentration of passive tracers in the discharge (user-defined)
     tracers : string list
@@ -277,8 +279,8 @@ class Model(object):
                        self.particles, self.tracers, self.chem_names)
         
         # Compute the buoyant jet trajectory
-        print '\n-- TEXAS A&M OIL-SPILL CALCULATOR (TAMOC) --'
-        print '-- Bent Plume Model                       --\n'
+        print('\n-- TEXAS A&M OIL-SPILL CALCULATOR (TAMOC) --')
+        print('-- Bent Plume Model                       --\n')
         self.t, self.q, = lmp.calculate(t0, q0, self.q_local, self.profile, 
             self.p, self.particles, lmp.derivs, self.dt_max, self.sd_max)
         
@@ -286,8 +288,8 @@ class Model(object):
         if self.track:
             for i in range(len(self.particles)):
                 if particles[i].integrate is False and particles[i].z > 0.:
-                    print '\nTracking Particle %d of %d:' % \
-                        (i+1, len(self.particles))
+                    print('\nTracking Particle %d of %d:' %
+                        (i+1, len(self.particles)))
                     particles[i].run_sbm(self.profile)
         
         # Update the status of the solution
@@ -333,8 +335,8 @@ class Model(object):
         
         """
         if self.sim_stored is False:
-            print 'No simulation results to store...'
-            print 'Saved nothing to netCDF file.\n'
+            print('No simulation results to store...')
+            print('Saved nothing to netCDF file.\n')
             return
         
         # Create the netCDF dataset object
@@ -542,8 +544,8 @@ class Model(object):
         
         """
         if self.sim_stored is False:
-            print 'No simulation results to store...'
-            print 'Saved nothing to text file.\n'
+            print('No simulation results to store...')
+            print('Saved nothing to text file.\n')
             return
         
         # Create the header string that contains the column descriptions 
@@ -723,15 +725,15 @@ class Model(object):
         
         """
         if self.sim_stored is False:
-            print 'No simulation results available to plot...'
-            print 'Plotting nothing.\n'
+            print('No simulation results available to plot...')
+            print('Plotting nothing.\n')
             return
         
         # Plot the results
-        print 'Plotting the state space...'
+        print('Plotting the state space...')
         plot_state_space(self.t, self.q, self.q_local, self.profile, self.p, 
             self.particles, fig)
-        print 'Done.\n'
+        print('Done.\n')
     
     def plot_all_variables(self, fig):
         """
@@ -752,15 +754,15 @@ class Model(object):
         
         """
         if self.sim_stored is False:
-            print 'No simulation results available to plot...'
-            print 'Plotting nothing.\n'
+            print('No simulation results available to plot...')
+            print('Plotting nothing.\n')
             return
         
         # Plot the results
-        print 'Plotting the full variable suite...'
+        print('Plotting the full variable suite...')
         plot_all_variables(self.t, self.q, self.q_local, self.profile, 
             self.p, self.particles, self.track, fig)
-        print 'Done.\n'
+        print('Done.\n')
 
 
 # ----------------------------------------------------------------------------
@@ -1828,7 +1830,7 @@ def plot_all_variables(t, q, q_local, profile, p, particles, tracked,
     
         ax1 = plt.subplot(121)
         ax1.yaxis.set_major_formatter(formatter)
-        ax1.plot(s, Mp / 1e-6, 'b-')
+        ax1.plot(s, Mp / 1.e-6, 'b-')
         ax1.set_xlabel('s (m)')
         ax1.set_ylabel('m (mg)')
         ax1.grid(b=True, which='major', color='0.5', linestyle='-')

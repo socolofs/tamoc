@@ -11,6 +11,8 @@ uses this information to recommend the appropriate simulation model.
 """
 # S. Socolofsky, October 2013, Texas A&M University <socolofs@tamu.edu>.
 
+from __future__ import (absolute_import, division, print_function)
+
 from tamoc import seawater
 
 from datetime import datetime
@@ -64,8 +66,8 @@ class Scales(object):
         (B, N, u_slip, u_inf) = self.get_variables(z_0, u_inf)
         
         # Report the results of the calculations to the screen
-        print '\n-- TEXAS A&M OIL-SPILL CALCULATOR (TAMOC) --'
-        print '-- Empirical Plume Model                  --\n'
+        print('\n-- TEXAS A&M OIL-SPILL CALCULATOR (TAMOC) --')
+        print('-- Empirical Plume Model                  --\n')
         epm_soln = []
         epm_soln.append('Model Parameters:\n\n')
         epm_soln.append('   z       = %f (m)\n' % z_0)
@@ -78,7 +80,7 @@ class Scales(object):
         epm_soln.append('   h_P     = %f (m)\n' % self.h_P(z_0))
         epm_soln.append('   h_S     = %f (m)\n' % self.h_S(z_0, u_inf))
         epm_soln.append('   ua_crit = %f (m/s)\n' % self.u_inf_crit(z_0))
-        print ''.join(epm_soln)
+        print(''.join(epm_soln))
     
     def save_txt(self, z0, u_inf, base_name, profile_path, profile_info):
         """
@@ -104,7 +106,7 @@ class Scales(object):
         # Assemble and write the solution data
         data = np.array([z0, self.h_T(z0), self.h_P(z0), self.h_S(z0, u_inf), 
                self.u_inf_crit(z0)])
-        print data
+        print(data)
         np.savetxt(base_name + '.txt', data)
         with open(base_name + '_header.txt', 'w') as dat_file:
             dat_file.write(header)

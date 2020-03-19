@@ -14,6 +14,8 @@ This simulation uses the ambient data stored in the file
 """
 # S. Socolofsky, August 2013, Texas A&M University <socolofs@tamu.edu>.
 
+from __future__ import (absolute_import, division, print_function)
+
 from tamoc import ambient
 from tamoc import dbm
 from tamoc import stratified_plume_model
@@ -33,7 +35,7 @@ if __name__ == '__main__':
         
     except RuntimeError:
         # Tell the user to create the dataset
-        print 'CTD data not available; run test cases in ./test first.'
+        print('CTD data not available; run test cases in ./test first.')
     
     # Create the stratified plume model object
     spm = stratified_plume_model.Model(ctd)

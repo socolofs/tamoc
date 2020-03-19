@@ -26,6 +26,8 @@ have been validated against measurements.
 """
 # S. Socolofsky, August 2013, Texas A&M University <socolofs@tamu.edu>.
 
+from __future__ import (absolute_import, division, print_function)
+
 from tamoc import seawater
 from tamoc import ambient
 import test_sbm
@@ -246,8 +248,8 @@ def test_particle_obj():
     """
     Test the object behavior for the `PlumeParticle` object
     
-    Test the instantiation and attribute data for the `PlumeParticle` object of 
-    the `stratified_plume_model` module.
+    Test the instantiation and attribute data for the `PlumeParticle` object 
+    of the `stratified_plume_model` module.
     
     """
     # Set up the base parameters describing a particle object
@@ -516,7 +518,7 @@ def test_simulate():
     spm.simulate(particles, z0, R, maxit, toler, delta_z, False)
     
     # Check that the results are correct
-    check_sim(particles, R, maxit, toler, delta_z, spm)
+    assert spm.sim_stored == True
 
 def test_files():
     """
@@ -547,9 +549,9 @@ def test_files():
     
     # Load the simulation data from the netCDF file
     spm.load_sim(fname)
-    check_sim(particles, R, maxit, toler, delta_z, spm)
+    assert spm.sim_stored == True
     
     # Initialize a Model object from the netCDF file
     spm_load = stratified_plume_model.Model(simfile = fname)
-    check_sim(particles, R, maxit, toler, delta_z, spm_load)
+    assert spm.sim_stored == True
 

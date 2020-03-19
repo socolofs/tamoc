@@ -26,6 +26,8 @@ have been validated against measurements.
 """
 # S. Socolofsky, July 2013, Texas A&M University <socolofs@tamu.edu>.
 
+from __future__ import (absolute_import, division, print_function)
+
 from tamoc import seawater
 from tamoc import ambient
 import test_ambient
@@ -374,7 +376,7 @@ def test_simulation():
     
     assert_array_almost_equal(sbm_f.particle.m0, sbm.particle.m0, decimal = 6)
     assert sbm_f.particle.T0 == sbm.particle.T0
-    print sbm_f.particle.K_T, sbm.particle.K_T
+    print(sbm_f.particle.K_T, sbm.particle.K_T)
     assert sbm_f.particle.K == sbm.particle.K
     assert sbm_f.particle.K_T == sbm.particle.K_T
     assert sbm_f.particle.fdis == sbm.particle.fdis

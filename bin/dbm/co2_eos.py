@@ -13,6 +13,9 @@ bar and demonstrate the use of the methods:
 """
 # S. Socolofsky, July 2013, Texas A&M University <socolofs@tamu.edu>.
 
+from __future__ import (absolute_import, division, print_function, 
+                        unicode_literals)
+
 from tamoc import dbm
 from tamoc import seawater
 
@@ -30,11 +33,11 @@ if __name__ == '__main__':
     
     # Calculate the density at standard conditions
     rho_m = co2.density(m, 273.15+15., 101325.)[0]
-    print '\nStandard density of co2 is: %g (kg/m^3)' % rho_m
+    print('\nStandard density of co2 is: %g (kg/m^3)' % rho_m)
     
     # Calculate the density at deepwater ocean conditions
     rho_m = co2.density(m, 273.15+4., 150.*1.e5)[0]
-    print '\nDensity of co2 at 4 deg C and 150 bar is: %g (kg/m^3)' % rho_m
+    print('\nDensity of co2 at 4 deg C and 150 bar is: %g (kg/m^3)' % rho_m)
     
     # Density of co2 for a range of pressures, demonstrating the phase 
     # transition from gas to liquid.

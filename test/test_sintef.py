@@ -17,6 +17,8 @@ have been validated against measurements.
 """
 # S. Socolofsky, February 2014, Texas A&M University <socolofs@tamu.edu>.
 
+from __future__ import (absolute_import, division, print_function)
+
 from tamoc import sintef
 
 import numpy as np
@@ -42,17 +44,15 @@ def check_We_model(D, rho_gas, Q_gas, mu_gas, sigma_gas, rho_oil, Q_oil,
                        sigma_gas, rho_oil, md_oil, mu_oil, sigma_oil, rho)
     
     # Check the model result
-    assert d50_gas == de_gas
-    
-    if d50_gas:
+    if de_gas:
         assert_approx_equal(d50_gas, de_gas, significant=6)
     else:
-        assert d50_gas == None
+        assert d50_gas == 0.
     
-    if d50_oil:
+    if de_oil:
         assert_approx_equal(d50_oil, de_oil, significant=6)
     else:
-        assert d50_oil == None
+        assert d50_oil == 0.
 
 
 # ----------------------------------------------------------------------------
@@ -79,7 +79,7 @@ def test_sintef_module():
     rho = 1035.
     
     # Enter the maximum allowable bubble and droplet size
-    dmax_gas = 0.010230463432826563
+    dmax_gas = 0.019607423346901465
     dmax_oil = 0.016262984601677299
     
     # Test a strongly atomized source of oil
@@ -87,22 +87,23 @@ def test_sintef_module():
     Q_oil = 0.030
     Q_gas = 0.0
     check_We_model(D, rho_gas, Q_gas, mu_gas, sigma_gas, rho_oil, Q_oil, 
-                   mu_oil, sigma_oil, rho, None, 9.121025713149752e-05)
+                   mu_oil, sigma_oil, rho, None, 0.00014463009911995408)
+    
     
     # Test a strongly atomized source of gas
     D = 0.03
     Q_oil = 0.0
     Q_gas = 0.030
     check_We_model(D, rho_gas, Q_gas, mu_gas, sigma_gas, rho_oil, Q_oil, 
-                   mu_oil, sigma_oil, rho, 0.00047308368655330852, None)
+                   mu_oil, sigma_oil, rho, 0.0007809790559321155, None)
     
     # Test a strongly atomized source of gas and oil
     D = 0.05
     Q_oil = 0.030
     Q_gas = 0.030
     check_We_model(D, rho_gas, Q_gas, mu_gas, sigma_gas, rho_oil, Q_oil, 
-                   mu_oil, sigma_oil, rho, 0.0012859271644586957, 
-                   0.00024164352702629014)
+                   mu_oil, sigma_oil, rho, 0.002124110280893527, 
+                   0.00038937956648815573)
     
     # Test a gas source limited by the maximum stable bubble size
     D = 0.3
@@ -134,20 +135,21 @@ def test_sintef_module():
                        sigma_oil, 0., 0., 0., 0., rho)
     
     de, md = sintef.rosin_rammler(30, d50, md_oil, sigma_oil, rho_oil, rho)
-    assert_array_almost_equal(de, np.array([9.84865702e-06, 1.14826911e-05, 
-        1.33878349e-05, 1.56090695e-05, 1.81988389e-05, 2.12182883e-05,
-        2.47387079e-05, 2.88432159e-05, 3.36287207e-05, 3.92082098e-05, 
-        4.57134165e-05, 5.32979306e-05, 6.21408248e-05, 7.24508825e-05, 
-        8.44715273e-05, 9.84865702e-05, 1.14826911e-04, 1.33878349e-04,
-        1.56090695e-04, 1.81988389e-04, 2.12182883e-04, 2.47387079e-04, 
-        2.88432159e-04, 3.36287207e-04, 3.92082098e-04, 4.57134165e-04,
-        5.32979306e-04, 6.21408248e-04, 7.24508825e-04, 8.44715273e-04]), 
+    assert_array_almost_equal(de, np.array([1.45878944e-05, 1.63832188e-05, 
+        1.83994927e-05, 2.06639084e-05, 2.32070044e-05, 2.60630780e-05, 
+        2.92706470e-05, 3.28729698e-05, 3.69186285e-05, 4.14621843e-05, 
+        4.65649130e-05, 5.22956318e-05, 5.87316271e-05, 6.59596969e-05, 
+        7.40773213e-05, 8.31939774e-05, 9.34326155e-05, 1.04931317e-04,       
+        1.17845158e-04, 1.32348298e-04, 1.48636332e-04, 1.66928926e-04, 
+        1.87472779e-04, 2.10544953e-04, 2.36456607e-04, 2.65557195e-04, 
+        2.98239176e-04, 3.34943311e-04, 3.76164604e-04, 4.22458979e-04,]), 
         decimal = 6)
-    assert_array_almost_equal(md, np.array([0.09731316, 0.1248589, 0.16082887,  
-        0.20765644, 0.26837291, 0.34667545, 0.44693616, 0.574086, 0.73326503, 
-        0.92907423, 1.16420417, 1.43718547, 1.73908916, 2.04935713, 
-        2.33179654, 2.53329678, 2.58970422, 2.44386835, 2.07655548, 
-        1.53821072, 0.9531004, 0.46944624, 0.17428515, 0.04898427, 
-        0.01498327, 0.00970565,  0.00929966,  0.00928682,  0.00928669,  
-        0.00928669]), decimal = 6)
+    assert_array_almost_equal(md, np.array([0.05977836, 0.07347575, 
+        0.09025703, 0.11078833, 0.13586501, 0.16642905, 0.20358426, 
+        0.2486062,  0.30294156, 0.36818918, 0.44605145, 0.53824003,         
+        0.6463149,  0.77143036, 0.91395899, 1.07296736, 1.24553354, 
+        1.42593496, 1.60480996, 1.76851643, 1.89907518, 1.97525133, 
+        1.97538766, 1.88236042, 1.69023873, 1.41080284, 1.07645928, 
+        0.73561661, 0.43909252, 0.22204271]), decimal = 6)
+
 

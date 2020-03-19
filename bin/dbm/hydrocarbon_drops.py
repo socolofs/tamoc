@@ -21,6 +21,9 @@ In particular, this script demonstrates the methods:
 """
 # S. Socolofsky, July 2013, Texas A&M University <socolofs@tamu.edu>.
 
+from __future__ import (absolute_import, division, print_function, 
+                        unicode_literals)
+
 from tamoc import dbm
 from tamoc import seawater
 
@@ -47,42 +50,42 @@ if __name__ == '__main__':
     Sa = 34.5
     
     # Echo the ambient conditions to the screen
-    print '\nAmbient conditions: \n'
-    print '   P = %g (Pa)' % P
-    print '   T = %g (K)' % Ta
-    print '   S = %g (psu)' % Sa
-    print '   rho_sw = %g (kg/m^3)' % (seawater.density(Ta, Sa, P))
+    print('\nAmbient conditions: \n')
+    print('   P = %g (Pa)' % P)
+    print('   T = %g (K)' % Ta)
+    print('   S = %g (psu)' % Sa)
+    print('   rho_sw = %g (kg/m^3)' % (seawater.density(Ta, Sa, P)))
     
     # Get the general properties of the oil
     mf = oil.mass_frac(mol_frac)
     T = 273.15 + 60.
-    print '\nBasic properties of liquid oil: \n'
-    print '   T = %g (K)' % T
-    print '   mol_frac = [' + ', '.join('%g' % mol_frac[i] for i in 
-        range(oil.nc)) + '] (--)'
-    print '   mass_frac = [' + ', '.join('%g' % mf[i] for i in 
-        range(oil.nc)) + '] (--)'
-    print '   rho_p = %g (kg/m^3) at %g (K) and %g (Pa)' % \
-        (oil.density(mf, T, P), T, P)
+    print('\nBasic properties of liquid oil: \n')
+    print('   T = %g (K)' % T)
+    print('   mol_frac = [' + ', '.join('%g' % mol_frac[i] for i in 
+        range(oil.nc)) + '] (--)')
+    print('   mass_frac = [' + ', '.join('%g' % mf[i] for i in 
+        range(oil.nc)) + '] (--)')
+    print('   rho_p = %g (kg/m^3) at %g (K) and %g (Pa)' %
+        (oil.density(mf, T, P), T, P))
     
     # Get the masses in a 1.0 cm effective diameter droplet
     de = 0.01
     m = oil.masses_by_diameter(de, T, P, mol_frac)
     
     # Echo the properties of the droplet to the screen
-    print '\nBasic droplet properties:  \n'
-    print '   de = %g (m)' % (oil.diameter(m, T, P))
+    print('\nBasic droplet properties:  \n')
+    print('   de = %g (m)' % (oil.diameter(m, T, P)))
     shape, de, rho_p, rho, mu_p, mu, sigma = oil.particle_shape(m, T, P, Sa, Ta)
-    print '   shape = %g (1: Sphere, 2: Ellipsoid, 3: Spherical Cap)' \
-        % shape
-    print '   us = %g (m/s)' % (oil.slip_velocity(m, T, P, Sa, Ta))
-    print '   A = %g (m^2)' % (oil.surface_area(m, T, P, Sa, Ta))
+    print('   shape = %g (1: Sphere, 2: Ellipsoid, 3: Spherical Cap)' \
+        % shape)
+    print('   us = %g (m/s)' % (oil.slip_velocity(m, T, P, Sa, Ta)))
+    print('   A = %g (m^2)' % (oil.surface_area(m, T, P, Sa, Ta)))
     beta = oil.mass_transfer(m, T, P, Sa, Ta)
-    print '   beta = [' + ', '.join('%g' % beta[i] for i in \
-        range(oil.nc)) + '] (m/s)'
-    print '   beta_T = %g (m/s)' % (oil.heat_transfer(m, T, P, Sa, Ta))
+    print('   beta = [' + ', '.join('%g' % beta[i] for i in
+        range(oil.nc)) + '] (m/s)')
+    print('   beta_T = %g (m/s)' % (oil.heat_transfer(m, T, P, Sa, Ta)))
     Cs = oil.solubility(m, T, P, Sa)
-    print '   Cs = [' + ', '.join('%g' % Cs[i] for i in \
-        range(oil.nc)) + '] (kg/m^3)'
+    print('   Cs = [' + ', '.join('%g' % Cs[i] for i in
+        range(oil.nc)) + '] (kg/m^3)')
 
 

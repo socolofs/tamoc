@@ -41,9 +41,9 @@ the discrete bubble model have not been ported to Fortran and reside in the
 """
 # S. Socolofsky, July 2013, Texas A&M University <socolofs@tamu.edu>.
 
-# Use these imports for deployment
-from tamoc import chemical_properties # as chem
-from tamoc import biodeg_properties as biodeg
+from __future__ import (absolute_import, division, print_function)
+
+from tamoc import chemical_properties
 from tamoc import dbm_f
 from tamoc import seawater
 
@@ -160,9 +160,9 @@ class FluidMixture(object):
             if (delta.shape[0] == self.nc) and (delta.shape[1]==self.nc):
                 self.delta = delta
             else:
-                print '\nError: Delta wrong shape, should be (%d, %d)' % \
-                    (self.nc, self.nc)
-                print 'Set to np.zeros((%d, %d))\n' % (self.nc, self.nc)
+                print('\nError: Delta wrong shape, should be (%d, %d)' %
+                    (self.nc, self.nc))
+                print('Set to np.zeros((%d, %d))\n' % (self.nc, self.nc))
                 self.delta = np.zeros((self.nc, self.nc))
         
         # Store all of the chemical data
@@ -196,11 +196,11 @@ class FluidMixture(object):
                 # Get the properties from the default dataset supplied with 
                 # TAMOC
                 if composition[i] in self.chem_db:
-                    properties = self.chem_db[composition[i]]
+                    properties = self.chem_db[composition[i]].copy()
                     properties.update(self.bio_db[composition[i]])
                 else:
-                    print '\nERROR:  %s is not in the ' % composition[i] + \
-                          'Chemical Properties database\n' 
+                    print('\nERROR:  %s is not in the ' % composition[i] +
+                          'Chemical Properties database\n')
             
             # Store the chemical properties in the object attributes
             self.M[i] = properties['M']
@@ -547,15 +547,15 @@ class FluidMixture(object):
                 masses of each component in a mixture at equilibrium between 
                 the gas and liquid phases (kg)
             xi : ndarray, size(2, nc)
-                mole fractions of each component in the mixture at equilibrium 
-                between the gas and liquid phases (--)
+                mole fractions of each component in the mixture at 
+                equilibrium between the gas and liquid phases (--)
             K : ndarray, size(nc)
                 partition coefficients expressed as K-factor (--)
         
         Notes
         -----
-        Uses the function equil_MM which uses the Michelsen and Mollerup (2007)
-        procedure to find a stable solution
+        Uses the function equil_MM which uses the Michelsen and Mollerup 
+        (2007) procedure to find a stable solution
         
         """
         # Get the mole fractions and K-factors at equilibrium

@@ -16,6 +16,8 @@ modeling suite.
 """
 # S. Socolofsky, November 2014, Texas A&M University <socolofs@tamu.edu>.
 
+from __future__ import (absolute_import, division, print_function)
+
 from tamoc import ambient
 
 from netCDF4 import Dataset
@@ -81,7 +83,7 @@ def tamoc_nc_file(fname, title, summary, source):
     return nc
 
 
-def profile_from_model_savefile(nc, fname):
+def profile_from_model_savefile(nc, fname, ctdname=None):
     """
     Load the `ambient.Profile` data pointed to by the netCDF file
     
@@ -120,7 +122,10 @@ def profile_from_model_savefile(nc, fname):
         # Try to locate and load in the profile data
         nc_path = os.path.normpath(os.path.join(os.getcwd(), \
                                    os.path.dirname(fname)))
-        prf_path = os.path.normpath(os.path.join(nc_path, nc.summary))
+        if ctdname is not None:
+            prf_path = os.path.normpath(os.path.join(nc_path, ctdname))
+        else:
+            prf_path = os.path.normpath(os.path.join(nc_path, nc.summary))
         amb_data = Dataset(prf_path)
         profile = ambient.Profile(amb_data, chem_names='all')
         profile.close_nc()

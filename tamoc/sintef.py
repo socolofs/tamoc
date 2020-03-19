@@ -4,34 +4,17 @@ Sintef
 
 Evaluate initial bubble and droplet sizes from the SINTEF model
 
-This module applies the modified Weber number model of SINTEF with corrections
-for the presence of oil and gas together to estimate the volume mean diameters
-of oil and gas at the end of the break-up region.
-
-Notes 
------ 
-The empirical coefficients A and B were obtained from Tower Basin experiments
-of oil into water with and without dispersant.  These experiments had small
-exit diameters (generally 1.5 mm or less) and large relative momentum length
-scales l_M/D >> 1.  The corrections for the presence of gas in oil (both a 
-void fraction corrections and buoyancy correction) are theoretical, and any
-affect these corrections may have on the parameters A and B has not yet been
-studied in detail.  
-
-References
-----------
-Brandvik, P.J., Johansen, O., Farooq, U., Angell, G., and Leirvik, F. (2012),
-"Sub-surface oil releases--Experimental study of droplet distributions and 
-different dispersant injection techniques.  A scaled experimental approach
-using the SINTEF Tower Basin."  Draft report, prepared by SINTEF Materials
-and Chemistry, Aug. 2012.
-
-Johansen, O., Brandvik, P.J. and Farooq, U. (2012), "Droplet breakup in subsea
-oil releases--Part 2: Prediction of droplet size distributions with and 
-without injection of chemical dispersants."  Marine Pollution Bulletin. 
+This module is deprecated and has been replaced by the `particle_size_models`
+and `psf` modules.  In order to retain compatibility with previous versions, 
+we retain the original API of the `sintef` model, but replace all calculations
+with calls to the appropriate functions in `particle_size_models` and `psf`.
 
 """
 # S. Socolofsky, September 2013, Texas A&M University <socolofs@tamu.edu>.
+
+from __future__ import (absolute_import, division, print_function)
+
+from tamoc import psf
 
 import numpy as np
 from copy import copy
@@ -40,6 +23,8 @@ from scipy.optimize import fsolve
 def modified_We_model(D, rho_gas, m_gas, mu_gas, sigma_gas, rho_oil, m_oil, 
                       mu_oil, sigma_oil, rho):
     """
+    This function is deprecated:  Use psf.sintef() instead.
+    
     Compute the initial oil droplet and gas bubble sizes from the SINTEF model
     
     Apply the SINTEF modified Weber number model to estimate the initial 
@@ -90,44 +75,15 @@ def modified_We_model(D, rho_gas, m_gas, mu_gas, sigma_gas, rho_oil, m_oil,
         else:
             m_oil = np.array(m_oil)
     
-    # Get the volume flow rates of gas and oil
-    if np.sum(m_gas) >0.:
-        Q_gas = np.sum(m_gas) / rho_gas
-    else:
-        Q_gas = 0.
-    if np.sum(m_oil) >0.:
-        Q_oil = np.sum(m_oil) / rho_oil
-    else:
-        Q_oil = 0.
-        
-    # Get the void-fraction adjusted velocity Un
-    if Q_oil == 0.:
-        # This is gas only
-        n = 1.0
-        Un = 4. * Q_gas / (np.pi * D**2)
-    else:
-        # This is either oil only or oil and gas
-        n = Q_gas / (Q_gas + Q_oil)
-        Un = 4. * Q_oil / (np.pi * D**2) / (1. - n)**(1./2.)
+    # Call the psf functions
+    mu = 0.0012   # pass mu of seawater (not used)
+    de_gas, de_max, k, alpha = psf.sintef(D, m_gas, rho_gas, m_oil, rho_oil, 
+                                          mu_gas, sigma_gas, rho, mu, 
+                                          fp_type=0, use_d95=False)
     
-    # Get the densimetric Froude number
-    Fr = Un / (9.81 * (rho - rho_oil * (1. - n) - rho_gas * n) / \
-         rho * D)**(1./2.)
-    
-    # Compute the final characteristic velocity to use in the model
-    Uc = Un * (1. + 1./Fr)
-    
-    # Compute the gas volume mean droplet size
-    if Q_gas > 0.:
-        de_gas = de_50(Uc, D, rho_gas, mu_gas, sigma_gas, rho)
-    else:
-        de_gas = None
-    
-    # Compute the oil volume mean droplet size
-    if Q_oil > 0.:
-        de_oil = de_50(Uc, D, rho_oil, mu_oil, sigma_oil, rho)
-    else:
-        de_oil = None
+    de_oil, de_max, k, alpha = psf.sintef(D, m_gas, rho_gas, m_oil, rho_oil, 
+                                          mu_oil, sigma_oil, rho, mu, 
+                                          fp_type=1, use_d95=False)
     
     # Return the bubble and droplet sizes
     return (de_gas, de_oil)
@@ -136,6 +92,8 @@ def modified_We_model(D, rho_gas, m_gas, mu_gas, sigma_gas, rho_oil, m_oil,
 # Provide tool to estimate the maximum stable particle size
 def de_max(sigma, rho_p, rho):
     """
+    This function is deprecated:  Use psf.de_max_oil() instead.
+    
     Calculate the maximum stable particle size
     
     Predicts the maximum stable particle size per Clift et al. (1978) via 
@@ -159,10 +117,12 @@ def de_max(sigma, rho_p, rho):
         Maximum stable particle size (m)
     
     """
-    return 4. * np.sqrt(sigma / (9.81 * (rho - rho_p)))
+    return psf.de_max_oil(rho_p, sigma, rho)
 
 def de_50(U, D, rho_p, mu_p, sigma, rho):
     """
+    This function is deprecated:  Use psf.sintef_d50() instead.
+    
     Predict the volume mean diameter from a modified Weber number model
     
     Calculates the SINTEF modified Weber number model for the volume mean 
@@ -202,39 +162,8 @@ def de_50(U, D, rho_p, mu_p, sigma, rho):
     maximum stable particle size.
     
     """
-    # Compute the non-dimensional constants
-    We = rho_p * U**2 * D / sigma
-    Vi = mu_p * U / sigma
-    
-    if We > 350.:
-        # Atomization...use the SINTEF model.
-        # A = 24.8
-        # B = 0.08
-        A = 15.
-        B = 0.8
-        
-        # Solve for the volume mean diameter from the implicit equation
-        def residual(dp):
-            """
-            Compute the residual of the SINTEF modified Weber number model
-            
-            Evaluate the residual of the non-dimensional diameter dp = de_50 / D
-            for the SINTEF droplet break-up model.
-            
-            Input variables are:
-                We, Vi, A, B = constant and inherited from above
-                dp = Non-dimensional diameter de_50 / D (--)
-            
-            """
-            # Compute the non-dimensional diameter and return the residual
-            return dp - A * (We / (1. + B * Vi * dp**(1./3.)))**(-3./5.)
-        
-        # Find the gas and liquid fraction for the mixture
-        dp = fsolve(residual, 5.)[0]
-        de = dp * D
-    else:
-        # Sinuous wave breakup...use the pipe diameter
-        de = 1.2 * D
+    # Call the psf function
+    de = psf.sintef_d50(U, D, rho_p, mu_p, sigma, rho)
     
     # Require the diameter to be less than the maximum stable size
     dmax = de_max(sigma, rho_p, rho)
@@ -246,6 +175,8 @@ def de_50(U, D, rho_p, mu_p, sigma, rho):
 
 def rosin_rammler(nbins, d50, md_total, sigma, rho_p, rho):
     """
+    This function is deprecated:  Use psf.rosin_rammler() instead.
+    
     Return the volume size distribution from the Rosin Rammler distribution
     
     Returns the fluid particle diameters in the selected number of bins on
@@ -291,35 +222,14 @@ def rosin_rammler(nbins, d50, md_total, sigma, rho_p, rho):
     73: 327-335.  doi:10.1016/j.marpolbul.2013.04.012.
     
     """
-    # Compute the maximum stable particle diameter
+    # Get the maximum stable size
     dmax = de_max(sigma, rho_p, rho)
     
     # Define the parameters of the distribution
-    k = -np.log(0.5)
+    k = np.log(0.5)
     alpha = 1.8
     
-    # Get the de/d50 ratio for the edges of each bin in the distribution 
-    # using a log-spacing
-    bin_edges = np.logspace(-1, 1, nbins + 1)
-    
-    # Find the logarithmic average location of the center of each bin
-    bin_centers = np.zeros(len(bin_edges) - 1)
-    
-    for i in range(len(bin_centers)):
-        bin_centers[i] = np.exp(np.log(bin_edges[i]) + 
-                         (np.log(bin_edges[i+1]) - np.log(bin_edges[i])) / 2.)
-    
-    # Get the cumulative volume fraction within each bin
-    Vn = 1. - np.exp(-k * bin_edges**alpha)
-    
-    # Get the actual volume fraction within each bin
-    V_frac = np.zeros(len(bin_centers))
-    for i in range(len(bin_edges) - 1):
-        V_frac[i] = Vn[i+1] - Vn[i]
-    V_frac += (1.0 - np.sum(V_frac)) / nbins
-    
-    # Compute the actual diameters of each particle
-    de = d50 * bin_centers
+    de, V_frac = psf.rosin_rammler(nbins, d50, k, alpha)
     
     # Compute the mass fraction for each diameter
     md = V_frac * md_total

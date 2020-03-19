@@ -24,6 +24,8 @@ script to use a different source of ambient data.
 """
 # S. Socolofsky, August 2013, Texas A&M University <socolofs@tamu.edu>.
 
+from __future__ import (absolute_import, division, print_function)
+
 from tamoc import ambient
 from tamoc import dbm
 from tamoc import seawater
@@ -41,13 +43,13 @@ if __name__ == '__main__':
     spm = stratified_plume_model.Model(simfile='../../test/output/spm_gas.nc')
     
     # Echo the results to the screen:
-    print 'The results of ./bin/spm/lake_bub.py have been loaded into memory'
-    print '   len(zi)   : %d' % spm.zi.shape[0]
-    print '   shape(yi) : %d, %d' % (spm.yi.shape[0], spm.yi.shape[1])
-    print '   len(zo)   : %d' % spm.zo.shape[0]
-    print '   shape(yo) : %d, %d' % (spm.yo.shape[0], spm.yo.shape[1])
+    print('The results of ./bin/spm/lake_bub.py have been loaded into memory')
+    print('   len(zi)   : %d' % spm.zi.shape[0])
+    print('   shape(yi) : %d, %d' % (spm.yi.shape[0], spm.yi.shape[1]))
+    print('   len(zo)   : %d' % spm.zo.shape[0])
+    print('   shape(yo) : %d, %d' % (spm.yo.shape[0], spm.yo.shape[1]))
     for i in range(len(spm.particles)):
-        print '   composition %d: %s, ' % (i, spm.particles[i].composition)
+        print('   composition %d: %s, ' % (i, spm.particles[i].composition))
     
     # You can plot the results of that stored simulation
     spm.plot_state_space(1)
@@ -57,13 +59,13 @@ if __name__ == '__main__':
     spm.load_sim('../../test/output/spm_blowout.nc')
     
     # Echo the results to the screen:
-    print 'The results of ./bin/spm/blowout.py have been loaded into memory'
-    print '   len(zi)   : %d' % spm.zi.shape[0]
-    print '   shape(yi) : %d, %d' % (spm.yi.shape[0], spm.yi.shape[1])
-    print '   len(zo)   : %d' % spm.zo.shape[0]
-    print '   shape(yo) : %d, %d' % (spm.yo.shape[0], spm.yo.shape[1])
+    print('The results of ./bin/spm/blowout.py have been loaded into memory')
+    print('   len(zi)   : %d' % spm.zi.shape[0])
+    print('   shape(yi) : %d, %d' % (spm.yi.shape[0], spm.yi.shape[1]))
+    print('   len(zo)   : %d' % spm.zo.shape[0])
+    print('   shape(yo) : %d, %d' % (spm.yo.shape[0], spm.yo.shape[1]))
     for i in range(len(spm.particles)):
-        print '   composition %d: %s, ' % (i, spm.particles[i].composition)
+        print('   composition %d: %s, ' % (i, spm.particles[i].composition))
     
     # Plot the results of that stored simulation
     spm.plot_state_space(1)

@@ -11,7 +11,7 @@ Notes
 There are any number of ways that CTD data could be artificially extended to
 deeper than the measured depths.  This script demonstrates one rational 
 method coded in the `ambient.Profile` class and documented in the class 
-method `ambient.Profile.extend_profile_deeper().
+method `ambient.Profile.extend_profile_deeper()`.
 
 Requires
 --------
@@ -37,6 +37,9 @@ written to the file::
 """
 # S. Socolofsky, July 2013, Texas A&M University <socolofs@tamu.edu>.
 
+from __future__ import (absolute_import, division, print_function, 
+                        unicode_literals)
+
 from tamoc import ambient
 from tamoc import seawater
 
@@ -50,11 +53,11 @@ import os
     
 def get_ctd_profile():
     """
-    Load the ASCII CTD Data into an 'ambient.Profile' object.
+    Load the ASCII CTD Data into an `ambient.Profile` object.
     
     This function performs the steps in ./profile_from_ctd.py to read in the
     CTD data and create a Profile object.  This is the data set that will be
-    used to demonstrate how to append data to a Profiile object.
+    used to demonstrate how to append data to a Profile object.
     
     """
     # Get the path to the input file
@@ -114,9 +117,9 @@ if __name__ == '__main__':
     # Print the buoyancy frequency at a few selected depths
     z = np.array([500., 1000., 1500.])
     N = ctd.buoyancy_frequency(z)
-    print 'Buoyancy frequency is: '
+    print('Buoyancy frequency is: ')
     for i in range(len(z)):
-        print '    N(%d m) = %g (1/s) ' % (z[i], N[i])
+        print('    N(%d m) = %g (1/s) ' % (z[i], N[i]))
     
     # Plot the potential density profile and corresponding buoyancy frequency
     z_min = ctd.nc.variables['z'].valid_min

@@ -8,6 +8,8 @@ contained in `dispersed_phases`.
 
 """
 # S. Socolofsky, November 2014, Texas A&M University <socolofs@tamu.edu>.
+from __future__ import (absolute_import, division, print_function)
+
 from tamoc import seawater
 from tamoc import dispersed_phases
 
@@ -259,8 +261,8 @@ def calculate(t0, q0, q0_local, profile, p, particles, derivs, dt_max,
         
         # Print progress to the screen
         if np.remainder(np.float(k), psteps) == 0.:
-            print '    Distance:  %g (m), time:  %g (s), k:  %d' % \
-                (q[-1][10], t[-1], k)
+            print('    Distance:  %g (m), time:  %g (s), k:  %d' % \
+                (q[-1][10], t[-1], k))
         
         # Perform one step of the integration
         r.set_f_params(q0_local, q1_local, profile, p, particles)
@@ -319,8 +321,8 @@ def calculate(t0, q0, q0_local, profile, p, particles, derivs, dt_max,
     q = np.array(q)
     
     # Show user the final calculated point and return the solution
-    print '    Distance:  %g (m), time:  %g (s), k:  %d' % \
-                (q[-1,10], t[-1], k)
+    print('    Distance:  %g (m), time:  %g (s), k:  %d' % \
+                (q[-1,10], t[-1], k))
     return (t, q)
 
 

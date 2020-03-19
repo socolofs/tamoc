@@ -42,6 +42,9 @@ See Also
 
 """
 # S. Socolofsky, October 2014, Texas A&M University <socolofs@tamu.edu>.
+
+from __future__ import (absolute_import, division, print_function)
+
 from tamoc import seawater
 from tamoc import dbm
 

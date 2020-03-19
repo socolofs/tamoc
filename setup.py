@@ -42,8 +42,8 @@ Topic :: Software Development :: Libraries :: Python Modules
 bin_files = ['./bin/dbm/air_eos.py',
              './bin/dbm/co2_eos.py',
              './bin/dbm/dead_oil.py',
+             './bin/dbm/droplet_rise.py',
              './bin/dbm/equilibrium.py',
-             './bin/dbm/equil_test.py',
              './bin/dbm/gas_bubbles.py',
              './bin/dbm/hydrocarbon_drops.py',
              './bin/ambient/profile_extending.py',
@@ -53,18 +53,22 @@ bin_files = ['./bin/dbm/air_eos.py',
              './bin/ambient/profile_from_roms.py',
              './bin/ambient/profile_from_txt.py',
              './bin/sbm/bubble.py',
+             './bin/sbm/drop_biodeg.py',
              './bin/sbm/drop.py',
              './bin/sbm/sbm_file_io.py',
              './bin/sbm/particle.py',
              './bin/sbm/seep_bubble.py',
-             './bin/spm/blowout.py',
+             './bin/spm/spm_blowout_sim.py',
              './bin/spm/lake_bub.py',
              './bin/spm/lake_part.py',
              './bin/spm/spm_file_io.py',
              './bin/sintef/particle_size_distribution.py',
+             './bin/psm/blowout_jet.py',
+             './bin/psm/oil_jet.py',
              './bin/params/scales.py',
-             './bin/bpm/blowout.py',
-             './bin/bpm/crossflow_plume.py']
+             './bin/bpm/bpm_blowout_sim.py',
+             './bin/bpm/crossflow_plume.py',
+             './bin/bpm/blowout_obj.py']
 
 # Define the external Fortran sources
 ext_dbm_f = Extension(name = 'dbm_f', 
@@ -75,12 +79,11 @@ ext_dbm_f = Extension(name = 'dbm_f',
 # Provide the setup utility
 if __name__ == '__main__':
     
-    #from numpy.distutils.core import setup
     from numpy.distutils.core import setup
     
     setup(
         name = 'TAMOC',
-        version = '1.2.1',
+        version = '2.0.0',
         description = 'Texas A&M Oilspill Calculator',
         long_description = open('README.rst').read(),
         license = 'LICENSE.txt',

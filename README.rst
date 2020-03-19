@@ -12,6 +12,15 @@ size distributions from source flow conditions.
 For typical usage, please see the ./bin directory of the source distribution
 for various example scripts.
 
+Version 2.0.0:  Updated the complete model system for compatibility with both
+                Python 2.7 and Python 3.8+. Updated the ambient.Profile
+                object so that netCDF files do not have to be used and
+                including the ability to create a default profile using the
+                world-ocean average data now distributed with the model.
+                Created new modules for particle size distributions and for
+                simulating a blowout, including a new Blowout object. Created
+                a new modules containing utility functions for manipulating
+                data related to the ambient and dbm modules.
 Version 1.2.1:  Corrected minor errors in translating between NetCDF objects
                 and Numpy arrays to avoid a masked-array error and updated
                 the dbm_phys.f95 function for the mass transfer rate by Kumar
@@ -100,60 +109,61 @@ Version 0.1.10: Updated the values for Vb in the ./data/ChemData.csv file
                 diffusivity and mass transfer over Version 0.1.9, and gives
                 results similar to Version 0.1.8 and older that used a 
                 different method to estimate diffusivity.
-Version 0.1.9 : Made several minor changes to the equations of state per the
+Version 0.1.9: Made several minor changes to the equations of state per the
                 guidance of Jonas Gros.  These changes make the model much 
                 more robust for hydrocarbon mixtures.  The updates are minor
                 in that the results do not change markedly for the test 
                 cases already in previous versions of the model.  However, 
                 the changes provide major advantages for more difficult
                 cases, not demonstrated in the simple ./bin examples.
-Version 0.1.8 : Added print capability to the params.py module and upgraded
+Version 0.1.8: Added print capability to the params.py module and upgraded
                 the shear entrainment model in the bent_plume_model.py 
                 to the entrainment equations in Jirka 2004.
-Version 0.1.7 : Added the capability for the bent_plume_model.py to continue
+Version 0.1.7: Added the capability for the bent_plume_model.py to continue
                 to track particles outside the plume using the 
                 single_bubble_model.py.  Fixed a bug where particles outside
                 the plume continued to dissolve and add mass to the 
                 bent_plume_model.
-Version 0.1.6 : Added a new simulation module for plumes in crossflow:  the
+Version 0.1.6: Added a new simulation module for plumes in crossflow:  the
                 bent_plume_model.py.  Refactored some of the code for the 
                 original model suite to make it more general and to reuse it
                 in the bent_plume_model.  Added example files and unit tests
                 for the new modules, and updated the documentation to reflect
                 all model changes.
-Version 0.1.5 : Fixed a small bug in the way the bubble force is handled 
+Version 0.1.5: Fixed a small bug in the way the bubble force is handled 
                 after the particle dissolves.  Fixed a bug to retain mass
                 conservation for a bubble size distribution using the 
                 sintef.rosin_rammler() function.
-Version 0.1.4 : Added script for the the sintef and params modules to the 
+Version 0.1.4: Added script for the the sintef and params modules to the 
                 ./bin examples directory and the /test unit tests.  Improved
                 the stability of the model by added a few new checks during
                 and before calculation.  Updated the unit tests to make them
                 more platform and numpy-version independent.
-Version 0.1.3 : Removed some of the debugging catches in the iteration so that
+Version 0.1.3: Removed some of the debugging catches in the iteration so that
                 solutions always fully converge and fixed a few bugs.  See 
                 CHANGES.txt for full details.  Added the sintef.py module for
                 computing initial bubble/droplet size distributions.
-Version 0.1.2 : Refined the test suite for compatibility with multiple 
+Version 0.1.2: Refined the test suite for compatibility with multiple 
                 versions of numpy and scipy.  Corrected a few more minor bugs.
-Version 0.1.1 : Full modeling suite with small bug fixes and complete test 
+Version 0.1.1: Full modeling suite with small bug fixes and complete test 
                 suite..
-Version 0.1.0 : First full modeling suite release, including the stratified
+Version 0.1.0: First full modeling suite release, including the stratified
                 plume module.
-Version 0.0.3 : Updated to include the single bubble model and the ambient
+Version 0.0.3: Updated to include the single bubble model and the ambient
                 module for handling ambient CTD data.  Includes input and 
                 output using netCDF files and a complete set of tests in 
                 ./tamoc/test
-Version 0.0.2 : First model release, including the discrete bubble model
+Version 0.0.2: First model release, including the discrete bubble model
                 (dmb.py)
-Version 0.0.1 : Initial template of files using setup.py
+Version 0.0.1: Initial template of files using setup.py
 
 Requirements
 ============
 
 This package requires:
 
-* Python 2.3 or higher
+* Python 2.3 or higher and is now compatible with both Python 2.7 and 
+  Python 3.8+
 
 * Numpy version 1.6.1 or higher
 
@@ -161,7 +171,7 @@ This package requires:
 
 * A modern Fortran compiler
 
-* netCDF4:  try: easy_install netCDF4
+* The Python netCDF4 package
 
 For interaction with ROMS output, TAMOC also requires:
    
@@ -169,10 +179,20 @@ For interaction with ROMS output, TAMOC also requires:
    
    * mpl_toolkits.basemap:  download from
      http://sourceforge.net/projects/matplotlib/files/matplotlib-toolkits/
+   
+   * NOTE:  While this still works, octant has been deprecated and is now
+            replaced by the xarray package.  TAMOC has not yet been updated
+            to use xarray.  
+            
+            If profile data are available from ROMS, write a script to read
+            the data into a numpy array and pass this data to the 
+            ambient.Profile object.  
 
 Code development and testing for this package was conducted in the Mac OS X
-environment, Version 10.9. The installed Python environment was the
-Enthought Canopy Distribution 1.1.0.1371 for Python version 2.7.3 (64-bit). 
+environment, Version 10.13.6. The Python environments were created using
+miniconda.  The Python 3 environment used Python 3.8.2; the Python 2 
+environment used Python 2.7.15.  All scripts are tested in iPython with the
+--pylab flag. 
 
 Fortran files are written in modern Fortran style and are fully compatible
 with gfortran 4.6.2 20111019 (prerelease). They have been compiled and tested
@@ -228,9 +248,9 @@ The following method has been tested for installation on Mac OS X 10.7.
 
 * Install a complete Python distribution that includes Python, Numpy, and
   Scipy with versions compatible with the above list.  Testing has been 
-  completed by the author using a 32-bit and 64 bit Python installations.  The 
-  Python distribution will have to be compatible with your C/C++ and Fortran 
-  compiler.  
+  completed by the author using a 32-bit and 64-bit Python installations.  
+  The Python distribution will have to be compatible with your C/C++ and 
+  Fortran compiler.  
 
 * Install the free XCode app in order to provide C/C++ compiler capability.
   Be sure to install the command-line tools.

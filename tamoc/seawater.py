@@ -11,6 +11,8 @@ official seawater equation of state.
 """
 # S. Socolofsky, March 2013, Texas A&M University <socolofs@tamu.edu>.
 
+from __future__ import (absolute_import, division, print_function)
+
 import numpy as np
 
 # Define some universal constants
@@ -227,8 +229,8 @@ def cp():
     cp : float
         heat capacity of seawater (J/(kg K))
     
-    Note
-    ----
+    Notes
+    -----
     This approximation is valid since we have treated cp to be a constant in
     derivation of the governing equations.  If we let cp vary with T and S, 
     then the governing equations will contain a lot of new terms coming from
