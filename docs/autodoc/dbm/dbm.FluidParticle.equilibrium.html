@@ -1,0 +1,165 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>dbm.FluidParticle.equilibrium &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="dbm.FluidParticle.fugacity" href="dbm.FluidParticle.fugacity.html" />
+    <link rel="prev" title="dbm.FluidParticle.diffusivity" href="dbm.FluidParticle.diffusivity.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="dbm-fluidparticle-equilibrium">
+<h1>dbm.FluidParticle.equilibrium<a class="headerlink" href="#dbm-fluidparticle-equilibrium" title="Permalink to this headline">¶</a></h1>
+<dl class="method">
+<dt id="dbm.FluidParticle.equilibrium">
+<code class="sig-prename descclassname">FluidParticle.</code><code class="sig-name descname">equilibrium</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">m</em>, <em class="sig-param">T</em>, <em class="sig-param">P</em>, <em class="sig-param">K=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dbm.FluidParticle.equilibrium" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the equilibrium composition of a gas/liquid mixture.</p>
+<p>Computes the equilibrium composition of a gas/liquid mixture using the
+procedure in Michelson and Mollerup (2007) and McCain (1990).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>dbm_obj</strong><span class="classifier">dbm.FluidMixture or dbm.FluidParticle</span></dt><dd><p>DBM FluidMixture or FluidParticle object</p>
+</dd>
+<dt><strong>m</strong><span class="classifier">ndarray, size (nc)</span></dt><dd><p>masses of each component in a mixture (kg)</p>
+</dd>
+<dt><strong>T</strong><span class="classifier">float</span></dt><dd><p>mixture temperature (K)</p>
+</dd>
+<dt><strong>P</strong><span class="classifier">float</span></dt><dd><p>mixture pressure (Pa)</p>
+</dd>
+<dt><strong>K</strong><span class="classifier">ndarray, size (nc)</span></dt><dd><p>array of partition coefficients to use as an initial guess for
+K-factor.  Default is <cite>None</cite>, in which case the standard initial
+guess will be used.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>A tuple containing:</dt><dd><dl class="simple">
+<dt>m<span class="classifier">ndarray, size(2, nc)</span></dt><dd><p>masses of each component in a mixture at equilibrium between 
+the gas and liquid phases (kg)</p>
+</dd>
+<dt>xi<span class="classifier">ndarray, size(2, nc)</span></dt><dd><p>mole fractions of each component in the mixture at 
+equilibrium between the gas and liquid phases (–)</p>
+</dd>
+<dt>K<span class="classifier">ndarray, size(nc)</span></dt><dd><p>partition coefficients expressed as K-factor (–)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Uses the function equil_MM which uses the Michelsen and Mollerup 
+(2007) procedure to find a stable solution</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Texas A&M Oil spill / Outfall Calculator</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../user_manual.html">TAMOC User Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../unit_tests.html">Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../bugs.html">Reporting Bugs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html">Read Me File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../../user_manual.html">TAMOC User Manual</a><ul>
+  <li><a href="../../modules/dbm.html">Overview of the Discrete Bubble Model</a><ul>
+  <li><a href="dbm.FluidParticle.html">dbm.FluidParticle</a><ul>
+      <li>Previous: <a href="dbm.FluidParticle.diffusivity.html" title="previous chapter">dbm.FluidParticle.diffusivity</a></li>
+      <li>Next: <a href="dbm.FluidParticle.fugacity.html" title="next chapter">dbm.FluidParticle.fugacity</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../_sources/autodoc/dbm/dbm.FluidParticle.equilibrium.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

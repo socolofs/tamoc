@@ -9,22 +9,45 @@ Overview of Single Bubble Model Module
 
 .. automodule:: single_bubble_model
 
-Class Objects
-=============
 
-.. autoclass:: Model
+Class Objects and Methods
+=========================
 
-.. autoclass:: ModelParams
-
-Module Functions
-================
+The ``Model`` object is the main interface to the ``single_bubble_model``.  Its definition and methods are as follows:
 
 .. currentmodule:: single_bubble_model
 
 .. autosummary::
-   :toctree: ../sbm
+   :toctree: ../autodoc/sbm
+   
+   Model
+   Model.simulate
+   Model.save_sim
+   Model.save_txt
+   Model.load_sim
+   Model.post_process
 
+All of the model parameters are contained in the ``ModelParams`` object.  This object is described in the following:
+
+.. autosummary::
+   :toctree: ../autodoc/sbm
+   
+   ModelParams
+   
+
+Module Functions
+================
+
+The single bubble model objects defined above use several utilities to 
+perform their numerical tasks.  These are generally not intended to be called
+directly by the user and are summarized below:
+
+.. autosummary::
+   :toctree: ../autodoc/sbm
+   
    calculate_path
    derivs
    sbm_ic
    plot_state_space
+
+

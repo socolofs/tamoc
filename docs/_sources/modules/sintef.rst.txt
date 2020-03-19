@@ -1,6 +1,6 @@
-#########################
-Overview of Sintef Module
-#########################
+##########################
+Overview of SINTEF Module
+##########################
 
 :Release: |version|
 :Date: |today|
@@ -9,20 +9,23 @@ Overview of Sintef Module
 
 .. automodule:: sintef
 
-Class Objects
-=============
-
-There are currently no Class objects defined for this module.
 
 Module Functions
 ================
 
-.. currentmodule:: sintef
+This module contains functions for computing particle size distributions 
+using the SINTEF model.  This module *has been deprecated*, and you should
+use the objects in the ``particle_size_models`` instead.  In order to retain
+backward compatibility with scripts developed using previous versions of ``TAMOC``, we have retained this module and edited each function to call the
+associated function in the ``psf`` module of utilities used by the 
+``particle_size_models`` objects.  Functions in the ``SINTEF`` module are:
 
 .. autosummary::
-   :toctree: ../sintef
-
+   :toctree: ../autodoc/sintef
+   
    modified_We_model
    de_max
    de_50
    rosin_rammler
+
+

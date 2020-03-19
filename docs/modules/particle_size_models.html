@@ -1,0 +1,350 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Overview of Particle Size Models Module &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="particle_size_models.ModelBase" href="../autodoc/psd/particle_size_models.ModelBase.html" />
+    <link rel="prev" title="sintef.rosin_rammler" href="../autodoc/sintef/sintef.rosin_rammler.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="overview-of-particle-size-models-module">
+<h1>Overview of Particle Size Models Module<a class="headerlink" href="#overview-of-particle-size-models-module" title="Permalink to this headline">¶</a></h1>
+<dl class="field-list simple">
+<dt class="field-odd">Release</dt>
+<dd class="field-odd"><p>2.0</p>
+</dd>
+<dt class="field-even">Date</dt>
+<dd class="field-even"><p>Mar 19, 2020</p>
+</dd>
+</dl>
+<span class="target" id="module-particle_size_models"></span><div class="section" id="particle-size-models">
+<h2>Particle Size Models<a class="headerlink" href="#particle-size-models" title="Permalink to this headline">¶</a></h2>
+<p>Compute particle size distributions for jets of oil and gas</p>
+<p>This module provides an interface to available empirical models for bubble 
+and droplet size distributions for jet releases.  The empirical model 
+functions are in <cite>psf.py</cite>; this module provides an object-oriented interface
+to these functions.  Gas bubble size distributions can be created from:</p>
+<ul class="simple">
+<li><p>Li et al. (2017)</p></li>
+<li><p>Wang et al. (2018)</p></li>
+</ul>
+<p>Oil droplet size distributions can be created from:</p>
+<ul class="simple">
+<li><p>Johansen et al. (2013)</p></li>
+<li><p>Li et al. (2017)</p></li>
+</ul>
+<p>All models support log-normal and Rosin-Rammler distributions.</p>
+<div class="section" id="notes">
+<h3>Notes<a class="headerlink" href="#notes" title="Permalink to this headline">¶</a></h3>
+<p>The particle size computational algorithms are contained in the module</p>
+<blockquote>
+<div><p><cite>psf.py</cite> - Particle Size Fuctions</p>
+</div></blockquote>
+<p>This module is a function library used by the objects in this module.  In 
+general, the <cite>psf</cite> module can be replace by any module having the same 
+application programming interface, whether programmed in Python, or another
+language and wrapped in Python.</p>
+</div>
+<div class="section" id="see-also">
+<h3>See Also<a class="headerlink" href="#see-also" title="Permalink to this headline">¶</a></h3>
+<p>To date, only simple, analytical equations have been implemented in the
+partice size functions. More complex, physics-based models using a population
+dynamic approach are also often used. These may be added in the future. See,
+for example:</p>
+<blockquote>
+<div><p>Zhao, L., Boufadel, M. C., Socolofsky, S. A., Adams, E., King, T., and
+Lee, K. (2014). “Evolution of droplets in subsea oil and gas blowouts:
+Development and validation of the numerical model VDROP-J.” Mar Pollut
+Bull, 83(1), 58-69.</p>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="class-objects-and-methods">
+<h2>Class Objects and Methods<a class="headerlink" href="#class-objects-and-methods" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="base-model-object">
+<h3>Base Model Object<a class="headerlink" href="#base-model-object" title="Permalink to this headline">¶</a></h3>
+<p>The base model object handles computing fluid properties and selecting
+appropriate particle size models.  It is documented in the following:</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../autodoc/psd/particle_size_models.ModelBase.html#particle_size_models.ModelBase" title="particle_size_models.ModelBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ModelBase</span></code></a>(rho_gas, mu_gas, sigma_gas, …)</p></td>
+<td><p>Master class object for interfacing with functions in the <cite>psf</cite> module</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../autodoc/psd/particle_size_models.ModelBase.update_properties.html#particle_size_models.ModelBase.update_properties" title="particle_size_models.ModelBase.update_properties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ModelBase.update_properties</span></code></a>(self, rho_gas, …)</p></td>
+<td><p>Set the thermodynamic properties of the released and receiving fluids</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../autodoc/psd/particle_size_models.ModelBase.simulate.html#particle_size_models.ModelBase.simulate" title="particle_size_models.ModelBase.simulate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ModelBase.simulate</span></code></a>(self, d0, m_gas, m_oil[, …])</p></td>
+<td><p>Compute the parameters of the particle size distribution</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../autodoc/psd/particle_size_models.ModelBase.get_de_max.html#particle_size_models.ModelBase.get_de_max" title="particle_size_models.ModelBase.get_de_max"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ModelBase.get_de_max</span></code></a>(self, fp_type)</p></td>
+<td><p>Report the maximum stable particle size of a fluid at the release</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../autodoc/psd/particle_size_models.ModelBase.get_d50.html#particle_size_models.ModelBase.get_d50" title="particle_size_models.ModelBase.get_d50"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ModelBase.get_d50</span></code></a>(self, fp_type)</p></td>
+<td><p>Report the median particle size of a fluid at the release</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../autodoc/psd/particle_size_models.ModelBase.get_distributions.html#particle_size_models.ModelBase.get_distributions" title="particle_size_models.ModelBase.get_distributions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ModelBase.get_distributions</span></code></a>(self, nbins_gas, …)</p></td>
+<td><p>Report the bubble and droplet size distributions</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../autodoc/psd/particle_size_models.ModelBase.plot_psd.html#particle_size_models.ModelBase.plot_psd" title="particle_size_models.ModelBase.plot_psd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ModelBase.plot_psd</span></code></a>(self[, fig, fp_type])</p></td>
+<td><p>Create plots of the bubble and droplet size distribution</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="pure-jet-object">
+<h3>Pure Jet Object<a class="headerlink" href="#pure-jet-object" title="Permalink to this headline">¶</a></h3>
+<p>When only one phase (liquid or gas) is emitted from an orifice, properties
+for another phase should not be required.  This is solved using the <code class="docutils literal notranslate"><span class="pre">PureJet</span></code> object, described in the following:</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../autodoc/psd/particle_size_models.PureJet.html#particle_size_models.PureJet" title="particle_size_models.PureJet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PureJet</span></code></a>(rho_p, mu_p, sigma_p, rho, mu[, fp_type])</p></td>
+<td><p>Class object for pure gas or pure oil plumes</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../autodoc/psd/particle_size_models.PureJet.update_properties.html#particle_size_models.PureJet.update_properties" title="particle_size_models.PureJet.update_properties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PureJet.update_properties</span></code></a>(self, rho_p, mu_p, …)</p></td>
+<td><p>Set the thermodynamic properties of the release and receiving fluids</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../autodoc/psd/particle_size_models.PureJet.simulate.html#particle_size_models.PureJet.simulate" title="particle_size_models.PureJet.simulate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PureJet.simulate</span></code></a>(self, d0, m[, model, pdf])</p></td>
+<td><p>Compute the parameters of the particle size distribution</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../autodoc/psd/particle_size_models.PureJet.get_de_max.html#particle_size_models.PureJet.get_de_max" title="particle_size_models.PureJet.get_de_max"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PureJet.get_de_max</span></code></a>(self[, fp_type])</p></td>
+<td><p>Report the maximum stable particle size of the fluid at the release</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../autodoc/psd/particle_size_models.PureJet.get_d50.html#particle_size_models.PureJet.get_d50" title="particle_size_models.PureJet.get_d50"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PureJet.get_d50</span></code></a>(self[, fp_type])</p></td>
+<td><p>Report the median particle size of a fluid at the release</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../autodoc/psd/particle_size_models.PureJet.get_distributions.html#particle_size_models.PureJet.get_distributions" title="particle_size_models.PureJet.get_distributions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PureJet.get_distributions</span></code></a>(self, nbins)</p></td>
+<td><p>Report the particle size distributions</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../autodoc/psd/particle_size_models.PureJet.plot_psd.html#particle_size_models.PureJet.plot_psd" title="particle_size_models.PureJet.plot_psd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PureJet.plot_psd</span></code></a>(self, fig_num)</p></td>
+<td><p>Create a plot of the particle size distribution</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="normal-model-object">
+<h3>Normal Model Object<a class="headerlink" href="#normal-model-object" title="Permalink to this headline">¶</a></h3>
+<p>In most blowout cases, the <code class="docutils literal notranslate"><span class="pre">Model</span></code> object should be used.  This object is
+described in the following:</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../autodoc/psd/particle_size_models.Model.html#particle_size_models.Model" title="particle_size_models.Model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Model</span></code></a>(profile, oil, m, z0[, Tj])</p></td>
+<td><p>Master lass object for computing bubble and droplet size distributions</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../autodoc/psd/particle_size_models.Model.update_properties.html#particle_size_models.Model.update_properties" title="particle_size_models.Model.update_properties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Model.update_properties</span></code></a>(self, profile, …)</p></td>
+<td><p>Set the thermodynamic properties of the released and receiving fluids</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../autodoc/psd/particle_size_models.Model.simulate.html#particle_size_models.Model.simulate" title="particle_size_models.Model.simulate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Model.simulate</span></code></a>(self, d0[, model_gas, …])</p></td>
+<td><p>Compute the parameters of the particle size distribution</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../autodoc/psd/particle_size_models.Model.update_z0.html#particle_size_models.Model.update_z0" title="particle_size_models.Model.update_z0"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Model.update_z0</span></code></a>(self, z0)</p></td>
+<td><p>Update the release depth of the jet</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../autodoc/psd/particle_size_models.Model.update_Tj.html#particle_size_models.Model.update_Tj" title="particle_size_models.Model.update_Tj"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Model.update_Tj</span></code></a>(self, Tj)</p></td>
+<td><p>Update the temperature of the released fluids in the jet</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../autodoc/psd/particle_size_models.Model.update_m_mixture.html#particle_size_models.Model.update_m_mixture" title="particle_size_models.Model.update_m_mixture"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Model.update_m_mixture</span></code></a>(self, m_mixture)</p></td>
+<td><p>Update the total mass flux of the released fluids in the jet</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../autodoc/psd/particle_size_models.Model.get_de_max.html#particle_size_models.Model.get_de_max" title="particle_size_models.Model.get_de_max"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Model.get_de_max</span></code></a>(self, fp_type)</p></td>
+<td><p>Report the maximum stable particle size of a fluid at the release</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../autodoc/psd/particle_size_models.Model.get_d50.html#particle_size_models.Model.get_d50" title="particle_size_models.Model.get_d50"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Model.get_d50</span></code></a>(self, fp_type)</p></td>
+<td><p>Report the median particle size of a fluid at the release</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../autodoc/psd/particle_size_models.Model.get_distributions.html#particle_size_models.Model.get_distributions" title="particle_size_models.Model.get_distributions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Model.get_distributions</span></code></a>(self, nbins_gas, …)</p></td>
+<td><p>Report the bubble and droplet size distributions</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../autodoc/psd/particle_size_models.Model.plot_psd.html#particle_size_models.Model.plot_psd" title="particle_size_models.Model.plot_psd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Model.plot_psd</span></code></a>(self[, fig, fp_type])</p></td>
+<td><p>Create plots of the bubble and droplet size distribution</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="module-functions">
+<h2>Module Functions<a class="headerlink" href="#module-functions" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="helper-functions">
+<h3>Helper Functions<a class="headerlink" href="#helper-functions" title="Permalink to this headline">¶</a></h3>
+<p>The objects defined above use one helper-function to plot the data.  This function is described below and should normally not be called directly by the user:</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../autodoc/psd/particle_size_models.plot_phase.html#particle_size_models.plot_phase" title="particle_size_models.plot_phase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_phase</span></code></a>(nbins, de, vf, color)</p></td>
+<td><p>docstring for plot_phase</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="external-utilities">
+<h3>External Utilities<a class="headerlink" href="#external-utilities" title="Permalink to this headline">¶</a></h3>
+<p>Each of the particle size models themselves are contained in separate
+functions defined in the <code class="docutils literal notranslate"><span class="pre">psf</span></code> module.  While these functions could be
+called directly for scripting purposes, it is recommended that the objects
+defined above be used instead.  These utilities are the following:</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../autodoc/psd/psf.mass2vol.html#psf.mass2vol" title="psf.mass2vol"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mass2vol</span></code></a>(m, rho)</p></td>
+<td><p>Convert a mass or mass flux to a volume or volume flux</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../autodoc/psd/psf.rosin_rammler.html#psf.rosin_rammler" title="psf.rosin_rammler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rosin_rammler</span></code></a>(nbins, d50, k, alpha)</p></td>
+<td><p>Return the volume size distribution from the Rosin-Rammler distribution</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../autodoc/psd/psf.log_normal.html#psf.log_normal" title="psf.log_normal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">log_normal</span></code></a>(nbins, d50, sigma)</p></td>
+<td><p>Return the volume size distribution from the Log-normal distribution</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../autodoc/psd/psf.ln2rr.html#psf.ln2rr" title="psf.ln2rr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ln2rr</span></code></a>(d50, sigma)</p></td>
+<td><p>Convert the parameters of a log-normal distribution to Rosin-Rammler</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../autodoc/psd/psf.rr2ln.html#psf.rr2ln" title="psf.rr2ln"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rr2ln</span></code></a>(d50, k, alpha)</p></td>
+<td><p>Convert the parameters of a Rosin-Rammler distribution to log-normal</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../autodoc/psd/psf.rosin_rammler_fit.html#psf.rosin_rammler_fit" title="psf.rosin_rammler_fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rosin_rammler_fit</span></code></a>(d50, d_max[, alpha])</p></td>
+<td><p>Return d_50, k, and alpha for the Rosin-Rammler distribution</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../autodoc/psd/psf.log_normal_fit.html#psf.log_normal_fit" title="psf.log_normal_fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">log_normal_fit</span></code></a>(d50, d_max[, sigma])</p></td>
+<td><p>Return d_50 and sigma for the log-normal distribution</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../autodoc/psd/psf.de_max_oil.html#psf.de_max_oil" title="psf.de_max_oil"><code class="xref py py-obj docutils literal notranslate"><span class="pre">de_max_oil</span></code></a>(rho_p, sigma, rho)</p></td>
+<td><p>Calculate the maximum stable oil droplet size</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../autodoc/psd/psf.grace.html#psf.grace" title="psf.grace"><code class="xref py py-obj docutils literal notranslate"><span class="pre">grace</span></code></a>(rho_c, rho_d, mu_c, mu_d, sigma[, fp_type])</p></td>
+<td><p>Implement the Grace et al.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../autodoc/psd/psf.sintef.html#psf.sintef" title="psf.sintef"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sintef</span></code></a>(d0, m_gas, rho_gas, m_oil, rho_oil, …)</p></td>
+<td><p>Compute characteristic values for jet breakup</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../autodoc/psd/psf.li_etal.html#psf.li_etal" title="psf.li_etal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">li_etal</span></code></a>(d0, m_gas, rho_gas, m_oil, rho_oil, …)</p></td>
+<td><p>Compute characteristic values for jet breakup</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../autodoc/psd/psf.wang_etal.html#psf.wang_etal" title="psf.wang_etal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wang_etal</span></code></a>(d0, m_g, rho_g, mu_g, sigma_g, rho, mu)</p></td>
+<td><p>Compute characteristic values for gas jet breakup</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Texas A&M Oil spill / Outfall Calculator</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../user_manual.html">TAMOC User Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../unit_tests.html">Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../bugs.html">Reporting Bugs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../readme.html">Read Me File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../user_manual.html">TAMOC User Manual</a><ul>
+      <li>Previous: <a href="../autodoc/sintef/sintef.rosin_rammler.html" title="previous chapter">sintef.rosin_rammler</a></li>
+      <li>Next: <a href="../autodoc/psd/particle_size_models.ModelBase.html" title="next chapter">particle_size_models.ModelBase</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/modules/particle_size_models.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

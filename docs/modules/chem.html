@@ -1,131 +1,81 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Overview of Chemical Properties &#8212; Texas A&amp;M Oilspill Calculator v1.1 Manual</title>
-    <link rel="stylesheet" href="../_static/scipy.css" type="text/css" />
+    <meta charset="utf-8" />
+    <title>Overview of Chemical Properties &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '1.1.1',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="chemical_properties.load_data" href="../chem/chemical_properties.load_data.html" />
-    <link rel="prev" title="seawater.cp" href="../seawater/seawater.cp.html" />
+    <link rel="next" title="Sources of Data in BioData.csv" href="bio_data.html" />
+    <link rel="prev" title="ambient.convert_units" href="../autodoc/ambient/ambient.convert_units.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head>
-  <body>
+  </head><body>
   
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
   <div class="section" id="overview-of-chemical-properties">
 <h1>Overview of Chemical Properties<a class="headerlink" href="#overview-of-chemical-properties" title="Permalink to this headline">¶</a></h1>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">1.1</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">Nov 08, 2017</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Release</dt>
+<dd class="field-odd"><p>2.0</p>
+</dd>
+<dt class="field-even">Date</dt>
+<dd class="field-even"><p>Mar 19, 2020</p>
+</dd>
+</dl>
 <span class="target" id="module-chemical_properties"></span><div class="section" id="chemical-properties-script">
 <h2>Chemical Properties Script<a class="headerlink" href="#chemical-properties-script" title="Permalink to this headline">¶</a></h2>
 <p>Create a dictionary of chemical properties</p>
-<p>This script creates a dictionary of the properties of several hydrocarbons and
-chemicals of environmental interest in a global dictionary for use by other
-programs that need to know chemical properties.</p>
+<p>This script provides tools to create a dictionary of the properties of
+several hydrocarbons and chemicals of environmental interest in a global
+dictionary for use by other programs that need to know chemical properties.</p>
 <div class="section" id="parameters">
 <h3>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></h3>
-<p>The chemical data are stored in <code class="docutils literal"><span class="pre">./data/ChemData.csv</span></code>. Header rows are 
-denoted by <em class="xref py py-obj">%, the last row of pure text is taken as the variable names and
-the last row with `()</em> is taken as the units.  The columns should include
-a key name (e.g., <em class="xref py py-obj">methane</em>), the molecular weight, critical point pressure, 
-critical point temperature, critical point molar volumne, boiling point 
-temperature, molar volume at the boiling point, acentric factor, Henry’s
-law constant at 298.15 K, negative of the enthalpy of dilution, parameters
-<em class="xref py py-obj">B</em> and <em class="xref py py-obj">dE</em> of the diffusivity model (no longer used), and the Setschenow 
-salting out correction constant.  For unknown parameter values, use -9999.</p>
+<p>The chemical data are stored in <code class="docutils literal notranslate"><span class="pre">./data/ChemData.csv</span></code> and the
+biodegradation data are stored in <code class="docutils literal notranslate"><span class="pre">./data/BioData.csv</span></code>. In these files,
+header rows are denoted by <code class="docutils literal notranslate"><span class="pre">%</span></code>, the last row of pure text is taken as the
+variable names, and the last row with <code class="docutils literal notranslate"><span class="pre">()</span></code> is taken as the units. The
+columns should include a key name (e.g., <cite>methane</cite>) followed by numerical
+values for each parameter in the file.</p>
 <p>For the data provided by the model, the data sources and more details are
-documented in the file <code class="docutils literal"><span class="pre">../docs/ChemData_ReadMe.txt</span></code>.</p>
-<p>This module can read in any number of columns of chemical data, including
-parameters not listed below.  Units will be converted to standard SI units, 
-and the conversion function will operate on g/mol, psia, F, mol/dm^3 atm, 
-mm^2/s, cal/mol.  The returned variables <em class="xref py py-obj">units</em> will contain the final
-set of units for the database.  To use the TAMOC suite of models, all 
-parameters listed below in the <em class="xref py py-obj">data</em> dictionary must be provided with the
-variable names listed.</p>
-</div>
-<div class="section" id="returns">
-<h3>Returns<a class="headerlink" href="#returns" title="Permalink to this headline">¶</a></h3>
-<dl class="docutils">
-<dt>data <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
-<dd><p class="first">a nested dictionary containing the chemical name as the first key 
-and the following list of secondary keys matched with the numerical
-value of each variable:</p>
-<blockquote class="last">
-<div>M : molecular weight (kg/mol)
-Pc : pressure at the critical point (Pa)
-Tc : temperature at the critical point (K)
-Vc : molar volume at the critical point (m^3/mol)
-Tb : boiling point (K)
-Vb : molar volume at the boiling point (m^3/mol)
-omega : acentric factor (–)
-kh_0 : Henry’s law constant at 298.15 K (kg/(m^3 Pa))
--dH_solR : negative of the enthalpy of solution / R (K)
-nu_bar : specific volume at infinite dilution (m^3/mol)
-B : diffusivity model coefficient (m^2/s)
-dE : diffusivity model coefficient (J/mol)
-K_salt : Setschenow salting out correction for solubility (m^3/mol)</div></blockquote>
-</dd>
-<dt>units <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
-<dd>dictionary with the same keys as the variables names listed above 
-(e.g., M, Pc, Tc, etc.) linked to a string containing the units of 
-each variable.</dd>
-</dl>
+documented in the documentation (see ./docs/index.html).</p>
 </div>
 <div class="section" id="notes">
 <h3>Notes<a class="headerlink" href="#notes" title="Permalink to this headline">¶</a></h3>
-<p>To use the properties database distributed by TAMOC, simply import this 
-file in Python:  the results will be returned in <em class="xref py py-obj">chemical_properties.data</em>.
-To import a user-defined database of properties, use the function 
-<code class="docutils literal"><span class="pre">load_data</span></code> provided in this module.  The <code class="docutils literal"><span class="pre">TAMOC</span></code> suite of models will
-pull data from both the default and any user-specified database, giving
-first priority to parameter keys found in the user-specified database.</p>
+<p>To use the properties database distributed by <code class="docutils literal notranslate"><span class="pre">TAMOC</span></code>, you must import this
+module and then use the <cite>tamoc_data()</cite> method, which reads the databases
+distributed with <code class="docutils literal notranslate"><span class="pre">TAMOC</span></code>.</p>
 </div>
 <div class="section" id="see-also">
 <h3>See also<a class="headerlink" href="#see-also" title="Permalink to this headline">¶</a></h3>
-<p><a class="reference internal" href="dbm.html#module-dbm" title="dbm"><code class="xref py py-obj docutils literal"><span class="pre">dbm</span></code></a> : Uses these dictionaries to create chemical mixture objects.</p>
+<p><cite>dbm</cite> : Uses these dictionaries to create chemical mixture objects.</p>
 </div>
 <div class="section" id="examples">
 <h3>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">tamoc</span> <span class="k">import</span> <span class="n">chemical_properties</span> <span class="k">as</span> <span class="n">chem</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">chem</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;oxygen&#39;</span><span class="p">][</span><span class="s1">&#39;M&#39;</span><span class="p">]</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">tamoc</span> <span class="kn">import</span> <span class="n">chemical_properties</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">chem_db</span><span class="p">,</span> <span class="n">chem_units</span><span class="p">,</span> <span class="n">bio_db</span><span class="p">,</span> <span class="n">bio_units</span> <span class="o">=</span> <span class="n">chemical_properties</span><span class="o">.</span><span class="n">tamoc_data</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">chem_db</span><span class="p">[</span><span class="s1">&#39;oxygen&#39;</span><span class="p">][</span><span class="s1">&#39;M&#39;</span><span class="p">]</span>
 <span class="go">0.031998800000000001</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">chem</span><span class="o">.</span><span class="n">units</span><span class="p">[</span><span class="s1">&#39;M&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">chem_units</span><span class="p">[</span><span class="s1">&#39;M&#39;</span><span class="p">]</span>
 <span class="go">&#39;(kg/mol)&#39;</span>
 </pre></div>
 </div>
@@ -133,105 +83,110 @@ first priority to parameter keys found in the user-specified database.</p>
 </div>
 <div class="section" id="module-functions">
 <h2>Module Functions<a class="headerlink" href="#module-functions" title="Permalink to this headline">¶</a></h2>
-<table border="1" class="longtable docutils">
+<table class="longtable docutils align-default">
 <colgroup>
-<col width="10%" />
-<col width="90%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="../chem/chemical_properties.load_data.html#chemical_properties.load_data" title="chemical_properties.load_data"><code class="xref py py-obj docutils literal"><span class="pre">load_data</span></code></a>(fname)</td>
-<td>Load a chemical properties file into memory</td>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../autodoc/chem/chemical_properties.load_data.html#chemical_properties.load_data" title="chemical_properties.load_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_data</span></code></a>(fname)</p></td>
+<td><p>Load a chemical properties file into memory</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="input-data-documentation">
 <h2>Input Data Documentation<a class="headerlink" href="#input-data-documentation" title="Permalink to this headline">¶</a></h2>
-<p>This script loads the chemical properties database into the name space.  If
-the import command is:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">chemical_properties</span>
+<p>This script provides tools to load the chemical and biological properties data. The main method that should be used is <code class="docutils literal notranslate"><span class="pre">tamoc_data()</span></code>.  For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tamoc</span> <span class="kn">import</span> <span class="n">chemical_properties</span>
+<span class="n">chem_db</span><span class="p">,</span> <span class="n">chem_units</span><span class="p">,</span> <span class="n">bio_db</span><span class="p">,</span> <span class="n">bio_units</span> <span class="o">=</span> <span class="n">chemical_properties</span><span class="o">.</span><span class="n">tamoc_data</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>then the database is in the <code class="docutils literal"><span class="pre">chemical_properties</span></code> namespace.  The <code class="docutils literal"><span class="pre">TAMOC</span></code>
-package usually imports using:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">chemical_properties</span> <span class="k">as</span> <span class="nn">chem</span>
+<p>then, the chemical and biological data and units are stored in their
+respective dictionaries.</p>
+<p>The data loaded into these namespaces are stored in the files:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">data</span><span class="o">/</span><span class="n">ChemData</span><span class="o">.</span><span class="n">csv</span>
+<span class="o">./</span><span class="n">data</span><span class="o">/</span><span class="n">BioData</span><span class="o">.</span><span class="n">csv</span>
 </pre></div>
 </div>
-<p>so that the database is in the <code class="docutils literal"><span class="pre">chem</span></code> namespace.</p>
-<p>The data loaded into these namespaces is stored in the file:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">data</span><span class="o">/</span><span class="n">ChemData</span><span class="o">.</span><span class="n">csv</span>
-</pre></div>
+<p>The format for these data is described in</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="chem_data.html">Sources of Data in ChemData.csv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bio_data.html">Sources of Data in BioData.csv</a></li>
+</ul>
 </div>
-<p>The format for these data is described in <a class="reference internal" href="../chem/ChemData_ReadMe.html"><span class="doc">Sources of Data in ChemData.csv</span></a></p>
 </div>
 </div>
 
 
           </div>
+          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-            <p class="logo"><a href="../contents.html">
-              <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
-            </a></p>
-  <h3><a href="../contents.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">Overview of Chemical Properties</a><ul>
-<li><a class="reference internal" href="#chemical-properties-script">Chemical Properties Script</a><ul>
-<li><a class="reference internal" href="#parameters">Parameters</a></li>
-<li><a class="reference internal" href="#returns">Returns</a></li>
-<li><a class="reference internal" href="#notes">Notes</a></li>
-<li><a class="reference internal" href="#see-also">See also</a></li>
-<li><a class="reference internal" href="#examples">Examples</a></li>
+<h1 class="logo"><a href="../index.html">Texas A&M Oil spill / Outfall Calculator</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../user_manual.html">TAMOC User Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../unit_tests.html">Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
 </ul>
-</li>
-<li><a class="reference internal" href="#module-functions">Module Functions</a></li>
-<li><a class="reference internal" href="#input-data-documentation">Input Data Documentation</a></li>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../bugs.html">Reporting Bugs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../readme.html">Read Me File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
 </ul>
-</li>
-</ul>
+
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
-  <li><a href="../contents.html">Documentation overview</a><ul>
-      <li>Previous: <a href="../seawater/seawater.cp.html" title="previous chapter">seawater.cp</a></li>
-      <li>Next: <a href="../chem/chemical_properties.load_data.html" title="next chapter">chemical_properties.load_data</a></li>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../user_manual.html">TAMOC User Manual</a><ul>
+      <li>Previous: <a href="../autodoc/ambient/ambient.convert_units.html" title="previous chapter">ambient.convert_units</a></li>
+      <li>Next: <a href="bio_data.html" title="next chapter">Sources of Data in BioData.csv</a></li>
+  </ul></li>
   </ul></li>
 </ul>
 </div>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="../_sources/modules/chem.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<ul class="this-page-menu">
-  <li><a href="/numpy/docs/numpy-docs/modules/chem.rst.rst">Edit page</a></li>
-</ul>
-
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
     </form>
+    </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
 
         </div>
       </div>
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2015, Scott A. Socolofsky.
+      &copy;2020, Scott A. Socolofsky.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
       <a href="../_sources/modules/chem.rst.txt"

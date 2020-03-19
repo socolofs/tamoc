@@ -15,27 +15,29 @@ Module Functions
 .. currentmodule:: chemical_properties
 
 .. autosummary::
-   :toctree: ../chem
+   :toctree: ../autodoc/chem
 
    load_data
 
 Input Data Documentation
 ========================
 
-This script loads the chemical properties database into the name space.  If
-the import command is::
+This script provides tools to load the chemical and biological properties data. The main method that should be used is ``tamoc_data()``.  For example::
 
-   import chemical_properties
+   from tamoc import chemical_properties
+   chem_db, chem_units, bio_db, bio_units = chemical_properties.tamoc_data()
 
-then the database is in the ``chemical_properties`` namespace.  The ``TAMOC``
-package usually imports using::
+then, the chemical and biological data and units are stored in their 
+respective dictionaries.
 
-   import chemical_properties as chem
-
-so that the database is in the ``chem`` namespace.  
-
-The data loaded into these namespaces is stored in the file::
+The data loaded into these namespaces are stored in the files::
 
    ./data/ChemData.csv
+   ./data/BioData.csv
 
-The format for these data is described in :doc:`../chem/ChemData_ReadMe`
+The format for these data is described in 
+
+.. toctree::
+   
+   chem_data
+   bio_data

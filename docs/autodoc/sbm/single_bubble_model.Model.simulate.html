@@ -1,0 +1,185 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>single_bubble_model.Model.simulate &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="single_bubble_model.ModelParams" href="single_bubble_model.ModelParams.html" />
+    <link rel="prev" title="single_bubble_model.Model.save_txt" href="single_bubble_model.Model.save_txt.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="single-bubble-model-model-simulate">
+<h1>single_bubble_model.Model.simulate<a class="headerlink" href="#single-bubble-model-model-simulate" title="Permalink to this headline">¶</a></h1>
+<dl class="method">
+<dt id="single_bubble_model.Model.simulate">
+<code class="sig-prename descclassname">Model.</code><code class="sig-name descname">simulate</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">particle</em>, <em class="sig-param">X0</em>, <em class="sig-param">de</em>, <em class="sig-param">yk</em>, <em class="sig-param">T0=None</em>, <em class="sig-param">K=1.0</em>, <em class="sig-param">K_T=1.0</em>, <em class="sig-param">fdis=1e-06</em>, <em class="sig-param">t_hyd=0.0</em>, <em class="sig-param">lag_time=True</em>, <em class="sig-param">delta_t=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/single_bubble_model.html#Model.simulate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#single_bubble_model.Model.simulate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simulate the trajectory of a particle from given initial conditions</p>
+<p>Simulate the trajectory of a particle (bubble, droplet or solid 
+particle) until the particle dissolves or until it reaches the free
+surface.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>particle</strong><span class="classifier"><cite>dbm.FluidParticle</cite> or <cite>dbm.InsolubleParticle</cite> object</span></dt><dd><p>Object describing the properties and behavior of the particle.</p>
+</dd>
+<dt><strong>X0</strong><span class="classifier">float or ndarray</span></dt><dd><p>The release localtion (x0, y0, z0) depth (m) of the particle in 
+the simulation.  If float, x0 = y0 = 0 is assumed.</p>
+</dd>
+<dt><strong>de</strong><span class="classifier">float</span></dt><dd><p>Initial diameter of the particle (m)</p>
+</dd>
+<dt><strong>yk</strong><span class="classifier">ndarray</span></dt><dd><p>Initial mole fractions of each component in the particle (–)</p>
+</dd>
+<dt><strong>T0</strong><span class="classifier">float, optional</span></dt><dd><p>Initial temperature (K) of the particle at release if not equal 
+to the temperature of the surrounding fluid.  If omitted, the 
+model will set T0 to the ambient temperature.</p>
+</dd>
+<dt><strong>K</strong><span class="classifier">float, default = 1.</span></dt><dd><p>Mass transfer reduction factor (–). Pre-multiplies the mass 
+transfer coefficients providing amplification (&gt;1) or retardation 
+(&lt;1) of the dissolution.</p>
+</dd>
+<dt><strong>K_T</strong><span class="classifier">float, default = 1.</span></dt><dd><p>Heat transfer reduction factor (–). Pre-multiplies the heat 
+transfer coefficient providing amplification (&gt;1) or retardation 
+(&lt;1) of the heat flux.</p>
+</dd>
+<dt><strong>fdis</strong><span class="classifier">float, default = 1.e-6</span></dt><dd><p>Fraction of the initial total mass remaining (–) for each 
+component in the particle when the particle should be considered 
+dissolved.</p>
+</dd>
+<dt><strong>t_hyd</strong><span class="classifier">float, default = 0.</span></dt><dd><p>Hydrate film formation time (s).  Mass transfer is computed by clean
+bubble methods for t less than t_hyd and by dirty bubble methods
+thereafter.  The default behavior is to assume the particle is dirty
+or hydrate covered from the release.</p>
+</dd>
+<dt><strong>lag_time</strong><span class="classifier">bool, default = True</span></dt><dd><p>flag indicating whether the biodegradation rates should include
+a lag time (True) or not (False).  Default value is True.</p>
+</dd>
+<dt><strong>delta_t</strong><span class="classifier">float, default = 0.1 s</span></dt><dd><p>Maximum time step to use (s) in the simulation.  The ODE solver
+in <cite>calculate_path</cite> is set up with adaptive step size integration, 
+so in theory this value determines the largest step size in the 
+output data, but not the numerical stability of the calculation.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="single_bubble_model.Model.post_process.html#single_bubble_model.Model.post_process" title="single_bubble_model.Model.post_process"><code class="xref py py-obj docutils literal notranslate"><span class="pre">post_process</span></code></a>, <a class="reference internal" href="single_bubble_model.calculate_path.html#single_bubble_model.calculate_path" title="single_bubble_model.calculate_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_path</span></code></a>, <a class="reference internal" href="single_bubble_model.plot_state_space.html#single_bubble_model.plot_state_space" title="single_bubble_model.plot_state_space"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_state_space</span></code></a></dt><dd></dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>This method fills the object attributes <cite>particle</cite>, <cite>t</cite> and <cite>y</cite> 
+following successful simulation of the particle trajectory.  It also
+stores all the input variables as object attributes that do not
+change during simulation.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Texas A&M Oil spill / Outfall Calculator</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../user_manual.html">TAMOC User Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../unit_tests.html">Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../bugs.html">Reporting Bugs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html">Read Me File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../../user_manual.html">TAMOC User Manual</a><ul>
+  <li><a href="../../modules/sbm.html">Overview of Single Bubble Model Module</a><ul>
+  <li><a href="single_bubble_model.Model.html">single_bubble_model.Model</a><ul>
+      <li>Previous: <a href="single_bubble_model.Model.save_txt.html" title="previous chapter">single_bubble_model.Model.save_txt</a></li>
+      <li>Next: <a href="single_bubble_model.ModelParams.html" title="next chapter">single_bubble_model.ModelParams</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../_sources/autodoc/sbm/single_bubble_model.Model.simulate.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

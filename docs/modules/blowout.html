@@ -1,0 +1,235 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Overview of Blowout Module &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="blowout.Blowout" href="../autodoc/blowout/blowout.Blowout.html" />
+    <link rel="prev" title="model_share.profile_from_model_savefile" href="../autodoc/model_share/model_share.profile_from_model_savefile.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="overview-of-blowout-module">
+<h1>Overview of Blowout Module<a class="headerlink" href="#overview-of-blowout-module" title="Permalink to this headline">¶</a></h1>
+<dl class="field-list simple">
+<dt class="field-odd">Release</dt>
+<dd class="field-odd"><p>2.0</p>
+</dd>
+<dt class="field-even">Date</dt>
+<dd class="field-even"><p>Mar 19, 2020</p>
+</dd>
+</dl>
+<span class="target" id="module-blowout"></span><div class="section" id="blowout-module">
+<h2>Blowout Module<a class="headerlink" href="#blowout-module" title="Permalink to this headline">¶</a></h2>
+<p>This module provides a <cite>Blowout</cite> object to make creation of oil well blowout
+scenarios using the <cite>bent_plume_model</cite> simple. In particular, this object
+helps coordinate creation of the <cite>ambient.Profile</cite> data and the blowout
+initial conditions, including generation of the bubble and droplet size
+distributions. This module relies on the <cite>dbm_utilities</cite> module to do things
+like mixing natural gas into a dead oil to create a live oil, etc. and uses
+the <cite>particle_size_models</cite> to generate bubbles and droplets.</p>
+<div class="section" id="see-also">
+<h3>See Also<a class="headerlink" href="#see-also" title="Permalink to this headline">¶</a></h3>
+<p>bent_plume_model, dbm, dbm_utilities, particle_size_models</p>
+</div>
+<div class="section" id="notes">
+<h3>Notes<a class="headerlink" href="#notes" title="Permalink to this headline">¶</a></h3>
+<p>This module provides the option to obtain oil properties from distillation
+cut data available from the National Oceanic and Atmospheric Administration
+(NOAA) Oil Library. To make use of this capability, you will need to install
+the OilLibrary package into your Python environment. You may access this
+package here:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">NOAA</span><span class="o">-</span><span class="n">ORR</span><span class="o">-</span><span class="n">ERD</span><span class="o">/</span><span class="n">OilLibrary</span>
+</pre></div>
+</div>
+<p>Once this package is installed, you may load an oil into a <cite>dbm</cite> fluid object
+using the Adios ID Number (e.g., AD01554) index of the OilLibrary.</p>
+</div>
+</div>
+<div class="section" id="class-objects-and-methods">
+<h2>Class Objects and Methods<a class="headerlink" href="#class-objects-and-methods" title="Permalink to this headline">¶</a></h2>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../autodoc/blowout/blowout.Blowout.html#blowout.Blowout" title="blowout.Blowout"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Blowout</span></code></a>([z0, d0, substance, q_oil, gor, x0, …])</p></td>
+<td><p>Class to facilitiate creating simulations using the  <cite>bent_plume_model</cite></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../autodoc/blowout/blowout.Blowout.simulate.html#blowout.Blowout.simulate" title="blowout.Blowout.simulate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Blowout.simulate</span></code></a>(self)</p></td>
+<td><p>Run a bent_plume_model simulation for the present conditions</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../autodoc/blowout/blowout.Blowout.plot_state_space.html#blowout.Blowout.plot_state_space" title="blowout.Blowout.plot_state_space"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Blowout.plot_state_space</span></code></a>(self[, fignum])</p></td>
+<td><p>Plot the <cite>bent_plume_model</cite> state space solution</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../autodoc/blowout/blowout.Blowout.plot_all_variables.html#blowout.Blowout.plot_all_variables" title="blowout.Blowout.plot_all_variables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Blowout.plot_all_variables</span></code></a>(self[, fignum])</p></td>
+<td><p>Plot all variables for the <cite>bent_plume_model</cite> solution</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../autodoc/blowout/blowout.Blowout.update_release_depth.html#blowout.Blowout.update_release_depth" title="blowout.Blowout.update_release_depth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Blowout.update_release_depth</span></code></a>(self, z0)</p></td>
+<td><p>Change the release depth (m) to use in a model simulation</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../autodoc/blowout/blowout.Blowout.update_orifice_diameter.html#blowout.Blowout.update_orifice_diameter" title="blowout.Blowout.update_orifice_diameter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Blowout.update_orifice_diameter</span></code></a>(self, d0)</p></td>
+<td><p>Change the orifice diametr (m) to use in a model simulation</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../autodoc/blowout/blowout.Blowout.update_substance.html#blowout.Blowout.update_substance" title="blowout.Blowout.update_substance"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Blowout.update_substance</span></code></a>(self, substance)</p></td>
+<td><p>Change the OilLibrary ID number to use in a model simulation</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../autodoc/blowout/blowout.Blowout.update_q_oil.html#blowout.Blowout.update_q_oil" title="blowout.Blowout.update_q_oil"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Blowout.update_q_oil</span></code></a>(self, q_oil)</p></td>
+<td><p>Change the oil flow rate (bbl/d) to use in a model simulation</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../autodoc/blowout/blowout.Blowout.update_gor.html#blowout.Blowout.update_gor" title="blowout.Blowout.update_gor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Blowout.update_gor</span></code></a>(self, gor)</p></td>
+<td><p>Change the gas-to-oil ratio (std ft^3/bbl) to use in a model  simulation</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../autodoc/blowout/blowout.Blowout.update_produced_water.html#blowout.Blowout.update_produced_water" title="blowout.Blowout.update_produced_water"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Blowout.update_produced_water</span></code></a>(self, u0)</p></td>
+<td><p>Change the amount of produced water (m/s) exiting with the oil and  gas through the orifice</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../autodoc/blowout/blowout.Blowout.update_vertical_orientation.html#blowout.Blowout.update_vertical_orientation" title="blowout.Blowout.update_vertical_orientation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Blowout.update_vertical_orientation</span></code></a>(self, phi_0)</p></td>
+<td><p>Change the vertical orientation (rad) of the release</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../autodoc/blowout/blowout.Blowout.update_horizontal_orientation.html#blowout.Blowout.update_horizontal_orientation" title="blowout.Blowout.update_horizontal_orientation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Blowout.update_horizontal_orientation</span></code></a>(self, …)</p></td>
+<td><p>Change the horizontal orientation (rad) of the release</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../autodoc/blowout/blowout.Blowout.update_num_gas_elements.html#blowout.Blowout.update_num_gas_elements" title="blowout.Blowout.update_num_gas_elements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Blowout.update_num_gas_elements</span></code></a>(self, …)</p></td>
+<td><p>Change the number of gas bubbles to include in the simulation</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../autodoc/blowout/blowout.Blowout.update_num_oil_elements.html#blowout.Blowout.update_num_oil_elements" title="blowout.Blowout.update_num_oil_elements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Blowout.update_num_oil_elements</span></code></a>(self, …)</p></td>
+<td><p>Change the number of oil droplets to include in the simulation</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../autodoc/blowout/blowout.Blowout.update_water_data.html#blowout.Blowout.update_water_data" title="blowout.Blowout.update_water_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Blowout.update_water_data</span></code></a>(self, water)</p></td>
+<td><p>Change the ambient temperature and salinity profile data</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../autodoc/blowout/blowout.Blowout.update_current_data.html#blowout.Blowout.update_current_data" title="blowout.Blowout.update_current_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Blowout.update_current_data</span></code></a>(self, current)</p></td>
+<td><p>Change the ambient current profile data</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="module-functions">
+<h2>Module Functions<a class="headerlink" href="#module-functions" title="Permalink to this headline">¶</a></h2>
+<p>The blowout object uses a few utility functions, as listed below:</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../autodoc/blowout/blowout.particles.html#blowout.particles" title="blowout.particles"><code class="xref py py-obj docutils literal notranslate"><span class="pre">particles</span></code></a>(m_tot, d, vf, profile, oil, yk, …)</p></td>
+<td><p>Create particles to add to a bent plume model simulation</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../autodoc/blowout/blowout.get_ambient_profile.html#blowout.get_ambient_profile" title="blowout.get_ambient_profile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_ambient_profile</span></code></a>(water, current, \*\*kwargs)</p></td>
+<td><p>Create an <cite>ambient.Profile</cite> object from the given ambient data</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../autodoc/blowout/blowout.get_ctd_from_txt.html#blowout.get_ctd_from_txt" title="blowout.get_ctd_from_txt"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_ctd_from_txt</span></code></a>(fname, summary, source, …)</p></td>
+<td><p>Create an ambient.Profile object from a text file of ocean property data</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../autodoc/blowout/blowout.create_ambient_profile.html#blowout.create_ambient_profile" title="blowout.create_ambient_profile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_ambient_profile</span></code></a>(data, labels, units, …)</p></td>
+<td><p>Create an ambient Profile object from given data</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Texas A&M Oil spill / Outfall Calculator</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../user_manual.html">TAMOC User Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../unit_tests.html">Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../bugs.html">Reporting Bugs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../readme.html">Read Me File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../user_manual.html">TAMOC User Manual</a><ul>
+      <li>Previous: <a href="../autodoc/model_share/model_share.profile_from_model_savefile.html" title="previous chapter">model_share.profile_from_model_savefile</a></li>
+      <li>Next: <a href="../autodoc/blowout/blowout.Blowout.html" title="next chapter">blowout.Blowout</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/modules/blowout.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -9,45 +9,103 @@ Overview of Bent Plume Model Module
 
 .. automodule:: bent_plume_model
 
-Class Objects
-=============
 
-.. autoclass:: Model
+Class Objects and Methods
+=========================
 
-.. autoclass:: ModelParams
+The ``Model`` object is the main interface to the ``bent_plume_model``. Its
+definition and methods are as follows:
 
-.. autoclass:: Particle
+.. autosummary::
+   :toctree: ../autodoc/bpm
+   
+   Model
+   Model.simulate
+   Model.save_sim
+   Model.save_txt
+   Model.load_sim
+   Model.plot_state_space
+   Model.plot_all_variables
 
-.. autoclass:: LagElement
+All of the model parameters are contained in the ``ModelParams`` object. This
+object is described in the following:
+
+.. autosummary::
+   :toctree: ../autodoc/bpm
+   
+   ModelParams
+
+Because bent plume model particles need to be tracked and can leave the
+plume, they require extra capabilities compared to particles in the
+``dispersed_phases`` module. For this, we define the ``Particle`` object in
+the bent plume model module. It has the following definition and methods:
+
+.. autosummary::
+   :toctree: ../autodoc/bpm
+   
+   Particle
+   Particle.properties
+   Particle.diameter
+   Particle.biodegradation_rate
+   Particle.update
+   Particle.track
+   Particle.outside
+   Particle.run_sbm
+
+
+Local variables defined for each slice of the plume are stored in a
+``LagElement`` object. Its definition and methods are as follows:
+
+.. autosummary::
+   :toctree: ../autodoc/bpm
+   
+   LagElement
+   LagElement.update
 
 
 Module Functions
 ================
 
-.. autosummary::
-   :toctree: ../spm
+Utility Functions
+-----------------
 
+The bent plume model objects defined above use several utilities to perform
+their numerical tasks. These are generally not intended to be called directly
+by the user and are summarized below:
+
+.. autosummary::
+   :toctree: ../autodoc/bpm
+   
    plot_state_space
    plot_all_variables
    width_projection
 
-Module Functions in `lmp` 
-==========================
 
-The numerical work of the `bent_plume_model` is segregated into the `lmp`
-module to keep the numerical solution separate from the model interface. The
-functions contained in this module are detailed in the following.
+Numerical Model Functions
+-------------------------
+
+The main numerical modeling functions for the bent plume model are stored in
+the ``lmp`` module. These functions could be ported to Fortran or another
+language, but are not intended for the user to call directly. Instead, these
+are used by the objects defined above. The functions contained in the ``lmp``
+module are:
 
 .. currentmodule:: lmp
 
 .. autosummary::
-   :toctree: ../bpm
-
+   :toctree: ../autodoc/bpm
+   
    derivs
    calculate
+   correct_temperature
+   correct_particle_tracking
    entrainment
+   track_particles
    local_coords
    main_ic
    bent_plume_ic
    zfe_volume_flux
    flux_to_velocity
+   
+
+

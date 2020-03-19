@@ -1,0 +1,148 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>dispersed_phases.zfe_volume_flux &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="dispersed_phases.wuest_ic" href="dispersed_phases.wuest_ic.html" />
+    <link rel="prev" title="dispersed_phases.hydrate_formation_time" href="dispersed_phases.hydrate_formation_time.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="dispersed-phases-zfe-volume-flux">
+<h1>dispersed_phases.zfe_volume_flux<a class="headerlink" href="#dispersed-phases-zfe-volume-flux" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="dispersed_phases.zfe_volume_flux">
+<code class="sig-prename descclassname">dispersed_phases.</code><code class="sig-name descname">zfe_volume_flux</code><span class="sig-paren">(</span><em class="sig-param">profile</em>, <em class="sig-param">particles</em>, <em class="sig-param">p</em>, <em class="sig-param">X0</em>, <em class="sig-param">R</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/dispersed_phases.html#zfe_volume_flux"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dispersed_phases.zfe_volume_flux" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initial volume for a multiphase plume</p>
+<p>Uses the Wueest et al. (1992) plume Froude number method to estimate
+the amount of entrainment at the source of a dispersed phase plume with
+zero continuous phase flux (e.g., a pure bubble, droplet, or particle 
+plume)</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>profile</strong><span class="classifier"><cite>ambient.Profile</cite> object</span></dt><dd><p>The ambient CTD object used by the single bubble model simulation.</p>
+</dd>
+<dt><strong>particles</strong><span class="classifier">list of <cite>Particle</cite> objects</span></dt><dd><p>List of <cite>SingleParticle</cite>, <cite>PlumeParticle</cite>, or 
+<cite>bent_plume_model.Particle</cite> objects describing each dispersed phase 
+in the simulation</p>
+</dd>
+<dt><strong>p</strong><span class="classifier"><cite>stratified_plume_model.ModelParams</cite> or <cite>bent_plume_model.ModelParams</cite></span></dt><dd><p>Object containing the fixed model parameters for one of the integral 
+plume models</p>
+</dd>
+<dt><strong>X0</strong><span class="classifier">float</span></dt><dd><p>(x, y, depth) coordinates of the release point (m)</p>
+</dd>
+<dt><strong>R</strong><span class="classifier">float</span></dt><dd><p>Radius of the equivalent circular area of the release (m)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Texas A&M Oil spill / Outfall Calculator</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../user_manual.html">TAMOC User Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../unit_tests.html">Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../bugs.html">Reporting Bugs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html">Read Me File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../../user_manual.html">TAMOC User Manual</a><ul>
+  <li><a href="../../modules/disp_phases.html">Overview of Dispersed Phases Module</a><ul>
+      <li>Previous: <a href="dispersed_phases.hydrate_formation_time.html" title="previous chapter">dispersed_phases.hydrate_formation_time</a></li>
+      <li>Next: <a href="dispersed_phases.wuest_ic.html" title="next chapter">dispersed_phases.wuest_ic</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../_sources/autodoc/disp_phases/dispersed_phases.zfe_volume_flux.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

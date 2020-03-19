@@ -1,0 +1,181 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>smp.outer_cpic &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="smp.outer_fr" href="smp.outer_fr.html" />
+    <link rel="prev" title="smp.outer_dis" href="smp.outer_dis.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="smp-outer-cpic">
+<h1>smp.outer_cpic<a class="headerlink" href="#smp-outer-cpic" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="smp.outer_cpic">
+<code class="sig-prename descclassname">smp.</code><code class="sig-name descname">outer_cpic</code><span class="sig-paren">(</span><em class="sig-param">yi</em>, <em class="sig-param">yo</em>, <em class="sig-param">particles</em>, <em class="sig-param">profile</em>, <em class="sig-param">p</em>, <em class="sig-param">neighbor</em>, <em class="sig-param">z_0</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/smp.html#outer_cpic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#smp.outer_cpic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the initial condition for the outer plume at depth</p>
+<p>Computes the initial conditions for the an outer plume segment within the 
+reservoir body.  Part of the calculation determines whether or not the 
+computed initial condition has enough downward momentum to be viable as 
+an initial condition (e.g., whether or not it will be overwhelmed by the
+upward drag of the inner plume).</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>yi</strong><span class="classifier"><cite>stratified_plume_model.InnerPlume</cite> object</span></dt><dd><p>Object for manipulating the inner plume state space.</p>
+</dd>
+<dt><strong>yo</strong><span class="classifier"><cite>stratified_plume_model.OuterPlume</cite> object</span></dt><dd><p>Object for manipulating the outer plume state space.</p>
+</dd>
+<dt><strong>particles</strong><span class="classifier">list of <cite>Particle</cite> objects</span></dt><dd><p>List of <cite>Particle</cite> objects containing the dispersed phase local
+conditions and behavior.</p>
+</dd>
+<dt><strong>profile</strong><span class="classifier"><cite>ambient.Profile</cite> object</span></dt><dd><p>The ambient CTD object used by the simulation.</p>
+</dd>
+<dt><strong>p</strong><span class="classifier"><cite>ModelParams</cite> object</span></dt><dd><p>Object containing the fixed model parameters for the stratified 
+plume model.</p>
+</dd>
+<dt><strong>neighbor</strong><span class="classifier"><cite>scipy.interpolate.interp1d</cite> object</span></dt><dd><p>Container holding the latest solution for the inner plume state
+space.</p>
+</dd>
+<dt><strong>z_0</strong><span class="classifier">float</span></dt><dd><p>Top of the inner plume calculation (m).</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>z0</strong><span class="classifier">float</span></dt><dd><p>Initial depth of the outer plume segment (m).</p>
+</dd>
+<dt><strong>y0</strong><span class="classifier">ndarray</span></dt><dd><p>Initial dependent variables state space for the outer plume segment.</p>
+</dd>
+<dt><strong>flag</strong><span class="classifier">bool</span></dt><dd><p>Outer plume viability flag:  <cite>True</cite> means the outer plume segment is
+viable and should be integrated; <cite>False</cite> means the outer plume 
+segment is too weak and should be discarded, moving down the inner 
+plume to calculate the next outer plume initial condition.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The iteration required to find a viable outer plume segment is conducted 
+by the <cite>stratified_plume_model.outer_main</cite> function.  This function 
+computes the initial conditions for one attempt to find an outer plume
+segment and reports back (through <cite>flag</cite>) on the success.</p>
+<p>There is one caveat to the above statement.  The model parameter 
+<cite>p.nwidths</cite> determines the vertical scale over which this function may
+integrate to find the start to an outer plume, given as a integer number
+of times of the inner plume half-width.  This function starts by searching
+one half-width.  If <cite>p.nwidths</cite> is greater than one, it will continue to
+expand the search region.  The physical interpretation of <cite>p.nwidths</cite> is
+to set a reasonable upper bound on the diameter of eddies shed from the
+inner plume in the peeling region into the outer plume.  While the 
+integral model does not have “eddies” per se, the search window size 
+should still be representative of this type of length scale.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Texas A&M Oil spill / Outfall Calculator</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../user_manual.html">TAMOC User Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../unit_tests.html">Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../bugs.html">Reporting Bugs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html">Read Me File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../../user_manual.html">TAMOC User Manual</a><ul>
+  <li><a href="../../modules/spm.html">Overview of Stratified Plume Model Module</a><ul>
+      <li>Previous: <a href="smp.outer_dis.html" title="previous chapter">smp.outer_dis</a></li>
+      <li>Next: <a href="smp.outer_fr.html" title="next chapter">smp.outer_fr</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../_sources/autodoc/spm/smp.outer_cpic.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

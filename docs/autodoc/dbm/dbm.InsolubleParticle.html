@@ -1,0 +1,286 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>dbm.InsolubleParticle &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="dbm.InsolubleParticle.biodegradation_rate" href="dbm.InsolubleParticle.biodegradation_rate.html" />
+    <link rel="prev" title="dbm.FluidParticle.viscosity" href="dbm.FluidParticle.viscosity.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="dbm-insolubleparticle">
+<h1>dbm.InsolubleParticle<a class="headerlink" href="#dbm-insolubleparticle" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="dbm.InsolubleParticle">
+<em class="property">class </em><code class="sig-prename descclassname">dbm.</code><code class="sig-name descname">InsolubleParticle</code><span class="sig-paren">(</span><em class="sig-param">isfluid</em>, <em class="sig-param">iscompressible</em>, <em class="sig-param">rho_p=930.0</em>, <em class="sig-param">gamma=30.0</em>, <em class="sig-param">beta=0.0007</em>, <em class="sig-param">co=2.90075e-09</em>, <em class="sig-param">k_bio=0.0</em>, <em class="sig-param">t_bio=0.0</em>, <em class="sig-param">fp_type=1</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/dbm.html#InsolubleParticle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dbm.InsolubleParticle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class object for an insoluble (inert) fluid particle</p>
+<p>This object defines the behavior of an inert fluid particle.  The purpose
+of this class is to simulate particle that cannot be described by the 
+Peng-Robinson equation of state, such as sand, or that do not require
+such computational expense, such as dead oil.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>isfluid</strong><span class="classifier">logical</span></dt><dd><p><cite>True</cite> or <cite>False</cite>; states whether or not the inert particle could have 
+a mobile interface.  For example, choose <cite>True</cite> for oil and <cite>False</cite> 
+for sand.</p>
+</dd>
+<dt><strong>iscompressible</strong><span class="classifier">logical</span></dt><dd><p><cite>True</cite> or <cite>False</cite>; selects the equation of state for density.  <cite>True</cite> 
+uses the API gravity, isothermal compression and isobaric thermal 
+expansion; whereas, <cite>False</cite> returns the constant density specified at 
+instantiation.</p>
+</dd>
+<dt><strong>rho_p</strong><span class="classifier">float</span></dt><dd><p>particle density (default value is 930 kg/m^3)</p>
+</dd>
+<dt><strong>gamma</strong><span class="classifier">float</span></dt><dd><p>API gravity (default value is 30 deg API)</p>
+</dd>
+<dt><strong>beta</strong><span class="classifier">float</span></dt><dd><p>thermal expansion coefficient (default value is 0.0007 K^(-1))</p>
+</dd>
+<dt><strong>co</strong><span class="classifier">float</span></dt><dd><p>isothermal compressibility coefficient (default value is 
+2.90075e-9 Pa^(-1))</p>
+</dd>
+<dt><strong>k_bio</strong><span class="classifier">float</span></dt><dd><p>first-order biodegradation rate constant (1/s)</p>
+</dd>
+<dt><strong>t_bio</strong><span class="classifier">float</span></dt><dd><p>lag time before onset of first-order biodegradation (s)</p>
+</dd>
+<dt><strong>fp_type</strong><span class="classifier">integer</span></dt><dd><p>Defines the fluid type (0 = gas, 1 = liquid) that is expected to be 
+contained in the particle.  This is needed because the heat transfer
+equations are different for gas and liquid.  The default value is 1.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="dbm.FluidMixture.html#dbm.FluidMixture" title="dbm.FluidMixture"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FluidMixture</span></code></a>, <a class="reference internal" href="../../modules/chem.html#module-chemical_properties" title="chemical_properties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">chemical_properties</span></code></a>, <a class="reference internal" href="dbm.FluidParticle.html#dbm.FluidParticle" title="dbm.FluidParticle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FluidParticle</span></code></a></dt><dd></dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">oil</span> <span class="o">=</span> <span class="n">InsolubleParticle</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">T</span> <span class="o">=</span> <span class="mf">273.15</span> <span class="o">+</span> <span class="mf">30.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">P</span> <span class="o">=</span> <span class="mf">10.e5</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Sa</span> <span class="o">=</span> <span class="mf">35.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Ta</span> <span class="o">=</span> <span class="mf">273.15</span> <span class="o">+</span> <span class="mf">20.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">oil</span><span class="o">.</span><span class="n">mass_by_diameter</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">)</span>
+<span class="go">0.00045487710681354078</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">oil</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">)</span>
+<span class="go">868.75128058458085</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">oil</span><span class="o">.</span><span class="n">slip_velocity</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">)</span>
+<span class="go">0.14332887200025926</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>composition</strong><span class="classifier">string list</span></dt><dd><p>Set equal to [‘inert’]</p>
+</dd>
+<dt><strong>nc</strong><span class="classifier">integer</span></dt><dd><p>Number of components, set equal to 1</p>
+</dd>
+<dt><strong>issoluble</strong><span class="classifier">logical, False</span></dt><dd><p>Indicates the particle is not soluble</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="dbm.InsolubleParticle.biodegradation_rate.html#dbm.InsolubleParticle.biodegradation_rate" title="dbm.InsolubleParticle.biodegradation_rate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">biodegradation_rate</span></code></a>(self, t, lag_time)</p></td>
+<td><p>Determine the biodegradation rate constant</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="dbm.InsolubleParticle.density.html#dbm.InsolubleParticle.density" title="dbm.InsolubleParticle.density"><code class="xref py py-obj docutils literal notranslate"><span class="pre">density</span></code></a>(self, T, P, Sa, Ta)</p></td>
+<td><p>Compute the density (kg/m^3) of an inert fluid particle.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="dbm.InsolubleParticle.diameter.html#dbm.InsolubleParticle.diameter" title="dbm.InsolubleParticle.diameter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">diameter</span></code></a>(self, m, T, P, Sa, Ta)</p></td>
+<td><p>Compute the diameter (m) of an inert fluid particle of mass <cite>m</cite>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="dbm.InsolubleParticle.heat_transfer.html#dbm.InsolubleParticle.heat_transfer" title="dbm.InsolubleParticle.heat_transfer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">heat_transfer</span></code></a>(self, m, T, P, Sa, Ta[, status])</p></td>
+<td><p>Compute the heat transfer coefficients (m/s) for an inert fluid  particle.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="dbm.InsolubleParticle.interface_tension.html#dbm.InsolubleParticle.interface_tension" title="dbm.InsolubleParticle.interface_tension"><code class="xref py py-obj docutils literal notranslate"><span class="pre">interface_tension</span></code></a>(self, T)</p></td>
+<td><p>Computes the interfacial tension between the particle and water</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="dbm.InsolubleParticle.mass_by_diameter.html#dbm.InsolubleParticle.mass_by_diameter" title="dbm.InsolubleParticle.mass_by_diameter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mass_by_diameter</span></code></a>(self, de, T, P, Sa, Ta)</p></td>
+<td><p>Compute the mass (kg) of an inert fluid particle with equivalent  spherical diameter <cite>de</cite>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="dbm.InsolubleParticle.particle_shape.html#dbm.InsolubleParticle.particle_shape" title="dbm.InsolubleParticle.particle_shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">particle_shape</span></code></a>(self, m, T, P, Sa, Ta)</p></td>
+<td><p>Determine the shape of an inert fluid particle from the properties of  the particle and surrounding fluid.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="dbm.InsolubleParticle.return_all.html#dbm.InsolubleParticle.return_all" title="dbm.InsolubleParticle.return_all"><code class="xref py py-obj docutils literal notranslate"><span class="pre">return_all</span></code></a>(self, m, T, P, Sa, Ta[, status])</p></td>
+<td><p>Compute all of the dynamic properties of an inert fluid particle in  an efficient manner (e.g., minimizing replicate calls to functions).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="dbm.InsolubleParticle.slip_velocity.html#dbm.InsolubleParticle.slip_velocity" title="dbm.InsolubleParticle.slip_velocity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slip_velocity</span></code></a>(self, m, T, P, Sa, Ta[, status])</p></td>
+<td><p>Compute the slip velocity (m/s) of an inert fluid particle.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="dbm.InsolubleParticle.surface_area.html#dbm.InsolubleParticle.surface_area" title="dbm.InsolubleParticle.surface_area"><code class="xref py py-obj docutils literal notranslate"><span class="pre">surface_area</span></code></a>(self, m, T, P, Sa, Ta)</p></td>
+<td><p>Compute the surface area (m^2) of an inert fluid particle.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="dbm.InsolubleParticle.viscosity.html#dbm.InsolubleParticle.viscosity" title="dbm.InsolubleParticle.viscosity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viscosity</span></code></a>(self, T)</p></td>
+<td><p>Computes the dynamic viscosity of the liquid if applicable.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="dbm.InsolubleParticle.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">isfluid</em>, <em class="sig-param">iscompressible</em>, <em class="sig-param">rho_p=930.0</em>, <em class="sig-param">gamma=30.0</em>, <em class="sig-param">beta=0.0007</em>, <em class="sig-param">co=2.90075e-09</em>, <em class="sig-param">k_bio=0.0</em>, <em class="sig-param">t_bio=0.0</em>, <em class="sig-param">fp_type=1</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/dbm.html#InsolubleParticle.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dbm.InsolubleParticle.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dbm.InsolubleParticle.__init__" title="dbm.InsolubleParticle.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(self, isfluid, iscompressible[, …])</p></td>
+<td><p>Initialize self.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="dbm.InsolubleParticle.biodegradation_rate.html#dbm.InsolubleParticle.biodegradation_rate" title="dbm.InsolubleParticle.biodegradation_rate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">biodegradation_rate</span></code></a>(self, t, lag_time)</p></td>
+<td><p>Determine the biodegradation rate constant</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="dbm.InsolubleParticle.density.html#dbm.InsolubleParticle.density" title="dbm.InsolubleParticle.density"><code class="xref py py-obj docutils literal notranslate"><span class="pre">density</span></code></a>(self, T, P, Sa, Ta)</p></td>
+<td><p>Compute the density (kg/m^3) of an inert fluid particle.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="dbm.InsolubleParticle.diameter.html#dbm.InsolubleParticle.diameter" title="dbm.InsolubleParticle.diameter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">diameter</span></code></a>(self, m, T, P, Sa, Ta)</p></td>
+<td><p>Compute the diameter (m) of an inert fluid particle of mass <cite>m</cite>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="dbm.InsolubleParticle.heat_transfer.html#dbm.InsolubleParticle.heat_transfer" title="dbm.InsolubleParticle.heat_transfer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">heat_transfer</span></code></a>(self, m, T, P, Sa, Ta[, status])</p></td>
+<td><p>Compute the heat transfer coefficients (m/s) for an inert fluid  particle.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="dbm.InsolubleParticle.interface_tension.html#dbm.InsolubleParticle.interface_tension" title="dbm.InsolubleParticle.interface_tension"><code class="xref py py-obj docutils literal notranslate"><span class="pre">interface_tension</span></code></a>(self, T)</p></td>
+<td><p>Computes the interfacial tension between the particle and water</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="dbm.InsolubleParticle.mass_by_diameter.html#dbm.InsolubleParticle.mass_by_diameter" title="dbm.InsolubleParticle.mass_by_diameter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mass_by_diameter</span></code></a>(self, de, T, P, Sa, Ta)</p></td>
+<td><p>Compute the mass (kg) of an inert fluid particle with equivalent  spherical diameter <cite>de</cite>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="dbm.InsolubleParticle.particle_shape.html#dbm.InsolubleParticle.particle_shape" title="dbm.InsolubleParticle.particle_shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">particle_shape</span></code></a>(self, m, T, P, Sa, Ta)</p></td>
+<td><p>Determine the shape of an inert fluid particle from the properties of  the particle and surrounding fluid.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="dbm.InsolubleParticle.return_all.html#dbm.InsolubleParticle.return_all" title="dbm.InsolubleParticle.return_all"><code class="xref py py-obj docutils literal notranslate"><span class="pre">return_all</span></code></a>(self, m, T, P, Sa, Ta[, status])</p></td>
+<td><p>Compute all of the dynamic properties of an inert fluid particle in  an efficient manner (e.g., minimizing replicate calls to functions).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="dbm.InsolubleParticle.slip_velocity.html#dbm.InsolubleParticle.slip_velocity" title="dbm.InsolubleParticle.slip_velocity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slip_velocity</span></code></a>(self, m, T, P, Sa, Ta[, status])</p></td>
+<td><p>Compute the slip velocity (m/s) of an inert fluid particle.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="dbm.InsolubleParticle.surface_area.html#dbm.InsolubleParticle.surface_area" title="dbm.InsolubleParticle.surface_area"><code class="xref py py-obj docutils literal notranslate"><span class="pre">surface_area</span></code></a>(self, m, T, P, Sa, Ta)</p></td>
+<td><p>Compute the surface area (m^2) of an inert fluid particle.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="dbm.InsolubleParticle.viscosity.html#dbm.InsolubleParticle.viscosity" title="dbm.InsolubleParticle.viscosity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viscosity</span></code></a>(self, T)</p></td>
+<td><p>Computes the dynamic viscosity of the liquid if applicable.</p></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Texas A&M Oil spill / Outfall Calculator</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../user_manual.html">TAMOC User Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../unit_tests.html">Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../bugs.html">Reporting Bugs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html">Read Me File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../../user_manual.html">TAMOC User Manual</a><ul>
+  <li><a href="../../modules/dbm.html">Overview of the Discrete Bubble Model</a><ul>
+      <li>Previous: <a href="dbm.FluidParticle.viscosity.html" title="previous chapter">dbm.FluidParticle.viscosity</a></li>
+      <li>Next: <a href="dbm.InsolubleParticle.biodegradation_rate.html" title="next chapter">dbm.InsolubleParticle.biodegradation_rate</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../_sources/autodoc/dbm/dbm.InsolubleParticle.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,283 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Blowout Module User’s Guide &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="blowout_obj" href="../scripts/bpm/blowout_obj.html" />
+    <link rel="prev" title="crossflow_plume" href="../scripts/bpm/crossflow_plume.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="blowout-module-user-s-guide">
+<h1>Blowout Module User’s Guide<a class="headerlink" href="#blowout-module-user-s-guide" title="Permalink to this headline">¶</a></h1>
+<dl class="field-list simple">
+<dt class="field-odd">Release</dt>
+<dd class="field-odd"><p>2.0</p>
+</dd>
+<dt class="field-even">Date</dt>
+<dd class="field-even"><p>Mar 19, 2020</p>
+</dd>
+</dl>
+<div class="section" id="scripts">
+<h2>Scripts<a class="headerlink" href="#scripts" title="Permalink to this headline">¶</a></h2>
+<p>The class objects and method functions defined in the <cite>blowout</cite> module
+provide an intuitive interface to the <cite>bent_plume_model</cite>, largely replacing
+the need for complex scripting to handle cases similar to subsea accidental
+oil well blowout. The examples detailed below show how to set up and run
+simulations using the <cite>blowout.Blowout</cite> class. Further examples are presented
+in the following scripts distributed in the <code class="docutils literal notranslate"><span class="pre">./bin/bpm</span></code> directory with the
+source code.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../scripts/bpm/blowout_obj.html">blowout_obj</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p>This example demonstrates the tasks necessary to set up and run a subsea
+accidental oil well blowout using the <cite>blowout.Blowout</cite> class.  While this class does provide an interface to the National Oceanic and Atmospheric Administration (NOAA) Oil Library, in this example, we will restrict our usage to chemical properties distributed with <code class="docutils literal notranslate"><span class="pre">TAMOC</span></code>.  To use the NOAA Oil Library, install the OilLibrary package, available at:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">NOAA</span><span class="o">-</span><span class="n">ORR</span><span class="o">-</span><span class="n">ERD</span><span class="o">/</span><span class="n">OilLibrary</span>
+</pre></div>
+</div>
+<p>Then, in the follow example, set the <cite>substance</cite> variable to the Adios ID
+number of the oil you want to import from the Oil Library (e.g., ‘AD01554’).</p>
+<p>Before running these examples, be sure to install the <code class="docutils literal notranslate"><span class="pre">TAMOC</span></code> package and
+run all of the tests in the <code class="docutils literal notranslate"><span class="pre">./test</span></code> directory. The commands below should
+be executed in an IPython session. Start IPython by executing:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ipython</span> <span class="o">--</span><span class="n">pylab</span>
+</pre></div>
+</div>
+<p>at the command prompt.  The <code class="docutils literal notranslate"><span class="pre">--pylab</span></code> flag is needed to get the correct
+behavior of the output plots.  In iPython, we also import the <cite>blowout</cite> module:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">tamoc</span> <span class="kn">import</span> <span class="n">blowout</span>
+</pre></div>
+</div>
+<p>With these preliminaries completed, we are ready to work and example.</p>
+<div class="section" id="define-the-parameters-for-a-simulation">
+<h3>Define the Parameters for a Simulation<a class="headerlink" href="#define-the-parameters-for-a-simulation" title="Permalink to this headline">¶</a></h3>
+<p>In order to carefully define each of the parameters required to initialize a
+<cite>blowout.Blowout</cite> object, we will store the information in a set of
+variables. To begin, we define the water depth at the release and the
+equivalent spherical diameter of the release orifice:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">z0</span> <span class="o">=</span> <span class="mf">500.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">d0</span> <span class="o">=</span> <span class="mf">0.15</span>
+</pre></div>
+</div>
+<p>There are multiple options for defining the substance that is being spilled.
+Here, we will use the oil properties for components included in the <code class="docutils literal notranslate"><span class="pre">TAMOC</span></code>
+chemical properties database and define a simple light oil:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">composition</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;n-hexane&#39;</span><span class="p">,</span> <span class="s1">&#39;2-methylpentane&#39;</span><span class="p">,</span> <span class="s1">&#39;3-methylpentane&#39;</span><span class="p">,</span>
+<span class="go">                   &#39;neohexane&#39;, &#39;n-heptane&#39;, &#39;benzene&#39;, &#39;toluene&#39;,</span>
+<span class="go">                   &#39;ethylbenzene&#39;, &#39;n-decane&#39;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">masses</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.04</span><span class="p">,</span> <span class="mf">0.07</span><span class="p">,</span> <span class="mf">0.08</span><span class="p">,</span> <span class="mf">0.09</span><span class="p">,</span> <span class="mf">0.11</span><span class="p">,</span> <span class="mf">0.12</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.18</span><span class="p">,</span>
+<span class="go">                       0.16])</span>
+</pre></div>
+</div>
+<p>We pass this information to the <cite>blowout.Blowout</cite> class initializer in a
+Python dictionary with the following format:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">substance</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;composition&#39;</span> <span class="p">:</span> <span class="n">composition</span><span class="p">,</span>
+<span class="go">                 &#39;masses&#39; : masses}</span>
+</pre></div>
+</div>
+<p>Next, we define the oil and gas flow rate. Typically for an oil well, this is
+known in terms of the amount of dead oil and free gas produced at standard
+conditions. The oil flow rate is in stock barrels per day (bbl/d) and the gas
+flow rate is in standard cubic feet per stock barrel of oil (ft^3/bbl). Here,
+we will consider a flow rate of 20,000 bbl/d of oil with a gas-to-oil ratio
+(GOR) of 1000 ft^3/bbl:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">q_oil</span> <span class="o">=</span> <span class="mf">20000.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gor</span> <span class="o">=</span> <span class="mf">1000.</span>
+</pre></div>
+</div>
+<p>We can also specify the flow rate of produced water exiting with the oil and
+gas. In this case, we give the velocity of the water at the release. Here, we
+will set this to zero:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">u0</span> <span class="o">=</span> <span class="mf">0.</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">TAMOC</span></code> models work on a local Cartesian coordinate system. Normally,
+we set the <cite>x</cite>- and <cite>y</cite>-components of the release to (0,0). The orientation
+of the release in the <cite>bent_plume_model</cite> is defined in spherical coordinates
+with <cite>z</cite> positive down. Thus, a vertical release has <cite>phi</cite> equal to -pi/2. In
+the case of a vertical release, the horizontal angle can be arbitrary, hence,
+this is set here to zero:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x0</span> <span class="o">=</span> <span class="mf">0.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y0</span> <span class="o">=</span> <span class="mf">0.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">phi_0</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mf">2.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">theta_0</span> <span class="o">=</span> <span class="mf">0.</span>
+</pre></div>
+</div>
+<p>The <cite>Blowout.blowout</cite> class objects compute their bubble and droplet size
+distributions automatically using the <cite>particle_size_models</cite> module. Here, we
+only need to decide how many size classes we want for gas bubbles and oil
+droplets:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">num_gas_elements</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">num_oil_elements</span> <span class="o">=</span> <span class="mi">15</span>
+</pre></div>
+</div>
+<p>Finally, we have to provide the ambient CTD and current data to be used in
+the simulation. The <cite>blowout</cite> module provides significant flexibility in
+defining the profile information. Here, we will load the world-ocean average
+CTD data and specify a uniform current for lack of any more specific data. We
+can set these parameters as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">water</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># requests ``TAMOC`` to load the default data</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">current</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.07</span><span class="p">,</span> <span class="mf">0.12</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="initialize-and-run-a-blowout-simulation">
+<h3>Initialize and Run a Blowout Simulation<a class="headerlink" href="#initialize-and-run-a-blowout-simulation" title="Permalink to this headline">¶</a></h3>
+<p>With the above input parameters defined, we can initialize a
+<cite>blowout.Blowout</cite> object as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">spill</span> <span class="o">=</span> <span class="n">blowout</span><span class="o">.</span><span class="n">Blowout</span><span class="p">(</span><span class="n">z0</span><span class="p">,</span> <span class="n">d0</span><span class="p">,</span> <span class="n">substance</span><span class="p">,</span> <span class="n">q_oil</span><span class="p">,</span> <span class="n">gor</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">u0</span><span class="p">,</span>
+<span class="go">                            phi_0, theta_0, num_gas_elements,</span>
+<span class="go">                            num_oil_elements, water, current)</span>
+</pre></div>
+</div>
+<p>The well blowout scenario is now ready to run for the present set of
+conditions.  We run the simulation with:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">spill</span><span class="o">.</span><span class="n">simulate</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>To see the trajectory of the simulated result for the plume-part only, we can
+plot the state space:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">spill</span><span class="o">.</span><span class="n">plot_state_space</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We could also plot the full solution suite, which includes the trajectory of
+all particles that exited the plume:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">spill</span><span class="o">.</span><span class="n">plot_all_variables</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If we want to change something about the simulation, we should use the
+various <cite>update()</cite> methods. For example, we could change the flow rate and
+ambient currents using:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">spill</span><span class="o">.</span><span class="n">update_q_oil</span><span class="p">(</span><span class="mf">30000.</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spill</span><span class="o">.</span><span class="n">update_gor</span><span class="p">(</span><span class="mf">875.</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spill</span><span class="o">.</span><span class="n">update_current_data</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.11</span><span class="p">,</span> <span class="mf">0.06</span><span class="p">,</span> <span class="mf">0.</span><span class="p">]))</span>
+</pre></div>
+</div>
+<p>To see the results of the simulation for these new conditions, we re-run the
+simulation and then re-plot:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">spill</span><span class="o">.</span><span class="n">simulate</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spill</span><span class="o">.</span><span class="n">plot_state_space</span><span class="p">(</span><span class="mi">101</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spill</span><span class="o">.</span><span class="n">plot_all_variables</span><span class="p">(</span><span class="mi">110</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="example-using-the-oillibrary">
+<h3>Example using the OilLibrary<a class="headerlink" href="#example-using-the-oillibrary" title="Permalink to this headline">¶</a></h3>
+<p>If you have the <cite>NOAA OilLibrary</cite> installed, then you can re-run the above simulation using Louisiana Light Sweet crude oil by updating the substance to the corresponding Adios ID (e.g., ‘AD01554’):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">spill</span><span class="o">.</span><span class="n">update_substance</span><span class="p">(</span><span class="s1">&#39;AD01554&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spill</span><span class="o">.</span><span class="n">simulate</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spill</span><span class="o">.</span><span class="n">plot_all_variables</span><span class="p">(</span><span class="mi">210</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Texas A&M Oil spill / Outfall Calculator</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../user_manual.html">TAMOC User Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../unit_tests.html">Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../bugs.html">Reporting Bugs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../readme.html">Read Me File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../user_manual.html">TAMOC User Manual</a><ul>
+      <li>Previous: <a href="../scripts/bpm/crossflow_plume.html" title="previous chapter">crossflow_plume</a></li>
+      <li>Next: <a href="../scripts/bpm/blowout_obj.html" title="next chapter">blowout_obj</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/guides/blowout.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,1529 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>dbm_utilities &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for dbm_utilities</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Discrete Bubble Model Utilities</span>
+<span class="sd">===============================</span>
+
+<span class="sd">This module contains utilities to create discrete bubble model (``dbm``) </span>
+<span class="sd">objects that are especially relevant to blowouts.  Among its various </span>
+<span class="sd">capabilities, this module provides an interface to the Oil Library </span>
+<span class="sd">distributed by NOAA ORR.  </span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="c1"># S. Socolofsky, February 2020, Texas A&amp;M University, &lt;socolofs@tamu.edu&gt;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="p">(</span><span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">tamoc</span> <span class="kn">import</span> <span class="n">dbm</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">fsolve</span><span class="p">,</span> <span class="n">fmin</span>
+
+<div class="viewcode-block" id="get_oil"><a class="viewcode-back" href="../autodoc/dbm_utilities/dbm_utilities.get_oil.html#dbm_utilities.get_oil">[docs]</a><span class="k">def</span> <span class="nf">get_oil</span><span class="p">(</span><span class="n">substance</span><span class="p">,</span> <span class="n">q_oil</span><span class="p">,</span> <span class="n">gor</span><span class="p">,</span> <span class="n">ca</span><span class="o">=</span><span class="p">[]):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a dbm.FluidMixture object for this oil and given flow rate</span>
+<span class="sd">    </span>
+<span class="sd">    Create a dbm.FluidMixture object for the given substance and compute a</span>
+<span class="sd">    matrix of mass fluxes per component of the oil to achieve the given </span>
+<span class="sd">    dead-oil flow rate and gas-to-oil ration.  The user may define the </span>
+<span class="sd">    `substance` in one of two ways:</span>
+<span class="sd">    </span>
+<span class="sd">    substance : str</span>
+<span class="sd">        Provide a unique OilLibrary ID number from the NOAA Python </span>
+<span class="sd">        OilLibrary package</span>
+<span class="sd">    substance : dict</span>
+<span class="sd">        Use the chemical properties database provided with TAMOC.  In this</span>
+<span class="sd">        case, use the dictionary keyword `composition` to pass a list </span>
+<span class="sd">        of chemical property names and the keyword `masses` to pass a </span>
+<span class="sd">        list of mass fractions for each component in the composition</span>
+<span class="sd">        list.  If the masses variable does not sum to unity, this function</span>
+<span class="sd">        will compute an equivalent mass fraction that does.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    substance : str or dict</span>
+<span class="sd">        Description of the oil of interest.  See comments above.</span>
+<span class="sd">    q_oil : float</span>
+<span class="sd">        Flow rate of oil (bbl/d at standard conditions). </span>
+<span class="sd">    gor : float</span>
+<span class="sd">        Gas to oil ratio desired for a given live-oil release. </span>
+<span class="sd">    ca : list, default=[]</span>
+<span class="sd">        List of dissolved atmospheric gases to track as part of the oil;</span>
+<span class="sd">        choices are &#39;nitrogen&#39;, &#39;oxygen&#39;, &#39;argon&#39;, and &#39;carbon_dioxide&#39;.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    oil : dbm.FluidMixture</span>
+<span class="sd">        A discrete bubble model FluidMixture object that contains the </span>
+<span class="sd">        property data for the desired live oil.</span>
+<span class="sd">    mass_flux : np.array</span>
+<span class="sd">        An array of gas and liquid mass fluxes for each chemical component</span>
+<span class="sd">        in the mixture (kg/s) required to achieve the desired flow rate of </span>
+<span class="sd">        dead oil at the surface, q_oil.</span>
+<span class="sd">        </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">substance</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        
+        <span class="c1"># The user is using the TAMOC properties database</span>
+        <span class="n">composition</span><span class="p">,</span> <span class="n">mass_frac</span><span class="p">,</span> <span class="n">user_data</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">units</span> <span class="o">=</span> <span class="n">load_tamoc_oil</span><span class="p">(</span>
+            <span class="n">substance</span>
+        <span class="p">)</span>
+    
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">substance</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">substance</span><span class="p">,</span> <span class="n">unicode</span><span class="p">):</span>
+        
+        <span class="c1"># Assume this variable contains an NOAA OilLibrary ID number</span>
+        <span class="n">composition</span><span class="p">,</span> <span class="n">mass_frac</span><span class="p">,</span> <span class="n">user_data</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">units</span> <span class="o">=</span> <span class="n">load_adios_oil</span><span class="p">(</span>
+            <span class="n">substance</span>
+        <span class="p">)</span>
+    
+    <span class="c1"># Add the atmospherica gases to the FluidMixture, if desired</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ca</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="c1"># Update the composition</span>
+        <span class="n">composition</span> <span class="o">=</span> <span class="n">composition</span> <span class="o">+</span> <span class="n">ca</span>
+        
+        <span class="c1"># Update the mass fractions assuming zero atmospheric gases in </span>
+        <span class="c1"># petroleum</span>
+        <span class="n">new_mf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">composition</span><span class="p">))</span>
+        <span class="n">new_mf</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">mass_frac</span><span class="p">)]</span> <span class="o">=</span> <span class="n">mass_frac</span>
+        <span class="n">mass_frac</span> <span class="o">=</span> <span class="n">new_mf</span>
+        
+        <span class="c1"># Update the binary interaction parameters</span>
+        <span class="n">oil</span> <span class="o">=</span> <span class="n">dbm</span><span class="o">.</span><span class="n">FluidMixture</span><span class="p">(</span><span class="n">composition</span><span class="p">,</span> <span class="n">user_data</span><span class="o">=</span><span class="n">user_data</span><span class="p">)</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="n">pedersen</span><span class="p">(</span><span class="n">oil</span><span class="o">.</span><span class="n">M</span><span class="p">,</span> <span class="n">composition</span><span class="p">)</span>
+    
+    <span class="c1"># Create a live oil mixture for this oil that has the given GOR</span>
+    <span class="n">composition</span><span class="p">,</span> <span class="n">mass_frac</span><span class="p">,</span> <span class="n">delta</span> <span class="o">=</span> <span class="n">mix_gas_for_gor</span><span class="p">(</span><span class="n">composition</span><span class="p">,</span> 
+        <span class="n">mass_frac</span><span class="p">,</span> <span class="n">user_data</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">gor</span><span class="p">)</span>
+    
+    <span class="c1"># Get the mass flux for the desired oil flow rate</span>
+    <span class="n">mass_flux</span> <span class="o">=</span> <span class="n">set_mass_fluxes</span><span class="p">(</span><span class="n">composition</span><span class="p">,</span> <span class="n">mass_frac</span><span class="p">,</span> <span class="n">user_data</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> 
+        <span class="n">q_oil</span><span class="p">)</span>
+    
+    <span class="c1"># Create the dbm.FluidMixture object</span>
+    <span class="n">oil</span> <span class="o">=</span> <span class="n">dbm</span><span class="o">.</span><span class="n">FluidMixture</span><span class="p">(</span><span class="n">composition</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="n">delta</span><span class="p">,</span> <span class="n">user_data</span><span class="o">=</span><span class="n">user_data</span><span class="p">)</span>
+    
+    <span class="c1"># Return the results</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">oil</span><span class="p">,</span> <span class="n">mass_flux</span><span class="p">)</span></div>
+
+
+<span class="c1"># --- Discrete Bubble Model Utilities ---</span>
+
+<div class="viewcode-block" id="load_tamoc_oil"><a class="viewcode-back" href="../autodoc/dbm_utilities/dbm_utilities.load_tamoc_oil.html#dbm_utilities.load_tamoc_oil">[docs]</a><span class="k">def</span> <span class="nf">load_tamoc_oil</span><span class="p">(</span><span class="n">substance</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a dbm.FluidMixture object from the given TAMOC composition</span>
+<span class="sd">    </span>
+<span class="sd">    Create a dbm.FluidMixture object that contains the given composition</span>
+<span class="sd">    and pseudo-component mass fraction.  </span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    substance : dict</span>
+<span class="sd">        A Python dictionary that contains keywords:</span>
+<span class="sd">        </span>
+<span class="sd">        composition : list</span>
+<span class="sd">            List of string names that correspond to compounds in the TAMOC</span>
+<span class="sd">            chemical properties database</span>
+<span class="sd">        masses : list or ndarray</span>
+<span class="sd">            Array of masses (kg) for each pseudo-component in the TAMOC </span>
+<span class="sd">            composition list</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    composition : list</span>
+<span class="sd">        List of strings containing the names of the oil components in the </span>
+<span class="sd">        dead oil from the Adios database.</span>
+<span class="sd">    mass_frac : np.array</span>
+<span class="sd">        An array of mass fractions for all compounds in the dead oil from </span>
+<span class="sd">        the Adios database (kg).</span>
+<span class="sd">    user_data : dict</span>
+<span class="sd">        A dictionary of chemical property data in the format expected by </span>
+<span class="sd">        the tamoc.dbm module FluidMixture or FluidParticle objects.</span>
+<span class="sd">    delta : np.array (len M, len M)</span>
+<span class="sd">        Array of binary interaction coefficients</span>
+<span class="sd">    units : dict</span>
+<span class="sd">        List of units corresponding to the dictionary of `user_data`</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Extract the variables in the `substance` dictionary</span>
+    <span class="n">composition</span> <span class="o">=</span> <span class="n">substance</span><span class="p">[</span><span class="s1">&#39;composition&#39;</span><span class="p">]</span>
+    <span class="n">masses</span> <span class="o">=</span> <span class="n">substance</span><span class="p">[</span><span class="s1">&#39;masses&#39;</span><span class="p">]</span>
+    
+    <span class="c1"># Convert the masses to mass fraction </span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">masses</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="n">masses</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">masses</span><span class="p">])</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">masses</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">masses</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">masses</span><span class="p">)</span>
+    <span class="n">mass_frac</span> <span class="o">=</span> <span class="n">masses</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">masses</span><span class="p">)</span>
+    
+    <span class="c1"># Create a dbm.FluidMixture object for this composition</span>
+    <span class="n">oil</span> <span class="o">=</span> <span class="n">dbm</span><span class="o">.</span><span class="n">FluidMixture</span><span class="p">(</span><span class="n">composition</span><span class="p">)</span>
+    
+    <span class="c1"># Extract the property data from this dbm.FluidMixture object</span>
+    <span class="n">user_data</span><span class="p">,</span> <span class="n">units</span> <span class="o">=</span> <span class="n">format_dbm_data</span><span class="p">(</span><span class="n">composition</span><span class="p">,</span> <span class="n">oil</span><span class="o">.</span><span class="n">M</span><span class="p">,</span> <span class="n">oil</span><span class="o">.</span><span class="n">Pc</span><span class="p">,</span> <span class="n">oil</span><span class="o">.</span><span class="n">Tc</span><span class="p">,</span> 
+                                       <span class="n">oil</span><span class="o">.</span><span class="n">omega</span><span class="p">,</span> <span class="n">oil</span><span class="o">.</span><span class="n">kh_0</span><span class="p">,</span> <span class="n">oil</span><span class="o">.</span><span class="n">neg_dH_solR</span><span class="p">,</span>
+                                       <span class="n">oil</span><span class="o">.</span><span class="n">nu_bar</span><span class="p">,</span> <span class="n">oil</span><span class="o">.</span><span class="n">K_salt</span><span class="p">,</span> <span class="n">oil</span><span class="o">.</span><span class="n">Vc</span><span class="p">,</span>
+                                       <span class="n">oil</span><span class="o">.</span><span class="n">Tb</span><span class="p">,</span> <span class="n">oil</span><span class="o">.</span><span class="n">Vb</span><span class="p">,</span> <span class="n">oil</span><span class="o">.</span><span class="n">B</span><span class="p">,</span> <span class="n">oil</span><span class="o">.</span><span class="n">dE</span><span class="p">)</span>
+    
+    <span class="n">delta</span> <span class="o">=</span> <span class="n">pedersen</span><span class="p">(</span><span class="n">oil</span><span class="o">.</span><span class="n">M</span><span class="p">,</span> <span class="n">composition</span><span class="p">)</span>
+    <span class="n">units</span> <span class="o">=</span> <span class="n">oil</span><span class="o">.</span><span class="n">chem_units</span>
+    
+    <span class="c1"># Return the results</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">composition</span><span class="p">,</span> <span class="n">mass_frac</span><span class="p">,</span> <span class="n">user_data</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">units</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="format_dbm_data"><a class="viewcode-back" href="../autodoc/dbm_utilities/dbm_utilities.format_dbm_data.html#dbm_utilities.format_dbm_data">[docs]</a><span class="k">def</span> <span class="nf">format_dbm_data</span><span class="p">(</span><span class="n">composition</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">Pc</span><span class="p">,</span> <span class="n">Tc</span><span class="p">,</span> <span class="n">omega</span><span class="p">,</span> <span class="n">kh_0</span><span class="p">,</span> <span class="n">neg_dH_solR</span><span class="p">,</span> <span class="n">nu_bar</span><span class="p">,</span> 
+    <span class="n">K_salt</span><span class="p">,</span> <span class="n">Vc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">Tb</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">Vb</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">B</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dE</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Format the chemical property data for use by the `dbm` module</span>
+<span class="sd">    </span>
+<span class="sd">    Format the chemical property data into the dictionaries expected by the</span>
+<span class="sd">    discrete bubble model (dbm) module FluidMixture and FluidParticle objects</span>
+<span class="sd">    of TAMMOC.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    composition : list</span>
+<span class="sd">        List of strings containing unique names for each chemical in the </span>
+<span class="sd">        present oil composition.</span>
+<span class="sd">    M : ndarray, size (nc)</span>
+<span class="sd">        Molecular weights (kg/mol)</span>
+<span class="sd">    Pc : ndarray, size (nc)</span>
+<span class="sd">        Critical pressures (Pa)</span>
+<span class="sd">    Tc : ndarray, size (nc)</span>
+<span class="sd">        Critical temperatures (K)</span>
+<span class="sd">    omega : ndarray, size (nc)</span>
+<span class="sd">        Acentric factors (--)</span>
+<span class="sd">    kh_0 : ndarray, size (nc)</span>
+<span class="sd">        Henry&#39;s law constants at 298.15 K and 101325 Pa (kg/(m^3 Pa))</span>
+<span class="sd">    neg_dH_solR : ndarray, size (nc)</span>
+<span class="sd">        The negative of the enthalpies of solution / Ru (K).</span>
+<span class="sd">    nu_bar : ndarray, size (nc)</span>
+<span class="sd">        Partial molar volumes at infinite dilution (m^3/mol)</span>
+<span class="sd">    K_salt : ndarray, size(nc)</span>
+<span class="sd">        Setschenow constants (m^3/mol)</span>
+<span class="sd">    Vc : ndarray, size(nc), default=None</span>
+<span class="sd">        Specific volume at the critical point (m^3/mol)</span>
+<span class="sd">    Tb : ndarray, size(nc), default=None</span>
+<span class="sd">        Boiling point (K)</span>
+<span class="sd">    Vb : ndarray, size(nc), default=None</span>
+<span class="sd">        Specific volume at the boiling point (m^3/mol)</span>
+<span class="sd">    B : ndarray, size (nc), default=None</span>
+<span class="sd">        White and Houghton (1966) pre-exponential factor (m^2/s)</span>
+<span class="sd">    dE : ndarray, size (nc), default=None</span>
+<span class="sd">        Activation energy (J/mol)</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    data : dict</span>
+<span class="sd">        A dictionary of chemical property data in the format expected by </span>
+<span class="sd">        the tamoc.dbm module objects.</span>
+<span class="sd">    units : dict</span>
+<span class="sd">        A dictionary of units for each chemical component in the mixture in</span>
+<span class="sd">        the format expected by the tamoc.dbm module objects.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Count the number of components in the oil mixture</span>
+    <span class="n">nc</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">composition</span><span class="p">)</span>
+    
+    <span class="c1"># Set flags to -9999. as expected by the tamoc.dbm module for any </span>
+    <span class="c1"># parameters that were not passed to this function </span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">Vc</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="n">Vc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">nc</span><span class="p">)</span> <span class="o">-</span> <span class="mf">9999.</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">Tb</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="n">Tb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">nc</span><span class="p">)</span> <span class="o">-</span> <span class="mf">9999.</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">Vb</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="n">Vb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">nc</span><span class="p">)</span> <span class="o">-</span> <span class="mf">9999.</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="n">B</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">nc</span><span class="p">)</span> <span class="o">-</span> <span class="mf">9999.</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dE</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="n">dE</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">nc</span><span class="p">)</span> <span class="o">-</span> <span class="mf">9999.</span>
+    
+    <span class="c1"># Disable aqueous dissolution of insoluble components</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nc</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">kh_0</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">0.</span><span class="p">:</span>
+            <span class="n">kh_0</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.</span>
+    
+    <span class="c1"># Create an emmpty dictionary of chemical property data</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+    
+    <span class="c1"># Fill the dictionary with the properties for each chemical component</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nc</span><span class="p">):</span>
+        <span class="c1"># Add this chemical</span>
+        <span class="n">data</span><span class="p">[</span><span class="n">composition</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;M&#39;</span> <span class="p">:</span> <span class="n">M</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+            <span class="s1">&#39;Pc&#39;</span> <span class="p">:</span> <span class="n">Pc</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+            <span class="s1">&#39;Tc&#39;</span> <span class="p">:</span> <span class="n">Tc</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+            <span class="s1">&#39;omega&#39;</span> <span class="p">:</span> <span class="n">omega</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+            <span class="s1">&#39;kh_0&#39;</span> <span class="p">:</span> <span class="n">kh_0</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+            <span class="s1">&#39;-dH_solR&#39;</span> <span class="p">:</span> <span class="n">neg_dH_solR</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+            <span class="s1">&#39;nu_bar&#39;</span> <span class="p">:</span> <span class="n">nu_bar</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+            <span class="s1">&#39;K_salt&#39;</span> <span class="p">:</span> <span class="n">K_salt</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+            <span class="s1">&#39;Vc&#39;</span> <span class="p">:</span> <span class="n">Vc</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+            <span class="s1">&#39;Tb&#39;</span> <span class="p">:</span> <span class="n">Tb</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+            <span class="s1">&#39;Vb&#39;</span> <span class="p">:</span> <span class="n">Vb</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> 
+            <span class="s1">&#39;B&#39;</span> <span class="p">:</span> <span class="n">B</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> 
+            <span class="s1">&#39;dE&#39;</span> <span class="p">:</span> <span class="n">dE</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="p">}</span>
+    
+    <span class="c1"># This function requires user to provide data in SI units suitable </span>
+    <span class="c1"># for TAMOC.  Assume this has been done.</span>
+    <span class="n">units</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;M&#39;</span> <span class="p">:</span> <span class="s1">&#39;(kg/mol)&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;Pc&#39;</span> <span class="p">:</span> <span class="s1">&#39;(Pa)&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;Tc&#39;</span> <span class="p">:</span> <span class="s1">&#39;(K)&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;omega&#39;</span> <span class="p">:</span> <span class="s1">&#39;(--)&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;kh_0&#39;</span> <span class="p">:</span> <span class="s1">&#39;(kg/(m^3 Pa))&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;-dH_solR&#39;</span> <span class="p">:</span> <span class="s1">&#39;(K)&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;nu_bar&#39;</span> <span class="p">:</span> <span class="s1">&#39;(m^3/mol)&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;K_salt&#39;</span> <span class="p">:</span> <span class="s1">&#39;(m^3/mol)&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;Vc&#39;</span> <span class="p">:</span> <span class="s1">&#39;(m^3/mol)&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;Tb&#39;</span> <span class="p">:</span> <span class="s1">&#39;(K)&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;Vb&#39;</span> <span class="p">:</span> <span class="s1">&#39;(m^3/mol)&#39;</span><span class="p">,</span> 
+        <span class="s1">&#39;B&#39;</span> <span class="p">:</span> <span class="s1">&#39;(m^2/s)&#39;</span><span class="p">,</span> 
+        <span class="s1">&#39;dE&#39;</span> <span class="p">:</span> <span class="s1">&#39;(J/mol)&#39;</span>
+    <span class="p">}</span>
+    
+    <span class="c1"># Return the two dictionaries</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">units</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="mix_gas_for_gor"><a class="viewcode-back" href="../autodoc/dbm_utilities/dbm_utilities.mix_gas_for_gor.html#dbm_utilities.mix_gas_for_gor">[docs]</a><span class="k">def</span> <span class="nf">mix_gas_for_gor</span><span class="p">(</span><span class="n">dead_composition</span><span class="p">,</span> <span class="n">dead_mass_frac</span><span class="p">,</span> <span class="n">user_data</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">gor</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a live oil with a given gas to oil ratio (GOR)</span>
+<span class="sd">    </span>
+<span class="sd">    Mix natural gas into a dead oil composition until a live oil with a given</span>
+<span class="sd">    gas to oil ratio (GOR) is achieved.  This function adds gas compounds to </span>
+<span class="sd">    the oil mixture and adjusts the mass fractions of the whole mixture until</span>
+<span class="sd">    the given GOR results from an equilibrium calculation at standard </span>
+<span class="sd">    conditions (15 deg C and atmospheric pressure).  This method returns the</span>
+<span class="sd">    new chemical composition list, mass fractions, and binary interaction</span>
+<span class="sd">    coefficients.  The user_data describing the dead oil components is not</span>
+<span class="sd">    changed.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dead_composition : list</span>
+<span class="sd">        List of strings containing the names of the oil components in the </span>
+<span class="sd">        dead oil</span>
+<span class="sd">    dead_mass_frac : np.array</span>
+<span class="sd">        An array of mass fractions for each of the compounds in the dead oil </span>
+<span class="sd">        composition (kg)</span>
+<span class="sd">    user_data : dict</span>
+<span class="sd">        A dictionary of chemical property data in the format expected by </span>
+<span class="sd">        the tamoc.dbm FluidMixture and FluidParticle module objects.</span>
+<span class="sd">    delta : np.array (len M, len M)</span>
+<span class="sd">        Array of binary interaction coefficients</span>
+<span class="sd">    gor : float</span>
+<span class="sd">        Gas to oil ratio desired for a given live-oil release.  We add light</span>
+<span class="sd">        gas compounds to the dead oil composition and iterate the gas </span>
+<span class="sd">        fractions until the GOR at standard conditions is returned.  Here, </span>
+<span class="sd">        gor has the standard units ft^3 gas per stock barrel of oil at </span>
+<span class="sd">        surface conditions.  The gas composition is specified in the </span>
+<span class="sd">        function natural_gas().</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    composition : list</span>
+<span class="sd">        List of strings containing the names of all oil components in the </span>
+<span class="sd">        live oil.</span>
+<span class="sd">    mass_frac : np.array</span>
+<span class="sd">        An array of mass fractions for all compounds in the live oil (kg/kg).</span>
+<span class="sd">    delta : np.array (len M, len M)</span>
+<span class="sd">        An updated array of binary interaction coefficients that includes the</span>
+<span class="sd">        interactions among all compounds in composition.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Get the composition of a natural gas</span>
+    <span class="n">gas_comp</span><span class="p">,</span> <span class="n">gas_mf</span> <span class="o">=</span> <span class="n">natural_gas</span><span class="p">()</span>
+    
+    <span class="c1"># Get a list of all compounds in the live oil and gas mixture</span>
+    <span class="n">composition</span> <span class="o">=</span> <span class="n">gas_comp</span> <span class="o">+</span> <span class="n">dead_composition</span>
+    
+    <span class="c1"># Initialize arrays to contain the oil and gas mass fractions and fill</span>
+    <span class="c1"># them with the pure gas and dead oil compositions</span>
+    <span class="n">mf_gas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">composition</span><span class="p">))</span>
+    <span class="n">mf_oil</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">composition</span><span class="p">))</span>
+    <span class="n">mf_gas</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">gas_mf</span><span class="p">)]</span> <span class="o">=</span> <span class="n">gas_mf</span>
+    <span class="n">mf_oil</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">gas_mf</span><span class="p">):]</span> <span class="o">=</span> <span class="n">dead_mass_frac</span>
+    
+    <span class="c1"># Create a dbm.FluidMixture object with this composition, but not yet</span>
+    <span class="c1"># knowing the binary interaction coefficients</span>
+    <span class="n">oil</span> <span class="o">=</span> <span class="n">dbm</span><span class="o">.</span><span class="n">FluidMixture</span><span class="p">(</span><span class="n">composition</span><span class="p">,</span> <span class="n">user_data</span><span class="o">=</span><span class="n">user_data</span><span class="p">)</span>
+    
+    <span class="c1"># Use the Pedersen method to estimate the binary interaction parameters</span>
+    <span class="n">delta</span> <span class="o">=</span> <span class="n">pedersen</span><span class="p">(</span><span class="n">oil</span><span class="o">.</span><span class="n">M</span><span class="p">,</span> <span class="n">composition</span><span class="p">)</span>
+    
+    <span class="c1"># Create a new dbm.FluidMixture object with the correct binary</span>
+    <span class="c1"># interaction matrix</span>
+    <span class="n">oil</span> <span class="o">=</span> <span class="n">dbm</span><span class="o">.</span><span class="n">FluidMixture</span><span class="p">(</span><span class="n">composition</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="n">delta</span><span class="p">,</span> <span class="n">user_data</span><span class="o">=</span><span class="n">user_data</span><span class="p">)</span>
+    
+    <span class="c1"># Set up the GOR at atmospheric pressure and 15 deg C</span>
+    <span class="n">P</span> <span class="o">=</span> <span class="mf">101325.</span>
+    <span class="n">T</span> <span class="o">=</span> <span class="mf">273.15</span> <span class="o">+</span> <span class="mf">15.</span>
+    <span class="n">p_gas</span> <span class="o">=</span> <span class="n">oil</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">mf_gas</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">)[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">p_oil</span> <span class="o">=</span> <span class="n">oil</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">mf_oil</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">)[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+    
+    <span class="c1"># Get an estimate for the gas fraction from the GOR</span>
+    <span class="n">v_gas</span> <span class="o">=</span> <span class="n">gor</span> <span class="o">*</span> <span class="mf">0.0283168</span>  <span class="c1"># converts ft^3 = m^3</span>
+    <span class="n">v_oil</span> <span class="o">=</span> <span class="mf">0.158987</span>         <span class="c1"># converts bbl to m^3</span>
+    <span class="n">m_gas</span> <span class="o">=</span> <span class="n">p_gas</span> <span class="o">*</span> <span class="n">v_gas</span>
+    <span class="n">m_oil</span> <span class="o">=</span> <span class="n">p_oil</span> <span class="o">*</span> <span class="n">v_oil</span>
+    <span class="n">beta</span> <span class="o">=</span> <span class="n">m_gas</span> <span class="o">/</span> <span class="p">(</span><span class="n">m_gas</span> <span class="o">+</span> <span class="n">m_oil</span><span class="p">)</span>
+    
+    <span class="c1"># Iterate to converge on a correct gas fraction to have the desired</span>
+    <span class="c1"># gas to oil ratio</span>
+    <span class="n">beta</span> <span class="o">=</span> <span class="n">fsolve</span><span class="p">(</span><span class="n">gas_fraction</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">gor</span><span class="p">,</span> <span class="n">oil</span><span class="p">,</span> <span class="n">mf_gas</span><span class="p">,</span> <span class="n">mf_oil</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">))</span>
+    
+    <span class="c1"># Use the final value of beta to get the composition of oil and gas</span>
+    <span class="n">mass_frac</span> <span class="o">=</span> <span class="n">beta</span> <span class="o">*</span> <span class="n">mf_gas</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">beta</span><span class="p">)</span> <span class="o">*</span> <span class="n">mf_oil</span>
+    
+    <span class="c1"># Return this petroleum fluid property data</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">composition</span><span class="p">,</span> <span class="n">mass_frac</span><span class="p">,</span> <span class="n">delta</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="natural_gas"><a class="viewcode-back" href="../autodoc/dbm_utilities/dbm_utilities.natural_gas.html#dbm_utilities.natural_gas">[docs]</a><span class="k">def</span> <span class="nf">natural_gas</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Define the composition of a natural gas</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    gas_compounds : list</span>
+<span class="sd">        List of the string names of the gaseous compounds included in this</span>
+<span class="sd">        description of a natural gas.  These names are in the general </span>
+<span class="sd">        database of chemical properties provided with TAMOC.</span>
+<span class="sd">    gas_fractions : np.array</span>
+<span class="sd">        Array of the mass fractions of each gaseous compound in the pure</span>
+<span class="sd">        gas (kg/kg)</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">gas_compounds</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;methane&#39;</span><span class="p">,</span> <span class="s1">&#39;ethane&#39;</span><span class="p">,</span> <span class="s1">&#39;propane&#39;</span><span class="p">,</span> <span class="s1">&#39;isobutane&#39;</span><span class="p">,</span> <span class="s1">&#39;n-butane&#39;</span><span class="p">]</span>
+    <span class="n">gas_fractions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.939</span><span class="p">,</span> <span class="mf">0.042</span><span class="p">,</span> <span class="mf">0.0184</span><span class="p">,</span> <span class="mf">0.0003</span><span class="p">,</span> <span class="mf">0.0003</span><span class="p">])</span>
+    
+    <span class="k">return</span> <span class="p">(</span><span class="n">gas_compounds</span><span class="p">,</span> <span class="n">gas_fractions</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="gas_fraction"><a class="viewcode-back" href="../autodoc/dbm_utilities/dbm_utilities.gas_fraction.html#dbm_utilities.gas_fraction">[docs]</a><span class="k">def</span> <span class="nf">gas_fraction</span><span class="p">(</span><span class="n">beta</span><span class="p">,</span> <span class="n">gor_0</span><span class="p">,</span> <span class="n">oil</span><span class="p">,</span> <span class="n">mf_gas</span><span class="p">,</span> <span class="n">mf_oil</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the difference between the GOR of a mixture and a given GOR</span>
+<span class="sd">    </span>
+<span class="sd">    Computes the equilibrium gas-liquid partitioning for a given oil and </span>
+<span class="sd">    mixture composition and then reports the difference between the gas to </span>
+<span class="sd">    oil ratio (GOR) of this mixture to a desired value of the GOR, gor_0.  </span>
+<span class="sd">    Equilibrium calculations are done at the input conditions of temperature</span>
+<span class="sd">    and pressure.  GOR is computed in the units of ft^3 of gas to barrels </span>
+<span class="sd">    of liquid oil at the given T and P.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    beta : float</span>
+<span class="sd">        The faction of pure gas in the mixture (0 to 1)</span>
+<span class="sd">    gor_0 : float</span>
+<span class="sd">        The desired gas to oil ratio of the oil mixture (ft^3/bbl)</span>
+<span class="sd">    oil : dbm.FluidMixture </span>
+<span class="sd">        A dbm.FluidMixture object for the present oil composition.</span>
+<span class="sd">    mf_gas : np.array</span>
+<span class="sd">        Array of the mass fractions of the gaseous compounds in the mixture.</span>
+<span class="sd">        All of the numbers in this array sum to 1.</span>
+<span class="sd">    mf_oil : np.array</span>
+<span class="sd">        Array of the mass fractions of the dead oil compounds in the mixture.</span>
+<span class="sd">        All of the numbers in this array sum to 1.</span>
+<span class="sd">    T : float</span>
+<span class="sd">        Temperature to compute gas to oil ratio (K)</span>
+<span class="sd">    P : float</span>
+<span class="sd">        Pressure to compute gas to oil ratio (Pa)</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    delta_gor : float</span>
+<span class="sd">        The difference between the present GOR of this mixture and the input</span>
+<span class="sd">        value of GOR, gor_0.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Set up a mass fraction array containing all of the oil compounds</span>
+    <span class="n">mass_frac</span> <span class="o">=</span> <span class="n">beta</span> <span class="o">*</span> <span class="n">mf_gas</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">beta</span><span class="p">)</span> <span class="o">*</span> <span class="n">mf_oil</span>
+    
+    <span class="c1"># Compute the equilibrium conditions for this oil mixture</span>
+    <span class="n">m</span><span class="p">,</span> <span class="n">xi</span><span class="p">,</span> <span class="n">K</span> <span class="o">=</span> <span class="n">oil</span><span class="o">.</span><span class="n">equilibrium</span><span class="p">(</span><span class="n">mass_frac</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
+    
+    <span class="c1"># Compute the volume of gas and oil</span>
+    <span class="n">mf_gas</span> <span class="o">=</span> <span class="n">m</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span>   <span class="c1"># mass fractions of all compounds in the gas phase</span>
+    <span class="n">p_gas</span> <span class="o">=</span> <span class="n">oil</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">mf_gas</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">)[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">mf_oil</span> <span class="o">=</span> <span class="n">m</span><span class="p">[</span><span class="mi">1</span><span class="p">,:]</span>   <span class="c1"># mass fractions of all compounds in the liquid phase</span>
+    <span class="n">p_oil</span> <span class="o">=</span> <span class="n">oil</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">mf_oil</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">)[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">v_gas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">mf_gas</span><span class="p">)</span> <span class="o">/</span> <span class="n">p_gas</span>  <span class="c1"># m^3</span>
+    <span class="n">v_oil</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">mf_oil</span><span class="p">)</span> <span class="o">/</span> <span class="n">p_oil</span>  <span class="c1"># m^3</span>
+    
+    <span class="c1"># Report the gas to oil ratio in standard units</span>
+    <span class="n">v_gas</span> <span class="o">=</span> <span class="n">v_gas</span> <span class="o">/</span> <span class="mf">0.0283168</span>   <span class="c1"># m^3 to ft^3</span>
+    <span class="n">v_oil</span> <span class="o">=</span> <span class="n">v_oil</span> <span class="o">/</span> <span class="mf">0.158987</span>    <span class="c1"># m^3 to barrels</span>
+    <span class="n">gor</span> <span class="o">=</span> <span class="n">v_gas</span> <span class="o">/</span> <span class="n">v_oil</span>
+    
+    <span class="c1"># Return the deviation from the desired gor</span>
+    <span class="k">return</span> <span class="n">gor</span> <span class="o">-</span> <span class="n">gor_0</span></div>
+
+
+<div class="viewcode-block" id="set_mass_fluxes"><a class="viewcode-back" href="../autodoc/dbm_utilities/dbm_utilities.set_mass_fluxes.html#dbm_utilities.set_mass_fluxes">[docs]</a><span class="k">def</span> <span class="nf">set_mass_fluxes</span><span class="p">(</span><span class="n">composition</span><span class="p">,</span> <span class="n">mass_frac</span><span class="p">,</span> <span class="n">user_data</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">q_oil</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the mass fluxes to achieve a desired oil flow rate</span>
+<span class="sd">    </span>
+<span class="sd">    Compute the mass fluxes of each gas and liquid oil component to achieve</span>
+<span class="sd">    a given oil flow rate (q_oil) in barrels per day at standard conditions</span>
+<span class="sd">    (15 deg C and atmospheric pressure).</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    composition : list</span>
+<span class="sd">        List of strings containing the names of the oil components in the </span>
+<span class="sd">        live oil.</span>
+<span class="sd">    mass_frac : np.array</span>
+<span class="sd">        An array of mass fractions for all compounds in the live oil (kg/kg).</span>
+<span class="sd">    user_data : dict</span>
+<span class="sd">        A dictionary of chemical property data in the format expected by </span>
+<span class="sd">        the tamoc.dbm FluidMixture and FluidParticle module objects.</span>
+<span class="sd">    delta : np.array (len M, len M)</span>
+<span class="sd">        Array of binary interaction coefficients</span>
+<span class="sd">    q_oil : float</span>
+<span class="sd">        Flow rate of oil (bbl/d at standard conditions).</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    mass_flux : np.array</span>
+<span class="sd">        An array of gas and liquid mass fluxes for each chemical component</span>
+<span class="sd">        in the mixture (kg/s) required to achieve the desired flow rate of </span>
+<span class="sd">        dead oil at the surface, q_oil.</span>
+<span class="sd">    </span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Create a dbm.FluidMixture object</span>
+    <span class="n">oil</span> <span class="o">=</span> <span class="n">dbm</span><span class="o">.</span><span class="n">FluidMixture</span><span class="p">(</span><span class="n">composition</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="n">delta</span><span class="p">,</span> <span class="n">user_data</span><span class="o">=</span><span class="n">user_data</span><span class="p">)</span>
+    
+    <span class="c1"># Get the equilibrium at standard conditions</span>
+    <span class="n">P0</span> <span class="o">=</span> <span class="mf">101325.</span>
+    <span class="n">T0</span> <span class="o">=</span> <span class="mf">273.15</span> <span class="o">+</span> <span class="mf">15.</span>
+    <span class="n">m0</span><span class="p">,</span> <span class="n">xi0</span><span class="p">,</span> <span class="n">K0</span> <span class="o">=</span> <span class="n">oil</span><span class="o">.</span><span class="n">equilibrium</span><span class="p">(</span><span class="n">mass_frac</span><span class="p">,</span> <span class="n">T0</span><span class="p">,</span> <span class="n">P0</span><span class="p">)</span>
+    
+    <span class="c1"># Get the volume flow rate of liquid oil at standard conditions for a </span>
+    <span class="c1"># total petroleum fluid flow rate of 1 kg/s (e.g., using mass_flux equal</span>
+    <span class="c1"># to mass_frac)</span>
+    <span class="n">p_oil</span> <span class="o">=</span> <span class="n">oil</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">m0</span><span class="p">[</span><span class="mi">1</span><span class="p">,:],</span> <span class="n">T0</span><span class="p">,</span> <span class="n">P0</span><span class="p">)[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">v_oil</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">m0</span><span class="p">[</span><span class="mi">1</span><span class="p">,:])</span> <span class="o">/</span> <span class="n">p_oil</span> <span class="o">/</span> <span class="mf">0.158987</span> <span class="c1"># bbl</span>
+    
+    <span class="c1"># Adjust the masses to yield the desired flow rate of oil in bbl/d</span>
+    <span class="n">k_fac</span> <span class="o">=</span> <span class="p">(</span><span class="n">q_oil</span> <span class="o">/</span> <span class="mf">86400.</span><span class="p">)</span> <span class="o">/</span> <span class="n">v_oil</span>
+    <span class="n">mass_flux</span> <span class="o">=</span> <span class="n">mass_frac</span> <span class="o">*</span> <span class="n">k_fac</span>
+    
+    <span class="k">return</span> <span class="n">mass_flux</span></div>
+
+
+<span class="c1"># --- OilLibrary Utilities ---</span>
+
+<div class="viewcode-block" id="load_adios_oil"><a class="viewcode-back" href="../autodoc/dbm_utilities/dbm_utilities.load_adios_oil.html#dbm_utilities.load_adios_oil">[docs]</a><span class="k">def</span> <span class="nf">load_adios_oil</span><span class="p">(</span><span class="n">adios_id</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load an oil from the NOAA OilLibrary (formerly, ADIOS)</span>
+<span class="sd">    </span>
+<span class="sd">    Create the chemical property data for a TAMOC discrete bubble model</span>
+<span class="sd">    FluidMixture or FluidParticle object from data for an oil in the ADIOS</span>
+<span class="sd">    library. This function reads in the oil properties from the NOAA Oil</span>
+<span class="sd">    Library and computes the inputs needed by TAMOC using methods published</span>
+<span class="sd">    in Gros et al. (2018) MPB, 137:627-637.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    adios_id : str</span>
+<span class="sd">        The unique ADIOS ID number of an oil in the NOAA Oil Library as a </span>
+<span class="sd">        string.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    composition : list</span>
+<span class="sd">        List of strings containing the names of the oil components in the </span>
+<span class="sd">        dead oil from the Adios database.</span>
+<span class="sd">    mass_frac : np.array</span>
+<span class="sd">        An array of mass fractions for all compounds in the dead oil from </span>
+<span class="sd">        the Adios database (kg).</span>
+<span class="sd">    user_data : dict</span>
+<span class="sd">        A dictionary of chemical property data in the format expected by </span>
+<span class="sd">        the tamoc.dbm module FluidMixture or FluidParticle objects.</span>
+<span class="sd">    delta : np.array (len M, len M)</span>
+<span class="sd">        Array of binary interaction coefficients</span>
+<span class="sd">    units : dict</span>
+<span class="sd">        Dictionary of units corresponding to the dictionary of `user_data`</span>
+<span class="sd">        </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Import the tools needed from the NOAA Oil Library</span>
+    <span class="kn">from</span> <span class="nn">oil_library</span> <span class="kn">import</span> <span class="n">get_oil_props</span>
+    
+    <span class="c1"># Read in the desired oil from the ADIOS Oil Library</span>
+    <span class="n">gnome_oil</span> <span class="o">=</span> <span class="n">get_oil_props</span><span class="p">(</span><span class="n">adios_id</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">----------&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Loading NOAA Oil Library Oil:  &#39;</span> <span class="o">+</span> <span class="n">adios_id</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Record name:  &#39;</span> <span class="o">+</span> <span class="n">gnome_oil</span><span class="o">.</span><span class="n">record</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;----------</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># Extract properties of this oil from the gnome_oil object</span>
+    <span class="n">molecular_weight</span> <span class="o">=</span> <span class="n">gnome_oil</span><span class="o">.</span><span class="n">molecular_weight</span>         <span class="c1"># g/mol</span>
+    <span class="n">mass_frac</span> <span class="o">=</span> <span class="n">gnome_oil</span><span class="o">.</span><span class="n">mass_fraction</span>                   <span class="c1"># --</span>
+    <span class="n">boiling_point</span> <span class="o">=</span> <span class="n">gnome_oil</span><span class="o">.</span><span class="n">boiling_point</span>               <span class="c1"># K</span>
+    <span class="n">vapor_pressure_5C</span> <span class="o">=</span> <span class="n">gnome_oil</span><span class="o">.</span><span class="n">vapor_pressure</span><span class="p">(</span><span class="mf">278.15</span><span class="p">)</span>  <span class="c1"># Pa</span>
+    <span class="n">vapor_pressure_25C</span> <span class="o">=</span> <span class="n">gnome_oil</span><span class="o">.</span><span class="n">vapor_pressure</span><span class="p">(</span><span class="mf">298.15</span><span class="p">)</span> <span class="c1"># Pa</span>
+    
+    <span class="c1"># Extract the densities of each pseudocomponent</span>
+    <span class="n">density</span> <span class="o">=</span> <span class="n">gnome_oil</span><span class="o">.</span><span class="n">component_density</span>
+    
+    <span class="c1"># Convert these densities so that the new densities will give the same </span>
+    <span class="c1"># oil density using the formula density = 1. / sum(mass_frac / density)</span>
+    <span class="n">density2</span> <span class="o">=</span> <span class="n">density</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">density</span> <span class="o">*</span> <span class="n">mass_frac</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">/</span> 
+        <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">mass_frac</span> <span class="o">/</span> <span class="n">density</span><span class="p">))</span>
+    
+    <span class="c1"># Read in the names of each of the oil pseudocomponents</span>
+    <span class="n">composition</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">gnome_oil</span><span class="o">.</span><span class="n">component_types</span><span class="p">)</span>
+    
+    <span class="c1"># TAMOC requires unique names for each pseudocomponent; we add a counter</span>
+    <span class="c1"># to each SARA analysis type (e.g., Saturates1, Saturates2, etc.)</span>
+    <span class="n">sequence_names</span><span class="p">(</span><span class="n">composition</span><span class="p">,</span> <span class="s1">&#39;Saturates&#39;</span><span class="p">)</span>
+    <span class="n">sequence_names</span><span class="p">(</span><span class="n">composition</span><span class="p">,</span> <span class="s1">&#39;Aromatics&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># Report any error messages or warnings</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">boiling_point</span> <span class="o">&lt;</span> <span class="mi">231</span><span class="p">):</span>
+        <span class="c1"># The below methods do not work for compounds more volatile than </span>
+        <span class="c1"># propane:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">WARNING:  This oil entry has compounds more volatile than&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;          propane.  Current property estimation methods are&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;          not designed for this situation.  Errors may occur&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;          using this oil.</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># Estimate oil properties using methods in Gros et al. (2018)</span>
+    <span class="n">solubility</span> <span class="o">=</span> <span class="n">get_solubility</span><span class="p">(</span><span class="n">molecular_weight</span><span class="p">,</span> <span class="n">density</span><span class="p">)</span>
+    <span class="n">k_h_0</span> <span class="o">=</span> <span class="n">get_henry_constant</span><span class="p">(</span><span class="n">solubility</span><span class="p">,</span> <span class="n">vapor_pressure_25C</span><span class="p">,</span> 
+        <span class="n">molecular_weight</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">Tc</span><span class="p">,</span> <span class="n">Pc</span><span class="p">,</span> <span class="n">Vc</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">omega</span><span class="p">,</span> <span class="n">delta</span><span class="p">)</span> <span class="o">=</span> <span class="n">get_preos_params</span><span class="p">(</span><span class="n">boiling_point</span><span class="p">,</span> 
+        <span class="n">molecular_weight</span><span class="p">,</span> <span class="n">density</span><span class="p">)</span>
+    
+    <span class="n">nu_bar</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mf">2.203e-5</span> <span class="o">*</span> <span class="n">Pc</span> <span class="o">+</span> <span class="mf">518.6</span> <span class="o">*</span> <span class="n">M</span> <span class="o">+</span> <span class="mf">143.4</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1.e-6</span>
+    <span class="n">neg_delta_H_sol_R</span> <span class="o">=</span> <span class="mf">2.637</span> <span class="o">*</span> <span class="n">Tc</span> <span class="o">+</span> <span class="mf">22.48e6</span> <span class="o">*</span> <span class="n">nu_bar</span> <span class="o">+</span> <span class="mf">314.6</span>
+    <span class="n">K_salt</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mf">1.345</span> <span class="o">*</span> <span class="n">M</span> <span class="o">+</span> <span class="mf">2799.4</span> <span class="o">*</span> <span class="n">nu_bar</span> <span class="o">+</span>  <span class="mf">0.083556</span><span class="p">)</span> <span class="o">/</span> <span class="mf">1000.</span>
+              
+    <span class="c1"># Estimate Vb based on the Tyn and Calus formula (see dbm.py)</span>
+    <span class="n">Vb</span> <span class="o">=</span> <span class="n">compute_Vb</span><span class="p">(</span><span class="n">Vc</span><span class="p">)</span>
+    
+    <span class="c1"># Turn off solubility of non-aromatic hydrocarbons</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">composition</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">composition</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;Aromatics&#39;</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># Use -9999. flag expected in dbm module of TAMOC</span>
+            <span class="n">neg_delta_H_sol_R</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mf">9999.</span>
+            <span class="n">k_h_0</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mf">9999.</span>
+            <span class="n">nu_bar</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mf">9999.</span>
+            <span class="n">K_salt</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mf">9999.</span>
+    
+    <span class="c1"># Format these data as they are normally used in the dbm module of TAMOC</span>
+    <span class="n">user_data</span><span class="p">,</span> <span class="n">units</span> <span class="o">=</span> <span class="n">format_dbm_data</span><span class="p">(</span><span class="n">composition</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">Pc</span><span class="p">,</span> <span class="n">Tc</span><span class="p">,</span> <span class="n">omega</span><span class="p">,</span> <span class="n">k_h_0</span><span class="p">,</span> 
+        <span class="n">neg_delta_H_sol_R</span><span class="p">,</span> <span class="n">nu_bar</span><span class="p">,</span> <span class="n">K_salt</span><span class="p">,</span> <span class="n">Vc</span><span class="p">,</span> <span class="n">boiling_point</span><span class="p">,</span> <span class="n">Vb</span><span class="p">,</span> 
+        <span class="n">B</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dE</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        
+    <span class="c1"># Extract the measurements of the whole oil density</span>
+    <span class="n">rho_data</span> <span class="o">=</span> <span class="n">gnome_oil</span><span class="o">.</span><span class="n">culled_densities</span><span class="p">()</span>
+    
+    <span class="c1"># Perform tuning of Vc to get better densities</span>
+    <span class="n">user_data</span> <span class="o">=</span> <span class="n">Vc_tuning</span><span class="p">(</span><span class="n">mass_frac</span><span class="p">,</span> <span class="n">composition</span><span class="p">,</span> <span class="n">rho_data</span><span class="p">,</span> <span class="n">density2</span><span class="p">,</span>
+        <span class="n">delta</span><span class="p">,</span> <span class="n">user_data</span><span class="p">)</span>
+    
+    <span class="c1"># Update the value of Vb in the user_data database using the final </span>
+    <span class="c1"># value of Vc after tuning.</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">composition</span><span class="p">)):</span>
+        <span class="n">Vc</span> <span class="o">=</span> <span class="n">user_data</span><span class="p">[</span><span class="n">composition</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="s1">&#39;Vc&#39;</span><span class="p">]</span>
+        <span class="n">Vb</span> <span class="o">=</span> <span class="n">compute_Vb</span><span class="p">(</span><span class="n">Vc</span><span class="p">)</span>
+        <span class="n">user_data</span><span class="p">[</span><span class="n">composition</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="s1">&#39;Vb&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Vb</span>
+    
+    <span class="c1"># Return the results</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">composition</span><span class="p">,</span> <span class="n">mass_frac</span><span class="p">,</span> <span class="n">user_data</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">units</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="sequence_names"><a class="viewcode-back" href="../autodoc/dbm_utilities/dbm_utilities.sequence_names.html#dbm_utilities.sequence_names">[docs]</a><span class="k">def</span> <span class="nf">sequence_names</span><span class="p">(</span><span class="n">sara_names</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add sequential counters to the pseudo-component name in sara_names</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    sara_names : list</span>
+<span class="sd">        List of strings containing the names of each pseudo-component in an </span>
+<span class="sd">        oil based on SARA analysis.  </span>
+<span class="sd">    name : str</span>
+<span class="sd">        Name of the pseudo-component to edit (&#39;Saturates&#39; or &#39;Aromatics&#39;)</span>
+<span class="sd">    </span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Since the sara_names in the NOAA OilLibrary are stored in a list, this</span>
+<span class="sd">    function makes use of the fact that Python lists are mutable; hence,</span>
+<span class="sd">    changes made to sara_names in this function will also be reflected for</span>
+<span class="sd">    that variable in the calling function or program.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">id_num</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sara_names</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">sara_names</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="n">name</span><span class="p">:</span>
+            <span class="n">sara_names</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">sara_names</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">id_num</span><span class="p">)</span>
+            <span class="n">id_num</span> <span class="o">+=</span> <span class="mi">1</span></div>
+
+
+<div class="viewcode-block" id="get_solubility"><a class="viewcode-back" href="../autodoc/dbm_utilities/dbm_utilities.get_solubility.html#dbm_utilities.get_solubility">[docs]</a><span class="k">def</span> <span class="nf">get_solubility</span><span class="p">(</span><span class="n">molecular_weight</span><span class="p">,</span> <span class="n">density</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Estimate the solubility of each oil pseudo-component</span>
+<span class="sd">    </span>
+<span class="sd">    Estimate the solubility (mol/L) of each oil pseudo-component using the</span>
+<span class="sd">    method from Huibers and Lehr given in the huibers_lehr.py module of</span>
+<span class="sd">    py_gnome in the directory gnome/utilities/weathering/. This method is from</span>
+<span class="sd">    Huibers &amp; Katrisky in a 2012 EPA report and was further modified by Lehr</span>
+<span class="sd">    to better match measured values. The equation used here is adapted to</span>
+<span class="sd">    return results in mol/L.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    molecular_weight : np.array</span>
+<span class="sd">        Molecular weights of each pseudo-component as recorded in the NOAA</span>
+<span class="sd">        Oil Library (g/mol)</span>
+<span class="sd">    density : np.array</span>
+<span class="sd">        Density of each pseudo-component as recorded in the NOAA Oil Library</span>
+<span class="sd">        (kg/m^3)</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    solubility : np.array</span>
+<span class="sd">        Array of solubilities (mol/L) for each pseudo-component of the oil.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="mf">46.4</span> <span class="o">*</span> <span class="mf">10.</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="mf">36.7</span> <span class="o">*</span> <span class="n">molecular_weight</span> <span class="o">/</span> <span class="n">density</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_henry_constant"><a class="viewcode-back" href="../autodoc/dbm_utilities/dbm_utilities.get_henry_constant.html#dbm_utilities.get_henry_constant">[docs]</a><span class="k">def</span> <span class="nf">get_henry_constant</span><span class="p">(</span><span class="n">solubility</span><span class="p">,</span> <span class="n">vapor_pressure_25C</span><span class="p">,</span> <span class="n">molecular_weight</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Estimate the Henry&#39;s Law constant for each pseudo-component</span>
+<span class="sd">    </span>
+<span class="sd">    Estimate the Henry&#39;s Law constant at standard conditions for each</span>
+<span class="sd">    pseudo-component in an oil. This method uses the solubility together with</span>
+<span class="sd">    the definition of the Henry&#39;s Law constant to estimate k_h_0 at standard</span>
+<span class="sd">    conditions.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    solubility : np.array</span>
+<span class="sd">        Array of solubilities (mol/L) for each pseudo-component of the oil.</span>
+<span class="sd">    vapor_pressure_25C : np.array</span>
+<span class="sd">        Array of vapor pressures (Pa) for each pseudo-component of the oil</span>
+<span class="sd">        at 25 deg C and atmospheric pressure.</span>
+<span class="sd">    molecular_weight : np.array</span>
+<span class="sd">        Array of molecular weights (g/mol) for each pseudo-component of the </span>
+<span class="sd">        oil as recorded in the NOAA Oil Library.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    k_h_0 : np.array</span>
+<span class="sd">        Henry&#39;s Law constant at standard conditions (kg/(m^3 Pa)).</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Use the definition of Henry&#39;s law constant to estimate its value in</span>
+    <span class="c1"># mol / (L Pa)</span>
+    <span class="n">k_h_0</span> <span class="o">=</span> <span class="n">solubility</span> <span class="o">/</span> <span class="n">vapor_pressure_25C</span>
+    
+    <span class="c1"># Return the result in units required by TAMOC (kg / (m^3 Pa))</span>
+    <span class="k">return</span> <span class="n">k_h_0</span> <span class="o">*</span> <span class="p">(</span><span class="n">molecular_weight</span> <span class="o">/</span> <span class="mf">1000.</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1000.</span></div>
+
+
+<div class="viewcode-block" id="get_preos_params"><a class="viewcode-back" href="../autodoc/dbm_utilities/dbm_utilities.get_preos_params.html#dbm_utilities.get_preos_params">[docs]</a><span class="k">def</span> <span class="nf">get_preos_params</span><span class="p">(</span><span class="n">Tb</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">rho</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the parameters required by the Ping Robinson Equation of State</span>
+<span class="sd">    </span>
+<span class="sd">    We estimate the parameters required by the Ping Robinson equation of</span>
+<span class="sd">    state using the methods in Twu (1984) and by Kesler and Lee reported in</span>
+<span class="sd">    Chen et al. (1993). These are the critical point temperature, pressure,</span>
+<span class="sd">    and specific volume and the acentric factor. We also estimate the binary</span>
+<span class="sd">    interaction parameters using a method in Pedersen et al. (2014).</span>
+<span class="sd">    </span>
+<span class="sd">    In theory, the Twu and Kesler and Lee correlations should only be used</span>
+<span class="sd">    for pseudo-components above n-C6, and literature property values should</span>
+<span class="sd">    be used for pseudo-component below n-C6. When these lighter compounds are</span>
+<span class="sd">    present, it is best for each molecule to have its own component</span>
+<span class="sd">    properties.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    Tb : np.array</span>
+<span class="sd">        Array of boiling point temperatures for each pseudo-component in the</span>
+<span class="sd">        oil (K).</span>
+<span class="sd">    M : np.array</span>
+<span class="sd">        Array of molecular weights for each pseudo-component in the oil </span>
+<span class="sd">        (g/mol).</span>
+<span class="sd">    rho : np.array</span>
+<span class="sd">        Density of each pseudo-component in the oil (kg/m^3).</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Tc : np.array</span>
+<span class="sd">        Array of critical point temperatures for each pseudo-component in the</span>
+<span class="sd">        oil (K).</span>
+<span class="sd">    Pc : np.array</span>
+<span class="sd">        Array of critical point pressures for each pseudo-component in the</span>
+<span class="sd">        oil (Pa).</span>
+<span class="sd">    Vc : np.array</span>
+<span class="sd">        Array of critical point specific volumes for each pseudo-component in </span>
+<span class="sd">        the oil (m^3/mol).</span>
+<span class="sd">    M : np.array</span>
+<span class="sd">        Array of the molecular weights of each pseudo-component in the oil </span>
+<span class="sd">        (kg/mol).</span>
+<span class="sd">    omega : np.array</span>
+<span class="sd">        Array of acentric factors (--) for each pseudo-component in the oil.</span>
+<span class="sd">    delta : np.array</span>
+<span class="sd">        Two-dimensional array of the binary interaction coefficients (--) </span>
+<span class="sd">        for the interactions of each pseudo-component in the oil.</span>
+<span class="sd">    </span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The references used here are:</span>
+<span class="sd">    </span>
+<span class="sd">    Chen, D.H., Dinivahi, M.V., Jeng, C.Y., 1993. New acentric factor</span>
+<span class="sd">    correlation based on the Antoine equation. Ind. Eng. Chem. Res. 32,</span>
+<span class="sd">    241-244.</span>
+<span class="sd">    </span>
+<span class="sd">    Pedersen, K.S., Christensen, P.L., Shaikh, J.A., 2014. Phase Behavior of</span>
+<span class="sd">    Petroleum Reservoir Fluids, 2nd ed. CRC Press, Boca Raton, Florida.</span>
+<span class="sd">    </span>
+<span class="sd">    Twu, C.H., 1984. An internally consistent correlation for predicting the</span>
+<span class="sd">    critical properties and molecular weights of petroleum and coal-tar</span>
+<span class="sd">    liquids. Fluid Phase Equilib. 16, 137-150.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Compute the specific gravity using the density of water at 60 deg F = </span>
+    <span class="c1"># 15.555... def C</span>
+    <span class="n">rho_0</span> <span class="o">=</span> <span class="mf">999.</span><span class="c1"># 999.0632006915614</span>
+    <span class="n">sg_adios</span> <span class="o">=</span> <span class="n">rho</span> <span class="o">/</span> <span class="n">rho_0</span>
+    
+    <span class="c1"># First, we apply correlations in Twu (1983) -----------------------------</span>
+    
+    <span class="c1"># These correlations are in English units...perform some unit conversions</span>
+    <span class="n">Tb</span> <span class="o">=</span> <span class="n">Tb</span> <span class="o">*</span> <span class="mf">9.</span> <span class="o">/</span> <span class="mf">5.</span> <span class="c1"># K to R</span>
+    
+    <span class="c1"># Use Equation (1) in Twu (1983) to estimate the critical temperature in </span>
+    <span class="c1"># Rankine</span>
+    <span class="n">Tc_0</span> <span class="o">=</span> <span class="n">Tb</span> <span class="o">/</span> <span class="p">(</span><span class="mf">0.533272</span> <span class="o">+</span> <span class="p">(</span><span class="n">Tb</span> <span class="o">*</span> <span class="mf">0.191017e-3</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">Tb</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="mf">0.779681e-7</span><span class="p">)</span> <span class="o">+</span>
+        <span class="o">-</span> <span class="p">(</span><span class="n">Tb</span><span class="o">**</span><span class="mi">3</span> <span class="o">*</span> <span class="mf">0.284376e-10</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.959468e28</span> <span class="o">/</span> <span class="n">Tb</span><span class="o">**</span><span class="mi">13</span><span class="p">)</span>
+    
+    <span class="c1"># Equation (5) in Twu (1983) estimates a parameter alpha</span>
+    <span class="n">alpha</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">-</span> <span class="n">Tb</span> <span class="o">/</span> <span class="n">Tc_0</span>
+    
+    <span class="c1"># Use Equation (8) in Twu (1983) to estimate the critical pressure in </span>
+    <span class="c1"># psia</span>
+    <span class="n">Pc_0</span> <span class="o">=</span> <span class="p">(</span><span class="mf">3.83354</span> <span class="o">+</span> <span class="mf">1.19629</span> <span class="o">*</span> <span class="n">alpha</span><span class="o">**</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span> <span class="o">+</span> <span class="mf">34.8888</span> <span class="o">*</span> <span class="n">alpha</span> 
+        <span class="o">+</span> <span class="mf">36.1952</span> <span class="o">*</span> <span class="n">alpha</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mf">104.193</span> <span class="o">*</span> <span class="n">alpha</span><span class="o">**</span><span class="mi">4</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+    
+    <span class="c1"># Use Equation (2) in Twu (1983) to estimate the critical specific volume</span>
+    <span class="c1"># in ft^3 / (lb mol)</span>
+    <span class="n">Vc_0</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="p">(</span><span class="mf">0.419869</span> <span class="o">-</span> <span class="mf">0.505839</span> <span class="o">*</span> <span class="n">alpha</span> <span class="o">-</span> <span class="mf">1.56436</span> <span class="o">*</span> <span class="n">alpha</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span>
+        <span class="o">-</span> <span class="mf">9481.70</span> <span class="o">*</span> <span class="n">alpha</span><span class="o">**</span><span class="mi">14</span><span class="p">))</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mi">8</span><span class="p">)</span>
+    
+    <span class="c1"># Use Equation (3) in Twu (1983) to estimate the specific gravity at 60</span>
+    <span class="c1"># deg F relative to that of water at the same temperature (unitless)</span>
+    <span class="n">sg_twu</span> <span class="o">=</span> <span class="mf">0.843593</span> <span class="o">-</span> <span class="mf">0.128624</span> <span class="o">*</span> <span class="n">alpha</span> <span class="o">-</span> <span class="mf">3.36159</span> <span class="o">*</span> <span class="n">alpha</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span> \
+        <span class="o">-</span> <span class="mf">13749.5</span> <span class="o">*</span> <span class="n">alpha</span><span class="o">**</span><span class="mi">12</span>
+    
+    <span class="c1"># Equation (4) in Twu (1983) is used to estimate the molecular weight, </span>
+    <span class="c1"># but this equation cannot be solved directly.  Write a function that </span>
+    <span class="c1"># can be used with a root-finding method to obtain the molecular</span>
+    <span class="c1"># weight</span>
+    <span class="k">def</span> <span class="nf">twu_eq4</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">Tb</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Function containing Equation (4) in Twu (1983)</span>
+<span class="sd">        </span>
+<span class="sd">        This function is used to compute the molecular weight using a root-</span>
+<span class="sd">        finding algorithm.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        theta : float</span>
+<span class="sd">            Estimate for the log of the molecular weight, ln(M).</span>
+<span class="sd">        Tb : float</span>
+<span class="sd">            Estimate for the boiling point (R).</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Residual of Equation (4) in Twu (1983) appropriate for use to compute</span>
+<span class="sd">        theta from a root-finding algorithm.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Compute Equation (4) in Twu (1983) in a form useful for a root-</span>
+        <span class="c1"># finding algorithm.</span>
+        <span class="n">residual</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mf">5.71419</span> <span class="o">+</span> <span class="mf">2.71579</span> <span class="o">*</span> <span class="n">theta</span> <span class="o">-</span> <span class="mf">0.286590</span> <span class="o">*</span> 
+            <span class="n">theta</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mf">39.8544</span> <span class="o">/</span> <span class="n">theta</span> <span class="o">-</span> <span class="mf">0.122488</span> <span class="o">/</span> <span class="n">theta</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">-</span> <span class="mf">24.7522</span> <span class="o">*</span> \
+            <span class="n">theta</span> <span class="o">+</span> <span class="mf">35.3155</span> <span class="o">*</span> <span class="n">theta</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="n">Tb</span>
+        
+        <span class="k">return</span> <span class="n">residual</span>
+    
+    <span class="c1"># Initialize an array to hold the results</span>
+    <span class="n">M_twu</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">M</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    
+    <span class="c1"># Estimate the molecular weight of each pseudocomponent</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">M</span><span class="p">)):</span>
+        
+        <span class="c1"># Equation (7) in Twu (1983) gives an appropriate initial guess</span>
+        <span class="n">M_0</span> <span class="o">=</span> <span class="n">Tb</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="mf">10.44</span> <span class="o">-</span> <span class="mf">0.0052</span> <span class="o">*</span> <span class="n">Tb</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        
+        <span class="c1"># Use fsolve() to solve Equation (4) in Two (1983)</span>
+        <span class="n">theta</span> <span class="o">=</span> <span class="n">fsolve</span><span class="p">(</span><span class="n">twu_eq4</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">M_0</span><span class="p">),</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">Tb</span><span class="p">[</span><span class="n">i</span><span class="p">],))</span>
+        
+        <span class="c1"># Convert theta to molecular weight</span>
+        <span class="n">M_twu</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+    
+    <span class="c1"># Apply Equations (11) - (13) in Twu (1983)</span>
+    <span class="n">delta_sg_t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mf">5.</span> <span class="o">*</span> <span class="p">(</span><span class="n">sg_twu</span> <span class="o">-</span> <span class="n">sg_adios</span><span class="p">))</span> <span class="o">-</span> <span class="mf">1.</span>
+    <span class="n">f_T</span> <span class="o">=</span> <span class="n">delta_sg_t</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="mf">0.362456</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">Tb</span><span class="p">)</span> <span class="o">+</span> 
+        <span class="p">(</span><span class="mf">0.0398285</span> <span class="o">-</span> <span class="mf">0.948125</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">Tb</span><span class="p">))</span> <span class="o">*</span> <span class="n">delta_sg_t</span><span class="p">)</span>
+    <span class="n">Tc</span> <span class="o">=</span> <span class="n">Tc_0</span> <span class="o">*</span> <span class="p">((</span><span class="mf">1.</span> <span class="o">+</span> <span class="mf">2.</span> <span class="o">*</span> <span class="n">f_T</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="mf">2.</span> <span class="o">*</span> <span class="n">f_T</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span>
+    
+    <span class="c1"># Apply Equations (14) - (16) in Twu (1983)</span>
+    <span class="n">delta_sg_v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mf">4.</span> <span class="o">*</span> <span class="p">(</span><span class="n">sg_twu</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="n">sg_adios</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span> <span class="o">-</span> <span class="mf">1.</span>
+    <span class="n">f_V</span> <span class="o">=</span> <span class="n">delta_sg_v</span><span class="o">*</span><span class="p">(</span><span class="mf">0.466590</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">Tb</span><span class="p">)</span> <span class="o">+</span>
+        <span class="p">(</span><span class="o">-</span><span class="mf">0.182421</span> <span class="o">+</span> <span class="mf">3.01721</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">Tb</span><span class="p">))</span> <span class="o">*</span> <span class="n">delta_sg_v</span><span class="p">)</span>
+    <span class="n">Vc</span> <span class="o">=</span> <span class="n">Vc_0</span> <span class="o">*</span> <span class="p">((</span><span class="mf">1.</span> <span class="o">+</span> <span class="mf">2.</span> <span class="o">*</span> <span class="n">f_V</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="mf">2.</span> <span class="o">*</span> <span class="n">f_V</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span>
+    
+    <span class="c1"># Apply Equations (17) - (19) in Twu (1983)</span>
+    <span class="n">delta_sg_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">sg_twu</span> <span class="o">-</span> <span class="n">sg_adios</span><span class="p">))</span> <span class="o">-</span> <span class="mf">1.</span>
+    <span class="n">f_P</span> <span class="o">=</span> <span class="n">delta_sg_p</span> <span class="o">*</span> <span class="p">(</span><span class="mf">2.53262</span> <span class="o">-</span> <span class="mf">46.1955</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">Tb</span><span class="p">)</span> <span class="o">-</span> <span class="mf">0.00127885</span><span class="o">*</span><span class="n">Tb</span> <span class="o">+</span>
+        <span class="p">(</span><span class="o">-</span><span class="mf">11.4277</span> <span class="o">+</span> <span class="mf">252.140</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">Tb</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.00230535</span> <span class="o">*</span> <span class="n">Tb</span><span class="p">)</span> <span class="o">*</span> <span class="n">delta_sg_p</span><span class="p">)</span>
+    <span class="n">Pc</span> <span class="o">=</span> <span class="n">Pc_0</span> <span class="o">*</span> <span class="n">Tc</span> <span class="o">/</span> <span class="n">Tc_0</span> <span class="o">*</span> <span class="n">Vc_0</span> <span class="o">/</span> <span class="n">Vc</span> <span class="o">*</span> <span class="p">((</span><span class="mf">1.</span> <span class="o">+</span> <span class="mf">2.</span> <span class="o">*</span> <span class="n">f_P</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="mf">2.</span> <span class="o">*</span> <span class="n">f_P</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span>
+    
+    <span class="c1"># Second, we apply correlations in Chen et al. (1993) --------------------</span>
+    
+    <span class="c1"># Now, work on equations in Kesler-Lee (taken from Chen (1993))...need</span>
+    <span class="c1"># to convert over the SI units.</span>
+    <span class="n">Pc_atm</span> <span class="o">=</span> <span class="n">Pc</span> <span class="o">*</span> <span class="mf">6.8046e-2</span>   <span class="c1"># (atm)</span>
+    <span class="n">Pc_bar</span> <span class="o">=</span> <span class="n">Pc</span> <span class="o">*</span>  <span class="mf">6894.76e-5</span> <span class="c1"># (bar)</span>
+    <span class="n">Tc_K</span> <span class="o">=</span> <span class="n">Tc</span> <span class="o">*</span> <span class="mf">5.</span> <span class="o">/</span> <span class="mf">9.</span>       <span class="c1"># (K)</span>
+    <span class="n">Tb_K</span> <span class="o">=</span> <span class="n">Tb</span> <span class="o">*</span> <span class="mf">5.</span> <span class="o">/</span> <span class="mf">9.</span>       <span class="c1"># (K)</span>
+    
+    <span class="c1"># Compute acentric factor from Equation (4) in Chen (1993)</span>
+    <span class="n">theta</span> <span class="o">=</span> <span class="n">Tb_K</span> <span class="o">/</span> <span class="n">Tc_K</span>
+    <span class="n">omega</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">Pc_atm</span><span class="p">)</span> <span class="o">-</span> <span class="mf">5.92714</span> <span class="o">+</span> <span class="mf">6.09648</span> <span class="o">/</span> <span class="n">theta</span> <span class="o">+</span> <span class="mf">1.28862</span> <span class="o">*</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span> <span class="o">-</span> <span class="mf">0.169347</span> <span class="o">*</span> <span class="n">theta</span><span class="o">**</span><span class="mi">6</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">15.2518</span> <span class="o">-</span> <span class="mf">15.6875</span> <span class="o">/</span> <span class="n">theta</span> 
+        <span class="o">-</span>  <span class="mf">13.4721</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.43577</span> <span class="o">*</span> <span class="n">theta</span><span class="o">**</span><span class="mi">6</span><span class="p">)</span>
+    
+    <span class="c1"># Thrid, put results in the right units ----------------------------------</span>
+    
+    <span class="c1"># Convert all results to SI base units of TAMOC</span>
+    <span class="n">Tc</span> <span class="o">=</span> <span class="mf">5.</span><span class="o">/</span> <span class="mf">9.</span> <span class="o">*</span> <span class="p">(</span><span class="n">Tc</span> <span class="o">-</span> <span class="mf">459.67</span> <span class="o">-</span> <span class="mi">32</span><span class="p">)</span> <span class="o">+</span> <span class="mf">273.15</span>   <span class="c1"># (K)</span>
+    <span class="n">Pc</span> <span class="o">=</span> <span class="n">Pc</span> <span class="o">*</span> <span class="mf">6894.76</span>                           <span class="c1"># (Pa)</span>
+    <span class="n">M</span> <span class="o">=</span> <span class="n">M</span> <span class="o">/</span> <span class="mf">1000.</span>                               <span class="c1"># [kg/mol)</span>
+    <span class="n">Vc</span> <span class="o">=</span> <span class="n">Vc</span> <span class="o">/</span> <span class="mf">453.59237</span> <span class="o">*</span> <span class="mf">0.3048</span><span class="o">**</span><span class="mi">3</span>             <span class="c1"># (m^3/mol)</span>
+    
+    <span class="c1"># Fourth, get the binary interaction coefficients ------------------------</span>
+    
+    <span class="c1"># Use the Pedersen method to estimate the binary interaction </span>
+    <span class="c1"># coefficients, i.e., delta.</span>
+    <span class="n">delta</span> <span class="o">=</span> <span class="n">pedersen</span><span class="p">(</span><span class="n">M</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="p">(</span><span class="n">Tc</span><span class="p">,</span> <span class="n">Pc</span><span class="p">,</span> <span class="n">Vc</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">omega</span><span class="p">,</span> <span class="n">delta</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="pedersen"><a class="viewcode-back" href="../autodoc/dbm_utilities/dbm_utilities.pedersen.html#dbm_utilities.pedersen">[docs]</a><span class="k">def</span> <span class="nf">pedersen</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">composition</span><span class="o">=</span><span class="p">[]):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Estimate the binary interaction coefficients</span>
+<span class="sd">    </span>
+<span class="sd">    Use the method in Pedersen et al. (2014) to estimate the binary</span>
+<span class="sd">    interaction coefficients and return them as a matrix, delta.</span>
+<span class="sd">        </span>
+<span class="sd">    This method is reported in Pedersen, K.S., Christensen, P.L., Shaikh,</span>
+<span class="sd">    J.A., 2014. Phase Behavior of Petroleum Reservoir Fluids, 2nd ed. CRC</span>
+<span class="sd">    Press, Boca Raton, Florida.  This method is valid for hydrocarbon-</span>
+<span class="sd">    hydrocarbon interactions.  For atmospheric gases, there needs to be </span>
+<span class="sd">    a correction.  We use the guidance in Table 4.2 in the Pedersen et al.</span>
+<span class="sd">    book for CO2 and N2.  We further assume N2 and O2 function the same.</span>
+<span class="sd">    Any other gas is not treated; hence, we set the binary interaction</span>
+<span class="sd">    parameters to zero.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    M : np.array (len M)</span>
+<span class="sd">        Array of molecular weights (mol/kg)</span>
+<span class="sd">    composition : list, default=[]</span>
+<span class="sd">        List of chemical components in the mixture.  If this list is not </span>
+<span class="sd">        provided, we assume that all compounds are hydrocarbons.  If the list</span>
+<span class="sd">        is provided, we use it only to find the atmospheric gases nitrogen, </span>
+<span class="sd">        oxygen, and carbon dioxide and correct these.  We also search for </span>
+<span class="sd">        other non-hydrocarbons and set their parameters to zero.</span>
+<span class="sd">        </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    delta : np.array (len M, len M)</span>
+<span class="sd">        Array of binary interaction coefficients</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Initialize a matrix to hold delta</span>
+    <span class="n">delta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">M</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">M</span><span class="p">)))</span>
+    
+    <span class="c1"># Compute each off-diagonal term using the correlation to hydrocarbon-</span>
+    <span class="c1"># hydrocarbon mixtures.</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">M</span><span class="p">)):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">M</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="n">j</span><span class="p">:</span>
+                <span class="c1"># Take the appropriate ratio</span>
+                <span class="n">delta</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.00145</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">M</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">/</span> <span class="n">M</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> 
+                    <span class="n">M</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="n">M</span><span class="p">[</span><span class="n">j</span><span class="p">]]))</span>
+    
+    <span class="c1"># Next, make corrections based on the given composition</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">composition</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        
+        <span class="c1"># Get the compositions of air and natural gas</span>
+        <span class="n">air</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;nitrogen&#39;</span><span class="p">,</span> <span class="s1">&#39;oxygen&#39;</span><span class="p">,</span> <span class="s1">&#39;carbon_dioxide&#39;</span><span class="p">]</span>
+        <span class="n">gas</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;methane&#39;</span><span class="p">,</span> <span class="s1">&#39;ethane&#39;</span><span class="p">,</span> <span class="s1">&#39;propane&#39;</span><span class="p">,</span> <span class="s1">&#39;isobutane&#39;</span><span class="p">,</span> <span class="s1">&#39;n-butane&#39;</span><span class="p">]</span>
+        
+        <span class="c1"># Get the values of delta between air (rows) and the natural gases</span>
+        <span class="c1"># (columns)</span>
+        <span class="n">delta_air_gas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+            <span class="p">[</span><span class="mf">0.0311</span><span class="p">,</span> <span class="mf">0.0515</span><span class="p">,</span> <span class="mf">0.0852</span><span class="p">,</span> <span class="mf">0.1033</span><span class="p">,</span> <span class="mf">0.08</span><span class="p">],</span> 
+            <span class="p">[</span><span class="mf">0.0311</span><span class="p">,</span> <span class="mf">0.0515</span><span class="p">,</span> <span class="mf">0.0852</span><span class="p">,</span> <span class="mf">0.1033</span><span class="p">,</span> <span class="mf">0.08</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">0.12</span><span class="p">,</span> <span class="mf">0.12</span><span class="p">,</span> <span class="mf">0.12</span><span class="p">,</span> <span class="mf">0.12</span><span class="p">,</span> <span class="mf">0.12</span><span class="p">]</span>
+        <span class="p">])</span>
+        
+        <span class="c1"># Get the values of data between air and longer-chain hydrocarbons</span>
+        <span class="n">delta_air_hydro</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.08</span><span class="p">,</span> <span class="mf">0.08</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">])</span>
+        
+        <span class="c1"># For each atmospheric gas, correct the delta values</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">air</span><span class="p">)):</span>
+            
+            <span class="c1"># Only correct components in the composition</span>
+            <span class="k">if</span> <span class="n">air</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">in</span> <span class="n">composition</span><span class="p">:</span>
+                
+                <span class="c1"># Get the index to this gas in the composition</span>
+                <span class="n">air_idx</span> <span class="o">=</span> <span class="n">composition</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">air</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                
+                <span class="c1"># Set all binary interaction parameters to the value between</span>
+                <span class="c1"># this gas and a hydrocarbon</span>
+                <span class="n">delta</span><span class="p">[</span><span class="n">air_idx</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">delta_air_hydro</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">delta</span><span class="p">[:,</span><span class="n">air_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">delta_air_hydro</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">delta</span><span class="p">[</span><span class="n">air_idx</span><span class="p">,</span><span class="n">air_idx</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.</span>
+                
+                <span class="c1"># Correct the values for interaction between this atmospheric</span>
+                <span class="c1"># gas and a light hydrocarbon (natural gas)</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">gas</span><span class="p">)):</span>
+                    
+                    <span class="c1"># Only correct components in the composition</span>
+                    <span class="k">if</span> <span class="n">gas</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="ow">in</span> <span class="n">composition</span><span class="p">:</span>
+                        
+                        <span class="c1"># Get the  index to this natural gas compound in </span>
+                        <span class="c1"># the composition</span>
+                        <span class="n">gas_idx</span> <span class="o">=</span> <span class="n">composition</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">gas</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+                        
+                        <span class="c1"># Set these binary interaction coefficients to the </span>
+                        <span class="c1"># correct values</span>
+                        <span class="n">delta</span><span class="p">[</span><span class="n">air_idx</span><span class="p">,</span><span class="n">gas_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">delta_air_gas</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span>
+                        <span class="n">delta</span><span class="p">[</span><span class="n">gas_idx</span><span class="p">,</span><span class="n">air_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">delta_air_gas</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span>
+        
+        <span class="c1"># Set the names of known compounds</span>
+        <span class="n">chems</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Saturates&#39;</span><span class="p">,</span> <span class="s1">&#39;Aromatics&#39;</span><span class="p">,</span> <span class="s1">&#39;Resins&#39;</span><span class="p">,</span> <span class="s1">&#39;Asphaltenes&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">air</span> <span class="o">+</span> \
+            <span class="n">gas</span>
+        
+        <span class="c1"># For any other components of the mixture, set the delta values to </span>
+        <span class="c1"># zero</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">composition</span><span class="p">)):</span>
+            
+            <span class="c1"># Check if we recognize this chemical</span>
+            <span class="n">known</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">chems</span><span class="p">)):</span>
+                <span class="c1"># Note that component names look like &#39;Aromatics5&#39;, so</span>
+                <span class="c1"># we have to check whether the base name &#39;Aromatics&#39; is</span>
+                <span class="c1"># in this compound name</span>
+                <span class="k">if</span> <span class="n">chems</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="ow">in</span> <span class="n">composition</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+                    <span class="n">known</span> <span class="o">=</span> <span class="kc">True</span>
+            
+            <span class="c1"># Set delta to zero for unknown chemicals</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">known</span><span class="p">:</span>
+                <span class="c1"># This compound does not have a base name common with any</span>
+                <span class="c1"># compound in chems...set these binary interaction parameters </span>
+                <span class="c1"># to zero</span>
+                <span class="n">delta</span><span class="p">[</span><span class="n">i</span><span class="p">,:]</span> <span class="o">=</span> <span class="mf">0.</span>
+                <span class="n">delta</span><span class="p">[:,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.</span>
+    
+    <span class="c1"># Return the result</span>
+    <span class="k">return</span> <span class="n">delta</span></div>
+
+
+<div class="viewcode-block" id="compute_Vb"><a class="viewcode-back" href="../autodoc/dbm_utilities/dbm_utilities.compute_Vb.html#dbm_utilities.compute_Vb">[docs]</a><span class="k">def</span> <span class="nf">compute_Vb</span><span class="p">(</span><span class="n">Vc</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the molar volume at the boiling point</span>
+<span class="sd">    </span>
+<span class="sd">    Compute the specific molar volume at the boiling point from the </span>
+<span class="sd">    specific molar volume at the critical point using the Tyn and Calus </span>
+<span class="sd">    formula (see dbm.py for details).</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    Vc : float or np.array</span>
+<span class="sd">        Specific molar volume at the critical point (m^3/mol)</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Vb : float or np.array</span>
+<span class="sd">        Specific molar volume at the boiling point (m^3/mol)</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">(</span><span class="mf">0.285</span> <span class="o">*</span> <span class="p">(</span><span class="n">Vc</span> <span class="o">*</span> <span class="mf">1.e6</span><span class="p">)</span><span class="o">**</span><span class="mf">1.048</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1.e-6</span></div>
+
+
+<div class="viewcode-block" id="Vc_tuning"><a class="viewcode-back" href="../autodoc/dbm_utilities/dbm_utilities.Vc_tuning.html#dbm_utilities.Vc_tuning">[docs]</a><span class="k">def</span> <span class="nf">Vc_tuning</span><span class="p">(</span><span class="n">mass_frac</span><span class="p">,</span> <span class="n">composition</span><span class="p">,</span> <span class="n">rho_data</span><span class="p">,</span> <span class="n">rho_i</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">user_data</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Tune Vc to get better density estimates</span>
+<span class="sd">    </span>
+<span class="sd">    Tune the molar specific volume at the critical point in order to get </span>
+<span class="sd">    better agreement between the measured and modeled densities.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mass_frac : np.array</span>
+<span class="sd">        Array of mass fractions of the dead oil compounds in the mixture.</span>
+<span class="sd">        All of the numbers in this array also sum to 1.</span>
+<span class="sd">    composition : list</span>
+<span class="sd">        List of strings containing unique names for each chemical in the </span>
+<span class="sd">        present oil composition.</span>
+<span class="sd">    rho_data : np.array</span>
+<span class="sd">        List of NOAA Oil Library models.Density objects.  These objects </span>
+<span class="sd">        contain measurements of the whole oil density at different</span>
+<span class="sd">        temperature and weathering conditions.</span>
+<span class="sd">    rho_i : np.array</span>
+<span class="sd">        Array of densities of each pseudo-component in the Adios database,  </span>
+<span class="sd">        re-scaled such that density whole oil = (1./np.sum(mass_frac/rho_i))</span>
+<span class="sd">    delta : np.array</span>
+<span class="sd">        Array of binary interaction coefficients</span>
+<span class="sd">    user_data : dict</span>
+<span class="sd">        A dictionary of chemical property data in the format expected by </span>
+<span class="sd">        the tamoc.dbm module objects.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    user_data : dict</span>
+<span class="sd">        A dictionary of updated chemical property data in the format expected </span>
+<span class="sd">        by the tamoc.dbm module objects.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Count the number of oil components</span>
+    <span class="n">nc</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">mass_frac</span><span class="p">)</span>
+    
+    <span class="c1"># The component densities in Adios are specified at the following </span>
+    <span class="c1"># conditions</span>
+    <span class="n">T</span> <span class="o">=</span> <span class="mf">288.15</span>
+    <span class="n">P</span> <span class="o">=</span> <span class="mf">101325.</span>
+        
+    <span class="c1"># Create a function for optimizing Vc such that the difference between</span>
+    <span class="c1"># the TAMOC pseudocomponent density and the reported pseudocomponent</span>
+    <span class="c1"># density is minimized</span>
+    <span class="k">def</span> <span class="nf">delta_rho</span><span class="p">(</span><span class="n">Vc</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">user_data</span><span class="p">,</span> <span class="n">rho_i</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the density difference between TAMOC and a measurement</span>
+<span class="sd">        </span>
+<span class="sd">        Compute the density of a single oil component in TAMOC and compare</span>
+<span class="sd">        this density to a reported measured value.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        Vc : float</span>
+<span class="sd">            Value of the molar specific volume at the critical point </span>
+<span class="sd">            (m^3/mol)</span>
+<span class="sd">        component : str</span>
+<span class="sd">            String name of the oil pseudocomponent to compute.</span>
+<span class="sd">        user_data : dict</span>
+<span class="sd">            A dictionary of chemical property data in the format expected by </span>
+<span class="sd">            the tamoc.dbm module objects.</span>
+<span class="sd">        rho_i : float</span>
+<span class="sd">            Measured value of the density of this pseudocomponent (kg/m^3)</span>
+<span class="sd">        T : float</span>
+<span class="sd">            Temperature at which to compute properties (K)</span>
+<span class="sd">        P : float</span>
+<span class="sd">            Pressure at which to compute properties (Pa)</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        delta_rho : float</span>
+<span class="sd">            Absolute value of the difference between the density computed in </span>
+<span class="sd">            TAMOC and the density measured in the Adios database, re-scaled </span>
+<span class="sd">            such that:</span>
+<span class="sd">                density whole oil = (1./np.sum(mass_fraction/rho_i))</span>
+<span class="sd">        </span>
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        Since this function computes the density of a single oil component, </span>
+<span class="sd">        the binary interaction coefficient is zero and the parameter `delta`</span>
+<span class="sd">        is not needed by this function.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Update the value of Vc in the user_data for the present oil </span>
+        <span class="c1"># component</span>
+        <span class="n">user_data</span><span class="p">[</span><span class="n">component</span><span class="p">][</span><span class="s1">&#39;Vc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Vc</span>
+        
+        <span class="c1"># Create a dbm.FluidMixture object for this oil component with the</span>
+        <span class="c1"># present user data.</span>
+        <span class="n">oil_comp</span> <span class="o">=</span> <span class="n">dbm</span><span class="o">.</span><span class="n">FluidMixture</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">user_data</span><span class="o">=</span><span class="n">user_data</span><span class="p">)</span>
+        
+        <span class="c1"># Compute the density in TAMOC and select the liquid density</span>
+        <span class="n">rho_tamoc</span> <span class="o">=</span> <span class="n">oil_comp</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.</span><span class="p">]),</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">)[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+        
+        <span class="c1"># Return the absolute value of the difference between the TAMOC and </span>
+        <span class="c1"># Adios densities</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">rho_tamoc</span> <span class="o">-</span> <span class="n">rho_i</span><span class="p">)</span>
+    
+    <span class="c1"># Find the optimal value of Vc for each component of the oil</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nc</span><span class="p">):</span>
+        
+        <span class="c1"># Extract the original value of Vc as initial value for the search</span>
+        <span class="n">Vc_0</span> <span class="o">=</span> <span class="n">user_data</span><span class="p">[</span><span class="n">composition</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="s1">&#39;Vc&#39;</span><span class="p">]</span>
+        
+        <span class="c1"># Minimize the error between the model and measurement</span>
+        <span class="n">Vc</span> <span class="o">=</span> <span class="n">fmin</span><span class="p">(</span><span class="n">delta_rho</span><span class="p">,</span> <span class="n">Vc_0</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">composition</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">user_data</span><span class="p">,</span> <span class="n">rho_i</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+            <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">),</span> <span class="n">disp</span><span class="o">=</span><span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        
+        <span class="c1"># Store the optimized value in user_data</span>
+        <span class="n">user_data</span><span class="p">[</span><span class="n">composition</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="s1">&#39;Vc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Vc</span>
+    
+    <span class="c1"># Extract the density information reported in the Adios database for the</span>
+    <span class="c1"># whole oil.</span>
+    <span class="n">T_0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">rho_data</span><span class="p">))</span>
+    <span class="n">rho_0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">rho_data</span><span class="p">))</span>
+    <span class="n">w_0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">rho_data</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">rho_data</span><span class="p">)):</span>
+        <span class="n">T_0</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">rho_data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">ref_temp_k</span>
+        <span class="n">rho_0</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">rho_data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">kg_m_3</span>
+        <span class="n">w_0</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">rho_data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">weathering</span>
+    
+    <span class="c1"># Compare the TAMOC predictions to each of the measurements in Adios that</span>
+    <span class="c1"># ignore weathering.</span>
+    <span class="n">num</span> <span class="o">=</span> <span class="mf">0.</span>
+    <span class="n">sum_abs</span> <span class="o">=</span> <span class="mf">0.</span>
+    <span class="n">sum_rel</span> <span class="o">=</span> <span class="mf">0.</span>
+    <span class="n">oil</span> <span class="o">=</span> <span class="n">dbm</span><span class="o">.</span><span class="n">FluidMixture</span><span class="p">(</span><span class="n">composition</span><span class="p">,</span> <span class="n">user_data</span><span class="o">=</span><span class="n">user_data</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="n">delta</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">rho_0</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">w_0</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="mf">0.</span><span class="p">:</span>
+            <span class="c1"># Compute the whole-oil density in TAMOC</span>
+            <span class="n">rho_tamoc</span> <span class="o">=</span> <span class="n">oil</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">mass_frac</span><span class="p">,</span> <span class="n">T_0</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">P</span><span class="p">)[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">rho_adios</span> <span class="o">=</span> <span class="n">rho_0</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            
+            <span class="c1"># Update statistics</span>
+            <span class="n">sum_abs</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">rho_tamoc</span> <span class="o">-</span> <span class="n">rho_adios</span><span class="p">)</span>
+            <span class="n">sum_rel</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">rho_tamoc</span> <span class="o">-</span> <span class="n">rho_adios</span><span class="p">)</span> <span class="o">/</span> <span class="n">rho_adios</span>
+            <span class="n">num</span> <span class="o">+=</span> <span class="mf">1.</span>
+    
+    <span class="c1"># Compute statistics</span>
+    <span class="n">err_abs</span> <span class="o">=</span> <span class="n">sum_abs</span> <span class="o">/</span> <span class="n">num</span>
+    <span class="n">err_rel</span> <span class="o">=</span> <span class="n">sum_rel</span> <span class="o">/</span> <span class="n">num</span>
+    
+    <span class="c1"># Report the statistics</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">----------&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Average absolute error for density:  </span><span class="si">%6.3f</span><span class="s1"> (kg/m^3) &#39;</span> <span class="o">%</span> <span class="n">err_abs</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Average relative error for density:  </span><span class="si">%6.4f</span><span class="s1"> (--)&#39;</span> <span class="o">%</span> <span class="n">err_rel</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;----------</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># Return the optimized user_data dictionary</span>
+    <span class="k">return</span> <span class="n">user_data</span></div>
+
+
+<span class="c1"># --- Results analysis utilities ---</span>
+
+<div class="viewcode-block" id="print_chemdata"><a class="viewcode-back" href="../autodoc/dbm_utilities/dbm_utilities.print_chemdata.html#dbm_utilities.print_chemdata">[docs]</a><span class="k">def</span> <span class="nf">print_chemdata</span><span class="p">(</span><span class="n">user_data</span><span class="p">,</span> <span class="n">units</span><span class="p">,</span> <span class="n">chems</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Print a table of the chemical property data</span>
+<span class="sd">    </span>
+<span class="sd">    Print a readable table of the chemical property data stored in the </span>
+<span class="sd">    user_data dictionary used by the TAMOC discrete bubble model (dbm </span>
+<span class="sd">    module).</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    user_data : dict</span>
+<span class="sd">        A dictionary of chemical property data in the format expected by </span>
+<span class="sd">        the tamoc.dbm module objects.</span>
+<span class="sd">    units : dict</span>
+<span class="sd">        A dictionary of units for each of the chemical properties in the</span>
+<span class="sd">        database</span>
+<span class="sd">    chems : list, default=[]</span>
+<span class="sd">        An optional list of chemicals to print. Each chemical must be listed</span>
+<span class="sd">        in the user_data dictionary. If no input is given, then all chemicals</span>
+<span class="sd">        in user_data will print.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Put user_data in a list if it is not already a list</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">user_data</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">user_data</span> <span class="o">=</span> <span class="p">[</span><span class="n">user_data</span><span class="p">]</span>
+    
+    <span class="c1"># Decide how many chemical components to print</span>
+    <span class="k">if</span> <span class="n">chems</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="n">user_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="n">chems</span>
+    
+    <span class="c1"># Get the names of the variables stored in the chemical database</span>
+    <span class="n">variables</span> <span class="o">=</span> <span class="n">user_data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">names</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+    
+    <span class="c1"># Print the data by component</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">----------&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">:</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;    &#39;</span> <span class="o">+</span> <span class="n">var</span> <span class="o">+</span> <span class="s1">&#39; = &#39;</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">user_data</span><span class="p">)):</span>
+                <span class="n">line</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%g</span><span class="s1">, &#39;</span> <span class="o">%</span> <span class="n">user_data</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">name</span><span class="p">][</span><span class="n">var</span><span class="p">])</span> 
+            <span class="n">line</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">units</span><span class="p">[</span><span class="n">var</span><span class="p">]))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">line</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;----------</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="print_composition"><a class="viewcode-back" href="../autodoc/dbm_utilities/dbm_utilities.print_composition.html#dbm_utilities.print_composition">[docs]</a><span class="k">def</span> <span class="nf">print_composition</span><span class="p">(</span><span class="n">composition</span><span class="p">,</span> <span class="n">mass_frac</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Print a table of the chemical composition</span>
+<span class="sd">    </span>
+<span class="sd">    Print a readable table of the composition data (names of the pseudo-</span>
+<span class="sd">    components and the mass fractions of each).</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    composition : list</span>
+<span class="sd">        List of strings containing the names of the oil components in the </span>
+<span class="sd">        dead oil from the Adios database.</span>
+<span class="sd">    mass_frac : np.array</span>
+<span class="sd">        An array of mass fractions for all compounds in the dead oil from </span>
+<span class="sd">        the Adios database (kg).</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Put the composition data in a list if it is not already a list</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">composition</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">composition</span> <span class="o">=</span> <span class="p">[</span><span class="n">composition</span><span class="p">]</span>
+
+    <span class="c1"># Put the mass fraction data in a list if it is not already a list</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mass_frac</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">mass_frac</span> <span class="o">=</span> <span class="p">[</span><span class="n">mass_frac</span><span class="p">]</span>
+    
+    <span class="c1"># Print the data by component</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">----------&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">composition</span><span class="p">[</span><span class="mi">0</span><span class="p">])):</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;    &#39;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">mass_frac</span><span class="p">)):</span>
+            <span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">composition</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;, &#39;</span><span class="p">)</span>
+            <span class="n">line</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%g</span><span class="s1">, &#39;</span> <span class="o">%</span> <span class="n">mass_frac</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">i</span><span class="p">])</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">names</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">line</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;----------</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="print_petroleum_props"><a class="viewcode-back" href="../autodoc/dbm_utilities/dbm_utilities.print_petroleum_props.html#dbm_utilities.print_petroleum_props">[docs]</a><span class="k">def</span> <span class="nf">print_petroleum_props</span><span class="p">(</span><span class="n">comp</span><span class="p">,</span> <span class="n">mass_frac</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">q_oil</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the gas and liquid properties of a petroleum fluid</span>
+<span class="sd">    </span>
+<span class="sd">    Compute the gas and liquid properties of a petroleum fluid described by a</span>
+<span class="sd">    dbm.FluidMixture object (oil) and a composition (mass_frac) at a given</span>
+<span class="sd">    temperature (T), salinity (psu), and pressure (P). Print the results to</span>
+<span class="sd">    the screen for review.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    comp : list</span>
+<span class="sd">        List of strings containing the names of the oil components in the </span>
+<span class="sd">        live oil mixture.</span>
+<span class="sd">    mass_frac : np.array</span>
+<span class="sd">        An array of mass fractions for all compounds in the live oil mixture</span>
+<span class="sd">        (kg/kg).</span>
+<span class="sd">    data : dict</span>
+<span class="sd">        A dictionary of chemical property data in the format expected by </span>
+<span class="sd">        the tamoc.dbm FluidMixture and FluidParticle module objects.</span>
+<span class="sd">    delta : np.array (len M, len M)</span>
+<span class="sd">        Array of binary interaction coefficients</span>
+<span class="sd">    T : float</span>
+<span class="sd">        Temperature to compute gas-liquid equilibrium and viscosity (K)</span>
+<span class="sd">    S : float</span>
+<span class="sd">        Salinity to compute interfacial tension (psu)</span>
+<span class="sd">    P : float</span>
+<span class="sd">        Pressure to compute gas-liquid equilibrium and viscosity (Pa)</span>
+<span class="sd">    q_oil : float, default=None</span>
+<span class="sd">        Optional flow rate of oil (bbl/d at standard conditions).  This is </span>
+<span class="sd">        used to report the mass and volume flow rates of gas and liquid at</span>
+<span class="sd">        the given T, P that are equivalent to this amount of oil.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    mass_flux : np.array</span>
+<span class="sd">        An array of the mass fluxes of each compound in the oil mixture</span>
+<span class="sd">        (kg/s) so that the desired oil flow rate and GOR is achieved.  If</span>
+<span class="sd">        q_oil is not specified, this mass flux array will be a total of</span>
+<span class="sd">        1 kg/s such that it is equivalent to the mass_frac array (kg/kg).</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Create a dbm.FluidMixture object</span>
+    <span class="n">oil</span> <span class="o">=</span> <span class="n">dbm</span><span class="o">.</span><span class="n">FluidMixture</span><span class="p">(</span><span class="n">comp</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="n">delta</span><span class="p">,</span> <span class="n">user_data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+    
+    <span class="c1"># Compute the equilibrium composition</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Computing oil/gas equilibrium at:&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;---------------------------------&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;    T = </span><span class="si">%g</span><span class="s1"> (K)&#39;</span> <span class="o">%</span> <span class="n">T</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;    S = </span><span class="si">%g</span><span class="s1"> (psu)&#39;</span> <span class="o">%</span> <span class="n">S</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;    P = </span><span class="si">%g</span><span class="s1"> (Pa)&#39;</span> <span class="o">%</span><span class="n">P</span><span class="p">)</span>
+    <span class="n">m</span><span class="p">,</span> <span class="n">xi</span><span class="p">,</span> <span class="n">K</span> <span class="o">=</span> <span class="n">oil</span><span class="o">.</span><span class="n">equilibrium</span><span class="p">(</span><span class="n">mass_frac</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
+    
+    <span class="c1"># Get the properties of gas</span>
+    <span class="n">mf_gas</span> <span class="o">=</span> <span class="n">m</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span>   <span class="c1"># mass fractions of all compounds in the gas phase</span>
+    <span class="n">rho</span> <span class="o">=</span> <span class="n">oil</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">mf_gas</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">)[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">mu</span> <span class="o">=</span> <span class="n">oil</span><span class="o">.</span><span class="n">viscosity</span><span class="p">(</span><span class="n">mf_gas</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">)[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">sigma</span> <span class="o">=</span> <span class="n">oil</span><span class="o">.</span><span class="n">interface_tension</span><span class="p">(</span><span class="n">mf_gas</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">P</span><span class="p">)[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+    
+    <span class="c1"># Print a table to properties</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Gas Properties:&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;---------------&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;    density (kg/m^3)        : &#39;</span><span class="p">,</span> <span class="n">rho</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;    viscosity (Pa s)        : &#39;</span><span class="p">,</span> <span class="n">mu</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;    interface tension (N/m) : &#39;</span><span class="p">,</span> <span class="n">sigma</span><span class="p">)</span>
+
+    <span class="c1"># Get the properties of the oil</span>
+    <span class="n">mf_oil</span> <span class="o">=</span> <span class="n">m</span><span class="p">[</span><span class="mi">1</span><span class="p">,:]</span>   <span class="c1"># mass fractions of all compounds in the liquid phase</span>
+    <span class="n">rho</span> <span class="o">=</span> <span class="n">oil</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">mf_oil</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">)[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">mu</span> <span class="o">=</span> <span class="n">oil</span><span class="o">.</span><span class="n">viscosity</span><span class="p">(</span><span class="n">mf_oil</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">)[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">sigma</span> <span class="o">=</span> <span class="n">oil</span><span class="o">.</span><span class="n">interface_tension</span><span class="p">(</span><span class="n">mf_oil</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">P</span><span class="p">)[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+    
+    <span class="c1"># Print a table to properties</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Oil Properties:&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;---------------&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;    density (kg/m^3)        : &#39;</span><span class="p">,</span> <span class="n">rho</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;    viscosity (Pa s)        : &#39;</span><span class="p">,</span> <span class="n">mu</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;    interface tension (N/m) : &#39;</span><span class="p">,</span> <span class="n">sigma</span><span class="p">)</span>
+    
+    <span class="c1"># Print seawater properties</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Seawater Properties:&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;--------------------&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;    density (kg/m^3) : &#39;</span><span class="p">,</span> <span class="n">seawater</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">P</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;    viscosity (Pa s) : &#39;</span><span class="p">,</span> <span class="n">seawater</span><span class="o">.</span><span class="n">mu</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">P</span><span class="p">))</span>
+    
+    <span class="c1"># Get the mass flux for the given oil flow rate</span>
+    <span class="k">if</span> <span class="n">q_oil</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">mass_flux</span> <span class="o">=</span> <span class="n">mass_frac</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">mass_flux</span> <span class="o">=</span> <span class="n">set_mass_fluxes</span><span class="p">(</span><span class="n">comp</span><span class="p">,</span> <span class="n">mass_frac</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">q_oil</span><span class="p">)</span>
+    
+    <span class="c1"># Compute the volume flow rates at the release</span>
+    <span class="n">m</span><span class="p">,</span> <span class="n">xi</span><span class="p">,</span> <span class="n">K</span> <span class="o">=</span> <span class="n">oil</span><span class="o">.</span><span class="n">equilibrium</span><span class="p">(</span><span class="n">mass_flux</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
+    <span class="n">p_gas</span> <span class="o">=</span> <span class="n">oil</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="mi">0</span><span class="p">,:],</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">)[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">md_gas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="mi">0</span><span class="p">,:])</span>
+    <span class="n">q_gas</span> <span class="o">=</span> <span class="n">md_gas</span> <span class="o">/</span> <span class="n">p_gas</span>
+    <span class="n">p_oil</span> <span class="o">=</span> <span class="n">oil</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="mi">1</span><span class="p">,:],</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">)[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">md_oil</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="mi">1</span><span class="p">,:])</span>
+    <span class="n">q_oil</span> <span class="o">=</span> <span class="n">md_oil</span> <span class="o">/</span> <span class="n">p_oil</span>
+    
+    <span class="c1"># Print a table or properties</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">In Situ Volume Flow Rates:&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;--------------------------&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;    gas flow rate (m^3/s)   : &#39;</span><span class="p">,</span> <span class="n">q_gas</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;    gas flow rate (ft^3/d)  : &#39;</span><span class="p">,</span> <span class="n">q_gas</span> <span class="o">*</span> <span class="mf">86400.</span> <span class="o">/</span> <span class="mf">0.0283168</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">    oil flow rate (m^3/s)   : &#39;</span><span class="p">,</span> <span class="n">q_oil</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;    oil flow rate (bbl/d)   : &#39;</span><span class="p">,</span> <span class="n">q_oil</span> <span class="o">*</span> <span class="mf">86400.</span> <span class="o">/</span> <span class="mf">0.158987</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">    GOR (m^3/m^3)           : &#39;</span><span class="p">,</span> <span class="n">q_gas</span> <span class="o">/</span> <span class="n">q_oil</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;    GOR (ft^3/bbl)          : &#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">q_gas</span> <span class="o">/</span> <span class="mf">0.0283168</span><span class="p">)</span> <span class="o">/</span>
+                                            <span class="p">(</span><span class="n">q_oil</span> <span class="o">/</span> <span class="mf">0.158987</span><span class="p">))</span>
+    
+    <span class="c1"># Return the oil composition with the correct flow rates</span>
+    <span class="k">return</span> <span class="n">mass_flux</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Texas A&M Oil spill / Outfall Calculator</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_manual.html">TAMOC User Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../unit_tests.html">Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../bugs.html">Reporting Bugs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../readme.html">Read Me File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

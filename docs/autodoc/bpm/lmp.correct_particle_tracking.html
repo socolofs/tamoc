@@ -1,0 +1,158 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>lmp.correct_particle_tracking &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="lmp.entrainment" href="lmp.entrainment.html" />
+    <link rel="prev" title="lmp.correct_temperature" href="lmp.correct_temperature.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="lmp-correct-particle-tracking">
+<h1>lmp.correct_particle_tracking<a class="headerlink" href="#lmp-correct-particle-tracking" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="lmp.correct_particle_tracking">
+<code class="sig-prename descclassname">lmp.</code><code class="sig-name descname">correct_particle_tracking</code><span class="sig-paren">(</span><em class="sig-param">r</em>, <em class="sig-param">particles</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/lmp.html#correct_particle_tracking"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lmp.correct_particle_tracking" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove the particle tracking solution after particles exit plume</p>
+<p>Even though the particle tracking stops as needed once the particles
+leave the plume, the post processing algorithm has now way to know if a
+given state space solution is before or after particle tracking has
+stopped. This function simply replaces the particle position after
+integration has stopped (e.g., after the particles leave the plume) with
+NaN so that the post-processor always knows whether the solution in the
+state space is valid or not.  This is necessary since the solution for 
+particle position is in local plume coordinates (l,n,m); hence, it is not
+possible to know the (x,y,z) position unless the correct local plume 
+element is known.  This function makes sure that every valid (l,n,m) is 
+stored with the corresponding element.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>r</strong><span class="classifier"><cite>scipy.integrate.ode</cite> object</span></dt><dd><p>ODE solution containing the current values of the state space in 
+the solver’s extrinsic data.  These values are editable, but an 
+intrinsic version of these data are used when the solver makes 
+calculations; hence, editing this file does not change the state
+space stored in the actual solver.</p>
+</dd>
+<dt><strong>particles</strong><span class="classifier">list of <cite>Particle</cite> objects</span></dt><dd><p>List of <cite>bent_plume_model.Particle</cite> objects containing the dispersed 
+phase local conditions and behavior.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl>
+<dt><strong>r</strong><span class="classifier"><cite>sciply.integrate.ode</cite> object</span></dt><dd><p>The updated extrinsic state space with the correct values for heat
+as were used in the calcualtion.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Texas A&M Oil spill / Outfall Calculator</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../user_manual.html">TAMOC User Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../unit_tests.html">Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../bugs.html">Reporting Bugs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html">Read Me File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../../user_manual.html">TAMOC User Manual</a><ul>
+  <li><a href="../../modules/bpm.html">Overview of Bent Plume Model Module</a><ul>
+      <li>Previous: <a href="lmp.correct_temperature.html" title="previous chapter">lmp.correct_temperature</a></li>
+      <li>Next: <a href="lmp.entrainment.html" title="next chapter">lmp.entrainment</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../_sources/autodoc/bpm/lmp.correct_particle_tracking.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

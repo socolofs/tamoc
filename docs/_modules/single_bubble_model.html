@@ -1,26 +1,17 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>single_bubble_model &#8212; Texas A&amp;M Oilspill Calculator v1.1 Manual</title>
-    <link rel="stylesheet" href="../_static/scipy.css" type="text/css" />
+    <meta charset="utf-8" />
+    <title>single_bubble_model &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '1.1.1',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
    
@@ -29,13 +20,14 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head>
-  <body>
+  </head><body>
   
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
   <h1>Source code for single_bubble_model</h1><div class="highlight"><pre>
@@ -119,25 +111,26 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="c1"># S. Socolofsky, November 2014, Texas A&amp;M University &lt;socolofs@tamu.edu&gt;.</span>
 
-<span class="kn">from</span> <span class="nn">tamoc</span> <span class="k">import</span> <span class="n">model_share</span>
-<span class="kn">from</span> <span class="nn">tamoc</span> <span class="k">import</span> <span class="n">seawater</span>
-<span class="kn">from</span> <span class="nn">tamoc</span> <span class="k">import</span> <span class="n">ambient</span>
-<span class="kn">from</span> <span class="nn">tamoc</span> <span class="k">import</span> <span class="n">dbm</span>
-<span class="kn">from</span> <span class="nn">tamoc</span> <span class="k">import</span> <span class="n">dispersed_phases</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="p">(</span><span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">)</span>
 
-<span class="kn">from</span> <span class="nn">netCDF4</span> <span class="k">import</span> <span class="n">Dataset</span>
-<span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">tamoc</span> <span class="kn">import</span> <span class="n">model_share</span>
+<span class="kn">from</span> <span class="nn">tamoc</span> <span class="kn">import</span> <span class="n">seawater</span>
+<span class="kn">from</span> <span class="nn">tamoc</span> <span class="kn">import</span> <span class="n">ambient</span>
+<span class="kn">from</span> <span class="nn">tamoc</span> <span class="kn">import</span> <span class="n">dbm</span>
+<span class="kn">from</span> <span class="nn">tamoc</span> <span class="kn">import</span> <span class="n">dispersed_phases</span>
+
+<span class="kn">from</span> <span class="nn">netCDF4</span> <span class="kn">import</span> <span class="n">Dataset</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">matplotlib</span> <span class="k">as</span> <span class="nn">mpl</span>
-<span class="kn">from</span> <span class="nn">copy</span> <span class="k">import</span> <span class="n">copy</span>
-<span class="kn">from</span> <span class="nn">scipy</span> <span class="k">import</span> <span class="n">integrate</span>
-<span class="kn">from</span> <span class="nn">string</span> <span class="k">import</span> <span class="n">join</span><span class="p">,</span> <span class="n">capwords</span>
-<span class="kn">from</span> <span class="nn">warnings</span> <span class="k">import</span> <span class="n">warn</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">copy</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">integrate</span>
+<span class="kn">from</span> <span class="nn">warnings</span> <span class="kn">import</span> <span class="n">warn</span>
 <span class="kn">import</span> <span class="nn">os</span>
 
-<div class="viewcode-block" id="Model"><a class="viewcode-back" href="../sbm/single_bubble_model.Model.html#single_bubble_model.Model">[docs]</a><span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="Model"><a class="viewcode-back" href="../autodoc/sbm/single_bubble_model.Model.html#single_bubble_model.Model">[docs]</a><span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Master class object for controlling and post-processing the simulation</span>
 <span class="sd">    </span>
@@ -216,7 +209,7 @@
 <span class="sd">    previous simulation stored in `simfile`.</span>
 <span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">simfile</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Model.__init__"><a class="viewcode-back" href="../autodoc/sbm/single_bubble_model.Model.html#single_bubble_model.Model.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">simfile</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Model</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         
         <span class="k">if</span> <span class="n">profile</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -229,10 +222,10 @@
             
             <span class="c1"># Enter the model parameters that the user cannot adjust</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">p</span> <span class="o">=</span> <span class="n">ModelParams</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">sim_stored</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sim_stored</span> <span class="o">=</span> <span class="kc">False</span></div>
     
-<div class="viewcode-block" id="Model.simulate"><a class="viewcode-back" href="../sbm/single_bubble_model.Model.simulate.html#single_bubble_model.Model.simulate">[docs]</a>    <span class="k">def</span> <span class="nf">simulate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">particle</span><span class="p">,</span> <span class="n">X0</span><span class="p">,</span> <span class="n">de</span><span class="p">,</span> <span class="n">yk</span><span class="p">,</span> <span class="n">T0</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">K_T</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> 
-                 <span class="n">fdis</span><span class="o">=</span><span class="mf">1.e-6</span><span class="p">,</span> <span class="n">t_hyd</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">delta_t</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+<div class="viewcode-block" id="Model.simulate"><a class="viewcode-back" href="../autodoc/sbm/single_bubble_model.Model.simulate.html#single_bubble_model.Model.simulate">[docs]</a>    <span class="k">def</span> <span class="nf">simulate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">particle</span><span class="p">,</span> <span class="n">X0</span><span class="p">,</span> <span class="n">de</span><span class="p">,</span> <span class="n">yk</span><span class="p">,</span> <span class="n">T0</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">K_T</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> 
+                 <span class="n">fdis</span><span class="o">=</span><span class="mf">1.e-6</span><span class="p">,</span> <span class="n">t_hyd</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">lag_time</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">delta_t</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Simulate the trajectory of a particle from given initial conditions</span>
 <span class="sd">        </span>
@@ -272,6 +265,9 @@
 <span class="sd">            bubble methods for t less than t_hyd and by dirty bubble methods</span>
 <span class="sd">            thereafter.  The default behavior is to assume the particle is dirty</span>
 <span class="sd">            or hydrate covered from the release.</span>
+<span class="sd">        lag_time : bool, default = True</span>
+<span class="sd">            flag indicating whether the biodegradation rates should include</span>
+<span class="sd">            a lag time (True) or not (False).  Default value is True.</span>
 <span class="sd">        delta_t : float, default = 0.1 s</span>
 <span class="sd">            Maximum time step to use (s) in the simulation.  The ODE solver</span>
 <span class="sd">            in `calculate_path` is set up with adaptive step size integration, </span>
@@ -306,10 +302,10 @@
         
         <span class="c1"># Check if the right number of elements are in yk</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">yk</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">particle</span><span class="o">.</span><span class="n">composition</span><span class="p">):</span>
-            <span class="nb">print</span> <span class="s1">&#39;Wrong number of mole fractions:&#39;</span>
-            <span class="nb">print</span> <span class="s1">&#39;   yk : </span><span class="si">%d</span><span class="s1"> entries&#39;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">yk</span><span class="p">)</span>
-            <span class="nb">print</span> <span class="s1">&#39;   composition : </span><span class="si">%d</span><span class="s1"> components</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> \
-                                    <span class="nb">len</span><span class="p">(</span><span class="n">particle</span><span class="o">.</span><span class="n">composition</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Wrong number of mole fractions:&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;   yk : </span><span class="si">%d</span><span class="s1"> entries&#39;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">yk</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;   composition : </span><span class="si">%d</span><span class="s1"> components</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> 
+                                    <span class="nb">len</span><span class="p">(</span><span class="n">particle</span><span class="o">.</span><span class="n">composition</span><span class="p">))</span>
             <span class="k">return</span>
         
         <span class="c1"># Save the input variables that are not part of the self.particle</span>
@@ -319,23 +315,23 @@
         
         <span class="c1"># Get the initial conditions for the simulation run</span>
         <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">particle</span><span class="p">,</span> <span class="n">y0</span><span class="p">)</span> <span class="o">=</span> <span class="n">sbm_ic</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="n">particle</span><span class="p">,</span> <span class="n">X0</span><span class="p">,</span> <span class="n">de</span><span class="p">,</span> <span class="n">yk</span><span class="p">,</span> <span class="n">T0</span><span class="p">,</span> 
-                                     <span class="n">K</span><span class="p">,</span> <span class="n">K_T</span><span class="p">,</span> <span class="n">fdis</span><span class="p">,</span> <span class="n">t_hyd</span><span class="p">)</span>
+                                     <span class="n">K</span><span class="p">,</span> <span class="n">K_T</span><span class="p">,</span> <span class="n">fdis</span><span class="p">,</span> <span class="n">t_hyd</span><span class="p">,</span> <span class="n">lag_time</span><span class="p">)</span>
         
         <span class="c1"># Open the simulation module</span>
-        <span class="nb">print</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">-- TEXAS A&amp;M OIL-SPILL CALCULATOR (TAMOC) --&#39;</span>
-        <span class="nb">print</span> <span class="s1">&#39;-- Single Bubble Model                    --</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">-- TEXAS A&amp;M OIL-SPILL CALCULATOR (TAMOC) --&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-- Single Bubble Model                    --</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
         
         <span class="c1"># Calculate the trajectory</span>
-        <span class="nb">print</span> <span class="s1">&#39;Calculate the trajectory...&#39;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Calculate the trajectory...&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">calculate_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">particle</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">,</span> 
                                         <span class="n">y0</span><span class="p">,</span> <span class="n">delta_t</span><span class="p">)</span>
-        <span class="nb">print</span> <span class="s1">&#39;Simulation complete.</span><span class="se">\n</span><span class="s1"> &#39;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Simulation complete.</span><span class="se">\n</span><span class="s1"> &#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sim_stored</span> <span class="o">=</span> <span class="kc">True</span>
         
         <span class="c1"># Restart heat transfer</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">K_T</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">K_T0</span></div>
     
-<div class="viewcode-block" id="Model.save_sim"><a class="viewcode-back" href="../sbm/single_bubble_model.Model.save_sim.html#single_bubble_model.Model.save_sim">[docs]</a>    <span class="k">def</span> <span class="nf">save_sim</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">profile_path</span><span class="p">,</span> <span class="n">profile_info</span><span class="p">):</span>
+<div class="viewcode-block" id="Model.save_sim"><a class="viewcode-back" href="../autodoc/sbm/single_bubble_model.Model.save_sim.html#single_bubble_model.Model.save_sim">[docs]</a>    <span class="k">def</span> <span class="nf">save_sim</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">profile_path</span><span class="p">,</span> <span class="n">profile_info</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Save the current simulation results</span>
 <span class="sd">        </span>
@@ -366,8 +362,8 @@
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_stored</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
-            <span class="nb">print</span> <span class="s1">&#39;No simulation results to store...&#39;</span>
-            <span class="nb">print</span> <span class="s1">&#39;Saved nothing to netCDF file.</span><span class="se">\n</span><span class="s1">&#39;</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No simulation results to store...&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Saved nothing to netCDF file.</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
             <span class="k">return</span>
         
         <span class="c1"># Create the netCDF dataset object</span>
@@ -420,7 +416,7 @@
         <span class="c1"># Close the netCDF dataset</span>
         <span class="n">nc</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
     
-<div class="viewcode-block" id="Model.save_txt"><a class="viewcode-back" href="../sbm/single_bubble_model.Model.save_txt.html#single_bubble_model.Model.save_txt">[docs]</a>    <span class="k">def</span> <span class="nf">save_txt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_name</span><span class="p">,</span> <span class="n">profile_path</span><span class="p">,</span> <span class="n">profile_info</span><span class="p">):</span>
+<div class="viewcode-block" id="Model.save_txt"><a class="viewcode-back" href="../autodoc/sbm/single_bubble_model.Model.save_txt.html#single_bubble_model.Model.save_txt">[docs]</a>    <span class="k">def</span> <span class="nf">save_txt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_name</span><span class="p">,</span> <span class="n">profile_path</span><span class="p">,</span> <span class="n">profile_info</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Save the state space in ascii text format for exporting</span>
 <span class="sd">        </span>
@@ -457,8 +453,8 @@
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_stored</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
-            <span class="nb">print</span> <span class="s1">&#39;No simulation results to store...&#39;</span>
-            <span class="nb">print</span> <span class="s1">&#39;Saved nothing to txt file.</span><span class="se">\n</span><span class="s1">&#39;</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No simulation results to store...&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Saved nothing to txt file.</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
             <span class="k">return</span>
         
         <span class="c1"># Create the header string that contains the column descriptions</span>
@@ -486,7 +482,7 @@
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">base_name</span> <span class="o">+</span> <span class="s1">&#39;_header.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">txt_file</span><span class="p">:</span>
             <span class="n">txt_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">header</span><span class="p">)</span></div>
     
-<div class="viewcode-block" id="Model.load_sim"><a class="viewcode-back" href="../sbm/single_bubble_model.Model.load_sim.html#single_bubble_model.Model.load_sim">[docs]</a>    <span class="k">def</span> <span class="nf">load_sim</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">):</span>
+<div class="viewcode-block" id="Model.load_sim"><a class="viewcode-back" href="../autodoc/sbm/single_bubble_model.Model.load_sim.html#single_bubble_model.Model.load_sim">[docs]</a>    <span class="k">def</span> <span class="nf">load_sim</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load in a saved simulation result file for post-processing</span>
 <span class="sd">        </span>
@@ -536,7 +532,7 @@
         <span class="n">nc</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sim_stored</span> <span class="o">=</span> <span class="kc">True</span></div>
     
-<div class="viewcode-block" id="Model.post_process"><a class="viewcode-back" href="../sbm/single_bubble_model.Model.post_process.html#single_bubble_model.Model.post_process">[docs]</a>    <span class="k">def</span> <span class="nf">post_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fig</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<div class="viewcode-block" id="Model.post_process"><a class="viewcode-back" href="../autodoc/sbm/single_bubble_model.Model.post_process.html#single_bubble_model.Model.post_process">[docs]</a>    <span class="k">def</span> <span class="nf">post_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fig</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Plot the simulation state space and key interrogation parameters</span>
 <span class="sd">        </span>
@@ -554,18 +550,18 @@
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_stored</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
-            <span class="nb">print</span> <span class="s1">&#39;No simulation results to plot...&#39;</span>
-            <span class="nb">print</span> <span class="s1">&#39;Plotting nothing.</span><span class="se">\n</span><span class="s1">&#39;</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No simulation results to plot...&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Plotting nothing.</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
             <span class="k">return</span>
         
-        <span class="c1"># Plot the results        </span>
-        <span class="nb">print</span> <span class="s1">&#39;Plotting the results...&#39;</span>
+        <span class="c1"># Plot the results</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Plotting the results...&#39;</span><span class="p">)</span>
         <span class="n">plot_state_space</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">particle</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">,</span> 
                          <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">fig</span><span class="p">)</span>
-        <span class="nb">print</span> <span class="s1">&#39;Done.</span><span class="se">\n</span><span class="s1">&#39;</span></div></div>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Done.</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span></div></div>
     
 
-<div class="viewcode-block" id="ModelParams"><a class="viewcode-back" href="../sbm/single_bubble_model.ModelParams.html#single_bubble_model.ModelParams">[docs]</a><span class="k">class</span> <span class="nc">ModelParams</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="ModelParams"><a class="viewcode-back" href="../autodoc/sbm/single_bubble_model.ModelParams.html#single_bubble_model.ModelParams">[docs]</a><span class="k">class</span> <span class="nc">ModelParams</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Fixed model parameters for the single bubble model</span>
 <span class="sd">    </span>
@@ -587,7 +583,7 @@
 <span class="sd">        Ideal gas constant (J/mol/K)</span>
 <span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile</span><span class="p">):</span>
+<div class="viewcode-block" id="ModelParams.__init__"><a class="viewcode-back" href="../autodoc/sbm/single_bubble_model.ModelParams.html#single_bubble_model.ModelParams.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">ModelParams</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         
         <span class="c1"># Store a reference density for the water column</span>
@@ -598,14 +594,14 @@
         
         <span class="c1"># Store some physical constants</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">g</span> <span class="o">=</span> <span class="mf">9.81</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">Ru</span> <span class="o">=</span> <span class="mf">8.314510</span>  </div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Ru</span> <span class="o">=</span> <span class="mf">8.314510</span>  </div></div>
 
 
 <span class="c1"># ----------------------------------------------------------------------------</span>
 <span class="c1"># Functions to compute the trajectory</span>
 <span class="c1"># ----------------------------------------------------------------------------</span>
 
-<div class="viewcode-block" id="calculate_path"><a class="viewcode-back" href="../sbm/single_bubble_model.calculate_path.html#single_bubble_model.calculate_path">[docs]</a><span class="k">def</span> <span class="nf">calculate_path</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">particle</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">delta_t</span><span class="p">):</span>
+<div class="viewcode-block" id="calculate_path"><a class="viewcode-back" href="../autodoc/sbm/single_bubble_model.calculate_path.html#single_bubble_model.calculate_path">[docs]</a><span class="k">def</span> <span class="nf">calculate_path</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">particle</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">delta_t</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate the trajectory of a particle</span>
 <span class="sd">    </span>
@@ -669,8 +665,8 @@
         
         <span class="c1"># Print progress to the screen</span>
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">remainder</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">(</span><span class="n">k</span><span class="p">),</span> <span class="n">psteps</span><span class="p">)</span> <span class="o">==</span> <span class="mf">0.</span><span class="p">:</span>
-            <span class="nb">print</span> <span class="s1">&#39;    Depth:  </span><span class="si">%g</span><span class="s1"> (m), t:  </span><span class="si">%g</span><span class="s1"> (s), k: </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> \
-                <span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">k</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;    Depth:  </span><span class="si">%g</span><span class="s1"> (m), t:  </span><span class="si">%g</span><span class="s1"> (s), k: </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span>
+                <span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">k</span><span class="p">))</span>
         
         <span class="c1"># Perform one step of the integration</span>
         <span class="n">r</span><span class="o">.</span><span class="n">integrate</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">delta_t</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -699,12 +695,12 @@
     <span class="n">y</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="n">rows</span><span class="p">,:]</span> 
     
     <span class="c1"># Return the solution</span>
-    <span class="nb">print</span> <span class="s1">&#39;    Depth:  </span><span class="si">%g</span><span class="s1"> (m), t:  </span><span class="si">%g</span><span class="s1"> (s), k: </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> \
-        <span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">k</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;    Depth:  </span><span class="si">%g</span><span class="s1"> (m), t:  </span><span class="si">%g</span><span class="s1"> (s), k: </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span>
+        <span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">k</span><span class="p">))</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="derivs"><a class="viewcode-back" href="../sbm/single_bubble_model.derivs.html#single_bubble_model.derivs">[docs]</a><span class="k">def</span> <span class="nf">derivs</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">particle</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
+<div class="viewcode-block" id="derivs"><a class="viewcode-back" href="../autodoc/sbm/single_bubble_model.derivs.html#single_bubble_model.derivs">[docs]</a><span class="k">def</span> <span class="nf">derivs</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">particle</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute the RHS of the ODE for the trajectory of a single particle</span>
 <span class="sd">    </span>
@@ -746,9 +742,11 @@
     <span class="n">ua</span><span class="p">,</span> <span class="n">va</span><span class="p">,</span> <span class="n">wa</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;ua&#39;</span><span class="p">,</span> <span class="s1">&#39;va&#39;</span><span class="p">,</span> <span class="s1">&#39;wa&#39;</span><span class="p">])</span>
     <span class="n">C</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">particle</span><span class="o">.</span><span class="n">composition</span><span class="p">)</span>
     
-    <span class="c1"># Get the particle properties</span>
+    <span class="c1"># Get the physical particle properties</span>
     <span class="p">(</span><span class="n">us</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">Cs</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">beta_T</span><span class="p">,</span> <span class="n">T</span><span class="p">)</span> <span class="o">=</span> <span class="n">particle</span><span class="o">.</span><span class="n">properties</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> 
                                                               <span class="n">Ta</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+    <span class="c1"># Get the biodegradation rate constants</span>
+    <span class="n">k_bio</span> <span class="o">=</span> <span class="n">particle</span><span class="o">.</span><span class="n">biodegradation_rate</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
     
     <span class="c1"># Advection</span>
     <span class="n">yp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">ua</span>
@@ -757,20 +755,26 @@
     
     <span class="c1"># Dissolution</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">Cs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">yp</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span> <span class="n">A</span> <span class="o">*</span> <span class="n">beta</span><span class="p">[:]</span> <span class="o">*</span> <span class="p">(</span><span class="n">Cs</span><span class="p">[:]</span> <span class="o">-</span> <span class="n">C</span><span class="p">[:])</span>
+        <span class="n">md_diss</span> <span class="o">=</span> <span class="o">-</span> <span class="n">A</span> <span class="o">*</span> <span class="n">beta</span><span class="p">[:]</span> <span class="o">*</span> <span class="p">(</span><span class="n">Cs</span><span class="p">[:]</span> <span class="o">-</span> <span class="n">C</span><span class="p">[:])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">md_diss</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.</span><span class="p">])</span>
+
+    <span class="c1"># Biodegradation</span>
+    <span class="n">md_biodeg</span> <span class="o">=</span> <span class="o">-</span><span class="n">k_bio</span> <span class="o">*</span> <span class="n">m</span>
+    <span class="n">yp</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">md_diss</span> <span class="o">+</span> <span class="n">md_biodeg</span>
     
     <span class="c1"># Account for heat transfer (ignore heat of solution since it is </span>
     <span class="c1"># negligible in the beginning as the particle approaches equilibrium)</span>
     <span class="n">yp</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span>  <span class="o">-</span> <span class="n">rho_p</span> <span class="o">*</span> <span class="n">particle</span><span class="o">.</span><span class="n">cp</span> <span class="o">*</span> <span class="n">A</span> <span class="o">*</span> <span class="n">beta_T</span> <span class="o">*</span> <span class="p">(</span><span class="n">T</span> <span class="o">-</span> <span class="n">Ta</span><span class="p">)</span>
     
     <span class="c1"># Account for heat lost due to decrease in mass</span>
-    <span class="n">yp</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="n">particle</span><span class="o">.</span><span class="n">cp</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">yp</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="n">T</span>
+    <span class="n">yp</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="n">particle</span><span class="o">.</span><span class="n">cp</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">md_diss</span> <span class="o">+</span> <span class="n">md_biodeg</span><span class="p">)</span> <span class="o">*</span> <span class="n">T</span>
     
     <span class="c1"># Return the derivatives</span>
     <span class="k">return</span> <span class="n">yp</span></div>
 
 
-<div class="viewcode-block" id="sbm_ic"><a class="viewcode-back" href="../sbm/single_bubble_model.sbm_ic.html#single_bubble_model.sbm_ic">[docs]</a><span class="k">def</span> <span class="nf">sbm_ic</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">particle</span><span class="p">,</span> <span class="n">X0</span><span class="p">,</span> <span class="n">de</span><span class="p">,</span> <span class="n">yk</span><span class="p">,</span> <span class="n">T0</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">K_T</span><span class="p">,</span> <span class="n">fdis</span><span class="p">,</span> <span class="n">t_hyd</span><span class="p">):</span>
+<div class="viewcode-block" id="sbm_ic"><a class="viewcode-back" href="../autodoc/sbm/single_bubble_model.sbm_ic.html#single_bubble_model.sbm_ic">[docs]</a><span class="k">def</span> <span class="nf">sbm_ic</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">particle</span><span class="p">,</span> <span class="n">X0</span><span class="p">,</span> <span class="n">de</span><span class="p">,</span> <span class="n">yk</span><span class="p">,</span> <span class="n">T0</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">K_T</span><span class="p">,</span> <span class="n">fdis</span><span class="p">,</span> <span class="n">t_hyd</span><span class="p">,</span> <span class="n">lag_time</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Set the initial conditions for a single bubble model simulation</span>
 <span class="sd">    </span>
@@ -793,25 +797,25 @@
 <span class="sd">        Initial temperature (K) of the particle at release if not equal </span>
 <span class="sd">        to the temperature of the surrounding fluid.  If omitted, the </span>
 <span class="sd">        model will set T0 to the ambient temperature.</span>
-<span class="sd">    K : float, default = 1.</span>
+<span class="sd">    K : float</span>
 <span class="sd">        Mass transfer reduction factor (--). Pre-multiplies the mass </span>
 <span class="sd">        transfer coefficients providing amplification (&gt;1) or retardation </span>
 <span class="sd">        (&lt;1) of the dissolution.  </span>
-<span class="sd">    K_T : float, default = 1.</span>
+<span class="sd">    K_T : float</span>
 <span class="sd">        Heat transfer reduction factor (--). Pre-multiplies the heat </span>
 <span class="sd">        transfer coefficient providing amplification (&gt;1) or retardation </span>
 <span class="sd">        (&lt;1) of the heat flux.</span>
-<span class="sd">    fdis : float, default = 0.01</span>
+<span class="sd">    fdis : float</span>
 <span class="sd">        Fraction of the initial total mass (--) remaining when the </span>
 <span class="sd">        particle should be considered dissolved.</span>
-<span class="sd">    t_hyd : float, default = 0.</span>
+<span class="sd">    t_hyd : float</span>
 <span class="sd">        Hydrate film formation time (s).  Mass transfer is computed by clean</span>
 <span class="sd">        bubble methods for t less than t_hyd and by dirty bubble methods</span>
 <span class="sd">        thereafter.  The default behavior is to assume the particle is dirty</span>
 <span class="sd">        or hydrate covered from the release.</span>
 <span class="sd">    </span>
-<span class="sd">    Return</span>
-<span class="sd">    ------</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
 <span class="sd">    particle : `LagrangianParticle` object</span>
 <span class="sd">        A `LagrangianParticle` object containing a unified interface to the </span>
 <span class="sd">        `dbm` module and the particle-specific model parameters (e.g., mass </span>
@@ -842,7 +846,7 @@
     
     <span class="c1"># Initialize a LagrangianParticle object</span>
     <span class="n">particle</span> <span class="o">=</span> <span class="n">dispersed_phases</span><span class="o">.</span><span class="n">SingleParticle</span><span class="p">(</span><span class="n">particle</span><span class="p">,</span> <span class="n">m0</span><span class="p">,</span> <span class="n">T0</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">K_T</span><span class="p">,</span> 
-               <span class="n">fdis</span><span class="p">,</span> <span class="n">t_hyd</span><span class="p">)</span>
+               <span class="n">fdis</span><span class="p">,</span> <span class="n">t_hyd</span><span class="p">,</span> <span class="n">lag_time</span><span class="p">)</span>
     
     <span class="c1"># Assemble the state space</span>
     <span class="n">y0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">X0</span><span class="p">,</span> <span class="n">m0</span><span class="p">,</span> <span class="n">T0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">m0</span><span class="p">)</span> <span class="o">*</span> <span class="n">particle</span><span class="o">.</span><span class="n">cp</span><span class="p">))</span>
@@ -855,7 +859,7 @@
 <span class="c1"># Functions to post process the simulation solution</span>
 <span class="c1"># ----------------------------------------------------------------------------</span>
 
-<div class="viewcode-block" id="plot_state_space"><a class="viewcode-back" href="../sbm/single_bubble_model.plot_state_space.html#single_bubble_model.plot_state_space">[docs]</a><span class="k">def</span> <span class="nf">plot_state_space</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">particle</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">fig</span><span class="p">):</span>
+<div class="viewcode-block" id="plot_state_space"><a class="viewcode-back" href="../autodoc/sbm/single_bubble_model.plot_state_space.html#single_bubble_model.plot_state_space">[docs]</a><span class="k">def</span> <span class="nf">plot_state_space</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">particle</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">fig</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create the basic plots to interrogate the solution for the particle path</span>
 <span class="sd">    </span>
@@ -1092,43 +1096,70 @@
 </pre></div>
 
           </div>
+          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-            <p class="logo"><a href="../contents.html">
-              <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
-            </a></p><div class="relations">
+<h1 class="logo"><a href="../index.html">Texas A&M Oil spill / Outfall Calculator</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_manual.html">TAMOC User Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../unit_tests.html">Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../bugs.html">Reporting Bugs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../readme.html">Read Me File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+</ul>
+
+<div class="relations">
 <h3>Related Topics</h3>
 <ul>
-  <li><a href="../contents.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
   <li><a href="index.html">Module code</a><ul>
   </ul></li>
   </ul></li>
 </ul>
 </div>
-
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
     </form>
+    </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
 
         </div>
       </div>
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2015, Scott A. Socolofsky.
+      &copy;2020, Scott A. Socolofsky.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>
 

@@ -1,0 +1,167 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>dbm_utilities.get_oil &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="dbm_utilities.load_tamoc_oil" href="dbm_utilities.load_tamoc_oil.html" />
+    <link rel="prev" title="Overview of DBM Utilities Module" href="../../modules/dbm_utils.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="dbm-utilities-get-oil">
+<h1>dbm_utilities.get_oil<a class="headerlink" href="#dbm-utilities-get-oil" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="dbm_utilities.get_oil">
+<code class="sig-prename descclassname">dbm_utilities.</code><code class="sig-name descname">get_oil</code><span class="sig-paren">(</span><em class="sig-param">substance</em>, <em class="sig-param">q_oil</em>, <em class="sig-param">gor</em>, <em class="sig-param">ca=[]</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/dbm_utilities.html#get_oil"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dbm_utilities.get_oil" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a dbm.FluidMixture object for this oil and given flow rate</p>
+<p>Create a dbm.FluidMixture object for the given substance and compute a
+matrix of mass fluxes per component of the oil to achieve the given 
+dead-oil flow rate and gas-to-oil ration.  The user may define the 
+<cite>substance</cite> in one of two ways:</p>
+<dl class="simple">
+<dt>substance<span class="classifier">str</span></dt><dd><p>Provide a unique OilLibrary ID number from the NOAA Python 
+OilLibrary package</p>
+</dd>
+<dt>substance<span class="classifier">dict</span></dt><dd><p>Use the chemical properties database provided with TAMOC.  In this
+case, use the dictionary keyword <cite>composition</cite> to pass a list 
+of chemical property names and the keyword <cite>masses</cite> to pass a 
+list of mass fractions for each component in the composition
+list.  If the masses variable does not sum to unity, this function
+will compute an equivalent mass fraction that does.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>substance</strong><span class="classifier">str or dict</span></dt><dd><p>Description of the oil of interest.  See comments above.</p>
+</dd>
+<dt><strong>q_oil</strong><span class="classifier">float</span></dt><dd><p>Flow rate of oil (bbl/d at standard conditions).</p>
+</dd>
+<dt><strong>gor</strong><span class="classifier">float</span></dt><dd><p>Gas to oil ratio desired for a given live-oil release.</p>
+</dd>
+<dt><strong>ca</strong><span class="classifier">list, default=[]</span></dt><dd><p>List of dissolved atmospheric gases to track as part of the oil;
+choices are ‘nitrogen’, ‘oxygen’, ‘argon’, and ‘carbon_dioxide’.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>oil</strong><span class="classifier">dbm.FluidMixture</span></dt><dd><p>A discrete bubble model FluidMixture object that contains the 
+property data for the desired live oil.</p>
+</dd>
+<dt><strong>mass_flux</strong><span class="classifier">np.array</span></dt><dd><p>An array of gas and liquid mass fluxes for each chemical component
+in the mixture (kg/s) required to achieve the desired flow rate of 
+dead oil at the surface, q_oil.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Texas A&M Oil spill / Outfall Calculator</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../user_manual.html">TAMOC User Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../unit_tests.html">Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../bugs.html">Reporting Bugs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html">Read Me File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../../user_manual.html">TAMOC User Manual</a><ul>
+  <li><a href="../../modules/dbm_utils.html">Overview of DBM Utilities Module</a><ul>
+      <li>Previous: <a href="../../modules/dbm_utils.html" title="previous chapter">Overview of DBM Utilities Module</a></li>
+      <li>Next: <a href="dbm_utilities.load_tamoc_oil.html" title="next chapter">dbm_utilities.load_tamoc_oil</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../_sources/autodoc/dbm_utilities/dbm_utilities.get_oil.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,26 +1,17 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>seawater &#8212; Texas A&amp;M Oilspill Calculator v1.1 Manual</title>
-    <link rel="stylesheet" href="../_static/scipy.css" type="text/css" />
+    <meta charset="utf-8" />
+    <title>seawater &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '1.1.1',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
    
@@ -29,13 +20,14 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head>
-  <body>
+  </head><body>
   
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
   <h1>Source code for seawater</h1><div class="highlight"><pre>
@@ -52,12 +44,14 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="c1"># S. Socolofsky, March 2013, Texas A&amp;M University &lt;socolofs@tamu.edu&gt;.</span>
 
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="p">(</span><span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">)</span>
+
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="c1"># Define some universal constants</span>
 <span class="n">g</span> <span class="o">=</span> <span class="mf">9.81</span>       <span class="c1"># Acceleration of gravity (m/s^2)</span>
 
-<div class="viewcode-block" id="density"><a class="viewcode-back" href="../seawater/seawater.density.html#seawater.density">[docs]</a><span class="k">def</span> <span class="nf">density</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">P</span><span class="p">):</span>
+<div class="viewcode-block" id="density"><a class="viewcode-back" href="../autodoc/seawater/seawater.density.html#seawater.density">[docs]</a><span class="k">def</span> <span class="nf">density</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">P</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the density of seawater from Gill (1982)</span>
 <span class="sd">    </span>
@@ -111,7 +105,7 @@
     
     <span class="k">return</span> <span class="n">rho_sw_0</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">P</span> <span class="o">/</span> <span class="n">K</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="mu"><a class="viewcode-back" href="../seawater/seawater.mu.html#seawater.mu">[docs]</a><span class="k">def</span> <span class="nf">mu</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">P</span><span class="p">):</span>
+<div class="viewcode-block" id="mu"><a class="viewcode-back" href="../autodoc/seawater/seawater.mu.html#seawater.mu">[docs]</a><span class="k">def</span> <span class="nf">mu</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">P</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute the viscosity of seawater</span>
 <span class="sd">    </span>
@@ -160,7 +154,7 @@
     <span class="c1"># Return the in situ dynamic viscosity</span>
     <span class="k">return</span> <span class="n">mu</span></div>
 
-<div class="viewcode-block" id="sigma"><a class="viewcode-back" href="../seawater/seawater.sigma.html#seawater.sigma">[docs]</a><span class="k">def</span> <span class="nf">sigma</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">S</span><span class="p">):</span>
+<div class="viewcode-block" id="sigma"><a class="viewcode-back" href="../autodoc/seawater/seawater.sigma.html#seawater.sigma">[docs]</a><span class="k">def</span> <span class="nf">sigma</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">S</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute the surface tension of seawater</span>
 <span class="sd">    </span>
@@ -199,7 +193,7 @@
     
     <span class="k">return</span> <span class="n">sigma</span></div>
 
-<div class="viewcode-block" id="k"><a class="viewcode-back" href="../seawater/seawater.k.html#seawater.k">[docs]</a><span class="k">def</span> <span class="nf">k</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">P</span><span class="p">):</span>
+<div class="viewcode-block" id="k"><a class="viewcode-back" href="../autodoc/seawater/seawater.k.html#seawater.k">[docs]</a><span class="k">def</span> <span class="nf">k</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">P</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute the thermal conductivity of seawater</span>
 <span class="sd">    </span>
@@ -251,7 +245,7 @@
     
     <span class="k">return</span> <span class="n">k_sw</span></div>
     
-<div class="viewcode-block" id="cp"><a class="viewcode-back" href="../seawater/seawater.cp.html#seawater.cp">[docs]</a><span class="k">def</span> <span class="nf">cp</span><span class="p">():</span>
+<div class="viewcode-block" id="cp"><a class="viewcode-back" href="../autodoc/seawater/seawater.cp.html#seawater.cp">[docs]</a><span class="k">def</span> <span class="nf">cp</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute the heat capacity of seawater at fixed conditions</span>
 <span class="sd">    </span>
@@ -268,8 +262,8 @@
 <span class="sd">    cp : float</span>
 <span class="sd">        heat capacity of seawater (J/(kg K))</span>
 <span class="sd">    </span>
-<span class="sd">    Note</span>
-<span class="sd">    ----</span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
 <span class="sd">    This approximation is valid since we have treated cp to be a constant in</span>
 <span class="sd">    derivation of the governing equations.  If we let cp vary with T and S, </span>
 <span class="sd">    then the governing equations will contain a lot of new terms coming from</span>
@@ -286,43 +280,70 @@
 </pre></div>
 
           </div>
+          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-            <p class="logo"><a href="../contents.html">
-              <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
-            </a></p><div class="relations">
+<h1 class="logo"><a href="../index.html">Texas A&M Oil spill / Outfall Calculator</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_manual.html">TAMOC User Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../unit_tests.html">Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../bugs.html">Reporting Bugs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../readme.html">Read Me File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+</ul>
+
+<div class="relations">
 <h3>Related Topics</h3>
 <ul>
-  <li><a href="../contents.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
   <li><a href="index.html">Module code</a><ul>
   </ul></li>
   </ul></li>
 </ul>
 </div>
-
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
     </form>
+    </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
 
         </div>
       </div>
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2015, Scott A. Socolofsky.
+      &copy;2020, Scott A. Socolofsky.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>
 

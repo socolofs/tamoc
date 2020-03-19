@@ -5,6 +5,6 @@ Read Me File
 :Release: |version|
 :Date: |today|
 
-The README.txt file is distributed with the source code, and can be viewed 
-:download:`here <../../README.rst>`.
+The README.rst file is distributed with the source code, and can be viewed 
+at https://github.com/socolofs/tamoc/.
 

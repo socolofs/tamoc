@@ -9,21 +9,52 @@ Overview of Dispersed Phases Module
 
 .. automodule:: dispersed_phases
 
-Class Objects
-=============
 
-.. autoclass:: SingleParticle
+Class Objects and Methods
+=========================
 
-.. autoclass:: PlumeParticle
+General Particle Object
+-----------------------
+
+Several modules in ``TAMOC`` need ``Particle`` objects, and the functionality
+of these objects can often be described in a unified way.  The base ``SingleParticle`` object contains this functionality and is described in 
+the following:
+
+.. autosummary::
+   :toctree: ../autodoc/disp_phases
+   
+   SingleParticle
+   SingleParticle.properties
+   SingleParticle.diameter
+   SingleParticle.biodegradation_rate
+
+Plume Particle Object
+---------------------
+
+When a ``SingleParticle`` is inside of a plume (e.g., a ``stratified_plume_model`` or ``bent_plume_model``), it needs slightly 
+different capabilities.  These are provided as follows in the ``PlumeParticle`` object, which inherits the base object above:
+
+.. autosummary::
+   :toctree: ../autodoc/disp_phases
+   
+   PlumeParticle
+   PlumeParticle.properties
+   PlumeParticle.diameter
+   PlumeParticle.biodegradation_rate
+   PlumeParticle.update
+
 
 Module Functions
 ================
 
-.. currentmodule:: dispersed_phases
+This module also contains several utilities to create particle objects and 
+to user particle objects to create initial conditions for the various plume
+models.  These utilities are listed below:
 
 .. autosummary::
-   :toctree: ../disp_phases
-
+   :toctree: ../autodoc/disp_phases
+   
+   initial_conditions
    save_particle_to_nc_file
    load_particle_from_nc_file
    shear_entrainment
@@ -33,3 +64,5 @@ Module Functions
    bf_average
    get_chem_names
    particles_state_space
+
+

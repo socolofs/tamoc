@@ -1,0 +1,337 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>bent_plume_model.LagElement &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="bent_plume_model.LagElement.update" href="bent_plume_model.LagElement.update.html" />
+    <link rel="prev" title="bent_plume_model.Particle.update" href="bent_plume_model.Particle.update.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="bent-plume-model-lagelement">
+<h1>bent_plume_model.LagElement<a class="headerlink" href="#bent-plume-model-lagelement" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="bent_plume_model.LagElement">
+<em class="property">class </em><code class="sig-prename descclassname">bent_plume_model.</code><code class="sig-name descname">LagElement</code><span class="sig-paren">(</span><em class="sig-param">t0</em>, <em class="sig-param">q0</em>, <em class="sig-param">D</em>, <em class="sig-param">profile</em>, <em class="sig-param">p</em>, <em class="sig-param">particles</em>, <em class="sig-param">tracers</em>, <em class="sig-param">chem_names</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/bent_plume_model.html#LagElement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bent_plume_model.LagElement" title="Permalink to this definition">¶</a></dt>
+<dd><p>Manages the Lagragian plume element state space and derived variables</p>
+<p>Translates the state space variables for a Lagrangian plume element into
+its individual parts and derived quantitites.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>t0</strong><span class="classifier">float</span></dt><dd><p>Initial time of the simulation (s)</p>
+</dd>
+<dt><strong>q0</strong><span class="classifier">ndarray</span></dt><dd><p>Initial values of the simulation state space, q</p>
+</dd>
+<dt><strong>D</strong><span class="classifier">float</span></dt><dd><p>Diameter for the equivalent circular cross-section of the release (m)</p>
+</dd>
+<dt><strong>profile</strong><span class="classifier"><cite>ambient.Profile</cite></span></dt><dd><p>Ambient CTD data</p>
+</dd>
+<dt><strong>p</strong><span class="classifier"><cite>ModelParams</cite></span></dt><dd><p>Container for the fixed model parameters</p>
+</dd>
+<dt><strong>particles</strong><span class="classifier">list of <cite>Particle</cite> objects</span></dt><dd><p>List of <cite>Particle</cite> objects describing each dispersed phase in the 
+simulation</p>
+</dd>
+<dt><strong>tracers</strong><span class="classifier">string list</span></dt><dd><p>List of passive tracers in the discharge.  These can be chemicals 
+present in the ambient <cite>profile</cite> data, and if so, entrainment of these
+chemicals will change the concentrations computed for these tracers.
+However, none of these concentrations are used in the dissolution of 
+the dispersed phase.  Hence, <cite>tracers</cite> should not contain any 
+chemicals present in the dispersed phase particles.</p>
+</dd>
+<dt><strong>chem_names</strong><span class="classifier">string list</span></dt><dd><p>List of chemical parameters to track for the dissolution.  Only the 
+parameters in this list will be used to set background concentration
+for the dissolution, and the concentrations of these parameters are 
+computed separately from those listed in <cite>tracers</cite> or inputed from
+the discharge through <cite>cj</cite>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Attributes</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>t0</strong><span class="classifier">float</span></dt><dd><p>Initial time of the simulation (s)</p>
+</dd>
+<dt><strong>q0</strong><span class="classifier">ndarray</span></dt><dd><p>Initial values of the simulation state space, q</p>
+</dd>
+<dt><strong>D</strong><span class="classifier">float</span></dt><dd><p>Diameter for the equivalent circular cross-section of the release (m)</p>
+</dd>
+<dt><strong>tracers</strong><span class="classifier">string list</span></dt><dd><p>List of passive tracers in the discharge.  These can be chemicals 
+present in the ambient <cite>profile</cite> data, and if so, entrainment of these
+chemicals will change the concentrations computed for these tracers.
+However, none of these concentrations are used in the dissolution of 
+the dispersed phase.  Hence, <cite>tracers</cite> should not contain any 
+chemicals present in the dispersed phase particles.</p>
+</dd>
+<dt><strong>chem_names</strong><span class="classifier">string list</span></dt><dd><p>List of chemical parameters to track for the dissolution.  Only the 
+parameters in this list will be used to set background concentration
+for the dissolution, and the concentrations of these parameters are 
+computed separately from those listed in <cite>tracers</cite> or inputed from
+the discharge through <cite>cj</cite>.</p>
+</dd>
+<dt><strong>len</strong><span class="classifier">int</span></dt><dd><p>Number of variables in the state space q (–)</p>
+</dd>
+<dt><strong>ntracers</strong><span class="classifier">int</span></dt><dd><p>Number of passive chemical tracers (–)</p>
+</dd>
+<dt><strong>nchems</strong><span class="classifier">int</span></dt><dd><p>Number of chemicals tracked for dissolution of the dispersed phase
+particles (–)</p>
+</dd>
+<dt><strong>np</strong><span class="classifier">int</span></dt><dd><p>Number of dispersed phase particles (–)</p>
+</dd>
+<dt><strong>t</strong><span class="classifier">float</span></dt><dd><p>Independent variable for the current time (s)</p>
+</dd>
+<dt><strong>q</strong><span class="classifier">ndarray</span></dt><dd><p>Dependent variable for the current state space</p>
+</dd>
+<dt><strong>M</strong><span class="classifier">float</span></dt><dd><p>Mass of the Lagrangian element (kg)</p>
+</dd>
+<dt><strong>Se</strong><span class="classifier">float</span></dt><dd><p>Salt in the Lagrangian element (psu kg)</p>
+</dd>
+<dt><strong>He</strong><span class="classifier">float</span></dt><dd><p>Heat of the Lagrangian element (J)</p>
+</dd>
+<dt><strong>Jx</strong><span class="classifier">float</span></dt><dd><p>Dynamic momentum of the Lagrangian element in the x-direction 
+(kg m/s)</p>
+</dd>
+<dt><strong>Jy</strong><span class="classifier">float</span></dt><dd><p>Dynamic momentum of the Lagrangian element in the y-direction 
+(kg m/s)</p>
+</dd>
+<dt><strong>Jz</strong><span class="classifier">float</span></dt><dd><p>Dynamic momentum of the Lagrangian element in the z-direction 
+(kg m/s)</p>
+</dd>
+<dt><strong>H</strong><span class="classifier">float</span></dt><dd><p>Relative thickness of the Lagrangian element h/V (s)</p>
+</dd>
+<dt><strong>x</strong><span class="classifier">float</span></dt><dd><p>Current x-position of the Lagrangian element (m)</p>
+</dd>
+<dt><strong>y</strong><span class="classifier">float</span></dt><dd><p>Current y-position of the Lagrangian element (m)</p>
+</dd>
+<dt><strong>z</strong><span class="classifier">float</span></dt><dd><p>Current z-position of the Lagrangian element (m)</p>
+</dd>
+<dt><strong>s</strong><span class="classifier">float</span></dt><dd><p>Current s-position along the centerline of the plume for the 
+Lagrangian element (m)</p>
+</dd>
+<dt><strong>M_p</strong><span class="classifier">dict of ndarrays</span></dt><dd><p>For integer key: the total mass fluxes (kg/s) of each component in a 
+particle.</p>
+</dd>
+<dt><strong>H_p</strong><span class="classifier">ndarray</span></dt><dd><p>Total heat flux for each particle (J/s)</p>
+</dd>
+<dt><strong>t_p</strong><span class="classifier">ndarray</span></dt><dd><p>Time since release for each particle (s)</p>
+</dd>
+<dt><strong>X_p</strong><span class="classifier">ndarray</span></dt><dd><p>Position of each particle in local plume coordinates (l,n,m) (m).</p>
+</dd>
+<dt><strong>cpe</strong><span class="classifier">ndarray</span></dt><dd><p>Masses of the chemical components involved in dissolution (kg)</p>
+</dd>
+<dt><strong>cte</strong><span class="classifier">ndarray</span></dt><dd><p>Masses of the passive tracers in the plume (concentration kg)</p>
+</dd>
+<dt><strong>Pa</strong><span class="classifier">float</span></dt><dd><p>Ambient pressure at the current element location (Pa)</p>
+</dd>
+<dt><strong>Ta</strong><span class="classifier">float</span></dt><dd><p>Ambient temperature at the current element location (K)</p>
+</dd>
+<dt><strong>Sa</strong><span class="classifier">float</span></dt><dd><p>Ambient salinity at the current element location (psu)</p>
+</dd>
+<dt><strong>ua</strong><span class="classifier">float</span></dt><dd><p>Crossflow velocity in the x-direction at the current element location 
+(m/s)</p>
+</dd>
+<dt><strong>ca_chems</strong><span class="classifier">ndarray</span></dt><dd><p>Ambient concentration of the chemical components involved in 
+dissolution at the current element location (kg/m^3)</p>
+</dd>
+<dt><strong>ca_tracers :</strong></dt><dd><p>Ambient concentration of the passive tracers in the plume at the 
+current element location (concentration)</p>
+</dd>
+<dt><strong>rho_a</strong><span class="classifier">float</span></dt><dd><p>Ambient density at the current element location (kg/m^3)</p>
+</dd>
+<dt><strong>S</strong><span class="classifier">float</span></dt><dd><p>Salinity of the Lagrangian element (psu)</p>
+</dd>
+<dt><strong>T</strong><span class="classifier">float</span></dt><dd><p>Temperature of the Lagrangian element (T)</p>
+</dd>
+<dt><strong>c_chems :</strong></dt><dd><p>Concentration of the chemical components involved in dissolution for
+the Lagrangian element (kg/m^3)</p>
+</dd>
+<dt><strong>c_tracers :</strong></dt><dd><p>Concentration of the passive tracers in the Lagrangian element 
+(concentration)</p>
+</dd>
+<dt><strong>u</strong><span class="classifier">float</span></dt><dd><p>Velocity in the x-direction of the Lagrangian element (m/s)</p>
+</dd>
+<dt><strong>v</strong><span class="classifier">float</span></dt><dd><p>Velocity in the y-direction of the Lagrangian element (m/s)</p>
+</dd>
+<dt><strong>w</strong><span class="classifier">float</span></dt><dd><p>Velocity in the z-direction of the Lagrangian element (m/s)</p>
+</dd>
+<dt><strong>hvel</strong><span class="classifier">float</span></dt><dd><p>Velocity in the horizontal plane for the Lagrangian element (m/s)</p>
+</dd>
+<dt><strong>V</strong><span class="classifier">float</span></dt><dd><p>Velocity in the s-direction of the Lagrangian element (m/s)</p>
+</dd>
+<dt><strong>h</strong><span class="classifier">float</span></dt><dd><p>Current thickness of the Lagrangian element (m)</p>
+</dd>
+<dt><strong>rho</strong><span class="classifier">float</span></dt><dd><p>Density of the entrained seawater in the Lagrangian element (kg/m^3)</p>
+</dd>
+<dt><strong>b</strong><span class="classifier">float</span></dt><dd><p>Half-width of the Lagrangian element (m)</p>
+</dd>
+<dt><strong>sin_p</strong><span class="classifier">float</span></dt><dd><p>The sine of the angle phi (–)</p>
+</dd>
+<dt><strong>cos_p</strong><span class="classifier">float</span></dt><dd><p>The cosine of the angle phi (–)</p>
+</dd>
+<dt><strong>sin_t</strong><span class="classifier">float</span></dt><dd><p>The sine of the angle theta (–)</p>
+</dd>
+<dt><strong>cos_t</strong><span class="classifier">float</span></dt><dd><p>The cosine of the angle theta (–)</p>
+</dd>
+<dt><strong>phi</strong><span class="classifier">float</span></dt><dd><p>The vertical angle from horizontal of the current plume trajectory
+(rad in range +/- pi/2).  Since z is positive down (depth), phi = 
+pi/2 point down and -pi/2 points up.</p>
+</dd>
+<dt><strong>theta</strong><span class="classifier">float</span></dt><dd><p>The lateral angle in the horizontal plane from the x-axis to the 
+current plume trajectory (rad in range 0 to 2 pi)</p>
+</dd>
+<dt><strong>mp</strong><span class="classifier">ndarray</span></dt><dd><p>Masses of each of the dispersed phase particles in the <cite>particles</cite>
+variable</p>
+</dd>
+<dt><strong>fb</strong><span class="classifier">ndarray</span></dt><dd><p>Buoyant force for each of the dispersed phase particles in the 
+<cite>particles</cite> variable as density difference (kg/m^3)</p>
+</dd>
+<dt><strong>x_p</strong><span class="classifier">ndarray</span></dt><dd></dd>
+<dt><strong>Mp</strong><span class="classifier">float</span></dt><dd><p>Total mass of dispersed phases in the Lagrangian element (kg)</p>
+</dd>
+<dt><strong>Fb</strong><span class="classifier">float</span></dt><dd><p>Total buoyant force as density difference of the dispersed phases in 
+the Lagrangian element (kg/m^3)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="bent_plume_model.LagElement.update.html#bent_plume_model.LagElement.update" title="bent_plume_model.LagElement.update"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update</span></code></a>(self, t, q, profile, p[, particles])</p></td>
+<td><p>Update the <cite>LagElement</cite> object with the current local conditions</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="bent_plume_model.LagElement.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">t0</em>, <em class="sig-param">q0</em>, <em class="sig-param">D</em>, <em class="sig-param">profile</em>, <em class="sig-param">p</em>, <em class="sig-param">particles</em>, <em class="sig-param">tracers</em>, <em class="sig-param">chem_names</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/bent_plume_model.html#LagElement.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bent_plume_model.LagElement.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#bent_plume_model.LagElement.__init__" title="bent_plume_model.LagElement.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(self, t0, q0, D, profile, p, …)</p></td>
+<td><p>Initialize self.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="bent_plume_model.LagElement.update.html#bent_plume_model.LagElement.update" title="bent_plume_model.LagElement.update"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update</span></code></a>(self, t, q, profile, p[, particles])</p></td>
+<td><p>Update the <cite>LagElement</cite> object with the current local conditions</p></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Texas A&M Oil spill / Outfall Calculator</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../user_manual.html">TAMOC User Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../unit_tests.html">Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../bugs.html">Reporting Bugs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html">Read Me File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../../user_manual.html">TAMOC User Manual</a><ul>
+  <li><a href="../../modules/bpm.html">Overview of Bent Plume Model Module</a><ul>
+      <li>Previous: <a href="bent_plume_model.Particle.update.html" title="previous chapter">bent_plume_model.Particle.update</a></li>
+      <li>Next: <a href="bent_plume_model.LagElement.update.html" title="next chapter">bent_plume_model.LagElement.update</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../_sources/autodoc/bpm/bent_plume_model.LagElement.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

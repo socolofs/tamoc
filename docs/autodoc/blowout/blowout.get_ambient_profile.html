@@ -1,0 +1,211 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>blowout.get_ambient_profile &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="blowout.get_ctd_from_txt" href="blowout.get_ctd_from_txt.html" />
+    <link rel="prev" title="blowout.particles" href="blowout.particles.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="blowout-get-ambient-profile">
+<h1>blowout.get_ambient_profile<a class="headerlink" href="#blowout-get-ambient-profile" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="blowout.get_ambient_profile">
+<code class="sig-prename descclassname">blowout.</code><code class="sig-name descname">get_ambient_profile</code><span class="sig-paren">(</span><em class="sig-param">water</em>, <em class="sig-param">current</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/blowout.html#get_ambient_profile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blowout.get_ambient_profile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create an <cite>ambient.Profile</cite> object from the given ambient data</p>
+<p>Based on the water column information provided, make an appropriate 
+choice and create the <cite>ambient.Profile</cite> object required for a <cite>tamoc</cite>
+simulation.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>water</strong><span class="classifier">various</span></dt><dd><p>Data describing the ambient water temperature and salinity profile.
+See Notes below for details.</p>
+</dd>
+<dt><strong>current</strong><span class="classifier">various</span></dt><dd><p>Data describing the ambient current velocity profile.  See Notes 
+below for details.</p>
+</dd>
+<dt><strong>**kwargs</strong><span class="classifier">dict</span></dt><dd><p>Dictionary of optional keyword arguments that can be used when 
+creating an ambient.Profile object from a text file.  Optional 
+arguments include:</p>
+<dl class="simple">
+<dt>summary<span class="classifier">str</span></dt><dd><p>String describing the simulation for which this data will be used.</p>
+</dd>
+<dt>source<span class="classifier">str</span></dt><dd><p>String documenting the source of the ambient ocean data provided.</p>
+</dd>
+<dt>sea_name<span class="classifier">str</span></dt><dd><p>NC-compliant name for the ocean water body as a string.</p>
+</dd>
+<dt>p_lat<span class="classifier">float</span></dt><dd><p>Latitude (deg)</p>
+</dd>
+<dt>p_lon<span class="classifier">float</span></dt><dd><p>Longitude, negative is west of 0 (deg)</p>
+</dd>
+<dt>p_time<span class="classifier">netCDF4 time format</span></dt><dd><p>Date and time of the CTD data using netCDF4.date2num().</p>
+</dd>
+<dt>ca<span class="classifier">list, default=[]</span></dt><dd><p>List of dissolved atmospheric gases to include in the ambient
+ocean data as a derived concentration; choices are ‘nitrogen’,
+‘oxygen’, ‘argon’, and ‘carbon_dioxide’.</p>
+</dd>
+</dl>
+<p>If any of these arguments are not passed, default values will be 
+assigned by this function.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The <cite>water</cite> variable contains information about the ambient temperature
+and salinity profile.  Possible choices for <cite>water</cite> include the following:</p>
+<dl>
+<dt>water<span class="classifier">None</span></dt><dd><p>Indicates that we have no information about the ambient temperature
+or salinity.  In this case, the model will import data for the 
+world-ocean average.</p>
+</dd>
+<dt>water<span class="classifier">dict</span></dt><dd><p>If we only know the water temperature and salinity at the surface, 
+this may be passed through a dictionary with keywords <cite>temperature</cite>
+and <cite>salinity</cite>.  In this case, the model will import data for the
+world-ocean average and adjust the data to have the given temperature
+and salinity at the surface.</p>
+</dd>
+<dt>water<span class="classifier">‘netCDF4.Dataset’ object</span></dt><dd><p>If a ‘netCDF4.Dataset’ object already contains the ambient CTD 
+data in a format appropriate for the <cite>ambient.Profile</cite> object, then
+this can be passed.  In this case, it is assumed that the dataset
+includes the currents; hence, the <cite>currents</cite> variable will be 
+ignored.</p>
+</dd>
+<dt>water<span class="classifier"><cite>ambient.Profile</cite> object</span></dt><dd><p>If we already created our own ambient Profile object, then this 
+object can be used directly.</p>
+</dd>
+<dt>water = str</dt><dd><p>If we stored the water column profile in a file, we may provide the
+file path to this file via the string stored in water. If this string
+ends in ‘.nc’, it is assumed that this file contains a netCDF4
+dataset. Otherwise, this file should contain columns in the following
+order: depth (m), temperature (deg C), salinity (psu), velocity in
+the x-direction (m/s), velocity in the y-direction (m/s). Since this
+option includes the currents, the current variable will be ignored in
+this case. A comment string of <cite>#</cite> may be used in the text file.</p>
+</dd>
+</dl>
+<p>The <cite>current</cite> variable contains information about the ambient current
+profile.  Possible choices for <cite>current</cite> include the following:</p>
+<dl class="simple">
+<dt>current<span class="classifier">float</span></dt><dd><p>This is assumed to be the current velocity along the x-axis and will
+be uniform over the depth</p>
+</dd>
+<dt>current<span class="classifier">ndarray</span></dt><dd><p>This is assumed to contain the current velocity in the x- and y- (and
+optionally also z-) directions. If this is a one-dimensional array,
+then these currents will be assumed to be uniform over the depth. If
+this is a multi-dimensional array, then these values as assumed to
+contain a profile of data, with the depth (m) as the first column of
+data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Texas A&M Oil spill / Outfall Calculator</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../user_manual.html">TAMOC User Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../unit_tests.html">Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../bugs.html">Reporting Bugs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html">Read Me File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../../user_manual.html">TAMOC User Manual</a><ul>
+  <li><a href="../../modules/blowout.html">Overview of Blowout Module</a><ul>
+      <li>Previous: <a href="blowout.particles.html" title="previous chapter">blowout.particles</a></li>
+      <li>Next: <a href="blowout.get_ctd_from_txt.html" title="next chapter">blowout.get_ctd_from_txt</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../_sources/autodoc/blowout/blowout.get_ambient_profile.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,252 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Sintef Module User’s Guide &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="particle_size_distribution" href="../scripts/sintef/particle_size_distribution.html" />
+    <link rel="prev" title="Dispersed Phases User’s Guide" href="disp_phases.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="sintef-module-user-s-guide">
+<h1>Sintef Module User’s Guide<a class="headerlink" href="#sintef-module-user-s-guide" title="Permalink to this headline">¶</a></h1>
+<dl class="field-list simple">
+<dt class="field-odd">Release</dt>
+<dd class="field-odd"><p>2.0</p>
+</dd>
+<dt class="field-even">Date</dt>
+<dd class="field-even"><p>Mar 19, 2020</p>
+</dd>
+</dl>
+<div class="section" id="scripts">
+<h2>Scripts<a class="headerlink" href="#scripts" title="Permalink to this headline">¶</a></h2>
+<p>The functions defined in the <cite>sintef</cite> module provide the means to compute
+volume mean diameter (d_50) or oil and gas from a blowout and the resulting
+particle size distribution on a volume basis. These functions are based on the
+work published in Johansen, Brandvik, and Farooq (2013), “Droplet breakup in
+subsea oil releases - Part 2: Predictions of droplet size distributions with
+and without injection of chemical dispersants.” Marine Pollution Bulletin, 73:
+327-335. doi:10.1016/j.marpolbul.2013.04.012.</p>
+<p>The example detailed below demonstrates how to interact with the functions
+defined in the <cite>sintef</cite> module. Further examples are presented in the
+following scripts distributed in the <code class="docutils literal notranslate"><span class="pre">./bin/sintef</span></code> directory with the
+source code.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../scripts/sintef/particle_size_distribution.html">particle_size_distribution</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p>This simple example demonstrates how to compute the volume mean diameter for
+an oil leak and compute the particle size distribution.  For a more complete
+example, please see the script file listed above.</p>
+<div class="section" id="volume-mean-diameter">
+<h3>Volume Mean Diameter<a class="headerlink" href="#volume-mean-diameter" title="Permalink to this headline">¶</a></h3>
+<p>The first step in evaluating a particle size distribution from an oil leak
+or well blowout is to compute a characteristic droplet size.  For the SINTEF
+model defined in Johansen et al. (2013), the characteristic scale is the
+volume mean diameter, d_50.  We will consider a simple oil leak here.</p>
+<p>Import the necessary tools and input the oil and seawater properties:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">tamoc</span> <span class="kn">import</span> <span class="n">sintef</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">tamoc</span> <span class="kn">import</span> <span class="n">seawater</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rho_p</span> <span class="o">=</span> <span class="mf">850.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mu_p</span> <span class="o">=</span> <span class="mf">0.0005</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sigma_p</span> <span class="o">=</span> <span class="mf">0.026</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rho</span> <span class="o">=</span> <span class="n">seawater</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="mf">273.15</span><span class="o">+</span><span class="mf">4.5</span><span class="p">,</span> <span class="mf">34.5</span><span class="p">,</span> <span class="mf">100.e5</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Specify the outlet conditions for the release:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">D</span> <span class="o">=</span> <span class="mf">0.03</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Q</span> <span class="o">=</span> <span class="mf">0.005</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">md</span> <span class="o">=</span> <span class="n">Q</span> <span class="o">*</span> <span class="n">rho_p</span>
+</pre></div>
+</div>
+<p>Compute the volume mean diameter.  The function call can consider flows of
+oil and gas together.  When only one phase is present, pass zeros for the
+parameters of the absent phase:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">d50_oil</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">sintef</span><span class="o">.</span><span class="n">modified_We_model</span><span class="p">(</span><span class="n">D</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">md</span><span class="p">,</span> <span class="n">mu_p</span><span class="p">,</span> <span class="n">sigma_p</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="n">rho</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This also works by reversing the inputs with only one immiscible phase is
+present:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">_</span><span class="p">,</span> <span class="n">d50_oil</span> <span class="o">=</span> <span class="n">sintef</span><span class="o">.</span><span class="n">modified_We_model</span><span class="p">(</span><span class="n">D</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">md</span><span class="p">,</span> <span class="n">mu_p</span><span class="p">,</span> <span class="n">sigma_p</span><span class="p">,</span> <span class="n">rho</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The resulting droplet size is:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">d50_oil</span>
+<span class="go">0.00067659800106017825</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="maximum-stable-droplet-size">
+<h3>Maximum Stable Droplet Size<a class="headerlink" href="#maximum-stable-droplet-size" title="Permalink to this headline">¶</a></h3>
+<p>The volume mean diameter calculation always checks to ensure that the
+returned value does not exceed a theoretical value for the maximum stable
+droplet size for the given fluids.  In this example, the maximum stable
+droplet size can be computed as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dmax</span> <span class="o">=</span> <span class="n">sintef</span><span class="o">.</span><span class="n">de_max</span><span class="p">(</span><span class="n">sigma_p</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">rho</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dmax</span>
+<span class="go">0.015267057735857908</span>
+</pre></div>
+</div>
+<p>Hence, the value for d_50 computed above was below the maximum stable
+droplet size.  This is expected for such a high leak flow rate through a
+small leak hole.</p>
+</div>
+<div class="section" id="droplet-size-distribution">
+<h3>Droplet Size Distribution<a class="headerlink" href="#droplet-size-distribution" title="Permalink to this headline">¶</a></h3>
+<p>The droplet size distribution is obtained from the Rosin-Rammler distribution
+with an assumed known spread coefficient (see Johansen et al. 2013 for
+details).  From the compute d_50, the volume size distribution can be
+calculated for any number of bins.  Consider an example with 20 bins:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">nbins</span> <span class="o">=</span> <span class="mi">25</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">de_oil</span><span class="p">,</span> <span class="n">md_oil</span> <span class="o">=</span> <span class="n">sintef</span><span class="o">.</span><span class="n">rosin_rammler</span><span class="p">(</span><span class="n">nbins</span><span class="p">,</span> <span class="n">d50_oil</span><span class="p">,</span> <span class="n">md</span><span class="p">,</span> <span class="n">sigma_p</span><span class="p">,</span> <span class="n">rho_p</span><span class="p">,</span> <span class="n">rho</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">de_oil</span>
+<span class="go">array([  7.41874956e-05,   8.91929874e-05,   1.07233557e-04,</span>
+<span class="go">         1.28923091e-04,   1.54999647e-04,   1.86350564e-04,</span>
+<span class="go">         2.24042655e-04,   2.69358516e-04,   3.23840164e-04,</span>
+<span class="go">         3.89341511e-04,   4.68091452e-04,   5.62769705e-04,</span>
+<span class="go">         6.76598001e-04,   8.13449713e-04,   9.77981660e-04,</span>
+<span class="go">         1.17579257e-03,   1.41361359e-03,   1.69953734e-03,</span>
+<span class="go">         2.04329330e-03,   2.45657886e-03,   2.95345740e-03,</span>
+<span class="go">         3.55083679e-03,   4.26904478e-03,   5.13252071e-03,</span>
+<span class="go">         6.17064711e-03])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">md_oil</span>
+<span class="go">array([ 0.01997373,  0.02696623,  0.03658705,  0.0497585 ,  0.06766545,</span>
+<span class="go">        0.09177166,  0.12377268,  0.1654128 ,  0.21804747,  0.28178723,</span>
+<span class="go">        0.35406647,  0.42767454,  0.4889011 ,  0.51767027,  0.49287299,</span>
+<span class="go">        0.40515515,  0.27211148,  0.13876944,  0.0491626 ,  0.01156503,</span>
+<span class="go">        0.0028402 ,  0.00189551,  0.00185774,  0.00185734,  0.00185734])</span>
+</pre></div>
+</div>
+<p>The data are more easily interpreted via histogram:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nbins</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bar_width</span> <span class="o">=</span> <span class="mf">0.75</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">opacity</span> <span class="o">=</span> <span class="mf">0.4</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">md_oil</span><span class="p">,</span> <span class="n">bar_width</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">opacity</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;b&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ntics</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dtics</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">nbins</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">(</span><span class="n">ntics</span><span class="p">)))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ticnums</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ticlocs</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ntics</span><span class="p">):</span>
+<span class="go">       ticnums.append(&#39;%2.2f&#39; % (de_oil[(i)*dtics]*1000.))</span>
+<span class="go">       ticlocs.append(index[(i)*dtics] + bar_width/2)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">ticlocs</span><span class="p">,</span> <span class="n">ticnums</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Oil droplet size (mm)&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Oil mass flux (kg/s)&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Texas A&M Oil spill / Outfall Calculator</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../user_manual.html">TAMOC User Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../unit_tests.html">Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../bugs.html">Reporting Bugs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../readme.html">Read Me File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../user_manual.html">TAMOC User Manual</a><ul>
+      <li>Previous: <a href="disp_phases.html" title="previous chapter">Dispersed Phases User’s Guide</a></li>
+      <li>Next: <a href="../scripts/sintef/particle_size_distribution.html" title="next chapter">particle_size_distribution</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/guides/sintef.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

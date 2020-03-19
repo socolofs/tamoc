@@ -1,333 +1,265 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Overview of Ambient Module &#8212; Texas A&amp;M Oilspill Calculator v1.1 Manual</title>
-    <link rel="stylesheet" href="../_static/scipy.css" type="text/css" />
+    <meta charset="utf-8" />
+    <title>Overview of Ambient Module &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '1.1.1',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="prev" title="crossflow_plume" href="../scripts/bpm/crossflow_plume.html" />
+    <link rel="next" title="ambient.Profile" href="../autodoc/ambient/ambient.Profile.html" />
+    <link rel="prev" title="seawater.cp" href="../autodoc/seawater/seawater.cp.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head>
-  <body>
+  </head><body>
   
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
   <div class="section" id="overview-of-ambient-module">
 <h1>Overview of Ambient Module<a class="headerlink" href="#overview-of-ambient-module" title="Permalink to this headline">¶</a></h1>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">1.1</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">Nov 08, 2017</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Release</dt>
+<dd class="field-odd"><p>2.0</p>
+</dd>
+<dt class="field-even">Date</dt>
+<dd class="field-even"><p>Mar 19, 2020</p>
+</dd>
+</dl>
 <span class="target" id="module-ambient"></span><div class="section" id="ambient-module">
 <h2>Ambient Module<a class="headerlink" href="#ambient-module" title="Permalink to this headline">¶</a></h2>
-<p>Define functions, classes, and methods to handle ambient sewater data</p>
+<p>Define functions, classes, and methods to handle ambient seawater data</p>
 <p>This module defines functions to read in arbitrary format ambient data files
 (e.g., CTD profiles), manipulate the data to extract profiles with monotonic
 depth coordinate values, and adjust parameter units to standard units. It also
 defines functions and classes to store the measured CTD data in
 netCDF4-classic format following NODC guidelines and to manipulate the data
-for use by simulation models in <code class="docutils literal"><span class="pre">TAMOC</span></code>. These manipulations include
+for use by simulation models in <code class="docutils literal notranslate"><span class="pre">TAMOC</span></code>. These manipulations include
 interpolation methods, the ability to add or remove data from the database,
 including the addition of synthetic data when needed, and to extend a profile
 to deeper depths using a rational means of maintaining the stratification
 structure.</p>
 <p>These methods are particularly useful to rapidly create ambient profile 
-databases for use by <code class="docutils literal"><span class="pre">TAMOC</span></code> and for archiving data obtained from arbitrary 
+databases for use by <code class="docutils literal notranslate"><span class="pre">TAMOC</span></code> and for archiving data obtained from arbitrary 
 formats in standard format netCDF4-classic files.  These methods also allow
-seemless coupling of <code class="docutils literal"><span class="pre">TAMOC</span></code> simulation modules with general ocean 
+seamless coupling of <code class="docutils literal notranslate"><span class="pre">TAMOC</span></code> simulation modules with general ocean 
 circulation models or Lagrangian particle tracking models that store their 
 seawater properties data in netCDF format.</p>
+<p>In its original design, the <cite>ambient</cite> module required all <cite>Profile</cite> objects 
+to be stored as netCDF datasets.  In the present version, this requirement
+has been removed so that <cite>Profile</cite> objects can be created from other input
+data types and without storing the data as a netCDF dataset.  The original
+functionality of the <cite>Profile</cite> class, however, is the same, so that seamless
+integration with other other <code class="docutils literal notranslate"><span class="pre">TAMOC</span></code> modules is maintained.</p>
 <div class="section" id="see-also">
 <h3>See Also<a class="headerlink" href="#see-also" title="Permalink to this headline">¶</a></h3>
-<dl class="docutils">
-<dt><code class="xref py py-obj docutils literal"><span class="pre">netCDF4</span></code> <span class="classifier-delimiter">:</span> <span class="classifier"></span></dt>
-<dd>Package for creating and manipulating netCDF datasets</dd>
-<dt><a class="reference external" href="https://docs.python.org/2/library/datetime.html#module-datetime" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">datetime</span></code></a> <span class="classifier-delimiter">:</span> <span class="classifier"></span></dt>
-<dd>Package to create and manipute dates</dd>
-<dt><code class="xref py py-obj docutils literal"><span class="pre">numpy.fromfile</span></code> :</dt>
-<dd>Read data from a simple text file in single table format. Similar to the
-Matlab <em class="xref py py-obj">load</em> function. Does not support comments or skipped lines. Works
-for text or binary files.</dd>
-<dt><code class="xref py py-obj docutils literal"><span class="pre">numpy.loadtxt</span></code> <span class="classifier-delimiter">:</span> <span class="classifier"></span></dt>
-<dd>A more sophisticated method to read data from a text file. This method can
+<dl class="simple">
+<dt><cite>netCDF4</cite><span class="classifier"></span></dt><dd><p>Package for creating and manipulating netCDF datasets</p>
+</dd>
+<dt><cite>datetime</cite><span class="classifier"></span></dt><dd><p>Package to create and manipulate dates</p>
+</dd>
+<dt><cite>numpy.fromfile</cite> :</dt><dd><p>Read data from a simple text file in single table format. Similar to the
+Matlab <cite>load</cite> function. Does not support comments or skipped lines. Works
+for text or binary files.</p>
+</dd>
+<dt><cite>numpy.loadtxt</cite><span class="classifier"></span></dt><dd><p>A more sophisticated method to read data from a text file. This method can
 handle multiple data types (e.g., strings, floats, and integers together),
 can perform transformation on the data (e.g., date format to a date
 object), and can unpack to a tuple of variables. One limitation is that
 all rows must have the same number of columns and there is no method to
-handle missing data.</dd>
-<dt><code class="xref py py-obj docutils literal"><span class="pre">numpy.genfromtxt</span></code> <span class="classifier-delimiter">:</span> <span class="classifier"></span></dt>
-<dd>The most advanced numpy method to read data from a file. Includes the
-capabilities in <code class="xref py py-obj docutils literal"><span class="pre">numpy.loadtxt</span></code>, but also allows for missing data, data
-flags, and multiple methods to replace missing data or flags.</dd>
+handle missing data.</p>
+</dd>
+<dt><cite>numpy.genfromtxt</cite><span class="classifier"></span></dt><dd><p>The most advanced numpy method to read data from a file. Includes the
+capabilities in <cite>numpy.loadtxt</cite>, but also allows for missing data, data
+flags, and multiple methods to replace missing data or flags.</p>
+</dd>
 </dl>
 </div>
 </div>
-<div class="section" id="class-objects">
-<h2>Class Objects<a class="headerlink" href="#class-objects" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt id="ambient.Profile">
-<em class="property">class </em><code class="descclassname">ambient.</code><code class="descname">Profile</code><span class="sig-paren">(</span><em>nc, ztsp=['z', 'temperature', 'salinity', 'pressure'], chem_names=None, err=0.01</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ambient.html#Profile"><span class="viewcode-link">[source]</span></a><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.13.3/numpy/../../../../../Dropbox/socolofs/Projects/NFBC/tamoc/tamoc/ambient.py#L68"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ambient.Profile" title="Permalink to this definition">¶</a></dt>
-<dd><p>Class object for ambient seawater profiles</p>
-<p>This object collects the data describing the ambient seawater (e.g., 
-CTD data, currents, etc.) and provides efficient access to interpolated
-results at arbitrary depths.  All of the raw data are stored in a 
-netCDF4-classic format dataset, which resides on the hard-drive.  Profile
-objects can be initiated either from an open netCDF dataset object or 
-from a file path to the desired object.  The netCDF dataset is expected
-to have variables for ‘z’, ‘temperature’, ‘salinity’, and ‘pressure’ and 
-any other variables requested at instantiation through the chem_names
-variable.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>nc</strong> : netCDF dataset object, path, or str</p>
-<blockquote>
-<div><p>Provides the information necessary to access the netCDF dataset.  If
-a file path or string is provided, then the netCDF file is opened
-and the resulting dataset object is stored in self.nc.</p>
-</div></blockquote>
-<p><strong>ztsp</strong> : str list</p>
-<blockquote>
-<div><p>String list containing the variables names for depth, temperature, 
-salinity, and pressure that are used in the netCDF dataset.</p>
-</div></blockquote>
-<p><strong>chem_names</strong> : str list, optional</p>
-<blockquote>
-<div><p>Names of the chemicals (e.g., those constituents in addition to z, T, 
-S, P) in the netCDF dataset that should be accessible through the 
-<em class="xref py py-obj">self.get_values</em> interpolation method or the <em class="xref py py-obj">self.get_units</em> 
-interrogator.  If <em class="xref py py-obj">chem_names</em> = ‘all’, then all variables in the 
-netCDF file except for ‘time’, ‘lat’, ‘lon’, and the strings in 
-<em class="xref py py-obj">ztsp</em> will be loaded as ambient chemical data.</p>
-</div></blockquote>
-<p><strong>err</strong> : float</p>
-<blockquote class="last">
-<div><p>The interpolation dataset is a subset of the complete raw dataset 
-stored in the netCDF file.  err sets the acceptable level of 
-relative error using linear interpolation expected of the 
-<em class="xref py py-obj">self.get_values</em> method.  This value is passed to the <a class="reference internal" href="../ambient/ambient.coarsen.html#ambient.coarsen" title="ambient.coarsen"><code class="xref py py-obj docutils literal"><span class="pre">coarsen</span></code></a> 
-function to provide an optimal interpolation dataset.</p>
-</div></blockquote>
-</td>
-</tr>
-</tbody>
-</table>
-<div class="admonition seealso">
-<p class="first admonition-title">See also</p>
-<p class="last"><code class="xref py py-obj docutils literal"><span class="pre">netCDF4</span></code>, <a class="reference internal" href="../ambient/ambient.create_nc_db.html#ambient.create_nc_db" title="ambient.create_nc_db"><code class="xref py py-obj docutils literal"><span class="pre">create_nc_db</span></code></a>, <a class="reference internal" href="../ambient/ambient.fill_nc_db.html#ambient.fill_nc_db" title="ambient.fill_nc_db"><code class="xref py py-obj docutils literal"><span class="pre">fill_nc_db</span></code></a>, <a class="reference internal" href="../ambient/ambient.coarsen.html#ambient.coarsen" title="ambient.coarsen"><code class="xref py py-obj docutils literal"><span class="pre">coarsen</span></code></a>, <a class="reference internal" href="chem.html#module-chemical_properties" title="chemical_properties"><code class="xref py py-obj docutils literal"><span class="pre">chemical_properties</span></code></a></p>
-</div>
-<p class="rubric">Examples</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bm54</span> <span class="o">=</span> <span class="n">Profile</span><span class="p">(</span><span class="s1">&#39;./test/output/test_BM54.nc&#39;</span><span class="p">,</span> <span class="n">chem_names</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">bm54</span><span class="o">.</span><span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-<span class="go">[&#39;time&#39;, &#39;lat&#39;, &#39;lon&#39;, &#39;z&#39;, &#39;temperature&#39;, &#39;salinity&#39;, &#39;pressure&#39;, </span>
-<span class="go">&#39;T&#39;, &#39;wetlab_fluorescence&#39;, &#39;S&#39;, &#39;density&#39;, &#39;oxygen&#39;]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">bm54</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="mf">1000.0</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;temperature&#39;</span><span class="p">,</span> <span class="s1">&#39;salinity&#39;</span><span class="p">,</span> <span class="s1">&#39;pressure&#39;</span><span class="p">])</span>
-<span class="go">array([  2.78274540e+02,   3.49278396e+01,   1.01933088e+07])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">bm54</span><span class="o">.</span><span class="n">get_units</span><span class="p">(</span><span class="s1">&#39;oxygen&#39;</span><span class="p">)</span>
-<span class="go">[&#39;kg/m^3&#39;]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">bm54</span><span class="o">.</span><span class="n">buoyancy_frequency</span><span class="p">(</span><span class="mf">1500.</span><span class="p">)</span>
-<span class="go">0.00081815</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">bm54</span><span class="o">.</span><span class="n">nc_close</span><span class="p">()</span>
-</pre></div>
-</div>
-<p class="rubric">Attributes</p>
-<table border="1" class="docutils">
+<div class="section" id="class-objects-and-methods">
+<h2>Class Objects and Methods<a class="headerlink" href="#class-objects-and-methods" title="Permalink to this headline">¶</a></h2>
+<table class="longtable docutils align-default">
 <colgroup>
-<col width="10%" />
-<col width="90%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><strong>nc_open</strong></td>
-<td>(bool) Flag stating whether or not the netCDF dataset is open or closed</td>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../autodoc/ambient/ambient.Profile.html#ambient.Profile" title="ambient.Profile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Profile</span></code></a>(data[, ztsp, chem_names, err, …])</p></td>
+<td><p>Class object for ambient seawater profiles</p></td>
 </tr>
-<tr class="row-even"><td><strong>nchems</strong></td>
-<td>(int) Number of chemicals in <em class="xref py py-obj">chem_names</em></td>
+<tr class="row-even"><td><p><a class="reference internal" href="../autodoc/ambient/ambient.Profile.get_values.html#ambient.Profile.get_values" title="ambient.Profile.get_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Profile.get_values</span></code></a>(self, z, names)</p></td>
+<td><p>Return values for the variables listed in <cite>names</cite> interpolated to the depth given by <cite>z</cite></p></td>
 </tr>
-<tr class="row-odd"><td><strong>z</strong></td>
-<td>(ndarray) Array containing the complete raw dataset of depths</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="../autodoc/ambient/ambient.Profile.get_units.html#ambient.Profile.get_units" title="ambient.Profile.get_units"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Profile.get_units</span></code></a>(self, names)</p></td>
+<td><p>Return a list of units for the variables in <cite>names</cite></p></td>
 </tr>
-<tr class="row-even"><td><strong>y</strong></td>
-<td>(ndarray) Array containing the complete raw dataset for T, S, P, and chemicals in <em class="xref py py-obj">chem_names</em>.</td>
+<tr class="row-even"><td><p><a class="reference internal" href="../autodoc/ambient/ambient.Profile.append.html#ambient.Profile.append" title="ambient.Profile.append"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Profile.append</span></code></a>(self, data, var_symbols, …)</p></td>
+<td><p>Add data to the netCDF dataset and update the object attributes</p></td>
 </tr>
-<tr class="row-odd"><td><strong>f_names</strong></td>
-<td>(str list) concatenated string list containing <em class="xref py py-obj">ztsp</em> and <em class="xref py py-obj">chem_names</em></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="../autodoc/ambient/ambient.Profile.buoyancy_frequency.html#ambient.Profile.buoyancy_frequency" title="ambient.Profile.buoyancy_frequency"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Profile.buoyancy_frequency</span></code></a>(self, z[, h])</p></td>
+<td><p>Calculate the local buoyancy frequency</p></td>
 </tr>
-<tr class="row-even"><td><strong>f_units</strong></td>
-<td>(str list) List of units associated with the variables stored in <em class="xref py py-obj">f_names</em>.</td>
+<tr class="row-even"><td><p><a class="reference internal" href="../autodoc/ambient/ambient.Profile.extend_profile_deeper.html#ambient.Profile.extend_profile_deeper" title="ambient.Profile.extend_profile_deeper"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Profile.extend_profile_deeper</span></code></a>(self, z_new[, …])</p></td>
+<td><p>Extend the CTD profile to the depth <cite>z_new</cite> using a fixed buoyancy frequency</p></td>
 </tr>
-<tr class="row-odd"><td><strong>f</strong></td>
-<td>(object) <code class="xref py py-obj docutils literal"><span class="pre">scipy.interpolate.interp1d</span></code> object containing <em class="xref py py-obj">z</em> and <em class="xref py py-obj">y</em>.</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="../autodoc/ambient/ambient.Profile.close_nc.html#ambient.Profile.close_nc" title="ambient.Profile.close_nc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Profile.close_nc</span></code></a>(self)</p></td>
+<td><p>Close the netCDF dataset</p></td>
 </tr>
 </tbody>
 </table>
-<p class="rubric">Methods</p>
-<table border="1" class="longtable docutils">
-<colgroup>
-<col width="10%" />
-<col width="90%" />
-</colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="../ambient/ambient.Profile.append.html#ambient.Profile.append" title="ambient.Profile.append"><code class="xref py py-obj docutils literal"><span class="pre">append</span></code></a>(data,&nbsp;var_symbols,&nbsp;var_units,&nbsp;comments)</td>
-<td>Add data to the netCDF dataset and update the object attributes</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="../ambient/ambient.Profile.build_interpolator.html#ambient.Profile.build_interpolator" title="ambient.Profile.build_interpolator"><code class="xref py py-obj docutils literal"><span class="pre">build_interpolator</span></code></a>()</td>
-<td>Build the interpolator function from the netCDF dataset</td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="../ambient/ambient.Profile.buoyancy_frequency.html#ambient.Profile.buoyancy_frequency" title="ambient.Profile.buoyancy_frequency"><code class="xref py py-obj docutils literal"><span class="pre">buoyancy_frequency</span></code></a>(z[,&nbsp;h])</td>
-<td>Calculate the local buoyancy frequency</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="../ambient/ambient.Profile.close_nc.html#ambient.Profile.close_nc" title="ambient.Profile.close_nc"><code class="xref py py-obj docutils literal"><span class="pre">close_nc</span></code></a>()</td>
-<td>Close the netCDF dataset</td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="../ambient/ambient.Profile.extend_profile_deeper.html#ambient.Profile.extend_profile_deeper" title="ambient.Profile.extend_profile_deeper"><code class="xref py py-obj docutils literal"><span class="pre">extend_profile_deeper</span></code></a>(z_new,&nbsp;nc_name[,&nbsp;h_N,&nbsp;…])</td>
-<td>Extend the CTD profile to the depth <em class="xref py py-obj">z_new</em> using a fixed buoyancy</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="../ambient/ambient.Profile.get_units.html#ambient.Profile.get_units" title="ambient.Profile.get_units"><code class="xref py py-obj docutils literal"><span class="pre">get_units</span></code></a>(names)</td>
-<td>Return a list of units for the variables in <em class="xref py py-obj">names</em></td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="../ambient/ambient.Profile.get_values.html#ambient.Profile.get_values" title="ambient.Profile.get_values"><code class="xref py py-obj docutils literal"><span class="pre">get_values</span></code></a>(z,&nbsp;names)</td>
-<td>Return values for the variables listed in <em class="xref py py-obj">names</em> interpolated to the</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
 </div>
 <div class="section" id="module-functions">
 <h2>Module Functions<a class="headerlink" href="#module-functions" title="Permalink to this headline">¶</a></h2>
-<table border="1" class="longtable docutils">
+<div class="section" id="functions-for-working-with-netcdf-files">
+<h3>Functions for Working With NetCDF Files<a class="headerlink" href="#functions-for-working-with-netcdf-files" title="Permalink to this headline">¶</a></h3>
+<table class="longtable docutils align-default">
 <colgroup>
-<col width="10%" />
-<col width="90%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="../ambient/ambient.create_nc_db.html#ambient.create_nc_db" title="ambient.create_nc_db"><code class="xref py py-obj docutils literal"><span class="pre">create_nc_db</span></code></a>(nc_file,&nbsp;summary,&nbsp;source,&nbsp;…)</td>
-<td>Create an empty netCDF4-classic dataset to store ambient data</td>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../autodoc/ambient/ambient.create_nc_db.html#ambient.create_nc_db" title="ambient.create_nc_db"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_nc_db</span></code></a>(nc_file, summary, source, …)</p></td>
+<td><p>Create an empty netCDF4-classic dataset to store ambient data</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="../ambient/ambient.fill_nc_db.html#ambient.fill_nc_db" title="ambient.fill_nc_db"><code class="xref py py-obj docutils literal"><span class="pre">fill_nc_db</span></code></a>(nc,&nbsp;data,&nbsp;var_symbols,&nbsp;var_units,&nbsp;…)</td>
-<td>Add data to a netCDF4-classic ambient profile dataset</td>
+<tr class="row-even"><td><p><a class="reference internal" href="../autodoc/ambient/ambient.fill_nc_db.html#ambient.fill_nc_db" title="ambient.fill_nc_db"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fill_nc_db</span></code></a>(nc, data, var_symbols, var_units, …)</p></td>
+<td><p>Add data to a netCDF4-classic ambient profile dataset</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="../ambient/ambient.get_nc_db_from_roms.html#ambient.get_nc_db_from_roms" title="ambient.get_nc_db_from_roms"><code class="xref py py-obj docutils literal"><span class="pre">get_nc_db_from_roms</span></code></a>(nc_roms,&nbsp;nc_file,&nbsp;t_idx,&nbsp;…)</td>
-<td>Create a netCDF4-classic dataset ready to use with <code class="docutils literal"><span class="pre">TAMOC</span></code> simulation  models from ROMS netCDF output.</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="../ambient/ambient.extract_profile.html#ambient.extract_profile" title="ambient.extract_profile"><code class="xref py py-obj docutils literal"><span class="pre">extract_profile</span></code></a>(data[,&nbsp;z_col,&nbsp;z_start,&nbsp;…])</td>
-<td>Function to extract a CTD profile with monotonically increasing depth</td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="../ambient/ambient.coarsen.html#ambient.coarsen" title="ambient.coarsen"><code class="xref py py-obj docutils literal"><span class="pre">coarsen</span></code></a>(raw[,&nbsp;err])</td>
-<td>Reduce the size of a raw database for interpolation</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="../ambient/ambient.stabilize.html#ambient.stabilize" title="ambient.stabilize"><code class="xref py py-obj docutils literal"><span class="pre">stabilize</span></code></a>(raw)</td>
-<td>Force the density profile to be stable or neutral</td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="../ambient/ambient.compute_pressure.html#ambient.compute_pressure" title="ambient.compute_pressure"><code class="xref py py-obj docutils literal"><span class="pre">compute_pressure</span></code></a>(z,&nbsp;T,&nbsp;S,&nbsp;fs_loc)</td>
-<td>Compute the pressure profile by integrating the density</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="../ambient/ambient.convert_units.html#ambient.convert_units" title="ambient.convert_units"><code class="xref py py-obj docutils literal"><span class="pre">convert_units</span></code></a>(data,&nbsp;units)</td>
-<td>Convert the values in data to standard units</td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="../ambient/ambient.load_raw.html#ambient.load_raw" title="ambient.load_raw"><code class="xref py py-obj docutils literal"><span class="pre">load_raw</span></code></a>(fname)</td>
-<td>Read data from a text file.</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="../autodoc/ambient/ambient.extract_profile.html#ambient.extract_profile" title="ambient.extract_profile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_profile</span></code></a>(data[, z_col, z_start, …])</p></td>
+<td><p>Function to extract a CTD profile with monotonically increasing depth</p></td>
 </tr>
 </tbody>
 </table>
+</div>
+<div class="section" id="functions-for-working-with-np-array-profiles">
+<h3>Functions for Working With np.array() Profiles<a class="headerlink" href="#functions-for-working-with-np-array-profiles" title="Permalink to this headline">¶</a></h3>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../autodoc/ambient/ambient.add_data.html#ambient.add_data" title="ambient.add_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_data</span></code></a>(data, col, var, new_data, …)</p></td>
+<td><p>Add data to a <cite>numpy</cite> array</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../autodoc/ambient/ambient.get_world_ocean.html#ambient.get_world_ocean" title="ambient.get_world_ocean"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_world_ocean</span></code></a>([Ts, Ss])</p></td>
+<td><p>Load the world ocean average CTD data</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../autodoc/ambient/ambient.load_raw.html#ambient.load_raw" title="ambient.load_raw"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_raw</span></code></a>(fname)</p></td>
+<td><p>Read data from a text file.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="functions-for-modifying-profile-data">
+<h3>Functions for Modifying Profile Data<a class="headerlink" href="#functions-for-modifying-profile-data" title="Permalink to this headline">¶</a></h3>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../autodoc/ambient/ambient.coarsen.html#ambient.coarsen" title="ambient.coarsen"><code class="xref py py-obj docutils literal notranslate"><span class="pre">coarsen</span></code></a>(raw[, err])</p></td>
+<td><p>Reduce the size of a raw database for interpolation</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../autodoc/ambient/ambient.stabilize.html#ambient.stabilize" title="ambient.stabilize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stabilize</span></code></a>(raw)</p></td>
+<td><p>Force the density profile to be stable or neutral</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../autodoc/ambient/ambient.compute_pressure.html#ambient.compute_pressure" title="ambient.compute_pressure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_pressure</span></code></a>(z, T, S, fs_loc)</p></td>
+<td><p>Compute the pressure profile by integrating the density</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../autodoc/ambient/ambient.convert_units.html#ambient.convert_units" title="ambient.convert_units"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_units</span></code></a>(data, units)</p></td>
+<td><p>Convert the values in data to standard units</p></td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
 </div>
 
 
           </div>
+          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-            <p class="logo"><a href="../contents.html">
-              <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
-            </a></p>
-  <h3><a href="../contents.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">Overview of Ambient Module</a><ul>
-<li><a class="reference internal" href="#ambient-module">Ambient Module</a><ul>
-<li><a class="reference internal" href="#see-also">See Also</a></li>
+<h1 class="logo"><a href="../index.html">Texas A&M Oil spill / Outfall Calculator</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../user_manual.html">TAMOC User Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../unit_tests.html">Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
 </ul>
-</li>
-<li><a class="reference internal" href="#class-objects">Class Objects</a></li>
-<li><a class="reference internal" href="#module-functions">Module Functions</a></li>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../bugs.html">Reporting Bugs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../readme.html">Read Me File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
 </ul>
-</li>
-</ul>
+
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
-  <li><a href="../contents.html">Documentation overview</a><ul>
-      <li>Previous: <a href="../scripts/bpm/crossflow_plume.html" title="previous chapter">crossflow_plume</a></li>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../user_manual.html">TAMOC User Manual</a><ul>
+      <li>Previous: <a href="../autodoc/seawater/seawater.cp.html" title="previous chapter">seawater.cp</a></li>
+      <li>Next: <a href="../autodoc/ambient/ambient.Profile.html" title="next chapter">ambient.Profile</a></li>
+  </ul></li>
   </ul></li>
 </ul>
 </div>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="../_sources/modules/ambient.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<ul class="this-page-menu">
-  <li><a href="/numpy/docs/numpy-docs/modules/ambient.rst.rst">Edit page</a></li>
-</ul>
-
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
     </form>
+    </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
 
         </div>
       </div>
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2015, Scott A. Socolofsky.
+      &copy;2020, Scott A. Socolofsky.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
       <a href="../_sources/modules/ambient.rst.txt"

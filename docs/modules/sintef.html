@@ -1,108 +1,80 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Overview of Sintef Module &#8212; Texas A&amp;M Oilspill Calculator v1.1 Manual</title>
-    <link rel="stylesheet" href="../_static/scipy.css" type="text/css" />
+    <meta charset="utf-8" />
+    <title>Overview of SINTEF Module &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '1.1.1',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="sintef.modified_We_model" href="../sintef/sintef.modified_We_model.html" />
-    <link rel="prev" title="dispersed_phases.particles_state_space" href="../disp_phases/dispersed_phases.particles_state_space.html" />
+    <link rel="next" title="sintef.modified_We_model" href="../autodoc/sintef/sintef.modified_We_model.html" />
+    <link rel="prev" title="dispersed_phases.particles_state_space" href="../autodoc/disp_phases/dispersed_phases.particles_state_space.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head>
-  <body>
+  </head><body>
   
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
   <div class="section" id="overview-of-sintef-module">
-<h1>Overview of Sintef Module<a class="headerlink" href="#overview-of-sintef-module" title="Permalink to this headline">¶</a></h1>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">1.1</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">Nov 08, 2017</td>
-</tr>
-</tbody>
-</table>
+<h1>Overview of SINTEF Module<a class="headerlink" href="#overview-of-sintef-module" title="Permalink to this headline">¶</a></h1>
+<dl class="field-list simple">
+<dt class="field-odd">Release</dt>
+<dd class="field-odd"><p>2.0</p>
+</dd>
+<dt class="field-even">Date</dt>
+<dd class="field-even"><p>Mar 19, 2020</p>
+</dd>
+</dl>
 <span class="target" id="module-sintef"></span><div class="section" id="sintef">
 <h2>Sintef<a class="headerlink" href="#sintef" title="Permalink to this headline">¶</a></h2>
 <p>Evaluate initial bubble and droplet sizes from the SINTEF model</p>
-<p>This module applies the modified Weber number model of SINTEF with corrections
-for the presence of oil and gas together to estimate the volume mean diameters
-of oil and gas at the end of the break-up region.</p>
-<div class="section" id="notes">
-<h3>Notes<a class="headerlink" href="#notes" title="Permalink to this headline">¶</a></h3>
-<p>The empirical coefficients A and B were obtained from Tower Basin experiments
-of oil into water with and without dispersant.  These experiments had small
-exit diameters (generally 1.5 mm or less) and large relative momentum length
-scales l_M/D &gt;&gt; 1.  The corrections for the presence of gas in oil (both a 
-void fraction corrections and buoyancy correction) are theoretical, and any
-affect these corrections may have on the parameters A and B has not yet been
-studied in detail.</p>
-</div>
-<div class="section" id="references">
-<h3>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h3>
-<p>Brandvik, P.J., Johansen, O., Farooq, U., Angell, G., and Leirvik, F. (2012),
-“Sub-surface oil releases–Experimental study of droplet distributions and 
-different dispersant injection techniques.  A scaled experimental approach
-using the SINTEF Tower Basin.”  Draft report, prepared by SINTEF Materials
-and Chemistry, Aug. 2012.</p>
-<p>Johansen, O., Brandvik, P.J. and Farooq, U. (2012), “Droplet breakup in subsea
-oil releases–Part 2: Prediction of droplet size distributions with and 
-without injection of chemical dispersants.”  Marine Pollution Bulletin.</p>
-</div>
-</div>
-<div class="section" id="class-objects">
-<h2>Class Objects<a class="headerlink" href="#class-objects" title="Permalink to this headline">¶</a></h2>
-<p>There are currently no Class objects defined for this module.</p>
+<p>This module is deprecated and has been replaced by the <cite>particle_size_models</cite>
+and <cite>psf</cite> modules.  In order to retain compatibility with previous versions, 
+we retain the original API of the <cite>sintef</cite> model, but replace all calculations
+with calls to the appropriate functions in <cite>particle_size_models</cite> and <cite>psf</cite>.</p>
 </div>
 <div class="section" id="module-functions">
 <h2>Module Functions<a class="headerlink" href="#module-functions" title="Permalink to this headline">¶</a></h2>
-<table border="1" class="longtable docutils">
+<p>This module contains functions for computing particle size distributions
+using the SINTEF model.  This module <em>has been deprecated</em>, and you should
+use the objects in the <code class="docutils literal notranslate"><span class="pre">particle_size_models</span></code> instead.  In order to retain
+backward compatibility with scripts developed using previous versions of <code class="docutils literal notranslate"><span class="pre">TAMOC</span></code>, we have retained this module and edited each function to call the
+associated function in the <code class="docutils literal notranslate"><span class="pre">psf</span></code> module of utilities used by the
+<code class="docutils literal notranslate"><span class="pre">particle_size_models</span></code> objects.  Functions in the <code class="docutils literal notranslate"><span class="pre">SINTEF</span></code> module are:</p>
+<table class="longtable docutils align-default">
 <colgroup>
-<col width="10%" />
-<col width="90%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="../sintef/sintef.modified_We_model.html#sintef.modified_We_model" title="sintef.modified_We_model"><code class="xref py py-obj docutils literal"><span class="pre">modified_We_model</span></code></a>(D,&nbsp;rho_gas,&nbsp;m_gas,&nbsp;mu_gas,&nbsp;…)</td>
-<td>Compute the initial oil droplet and gas bubble sizes from the SINTEF model</td>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../autodoc/sintef/sintef.modified_We_model.html#sintef.modified_We_model" title="sintef.modified_We_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">modified_We_model</span></code></a>(D, rho_gas, m_gas, mu_gas, …)</p></td>
+<td><p>This function is deprecated:  Use psf.sintef() instead.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="../sintef/sintef.de_max.html#sintef.de_max" title="sintef.de_max"><code class="xref py py-obj docutils literal"><span class="pre">de_max</span></code></a>(sigma,&nbsp;rho_p,&nbsp;rho)</td>
-<td>Calculate the maximum stable particle size</td>
+<tr class="row-even"><td><p><a class="reference internal" href="../autodoc/sintef/sintef.de_max.html#sintef.de_max" title="sintef.de_max"><code class="xref py py-obj docutils literal notranslate"><span class="pre">de_max</span></code></a>(sigma, rho_p, rho)</p></td>
+<td><p>This function is deprecated:  Use psf.de_max_oil() instead.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="../sintef/sintef.de_50.html#sintef.de_50" title="sintef.de_50"><code class="xref py py-obj docutils literal"><span class="pre">de_50</span></code></a>(U,&nbsp;D,&nbsp;rho_p,&nbsp;mu_p,&nbsp;sigma,&nbsp;rho)</td>
-<td>Predict the volume mean diameter from a modified Weber number model</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="../autodoc/sintef/sintef.de_50.html#sintef.de_50" title="sintef.de_50"><code class="xref py py-obj docutils literal notranslate"><span class="pre">de_50</span></code></a>(U, D, rho_p, mu_p, sigma, rho)</p></td>
+<td><p>This function is deprecated:  Use psf.sintef_d50() instead.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="../sintef/sintef.rosin_rammler.html#sintef.rosin_rammler" title="sintef.rosin_rammler"><code class="xref py py-obj docutils literal"><span class="pre">rosin_rammler</span></code></a>(nbins,&nbsp;d50,&nbsp;md_total,&nbsp;sigma,&nbsp;…)</td>
-<td>Return the volume size distribution from the Rosin Rammler distribution</td>
+<tr class="row-even"><td><p><a class="reference internal" href="../autodoc/sintef/sintef.rosin_rammler.html#sintef.rosin_rammler" title="sintef.rosin_rammler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rosin_rammler</span></code></a>(nbins, d50, md_total, sigma, …)</p></td>
+<td><p>This function is deprecated:  Use psf.rosin_rammler() instead.</p></td>
 </tr>
 </tbody>
 </table>
@@ -111,67 +83,72 @@ without injection of chemical dispersants.”  Marine Pollution Bulletin.</p>
 
 
           </div>
+          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-            <p class="logo"><a href="../contents.html">
-              <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
-            </a></p>
-  <h3><a href="../contents.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">Overview of Sintef Module</a><ul>
-<li><a class="reference internal" href="#sintef">Sintef</a><ul>
-<li><a class="reference internal" href="#notes">Notes</a></li>
-<li><a class="reference internal" href="#references">References</a></li>
+<h1 class="logo"><a href="../index.html">Texas A&M Oil spill / Outfall Calculator</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../user_manual.html">TAMOC User Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../unit_tests.html">Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
 </ul>
-</li>
-<li><a class="reference internal" href="#class-objects">Class Objects</a></li>
-<li><a class="reference internal" href="#module-functions">Module Functions</a></li>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../bugs.html">Reporting Bugs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../readme.html">Read Me File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
 </ul>
-</li>
-</ul>
+
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
-  <li><a href="../contents.html">Documentation overview</a><ul>
-      <li>Previous: <a href="../disp_phases/dispersed_phases.particles_state_space.html" title="previous chapter">dispersed_phases.particles_state_space</a></li>
-      <li>Next: <a href="../sintef/sintef.modified_We_model.html" title="next chapter">sintef.modified_We_model</a></li>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../user_manual.html">TAMOC User Manual</a><ul>
+      <li>Previous: <a href="../autodoc/disp_phases/dispersed_phases.particles_state_space.html" title="previous chapter">dispersed_phases.particles_state_space</a></li>
+      <li>Next: <a href="../autodoc/sintef/sintef.modified_We_model.html" title="next chapter">sintef.modified_We_model</a></li>
+  </ul></li>
   </ul></li>
 </ul>
 </div>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="../_sources/modules/sintef.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<ul class="this-page-menu">
-  <li><a href="/numpy/docs/numpy-docs/modules/sintef.rst.rst">Edit page</a></li>
-</ul>
-
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
     </form>
+    </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
 
         </div>
       </div>
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2015, Scott A. Socolofsky.
+      &copy;2020, Scott A. Socolofsky.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
       <a href="../_sources/modules/sintef.rst.txt"

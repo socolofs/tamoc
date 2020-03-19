@@ -1,26 +1,17 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>stratified_plume_model &#8212; Texas A&amp;M Oilspill Calculator v1.1 Manual</title>
-    <link rel="stylesheet" href="../_static/scipy.css" type="text/css" />
+    <meta charset="utf-8" />
+    <title>stratified_plume_model &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '1.1.1',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
    
@@ -29,13 +20,14 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head>
-  <body>
+  </head><body>
   
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
   <h1>Source code for stratified_plume_model</h1><div class="highlight"><pre>
@@ -74,27 +66,29 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="c1"># S. Socolofsky, November 2014, Texas A&amp;M University &lt;socolofs@tamu.edu&gt;.</span>
 
-<span class="kn">from</span> <span class="nn">tamoc</span> <span class="k">import</span> <span class="n">model_share</span>
-<span class="kn">from</span> <span class="nn">tamoc</span> <span class="k">import</span> <span class="n">seawater</span>
-<span class="kn">from</span> <span class="nn">tamoc</span> <span class="k">import</span> <span class="n">ambient</span>
-<span class="kn">from</span> <span class="nn">tamoc</span> <span class="k">import</span> <span class="n">dbm</span>
-<span class="kn">from</span> <span class="nn">tamoc</span> <span class="k">import</span> <span class="n">dispersed_phases</span>
-<span class="kn">from</span> <span class="nn">tamoc</span> <span class="k">import</span> <span class="n">single_bubble_model</span>
-<span class="kn">from</span> <span class="nn">tamoc</span> <span class="k">import</span> <span class="n">smp</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="p">(</span><span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">)</span>
 
-<span class="kn">from</span> <span class="nn">netCDF4</span> <span class="k">import</span> <span class="n">Dataset</span>
-<span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">tamoc</span> <span class="kn">import</span> <span class="n">model_share</span>
+<span class="kn">from</span> <span class="nn">tamoc</span> <span class="kn">import</span> <span class="n">seawater</span>
+<span class="kn">from</span> <span class="nn">tamoc</span> <span class="kn">import</span> <span class="n">ambient</span>
+<span class="kn">from</span> <span class="nn">tamoc</span> <span class="kn">import</span> <span class="n">dbm</span>
+<span class="kn">from</span> <span class="nn">tamoc</span> <span class="kn">import</span> <span class="n">dispersed_phases</span>
+<span class="kn">from</span> <span class="nn">tamoc</span> <span class="kn">import</span> <span class="n">single_bubble_model</span>
+<span class="kn">from</span> <span class="nn">tamoc</span> <span class="kn">import</span> <span class="n">smp</span>
+
+<span class="kn">from</span> <span class="nn">netCDF4</span> <span class="kn">import</span> <span class="n">Dataset</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">matplotlib</span> <span class="k">as</span> <span class="nn">mpl</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="k">import</span> <span class="n">interp1d</span>
-<span class="kn">from</span> <span class="nn">copy</span> <span class="k">import</span> <span class="n">copy</span>
-<span class="kn">from</span> <span class="nn">warnings</span> <span class="k">import</span> <span class="n">warn</span>
+<span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="kn">import</span> <span class="n">interp1d</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">copy</span>
+<span class="kn">from</span> <span class="nn">warnings</span> <span class="kn">import</span> <span class="n">warn</span>
 <span class="kn">import</span> <span class="nn">os</span>
 
-<div class="viewcode-block" id="Model"><a class="viewcode-back" href="../spm/stratified_plume_model.Model.html#stratified_plume_model.Model">[docs]</a><span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="Model"><a class="viewcode-back" href="../autodoc/spm/stratified_plume_model.Model.html#stratified_plume_model.Model">[docs]</a><span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Master class object for controlling and post-processing the simulation</span>
 <span class="sd">    </span>
@@ -163,7 +157,7 @@
 <span class="sd">    simulate, save_sim, load_sim, plot_state_space, plot_all_variables</span>
 <span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">simfile</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Model.__init__"><a class="viewcode-back" href="../autodoc/spm/stratified_plume_model.Model.html#stratified_plume_model.Model.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">simfile</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Model</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         
         <span class="k">if</span> <span class="n">profile</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -179,9 +173,9 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">p</span> <span class="o">=</span> <span class="n">ModelParams</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">)</span>
             
             <span class="c1"># Indicate that a simulation has not yet been conducted</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">sim_stored</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sim_stored</span> <span class="o">=</span> <span class="kc">False</span></div>
     
-<div class="viewcode-block" id="Model.simulate"><a class="viewcode-back" href="../spm/stratified_plume_model.Model.simulate.html#stratified_plume_model.Model.simulate">[docs]</a>    <span class="k">def</span> <span class="nf">simulate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">maxit</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">toler</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">delta_z</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> 
+<div class="viewcode-block" id="Model.simulate"><a class="viewcode-back" href="../autodoc/spm/stratified_plume_model.Model.simulate.html#stratified_plume_model.Model.simulate">[docs]</a>    <span class="k">def</span> <span class="nf">simulate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">maxit</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">toler</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">delta_z</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> 
                  <span class="n">plots</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Simulate the plume dynamics from given initial conditions</span>
@@ -247,8 +241,8 @@
         <span class="n">neighbor</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">z_max</span><span class="p">]),</span> 
                    <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">yo_local</span><span class="o">.</span><span class="n">nchems</span><span class="p">))</span><span class="o">.</span><span class="n">transpose</span><span class="p">())</span>
         
-        <span class="nb">print</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">-- TEXAS A&amp;M OIL-SPILL CALCULATOR (TAMOC) --&#39;</span>
-        <span class="nb">print</span> <span class="s1">&#39;-- Stratified Plume Model                 --</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">-- TEXAS A&amp;M OIL-SPILL CALCULATOR (TAMOC) --&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-- Stratified Plume Model                 --</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="k">while</span> <span class="nb">iter</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxit</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">ea</span><span class="p">)</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">toler</span><span class="p">:</span>
             
             <span class="c1"># Store old solutions to check for convergence</span>
@@ -260,16 +254,16 @@
                 <span class="n">yo_old</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">yo</span><span class="p">)</span>
             
             <span class="c1"># Enter the main calculation loop</span>
-            <span class="nb">print</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Iteration </span><span class="si">%2.2d</span><span class="s1">---------------------------------------&#39;</span> \
-                  <span class="o">%</span> <span class="nb">iter</span>
-            <span class="nb">print</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">  Calculate inner plume...&#39;</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Iteration </span><span class="si">%2.2d</span><span class="s1">---------------------------------------&#39;</span>
+                  <span class="o">%</span> <span class="nb">iter</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">  Calculate inner plume...&#39;</span><span class="p">)</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
             
             <span class="bp">self</span><span class="o">.</span><span class="n">zi</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">yi</span><span class="p">,</span> <span class="n">neighbor</span> <span class="o">=</span> <span class="n">inner_main</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">yi_local</span><span class="p">,</span> 
                 <span class="bp">self</span><span class="o">.</span><span class="n">yo_local</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">,</span> <span class="n">neighbor</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">delta_z</span><span class="p">)</span>
             
-            <span class="nb">print</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">  Calculate outer plume...&#39;</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">  Calculate outer plume...&#39;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">zo</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">yo</span><span class="p">,</span> <span class="n">neighbor</span> <span class="o">=</span> <span class="n">outer_main</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">yi_local</span><span class="p">,</span> 
                 <span class="bp">self</span><span class="o">.</span><span class="n">yo_local</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">,</span> <span class="n">neighbor</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">delta_z</span><span class="p">)</span>
@@ -281,7 +275,7 @@
                                 <span class="n">yi_old</span><span class="p">,</span> <span class="n">zo_old</span><span class="p">,</span> <span class="n">yo_old</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">yi_local</span><span class="p">,</span>
                                 <span class="bp">self</span><span class="o">.</span><span class="n">yo_local</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> 
                                 <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">)</span>
-                <span class="nb">print</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">  Relative error:  </span><span class="si">%g</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">ea</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">  Relative error:  </span><span class="si">%g</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">ea</span><span class="p">)</span>
             
             <span class="c1"># Plot the state space to help track the convergence</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">sim_stored</span> <span class="o">=</span> <span class="kc">True</span>
@@ -292,7 +286,7 @@
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">)):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">K_T</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">K_T0</span><span class="p">[</span><span class="n">i</span><span class="p">]</span></div>
     
-<div class="viewcode-block" id="Model.save_sim"><a class="viewcode-back" href="../spm/stratified_plume_model.Model.save_sim.html#stratified_plume_model.Model.save_sim">[docs]</a>    <span class="k">def</span> <span class="nf">save_sim</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">profile_path</span><span class="p">,</span> <span class="n">profile_info</span><span class="p">):</span>
+<div class="viewcode-block" id="Model.save_sim"><a class="viewcode-back" href="../autodoc/spm/stratified_plume_model.Model.save_sim.html#stratified_plume_model.Model.save_sim">[docs]</a>    <span class="k">def</span> <span class="nf">save_sim</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">profile_path</span><span class="p">,</span> <span class="n">profile_info</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Save the current simulation results</span>
 <span class="sd">        </span>
@@ -327,8 +321,8 @@
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_stored</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
-            <span class="nb">print</span> <span class="s1">&#39;No simulation results to store...&#39;</span>
-            <span class="nb">print</span> <span class="s1">&#39;Saved nothing to netCDF file.</span><span class="se">\n</span><span class="s1">&#39;</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No simulation results to store...&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Saved nothing to netCDF file.</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
             <span class="k">return</span>
         
         <span class="c1"># Create the netCDF dataset object</span>
@@ -427,7 +421,7 @@
         <span class="c1"># Close the netCDF dataset</span>
         <span class="n">nc</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
     
-<div class="viewcode-block" id="Model.save_txt"><a class="viewcode-back" href="../spm/stratified_plume_model.Model.save_txt.html#stratified_plume_model.Model.save_txt">[docs]</a>    <span class="k">def</span> <span class="nf">save_txt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_name</span><span class="p">,</span> <span class="n">profile_path</span><span class="p">,</span> <span class="n">profile_info</span><span class="p">):</span>
+<div class="viewcode-block" id="Model.save_txt"><a class="viewcode-back" href="../autodoc/spm/stratified_plume_model.Model.save_txt.html#stratified_plume_model.Model.save_txt">[docs]</a>    <span class="k">def</span> <span class="nf">save_txt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_name</span><span class="p">,</span> <span class="n">profile_path</span><span class="p">,</span> <span class="n">profile_info</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Save the state space in ascii text format for exporting</span>
 <span class="sd">        </span>
@@ -470,8 +464,8 @@
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_stored</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
-            <span class="nb">print</span> <span class="s1">&#39;No simulation results to store...&#39;</span>
-            <span class="nb">print</span> <span class="s1">&#39;Saved nothing to text file.</span><span class="se">\n</span><span class="s1">&#39;</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No simulation results to store...&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Saved nothing to text file.</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
             <span class="k">return</span>
         
         <span class="c1"># Create the header string that contains the column descriptions</span>
@@ -550,7 +544,7 @@
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">base_name</span> <span class="o">+</span> <span class="s1">&#39;_outer_header.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">dat_file</span><span class="p">:</span>
             <span class="n">dat_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">header_outer</span><span class="p">)</span></div>
     
-<div class="viewcode-block" id="Model.load_sim"><a class="viewcode-back" href="../spm/stratified_plume_model.Model.load_sim.html#stratified_plume_model.Model.load_sim">[docs]</a>    <span class="k">def</span> <span class="nf">load_sim</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">):</span>
+<div class="viewcode-block" id="Model.load_sim"><a class="viewcode-back" href="../autodoc/spm/stratified_plume_model.Model.load_sim.html#stratified_plume_model.Model.load_sim">[docs]</a>    <span class="k">def</span> <span class="nf">load_sim</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load in a saved simulation result file for post-processing</span>
 <span class="sd">        </span>
@@ -607,10 +601,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">toler</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;toler&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">delta_z</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;delta_z&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">got_profile</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">yi_local</span> <span class="o">=</span> <span class="n">InnerPlume</span><span class="p">(</span><span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">yi_local</span> <span class="o">=</span> <span class="n">InnerPlume</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]]),</span> 
                 <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;yi&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">,:],</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">,</span> 
                 <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chem_names</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">yo_local</span> <span class="o">=</span> <span class="n">OuterPlume</span><span class="p">(</span><span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">][</span><span class="n">nzo</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">yo_local</span> <span class="o">=</span> \
+                <span class="n">OuterPlume</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">][</span><span class="n">nzo</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]]),</span> 
                 <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;yo&#39;</span><span class="p">][</span><span class="n">nzo</span><span class="o">-</span><span class="mi">1</span><span class="p">,:],</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">,</span> 
                 <span class="bp">self</span><span class="o">.</span><span class="n">chem_names</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">yi_local</span><span class="o">.</span><span class="n">b</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">zi</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="n">nzi</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
@@ -626,7 +621,7 @@
         <span class="n">nc</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sim_stored</span> <span class="o">=</span> <span class="kc">True</span></div>
     
-<div class="viewcode-block" id="Model.plot_state_space"><a class="viewcode-back" href="../spm/stratified_plume_model.Model.plot_state_space.html#stratified_plume_model.Model.plot_state_space">[docs]</a>    <span class="k">def</span> <span class="nf">plot_state_space</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fig</span><span class="p">):</span>
+<div class="viewcode-block" id="Model.plot_state_space"><a class="viewcode-back" href="../autodoc/spm/stratified_plume_model.Model.plot_state_space.html#stratified_plume_model.Model.plot_state_space">[docs]</a>    <span class="k">def</span> <span class="nf">plot_state_space</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fig</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Plot the simulation state space</span>
 <span class="sd">        </span>
@@ -644,18 +639,18 @@
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_stored</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
-            <span class="nb">print</span> <span class="s1">&#39;No simulation results available to plot...&#39;</span>
-            <span class="nb">print</span> <span class="s1">&#39;Plotting nothing.</span><span class="se">\n</span><span class="s1">&#39;</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No simulation results available to plot...&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Plotting nothing.</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
             <span class="k">return</span>
         
         <span class="c1"># Plot the results        </span>
-        <span class="nb">print</span> <span class="s1">&#39;Plotting the state space...&#39;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Plotting the state space...&#39;</span><span class="p">)</span>
         <span class="n">plot_state_space</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">zi</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">yi</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">zo</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">yo</span><span class="p">,</span> 
                          <span class="bp">self</span><span class="o">.</span><span class="n">yi_local</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">yo_local</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">,</span>
                          <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">,</span> <span class="n">fig</span><span class="p">)</span>
-        <span class="nb">print</span> <span class="s1">&#39;Done.</span><span class="se">\n</span><span class="s1">&#39;</span></div>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Done.</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span></div>
     
-<div class="viewcode-block" id="Model.plot_all_variables"><a class="viewcode-back" href="../spm/stratified_plume_model.Model.plot_all_variables.html#stratified_plume_model.Model.plot_all_variables">[docs]</a>    <span class="k">def</span> <span class="nf">plot_all_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fig</span><span class="p">):</span>
+<div class="viewcode-block" id="Model.plot_all_variables"><a class="viewcode-back" href="../autodoc/spm/stratified_plume_model.Model.plot_all_variables.html#stratified_plume_model.Model.plot_all_variables">[docs]</a>    <span class="k">def</span> <span class="nf">plot_all_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fig</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Plot a comprehensive suite of simulation results</span>
 <span class="sd">        </span>
@@ -674,19 +669,19 @@
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_stored</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
-            <span class="nb">print</span> <span class="s1">&#39;No simulation results available to plot...&#39;</span>
-            <span class="nb">print</span> <span class="s1">&#39;Plotting nothing.</span><span class="se">\n</span><span class="s1">&#39;</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No simulation results available to plot...&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Plotting nothing.</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
             <span class="k">return</span>
         
-        <span class="c1"># Plot the results        </span>
-        <span class="nb">print</span> <span class="s1">&#39;Plotting the full variable suite...&#39;</span>
+        <span class="c1"># Plot the results</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Plotting the full variable suite...&#39;</span><span class="p">)</span>
         <span class="n">plot_all_variables</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">zi</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">yi</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">zo</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">yo</span><span class="p">,</span> 
                            <span class="bp">self</span><span class="o">.</span><span class="n">yi_local</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">yo_local</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">,</span>
                            <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">,</span> <span class="n">fig</span><span class="p">)</span>
-        <span class="nb">print</span> <span class="s1">&#39;Done.</span><span class="se">\n</span><span class="s1">&#39;</span></div></div>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Done.</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span></div></div>
     
 
-<div class="viewcode-block" id="ModelParams"><a class="viewcode-back" href="../spm/stratified_plume_model.ModelParams.html#stratified_plume_model.ModelParams">[docs]</a><span class="k">class</span> <span class="nc">ModelParams</span><span class="p">(</span><span class="n">single_bubble_model</span><span class="o">.</span><span class="n">ModelParams</span><span class="p">):</span>
+<div class="viewcode-block" id="ModelParams"><a class="viewcode-back" href="../autodoc/spm/stratified_plume_model.ModelParams.html#stratified_plume_model.ModelParams">[docs]</a><span class="k">class</span> <span class="nc">ModelParams</span><span class="p">(</span><span class="n">single_bubble_model</span><span class="o">.</span><span class="n">ModelParams</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Fixed model parameters for the stratified plume model</span>
 <span class="sd">    </span>
@@ -743,12 +738,12 @@
 <span class="sd">    defines the attribute `rho_r`.</span>
 <span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile</span><span class="p">):</span>
+<div class="viewcode-block" id="ModelParams.__init__"><a class="viewcode-back" href="../autodoc/spm/stratified_plume_model.ModelParams.html#stratified_plume_model.ModelParams.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">ModelParams</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span>
         
         <span class="c1"># Set the model parameters to the values recommended by Socolofsky</span>
         <span class="c1"># et al. (2008)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">alpha_j</span> <span class="o">=</span> <span class="mf">0.057</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alpha_j</span> <span class="o">=</span> <span class="mf">0.055</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">alpha_Fr</span> <span class="o">=</span> <span class="mf">0.544</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">alpha_1</span> <span class="o">=</span> <span class="mf">0.055</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">alpha_2</span> <span class="o">=</span> <span class="mf">0.110</span>
@@ -764,10 +759,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">Fr_0</span> <span class="o">=</span> <span class="mf">1.6</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Fro_0</span> <span class="o">=</span> <span class="mf">0.1</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">nwidths</span> <span class="o">=</span> <span class="mi">1</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">naverage</span> <span class="o">=</span> <span class="mi">1</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">naverage</span> <span class="o">=</span> <span class="mi">1</span></div></div>
 
 
-<div class="viewcode-block" id="InnerPlume"><a class="viewcode-back" href="../spm/stratified_plume_model.InnerPlume.html#stratified_plume_model.InnerPlume">[docs]</a><span class="k">class</span> <span class="nc">InnerPlume</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="InnerPlume"><a class="viewcode-back" href="../autodoc/spm/stratified_plume_model.InnerPlume.html#stratified_plume_model.InnerPlume">[docs]</a><span class="k">class</span> <span class="nc">InnerPlume</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Manages the inner plume state space and derived variables</span>
 <span class="sd">    </span>
@@ -859,7 +854,7 @@
 <span class="sd">        Local peeling flux (m^2/s)</span>
 <span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">chem_names</span><span class="p">):</span>
+<div class="viewcode-block" id="InnerPlume.__init__"><a class="viewcode-back" href="../autodoc/spm/stratified_plume_model.InnerPlume.html#stratified_plume_model.InnerPlume.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">chem_names</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">InnerPlume</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         
         <span class="c1"># Store the input variables that will stay with the inner plume</span>
@@ -871,9 +866,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">np</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">particles</span><span class="p">)</span>
         
         <span class="c1"># Extract the state variables and compute the derived quantities</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">z0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">z0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span></div>
     
-<div class="viewcode-block" id="InnerPlume.update"><a class="viewcode-back" href="../spm/stratified_plume_model.InnerPlume.update.html#stratified_plume_model.InnerPlume.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
+<div class="viewcode-block" id="InnerPlume.update"><a class="viewcode-back" href="../autodoc/spm/stratified_plume_model.InnerPlume.update.html#stratified_plume_model.InnerPlume.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Update the `InnerPlume` object with the current local conditions</span>
 <span class="sd">        </span>
@@ -1006,7 +1001,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">alpha_s</span> <span class="o">=</span> <span class="n">dispersed_phases</span><span class="o">.</span><span class="n">shear_entrainment</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> 
                        <span class="bp">self</span><span class="o">.</span><span class="n">rho</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rho_a</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span></div></div>
 
-<div class="viewcode-block" id="OuterPlume"><a class="viewcode-back" href="../spm/stratified_plume_model.OuterPlume.html#stratified_plume_model.OuterPlume">[docs]</a><span class="k">class</span> <span class="nc">OuterPlume</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="OuterPlume"><a class="viewcode-back" href="../autodoc/spm/stratified_plume_model.OuterPlume.html#stratified_plume_model.OuterPlume">[docs]</a><span class="k">class</span> <span class="nc">OuterPlume</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Manages the outer plume state space and derived variables</span>
 <span class="sd">    </span>
@@ -1076,7 +1071,7 @@
 <span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
     
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">chem_names</span><span class="p">,</span> <span class="n">bi</span><span class="p">):</span>
+<div class="viewcode-block" id="OuterPlume.__init__"><a class="viewcode-back" href="../autodoc/spm/stratified_plume_model.OuterPlume.html#stratified_plume_model.OuterPlume.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">chem_names</span><span class="p">,</span> <span class="n">bi</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">OuterPlume</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         
         <span class="c1"># Store the input variables that will stay with the outer plume</span>
@@ -1087,9 +1082,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">nchems</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">chem_names</span><span class="p">)</span>
         
         <span class="c1"># Extract the state variables and compute the derived quantities</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">z0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">bi</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">z0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">bi</span><span class="p">)</span></div>
     
-<div class="viewcode-block" id="OuterPlume.update"><a class="viewcode-back" href="../spm/stratified_plume_model.OuterPlume.update.html#stratified_plume_model.OuterPlume.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">bi</span><span class="p">):</span>
+<div class="viewcode-block" id="OuterPlume.update"><a class="viewcode-back" href="../autodoc/spm/stratified_plume_model.OuterPlume.update.html#stratified_plume_model.OuterPlume.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">bi</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Update the `OuterPlume` object with the current local conditions</span>
 <span class="sd">         </span>
@@ -1156,7 +1151,7 @@
 <span class="c1"># Integration controllers</span>
 <span class="c1"># ----------------------------------------------------------------------------</span>
 
-<div class="viewcode-block" id="inner_main"><a class="viewcode-back" href="../spm/stratified_plume_model.inner_main.html#stratified_plume_model.inner_main">[docs]</a><span class="k">def</span> <span class="nf">inner_main</span><span class="p">(</span><span class="n">yi</span><span class="p">,</span> <span class="n">yo</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">neighbor</span><span class="p">,</span> <span class="n">delta_z</span><span class="p">):</span>
+<div class="viewcode-block" id="inner_main"><a class="viewcode-back" href="../autodoc/spm/stratified_plume_model.inner_main.html#stratified_plume_model.inner_main">[docs]</a><span class="k">def</span> <span class="nf">inner_main</span><span class="p">(</span><span class="n">yi</span><span class="p">,</span> <span class="n">yo</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">neighbor</span><span class="p">,</span> <span class="n">delta_z</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Manage the integration of the inner plume</span>
 <span class="sd">    </span>
@@ -1217,7 +1212,7 @@
     <span class="n">z</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">smp</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="n">yi</span><span class="p">,</span> <span class="n">yo</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">neighbor</span><span class="p">,</span> 
                           <span class="n">smp</span><span class="o">.</span><span class="n">derivs_inner</span><span class="p">,</span> <span class="n">yi</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="n">yi</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.</span><span class="p">,</span> <span class="n">delta_z</span><span class="p">)</span>
     
-    <span class="nb">print</span> <span class="s1">&#39;  Done with inner plume calculations...&#39;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;  Done with inner plume calculations...&#39;</span><span class="p">)</span>
     
     <span class="c1"># Update yi and build the neighbor matrix</span>
     <span class="n">yi</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">z</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,:],</span> <span class="n">particles</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
@@ -1225,7 +1220,7 @@
     
     <span class="k">return</span> <span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">neighbor</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="outer_main"><a class="viewcode-back" href="../spm/stratified_plume_model.outer_main.html#stratified_plume_model.outer_main">[docs]</a><span class="k">def</span> <span class="nf">outer_main</span><span class="p">(</span><span class="n">yi</span><span class="p">,</span> <span class="n">yo</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">neighbor</span><span class="p">,</span> <span class="n">delta_z</span><span class="p">):</span>
+<div class="viewcode-block" id="outer_main"><a class="viewcode-back" href="../autodoc/spm/stratified_plume_model.outer_main.html#stratified_plume_model.outer_main">[docs]</a><span class="k">def</span> <span class="nf">outer_main</span><span class="p">(</span><span class="n">yi</span><span class="p">,</span> <span class="n">yo</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">neighbor</span><span class="p">,</span> <span class="n">delta_z</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Manage the integration of the outer plume segments</span>
 <span class="sd">    </span>
@@ -1314,7 +1309,7 @@
     <span class="n">yo</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">z0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">yi</span><span class="o">.</span><span class="n">b</span><span class="p">)</span>
     
     <span class="c1"># Integrate down the first outer plume segment</span>
-    <span class="nb">print</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">    Top outer plume...&#39;</span>       
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">    Top outer plume...&#39;</span>       <span class="p">)</span>
     <span class="n">z</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">smp</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="n">yi</span><span class="p">,</span> <span class="n">yo</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">neighbor</span><span class="p">,</span>
                           <span class="n">smp</span><span class="o">.</span><span class="n">derivs_outer</span><span class="p">,</span> <span class="n">yo</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="n">yo</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">profile</span><span class="o">.</span><span class="n">z_max</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> 
                           <span class="n">delta_z</span><span class="p">)</span>
@@ -1340,7 +1335,7 @@
         <span class="c1"># Integrate the outer plume if it is viable</span>
         <span class="k">if</span> <span class="n">flag</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
             <span class="c1"># Integrate the outer plume</span>
-            <span class="nb">print</span> <span class="s1">&#39;    - Outer plume </span><span class="si">%2.2d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">k</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;    - Outer plume </span><span class="si">%2.2d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">k</span><span class="p">)</span>
             <span class="n">k</span> <span class="o">+=</span> <span class="mi">1</span>
             
             <span class="c1"># Initialize the outer plume object with these initial conditions</span>
@@ -1364,14 +1359,14 @@
         <span class="c1"># Update the current depth</span>
         <span class="n">z_depth</span> <span class="o">=</span> <span class="n">z_sol</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
     
-    <span class="nb">print</span> <span class="s1">&#39;  Done with outer plume calculations...&#39;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;  Done with outer plume calculations...&#39;</span><span class="p">)</span>
     
     <span class="c1"># Build the neighbor matrix</span>
     <span class="n">neighbor</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="n">z_sol</span><span class="p">,</span> <span class="n">y_sol</span><span class="o">.</span><span class="n">transpose</span><span class="p">())</span>
     
     <span class="k">return</span> <span class="p">(</span><span class="n">z_sol</span><span class="p">,</span> <span class="n">y_sol</span><span class="p">,</span> <span class="n">neighbor</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="err_check"><a class="viewcode-back" href="../spm/stratified_plume_model.err_check.html#stratified_plume_model.err_check">[docs]</a><span class="k">def</span> <span class="nf">err_check</span><span class="p">(</span><span class="n">zi</span><span class="p">,</span> <span class="n">yi</span><span class="p">,</span> <span class="n">zo</span><span class="p">,</span> <span class="n">yo</span><span class="p">,</span> <span class="n">zi_old</span><span class="p">,</span> <span class="n">yi_old</span><span class="p">,</span> <span class="n">zo_old</span><span class="p">,</span> <span class="n">yo_old</span><span class="p">,</span> <span class="n">yi_local</span><span class="p">,</span> 
+<div class="viewcode-block" id="err_check"><a class="viewcode-back" href="../autodoc/spm/stratified_plume_model.err_check.html#stratified_plume_model.err_check">[docs]</a><span class="k">def</span> <span class="nf">err_check</span><span class="p">(</span><span class="n">zi</span><span class="p">,</span> <span class="n">yi</span><span class="p">,</span> <span class="n">zo</span><span class="p">,</span> <span class="n">yo</span><span class="p">,</span> <span class="n">zi_old</span><span class="p">,</span> <span class="n">yi_old</span><span class="p">,</span> <span class="n">zo_old</span><span class="p">,</span> <span class="n">yo_old</span><span class="p">,</span> <span class="n">yi_local</span><span class="p">,</span> 
               <span class="n">yo_local</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the error between two solutions of the state space.</span>
@@ -1561,7 +1556,7 @@
 <span class="c1"># Helper functions</span>
 <span class="c1"># ----------------------------------------------------------------------------</span>
 
-<div class="viewcode-block" id="particle_from_Q"><a class="viewcode-back" href="../spm/stratified_plume_model.particle_from_Q.html#stratified_plume_model.particle_from_Q">[docs]</a><span class="k">def</span> <span class="nf">particle_from_Q</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">z0</span><span class="p">,</span> <span class="n">dbm_particle</span><span class="p">,</span> <span class="n">yk</span><span class="p">,</span> <span class="n">Q_N</span><span class="p">,</span> <span class="n">de</span><span class="p">,</span> <span class="n">lambda_1</span><span class="p">,</span> <span class="n">T0</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+<div class="viewcode-block" id="particle_from_Q"><a class="viewcode-back" href="../autodoc/spm/stratified_plume_model.particle_from_Q.html#stratified_plume_model.particle_from_Q">[docs]</a><span class="k">def</span> <span class="nf">particle_from_Q</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">z0</span><span class="p">,</span> <span class="n">dbm_particle</span><span class="p">,</span> <span class="n">yk</span><span class="p">,</span> <span class="n">Q_N</span><span class="p">,</span> <span class="n">de</span><span class="p">,</span> <span class="n">lambda_1</span><span class="p">,</span> <span class="n">T0</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
                     <span class="n">K</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">K_T</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">fdis</span><span class="o">=</span><span class="mf">1.e-6</span><span class="p">,</span> <span class="n">t_hyd</span><span class="o">=</span><span class="mf">0.</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create a `dispersed_phases.PlumeParticle` object from volume flux</span>
@@ -1620,7 +1615,7 @@
     <span class="k">return</span> <span class="n">dispersed_phases</span><span class="o">.</span><span class="n">PlumeParticle</span><span class="p">(</span><span class="n">dbm_particle</span><span class="p">,</span> <span class="n">m0</span><span class="p">,</span> <span class="n">T0</span><span class="p">,</span> <span class="n">nb0</span><span class="p">,</span> <span class="n">lambda_1</span><span class="p">,</span>
                                           <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">K_T</span><span class="p">,</span> <span class="n">fdis</span><span class="p">,</span> <span class="n">t_hyd</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="particle_from_mb0"><a class="viewcode-back" href="../spm/stratified_plume_model.particle_from_mb0.html#stratified_plume_model.particle_from_mb0">[docs]</a><span class="k">def</span> <span class="nf">particle_from_mb0</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">z0</span><span class="p">,</span> <span class="n">dbm_particle</span><span class="p">,</span> <span class="n">yk</span><span class="p">,</span> <span class="n">mb0</span><span class="p">,</span> <span class="n">de</span><span class="p">,</span> <span class="n">lambda_1</span><span class="p">,</span> 
+<div class="viewcode-block" id="particle_from_mb0"><a class="viewcode-back" href="../autodoc/spm/stratified_plume_model.particle_from_mb0.html#stratified_plume_model.particle_from_mb0">[docs]</a><span class="k">def</span> <span class="nf">particle_from_mb0</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">z0</span><span class="p">,</span> <span class="n">dbm_particle</span><span class="p">,</span> <span class="n">yk</span><span class="p">,</span> <span class="n">mb0</span><span class="p">,</span> <span class="n">de</span><span class="p">,</span> <span class="n">lambda_1</span><span class="p">,</span> 
                       <span class="n">T0</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">K_T</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">fdis</span><span class="o">=</span><span class="mf">1.e-6</span><span class="p">,</span> <span class="n">t_hyd</span><span class="o">=</span><span class="mf">0.</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create a `dispersed_phases.PlumeParticle` object from the mass flux </span>
@@ -1679,7 +1674,7 @@
     <span class="k">return</span> <span class="n">dispersed_phases</span><span class="o">.</span><span class="n">PlumeParticle</span><span class="p">(</span><span class="n">dbm_particle</span><span class="p">,</span> <span class="n">m0</span><span class="p">,</span> <span class="n">T0</span><span class="p">,</span> <span class="n">nb0</span><span class="p">,</span> <span class="n">lambda_1</span><span class="p">,</span>
                                           <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">K_T</span><span class="p">,</span> <span class="n">fdis</span><span class="p">,</span> <span class="n">t_hyd</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="plot_state_space"><a class="viewcode-back" href="../spm/stratified_plume_model.plot_state_space.html#stratified_plume_model.plot_state_space">[docs]</a><span class="k">def</span> <span class="nf">plot_state_space</span><span class="p">(</span><span class="n">zi</span><span class="p">,</span> <span class="n">yi</span><span class="p">,</span> <span class="n">zo</span><span class="p">,</span> <span class="n">yo</span><span class="p">,</span> <span class="n">yi_local</span><span class="p">,</span> <span class="n">yo_local</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> 
+<div class="viewcode-block" id="plot_state_space"><a class="viewcode-back" href="../autodoc/spm/stratified_plume_model.plot_state_space.html#stratified_plume_model.plot_state_space">[docs]</a><span class="k">def</span> <span class="nf">plot_state_space</span><span class="p">(</span><span class="n">zi</span><span class="p">,</span> <span class="n">yi</span><span class="p">,</span> <span class="n">zo</span><span class="p">,</span> <span class="n">yo</span><span class="p">,</span> <span class="n">yi_local</span><span class="p">,</span> <span class="n">yo_local</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> 
                      <span class="n">p</span><span class="p">,</span> <span class="n">fig</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plot the state space for interrogation during model convergence</span>
@@ -1785,7 +1780,7 @@
     
     <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="plot_all_variables"><a class="viewcode-back" href="../spm/stratified_plume_model.plot_all_variables.html#stratified_plume_model.plot_all_variables">[docs]</a><span class="k">def</span> <span class="nf">plot_all_variables</span><span class="p">(</span><span class="n">zi</span><span class="p">,</span> <span class="n">yi</span><span class="p">,</span> <span class="n">zo</span><span class="p">,</span> <span class="n">yo</span><span class="p">,</span> <span class="n">yi_local</span><span class="p">,</span> <span class="n">yo_local</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> 
+<div class="viewcode-block" id="plot_all_variables"><a class="viewcode-back" href="../autodoc/spm/stratified_plume_model.plot_all_variables.html#stratified_plume_model.plot_all_variables">[docs]</a><span class="k">def</span> <span class="nf">plot_all_variables</span><span class="p">(</span><span class="n">zi</span><span class="p">,</span> <span class="n">yi</span><span class="p">,</span> <span class="n">zo</span><span class="p">,</span> <span class="n">yo</span><span class="p">,</span> <span class="n">yi_local</span><span class="p">,</span> <span class="n">yo_local</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> 
                        <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">fig</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plot the complete variable suite for model validation and interpretation</span>
@@ -2272,43 +2267,70 @@
 </pre></div>
 
           </div>
+          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-            <p class="logo"><a href="../contents.html">
-              <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
-            </a></p><div class="relations">
+<h1 class="logo"><a href="../index.html">Texas A&M Oil spill / Outfall Calculator</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_manual.html">TAMOC User Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../unit_tests.html">Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../bugs.html">Reporting Bugs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../readme.html">Read Me File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+</ul>
+
+<div class="relations">
 <h3>Related Topics</h3>
 <ul>
-  <li><a href="../contents.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
   <li><a href="index.html">Module code</a><ul>
   </ul></li>
   </ul></li>
 </ul>
 </div>
-
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
     </form>
+    </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
 
         </div>
       </div>
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2015, Scott A. Socolofsky.
+      &copy;2020, Scott A. Socolofsky.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>
 

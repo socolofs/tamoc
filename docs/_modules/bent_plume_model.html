@@ -1,26 +1,17 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>bent_plume_model &#8212; Texas A&amp;M Oilspill Calculator v1.1 Manual</title>
-    <link rel="stylesheet" href="../_static/scipy.css" type="text/css" />
+    <meta charset="utf-8" />
+    <title>bent_plume_model &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '1.1.1',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
    
@@ -29,13 +20,14 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head>
-  <body>
+  </head><body>
   
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
   <h1>Source code for bent_plume_model</h1><div class="highlight"><pre>
@@ -88,19 +80,21 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="c1"># S. Socolofsky, November 2014, Texas A&amp;M University &lt;socolofs@tamu.edu&gt;.</span>
 
-<span class="kn">from</span> <span class="nn">tamoc</span> <span class="k">import</span> <span class="n">model_share</span>
-<span class="kn">from</span> <span class="nn">tamoc</span> <span class="k">import</span> <span class="n">ambient</span>
-<span class="kn">from</span> <span class="nn">tamoc</span> <span class="k">import</span> <span class="n">seawater</span>
-<span class="kn">from</span> <span class="nn">tamoc</span> <span class="k">import</span> <span class="n">single_bubble_model</span>
-<span class="kn">from</span> <span class="nn">tamoc</span> <span class="k">import</span> <span class="n">dispersed_phases</span>
-<span class="kn">from</span> <span class="nn">tamoc</span> <span class="k">import</span> <span class="n">lmp</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="p">(</span><span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">)</span>
 
-<span class="kn">from</span> <span class="nn">netCDF4</span> <span class="k">import</span> <span class="n">Dataset</span>
-<span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">tamoc</span> <span class="kn">import</span> <span class="n">model_share</span>
+<span class="kn">from</span> <span class="nn">tamoc</span> <span class="kn">import</span> <span class="n">ambient</span>
+<span class="kn">from</span> <span class="nn">tamoc</span> <span class="kn">import</span> <span class="n">seawater</span>
+<span class="kn">from</span> <span class="nn">tamoc</span> <span class="kn">import</span> <span class="n">single_bubble_model</span>
+<span class="kn">from</span> <span class="nn">tamoc</span> <span class="kn">import</span> <span class="n">dispersed_phases</span>
+<span class="kn">from</span> <span class="nn">tamoc</span> <span class="kn">import</span> <span class="n">lmp</span>
+
+<span class="kn">from</span> <span class="nn">netCDF4</span> <span class="kn">import</span> <span class="n">Dataset</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">numpy.linalg</span> <span class="k">import</span> <span class="n">inv</span>
-<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="k">import</span> <span class="n">fsolve</span>
+<span class="kn">from</span> <span class="nn">numpy.linalg</span> <span class="kn">import</span> <span class="n">inv</span>
+<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">fsolve</span>
 <span class="kn">import</span> <span class="nn">matplotlib</span> <span class="k">as</span> <span class="nn">mpl</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 
@@ -108,7 +102,7 @@
 <span class="c1"># Main Model object</span>
 <span class="c1"># ----------------------------------------------------------------------------</span>
 
-<div class="viewcode-block" id="Model"><a class="viewcode-back" href="../modules/bpm.html#bent_plume_model.Model">[docs]</a><span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="Model"><a class="viewcode-back" href="../autodoc/bpm/bent_plume_model.Model.html#bent_plume_model.Model">[docs]</a><span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Master class object for controlling and post-processing the simulation</span>
 <span class="sd">    </span>
@@ -154,7 +148,7 @@
 <span class="sd">    Sj : float</span>
 <span class="sd">        Salinity of the continuous phase fluid in the discharge (psu)</span>
 <span class="sd">    Tj : float</span>
-<span class="sd">        Temperature of the continuous phase fluid in the discharge (T)</span>
+<span class="sd">        Temperature of the continuous phase fluid in the discharge (K)</span>
 <span class="sd">    cj : ndarray</span>
 <span class="sd">        Concentration of passive tracers in the discharge (user-defined)</span>
 <span class="sd">    tracers : string list</span>
@@ -200,7 +194,7 @@
 <span class="sd">    plot_all_variables</span>
 <span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">simfile</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Model.__init__"><a class="viewcode-back" href="../autodoc/bpm/bent_plume_model.Model.html#bent_plume_model.Model.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">simfile</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Model</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         
         <span class="k">if</span> <span class="n">profile</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -217,9 +211,9 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">p</span> <span class="o">=</span> <span class="n">ModelParams</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">)</span>
             
             <span class="c1"># Indicate that the simulation has not yet been conducted</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">sim_stored</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sim_stored</span> <span class="o">=</span> <span class="kc">False</span></div>
     
-<div class="viewcode-block" id="Model.simulate"><a class="viewcode-back" href="../bpm/bent_plume_model.Model.simulate.html#bent_plume_model.Model.simulate">[docs]</a>    <span class="k">def</span> <span class="nf">simulate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">D</span><span class="p">,</span> <span class="n">Vj</span><span class="p">,</span> <span class="n">phi_0</span><span class="p">,</span> <span class="n">theta_0</span><span class="p">,</span> <span class="n">Sj</span><span class="p">,</span> <span class="n">Tj</span><span class="p">,</span> <span class="n">cj</span><span class="p">,</span> <span class="n">tracers</span><span class="p">,</span> 
+<div class="viewcode-block" id="Model.simulate"><a class="viewcode-back" href="../autodoc/bpm/bent_plume_model.Model.simulate.html#bent_plume_model.Model.simulate">[docs]</a>    <span class="k">def</span> <span class="nf">simulate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">D</span><span class="p">,</span> <span class="n">Vj</span><span class="p">,</span> <span class="n">phi_0</span><span class="p">,</span> <span class="n">theta_0</span><span class="p">,</span> <span class="n">Sj</span><span class="p">,</span> <span class="n">Tj</span><span class="p">,</span> <span class="n">cj</span><span class="p">,</span> <span class="n">tracers</span><span class="p">,</span> 
                  <span class="n">particles</span><span class="o">=</span><span class="p">[],</span> <span class="n">track</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dt_max</span><span class="o">=</span><span class="mf">60.</span><span class="p">,</span> <span class="n">sd_max</span><span class="o">=</span><span class="mf">350.</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Simulate the plume dynamics from given initial conditions</span>
@@ -318,8 +312,8 @@
                        <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracers</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chem_names</span><span class="p">)</span>
         
         <span class="c1"># Compute the buoyant jet trajectory</span>
-        <span class="nb">print</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">-- TEXAS A&amp;M OIL-SPILL CALCULATOR (TAMOC) --&#39;</span>
-        <span class="nb">print</span> <span class="s1">&#39;-- Bent Plume Model                       --</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">-- TEXAS A&amp;M OIL-SPILL CALCULATOR (TAMOC) --&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-- Bent Plume Model                       --</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">,</span> <span class="o">=</span> <span class="n">lmp</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="n">t0</span><span class="p">,</span> <span class="n">q0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_local</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> 
             <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">,</span> <span class="n">lmp</span><span class="o">.</span><span class="n">derivs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt_max</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sd_max</span><span class="p">)</span>
         
@@ -327,8 +321,8 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">track</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">)):</span>
                 <span class="k">if</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">integrate</span> <span class="ow">is</span> <span class="kc">False</span> <span class="ow">and</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">z</span> <span class="o">&gt;</span> <span class="mf">0.</span><span class="p">:</span>
-                    <span class="nb">print</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Tracking Particle </span><span class="si">%d</span><span class="s1"> of </span><span class="si">%d</span><span class="s1">:&#39;</span> <span class="o">%</span> \
-                        <span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">))</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Tracking Particle </span><span class="si">%d</span><span class="s1"> of </span><span class="si">%d</span><span class="s1">:&#39;</span> <span class="o">%</span>
+                        <span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">)))</span>
                     <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">run_sbm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">)</span>
         
         <span class="c1"># Update the status of the solution</span>
@@ -339,7 +333,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">sim_stored</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">K_T</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">K_T0</span><span class="p">[</span><span class="n">i</span><span class="p">]</span></div>
         
-<div class="viewcode-block" id="Model.save_sim"><a class="viewcode-back" href="../bpm/bent_plume_model.Model.save_sim.html#bent_plume_model.Model.save_sim">[docs]</a>    <span class="k">def</span> <span class="nf">save_sim</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">profile_path</span><span class="p">,</span> <span class="n">profile_info</span><span class="p">):</span>
+<div class="viewcode-block" id="Model.save_sim"><a class="viewcode-back" href="../autodoc/bpm/bent_plume_model.Model.save_sim.html#bent_plume_model.Model.save_sim">[docs]</a>    <span class="k">def</span> <span class="nf">save_sim</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">profile_path</span><span class="p">,</span> <span class="n">profile_info</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Save the current simulation results</span>
 <span class="sd">        </span>
@@ -374,8 +368,8 @@
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_stored</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
-            <span class="nb">print</span> <span class="s1">&#39;No simulation results to store...&#39;</span>
-            <span class="nb">print</span> <span class="s1">&#39;Saved nothing to netCDF file.</span><span class="se">\n</span><span class="s1">&#39;</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No simulation results to store...&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Saved nothing to netCDF file.</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
             <span class="k">return</span>
         
         <span class="c1"># Create the netCDF dataset object</span>
@@ -535,7 +529,7 @@
         <span class="c1"># Close the netCDF dataset</span>
         <span class="n">nc</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
     
-<div class="viewcode-block" id="Model.save_txt"><a class="viewcode-back" href="../bpm/bent_plume_model.Model.save_txt.html#bent_plume_model.Model.save_txt">[docs]</a>    <span class="k">def</span> <span class="nf">save_txt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_name</span><span class="p">,</span> <span class="n">profile_path</span><span class="p">,</span> <span class="n">profile_info</span><span class="p">):</span>
+<div class="viewcode-block" id="Model.save_txt"><a class="viewcode-back" href="../autodoc/bpm/bent_plume_model.Model.save_txt.html#bent_plume_model.Model.save_txt">[docs]</a>    <span class="k">def</span> <span class="nf">save_txt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_name</span><span class="p">,</span> <span class="n">profile_path</span><span class="p">,</span> <span class="n">profile_info</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Save the state space in ascii text format for exporting</span>
 <span class="sd">        </span>
@@ -583,8 +577,8 @@
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_stored</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
-            <span class="nb">print</span> <span class="s1">&#39;No simulation results to store...&#39;</span>
-            <span class="nb">print</span> <span class="s1">&#39;Saved nothing to text file.</span><span class="se">\n</span><span class="s1">&#39;</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No simulation results to store...&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Saved nothing to text file.</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
             <span class="k">return</span>
         
         <span class="c1"># Create the header string that contains the column descriptions </span>
@@ -654,7 +648,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">sbm</span><span class="o">.</span><span class="n">save_txt</span><span class="p">(</span><span class="n">fname_sbm</span><span class="p">,</span> <span class="n">profile_path</span><span class="p">,</span> 
                     <span class="n">profile_info</span><span class="p">)</span></div>
     
-<div class="viewcode-block" id="Model.load_sim"><a class="viewcode-back" href="../bpm/bent_plume_model.Model.load_sim.html#bent_plume_model.Model.load_sim">[docs]</a>    <span class="k">def</span> <span class="nf">load_sim</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">):</span>
+<div class="viewcode-block" id="Model.load_sim"><a class="viewcode-back" href="../autodoc/bpm/bent_plume_model.Model.load_sim.html#bent_plume_model.Model.load_sim">[docs]</a>    <span class="k">def</span> <span class="nf">load_sim</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load in a saved simulation result file for post-processing</span>
 <span class="sd">        </span>
@@ -746,7 +740,7 @@
         <span class="n">nc</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sim_stored</span> <span class="o">=</span> <span class="kc">True</span></div>
     
-<div class="viewcode-block" id="Model.plot_state_space"><a class="viewcode-back" href="../bpm/bent_plume_model.Model.plot_state_space.html#bent_plume_model.Model.plot_state_space">[docs]</a>    <span class="k">def</span> <span class="nf">plot_state_space</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fig</span><span class="p">):</span>
+<div class="viewcode-block" id="Model.plot_state_space"><a class="viewcode-back" href="../autodoc/bpm/bent_plume_model.Model.plot_state_space.html#bent_plume_model.Model.plot_state_space">[docs]</a>    <span class="k">def</span> <span class="nf">plot_state_space</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fig</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Plot the simulation state space</span>
 <span class="sd">        </span>
@@ -764,17 +758,17 @@
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_stored</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
-            <span class="nb">print</span> <span class="s1">&#39;No simulation results available to plot...&#39;</span>
-            <span class="nb">print</span> <span class="s1">&#39;Plotting nothing.</span><span class="se">\n</span><span class="s1">&#39;</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No simulation results available to plot...&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Plotting nothing.</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
             <span class="k">return</span>
         
         <span class="c1"># Plot the results</span>
-        <span class="nb">print</span> <span class="s1">&#39;Plotting the state space...&#39;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Plotting the state space...&#39;</span><span class="p">)</span>
         <span class="n">plot_state_space</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_local</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">,</span> 
             <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">,</span> <span class="n">fig</span><span class="p">)</span>
-        <span class="nb">print</span> <span class="s1">&#39;Done.</span><span class="se">\n</span><span class="s1">&#39;</span></div>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Done.</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span></div>
     
-<div class="viewcode-block" id="Model.plot_all_variables"><a class="viewcode-back" href="../bpm/bent_plume_model.Model.plot_all_variables.html#bent_plume_model.Model.plot_all_variables">[docs]</a>    <span class="k">def</span> <span class="nf">plot_all_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fig</span><span class="p">):</span>
+<div class="viewcode-block" id="Model.plot_all_variables"><a class="viewcode-back" href="../autodoc/bpm/bent_plume_model.Model.plot_all_variables.html#bent_plume_model.Model.plot_all_variables">[docs]</a>    <span class="k">def</span> <span class="nf">plot_all_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fig</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Plot a comprehensive suite of simulation results</span>
 <span class="sd">        </span>
@@ -793,22 +787,22 @@
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_stored</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
-            <span class="nb">print</span> <span class="s1">&#39;No simulation results available to plot...&#39;</span>
-            <span class="nb">print</span> <span class="s1">&#39;Plotting nothing.</span><span class="se">\n</span><span class="s1">&#39;</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No simulation results available to plot...&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Plotting nothing.</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
             <span class="k">return</span>
         
         <span class="c1"># Plot the results</span>
-        <span class="nb">print</span> <span class="s1">&#39;Plotting the full variable suite...&#39;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Plotting the full variable suite...&#39;</span><span class="p">)</span>
         <span class="n">plot_all_variables</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_local</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> 
             <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">track</span><span class="p">,</span> <span class="n">fig</span><span class="p">)</span>
-        <span class="nb">print</span> <span class="s1">&#39;Done.</span><span class="se">\n</span><span class="s1">&#39;</span></div></div>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Done.</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span></div></div>
 
 
 <span class="c1"># ----------------------------------------------------------------------------</span>
 <span class="c1"># Model Parameters objects</span>
 <span class="c1"># ----------------------------------------------------------------------------</span>
 
-<div class="viewcode-block" id="ModelParams"><a class="viewcode-back" href="../modules/bpm.html#bent_plume_model.ModelParams">[docs]</a><span class="k">class</span> <span class="nc">ModelParams</span><span class="p">(</span><span class="n">single_bubble_model</span><span class="o">.</span><span class="n">ModelParams</span><span class="p">):</span>
+<div class="viewcode-block" id="ModelParams"><a class="viewcode-back" href="../autodoc/bpm/bent_plume_model.ModelParams.html#bent_plume_model.ModelParams">[docs]</a><span class="k">class</span> <span class="nc">ModelParams</span><span class="p">(</span><span class="n">single_bubble_model</span><span class="o">.</span><span class="n">ModelParams</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Fixed model parameters for the bent plume model</span>
 <span class="sd">    </span>
@@ -844,23 +838,23 @@
 <span class="sd">    `single_bubble_model.ModelParams` object.</span>
 <span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile</span><span class="p">):</span>
+<div class="viewcode-block" id="ModelParams.__init__"><a class="viewcode-back" href="../autodoc/bpm/bent_plume_model.ModelParams.html#bent_plume_model.ModelParams.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">ModelParams</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span>
         
-        <span class="c1"># Set the model parameters to the values in Lee and Cheung (1990)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">alpha_j</span> <span class="o">=</span> <span class="mf">0.057</span>
+        <span class="c1"># Set the model parameters to the values in Jirka (2004)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alpha_j</span> <span class="o">=</span> <span class="mf">0.057</span>  <span class="c1"># Changed from 0.055 on 11/20/2018</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">alpha_Fr</span> <span class="o">=</span> <span class="mf">0.544</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gamma</span> <span class="o">=</span> <span class="mf">1.10</span>
         
         <span class="c1"># Set some of the multiphase plume model parameters</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">Fr_0</span> <span class="o">=</span> <span class="mf">1.6</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Fr_0</span> <span class="o">=</span> <span class="mf">1.6</span></div></div>
 
 
 <span class="c1"># ----------------------------------------------------------------------------</span>
 <span class="c1"># Particle object that handles tracking and exiting the plume</span>
 <span class="c1"># ----------------------------------------------------------------------------</span>
 
-<div class="viewcode-block" id="Particle"><a class="viewcode-back" href="../modules/bpm.html#bent_plume_model.Particle">[docs]</a><span class="k">class</span> <span class="nc">Particle</span><span class="p">(</span><span class="n">dispersed_phases</span><span class="o">.</span><span class="n">PlumeParticle</span><span class="p">):</span>
+<div class="viewcode-block" id="Particle"><a class="viewcode-back" href="../autodoc/bpm/bent_plume_model.Particle.html#bent_plume_model.Particle">[docs]</a><span class="k">class</span> <span class="nc">Particle</span><span class="p">(</span><span class="n">dispersed_phases</span><span class="o">.</span><span class="n">PlumeParticle</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Special model properties for tracking inside a Lagrangian plume object</span>
 <span class="sd">    </span>
@@ -906,7 +900,15 @@
 <span class="sd">    fdis : float, default = 1.e-6</span>
 <span class="sd">        Fraction (--) of the initial mass of each component of the mixture</span>
 <span class="sd">        when that component should be considered totally dissolved.</span>
-<span class="sd">    </span>
+<span class="sd">    t_hyd : float, default = 0.</span>
+<span class="sd">        Hydrate film formation time (s).  Mass transfer is computed by clean</span>
+<span class="sd">        bubble methods for t less than t_hyd and by dirty bubble methods</span>
+<span class="sd">        thereafter.  The default behavior is to assume the particle is dirty</span>
+<span class="sd">        or hydrate covered from the release.</span>
+<span class="sd">    lag_time : bool, default = True.</span>
+<span class="sd">        Flag that indicates whether (True) or not (False) to use the</span>
+<span class="sd">        biodegradation lag times data.</span>
+<span class="sd">        </span>
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
 <span class="sd">    particle : `dbm.FluidParticle` or `dbm.InsolubleParticle` object</span>
@@ -980,10 +982,12 @@
 <span class="sd">    dispersed_phases.SingleParticle, dispersed_phases.PlumeParticle</span>
 <span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">dbm_particle</span><span class="p">,</span> <span class="n">m0</span><span class="p">,</span> <span class="n">T0</span><span class="p">,</span> <span class="n">nb0</span><span class="p">,</span> <span class="n">lambda_1</span><span class="p">,</span> 
-                 <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">K_T</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">fdis</span><span class="o">=</span><span class="mf">1.e-6</span><span class="p">,</span> <span class="n">t_hyd</span><span class="o">=</span><span class="mf">0.</span><span class="p">):</span>
+<div class="viewcode-block" id="Particle.__init__"><a class="viewcode-back" href="../autodoc/bpm/bent_plume_model.Particle.html#bent_plume_model.Particle.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">dbm_particle</span><span class="p">,</span> <span class="n">m0</span><span class="p">,</span> <span class="n">T0</span><span class="p">,</span> <span class="n">nb0</span><span class="p">,</span> <span class="n">lambda_1</span><span class="p">,</span> 
+                 <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">K_T</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">fdis</span><span class="o">=</span><span class="mf">1.e-6</span><span class="p">,</span> <span class="n">t_hyd</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> 
+                 <span class="n">lag_time</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Particle</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">dbm_particle</span><span class="p">,</span> <span class="n">m0</span><span class="p">,</span> <span class="n">T0</span><span class="p">,</span> <span class="n">nb0</span><span class="p">,</span> <span class="n">lambda_1</span><span class="p">,</span> 
-                                       <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">K_T</span><span class="p">,</span> <span class="n">fdis</span><span class="p">,</span> <span class="n">t_hyd</span><span class="p">)</span>
+                                       <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">K_T</span><span class="p">,</span> <span class="n">fdis</span><span class="p">,</span> <span class="n">t_hyd</span><span class="p">,</span>
+                                       <span class="n">lag_time</span><span class="p">)</span>
         
         <span class="c1"># Particles start inside the plume and should be integrated</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">integrate</span> <span class="o">=</span> <span class="kc">True</span>
@@ -997,9 +1001,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="n">z</span>
         
         <span class="c1"># Update the particle with its current properties</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">m0</span><span class="p">,</span> <span class="n">T0</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">m0</span><span class="p">,</span> <span class="n">T0</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">)</span></div>
     
-<div class="viewcode-block" id="Particle.track"><a class="viewcode-back" href="../bpm/bent_plume_model.Particle.track.html#bent_plume_model.Particle.track">[docs]</a>    <span class="k">def</span> <span class="nf">track</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t_p</span><span class="p">,</span> <span class="n">X_cl</span><span class="p">,</span> <span class="n">X_p</span><span class="p">,</span> <span class="n">q_local</span><span class="p">,</span> <span class="n">Ainv</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Particle.track"><a class="viewcode-back" href="../autodoc/bpm/bent_plume_model.Particle.track.html#bent_plume_model.Particle.track">[docs]</a>    <span class="k">def</span> <span class="nf">track</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t_p</span><span class="p">,</span> <span class="n">X_cl</span><span class="p">,</span> <span class="n">X_p</span><span class="p">,</span> <span class="n">q_local</span><span class="p">,</span> <span class="n">Ainv</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Track the particle in the Lagragian plume model</span>
 <span class="sd">        </span>
@@ -1073,7 +1077,7 @@
         <span class="c1"># Return the particle position as a matrix</span>
         <span class="k">return</span> <span class="p">(</span><span class="n">tp</span><span class="p">,</span> <span class="n">xp</span><span class="p">)</span></div>
     
-<div class="viewcode-block" id="Particle.outside"><a class="viewcode-back" href="../bpm/bent_plume_model.Particle.outside.html#bent_plume_model.Particle.outside">[docs]</a>    <span class="k">def</span> <span class="nf">outside</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Ta</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Pa</span><span class="p">):</span>
+<div class="viewcode-block" id="Particle.outside"><a class="viewcode-back" href="../autodoc/bpm/bent_plume_model.Particle.outside.html#bent_plume_model.Particle.outside">[docs]</a>    <span class="k">def</span> <span class="nf">outside</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Ta</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Pa</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Remove the effect of particles if they are outside the plume</span>
 <span class="sd">        </span>
@@ -1098,11 +1102,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">beta_T</span> <span class="o">=</span> <span class="mf">0.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">T</span> <span class="o">=</span> <span class="n">Ta</span></div>
     
-<div class="viewcode-block" id="Particle.run_sbm"><a class="viewcode-back" href="../bpm/bent_plume_model.Particle.run_sbm.html#bent_plume_model.Particle.run_sbm">[docs]</a>    <span class="k">def</span> <span class="nf">run_sbm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile</span><span class="p">):</span>
+<div class="viewcode-block" id="Particle.run_sbm"><a class="viewcode-back" href="../autodoc/bpm/bent_plume_model.Particle.run_sbm.html#bent_plume_model.Particle.run_sbm">[docs]</a>    <span class="k">def</span> <span class="nf">run_sbm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Run the `single_bubble_model` to track particles outside the plume</span>
 <span class="sd">        </span>
-<span class="sd">        Continues the simulation of the particle outside the plume using </span>
+<span class="sd">        Continues the simulation of the particle is outside of the plume using </span>
 <span class="sd">        the `single_bubble_model`.  The object containing the simulation </span>
 <span class="sd">        and simulation results will be added to the attributes of this </span>
 <span class="sd">        Particle object.</span>
@@ -1128,7 +1132,7 @@
         
         <span class="c1"># Run the simulation</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sbm</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">particle</span><span class="p">,</span> <span class="n">X0</span><span class="p">,</span> <span class="n">de</span><span class="p">,</span> <span class="n">yk</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">,</span> 
-            <span class="bp">self</span><span class="o">.</span><span class="n">K_T</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fdis</span><span class="p">,</span> <span class="n">delta_t</span><span class="o">=</span><span class="mf">100000.</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">K_T</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fdis</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">t_hyd</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lag_time</span><span class="p">,</span> <span class="n">delta_t</span><span class="o">=</span><span class="mf">100000.</span><span class="p">)</span>
         
         <span class="c1"># Set flag indicating that far-field solution was computed</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">farfield</span> <span class="o">=</span> <span class="kc">True</span></div></div>
@@ -1138,7 +1142,7 @@
 <span class="c1"># Object to translate the state space into all the derived variables</span>
 <span class="c1"># ----------------------------------------------------------------------------</span>
 
-<div class="viewcode-block" id="LagElement"><a class="viewcode-back" href="../modules/bpm.html#bent_plume_model.LagElement">[docs]</a><span class="k">class</span> <span class="nc">LagElement</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="LagElement"><a class="viewcode-back" href="../autodoc/bpm/bent_plume_model.LagElement.html#bent_plume_model.LagElement">[docs]</a><span class="k">class</span> <span class="nc">LagElement</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Manages the Lagragian plume element state space and derived variables</span>
 <span class="sd">    </span>
@@ -1319,7 +1323,7 @@
 <span class="sd">        the Lagrangian element (kg/m^3)</span>
 <span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t0</span><span class="p">,</span> <span class="n">q0</span><span class="p">,</span> <span class="n">D</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">tracers</span><span class="p">,</span> 
+<div class="viewcode-block" id="LagElement.__init__"><a class="viewcode-back" href="../autodoc/bpm/bent_plume_model.LagElement.html#bent_plume_model.LagElement.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t0</span><span class="p">,</span> <span class="n">q0</span><span class="p">,</span> <span class="n">D</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">tracers</span><span class="p">,</span> 
                  <span class="n">chem_names</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">LagElement</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         
@@ -1335,9 +1339,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">np</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">particles</span><span class="p">)</span>
         
         <span class="c1"># Extract the state variables and compute the derived quantities</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">t0</span><span class="p">,</span> <span class="n">q0</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">t0</span><span class="p">,</span> <span class="n">q0</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="p">)</span></div>
     
-<div class="viewcode-block" id="LagElement.update"><a class="viewcode-back" href="../bpm/bent_plume_model.LagElement.update.html#bent_plume_model.LagElement.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="o">=</span><span class="p">[]):</span>
+<div class="viewcode-block" id="LagElement.update"><a class="viewcode-back" href="../autodoc/bpm/bent_plume_model.LagElement.update.html#bent_plume_model.LagElement.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="o">=</span><span class="p">[]):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Update the `LagElement` object with the current local conditions</span>
 <span class="sd">        </span>
@@ -1441,7 +1445,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">mp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">np</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">np</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">x_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">np</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
-        
+
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">np</span><span class="p">):</span>
             <span class="c1"># If this is a post-processing call, update the status of the </span>
             <span class="c1"># integration flag</span>
@@ -1456,6 +1460,10 @@
             <span class="n">T_p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">H_p</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">M_p</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">*</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">cp</span><span class="p">)</span>
             <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">m_p</span><span class="p">,</span> <span class="n">T_p</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Pa</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">S</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> 
                                 <span class="bp">self</span><span class="o">.</span><span class="n">t_p</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            
+            <span class="c1"># Store biodegradation rates to use with dissolved phase</span>
+            <span class="k">if</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">issoluble</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">k_bio</span> <span class="o">=</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">k_bio</span>
             
             <span class="c1"># Track the particle in the plume</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">t_p</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_p</span><span class="p">[</span><span class="n">i</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">track</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">t_p</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> 
@@ -1484,7 +1492,7 @@
 <span class="c1"># Functions to plot output from the simulations</span>
 <span class="c1"># ----------------------------------------------------------------------------</span>
 
-<div class="viewcode-block" id="plot_state_space"><a class="viewcode-back" href="../spm/bent_plume_model.plot_state_space.html#bent_plume_model.plot_state_space">[docs]</a><span class="k">def</span> <span class="nf">plot_state_space</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">q_local</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">fig</span><span class="p">):</span>
+<div class="viewcode-block" id="plot_state_space"><a class="viewcode-back" href="../autodoc/bpm/bent_plume_model.plot_state_space.html#bent_plume_model.plot_state_space">[docs]</a><span class="k">def</span> <span class="nf">plot_state_space</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">q_local</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">fig</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plot the Lagrangian model state space</span>
 <span class="sd">    </span>
@@ -1574,7 +1582,7 @@
     <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="plot_all_variables"><a class="viewcode-back" href="../spm/bent_plume_model.plot_all_variables.html#bent_plume_model.plot_all_variables">[docs]</a><span class="k">def</span> <span class="nf">plot_all_variables</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">q_local</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">tracked</span><span class="p">,</span> 
+<div class="viewcode-block" id="plot_all_variables"><a class="viewcode-back" href="../autodoc/bpm/bent_plume_model.plot_all_variables.html#bent_plume_model.plot_all_variables">[docs]</a><span class="k">def</span> <span class="nf">plot_all_variables</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">q_local</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">tracked</span><span class="p">,</span> 
     <span class="n">fig</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plot a comprehensive suite of simulation results</span>
@@ -1855,7 +1863,7 @@
     
         <span class="n">ax1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">121</span><span class="p">)</span>
         <span class="n">ax1</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_major_formatter</span><span class="p">(</span><span class="n">formatter</span><span class="p">)</span>
-        <span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">Mp</span> <span class="o">/</span> <span class="mf">1e-6</span><span class="p">,</span> <span class="s1">&#39;b-&#39;</span><span class="p">)</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">Mp</span> <span class="o">/</span> <span class="mf">1.e-6</span><span class="p">,</span> <span class="s1">&#39;b-&#39;</span><span class="p">)</span>
         <span class="n">ax1</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;s (m)&#39;</span><span class="p">)</span>
         <span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;m (mg)&#39;</span><span class="p">)</span>
         <span class="n">ax1</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">b</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s1">&#39;major&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;0.5&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">)</span>
@@ -1870,7 +1878,7 @@
         <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="width_projection"><a class="viewcode-back" href="../spm/bent_plume_model.width_projection.html#bent_plume_model.width_projection">[docs]</a><span class="k">def</span> <span class="nf">width_projection</span><span class="p">(</span><span class="n">Sx</span><span class="p">,</span> <span class="n">Sy</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+<div class="viewcode-block" id="width_projection"><a class="viewcode-back" href="../autodoc/bpm/bent_plume_model.width_projection.html#bent_plume_model.width_projection">[docs]</a><span class="k">def</span> <span class="nf">width_projection</span><span class="p">(</span><span class="n">Sx</span><span class="p">,</span> <span class="n">Sy</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Find the location of the plume width in x, y, z space</span>
 <span class="sd">    </span>
@@ -1931,43 +1939,70 @@
 </pre></div>
 
           </div>
+          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-            <p class="logo"><a href="../contents.html">
-              <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
-            </a></p><div class="relations">
+<h1 class="logo"><a href="../index.html">Texas A&M Oil spill / Outfall Calculator</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_manual.html">TAMOC User Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../unit_tests.html">Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../bugs.html">Reporting Bugs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../readme.html">Read Me File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+</ul>
+
+<div class="relations">
 <h3>Related Topics</h3>
 <ul>
-  <li><a href="../contents.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
   <li><a href="index.html">Module code</a><ul>
   </ul></li>
   </ul></li>
 </ul>
 </div>
-
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
     </form>
+    </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
 
         </div>
       </div>
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2015, Scott A. Socolofsky.
+      &copy;2020, Scott A. Socolofsky.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>
 

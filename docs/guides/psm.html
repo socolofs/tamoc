@@ -1,0 +1,320 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Particle Size Models User’s Guide &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="oil_jet" href="../scripts/psm/oil_jet.html" />
+    <link rel="prev" title="particle_size_distribution" href="../scripts/sintef/particle_size_distribution.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="particle-size-models-user-s-guide">
+<h1>Particle Size Models User’s Guide<a class="headerlink" href="#particle-size-models-user-s-guide" title="Permalink to this headline">¶</a></h1>
+<dl class="field-list simple">
+<dt class="field-odd">Release</dt>
+<dd class="field-odd"><p>2.0</p>
+</dd>
+<dt class="field-even">Date</dt>
+<dd class="field-even"><p>Mar 19, 2020</p>
+</dd>
+</dl>
+<div class="section" id="scripts">
+<h2>Scripts<a class="headerlink" href="#scripts" title="Permalink to this headline">¶</a></h2>
+<p>The class objects and method functions defined in the <cite>particle_size_models</cite>
+module provide a flexible to compute bubble and droplet size distributions
+for breakup of immiscible gases or liquids into seawater. . The examples
+detailed below show how to set up and run simulations using either the
+<cite>ModelBase</cite> or <cite>Model</cite> classes. Further examples are presented in the
+following scripts distributed in the <code class="docutils literal notranslate"><span class="pre">./bin/psm</span></code> directory with the source
+code.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../scripts/psm/oil_jet.html">oil_jet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts/psm/blowout_jet.html">blowout_jet</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p>This example demonstrates the tasks necessary to compute particle size
+distributions either from specified fluid properties (e.g., using the
+<cite>ModelBase</cite> or <cite>PureJet</cite> classes) or from fluid properties computed by
+objects in the <cite>dbm</cite> module (e.g., using the <cite>Model</cite> class).  Before
+running these examples, be sure to install the <code class="docutils literal notranslate"><span class="pre">TAMOC</span></code> package and run
+all of the tests in the <code class="docutils literal notranslate"><span class="pre">./test</span></code> directory.  The commands below should
+be executed in an IPython session.  Start IPython by executing:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ipython</span> <span class="o">--</span><span class="n">pylab</span>
+</pre></div>
+</div>
+<p>at the command prompt.  The <code class="docutils literal notranslate"><span class="pre">--pylab</span></code> flag is needed to get the correct
+behavior of the output plots.</p>
+<div class="section" id="using-specified-fluid-properties">
+<h3>Using Specified Fluid Properties<a class="headerlink" href="#using-specified-fluid-properties" title="Permalink to this headline">¶</a></h3>
+<p>Sometimes, especially when comparing breakup models to measured data, we
+would like to specify all of the fluid properties to use in the breakup
+calculation.  We may do this using the <cite>ModelBase</cite> (which can handle
+releases of both oil and gas) or the <cite>PureJet</cite> (which handles single-phase
+releases) classes.  In this example, we will use the <cite>ModelBase</cite> class.</p>
+<p>Start by importing the <cite>particle_size_models</cite> module and then defining the
+properties of the fluids at the release:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">tamoc</span> <span class="kn">import</span> <span class="n">particle_size_models</span> <span class="k">as</span> <span class="n">psm</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Gas Properties ----------</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rho_gas</span> <span class="o">=</span> <span class="mf">131.8</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mu_gas</span> <span class="o">=</span> <span class="mf">0.00002</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sigma_gas</span> <span class="o">=</span> <span class="mf">0.06</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Oil Properties ----------</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rho_oil</span> <span class="o">=</span> <span class="mf">599.3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mu_oil</span> <span class="o">=</span> <span class="mf">0.0002</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sigma_oil</span> <span class="o">=</span> <span class="mf">0.015</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Seawater Properties -----</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rho</span> <span class="o">=</span> <span class="mf">1037.1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mu</span> <span class="o">=</span> <span class="mf">0.002</span>
+</pre></div>
+</div>
+<p>Next, we create a <cite>ModelBase</cite> object that contains these fluid property
+data:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">spill</span> <span class="o">=</span> <span class="n">psm</span><span class="o">.</span><span class="n">ModelBase</span><span class="p">(</span><span class="n">rho_gas</span><span class="p">,</span> <span class="n">mu_gas</span><span class="p">,</span> <span class="n">sigma_gas</span><span class="p">,</span> <span class="n">rho_oil</span><span class="p">,</span> <span class="n">mu_oil</span><span class="p">,</span>
+<span class="go">                          sigma_oil, rho, mu)</span>
+</pre></div>
+</div>
+<p>We can now use this object to compute size distributions for a variety of
+situations as long as these fluid properties do not change. Generally, these
+properties would change is the release temperature or the release depth were
+to change.</p>
+<p>As an example, let’s compute the characteristic values of the particle
+size distributions for a 0.30 m diameter orifice with specified gas and oil
+mass flow rates of 7.4 kg/s and 34.5 kg/s, respectively:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">m_gas</span> <span class="o">=</span> <span class="mf">7.4</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m_oil</span> <span class="o">=</span> <span class="mf">34.5</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spill</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="mf">0.30</span><span class="p">,</span> <span class="n">m_gas</span><span class="p">,</span> <span class="n">m_oil</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The <cite>.simulate()</cite> method does not return any output.  Rather, the results
+are stored in the object attributes.  We may view these attribute values
+either by printing them directly or using the <cite>.get</cite>-methods.  For example,
+the median particle sizes are:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">spill</span><span class="o">.</span><span class="n">d50_gas</span>
+<span class="go">0.01134713688939418</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spill</span><span class="o">.</span><span class="n">get_d50</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># 0 = gas, 1 = liquid</span>
+<span class="go">spill.get_d50(0)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spill</span><span class="o">.</span><span class="n">d50_oil</span>
+<span class="go">0.0033149657926870454</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spill</span><span class="o">.</span><span class="n">get_d50</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">0.0033149657926870454</span>
+</pre></div>
+</div>
+<p>The <cite>.simulate()</cite> method also computed the characteristic width of the
+particle size distributions.  To compute the distributions, we use the
+<cite>get_distributions()</cite> method, which returns the sizes and volume fractions
+of the gas bubble and oil droplet size distributions, as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">de_gas</span><span class="p">,</span> <span class="n">vf_gas</span><span class="p">,</span> <span class="n">de_oil</span><span class="p">,</span> <span class="n">vf_oil</span> <span class="o">=</span> <span class="n">spill</span><span class="o">.</span><span class="n">get_distributions</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">15</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">de_gas</span>
+<span class="go">array([0.0057077 , 0.00655033, 0.00751736, 0.00862716, 0.0099008 ,</span>
+<span class="go">       0.01136247, 0.01303992, 0.01496502, 0.01717432, 0.01970979])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vf_gas</span>
+<span class="go">array([0.01545088, 0.0432876 , 0.09350044, 0.15570546, 0.19990978,</span>
+<span class="go">       0.19788106, 0.15101303, 0.08885147, 0.04030462, 0.01409565])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">de_oil</span>
+<span class="go">array([0.00035434, 0.00044692, 0.00056369, 0.00071098, 0.00089675,</span>
+<span class="go">       0.00113105, 0.00142658, 0.00179932, 0.00226946, 0.00286243,</span>
+<span class="go">       0.00361034, 0.00455367, 0.00574348, 0.00724417, 0.00913696])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vf_oil</span>
+<span class="go">array([0.00522565, 0.00788413, 0.01185467, 0.01773296, 0.02631885,</span>
+<span class="go">       0.03859967, 0.05559785, 0.07791868, 0.10476347, 0.13228731,</span>
+<span class="go">       0.15193437, 0.15128424, 0.12160947, 0.0710618 , 0.02592687])</span>
+</pre></div>
+</div>
+<p>It is easy to interpret these distributions after they are plotted.  Use the
+<cite>plot_psd()</cite> method to see a default presentation of the data:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">spill</span><span class="o">.</span><span class="n">plot_psd</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="using-fluid-properties-from-the-dbm-module">
+<h3>Using Fluid Properties from the <cite>dbm</cite> Module<a class="headerlink" href="#using-fluid-properties-from-the-dbm-module" title="Permalink to this headline">¶</a></h3>
+<p>When using the plume models in <code class="docutils literal notranslate"><span class="pre">TAMOC</span></code> (e.g., the <cite>bent_plume_model</cite> or
+the <cite>stratified_plume_model</cite>), it is important that the fluid properties
+used to compute the model initial conditions matches that used in the plume
+simulations.  The <cite>Model</cite> class is designed to provide this functionality.</p>
+<p>As an example, let’s consider a natural gas pipeline leak.  As with most
+models in <code class="docutils literal notranslate"><span class="pre">TAMOC</span></code>, we need ambient CTD data before we can start with any
+of the other calculations.  The <cite>ambient</cite> module now provides default
+world-ocean average CTD data when no other data source is available.  To
+create an <cite>ambient.Profile</cite> object using this built-in data, do the
+following:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">tamoc</span> <span class="kn">import</span> <span class="n">ambient</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">profile</span> <span class="o">=</span> <span class="n">ambient</span><span class="o">.</span><span class="n">Profile</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">current</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]),</span>
+<span class="go">                              current_units = &#39;m/s&#39;)</span>
+</pre></div>
+</div>
+<p>We can test this data by requesting the properties at 50 m water depth:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">T</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="mf">50.</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;temperature&#39;</span><span class="p">,</span> <span class="s1">&#39;salinity&#39;</span><span class="p">,</span>
+<span class="go">                                    &#39;ua&#39;, &#39;va&#39;])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">T</span>
+<span class="go">288.23999999999995</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">S</span>
+<span class="go">35.01</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">u</span>
+<span class="go">0.05</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">v</span>
+<span class="go">0.1</span>
+</pre></div>
+</div>
+<p>We also need to create a natural gas <cite>dbm.FluidMixture</cite> object and specify
+a mass flux of 5.5 kg/s of gas:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">tamoc</span> <span class="kn">import</span> <span class="n">dbm</span><span class="p">,</span> <span class="n">dbm_utilities</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gas_comp</span><span class="p">,</span> <span class="n">gas_frac</span> <span class="o">=</span> <span class="n">dbm_utilities</span><span class="o">.</span><span class="n">natural_gas</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gas</span> <span class="o">=</span> <span class="n">dbm</span><span class="o">.</span><span class="n">FluidMixture</span><span class="p">(</span><span class="n">gas_comp</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m_gas</span> <span class="o">=</span> <span class="mf">5.5</span> <span class="o">*</span> <span class="n">gas_frac</span>
+</pre></div>
+</div>
+<p>With the profile and <cite>dbm</cite> object created, we can now create the
+<cite>particle_size_model.Model</cite> object:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">leak</span> <span class="o">=</span> <span class="n">psm</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">gas</span><span class="p">,</span> <span class="n">m_gas</span><span class="p">,</span> <span class="mf">50.</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Once we create the <cite>Model</cite> object, it can be used similarly to the
+<cite>ModelBase</cite> object, but without having to specify the mass flux anymore. If
+we want to change the mass flux, we need to use the <cite>update_m_mixture()</cite>
+method. For instance, we can compute the characteristic particle sizes
+through a 5 cm diameter hole as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">leak</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="mf">0.05</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">leak</span><span class="o">.</span><span class="n">d50_gas</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="mf">0.005861081233586573</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">leak</span><span class="o">.</span><span class="n">get_distributions</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">leak</span><span class="o">.</span><span class="n">plot_psd</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If we want to change the orifice size, then we would do the following:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">leak</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">leak</span><span class="o">.</span><span class="n">get_distributions</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">leak</span><span class="o">.</span><span class="n">plot_psd</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Or, if we wanted to reduce the mass flux to 2.3 kg/s, then we would do the
+following:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">m_gas</span> <span class="o">=</span> <span class="mf">2.3</span> <span class="o">*</span> <span class="n">gas_frac</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">leak</span><span class="o">.</span><span class="n">update_m_mixture</span><span class="p">(</span><span class="n">m_gas</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">leak</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">leak</span><span class="o">.</span><span class="n">get_distributions</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">leak</span><span class="o">.</span><span class="n">plot_psd</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This example demonstrated a pure gas plume.  Since the <cite>Model</cite> class takes
+a <cite>dbm.FluidMixture</cite> object as input, it can automatically also consider
+a release of oil and gas.  As a quick example, consider the following:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">oil</span> <span class="o">=</span> <span class="n">dbm</span><span class="o">.</span><span class="n">FluidMixture</span><span class="p">([</span><span class="s1">&#39;methane&#39;</span><span class="p">,</span> <span class="s1">&#39;decane&#39;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m_mix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">])</span> <span class="o">*</span> <span class="mf">18.5</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">blowout</span> <span class="o">=</span> <span class="n">psm</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">oil</span><span class="p">,</span> <span class="n">m_mix</span><span class="p">,</span> <span class="mf">1000.</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">blowout</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="mf">0.15</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">blowout</span><span class="o">.</span><span class="n">get_distributions</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">15</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">blowout</span><span class="o">.</span><span class="n">plot_psd</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Texas A&M Oil spill / Outfall Calculator</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../user_manual.html">TAMOC User Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../unit_tests.html">Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../bugs.html">Reporting Bugs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../readme.html">Read Me File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../user_manual.html">TAMOC User Manual</a><ul>
+      <li>Previous: <a href="../scripts/sintef/particle_size_distribution.html" title="previous chapter">particle_size_distribution</a></li>
+      <li>Next: <a href="../scripts/psm/oil_jet.html" title="next chapter">oil_jet</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/guides/psm.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

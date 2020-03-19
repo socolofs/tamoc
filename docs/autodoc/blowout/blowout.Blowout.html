@@ -1,0 +1,440 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>blowout.Blowout &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="blowout.Blowout.plot_all_variables" href="blowout.Blowout.plot_all_variables.html" />
+    <link rel="prev" title="Overview of Blowout Module" href="../../modules/blowout.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="blowout-blowout">
+<h1>blowout.Blowout<a class="headerlink" href="#blowout-blowout" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="blowout.Blowout">
+<em class="property">class </em><code class="sig-prename descclassname">blowout.</code><code class="sig-name descname">Blowout</code><span class="sig-paren">(</span><em class="sig-param">z0=100, d0=0.1, substance={'composition': ['methane', 'ethane', 'propane', 'toluene', 'benzene'], 'masses': array([0.2 , 0.03, 0.02, 0.25, 0.5 ])}, q_oil=20000.0, gor=0.0, x0=0.0, y0=0.0, u0=None, phi_0=-1.5707963267948966, theta_0=0.0, num_gas_elements=10, num_oil_elements=25, water=None, current=array([0.1, 0. , 0. ])</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/blowout.html#Blowout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blowout.Blowout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class to facilitiate creating simulations using the  <cite>bent_plume_model</cite></p>
+<p>Class to help set up all of the elements necessary to run a blowout
+simulation using the <code class="docutils literal notranslate"><span class="pre">TAMOC</span></code> <cite>bent_plume_model</cite>. This includes creating
+the <cite>ambient.Profile</cite> object, defining an oil and gas composition using
+the <cite>dbm.FluidMixture</cite> and <cite>dbm.FluidParticle</cite> objects, and generating
+<cite>particle</cite> lists with initial conditions for the gas bubble and oil
+droplet size distributions at the orifice.</p>
+<p>This class is designed for use in subsea oil well blowouts, hence, flow
+rates of oil and gas can be specified using dead oil rates in bbl/d and
+gas-to-oil ratio (GOR) in ft^3/bbl.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>z0</strong><span class="classifier">float, default=100</span></dt><dd><p>Depth of the release point (m)</p>
+</dd>
+<dt><strong>d0</strong><span class="classifier">float, default=0.1</span></dt><dd><p>Equivalent circular diameter of the release (m)</p>
+</dd>
+<dt><strong>substance</strong><span class="classifier">str or list of str, default=[‘methane’]</span></dt><dd><p>The chemical composition of the released petroleum fluid.  If using
+the chemical property data distributed with TAMOC, this should be a
+list of TAMOC chemical property names.  If using an oil from the
+NOAA OilLibrary, this should be a string containing the Adios oil
+ID number (e.g., ‘AD01554’ for Louisiana Light Sweet).</p>
+</dd>
+<dt><strong>q_oil</strong><span class="classifier">float, default=20000.</span></dt><dd><p>Release rate of the dead oil composition at the release point in 
+stock barrels of oil per day.</p>
+</dd>
+<dt><strong>gor</strong><span class="classifier">float, default=0.</span></dt><dd><p>Gas to oil ratio at standard surface conditions in standard cubic 
+feet per stock barrel of oil</p>
+</dd>
+<dt><strong>x0</strong><span class="classifier">float, default=0</span></dt><dd><p>x-coordinate of the release (m)</p>
+</dd>
+<dt><strong>y0</strong><span class="classifier">float, default=0</span></dt><dd><p>y-coordinate of the release (m)</p>
+</dd>
+<dt><strong>u0</strong><span class="classifier">float, default=None</span></dt><dd><p>Exit velocity of continuous-phase fluid at the release.  This is 
+only used when produced water exits.  For a pure oil and gas release,
+this should be zero or None.</p>
+</dd>
+<dt><strong>phi_0</strong><span class="classifier">float, default=-np.pi / 2. (vertical release)</span></dt><dd><p>Vertical angle of the release relative to the horizontal plane; z is
+positive down so that -pi/2 represents a vertically upward flowing
+release (rad)</p>
+</dd>
+<dt><strong>theta_0</strong><span class="classifier">float, default=0.</span></dt><dd><p>Horizontal angle of the release relative to the x-direction (rad)</p>
+</dd>
+<dt><strong>num_gas_elements</strong><span class="classifier">int, default=10</span></dt><dd><p>Number of gas bubble sizes to include in the gas bubble size
+distribution</p>
+</dd>
+<dt><strong>num_oil_elements</strong><span class="classifier">int, default=25</span></dt><dd><p>Number of oil droplet sizes to include in the oil droplet size
+distribution</p>
+</dd>
+<dt><strong>water</strong><span class="classifier">various</span></dt><dd><p>Data describing the ambient water temperature and salinity profile.
+See Notes below for details.</p>
+</dd>
+<dt><strong>current</strong><span class="classifier">various</span></dt><dd><p>Data describing the ambient current velocity profile.  See Notes 
+below for details.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The spilled substance can either be taken from the NOAA OilLibrary or
+can be created from individual pseudo-components in TAMOC.  The user may 
+define the <cite>substance</cite> in one of two ways:</p>
+<dl class="simple">
+<dt>substance<span class="classifier">str</span></dt><dd><p>Provide a unique OilLibrary ID number from the NOAA Python 
+OilLibrary package</p>
+</dd>
+<dt>substance<span class="classifier">dict</span></dt><dd><p>Use the chemical properties database provided with TAMOC.  In this
+case, use the dictionary keyword <cite>composition</cite> to pass a list 
+of chemical property names and the keyword <cite>masses</cite> to pass a 
+list of mass fractions for each component in the composition
+list.  If the masses variable does not sum to unity, this function
+will compute an equivalent mass fraction that does.</p>
+</dd>
+</dl>
+<p>Likewise, the ambient water column data can be provided through several
+different options.  The <cite>water</cite> variable contains temperature and salinity
+data.  The user may define the <cite>water</cite> in the following ways:</p>
+<dl>
+<dt>water<span class="classifier">None</span></dt><dd><p>Indicates that we have no information about the ambient temperature
+or salinity.  In this case, the model will import data for the 
+world-ocean average.</p>
+</dd>
+<dt>water<span class="classifier">dict</span></dt><dd><p>If we only know the water temperature and salinity at the surface, 
+this may be passed through a dictionary with keywords <cite>temperature</cite>
+and <cite>salinity</cite>.  In this case, the model will import data for the
+world-ocean average and adjust the data to have the given temperature
+and salinity at the surface.</p>
+</dd>
+<dt>water<span class="classifier">‘netCDF4.Dataset’</span></dt><dd><p>If a ‘netCDF4.Dataset’ object already contains the ambient CTD 
+data in a format appropriate for the <cite>ambient.Profile</cite> object, then
+this can be passed.  In this case, it is assumed that the dataset
+includes the currents; hence, the <cite>currents</cite> variable will be 
+ignored.</p>
+</dd>
+<dt>water<span class="classifier"><cite>ambient.Profile</cite> object</span></dt><dd><p>If we already created our own ambient Profile object, then this 
+object can be used directly.</p>
+</dd>
+<dt>water = str</dt><dd><p>If we stored the water column profile in a file, we may provide the
+file path to this file via the string stored in water. If this string
+ends in ‘.nc’, it is assumed that this file contains a netCDF4
+dataset. Otherwise, this file should contain columns in the following
+order: depth (m), temperature (deg C), salinity (psu), velocity in
+the x-direction (m/s), velocity in the y-direction (m/s). Since this
+option includes the currents, the current variable will be ignored in
+this case. A comment string of <cite>#</cite> may be used in the text file.</p>
+</dd>
+</dl>
+<p>Finally, current profile data can be provided through several different
+options.  The user may define the <cite>current</cite> in the following ways:</p>
+<dl class="simple">
+<dt>current<span class="classifier">float</span></dt><dd><p>This is assumed to be the current velocity along the x-axis and will
+be uniform over the depth</p>
+</dd>
+<dt>current<span class="classifier">ndarray</span></dt><dd><p>This is assumed to contain the current velocity in the x- and y- (and
+optionally also z-) directions. If this is a one-dimensional array,
+then these currents will be assumed to be uniform over the depth. If
+this is a multi-dimensional array, then these values as assumed to
+contain a profile of data, with the depth (m) as the first column of
+data.</p>
+</dd>
+</dl>
+<dl class="field-list">
+<dt class="field-odd">Attributes</dt>
+<dd class="field-odd"><dl>
+<dt><strong>z0</strong><span class="classifier">float, default=100</span></dt><dd><p>Depth of the release point (m)</p>
+</dd>
+<dt><strong>d0</strong><span class="classifier">float, default=0.1</span></dt><dd><p>Equivalent circular diameter of the release (m)</p>
+</dd>
+<dt><strong>substance</strong><span class="classifier">str or list of str, default=[‘methane’]</span></dt><dd><p>The chemical composition of the released petroleum fluid.  If using
+the chemical property data distributed with TAMOC, this should be a
+list of TAMOC chemical property names.  If using an oil from the
+NOAA OilLibrary, this should be a string containing the Adios oil
+ID number (e.g., ‘AD01554’ for Louisiana Light Sweet).</p>
+</dd>
+<dt><strong>q_oil</strong><span class="classifier">float, default=20000.</span></dt><dd><p>Release rate of the dead oil composition at the release point in 
+stock barrels of oil per day.</p>
+</dd>
+<dt><strong>gor</strong><span class="classifier">float, default=0.</span></dt><dd><p>Gas to oil ratio at standard surface conditions in standard cubic 
+feet per stock barrel of oil</p>
+</dd>
+<dt><strong>x0</strong><span class="classifier">float, default=0</span></dt><dd><p>x-coordinate of the release (m)</p>
+</dd>
+<dt><strong>y0</strong><span class="classifier">float, default=0</span></dt><dd><p>y-coordinate of the release (m)</p>
+</dd>
+<dt><strong>u0</strong><span class="classifier">float, default=None</span></dt><dd><p>Exit velocity of continuous-phase fluid at the release.  This is 
+only used when produced water exits.  For a pure oil and gas release,
+this should be zero or None.</p>
+</dd>
+<dt><strong>phi_0</strong><span class="classifier">float, default=-np.pi / 2. (vertical release)</span></dt><dd><p>Vertical angle of the release relative to the horizontal plane; z is
+positive down so that -pi/2 represents a vertically upward flowing
+release (rad)</p>
+</dd>
+<dt><strong>theta_0</strong><span class="classifier">float, default=0.</span></dt><dd><p>Horizontal angle of the release relative to the x-direction (rad)</p>
+</dd>
+<dt><strong>num_gas_elements</strong><span class="classifier">int, default=10</span></dt><dd><p>Number of gas bubble sizes to include in the gas bubble size
+distribution</p>
+</dd>
+<dt><strong>num_oil_elements</strong><span class="classifier">int, default=25</span></dt><dd><p>Number of oil droplet sizes to include in the oil droplet size
+distribution</p>
+</dd>
+<dt><strong>water</strong><span class="classifier">various</span></dt><dd><p>Data describing the ambient water temperature and salinity profile.
+See Notes below for details.</p>
+</dd>
+<dt><strong>current</strong><span class="classifier">various</span></dt><dd><p>Data describing the ambient current velocity profile.  See Notes 
+below for details.</p>
+</dd>
+<dt><strong>profile</strong><span class="classifier"><cite>ambient.Profile</cite> object</span></dt><dd><p>An <cite>ambient.Profile</cite> object containing the ambient CTD and current
+information</p>
+</dd>
+<dt><strong>T0</strong><span class="classifier">float</span></dt><dd><p>Ambient water temperature (K) at the release</p>
+</dd>
+<dt><strong>S0</strong><span class="classifier">float</span></dt><dd><p>Ambient water salinity (psu) at the release</p>
+</dd>
+<dt><strong>P0</strong><span class="classifier">float</span></dt><dd><p>Ambient water pressure (Pa) at the release</p>
+</dd>
+<dt><strong>gas</strong><span class="classifier">float</span></dt><dd><p>A <cite>dbm.FluidParticle</cite> object defining the gas-phase fluid at the 
+release</p>
+</dd>
+<dt><strong>liq</strong><span class="classifier">float</span></dt><dd><p>A <cite>dbm.FluidParticle</cite> object defining the liquid-phase fluid at the
+release</p>
+</dd>
+<dt><strong>d_gas</strong><span class="classifier">ndarray</span></dt><dd><p>Equivalent spherical diameters (m) of the gas bubbles at the release</p>
+</dd>
+<dt><strong>vf_gas</strong><span class="classifier">ndarray</span></dt><dd><p>Volume fraction of gas in each of the diameters stored in <cite>d_gas</cite></p>
+</dd>
+<dt><strong>d_liq</strong><span class="classifier">ndarray</span></dt><dd><p>Equivalent spherical diameters (m) of the liquid droplets at the
+release</p>
+</dd>
+<dt><strong>vf_liq</strong><span class="classifier">ndarray</span></dt><dd><p>Volume fraction of liquid in each of the diameters stored in <cite>d_liq</cite></p>
+</dd>
+<dt><strong>disp_phases</strong><span class="classifier">list</span></dt><dd><p>List of <cite>bent_plume_model.Particle</cite> objects that define each gas 
+bubble and liquid droplet released from the orifice</p>
+</dd>
+<dt><strong>bpm</strong><span class="classifier"><cite>bent_plume_model.Model</cite> object</span></dt><dd><p>A <cite>bent_plume_model.Model</cite> object that contains the simulation run
+defined by the present class object.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="blowout.Blowout.plot_all_variables.html#blowout.Blowout.plot_all_variables" title="blowout.Blowout.plot_all_variables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_all_variables</span></code></a>(self[, fignum])</p></td>
+<td><p>Plot all variables for the <cite>bent_plume_model</cite> solution</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="blowout.Blowout.plot_state_space.html#blowout.Blowout.plot_state_space" title="blowout.Blowout.plot_state_space"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_state_space</span></code></a>(self[, fignum])</p></td>
+<td><p>Plot the <cite>bent_plume_model</cite> state space solution</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="blowout.Blowout.simulate.html#blowout.Blowout.simulate" title="blowout.Blowout.simulate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">simulate</span></code></a>(self)</p></td>
+<td><p>Run a bent_plume_model simulation for the present conditions</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="blowout.Blowout.update_current_data.html#blowout.Blowout.update_current_data" title="blowout.Blowout.update_current_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_current_data</span></code></a>(self, current)</p></td>
+<td><p>Change the ambient current profile data</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="blowout.Blowout.update_gor.html#blowout.Blowout.update_gor" title="blowout.Blowout.update_gor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_gor</span></code></a>(self, gor)</p></td>
+<td><p>Change the gas-to-oil ratio (std ft^3/bbl) to use in a model  simulation</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="blowout.Blowout.update_horizontal_orientation.html#blowout.Blowout.update_horizontal_orientation" title="blowout.Blowout.update_horizontal_orientation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_horizontal_orientation</span></code></a>(self, theta_0)</p></td>
+<td><p>Change the horizontal orientation (rad) of the release</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="blowout.Blowout.update_num_gas_elements.html#blowout.Blowout.update_num_gas_elements" title="blowout.Blowout.update_num_gas_elements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_num_gas_elements</span></code></a>(self, num_gas_elements)</p></td>
+<td><p>Change the number of gas bubbles to include in the simulation</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="blowout.Blowout.update_num_oil_elements.html#blowout.Blowout.update_num_oil_elements" title="blowout.Blowout.update_num_oil_elements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_num_oil_elements</span></code></a>(self, num_oil_elements)</p></td>
+<td><p>Change the number of oil droplets to include in the simulation</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="blowout.Blowout.update_orifice_diameter.html#blowout.Blowout.update_orifice_diameter" title="blowout.Blowout.update_orifice_diameter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_orifice_diameter</span></code></a>(self, d0)</p></td>
+<td><p>Change the orifice diametr (m) to use in a model simulation</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="blowout.Blowout.update_produced_water.html#blowout.Blowout.update_produced_water" title="blowout.Blowout.update_produced_water"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_produced_water</span></code></a>(self, u0)</p></td>
+<td><p>Change the amount of produced water (m/s) exiting with the oil and  gas through the orifice</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="blowout.Blowout.update_q_oil.html#blowout.Blowout.update_q_oil" title="blowout.Blowout.update_q_oil"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_q_oil</span></code></a>(self, q_oil)</p></td>
+<td><p>Change the oil flow rate (bbl/d) to use in a model simulation</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="blowout.Blowout.update_release_depth.html#blowout.Blowout.update_release_depth" title="blowout.Blowout.update_release_depth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_release_depth</span></code></a>(self, z0)</p></td>
+<td><p>Change the release depth (m) to use in a model simulation</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="blowout.Blowout.update_substance.html#blowout.Blowout.update_substance" title="blowout.Blowout.update_substance"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_substance</span></code></a>(self, substance)</p></td>
+<td><p>Change the OilLibrary ID number to use in a model simulation</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="blowout.Blowout.update_vertical_orientation.html#blowout.Blowout.update_vertical_orientation" title="blowout.Blowout.update_vertical_orientation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_vertical_orientation</span></code></a>(self, phi_0)</p></td>
+<td><p>Change the vertical orientation (rad) of the release</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="blowout.Blowout.update_water_data.html#blowout.Blowout.update_water_data" title="blowout.Blowout.update_water_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_water_data</span></code></a>(self, water)</p></td>
+<td><p>Change the ambient temperature and salinity profile data</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="blowout.Blowout.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">self, z0=100, d0=0.1, substance={'composition': ['methane', 'ethane', 'propane', 'toluene', 'benzene'], 'masses': array([0.2 , 0.03, 0.02, 0.25, 0.5 ])}, q_oil=20000.0, gor=0.0, x0=0.0, y0=0.0, u0=None, phi_0=-1.5707963267948966, theta_0=0.0, num_gas_elements=10, num_oil_elements=25, water=None, current=array([0.1, 0. , 0. ])</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/blowout.html#Blowout.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blowout.Blowout.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#blowout.Blowout.__init__" title="blowout.Blowout.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(self[, z0, d0, substance, q_oil, …])</p></td>
+<td><p>Initialize self.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="blowout.Blowout.plot_all_variables.html#blowout.Blowout.plot_all_variables" title="blowout.Blowout.plot_all_variables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_all_variables</span></code></a>(self[, fignum])</p></td>
+<td><p>Plot all variables for the <cite>bent_plume_model</cite> solution</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="blowout.Blowout.plot_state_space.html#blowout.Blowout.plot_state_space" title="blowout.Blowout.plot_state_space"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_state_space</span></code></a>(self[, fignum])</p></td>
+<td><p>Plot the <cite>bent_plume_model</cite> state space solution</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="blowout.Blowout.simulate.html#blowout.Blowout.simulate" title="blowout.Blowout.simulate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">simulate</span></code></a>(self)</p></td>
+<td><p>Run a bent_plume_model simulation for the present conditions</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="blowout.Blowout.update_current_data.html#blowout.Blowout.update_current_data" title="blowout.Blowout.update_current_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_current_data</span></code></a>(self, current)</p></td>
+<td><p>Change the ambient current profile data</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="blowout.Blowout.update_gor.html#blowout.Blowout.update_gor" title="blowout.Blowout.update_gor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_gor</span></code></a>(self, gor)</p></td>
+<td><p>Change the gas-to-oil ratio (std ft^3/bbl) to use in a model  simulation</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="blowout.Blowout.update_horizontal_orientation.html#blowout.Blowout.update_horizontal_orientation" title="blowout.Blowout.update_horizontal_orientation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_horizontal_orientation</span></code></a>(self, theta_0)</p></td>
+<td><p>Change the horizontal orientation (rad) of the release</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="blowout.Blowout.update_num_gas_elements.html#blowout.Blowout.update_num_gas_elements" title="blowout.Blowout.update_num_gas_elements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_num_gas_elements</span></code></a>(self, num_gas_elements)</p></td>
+<td><p>Change the number of gas bubbles to include in the simulation</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="blowout.Blowout.update_num_oil_elements.html#blowout.Blowout.update_num_oil_elements" title="blowout.Blowout.update_num_oil_elements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_num_oil_elements</span></code></a>(self, num_oil_elements)</p></td>
+<td><p>Change the number of oil droplets to include in the simulation</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="blowout.Blowout.update_orifice_diameter.html#blowout.Blowout.update_orifice_diameter" title="blowout.Blowout.update_orifice_diameter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_orifice_diameter</span></code></a>(self, d0)</p></td>
+<td><p>Change the orifice diametr (m) to use in a model simulation</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="blowout.Blowout.update_produced_water.html#blowout.Blowout.update_produced_water" title="blowout.Blowout.update_produced_water"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_produced_water</span></code></a>(self, u0)</p></td>
+<td><p>Change the amount of produced water (m/s) exiting with the oil and  gas through the orifice</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="blowout.Blowout.update_q_oil.html#blowout.Blowout.update_q_oil" title="blowout.Blowout.update_q_oil"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_q_oil</span></code></a>(self, q_oil)</p></td>
+<td><p>Change the oil flow rate (bbl/d) to use in a model simulation</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="blowout.Blowout.update_release_depth.html#blowout.Blowout.update_release_depth" title="blowout.Blowout.update_release_depth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_release_depth</span></code></a>(self, z0)</p></td>
+<td><p>Change the release depth (m) to use in a model simulation</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="blowout.Blowout.update_substance.html#blowout.Blowout.update_substance" title="blowout.Blowout.update_substance"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_substance</span></code></a>(self, substance)</p></td>
+<td><p>Change the OilLibrary ID number to use in a model simulation</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="blowout.Blowout.update_vertical_orientation.html#blowout.Blowout.update_vertical_orientation" title="blowout.Blowout.update_vertical_orientation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_vertical_orientation</span></code></a>(self, phi_0)</p></td>
+<td><p>Change the vertical orientation (rad) of the release</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="blowout.Blowout.update_water_data.html#blowout.Blowout.update_water_data" title="blowout.Blowout.update_water_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_water_data</span></code></a>(self, water)</p></td>
+<td><p>Change the ambient temperature and salinity profile data</p></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Texas A&M Oil spill / Outfall Calculator</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../user_manual.html">TAMOC User Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../unit_tests.html">Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../bugs.html">Reporting Bugs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html">Read Me File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../../user_manual.html">TAMOC User Manual</a><ul>
+  <li><a href="../../modules/blowout.html">Overview of Blowout Module</a><ul>
+      <li>Previous: <a href="../../modules/blowout.html" title="previous chapter">Overview of Blowout Module</a></li>
+      <li>Next: <a href="blowout.Blowout.plot_all_variables.html" title="next chapter">blowout.Blowout.plot_all_variables</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../_sources/autodoc/blowout/blowout.Blowout.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

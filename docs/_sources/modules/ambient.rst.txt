@@ -9,25 +9,58 @@ Overview of Ambient Module
 
 .. automodule:: ambient
 
-Class Objects
-=============
 
-.. autoclass:: Profile
-
-Module Functions
-================
+Class Objects and Methods
+=========================
 
 .. currentmodule:: ambient
 
 .. autosummary::
-   :toctree: ../ambient
+   :toctree: ../autodoc/ambient
+   
+   Profile
+   Profile.get_values
+   Profile.get_units
+   Profile.append
+   Profile.buoyancy_frequency
+   Profile.extend_profile_deeper
+   Profile.close_nc
 
+Module Functions
+================
+
+Functions for Working With NetCDF Files
+---------------------------------------
+
+.. autosummary::
+   :toctree: ../autodoc/ambient
+   
    create_nc_db
    fill_nc_db
-   get_nc_db_from_roms 
    extract_profile
+
+
+Functions for Working With np.array() Profiles
+----------------------------------------------
+
+.. autosummary::
+   :toctree: ../autodoc/ambient
+   
+   add_data
+   get_world_ocean
+   load_raw
+
+
+Functions for Modifying Profile Data
+------------------------------------
+
+.. autosummary::
+   :toctree: ../autodoc/ambient
+   
    coarsen
    stabilize
    compute_pressure
    convert_units
-   load_raw
+   
+
+

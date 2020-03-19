@@ -1,0 +1,155 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>dbm_utilities.pedersen &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="dbm_utilities.compute_Vb" href="dbm_utilities.compute_Vb.html" />
+    <link rel="prev" title="dbm_utilities.get_preos_params" href="dbm_utilities.get_preos_params.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="dbm-utilities-pedersen">
+<h1>dbm_utilities.pedersen<a class="headerlink" href="#dbm-utilities-pedersen" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="dbm_utilities.pedersen">
+<code class="sig-prename descclassname">dbm_utilities.</code><code class="sig-name descname">pedersen</code><span class="sig-paren">(</span><em class="sig-param">M</em>, <em class="sig-param">composition=[]</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/dbm_utilities.html#pedersen"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dbm_utilities.pedersen" title="Permalink to this definition">¶</a></dt>
+<dd><p>Estimate the binary interaction coefficients</p>
+<p>Use the method in Pedersen et al. (2014) to estimate the binary
+interaction coefficients and return them as a matrix, delta.</p>
+<p>This method is reported in Pedersen, K.S., Christensen, P.L., Shaikh,
+J.A., 2014. Phase Behavior of Petroleum Reservoir Fluids, 2nd ed. CRC
+Press, Boca Raton, Florida.  This method is valid for hydrocarbon-
+hydrocarbon interactions.  For atmospheric gases, there needs to be 
+a correction.  We use the guidance in Table 4.2 in the Pedersen et al.
+book for CO2 and N2.  We further assume N2 and O2 function the same.
+Any other gas is not treated; hence, we set the binary interaction
+parameters to zero.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>M</strong><span class="classifier">np.array (len M)</span></dt><dd><p>Array of molecular weights (mol/kg)</p>
+</dd>
+<dt><strong>composition</strong><span class="classifier">list, default=[]</span></dt><dd><p>List of chemical components in the mixture.  If this list is not 
+provided, we assume that all compounds are hydrocarbons.  If the list
+is provided, we use it only to find the atmospheric gases nitrogen, 
+oxygen, and carbon dioxide and correct these.  We also search for 
+other non-hydrocarbons and set their parameters to zero.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>delta</strong><span class="classifier">np.array (len M, len M)</span></dt><dd><p>Array of binary interaction coefficients</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Texas A&M Oil spill / Outfall Calculator</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../user_manual.html">TAMOC User Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../unit_tests.html">Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../bugs.html">Reporting Bugs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html">Read Me File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../../user_manual.html">TAMOC User Manual</a><ul>
+  <li><a href="../../modules/dbm_utils.html">Overview of DBM Utilities Module</a><ul>
+      <li>Previous: <a href="dbm_utilities.get_preos_params.html" title="previous chapter">dbm_utilities.get_preos_params</a></li>
+      <li>Next: <a href="dbm_utilities.compute_Vb.html" title="next chapter">dbm_utilities.compute_Vb</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../_sources/autodoc/dbm_utilities/dbm_utilities.pedersen.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

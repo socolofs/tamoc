@@ -1,0 +1,193 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>stratified_plume_model.outer_main &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="stratified_plume_model.err_check" href="stratified_plume_model.err_check.html" />
+    <link rel="prev" title="stratified_plume_model.inner_main" href="stratified_plume_model.inner_main.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="stratified-plume-model-outer-main">
+<h1>stratified_plume_model.outer_main<a class="headerlink" href="#stratified-plume-model-outer-main" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="stratified_plume_model.outer_main">
+<code class="sig-prename descclassname">stratified_plume_model.</code><code class="sig-name descname">outer_main</code><span class="sig-paren">(</span><em class="sig-param">yi</em>, <em class="sig-param">yo</em>, <em class="sig-param">particles</em>, <em class="sig-param">profile</em>, <em class="sig-param">p</em>, <em class="sig-param">neighbor</em>, <em class="sig-param">delta_z</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/stratified_plume_model.html#outer_main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stratified_plume_model.outer_main" title="Permalink to this definition">¶</a></dt>
+<dd><p>Manage the integration of the outer plume segments</p>
+<p>Calculates the outer plume solution, creates the appropriate <cite>neighbor</cite>
+interpolation object, and returns the complete solution</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>yi</strong><span class="classifier"><cite>InnerPlume</cite> object</span></dt><dd><p>Object containing the inner plume state space and methods to extract
+the state space variables.</p>
+</dd>
+<dt><strong>yo</strong><span class="classifier"><cite>OuterPlume</cite> object</span></dt><dd><p>Object containing the outer plume state space and methods to extract
+the state space variables.</p>
+</dd>
+<dt><strong>particles</strong><span class="classifier">list of <cite>dispersed_phases.PlumeParticle</cite> objects</span></dt><dd><p>List of <cite>dispersed_phases.PlumeParticle</cite> objects containing the 
+dispersed phase local conditions and behavior.</p>
+</dd>
+<dt><strong>profile</strong><span class="classifier"><cite>ambient.Profile</cite> object</span></dt><dd><p>The ambient CTD object used by the simulation.</p>
+</dd>
+<dt><strong>p</strong><span class="classifier"><cite>ModelParams</cite> object</span></dt><dd><p>Object containing the fixed model parameters for the stratified 
+plume model.</p>
+</dd>
+<dt><strong>neighbor</strong><span class="classifier"><cite>scipy.interpolate.interp1d</cite> object</span></dt><dd><p>Container holding the latest solution for the inner plume state
+space.</p>
+</dd>
+<dt><strong>delta_z</strong><span class="classifier">float</span></dt><dd><p>Maximum step size to use in the simulation (m).  The ODE solver 
+in <cite>calculate</cite> is set up with adaptive step size integration, so 
+in theory this value determines the largest step size in the 
+output data, but not the numerical stability of the calculation.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl>
+<dt><strong>z</strong><span class="classifier">ndarray</span></dt><dd><p>Vector of elevations where the outer plume solution is obtained (m).</p>
+</dd>
+<dt><strong>y</strong><span class="classifier">ndarray</span></dt><dd><p>Matrix of outer plume state space solutions.  Each row corresponds to
+a depth in z.</p>
+</dd>
+<dt><strong>neighbor</strong><span class="classifier"><cite>scipy.interpolate.interp1d</cite> object</span></dt><dd><p>An updated neighbor interpolation object with the outer plume solution
+ready to use with integration of the inner plume.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>There can be many outer plume segments, each associated with a localized, 
+intense area of detrainment from the inner plume.  Each of these outer 
+plume segments generally stop at a level of neutral buoyancy before 
+reaching the next segment, so they will each need to have an independent
+integration.  Thus, this function contains an iteration loop that 
+terminates when the plume has been integrated from the top to the bottom
+of the inner plume.</p>
+<p>Once an outer plume segment stops at a level of neutral buoyancy, this
+function searches for the next outer plume by collecting detrained fluid
+over a length of inner plume equal to <cite>nwidths</cite> times the half-width and
+attempts to start an integration.  If the negative buoyancy of that 
+fluid is inadequate to overcome the upward drag of the inner plume, then
+the outer plume is said to be “not viable,” and the algorithm attemps to
+do this again with the next <cite>nwidths</cite> of detrained water.  Once the 
+outer plume segment becomes viable, those initial conditions are passed
+to the <cite>smp.calculate</cite> function, and the outer plume is integrated to
+neutral buoyancy.  This succession of steps repeats until the bottom of
+the inner plume is reached.</p>
+<p>When dissolution in the inner plume is large enough that the detained 
+fluid is heavier than ambient (e.g., enriched by CO2 such that the 
+solution is not dilute), then outer plume segments can tend to overlap.
+In this case, also, the lowest outer plume segment may descend beyond
+the starting point of the inner plume.  This function assumes that the
+bottom of the CTD cast indicates the sea floor; hence, integration 
+always stops at the sea bottom.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Texas A&M Oil spill / Outfall Calculator</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../user_manual.html">TAMOC User Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../unit_tests.html">Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../bugs.html">Reporting Bugs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html">Read Me File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../../user_manual.html">TAMOC User Manual</a><ul>
+  <li><a href="../../modules/spm.html">Overview of Stratified Plume Model Module</a><ul>
+      <li>Previous: <a href="stratified_plume_model.inner_main.html" title="previous chapter">stratified_plume_model.inner_main</a></li>
+      <li>Next: <a href="stratified_plume_model.err_check.html" title="next chapter">stratified_plume_model.err_check</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../_sources/autodoc/spm/stratified_plume_model.outer_main.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

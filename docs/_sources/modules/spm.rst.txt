@@ -9,44 +9,94 @@ Overview of Stratified Plume Model Module
 
 .. automodule:: stratified_plume_model
 
-Class Objects
-=============
 
-.. autoclass:: Model
+Class Objects and Methods
+=========================
 
-.. autoclass:: ModelParams
+The ``Model`` object is the main interface to the ``stratified_plume_model``.
+Its definition and methods are as follows:
 
-.. autoclass:: InnerPlume
+.. autosummary::
+   :toctree: ../autodoc/spm
+   
+   Model
+   Model.simulate
+   Model.save_sim
+   Model.save_txt
+   Model.load_sim
+   Model.plot_state_space
+   Model.plot_all_variables
 
-.. autoclass:: OuterPlume
+All of the model parameters are contained in the ``ModelParams`` object. This
+object is described in the following:
+
+.. autosummary::
+   :toctree: ../autodoc/spm
+   
+   ModelParams
+
+Local variables defined for each slice of the inner plume are stored in an
+``InnerPlume`` object. Its definition and methods are as follows:
+
+.. autosummary::
+   :toctree: ../autodoc/spm
+   
+   InnerPlume
+   InnerPlume.update
+
+Likewise, local variables defined for each slice of the outer plume are
+stored in an ``OuterPlume`` object. Its definition and methods are as follows:
+
+.. autosummary::
+   :toctree: ../autodoc/spm
+   
+   OuterPlume
+   OuterPlume.update
+
 
 Module Functions
 ================
 
-.. autosummary::
-   :toctree: ../spm
+Utility Functions
+-----------------
 
+The stratified plume model objects defined above use several utilities to
+perform their numerical tasks. These are generally not intended to be called
+directly by the user and are summarized below:
+
+.. autosummary::
+   :toctree: ../autodoc/spm
+   
    inner_main
    outer_main
    err_check
-   particle_from_Q
-   particle_from_mb0
    plot_state_space
    plot_all_variables
 
-Module Functions in `smp` 
-==========================
+There are also some functions designed to help create initial conditions for
+the model. These are:
 
-The numerical work of the `stratified_plume_model` is segregated into the 
-`simp` module with the idea that in the future this module could be moved to
-Fortran in order to have a stand-alone solution.  The functions contained
-in this module are detailed in the following.
+.. autosummary::
+   :toctree: ../autodoc/spm
+   
+   particle_from_Q
+   particle_from_mb0
+
+
+Numerical Model Functions
+-------------------------
+
+The main numerical modeling functions for the stratified plume model are
+stored in the ``smp`` module. These functions could be ported to Fortran or
+another language, but are not intended for the user to call directly.
+Instead, these are used by the objects defined above. The functions contained
+in the ``smp`` module are:
 
 .. currentmodule:: smp
 
 .. autosummary::
-   :toctree: ../spm
-
+   :toctree: ../autodoc/spm
+   
    derivs_inner
    derivs_outer
    calculate
@@ -58,3 +108,5 @@ in this module are detailed in the following.
    outer_dis
    outer_cpic
    outer_fr
+
+

@@ -1,0 +1,156 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>single_bubble_model.plot_state_space &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Overview of Stratified Plume Model Module" href="../../modules/spm.html" />
+    <link rel="prev" title="single_bubble_model.sbm_ic" href="single_bubble_model.sbm_ic.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="single-bubble-model-plot-state-space">
+<h1>single_bubble_model.plot_state_space<a class="headerlink" href="#single-bubble-model-plot-state-space" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="single_bubble_model.plot_state_space">
+<code class="sig-prename descclassname">single_bubble_model.</code><code class="sig-name descname">plot_state_space</code><span class="sig-paren">(</span><em class="sig-param">profile</em>, <em class="sig-param">particle</em>, <em class="sig-param">p</em>, <em class="sig-param">t</em>, <em class="sig-param">y</em>, <em class="sig-param">fig</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/single_bubble_model.html#plot_state_space"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#single_bubble_model.plot_state_space" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create the basic plots to interrogate the solution for the particle path</p>
+<p>Plots the basic state space variables for a solution of the particle
+trajectory.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>profile</strong><span class="classifier"><cite>ambient.Profile</cite> object</span></dt><dd><p>Ambient CTD data for the model simulation</p>
+</dd>
+<dt><strong>particle</strong><span class="classifier"><cite>LagrangianParticle</cite> object</span></dt><dd><p>Object describing the properties and behavior of the particle.</p>
+</dd>
+<dt><strong>p</strong><span class="classifier"><cite>ModelParams</cite> object</span></dt><dd><p>Collection of model parameters passed to <cite>derivs</cite>.</p>
+</dd>
+<dt><strong>t</strong><span class="classifier">ndarray</span></dt><dd><p>Times (s) associated with the state space for the trajectory of the 
+particle</p>
+</dd>
+<dt><strong>y</strong><span class="classifier">ndarray</span></dt><dd><p>State space along the trajectory of the particle.  The state space
+includes the location (m), masses (kg) of the particle components, and 
+the particle heat content (J).  Each variable is contained in a 
+separate column of <cite>y</cite>.</p>
+</dd>
+<dt><strong>fig</strong><span class="classifier">int</span></dt><dd><p>Figure number to place the first of the plots.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Creates three figure windows:</p>
+<ol class="arabic simple">
+<li><p>State space variables versus time</p></li>
+<li><p>Particle diameter, shape, density, and temperature</p></li>
+<li><p>Solubility, mass transfer, and surface area</p></li>
+</ol>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Texas A&M Oil spill / Outfall Calculator</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../user_manual.html">TAMOC User Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../unit_tests.html">Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../bugs.html">Reporting Bugs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html">Read Me File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../../user_manual.html">TAMOC User Manual</a><ul>
+  <li><a href="../../modules/sbm.html">Overview of Single Bubble Model Module</a><ul>
+      <li>Previous: <a href="single_bubble_model.sbm_ic.html" title="previous chapter">single_bubble_model.sbm_ic</a></li>
+      <li>Next: <a href="../../modules/spm.html" title="next chapter">Overview of Stratified Plume Model Module</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../_sources/autodoc/sbm/single_bubble_model.plot_state_space.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

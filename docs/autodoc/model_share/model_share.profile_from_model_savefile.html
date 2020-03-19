@@ -1,0 +1,157 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>model_share.profile_from_model_savefile &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Overview of Blowout Module" href="../../modules/blowout.html" />
+    <link rel="prev" title="model_share.tamoc_nc_file" href="model_share.tamoc_nc_file.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="model-share-profile-from-model-savefile">
+<h1>model_share.profile_from_model_savefile<a class="headerlink" href="#model-share-profile-from-model-savefile" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="model_share.profile_from_model_savefile">
+<code class="sig-prename descclassname">model_share.</code><code class="sig-name descname">profile_from_model_savefile</code><span class="sig-paren">(</span><em class="sig-param">nc</em>, <em class="sig-param">fname</em>, <em class="sig-param">ctdname=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/model_share.html#profile_from_model_savefile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#model_share.profile_from_model_savefile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load the <cite>ambient.Profile</cite> data pointed to by the netCDF file</p>
+<p>Each netCDF model save file for the TAMOC suite models stores the file
+name and path to the ambient CTD data used in the simulation.  This 
+prevents the save files from having to encapsulate all of the ambient 
+CTD data with results for every simulation run.  This block of code
+looks for the ambient data and loads it into memory if found.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>nc</strong><span class="classifier"><cite>netCDF4.Dataset</cite> object</span></dt><dd><p>The netCDF dataset object containing the saved model simulation</p>
+</dd>
+<dt><strong>fname</strong><span class="classifier">str</span></dt><dd><p>File name of the netCDF file.  This is used to get the complete
+path to the current directory so that the Profile data can be found.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl>
+<dt><strong>profile</strong><span class="classifier"><cite>ambient.Profile</cite> object</span></dt><dd><p>The profile data as an <cite>ambient.Profile</cite> object.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="../sbm/single_bubble_model.Model.save_sim.html#single_bubble_model.Model.save_sim" title="single_bubble_model.Model.save_sim"><code class="xref py py-obj docutils literal notranslate"><span class="pre">single_bubble_model.Model.save_sim</span></code></a>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">stratified_plume_model.Mode.save_sim</span></code></dt><dd></dd>
+<dt><a class="reference internal" href="../bpm/bent_plume_model.Model.save_sim.html#bent_plume_model.Model.save_sim" title="bent_plume_model.Model.save_sim"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bent_plume_model.Model.save_sim</span></code></a></dt><dd></dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>If the profile data are not found, a message is echoed to the command
+line.  No other warnings or errors are thrown.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Texas A&M Oil spill / Outfall Calculator</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../user_manual.html">TAMOC User Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../unit_tests.html">Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../bugs.html">Reporting Bugs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html">Read Me File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../../user_manual.html">TAMOC User Manual</a><ul>
+  <li><a href="../../modules/model_share.html">Overview of Model Share Module</a><ul>
+      <li>Previous: <a href="model_share.tamoc_nc_file.html" title="previous chapter">model_share.tamoc_nc_file</a></li>
+      <li>Next: <a href="../../modules/blowout.html" title="next chapter">Overview of Blowout Module</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../_sources/autodoc/model_share/model_share.profile_from_model_savefile.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

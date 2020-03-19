@@ -1,0 +1,222 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>params.Scales &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="params.Scales.get_variables" href="params.Scales.get_variables.html" />
+    <link rel="prev" title="Overview of Parameters Module" href="../../modules/params.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="params-scales">
+<h1>params.Scales<a class="headerlink" href="#params-scales" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="params.Scales">
+<em class="property">class </em><code class="sig-prename descclassname">params.</code><code class="sig-name descname">Scales</code><span class="sig-paren">(</span><em class="sig-param">profile</em>, <em class="sig-param">particles</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/params.html#Scales"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#params.Scales" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the characteristic scales for a <code class="docutils literal notranslate"><span class="pre">TAMOC</span></code> simulation</p>
+<p>Compute the governing non-dimensional parameters defined in Socolofsky
+and Adams (2002, 2005) to provide guidance on model selection for the 
+<code class="docutils literal notranslate"><span class="pre">TAMOC</span></code> modeling suite.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>profile</strong><span class="classifier"><cite>ambient.Profile</cite> object</span></dt><dd><p>Ambient CTD data for the model simulation</p>
+</dd>
+<dt><strong>particles</strong><span class="classifier">list</span></dt><dd><p>List of <cite>stratified_plume_model.Particle</cite> objects that define all of 
+the dispersed phases in the simulation</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Attributes</dt>
+<dd class="field-even"><dl>
+<dt><strong>profile</strong><span class="classifier"><cite>ambient.Profile</cite> object</span></dt><dd><p>Ambient CTD data for the model simulation</p>
+</dd>
+<dt><strong>particles</strong><span class="classifier">list</span></dt><dd><p>List of <cite>stratified_plume_model.Particle</cite> objects for the simulation</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="params.Scales.get_variables.html#params.Scales.get_variables" title="params.Scales.get_variables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_variables</span></code></a>(self, z0, u_inf)</p></td>
+<td><p>Compute the governing variables at a given depth</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="params.Scales.h_P.html#params.Scales.h_P" title="params.Scales.h_P"><code class="xref py py-obj docutils literal notranslate"><span class="pre">h_P</span></code></a>(self, z0)</p></td>
+<td><p>Compute the peel height for the lowest intrusion</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="params.Scales.h_S.html#params.Scales.h_S" title="params.Scales.h_S"><code class="xref py py-obj docutils literal notranslate"><span class="pre">h_S</span></code></a>(self, z0, u_inf)</p></td>
+<td><p>Compute the cross-flow separation height</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="params.Scales.h_T.html#params.Scales.h_T" title="params.Scales.h_T"><code class="xref py py-obj docutils literal notranslate"><span class="pre">h_T</span></code></a>(self, z0)</p></td>
+<td><p>Compute the trap height for the lowest intrusion</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="params.Scales.lambda_1.html#params.Scales.lambda_1" title="params.Scales.lambda_1"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lambda_1</span></code></a>(self, z0, n)</p></td>
+<td><p>Compute the spreading ratio of particle n at the given depth</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="params.Scales.save_txt.html#params.Scales.save_txt" title="params.Scales.save_txt"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_txt</span></code></a>(self, z0, u_inf, base_name, …)</p></td>
+<td><p>Save the results to a text file</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="params.Scales.simulate.html#params.Scales.simulate" title="params.Scales.simulate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">simulate</span></code></a>(self, z_0, u_inf)</p></td>
+<td><p>docstring for simulate</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="params.Scales.u_inf_crit.html#params.Scales.u_inf_crit" title="params.Scales.u_inf_crit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">u_inf_crit</span></code></a>(self, z0)</p></td>
+<td><p>Determine the critical cross-flow velocity</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="params.Scales.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">profile</em>, <em class="sig-param">particles</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/params.html#Scales.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#params.Scales.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#params.Scales.__init__" title="params.Scales.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(self, profile, particles)</p></td>
+<td><p>Initialize self.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="params.Scales.get_variables.html#params.Scales.get_variables" title="params.Scales.get_variables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_variables</span></code></a>(self, z0, u_inf)</p></td>
+<td><p>Compute the governing variables at a given depth</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="params.Scales.h_P.html#params.Scales.h_P" title="params.Scales.h_P"><code class="xref py py-obj docutils literal notranslate"><span class="pre">h_P</span></code></a>(self, z0)</p></td>
+<td><p>Compute the peel height for the lowest intrusion</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="params.Scales.h_S.html#params.Scales.h_S" title="params.Scales.h_S"><code class="xref py py-obj docutils literal notranslate"><span class="pre">h_S</span></code></a>(self, z0, u_inf)</p></td>
+<td><p>Compute the cross-flow separation height</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="params.Scales.h_T.html#params.Scales.h_T" title="params.Scales.h_T"><code class="xref py py-obj docutils literal notranslate"><span class="pre">h_T</span></code></a>(self, z0)</p></td>
+<td><p>Compute the trap height for the lowest intrusion</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="params.Scales.lambda_1.html#params.Scales.lambda_1" title="params.Scales.lambda_1"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lambda_1</span></code></a>(self, z0, n)</p></td>
+<td><p>Compute the spreading ratio of particle n at the given depth</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="params.Scales.save_txt.html#params.Scales.save_txt" title="params.Scales.save_txt"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_txt</span></code></a>(self, z0, u_inf, base_name, …)</p></td>
+<td><p>Save the results to a text file</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="params.Scales.simulate.html#params.Scales.simulate" title="params.Scales.simulate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">simulate</span></code></a>(self, z_0, u_inf)</p></td>
+<td><p>docstring for simulate</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="params.Scales.u_inf_crit.html#params.Scales.u_inf_crit" title="params.Scales.u_inf_crit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">u_inf_crit</span></code></a>(self, z0)</p></td>
+<td><p>Determine the critical cross-flow velocity</p></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Texas A&M Oil spill / Outfall Calculator</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../user_manual.html">TAMOC User Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../unit_tests.html">Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../bugs.html">Reporting Bugs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html">Read Me File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../../user_manual.html">TAMOC User Manual</a><ul>
+  <li><a href="../../modules/params.html">Overview of Parameters Module</a><ul>
+      <li>Previous: <a href="../../modules/params.html" title="previous chapter">Overview of Parameters Module</a></li>
+      <li>Next: <a href="params.Scales.get_variables.html" title="next chapter">params.Scales.get_variables</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../_sources/autodoc/params/params.Scales.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

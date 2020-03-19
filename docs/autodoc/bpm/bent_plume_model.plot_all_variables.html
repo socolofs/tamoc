@@ -1,0 +1,153 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>bent_plume_model.plot_all_variables &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="bent_plume_model.width_projection" href="bent_plume_model.width_projection.html" />
+    <link rel="prev" title="bent_plume_model.plot_state_space" href="bent_plume_model.plot_state_space.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="bent-plume-model-plot-all-variables">
+<h1>bent_plume_model.plot_all_variables<a class="headerlink" href="#bent-plume-model-plot-all-variables" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="bent_plume_model.plot_all_variables">
+<code class="sig-prename descclassname">bent_plume_model.</code><code class="sig-name descname">plot_all_variables</code><span class="sig-paren">(</span><em class="sig-param">t</em>, <em class="sig-param">q</em>, <em class="sig-param">q_local</em>, <em class="sig-param">profile</em>, <em class="sig-param">p</em>, <em class="sig-param">particles</em>, <em class="sig-param">tracked</em>, <em class="sig-param">fig</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/bent_plume_model.html#plot_all_variables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bent_plume_model.plot_all_variables" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot a comprehensive suite of simulation results</p>
+<p>Generate a comprehensive suite of graphs showing the state and 
+derived variables along with ambient profile data in order to 
+view the model output for detailed analysis.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>t</strong><span class="classifier">ndarray</span></dt><dd><p>Array of times computed in the solution (s)</p>
+</dd>
+<dt><strong>q</strong><span class="classifier">ndarray</span></dt><dd><p>Array of state space values computed in the solution</p>
+</dd>
+<dt><strong>q_local</strong><span class="classifier"><cite>LagElement</cite> object</span></dt><dd><p>Object that translates the <cite>Model</cite> state space <cite>t</cite> and <cite>q</cite> into the 
+comprehensive list of derived variables.</p>
+</dd>
+<dt><strong>profile</strong><span class="classifier"><cite>ambient.Profile</cite></span></dt><dd><p>Ambient CTD data</p>
+</dd>
+<dt><strong>p</strong><span class="classifier"><cite>ModelParams</cite></span></dt><dd><p>Container for the fixed model parameters</p>
+</dd>
+<dt><strong>particles</strong><span class="classifier">list of <cite>Particle</cite> objects</span></dt><dd><p>List of <cite>Particle</cite> objects describing each dispersed phase in the 
+simulation</p>
+</dd>
+<dt><strong>tracked</strong><span class="classifier">bool</span></dt><dd><p>Flag indicating whether or not the <cite>single_bubble_model</cite> was run to 
+track the particles.</p>
+</dd>
+<dt><strong>fig</strong><span class="classifier">int</span></dt><dd><p>Number of the figure window in which to draw the plot</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Texas A&M Oil spill / Outfall Calculator</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../user_manual.html">TAMOC User Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../unit_tests.html">Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../bugs.html">Reporting Bugs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html">Read Me File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../../user_manual.html">TAMOC User Manual</a><ul>
+  <li><a href="../../modules/bpm.html">Overview of Bent Plume Model Module</a><ul>
+      <li>Previous: <a href="bent_plume_model.plot_state_space.html" title="previous chapter">bent_plume_model.plot_state_space</a></li>
+      <li>Next: <a href="bent_plume_model.width_projection.html" title="next chapter">bent_plume_model.width_projection</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../_sources/autodoc/bpm/bent_plume_model.plot_all_variables.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

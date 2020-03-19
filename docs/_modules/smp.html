@@ -1,26 +1,17 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>smp &#8212; Texas A&amp;M Oilspill Calculator v1.1 Manual</title>
-    <link rel="stylesheet" href="../_static/scipy.css" type="text/css" />
+    <meta charset="utf-8" />
+    <title>smp &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '1.1.1',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
    
@@ -29,13 +20,14 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head>
-  <body>
+  </head><body>
   
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
   <h1>Source code for smp</h1><div class="highlight"><pre>
@@ -49,18 +41,21 @@
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="c1"># S. Socolofsky, November 2014, Texas A&amp;M University &lt;socolofs@tamu.edu&gt;.</span>
-<span class="kn">from</span> <span class="nn">tamoc</span> <span class="k">import</span> <span class="n">seawater</span>
-<span class="kn">from</span> <span class="nn">tamoc</span> <span class="k">import</span> <span class="n">dispersed_phases</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="p">(</span><span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">tamoc</span> <span class="kn">import</span> <span class="n">seawater</span>
+<span class="kn">from</span> <span class="nn">tamoc</span> <span class="kn">import</span> <span class="n">dispersed_phases</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">scipy</span> <span class="k">import</span> <span class="n">integrate</span>
-<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="k">import</span> <span class="n">fsolve</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">integrate</span>
+<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">fsolve</span>
 
 <span class="c1"># ----------------------------------------------------------------------------</span>
 <span class="c1"># Derivatives of the system of ODEs</span>
 <span class="c1"># ----------------------------------------------------------------------------</span>
 
-<div class="viewcode-block" id="derivs_inner"><a class="viewcode-back" href="../spm/smp.derivs_inner.html#smp.derivs_inner">[docs]</a><span class="k">def</span> <span class="nf">derivs_inner</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">yi</span><span class="p">,</span> <span class="n">yo</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">neighbor</span><span class="p">):</span>
+<div class="viewcode-block" id="derivs_inner"><a class="viewcode-back" href="../autodoc/spm/smp.derivs_inner.html#smp.derivs_inner">[docs]</a><span class="k">def</span> <span class="nf">derivs_inner</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">yi</span><span class="p">,</span> <span class="n">yo</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">neighbor</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate the derivatives for the system of ODEs for the inner plume</span>
 <span class="sd">    </span>
@@ -208,7 +203,7 @@
     <span class="c1"># z is positive downward (depth)</span>
     <span class="k">return</span> <span class="o">-</span><span class="n">yp</span></div>
 
-<div class="viewcode-block" id="derivs_outer"><a class="viewcode-back" href="../spm/smp.derivs_outer.html#smp.derivs_outer">[docs]</a><span class="k">def</span> <span class="nf">derivs_outer</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">yi</span><span class="p">,</span> <span class="n">yo</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">neighbor</span><span class="p">):</span>
+<div class="viewcode-block" id="derivs_outer"><a class="viewcode-back" href="../autodoc/spm/smp.derivs_outer.html#smp.derivs_outer">[docs]</a><span class="k">def</span> <span class="nf">derivs_outer</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">yi</span><span class="p">,</span> <span class="n">yo</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">neighbor</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate the derivatives for the system of ODEs for the outer plume</span>
 <span class="sd">    </span>
@@ -296,7 +291,7 @@
 <span class="c1"># Main integration controller</span>
 <span class="c1"># ----------------------------------------------------------------------------</span>
 
-<div class="viewcode-block" id="calculate"><a class="viewcode-back" href="../spm/smp.calculate.html#smp.calculate">[docs]</a><span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span><span class="n">yi</span><span class="p">,</span> <span class="n">yo</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">neighbor</span><span class="p">,</span> <span class="n">derivs</span><span class="p">,</span> <span class="n">z0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">zf</span><span class="p">,</span> 
+<div class="viewcode-block" id="calculate"><a class="viewcode-back" href="../autodoc/spm/smp.calculate.html#smp.calculate">[docs]</a><span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span><span class="n">yi</span><span class="p">,</span> <span class="n">yo</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">neighbor</span><span class="p">,</span> <span class="n">derivs</span><span class="p">,</span> <span class="n">z0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">zf</span><span class="p">,</span> 
               <span class="n">z_dir</span><span class="p">,</span> <span class="n">delta_z</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Integrate an inner or outer plume segment from `z0` to `zf`</span>
@@ -379,7 +374,7 @@
         
         <span class="c1"># Print progress to the screen</span>
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">remainder</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">(</span><span class="n">k</span><span class="p">),</span> <span class="n">psteps</span><span class="p">)</span> <span class="o">==</span> <span class="mf">0.</span><span class="p">:</span>
-            <span class="nb">print</span> <span class="s1">&#39;    Depth:  </span><span class="si">%g</span><span class="s1"> (m), k: </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">z</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">k</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;    Depth:  </span><span class="si">%g</span><span class="s1"> (m), k: </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">z</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">k</span><span class="p">))</span>
         
         <span class="c1"># Perform one step of the integration</span>
         <span class="n">r</span><span class="o">.</span><span class="n">integrate</span><span class="p">(</span><span class="n">zf</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -416,10 +411,10 @@
     
     <span class="c1"># Return the solution</span>
     <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">remainder</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">(</span><span class="n">k</span><span class="p">),</span> <span class="n">psteps</span><span class="p">)</span> <span class="o">==</span> <span class="mf">0.</span><span class="p">:</span>
-        <span class="nb">print</span> <span class="s1">&#39;    Depth:  </span><span class="si">%g</span><span class="s1"> (m), k: </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">z</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">k</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;    Depth:  </span><span class="si">%g</span><span class="s1"> (m), k: </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">z</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">k</span><span class="p">))</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="correct_temperature"><a class="viewcode-back" href="../spm/smp.correct_temperature.html#smp.correct_temperature">[docs]</a><span class="k">def</span> <span class="nf">correct_temperature</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">yi</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
+<div class="viewcode-block" id="correct_temperature"><a class="viewcode-back" href="../autodoc/spm/smp.correct_temperature.html#smp.correct_temperature">[docs]</a><span class="k">def</span> <span class="nf">correct_temperature</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">yi</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Make sure the correct temperature is stored in the state space solution</span>
 <span class="sd">    </span>
@@ -496,7 +491,7 @@
 <span class="c1"># General tools used throughout the model simulation</span>
 <span class="c1"># ----------------------------------------------------------------------------</span>
 
-<div class="viewcode-block" id="cp_model"><a class="viewcode-back" href="../spm/smp.cp_model.html#smp.cp_model">[docs]</a><span class="k">def</span> <span class="nf">cp_model</span><span class="p">(</span><span class="n">epsilon</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">rho_a</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">rho_r</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">u</span><span class="p">):</span>
+<div class="viewcode-block" id="cp_model"><a class="viewcode-back" href="../autodoc/spm/smp.cp_model.html#smp.cp_model">[docs]</a><span class="k">def</span> <span class="nf">cp_model</span><span class="p">(</span><span class="n">epsilon</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">rho_a</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">rho_r</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">u</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Continuous peeling model of Crounse (2000)</span>
 <span class="sd">    </span>
@@ -535,7 +530,7 @@
 <span class="c1"># Functions to compute inner plume initial conditions</span>
 <span class="c1"># ---------------------------------------------------------------------------</span>
 
-<div class="viewcode-block" id="main_ic"><a class="viewcode-back" href="../spm/smp.main_ic.html#smp.main_ic">[docs]</a><span class="k">def</span> <span class="nf">main_ic</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">z0</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
+<div class="viewcode-block" id="main_ic"><a class="viewcode-back" href="../autodoc/spm/smp.main_ic.html#smp.main_ic">[docs]</a><span class="k">def</span> <span class="nf">main_ic</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">z0</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute the initial conditions for the inner plume state space</span>
 <span class="sd">    </span>
@@ -582,7 +577,7 @@
     <span class="k">return</span> <span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">chem_names</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="inner_plume_ic"><a class="viewcode-back" href="../spm/smp.inner_plume_ic.html#smp.inner_plume_ic">[docs]</a><span class="k">def</span> <span class="nf">inner_plume_ic</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">chem_names</span><span class="p">):</span>
+<div class="viewcode-block" id="inner_plume_ic"><a class="viewcode-back" href="../autodoc/spm/smp.inner_plume_ic.html#smp.inner_plume_ic">[docs]</a><span class="k">def</span> <span class="nf">inner_plume_ic</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">chem_names</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Build the inner plume state space given the initial conditions</span>
 <span class="sd">    </span>
@@ -650,7 +645,7 @@
 <span class="c1"># Functions to compute outer plume initial conditions</span>
 <span class="c1"># ---------------------------------------------------------------------------</span>
 
-<div class="viewcode-block" id="outer_surf"><a class="viewcode-back" href="../spm/smp.outer_surf.html#smp.outer_surf">[docs]</a><span class="k">def</span> <span class="nf">outer_surf</span><span class="p">(</span><span class="n">yi</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
+<div class="viewcode-block" id="outer_surf"><a class="viewcode-back" href="../autodoc/spm/smp.outer_surf.html#smp.outer_surf">[docs]</a><span class="k">def</span> <span class="nf">outer_surf</span><span class="p">(</span><span class="n">yi</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute the initial condition for the outer plume at the sea surface</span>
 <span class="sd">    </span>
@@ -698,7 +693,7 @@
     <span class="c1"># Return the outer plume initial condition</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">yi</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y0</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="outer_dis"><a class="viewcode-back" href="../spm/smp.outer_dis.html#smp.outer_dis">[docs]</a><span class="k">def</span> <span class="nf">outer_dis</span><span class="p">(</span><span class="n">yi</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">neighbor</span><span class="p">,</span> <span class="n">z_0</span><span class="p">):</span>
+<div class="viewcode-block" id="outer_dis"><a class="viewcode-back" href="../autodoc/spm/smp.outer_dis.html#smp.outer_dis">[docs]</a><span class="k">def</span> <span class="nf">outer_dis</span><span class="p">(</span><span class="n">yi</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">neighbor</span><span class="p">,</span> <span class="n">z_0</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute the initial condition for the outer plume at the DMPR</span>
 <span class="sd">    </span>
@@ -763,7 +758,7 @@
     <span class="c1"># Return the outer plume initial condition</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">yi</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y0</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="outer_cpic"><a class="viewcode-back" href="../spm/smp.outer_cpic.html#smp.outer_cpic">[docs]</a><span class="k">def</span> <span class="nf">outer_cpic</span><span class="p">(</span><span class="n">yi</span><span class="p">,</span> <span class="n">yo</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">neighbor</span><span class="p">,</span> <span class="n">z_0</span><span class="p">):</span>
+<div class="viewcode-block" id="outer_cpic"><a class="viewcode-back" href="../autodoc/spm/smp.outer_cpic.html#smp.outer_cpic">[docs]</a><span class="k">def</span> <span class="nf">outer_cpic</span><span class="p">(</span><span class="n">yi</span><span class="p">,</span> <span class="n">yo</span><span class="p">,</span> <span class="n">particles</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">neighbor</span><span class="p">,</span> <span class="n">z_0</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute the initial condition for the outer plume at depth</span>
 <span class="sd">    </span>
@@ -917,7 +912,7 @@
     <span class="c1"># Return the results of the initial conditions search</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">z0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y0</span><span class="p">),</span> <span class="n">flag</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="outer_fr"><a class="viewcode-back" href="../spm/smp.outer_fr.html#smp.outer_fr">[docs]</a><span class="k">def</span> <span class="nf">outer_fr</span><span class="p">(</span><span class="n">u_0</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">bi</span><span class="p">,</span> <span class="n">rho_a</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">Fr_0</span><span class="p">):</span>
+<div class="viewcode-block" id="outer_fr"><a class="viewcode-back" href="../autodoc/spm/smp.outer_fr.html#smp.outer_fr">[docs]</a><span class="k">def</span> <span class="nf">outer_fr</span><span class="p">(</span><span class="n">u_0</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">bi</span><span class="p">,</span> <span class="n">rho_a</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">Fr_0</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute the outer plume initial width and velocity</span>
 <span class="sd">    </span>
@@ -978,43 +973,70 @@
 </pre></div>
 
           </div>
+          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-            <p class="logo"><a href="../contents.html">
-              <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
-            </a></p><div class="relations">
+<h1 class="logo"><a href="../index.html">Texas A&M Oil spill / Outfall Calculator</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_manual.html">TAMOC User Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../unit_tests.html">Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../bugs.html">Reporting Bugs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../readme.html">Read Me File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+</ul>
+
+<div class="relations">
 <h3>Related Topics</h3>
 <ul>
-  <li><a href="../contents.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
   <li><a href="index.html">Module code</a><ul>
   </ul></li>
   </ul></li>
 </ul>
 </div>
-
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
     </form>
+    </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
 
         </div>
       </div>
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2015, Scott A. Socolofsky.
+      &copy;2020, Scott A. Socolofsky.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>
 

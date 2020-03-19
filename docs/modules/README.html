@@ -1,0 +1,354 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>TAMOC - Texas A&amp;M Oilspill Calculator &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="tamoc-texas-a-m-oilspill-calculator">
+<h1>TAMOC - Texas A&amp;M Oilspill Calculator<a class="headerlink" href="#tamoc-texas-a-m-oilspill-calculator" title="Permalink to this headline">¶</a></h1>
+<p>TAMOC is a Python package with Fortran extension modules that provides various
+functionality for simulating a subsea oil spill.  This includes methods to
+compute equations of state of gas and oil, dissolution, transport of single
+bubbles and/or droplets, and simulations of blowout plumes, including the
+development of subsurface intrusions, and estimation of initial bubble/droplet
+size distributions from source flow conditions.</p>
+<p>For typical usage, please see the ./bin directory of the source distribution
+for various example scripts.</p>
+<dl class="simple">
+<dt>Version 2.0.0:  Updated the complete model system for compatibility with both</dt><dd><p>Python 2.7 and Python 3.8+.  Updated the ambient.Profile
+object so that netCDF files do not have to be created,
+including the ability to create a default profile for the
+world-ocean average profile.  Create new modules for particle
+size distributions and for simulating a blowout, including a
+new Blowout object.</p>
+</dd>
+<dt>Version 1.2.1:  Corrected minor errors in translating between NetCDF objects</dt><dd><p>and Numpy arrays to avoid a masked-array error and updated
+the dbm_phys.f95 function for the mass transfer rate by Kumar
+and Hartland so that the Reynolds number is defined before it
+is used.</p>
+</dd>
+<dt>Version 1.2.0:  Added biodegradation to the fate processes considered in the</dt><dd><p>discrete bubble model (DBM).</p>
+</dd>
+<dt>Version 1.1.1:  Updated the ambient module interpolation method to be</dt><dd><p>compatible with newer versions of numpy, updated a few of
+the ./bin examples to only read data provided with TAMOC, and
+updated all test cases to be compatible with slight changes
+in the dbm module that were done in Version 1.1.0.</p>
+</dd>
+<dt>Version 1.1.0:  Updated various modules to be compatible with Anaconda</dt><dd><p>Python, including Scipy version 0.17.0 and higher.  Fixed a
+couple bugs in the test cases where output files are not
+created correctly.  Updated the documentation with some
+missing new variables.</p>
+</dd>
+<dt>Version 1.0.0:  Finalized the validation cases and tested the model for</dt><dd><p>release.  This is the first non-beta version of the model,
+and is the version for which journal publications have been
+prepared.  Most of the changes going forward are expected to
+be new capabilities and improvements in the user interface:
+the model solutions are not expected to change appreciably.</p>
+</dd>
+</dl>
+<p>Beta versions of the model:</p>
+<dl class="simple">
+<dt>Version 0.1.17: Updated the modeling suite so that all of the save/load</dt><dd><p>functions are consistent with the present model variables
+and attributes.  Modified the bent plume model so that
+ambient currents can come from any direction (three-
+dimensional).  Added a new test file for the bent plume
+model.  Changed the convergence criteria for the stratified
+plume model.</p>
+</dd>
+<dt>Version 0.1.16: Updated the bent plume model so that post processing is</dt><dd><p>fully consistent with the simulation results.  Also, added
+the capability for the bent plume model to stop at the
+neutral buoyancy level in the intrusion for a stratified
+case.  Updated the equilibrium calculations in the dbm module
+so that it does not crash when the first few elements of
+the mixture disappear (go to zero) and to speed up the
+calculation when successive substitution indicates the
+mixture may be single phase, but is slowly converging:
+stability analysis is initiated early, which greatly improves
+performance for difficult cases.</p>
+</dd>
+<dt>Version 0.1.15: Moved the particle tracking in the bent plume model inside</dt><dd><p>the main integration loop, which then removes tp and sp
+from the model attributes and includes then in the model
+state space instead.  Updated the bent plume model state
+space so that particle mass is the state variables instead
+of particle mass flux and so that the dissovled phase
+constituents are modeled as total mass in the Lagrangian
+element instead of concentration times mass of the element.
+Made a small update to the hydrate formation time equations.</p>
+</dd>
+<dt>Version 0.1.14: Updated several aspects of the calibration after comparing</dt><dd><p>to available data in Milgram (1983), Jirka (2004), Socolofsky
+and Adams (2002, 2003, 2005), Socolofs et al. (2008), and
+Socolofsky et al. (2013).  The most significant change is an
+updated shear entrainment coefficient for the stratified
+plume model.  Also, added a buoyant force reduction as bubbles
+drift away from the centerline in a crossflow.</p>
+</dd>
+<dt>Version 0.1.13: Updated the temperature output for the bent plume model so</dt><dd><p>that the correct temperature is saved when heat transfer ends.
+Added the particle time to the state space of the stratified
+plume model and added the hydrate formation model of Jun et
+al. (2015) to the particle objects in the dispersed phases
+module.  The hydrate formation time is set at the start of a
+simulation and is properly implemented for all three
+simulation modules in the <code class="docutils literal notranslate"><span class="pre">TAMOC</span></code> suite.  To compute the
+hydrate formation time using the equations from Jun et al.
+(2015), use the function
+<cite>dispersed_phases.hydrate_formation_time</cite>.</p>
+</dd>
+<dt>Version 0.1.12: Replaced methods for equilibrium and viscosity with better</dt><dd><p>algorithms.  Fixed small inconsistencies in the dbm.py module
+for clean bubbles, and updated the seawater equations of
+state with better methods for heat capacity and air/water
+surface tension.  Updated values for the Setschenow constant
+in ./data/ChemData.csv, and added a mass transfer equation
+for Re &lt; 1.</p>
+</dd>
+<dt>Version 0.1.11: Replaced some of the -9999 values in the ./data/ChemData.csv</dt><dd><p>file with literature values and updated the units of the
+calcualtion of Vb in dbm.py when data are not available.
+Also, updated the parameter values for the stratified plume
+model with the values recommended in Socolofsky et al. (2008).</p>
+</dd>
+<dt>Version 0.1.10: Updated the values for Vb in the ./data/ChemData.csv file</dt><dd><p>with their correct values.  Improves computation of
+diffusivity and mass transfer over Version 0.1.9, and gives
+results similar to Version 0.1.8 and older that used a
+different method to estimate diffusivity.</p>
+</dd>
+<dt>Version 0.1.9<span class="classifier">Made several minor changes to the equations of state per the</span></dt><dd><p>guidance of Jonas Gros.  These changes make the model much
+more robust for hydrocarbon mixtures.  The updates are minor
+in that the results do not change markedly for the test
+cases already in previous versions of the model.  However,
+the changes provide major advantages for more difficult
+cases, not demonstrated in the simple ./bin examples.</p>
+</dd>
+<dt>Version 0.1.8<span class="classifier">Added print capability to the params.py module and upgraded</span></dt><dd><p>the shear entrainment model in the bent_plume_model.py
+to the entrainment equations in Jirka 2004.</p>
+</dd>
+<dt>Version 0.1.7<span class="classifier">Added the capability for the bent_plume_model.py to continue</span></dt><dd><p>to track particles outside the plume using the
+single_bubble_model.py.  Fixed a bug where particles outside
+the plume continued to dissolve and add mass to the
+bent_plume_model.</p>
+</dd>
+<dt>Version 0.1.6<span class="classifier">Added a new simulation module for plumes in crossflow:  the</span></dt><dd><p>bent_plume_model.py.  Refactored some of the code for the
+original model suite to make it more general and to reuse it
+in the bent_plume_model.  Added example files and unit tests
+for the new modules, and updated the documentation to reflect
+all model changes.</p>
+</dd>
+<dt>Version 0.1.5<span class="classifier">Fixed a small bug in the way the bubble force is handled</span></dt><dd><p>after the particle dissolves.  Fixed a bug to retain mass
+conservation for a bubble size distribution using the
+sintef.rosin_rammler() function.</p>
+</dd>
+<dt>Version 0.1.4<span class="classifier">Added script for the the sintef and params modules to the</span></dt><dd><p>./bin examples directory and the /test unit tests.  Improved
+the stability of the model by added a few new checks during
+and before calculation.  Updated the unit tests to make them
+more platform and numpy-version independent.</p>
+</dd>
+<dt>Version 0.1.3<span class="classifier">Removed some of the debugging catches in the iteration so that</span></dt><dd><p>solutions always fully converge and fixed a few bugs.  See
+CHANGES.txt for full details.  Added the sintef.py module for
+computing initial bubble/droplet size distributions.</p>
+</dd>
+<dt>Version 0.1.2<span class="classifier">Refined the test suite for compatibility with multiple</span></dt><dd><p>versions of numpy and scipy.  Corrected a few more minor bugs.</p>
+</dd>
+<dt>Version 0.1.1<span class="classifier">Full modeling suite with small bug fixes and complete test</span></dt><dd><p>suite..</p>
+</dd>
+<dt>Version 0.1.0<span class="classifier">First full modeling suite release, including the stratified</span></dt><dd><p>plume module.</p>
+</dd>
+<dt>Version 0.0.3<span class="classifier">Updated to include the single bubble model and the ambient</span></dt><dd><p>module for handling ambient CTD data.  Includes input and
+output using netCDF files and a complete set of tests in
+./tamoc/test</p>
+</dd>
+<dt>Version 0.0.2<span class="classifier">First model release, including the discrete bubble model</span></dt><dd><p>(dmb.py)</p>
+</dd>
+</dl>
+<p>Version 0.0.1 : Initial template of files using setup.py</p>
+<div class="section" id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h2>
+<p>This package requires:</p>
+<ul class="simple">
+<li><p>Python 2.3 or higher and is now compatible with both Python 2.7 and
+Python 3.8+</p></li>
+<li><p>Numpy version 1.6.1 or higher</p></li>
+<li><p>Scipy version 0.17.0 or higher</p></li>
+<li><p>A modern Fortran compiler</p></li>
+<li><p>The Python netCDF4 package</p></li>
+</ul>
+<p>For interaction with ROMS output, TAMOC also requires:</p>
+<blockquote>
+<div><ul>
+<li><p>octant:  download from <a class="reference external" href="https://github.com/hetland/octant">https://github.com/hetland/octant</a></p></li>
+<li><p>mpl_toolkits.basemap:  download from
+<a class="reference external" href="http://sourceforge.net/projects/matplotlib/files/matplotlib-toolkits/">http://sourceforge.net/projects/matplotlib/files/matplotlib-toolkits/</a></p></li>
+<li><dl>
+<dt>NOTE:  While this still works, octant has been deprecated and is now</dt><dd><p>replaced by the xarray package.  TAMOC has not yet been updated
+to use xarray.</p>
+<p>If profile data are available from ROMS, write a script to read
+the data into a numpy array and pass this data to the
+ambient.Profile object.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+<p>Code development and testing for this package was conducted in the Mac OS X
+environment, Version 10.13.6. The Python environments were created using
+miniconda.  The Python 3 environment used Python 3.8.2; the Python 2
+environment used Python 2.7.15.  All scripts are tested in iPython with the
+–pylab flag.</p>
+<p>Fortran files are written in modern Fortran style and are fully compatible
+with gfortran 4.6.2 20111019 (prerelease). They have been compiled and tested
+by the author using f2py Version 2.</p>
+</div>
+<div class="section" id="quick-start">
+<h2>Quick Start<a class="headerlink" href="#quick-start" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Edit setup.cfg to select the appropriate C/C++ and Fortran compilers</p></li>
+<li><p>Run ‘python setup.py build’ followed by ‘python setup.py install’ (with
+sudo if necessary).</p></li>
+<li><p>Test the installation by opening a Python session and executing
+<cite>import tamoc</cite> from the Python prompt.  Be sure that you are not in the
+same directory as the setup.py file so that Python will look for tamoc in
+the main Python package repository on your system.</p></li>
+<li><p>To run all the tests, cd to the ./test directory and execute ‘py.test’
+from a command prompt.  If pytest is not installed, follow the instructions
+here:  <a class="reference external" href="http://pytest.org/latest/getting-started.html">http://pytest.org/latest/getting-started.html</a></p></li>
+</ul>
+</div>
+<div class="section" id="platforms">
+<h2>Platforms<a class="headerlink" href="#platforms" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="windows-7">
+<h3>Windows 7<a class="headerlink" href="#windows-7" title="Permalink to this headline">¶</a></h3>
+<p>The following method has been tested for installation on Windows 7.</p>
+<ul class="simple">
+<li><p>Install a complete Python distribution that includes Python, Numpy, and
+Scipy with versions compatible with the above list.  Testing has been
+completed by the author using a 32-bit Python installation.  The Python
+distribution will have to be compatible with your C/C++ and Fortran
+compiler.  The free compilers available from MinGW that work with Python
+f2py are typically 32 bit.  There are work-arounds, but the instructions
+here were all tested on 32-bit installations.</p></li>
+<li><p>Download and install the MinGW compiler suite.  During installation, be sure
+to select a C, C++, and Fortran compiler.  See,
+<a class="reference external" href="http://sourceforge.net/projects/mingw/files/">http://sourceforge.net/projects/mingw/files/</a></p></li>
+<li><p>Edit the Windows &gt; System &gt; Environment Variables so that the PATH can find
+your Python and MinGW installation.</p></li>
+<li><p>Open a command prompt from Start &gt; Run &gt; Command Prompt and follow the steps
+in the Quick Start section above to complete installation.</p></li>
+</ul>
+</div>
+<div class="section" id="mac-os-x-unix">
+<h3>Mac OS X / Unix<a class="headerlink" href="#mac-os-x-unix" title="Permalink to this headline">¶</a></h3>
+<p>The following method has been tested for installation on Mac OS X 10.7.</p>
+<ul class="simple">
+<li><p>Install a complete Python distribution that includes Python, Numpy, and
+Scipy with versions compatible with the above list.  Testing has been
+completed by the author using a 32-bit and 64-bit Python installations.
+The Python distribution will have to be compatible with your C/C++ and
+Fortran compiler.</p></li>
+<li><p>Install the free XCode app in order to provide C/C++ compiler capability.
+Be sure to install the command-line tools.</p></li>
+<li><p>Download and install the gfortran binary. See,
+<a class="reference external" href="http://gcc.gnu.org/wiki/GFortranBinaries">http://gcc.gnu.org/wiki/GFortranBinaries</a></p></li>
+<li><p>Follow the steps in the Quick Start section above to complete installation.</p></li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Texas A&M Oil spill / Outfall Calculator</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_manual.html">TAMOC User Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../unit_tests.html">Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../bugs.html">Reporting Bugs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../readme.html">Read Me File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/modules/README.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

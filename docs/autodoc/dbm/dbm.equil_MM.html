@@ -1,0 +1,187 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>dbm.equil_MM &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="dbm.stability_analysis" href="dbm.stability_analysis.html" />
+    <link rel="prev" title="dbm.InsolubleParticle.viscosity" href="dbm.InsolubleParticle.viscosity.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="dbm-equil-mm">
+<h1>dbm.equil_MM<a class="headerlink" href="#dbm-equil-mm" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="dbm.equil_MM">
+<code class="sig-prename descclassname">dbm.</code><code class="sig-name descname">equil_MM</code><span class="sig-paren">(</span><em class="sig-param">m</em>, <em class="sig-param">T</em>, <em class="sig-param">P</em>, <em class="sig-param">M</em>, <em class="sig-param">Pc</em>, <em class="sig-param">Tc</em>, <em class="sig-param">omega</em>, <em class="sig-param">delta</em>, <em class="sig-param">Aij</em>, <em class="sig-param">Bij</em>, <em class="sig-param">delta_groups</em>, <em class="sig-param">calc_delta</em>, <em class="sig-param">K_0</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/dbm.html#equil_MM"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dbm.equil_MM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the equilibrium composition of a mixture using the P-R EOS</p>
+<p>Computes the mole fraction composition for the gas and liquid phases of a
+mixture using the Peng-Robinson equation of state and the methodology
+described Michelsen and Mollerup (2007).  For multiphase equilibria, 
+the successive substition method is used.  If several iterations suggest
+a single-phase equilibrium, stability analysis is used to verify the
+prediction.  If a two-phase result is predicted by stability analysis, 
+successive substitution continues with an improved estimate for the 
+composition; otherwise, the single phase result is returned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>m</strong><span class="classifier">ndarray, size (nc)</span></dt><dd><p>masses of each component present in the whole mixture (gas plus 
+liquid, kg)</p>
+</dd>
+<dt><strong>T</strong><span class="classifier">float</span></dt><dd><p>temperature (K)</p>
+</dd>
+<dt><strong>P</strong><span class="classifier">float</span></dt><dd><p>pressure (Pa)</p>
+</dd>
+<dt><strong>M</strong><span class="classifier">ndarray, size (nc)</span></dt><dd><p>Molecular weights (kg/mol)</p>
+</dd>
+<dt><strong>Pc</strong><span class="classifier">ndarray, size (nc)</span></dt><dd><p>Critical pressures (Pa)</p>
+</dd>
+<dt><strong>Tc</strong><span class="classifier">ndarray, size (nc)</span></dt><dd><p>Critical temperatures (K)</p>
+</dd>
+<dt><strong>omega</strong><span class="classifier">ndarray, size (nc)</span></dt><dd><p>Acentric factors (–)</p>
+</dd>
+<dt><strong>delta</strong><span class="classifier">ndarray, size (nc, nc)</span></dt><dd><p>Binary interaction coefficients for the Peng-Robinson equation of 
+state.</p>
+</dd>
+<dt><strong>Aij</strong><span class="classifier">ndarray, (15, 15)</span></dt><dd><p>Coefficients in matrix A_ij for the group contribution method for 
+delta_ij following Privat and Jaubert (2012)</p>
+</dd>
+<dt><strong>Bij</strong><span class="classifier">ndarray, (15, 15)</span></dt><dd><p>Coefficients in matrix A_ij for the group contribution method for 
+delta_ij following Privat and Jaubert (2012)</p>
+</dd>
+<dt><strong>delta_groups</strong><span class="classifier">ndarray, (nc, 15)</span></dt><dd><p>Specification of the fractional groups for each component of the 
+mixture for the group contribution method of Privat and Jaubert (2012)
+for delta_ij</p>
+</dd>
+<dt><strong>calc_delta</strong><span class="classifier">int</span></dt><dd><p>Flag specifying whether or not to compute delta_ij (1: True, -1: 
+False) using the group contribution method</p>
+</dd>
+<dt><strong>K_0</strong><span class="classifier">ndarray, size (nc)</span></dt><dd><p>Initial guess for the partition coefficients.  If K = None, this 
+function will use initial estimates from Wilson (see Michelsen and
+Mollerup, 2007, page 259, equation 26)</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>xi</strong><span class="classifier">ndarray, size(2, nc)</span></dt><dd><p>Mole fraction of each component in the mixture.  Row 1 gives the
+values for the gas phase and Row 2 gives the values for the liquid 
+phase (–)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The method estimates the K-factors giving the mole fractions in gas and
+liquid and optimizes the K-factor estimates until they converge on the
+ratio of the actual fugacity coefficients (phi_liq / phi_gas).
+Convergence uses a squared relative error as in McCain (1990).</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Texas A&M Oil spill / Outfall Calculator</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../user_manual.html">TAMOC User Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../unit_tests.html">Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../bugs.html">Reporting Bugs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html">Read Me File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../../user_manual.html">TAMOC User Manual</a><ul>
+  <li><a href="../../modules/dbm.html">Overview of the Discrete Bubble Model</a><ul>
+      <li>Previous: <a href="dbm.InsolubleParticle.viscosity.html" title="previous chapter">dbm.InsolubleParticle.viscosity</a></li>
+      <li>Next: <a href="dbm.stability_analysis.html" title="next chapter">dbm.stability_analysis</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../_sources/autodoc/dbm/dbm.equil_MM.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

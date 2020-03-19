@@ -1,0 +1,229 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Single Bubble Model Users Guide &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="bubble" href="../scripts/sbm/bubble.html" />
+    <link rel="prev" title="scales" href="../scripts/params/scales.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="single-bubble-model-users-guide">
+<h1>Single Bubble Model Users Guide<a class="headerlink" href="#single-bubble-model-users-guide" title="Permalink to this headline">¶</a></h1>
+<dl class="field-list simple">
+<dt class="field-odd">Release</dt>
+<dd class="field-odd"><p>2.0</p>
+</dd>
+<dt class="field-even">Date</dt>
+<dd class="field-even"><p>Mar 19, 2020</p>
+</dd>
+</dl>
+<div class="section" id="scripts">
+<h2>Scripts<a class="headerlink" href="#scripts" title="Permalink to this headline">¶</a></h2>
+<p>The class objects and method functions defined in the <cite>single_bubble_model</cite>
+module provide a flexible structure to handle simulations of the fate of a
+single rising bubble, drop, or particle. The examples detailed below show how
+to set up and run <cite>single_bubble_model</cite> simulations. Further examples are
+presented in the following scripts distributed in the <code class="docutils literal notranslate"><span class="pre">./bin/sbm</span></code> directory
+with the source code.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../scripts/sbm/bubble.html">bubble</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts/sbm/drop.html">drop</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts/sbm/particle.html">particle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts/sbm/sbm_file_io.html">sbm_file_io</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts/sbm/seep_bubble.html">seep_bubble</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p>This example illustrates the tasks necessary to setup, run, save, and
+post-process simulations using the <cite>single_bubble_model</cite> module.  A wide
+class of bubble, droplet, or particle compositions and initial conditions
+can be simulated by the <cite>single_bubble_model</cite>.  In each case, the simulation
+considers the rise velocity, dissolution, and heat transfer of a single
+particle assuming it rises through a quiescent fluid.  This model cannot
+consider multiple particle (run multiple simulations to get the results
+for each desired particle type) and, thus, includes no particle-particle
+interaction.</p>
+<div class="section" id="initialize-the-single-bubble-model-model-object">
+<h3>Initialize the <cite>single_bubble_model.Model</cite> Object<a class="headerlink" href="#initialize-the-single-bubble-model-model-object" title="Permalink to this headline">¶</a></h3>
+<p>There are two ways to initialize a <cite>single_bubble_model</cite> object. When a new
+simulation will be made, this should be done by specifying the ambient
+conditions data that will be used in the simulation. Alternatively, if a
+previous simulation is to be reloaded for post-processing, then the filename
+of the netCDF dataset containing the results is used to initialize the object.
+Here, we use the profile data. In a later section of this example, once the
+simulation data have been save, the second method of using the saved data to
+create the <cite>single_bubble_model.Model</cite> object is demonstrated:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">ambient</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">single_bubble_model</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nc</span> <span class="o">=</span> <span class="s1">&#39;.test/output/test_bm54.nc&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bm54</span> <span class="o">=</span> <span class="n">ambient</span><span class="o">.</span><span class="n">Profile</span><span class="p">(</span><span class="n">nc</span><span class="p">,</span> <span class="n">chem_names</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bm54</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sbm</span> <span class="o">=</span> <span class="n">single_bubble_model</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">profile</span><span class="o">=</span><span class="n">bm54</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="setup-and-run-a-simulation">
+<h3>Setup and Run a Simulation<a class="headerlink" href="#setup-and-run-a-simulation" title="Permalink to this headline">¶</a></h3>
+<p>To run a simulation, one must pass the initial conditions to the
+<cite>single_bubble_model.simulate</cite> method.  Here, we specify the initial
+conditions as:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">composition</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;methane&#39;</span><span class="p">,</span> <span class="s1">&#39;oxygen&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mol_frac</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">de</span> <span class="o">=</span> <span class="mf">0.005</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">z0</span> <span class="o">=</span> <span class="mf">1500.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">T0</span> <span class="o">=</span> <span class="kc">None</span>       <span class="c1"># T0 will be set equal to the ambient temperature</span>
+</pre></div>
+</div>
+<p>The <cite>single_bubble_model</cite> expects the particle information to be passed
+as a <cite>dbm.FluidParticle</cite> or <cite>dbm.InsolubleParticle</cite> object.  Create a soluble
+particle for this example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">dbm</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bub</span> <span class="o">=</span> <span class="n">dbm</span><span class="o">.</span><span class="n">FluidParticle</span><span class="p">(</span><span class="n">composition</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The <cite>single_bubble_model</cite> handles the conversion from initial diameter to
+the initial masses, so we can now run the simulation:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sbm</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">bub</span><span class="p">,</span> <span class="n">z0</span><span class="p">,</span> <span class="n">de</span><span class="p">,</span> <span class="n">mol_frac</span><span class="p">,</span> <span class="n">T0</span><span class="p">,</span> <span class="n">fdis</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span> <span class="n">delta_t</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>After executing the above command, the model will echo its progress to the
+screen.  Following the simulation, the data will be plotted showing the
+state space variables and several other derived quantities in three different
+figure windows.</p>
+</div>
+<div class="section" id="saving-and-loading-simulation-results">
+<h3>Saving and Loading Simulation Results<a class="headerlink" href="#saving-and-loading-simulation-results" title="Permalink to this headline">¶</a></h3>
+<p>To save the simulation results in a netCDF dataset file that can also be used
+to recreate the current <cite>single_bubble_model.Model</cite> object, use the
+<cite>single_bubble_model.save_sim</cite> method:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">nc_file</span> <span class="o">=</span> <span class="s1">&#39;./sims/bubble_path.nc&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">profile</span> <span class="o">=</span> <span class="s1">&#39;./test/output/test_bm54.nc&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sim_info</span> <span class="o">=</span> <span class="s1">&#39;Sample results from the documentation examples&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sbm</span><span class="o">.</span><span class="n">save_sim</span><span class="p">(</span><span class="n">nc_file</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">sim_info</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The data can also be saved as <code class="docutils literal notranslate"><span class="pre">ASCII</span></code> text in a format that is readable by,
+for example, Matlab.  If <cite>numpy</cite> version 1.7.0 is used, a header with the
+file metadata can be written; otherwise, only the data table can be written.
+In either case, the function call is the same:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sbm</span><span class="o">.</span><span class="n">save_txt</span><span class="p">(</span><span class="n">nc_file</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">sim_info</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If the netCDF dataset object is used, this can be used later to reload the
+simulation into the <cite>single_bubble_model.Model</cite> object.  Since the netCDF
+dataset is self-documenting, this can be done simply by passing the file
+name of the netCDF dataset to the <cite>single_bubble_model.Model</cite> constructor:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sbm_old</span> <span class="o">=</span> <span class="n">single_bubble_model</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s1">&#39;./sims/bubble_path.nc&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Texas A&M Oil spill / Outfall Calculator</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../user_manual.html">TAMOC User Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../unit_tests.html">Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../bugs.html">Reporting Bugs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../readme.html">Read Me File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../user_manual.html">TAMOC User Manual</a><ul>
+      <li>Previous: <a href="../scripts/params/scales.html" title="previous chapter">scales</a></li>
+      <li>Next: <a href="../scripts/sbm/bubble.html" title="next chapter">bubble</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/guides/sbm.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

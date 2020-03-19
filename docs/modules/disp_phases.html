@@ -1,67 +1,58 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Overview of Dispersed Phases Module &#8212; Texas A&amp;M Oilspill Calculator v1.1 Manual</title>
-    <link rel="stylesheet" href="../_static/scipy.css" type="text/css" />
+    <meta charset="utf-8" />
+    <title>Overview of Dispersed Phases Module &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '1.1.1',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="prev" title="dbm.gas_liq_eq" href="../dbm/dbm.gas_liq_eq.html" />
+    <link rel="next" title="dispersed_phases.SingleParticle" href="../autodoc/disp_phases/dispersed_phases.SingleParticle.html" />
+    <link rel="prev" title="dbm_utilities.print_petroleum_props" href="../autodoc/dbm_utilities/dbm_utilities.print_petroleum_props.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head>
-  <body>
+  </head><body>
   
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
   <div class="section" id="overview-of-dispersed-phases-module">
 <h1>Overview of Dispersed Phases Module<a class="headerlink" href="#overview-of-dispersed-phases-module" title="Permalink to this headline">¶</a></h1>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">1.1</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">Nov 08, 2017</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Release</dt>
+<dd class="field-odd"><p>2.0</p>
+</dd>
+<dt class="field-even">Date</dt>
+<dd class="field-even"><p>Mar 19, 2020</p>
+</dd>
+</dl>
 <span class="target" id="module-dispersed_phases"></span><div class="section" id="dispersed-phases">
 <h2>Dispersed Phases<a class="headerlink" href="#dispersed-phases" title="Permalink to this headline">¶</a></h2>
 <p>Create several objects and functions to manipulate dispersed phase particles</p>
-<p>The <a class="reference internal" href="sbm.html#module-single_bubble_model" title="single_bubble_model"><code class="xref py py-obj docutils literal"><span class="pre">single_bubble_model</span></code></a>, <a class="reference internal" href="spm.html#module-stratified_plume_model" title="stratified_plume_model"><code class="xref py py-obj docutils literal"><span class="pre">stratified_plume_model</span></code></a>, and <a class="reference internal" href="bpm.html#module-bent_plume_model" title="bent_plume_model"><code class="xref py py-obj docutils literal"><span class="pre">bent_plume_model</span></code></a> 
+<p>The <cite>single_bubble_model</cite>, <cite>stratified_plume_model</cite>, and <cite>bent_plume_model</cite> 
 all must handle dispersed phase particles in several different ways.  This 
 module defines several particle classes that provide seamless interfaces to
-the <a class="reference internal" href="dbm.html#module-dbm" title="dbm"><code class="xref py py-obj docutils literal"><span class="pre">dbm</span></code></a> module.  It also defines several functions that aid in manipulating
+the <cite>dbm</cite> module.  It also defines several functions that aid in manipulating
 common input data to create the inputs needed to initialize these particle
 classes.  These classes and functions originated in the older versions of
-the <a class="reference internal" href="sbm.html#module-single_bubble_model" title="single_bubble_model"><code class="xref py py-obj docutils literal"><span class="pre">single_bubble_model</span></code></a> and <a class="reference internal" href="spm.html#module-stratified_plume_model" title="stratified_plume_model"><code class="xref py py-obj docutils literal"><span class="pre">stratified_plume_model</span></code></a>.  This module is a 
-re-factorization of these modules during creation of the <a class="reference internal" href="bpm.html#module-bent_plume_model" title="bent_plume_model"><code class="xref py py-obj docutils literal"><span class="pre">bent_plume_model</span></code></a>, 
+the <cite>single_bubble_model</cite> and <cite>stratified_plume_model</cite>.  This module is a 
+re-factorization of these modules during creation of the <cite>bent_plume_model</cite>, 
 which allows all particle manipulations to reside in one place.</p>
 <div class="section" id="notes">
 <h3>Notes<a class="headerlink" href="#notes" title="Permalink to this headline">¶</a></h3>
@@ -70,350 +61,123 @@ modeling suite.</p>
 </div>
 <div class="section" id="see-also">
 <h3>See Also<a class="headerlink" href="#see-also" title="Permalink to this headline">¶</a></h3>
-<dl class="docutils">
-<dt><a class="reference internal" href="spm.html#module-stratified_plume_model" title="stratified_plume_model"><code class="xref py py-obj docutils literal"><span class="pre">stratified_plume_model</span></code></a> <span class="classifier-delimiter">:</span> <span class="classifier">Predicts the plume solution for quiescent ambient</span></dt>
-<dd>conditions or weak crossflows, where the intrusion (outer plume) 
+<dl class="simple">
+<dt><cite>stratified_plume_model</cite><span class="classifier">Predicts the plume solution for quiescent ambient</span></dt><dd><p>conditions or weak crossflows, where the intrusion (outer plume) 
 interacts with the upward rising plume in a double-plume integral model
 approach.  Such a situation is handeled properly in the 
-<a class="reference internal" href="spm.html#module-stratified_plume_model" title="stratified_plume_model"><code class="xref py py-obj docutils literal"><span class="pre">stratified_plume_model</span></code></a> and would violate the assumption of non-
-iteracting Lagrangian plume elements as required in this module.</dd>
-<dt><a class="reference internal" href="sbm.html#module-single_bubble_model" title="single_bubble_model"><code class="xref py py-obj docutils literal"><span class="pre">single_bubble_model</span></code></a> <span class="classifier-delimiter">:</span> <span class="classifier">Tracks the trajectory of a single bubble, drop or </span></dt>
-<dd>particle through the water column.  The numerical solution, including
+<cite>stratified_plume_model</cite> and would violate the assumption of non-
+iteracting Lagrangian plume elements as required in this module.</p>
+</dd>
+<dt><cite>single_bubble_model</cite><span class="classifier">Tracks the trajectory of a single bubble, drop or </span></dt><dd><p>particle through the water column.  The numerical solution, including
 the various object types and their functionality, used here follows the
-pattern in the <a class="reference internal" href="sbm.html#module-single_bubble_model" title="single_bubble_model"><code class="xref py py-obj docutils literal"><span class="pre">single_bubble_model</span></code></a>.  The main difference is the more
-complex state space and governing equations.</dd>
-<dt><a class="reference internal" href="bpm.html#module-bent_plume_model" title="bent_plume_model"><code class="xref py py-obj docutils literal"><span class="pre">bent_plume_model</span></code></a> <span class="classifier-delimiter">:</span> <span class="classifier">Simulates a multiphase plume as a Lagrangian plume </span></dt>
-<dd>model, which makes the model much more amenable to a crossflow.  This 
-model is similar to the <a class="reference internal" href="spm.html#module-stratified_plume_model" title="stratified_plume_model"><code class="xref py py-obj docutils literal"><span class="pre">stratified_plume_model</span></code></a>, except that it does
+pattern in the <cite>single_bubble_model</cite>.  The main difference is the more
+complex state space and governing equations.</p>
+</dd>
+<dt><cite>bent_plume_model</cite><span class="classifier">Simulates a multiphase plume as a Lagrangian plume </span></dt><dd><p>model, which makes the model much more amenable to a crossflow.  This 
+model is similar to the <cite>stratified_plume_model</cite>, except that it does
 not have an outer plume that interacts with the inner plume (Lagrangian
-elements are independent).</dd>
+elements are independent).</p>
+</dd>
 </dl>
 </div>
 </div>
-<div class="section" id="class-objects">
-<h2>Class Objects<a class="headerlink" href="#class-objects" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt id="dispersed_phases.SingleParticle">
-<em class="property">class </em><code class="descclassname">dispersed_phases.</code><code class="descname">SingleParticle</code><span class="sig-paren">(</span><em>dbm_particle</em>, <em>m0</em>, <em>T0</em>, <em>K=1.0</em>, <em>K_T=1.0</em>, <em>fdis=1e-06</em>, <em>t_hyd=0.0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dispersed_phases.html#SingleParticle"><span class="viewcode-link">[source]</span></a><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.13.3/numpy/../../../../../Dropbox/socolofs/Projects/NFBC/tamoc/tamoc/dispersed_phases.py#L58"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dispersed_phases.SingleParticle" title="Permalink to this definition">¶</a></dt>
-<dd><p>Interface to the <a class="reference internal" href="dbm.html#module-dbm" title="dbm"><code class="xref py py-obj docutils literal"><span class="pre">dbm</span></code></a> module and container for model parameters</p>
-<p>This class provides a uniform interface to the <a class="reference internal" href="dbm.html#module-dbm" title="dbm"><code class="xref py py-obj docutils literal"><span class="pre">dbm</span></code></a> module objects and
-methods and stores the particle-specific model parameters.  Because the
-methods for <a class="reference internal" href="dbm.html#dbm.FluidParticle" title="dbm.FluidParticle"><code class="xref py py-obj docutils literal"><span class="pre">dbm.FluidParticle</span></code></a> and <a class="reference internal" href="dbm.html#dbm.InsolubleParticle" title="dbm.InsolubleParticle"><code class="xref py py-obj docutils literal"><span class="pre">dbm.InsolubleParticle</span></code></a> sometimes have 
-different inputs and different outputs, there needs to be a method to 
-support these interface differences in a single location.  This object
-solves that problem by providing a single interface and uniform outputs
-for the particle properties needed by the single bubble model.  This also
-affords a convenient place to store the particle-specific model 
-parameters and behavior, such as mass transfer reduction factor, etc., 
-turning off heat transfer once the particle matches the ambient 
-temperature and turning off the particle buoyancy once the particle is
-dissolved.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>dbm_particle</strong> : <a class="reference internal" href="dbm.html#dbm.FluidParticle" title="dbm.FluidParticle"><code class="xref py py-obj docutils literal"><span class="pre">dbm.FluidParticle</span></code></a> or <a class="reference internal" href="dbm.html#dbm.InsolubleParticle" title="dbm.InsolubleParticle"><code class="xref py py-obj docutils literal"><span class="pre">dbm.InsolubleParticle</span></code></a> object</p>
-<blockquote>
-<div><p>Object describing the particle properties and behavior</p>
-</div></blockquote>
-<p><strong>m0</strong> : ndarray</p>
-<blockquote>
-<div><p>Initial masses of the components of the <a class="reference internal" href="dbm.html#module-dbm" title="dbm"><code class="xref py py-obj docutils literal"><span class="pre">dbm</span></code></a> particle object (kg)</p>
-</div></blockquote>
-<p><strong>T0</strong> : float</p>
-<blockquote>
-<div><p>Initial temperature of the of <a class="reference internal" href="dbm.html#module-dbm" title="dbm"><code class="xref py py-obj docutils literal"><span class="pre">dbm</span></code></a> particle object (K)</p>
-</div></blockquote>
-<p><strong>K</strong> : float, default = 1.</p>
-<blockquote>
-<div><p>Mass transfer reduction factor (–).</p>
-</div></blockquote>
-<p><strong>K_T</strong> : float, default = 1.</p>
-<blockquote>
-<div><p>Heat transfer reduction factor (–).</p>
-</div></blockquote>
-<p><strong>fdis</strong> : float, default = 1e-6</p>
-<blockquote>
-<div><p>Fraction of the initial total mass (–) remaining when the particle 
-should be considered dissolved.</p>
-</div></blockquote>
-<p><strong>t_hyd</strong> : float, default = 0.</p>
-<blockquote class="last">
-<div><p>Hydrate film formation time (s).  Mass transfer is computed by clean
-bubble methods for t less than t_hyd and by dirty bubble methods
-thereafter.  The default behavior is to assume the particle is dirty
-or hydrate covered from the release.</p>
-</div></blockquote>
-</td>
-</tr>
-</tbody>
-</table>
-<p class="rubric">Notes</p>
-<p>This object only provides an interface to the <em class="xref py py-obj">return_all</em> and 
-<a class="reference internal" href="../disp_phases/dispersed_phases.SingleParticle.diameter.html#dispersed_phases.SingleParticle.diameter" title="dispersed_phases.SingleParticle.diameter"><code class="xref py py-obj docutils literal"><span class="pre">diameter</span></code></a> methods of the <a class="reference internal" href="dbm.html#module-dbm" title="dbm"><code class="xref py py-obj docutils literal"><span class="pre">dbm</span></code></a> module objects.  The intent is to be as 
-fast as possible while providing a single location for the necessary 
-<em class="xref py py-obj">if</em>-statements needed to select between soluble and insoluble particle 
-methods and facilitate turning heat transfer and dissolution on and off
-as necessary at the simulation progresses.</p>
-<p>Dissolution is turned off component by component as each components mass
-becomes fdis times smaller than the initial mass.  Once all of the initial
-components have been turned off, the particle is assumed to have a 
-density equation to the ambient water and a slip velocity of zero.</p>
-<p>Heat transfer is turned off once the particle comes within 0.1 K of the
-ambient temperature.  Thereafter, the temperature is forced to track 
-the ambient temperature.</p>
-<p class="rubric">Attributes</p>
-<table border="1" class="docutils">
+<div class="section" id="class-objects-and-methods">
+<h2>Class Objects and Methods<a class="headerlink" href="#class-objects-and-methods" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="general-particle-object">
+<h3>General Particle Object<a class="headerlink" href="#general-particle-object" title="Permalink to this headline">¶</a></h3>
+<p>Several modules in <code class="docutils literal notranslate"><span class="pre">TAMOC</span></code> need <code class="docutils literal notranslate"><span class="pre">Particle</span></code> objects, and the functionality
+of these objects can often be described in a unified way.  The base <code class="docutils literal notranslate"><span class="pre">SingleParticle</span></code> object contains this functionality and is described in
+the following:</p>
+<table class="longtable docutils align-default">
 <colgroup>
-<col width="13%" />
-<col width="88%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><strong>particle</strong></td>
-<td>(<a class="reference internal" href="dbm.html#dbm.FluidParticle" title="dbm.FluidParticle"><code class="xref py py-obj docutils literal"><span class="pre">dbm.FluidParticle</span></code></a> or <a class="reference internal" href="dbm.html#dbm.InsolubleParticle" title="dbm.InsolubleParticle"><code class="xref py py-obj docutils literal"><span class="pre">dbm.InsolubleParticle</span></code></a> object) Stores the <em class="xref py py-obj">dbm_particle</em> object passed to <em class="xref py py-obj">__init__()</em>.</td>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../autodoc/disp_phases/dispersed_phases.SingleParticle.html#dispersed_phases.SingleParticle" title="dispersed_phases.SingleParticle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SingleParticle</span></code></a>(dbm_particle, m0, T0[, K, …])</p></td>
+<td><p>Interface to the <cite>dbm</cite> module and container for model parameters</p></td>
 </tr>
-<tr class="row-even"><td><strong>composition</strong></td>
-<td>(str list) Copy of the <em class="xref py py-obj">composition</em> attribute of the <em class="xref py py-obj">dbm_particle</em> object.</td>
+<tr class="row-even"><td><p><a class="reference internal" href="../autodoc/disp_phases/dispersed_phases.SingleParticle.properties.html#dispersed_phases.SingleParticle.properties" title="dispersed_phases.SingleParticle.properties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SingleParticle.properties</span></code></a>(self, m, T, P, Sa, …)</p></td>
+<td><p>Return the particle properties from the discrete bubble model</p></td>
 </tr>
-<tr class="row-odd"><td><strong>m0</strong></td>
-<td>(ndarray) Initial masses (kg) of the particle components</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="../autodoc/disp_phases/dispersed_phases.SingleParticle.diameter.html#dispersed_phases.SingleParticle.diameter" title="dispersed_phases.SingleParticle.diameter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SingleParticle.diameter</span></code></a>(self, m, T, P, Sa, Ta)</p></td>
+<td><p>Compute the diameter of a particle from mass and density</p></td>
 </tr>
-<tr class="row-even"><td><strong>T0</strong></td>
-<td>(float) Initial temperature (K) of the particle</td>
-</tr>
-<tr class="row-odd"><td><strong>cp</strong></td>
-<td>(float) Heat capacity at constant pressure (J/(kg K)) of the particle.</td>
-</tr>
-<tr class="row-even"><td><strong>K</strong></td>
-<td>(float) Mass transfer reduction factor (–)</td>
-</tr>
-<tr class="row-odd"><td><strong>K_T</strong></td>
-<td>(float) Heat transfer reduction factor (–)</td>
-</tr>
-<tr class="row-even"><td><strong>fdis</strong></td>
-<td>(float) Fraction of initial mass remaining as total dissolution (–)</td>
-</tr>
-<tr class="row-odd"><td><strong>diss_indices</strong></td>
-<td>(ndarray bool) Indices of m0 that are non-zero.</td>
+<tr class="row-even"><td><p><a class="reference internal" href="../autodoc/disp_phases/dispersed_phases.SingleParticle.biodegradation_rate.html#dispersed_phases.SingleParticle.biodegradation_rate" title="dispersed_phases.SingleParticle.biodegradation_rate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SingleParticle.biodegradation_rate</span></code></a>(self, t)</p></td>
+<td><p>Compute the biodegradation rate constants</p></td>
 </tr>
 </tbody>
 </table>
-<p class="rubric">Methods</p>
-<table border="1" class="longtable docutils">
-<colgroup>
-<col width="10%" />
-<col width="90%" />
-</colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="../disp_phases/dispersed_phases.SingleParticle.diameter.html#dispersed_phases.SingleParticle.diameter" title="dispersed_phases.SingleParticle.diameter"><code class="xref py py-obj docutils literal"><span class="pre">diameter</span></code></a>(m,&nbsp;T,&nbsp;P,&nbsp;Sa,&nbsp;Ta)</td>
-<td>Compute the diameter of a particle from mass and density</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="../disp_phases/dispersed_phases.SingleParticle.properties.html#dispersed_phases.SingleParticle.properties" title="dispersed_phases.SingleParticle.properties"><code class="xref py py-obj docutils literal"><span class="pre">properties</span></code></a>(m,&nbsp;T,&nbsp;P,&nbsp;Sa,&nbsp;Ta,&nbsp;t)</td>
-<td>Return the particle properties from the discrete bubble model</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="class">
-<dt id="dispersed_phases.PlumeParticle">
-<em class="property">class </em><code class="descclassname">dispersed_phases.</code><code class="descname">PlumeParticle</code><span class="sig-paren">(</span><em>dbm_particle</em>, <em>m0</em>, <em>T0</em>, <em>nb0</em>, <em>lambda_1</em>, <em>P</em>, <em>Sa</em>, <em>Ta</em>, <em>K=1.0</em>, <em>K_T=1.0</em>, <em>fdis=1e-06</em>, <em>t_hyd=0.0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dispersed_phases.html#PlumeParticle"><span class="viewcode-link">[source]</span></a><a class="reference external" href="http://github.com/numpy/numpy/blob/v1.13.3/numpy/../../../../../Dropbox/socolofs/Projects/NFBC/tamoc/tamoc/dispersed_phases.py#L303"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dispersed_phases.PlumeParticle" title="Permalink to this definition">¶</a></dt>
-<dd><p>Interface to the <a class="reference internal" href="dbm.html#module-dbm" title="dbm"><code class="xref py py-obj docutils literal"><span class="pre">dbm</span></code></a> module and container for the model parameters</p>
-<p>As in the <em class="xref py py-obj">single_bubble_model.Particle</em> class, this object provides a
-uniform interface to the <a class="reference internal" href="dbm.html#module-dbm" title="dbm"><code class="xref py py-obj docutils literal"><span class="pre">dbm</span></code></a> module objects and captures the 
-particle-specific model parameters.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>dbm_particle</strong> : <a class="reference internal" href="dbm.html#dbm.FluidParticle" title="dbm.FluidParticle"><code class="xref py py-obj docutils literal"><span class="pre">dbm.FluidParticle</span></code></a> or <a class="reference internal" href="dbm.html#dbm.InsolubleParticle" title="dbm.InsolubleParticle"><code class="xref py py-obj docutils literal"><span class="pre">dbm.InsolubleParticle</span></code></a> object</p>
-<blockquote>
-<div><p>Object describing the particle properties and behavior</p>
-</div></blockquote>
-<p><strong>m0</strong> : ndarray</p>
-<blockquote>
-<div><p>Initial masses of one particle for the components of the 
-<em class="xref py py-obj">dbm_particle</em> object (kg)</p>
-</div></blockquote>
-<p><strong>T0</strong> : float</p>
-<blockquote>
-<div><p>Initial temperature of the of <a class="reference internal" href="dbm.html#module-dbm" title="dbm"><code class="xref py py-obj docutils literal"><span class="pre">dbm</span></code></a> particle object (K)</p>
-</div></blockquote>
-<p><strong>nb0</strong> : float</p>
-<blockquote>
-<div><p>Initial number flux of particles at the release (–)</p>
-</div></blockquote>
-<p><strong>lambda_1</strong> : float</p>
-<blockquote>
-<div><p>spreading rate of the dispersed phase in a plume (–)</p>
-</div></blockquote>
-<p><strong>P</strong> : float</p>
-<blockquote>
-<div><p>Local pressure (Pa)</p>
-</div></blockquote>
-<p><strong>Sa</strong> : float</p>
-<blockquote>
-<div><p>Local salinity surrounding the particle (psu)</p>
-</div></blockquote>
-<p><strong>Ta</strong> : float</p>
-<blockquote>
-<div><p>Local temperature surrounding the particle (K)</p>
-</div></blockquote>
-<p><strong>K</strong> : float, default = 1.</p>
-<blockquote>
-<div><p>Mass transfer reduction factor (–).</p>
-</div></blockquote>
-<p><strong>K_T</strong> : float, default = 1.</p>
-<blockquote>
-<div><p>Heat transfer reduction factor (–).</p>
-</div></blockquote>
-<p><strong>fdis</strong> : float, default = 0.01</p>
-<blockquote>
-<div><p>Fraction of the initial total mass (–) remaining when the particle 
-should be considered dissolved.</p>
-</div></blockquote>
-<p><strong>t_hyd</strong> : float, default = 0.</p>
-<blockquote class="last">
-<div><p>Hydrate film formation time (s).  Mass transfer is computed by clean
-bubble methods for t less than t_hyd and by dirty bubble methods
-thereafter.  The default behavior is to assume the particle is dirty
-or hydrate covered from the release.</p>
-</div></blockquote>
-</td>
-</tr>
-</tbody>
-</table>
-<div class="admonition seealso">
-<p class="first admonition-title">See also</p>
-<p class="last"><code class="xref py py-obj docutils literal"><span class="pre">single_bubble_model.Particle</span></code></p>
 </div>
-<p class="rubric">Notes</p>
-<p>This object inherits the <em class="xref py py-obj">single_bubble_model.Particle</em> object, which
-defines the attributes: <a class="reference internal" href="../scripts/sbm/particle.html#module-particle" title="particle"><code class="xref py py-obj docutils literal"><span class="pre">particle</span></code></a>, <em class="xref py py-obj">composition</em>, <em class="xref py py-obj">m0</em>, <em class="xref py py-obj">T0</em>, <em class="xref py py-obj">cp</em>, 
-<em class="xref py py-obj">K</em>, <em class="xref py py-obj">K_T</em>, <em class="xref py py-obj">fdis</em>, and <em class="xref py py-obj">diss_indices</em> and the methods
-<em class="xref py py-obj">single_bubble_model.Particle.properties</em>, and 
-<em class="xref py py-obj">single_bubble_model.Particle.diameter</em>.</p>
-<p class="rubric">Attributes</p>
-<table border="1" class="docutils">
+<div class="section" id="plume-particle-object">
+<h3>Plume Particle Object<a class="headerlink" href="#plume-particle-object" title="Permalink to this headline">¶</a></h3>
+<p>When a <code class="docutils literal notranslate"><span class="pre">SingleParticle</span></code> is inside of a plume (e.g., a <code class="docutils literal notranslate"><span class="pre">stratified_plume_model</span></code> or <code class="docutils literal notranslate"><span class="pre">bent_plume_model</span></code>), it needs slightly
+different capabilities.  These are provided as follows in the <code class="docutils literal notranslate"><span class="pre">PlumeParticle</span></code> object, which inherits the base object above:</p>
+<table class="longtable docutils align-default">
 <colgroup>
-<col width="13%" />
-<col width="88%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><strong>particle</strong></td>
-<td>(<a class="reference internal" href="dbm.html#dbm.FluidParticle" title="dbm.FluidParticle"><code class="xref py py-obj docutils literal"><span class="pre">dbm.FluidParticle</span></code></a> or <a class="reference internal" href="dbm.html#dbm.InsolubleParticle" title="dbm.InsolubleParticle"><code class="xref py py-obj docutils literal"><span class="pre">dbm.InsolubleParticle</span></code></a> object) Stores the <em class="xref py py-obj">dbm_particle</em> object passed to <em class="xref py py-obj">__init__()</em>.</td>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../autodoc/disp_phases/dispersed_phases.PlumeParticle.html#dispersed_phases.PlumeParticle" title="dispersed_phases.PlumeParticle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PlumeParticle</span></code></a>(dbm_particle, m0, T0, nb0, …)</p></td>
+<td><p>Interface to the <cite>dbm</cite> module and container for the model parameters</p></td>
 </tr>
-<tr class="row-even"><td><strong>composition</strong></td>
-<td>(str list) Copy of the <em class="xref py py-obj">composition</em> attribute of the <em class="xref py py-obj">dbm_particle</em> object.</td>
+<tr class="row-even"><td><p><a class="reference internal" href="../autodoc/disp_phases/dispersed_phases.PlumeParticle.properties.html#dispersed_phases.PlumeParticle.properties" title="dispersed_phases.PlumeParticle.properties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PlumeParticle.properties</span></code></a>(self, m, T, P, Sa, …)</p></td>
+<td><p>Return the particle properties from the discrete bubble model</p></td>
 </tr>
-<tr class="row-odd"><td><strong>m0</strong></td>
-<td>(ndarray) Initial masses (kg) of the particle components</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="../autodoc/disp_phases/dispersed_phases.PlumeParticle.diameter.html#dispersed_phases.PlumeParticle.diameter" title="dispersed_phases.PlumeParticle.diameter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PlumeParticle.diameter</span></code></a>(self, m, T, P, Sa, Ta)</p></td>
+<td><p>Compute the diameter of a particle from mass and density</p></td>
 </tr>
-<tr class="row-even"><td><strong>T0</strong></td>
-<td>(float) Initial temperature (K) of the particle</td>
+<tr class="row-even"><td><p><a class="reference internal" href="../autodoc/disp_phases/dispersed_phases.PlumeParticle.biodegradation_rate.html#dispersed_phases.PlumeParticle.biodegradation_rate" title="dispersed_phases.PlumeParticle.biodegradation_rate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PlumeParticle.biodegradation_rate</span></code></a>(self, t)</p></td>
+<td><p>Compute the biodegradation rate constants</p></td>
 </tr>
-<tr class="row-odd"><td><strong>cp</strong></td>
-<td>(float) Heat capacity at constant pressure (J/(kg K)) of the particle.</td>
-</tr>
-<tr class="row-even"><td><strong>K</strong></td>
-<td>(float) Mass transfer reduction factor (–)</td>
-</tr>
-<tr class="row-odd"><td><strong>K_T</strong></td>
-<td>(float) Heat transfer reduction factor (–)</td>
-</tr>
-<tr class="row-even"><td><strong>fdis</strong></td>
-<td>(float) Fraction of initial mass remaining as total dissolution (–)</td>
-</tr>
-<tr class="row-odd"><td><strong>diss_indices</strong></td>
-<td>(ndarray bool) Indices of m0 that are non-zero.</td>
-</tr>
-<tr class="row-even"><td><strong>nb0</strong></td>
-<td>(float) Initial number flux of particles at the release (–)</td>
-</tr>
-<tr class="row-odd"><td><strong>lambda_1</strong></td>
-<td>(float) Spreading rate of the dispersed phase in a plume (–)</td>
-</tr>
-<tr class="row-even"><td><strong>m</strong></td>
-<td>(ndarray) Current masses of the particle components (kg)</td>
-</tr>
-<tr class="row-odd"><td><strong>T</strong></td>
-<td>(float) Current temperature of the particle (K)</td>
-</tr>
-<tr class="row-even"><td><strong>us</strong></td>
-<td>(float) Slip velocity (m/s)</td>
-</tr>
-<tr class="row-odd"><td><strong>rho_p</strong></td>
-<td>(float) Particle density (kg/m^3)</td>
-</tr>
-<tr class="row-even"><td><strong>A</strong></td>
-<td>(float) Particle surface area (m^2)</td>
-</tr>
-<tr class="row-odd"><td><strong>Cs</strong></td>
-<td>(ndarray) Solubility of each dissolving component in the particle (kg/m^3)</td>
-</tr>
-<tr class="row-even"><td><strong>beta</strong></td>
-<td>(ndarray) Mass transfer coefficients (m/s)</td>
-</tr>
-<tr class="row-odd"><td><strong>beta_T</strong></td>
-<td>(float) Heat transfer coefficient (m/s)</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="../autodoc/disp_phases/dispersed_phases.PlumeParticle.update.html#dispersed_phases.PlumeParticle.update" title="dispersed_phases.PlumeParticle.update"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PlumeParticle.update</span></code></a>(self, m, T, P, Sa, Ta, t)</p></td>
+<td><p>Store the instantaneous values of the particle properties</p></td>
 </tr>
 </tbody>
 </table>
-<p class="rubric">Methods</p>
-<table border="1" class="longtable docutils">
-<colgroup>
-<col width="10%" />
-<col width="90%" />
-</colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">diameter</span></code>(m,&nbsp;T,&nbsp;P,&nbsp;Sa,&nbsp;Ta)</td>
-<td>Compute the diameter of a particle from mass and density</td>
-</tr>
-<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">properties</span></code>(m,&nbsp;T,&nbsp;P,&nbsp;Sa,&nbsp;Ta,&nbsp;t)</td>
-<td>Return the particle properties from the discrete bubble model</td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="../disp_phases/dispersed_phases.PlumeParticle.update.html#dispersed_phases.PlumeParticle.update" title="dispersed_phases.PlumeParticle.update"><code class="xref py py-obj docutils literal"><span class="pre">update</span></code></a>(m,&nbsp;T,&nbsp;P,&nbsp;Sa,&nbsp;Ta,&nbsp;t)</td>
-<td>Store the instantaneous values of the particle properties</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
+</div>
 </div>
 <div class="section" id="module-functions">
 <h2>Module Functions<a class="headerlink" href="#module-functions" title="Permalink to this headline">¶</a></h2>
-<table border="1" class="longtable docutils">
+<p>This module also contains several utilities to create particle objects and
+to user particle objects to create initial conditions for the various plume
+models.  These utilities are listed below:</p>
+<table class="longtable docutils align-default">
 <colgroup>
-<col width="10%" />
-<col width="90%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="../disp_phases/dispersed_phases.save_particle_to_nc_file.html#dispersed_phases.save_particle_to_nc_file" title="dispersed_phases.save_particle_to_nc_file"><code class="xref py py-obj docutils literal"><span class="pre">save_particle_to_nc_file</span></code></a>(nc,&nbsp;chem_names,&nbsp;…)</td>
-<td>Write the particle attributes to a netCDF output file</td>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../autodoc/disp_phases/dispersed_phases.initial_conditions.html#dispersed_phases.initial_conditions" title="dispersed_phases.initial_conditions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">initial_conditions</span></code></a>(profile, z0, …[, T0])</p></td>
+<td><p>Define standard initial conditions for a PlumeParticle from flow rate</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="../disp_phases/dispersed_phases.load_particle_from_nc_file.html#dispersed_phases.load_particle_from_nc_file" title="dispersed_phases.load_particle_from_nc_file"><code class="xref py py-obj docutils literal"><span class="pre">load_particle_from_nc_file</span></code></a>(nc)</td>
-<td>Read the complete <em class="xref py py-obj">particles</em> list from a netCDF output file</td>
+<tr class="row-even"><td><p><a class="reference internal" href="../autodoc/disp_phases/dispersed_phases.save_particle_to_nc_file.html#dispersed_phases.save_particle_to_nc_file" title="dispersed_phases.save_particle_to_nc_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_particle_to_nc_file</span></code></a>(nc, chem_names, …)</p></td>
+<td><p>Write the particle attributes to a netCDF output file</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="../disp_phases/dispersed_phases.shear_entrainment.html#dispersed_phases.shear_entrainment" title="dispersed_phases.shear_entrainment"><code class="xref py py-obj docutils literal"><span class="pre">shear_entrainment</span></code></a>(U,&nbsp;Us,&nbsp;rho,&nbsp;rho_a,&nbsp;b,&nbsp;sin_p,&nbsp;p)</td>
-<td>Compute the entrainment coefficient for shear entrainment</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="../autodoc/disp_phases/dispersed_phases.load_particle_from_nc_file.html#dispersed_phases.load_particle_from_nc_file" title="dispersed_phases.load_particle_from_nc_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_particle_from_nc_file</span></code></a>(nc)</p></td>
+<td><p>Read the complete <cite>particles</cite> list from a netCDF output file</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="../disp_phases/dispersed_phases.hydrate_formation_time.html#dispersed_phases.hydrate_formation_time" title="dispersed_phases.hydrate_formation_time"><code class="xref py py-obj docutils literal"><span class="pre">hydrate_formation_time</span></code></a>(dbm_obj,&nbsp;z,&nbsp;m,&nbsp;T,&nbsp;profile)</td>
-<td>Compute the hydrate formation time</td>
+<tr class="row-even"><td><p><a class="reference internal" href="../autodoc/disp_phases/dispersed_phases.shear_entrainment.html#dispersed_phases.shear_entrainment" title="dispersed_phases.shear_entrainment"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shear_entrainment</span></code></a>(U, Us, rho, rho_a, b, sin_p, p)</p></td>
+<td><p>Compute the entrainment coefficient for shear entrainment</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="../disp_phases/dispersed_phases.zfe_volume_flux.html#dispersed_phases.zfe_volume_flux" title="dispersed_phases.zfe_volume_flux"><code class="xref py py-obj docutils literal"><span class="pre">zfe_volume_flux</span></code></a>(profile,&nbsp;particles,&nbsp;p,&nbsp;X0,&nbsp;R)</td>
-<td>Initial volume for a multiphase plume</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="../autodoc/disp_phases/dispersed_phases.hydrate_formation_time.html#dispersed_phases.hydrate_formation_time" title="dispersed_phases.hydrate_formation_time"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hydrate_formation_time</span></code></a>(dbm_obj, z, m, T, profile)</p></td>
+<td><p>Compute the hydrate formation time</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="../disp_phases/dispersed_phases.wuest_ic.html#dispersed_phases.wuest_ic" title="dispersed_phases.wuest_ic"><code class="xref py py-obj docutils literal"><span class="pre">wuest_ic</span></code></a>(u_0,&nbsp;particles,&nbsp;lambda_1,&nbsp;…)</td>
-<td>Compute the initial velocity of entrained ambient fluid</td>
+<tr class="row-even"><td><p><a class="reference internal" href="../autodoc/disp_phases/dispersed_phases.zfe_volume_flux.html#dispersed_phases.zfe_volume_flux" title="dispersed_phases.zfe_volume_flux"><code class="xref py py-obj docutils literal notranslate"><span class="pre">zfe_volume_flux</span></code></a>(profile, particles, p, X0, R)</p></td>
+<td><p>Initial volume for a multiphase plume</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="../disp_phases/dispersed_phases.bf_average.html#dispersed_phases.bf_average" title="dispersed_phases.bf_average"><code class="xref py py-obj docutils literal"><span class="pre">bf_average</span></code></a>(particles,&nbsp;rho,&nbsp;g,&nbsp;rho_r,&nbsp;parm)</td>
-<td>Compute a buoyancy-flux-weighted average of <em class="xref py py-obj">parm</em></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="../autodoc/disp_phases/dispersed_phases.wuest_ic.html#dispersed_phases.wuest_ic" title="dispersed_phases.wuest_ic"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wuest_ic</span></code></a>(u_0, particles, lambda_1, …)</p></td>
+<td><p>Compute the initial velocity of entrained ambient fluid</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="../disp_phases/dispersed_phases.get_chem_names.html#dispersed_phases.get_chem_names" title="dispersed_phases.get_chem_names"><code class="xref py py-obj docutils literal"><span class="pre">get_chem_names</span></code></a>(particles)</td>
-<td>Create a list of chemical names for the dispersed phase particles</td>
+<tr class="row-even"><td><p><a class="reference internal" href="../autodoc/disp_phases/dispersed_phases.bf_average.html#dispersed_phases.bf_average" title="dispersed_phases.bf_average"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bf_average</span></code></a>(particles, rho, g, rho_r, parm)</p></td>
+<td><p>Compute a buoyancy-flux-weighted average of <cite>parm</cite></p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="../disp_phases/dispersed_phases.particles_state_space.html#dispersed_phases.particles_state_space" title="dispersed_phases.particles_state_space"><code class="xref py py-obj docutils literal"><span class="pre">particles_state_space</span></code></a>(particles,&nbsp;nb)</td>
-<td>Create the state space describing the dispersed phase properties</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="../autodoc/disp_phases/dispersed_phases.get_chem_names.html#dispersed_phases.get_chem_names" title="dispersed_phases.get_chem_names"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_chem_names</span></code></a>(particles)</p></td>
+<td><p>Create a list of chemical names for the dispersed phase particles</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../autodoc/disp_phases/dispersed_phases.particles_state_space.html#dispersed_phases.particles_state_space" title="dispersed_phases.particles_state_space"><code class="xref py py-obj docutils literal notranslate"><span class="pre">particles_state_space</span></code></a>(particles, nb)</p></td>
+<td><p>Create the state space describing the dispersed phase properties</p></td>
 </tr>
 </tbody>
 </table>
@@ -422,68 +186,72 @@ defines the attributes: <a class="reference internal" href="../scripts/sbm/parti
 
 
           </div>
+          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-            <p class="logo"><a href="../contents.html">
-              <img class="logo" src="../_static/logo_holder.png" alt="Logo"/>
-            </a></p>
-  <h3><a href="../contents.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">Overview of Dispersed Phases Module</a><ul>
-<li><a class="reference internal" href="#dispersed-phases">Dispersed Phases</a><ul>
-<li><a class="reference internal" href="#notes">Notes</a></li>
-<li><a class="reference internal" href="#see-also">See Also</a></li>
+<h1 class="logo"><a href="../index.html">Texas A&M Oil spill / Outfall Calculator</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../user_manual.html">TAMOC User Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../unit_tests.html">Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
 </ul>
-</li>
-<li><a class="reference internal" href="#class-objects">Class Objects</a><ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../bugs.html">Reporting Bugs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../readme.html">Read Me File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
 </ul>
-</li>
-<li><a class="reference internal" href="#module-functions">Module Functions</a></li>
-</ul>
-</li>
-</ul>
+
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
-  <li><a href="../contents.html">Documentation overview</a><ul>
-      <li>Previous: <a href="../dbm/dbm.gas_liq_eq.html" title="previous chapter">dbm.gas_liq_eq</a></li>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../user_manual.html">TAMOC User Manual</a><ul>
+      <li>Previous: <a href="../autodoc/dbm_utilities/dbm_utilities.print_petroleum_props.html" title="previous chapter">dbm_utilities.print_petroleum_props</a></li>
+      <li>Next: <a href="../autodoc/disp_phases/dispersed_phases.SingleParticle.html" title="next chapter">dispersed_phases.SingleParticle</a></li>
+  </ul></li>
   </ul></li>
 </ul>
 </div>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="../_sources/modules/disp_phases.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<ul class="this-page-menu">
-  <li><a href="/numpy/docs/numpy-docs/modules/disp_phases.rst.rst">Edit page</a></li>
-</ul>
-
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
     </form>
+    </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
 
         </div>
       </div>
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2015, Scott A. Socolofsky.
+      &copy;2020, Scott A. Socolofsky.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
       <a href="../_sources/modules/disp_phases.rst.txt"

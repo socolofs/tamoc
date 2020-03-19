@@ -1,0 +1,328 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>dbm.FluidMixture &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="dbm.FluidMixture.biodegradation_rate" href="dbm.FluidMixture.biodegradation_rate.html" />
+    <link rel="prev" title="Overview of the Discrete Bubble Model" href="../../modules/dbm.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="dbm-fluidmixture">
+<h1>dbm.FluidMixture<a class="headerlink" href="#dbm-fluidmixture" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="dbm.FluidMixture">
+<em class="property">class </em><code class="sig-prename descclassname">dbm.</code><code class="sig-name descname">FluidMixture</code><span class="sig-paren">(</span><em class="sig-param">composition, delta=None, user_data={}, delta_groups=None, isair=False, sigma_correction=array([[1.],        [1.]])</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/dbm.html#FluidMixture"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dbm.FluidMixture" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class object for a fluid mixture</p>
+<p>This object defines the behavior of a fluid mixture defined as a standard
+thermodynamic system.  The mixture may contain just liquid phase, a 
+gas and liquid phase together, or a pure gas phase.  The Peng-Robinson
+equation of state returns the properties of each phase in the mixture.
+If the mixture is pure liquid or pure gas, the properties of each phase
+will be the same; otherwise, the gas properties will be in the first 
+row of all two-dimensional return variables and the liquid properties in 
+the second row.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>composition</strong><span class="classifier">string list, length nc</span></dt><dd><p>Contains the names of the chemical components in the mixture
+using the same key names as in ./data/ChemData.csv</p>
+</dd>
+<dt><strong>delta</strong><span class="classifier">ndarray, size (nc, nc)</span></dt><dd><p>Binary interaction coefficients for the Peng-Robinson equation of 
+state.  If not passed at instantiation, Python will assume a 
+full matrix of zeros.</p>
+</dd>
+<dt><strong>user_data</strong><span class="classifier">dict</span></dt><dd><p>A dictionary of chemical property data.  If not specified, the data
+loaded from <cite>/tamoc/data/ChemData.csv</cite> by <code class="docutils literal notranslate"><span class="pre">chemical_properties</span></code> will
+be used.  To load a different properties database, use the 
+<code class="docutils literal notranslate"><span class="pre">chemical_properties.load_data</span></code> function to load in a custom 
+database, and pass that data to this object as <cite>user_data</cite>.</p>
+</dd>
+<dt><strong>delta_groups</strong><span class="classifier">ndarray (nc, 15)</span></dt><dd><p>Provides the group contribution numbers (normalized) for each 
+component in the mixture for the 15 groups used by the Privat and
+Jaubert (2012) group contribution method for binary interaction 
+coefficients.  Default is None, in which case the values in <cite>delta</cite>
+will be used.</p>
+</dd>
+<dt><strong>air</strong><span class="classifier">bool</span></dt><dd><p>Flag indicating whether or not fluid is air.  The methods for 
+viscosity and interfacial tension below use correlations developed
+for hydocarbons.  If <cite>air</cite> is False (default value), these built
+in methods are used.  If <cite>air</cite> is True, then these methods are 
+replaced with correlations between air and seawater.</p>
+</dd>
+<dt><strong>sigma_correction</strong><span class="classifier">ndarray, default = np.array([[1], [1]])</span></dt><dd><p>Correction factor to adjust the interfacial tension value supplied by
+the default model to a value measured for the mixture of interest.
+The correction factor should be computed as sigma_measured / 
+sigma_model at a single P and T value.  sigma_correction should be a
+two-element array, the first element is for the gas phase and the 
+second element is for the liquid phase.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="../../modules/chem.html#module-chemical_properties" title="chemical_properties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">chemical_properties</span></code></a>, <a class="reference internal" href="dbm.FluidParticle.html#dbm.FluidParticle" title="dbm.FluidParticle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FluidParticle</span></code></a>, <a class="reference internal" href="dbm.InsolubleParticle.html#dbm.InsolubleParticle" title="dbm.InsolubleParticle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">InsolubleParticle</span></code></a></dt><dd></dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">air</span> <span class="o">=</span> <span class="n">FluidMixture</span><span class="p">([</span><span class="s1">&#39;nitrogen&#39;</span><span class="p">,</span> <span class="s1">&#39;oxygen&#39;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">yk</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.79</span><span class="p">,</span> <span class="mf">0.21</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">air</span><span class="o">.</span><span class="n">masses</span><span class="p">(</span><span class="n">yk</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">air</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="mf">273.15</span><span class="o">+</span><span class="mf">10.</span><span class="p">,</span> <span class="mf">101325.</span><span class="p">)</span>
+<span class="go">array([[ 1.24260911],</span>
+<span class="go">       [ 1.24260911]])</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>nc</strong><span class="classifier">integer</span></dt><dd><p>Number of chemical components in the mixture</p>
+</dd>
+<dt><strong>issoluble</strong><span class="classifier">logical, True</span></dt><dd><p>Indicates the object contents are soluble</p>
+</dd>
+<dt><strong>M</strong><span class="classifier">ndarray, size (nc)</span></dt><dd><p>Molecular weights (kg/mol)</p>
+</dd>
+<dt><strong>Pc</strong><span class="classifier">ndarray, size (nc)</span></dt><dd><p>Critical pressures (Pa)</p>
+</dd>
+<dt><strong>Tc</strong><span class="classifier">ndarray, size (nc)</span></dt><dd><p>Critical temperatures (K)</p>
+</dd>
+<dt><strong>omega</strong><span class="classifier">ndarray, size (nc)</span></dt><dd><p>Acentric factors (–)</p>
+</dd>
+<dt><strong>kh_0</strong><span class="classifier">ndarray, size (nc)</span></dt><dd><p>Henry’s law constants at 298.15 K and 101325 Pa (kg/(m^3 Pa))</p>
+</dd>
+<dt><strong>neg_dH_solR</strong><span class="classifier">ndarray, size (nc)</span></dt><dd><p>The negative of the enthalpies of solution / Ru (K).</p>
+</dd>
+<dt><strong>nu_bar</strong><span class="classifier">ndarray, size (nc)</span></dt><dd><p>Partial molar volumes at infinite dilution (m^3/mol)</p>
+</dd>
+<dt><strong>B</strong><span class="classifier">ndarray, size (nc)</span></dt><dd><p>White and Houghton (1966) pre-exponential factor (m^2/s)</p>
+</dd>
+<dt><strong>dE</strong><span class="classifier">ndarray, size (nc)</span></dt><dd><p>Activation energy (J/mol)</p>
+</dd>
+<dt><strong>K_salt</strong><span class="classifier">Setschenow constants (m^3/mol)</span></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="dbm.FluidMixture.biodegradation_rate.html#dbm.FluidMixture.biodegradation_rate" title="dbm.FluidMixture.biodegradation_rate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">biodegradation_rate</span></code></a>(self, t[, lag_time])</p></td>
+<td><p>Determine the biodegradation rate constant</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="dbm.FluidMixture.density.html#dbm.FluidMixture.density" title="dbm.FluidMixture.density"><code class="xref py py-obj docutils literal notranslate"><span class="pre">density</span></code></a>(self, m, T, P)</p></td>
+<td><p>Compute the gas and liquid density (kg/m^3) of a fluid mixture at the  given state.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="dbm.FluidMixture.diffusivity.html#dbm.FluidMixture.diffusivity" title="dbm.FluidMixture.diffusivity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">diffusivity</span></code></a>(self, Ta, Sa, P)</p></td>
+<td><p>Compute the diffusivity (m^2/s) of each component of a mixture into  seawater at the given temperature.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="dbm.FluidMixture.equilibrium.html#dbm.FluidMixture.equilibrium" title="dbm.FluidMixture.equilibrium"><code class="xref py py-obj docutils literal notranslate"><span class="pre">equilibrium</span></code></a>(self, m, T, P[, K])</p></td>
+<td><p>Computes the equilibrium composition of a gas/liquid mixture.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="dbm.FluidMixture.fugacity.html#dbm.FluidMixture.fugacity" title="dbm.FluidMixture.fugacity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fugacity</span></code></a>(self, m, T, P)</p></td>
+<td><p>Compute the gas and liquid fugacity (Pa) of a fluid mixture at the  given state.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="dbm.FluidMixture.hydrate_stability.html#dbm.FluidMixture.hydrate_stability" title="dbm.FluidMixture.hydrate_stability"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hydrate_stability</span></code></a>(self, m, P)</p></td>
+<td><p>Compute the hydrate formation temperature at the given pressure</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="dbm.FluidMixture.interface_tension.html#dbm.FluidMixture.interface_tension" title="dbm.FluidMixture.interface_tension"><code class="xref py py-obj docutils literal notranslate"><span class="pre">interface_tension</span></code></a>(self, m, T, S, P)</p></td>
+<td><p>Computes the interfacial tension between gas/liquid and water</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="dbm.FluidMixture.mass_frac.html#dbm.FluidMixture.mass_frac" title="dbm.FluidMixture.mass_frac"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mass_frac</span></code></a>(self, n)</p></td>
+<td><p>Calculate the mass fraction (–) from the number of moles of each  component in a mixture.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="dbm.FluidMixture.masses.html#dbm.FluidMixture.masses" title="dbm.FluidMixture.masses"><code class="xref py py-obj docutils literal notranslate"><span class="pre">masses</span></code></a>(self, n)</p></td>
+<td><p>Convert the moles of each component in a mixture to their masses (kg).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="dbm.FluidMixture.mol_frac.html#dbm.FluidMixture.mol_frac" title="dbm.FluidMixture.mol_frac"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mol_frac</span></code></a>(self, m)</p></td>
+<td><p>Calcualte the mole fraction (–) from the masses of each component in  a mixture.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="dbm.FluidMixture.moles.html#dbm.FluidMixture.moles" title="dbm.FluidMixture.moles"><code class="xref py py-obj docutils literal notranslate"><span class="pre">moles</span></code></a>(self, m)</p></td>
+<td><p>Convert the masses of each component in a mixture to their moles  (mol).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="dbm.FluidMixture.partial_pressures.html#dbm.FluidMixture.partial_pressures" title="dbm.FluidMixture.partial_pressures"><code class="xref py py-obj docutils literal notranslate"><span class="pre">partial_pressures</span></code></a>(self, m, P)</p></td>
+<td><p>Compute the partial pressure (Pa) of each component in a mixture.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="dbm.FluidMixture.solubility.html#dbm.FluidMixture.solubility" title="dbm.FluidMixture.solubility"><code class="xref py py-obj docutils literal notranslate"><span class="pre">solubility</span></code></a>(self, m, T, P, Sa)</p></td>
+<td><p>Compute the solubility (kg/m^3) of each component of a mixture in both gas and liquid dissolving into seawater.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="dbm.FluidMixture.viscosity.html#dbm.FluidMixture.viscosity" title="dbm.FluidMixture.viscosity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viscosity</span></code></a>(self, m, T, P)</p></td>
+<td><p>Computes the dynamic viscosity of the gas/liquid mixture.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt>
+<code class="sig-name descname">FluidMixture.__init__(self, composition, delta=None, user_data={}, delta_groups=None, isair=False, sigma_correction=array([[1.],</code></dt>
+<dt>
+<code class="sig-name descname">[1.]]))</code></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>())</p></td>
+<td><p>Initialize self.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="dbm.FluidMixture.biodegradation_rate.html#dbm.FluidMixture.biodegradation_rate" title="dbm.FluidMixture.biodegradation_rate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">biodegradation_rate</span></code></a>(self, t[, lag_time])</p></td>
+<td><p>Determine the biodegradation rate constant</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="dbm.FluidMixture.density.html#dbm.FluidMixture.density" title="dbm.FluidMixture.density"><code class="xref py py-obj docutils literal notranslate"><span class="pre">density</span></code></a>(self, m, T, P)</p></td>
+<td><p>Compute the gas and liquid density (kg/m^3) of a fluid mixture at the  given state.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="dbm.FluidMixture.diffusivity.html#dbm.FluidMixture.diffusivity" title="dbm.FluidMixture.diffusivity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">diffusivity</span></code></a>(self, Ta, Sa, P)</p></td>
+<td><p>Compute the diffusivity (m^2/s) of each component of a mixture into  seawater at the given temperature.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="dbm.FluidMixture.equilibrium.html#dbm.FluidMixture.equilibrium" title="dbm.FluidMixture.equilibrium"><code class="xref py py-obj docutils literal notranslate"><span class="pre">equilibrium</span></code></a>(self, m, T, P[, K])</p></td>
+<td><p>Computes the equilibrium composition of a gas/liquid mixture.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="dbm.FluidMixture.fugacity.html#dbm.FluidMixture.fugacity" title="dbm.FluidMixture.fugacity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fugacity</span></code></a>(self, m, T, P)</p></td>
+<td><p>Compute the gas and liquid fugacity (Pa) of a fluid mixture at the  given state.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="dbm.FluidMixture.hydrate_stability.html#dbm.FluidMixture.hydrate_stability" title="dbm.FluidMixture.hydrate_stability"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hydrate_stability</span></code></a>(self, m, P)</p></td>
+<td><p>Compute the hydrate formation temperature at the given pressure</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="dbm.FluidMixture.interface_tension.html#dbm.FluidMixture.interface_tension" title="dbm.FluidMixture.interface_tension"><code class="xref py py-obj docutils literal notranslate"><span class="pre">interface_tension</span></code></a>(self, m, T, S, P)</p></td>
+<td><p>Computes the interfacial tension between gas/liquid and water</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="dbm.FluidMixture.mass_frac.html#dbm.FluidMixture.mass_frac" title="dbm.FluidMixture.mass_frac"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mass_frac</span></code></a>(self, n)</p></td>
+<td><p>Calculate the mass fraction (–) from the number of moles of each  component in a mixture.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="dbm.FluidMixture.masses.html#dbm.FluidMixture.masses" title="dbm.FluidMixture.masses"><code class="xref py py-obj docutils literal notranslate"><span class="pre">masses</span></code></a>(self, n)</p></td>
+<td><p>Convert the moles of each component in a mixture to their masses (kg).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="dbm.FluidMixture.mol_frac.html#dbm.FluidMixture.mol_frac" title="dbm.FluidMixture.mol_frac"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mol_frac</span></code></a>(self, m)</p></td>
+<td><p>Calcualte the mole fraction (–) from the masses of each component in  a mixture.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="dbm.FluidMixture.moles.html#dbm.FluidMixture.moles" title="dbm.FluidMixture.moles"><code class="xref py py-obj docutils literal notranslate"><span class="pre">moles</span></code></a>(self, m)</p></td>
+<td><p>Convert the masses of each component in a mixture to their moles  (mol).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="dbm.FluidMixture.partial_pressures.html#dbm.FluidMixture.partial_pressures" title="dbm.FluidMixture.partial_pressures"><code class="xref py py-obj docutils literal notranslate"><span class="pre">partial_pressures</span></code></a>(self, m, P)</p></td>
+<td><p>Compute the partial pressure (Pa) of each component in a mixture.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="dbm.FluidMixture.solubility.html#dbm.FluidMixture.solubility" title="dbm.FluidMixture.solubility"><code class="xref py py-obj docutils literal notranslate"><span class="pre">solubility</span></code></a>(self, m, T, P, Sa)</p></td>
+<td><p>Compute the solubility (kg/m^3) of each component of a mixture in both gas and liquid dissolving into seawater.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="dbm.FluidMixture.viscosity.html#dbm.FluidMixture.viscosity" title="dbm.FluidMixture.viscosity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viscosity</span></code></a>(self, m, T, P)</p></td>
+<td><p>Computes the dynamic viscosity of the gas/liquid mixture.</p></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Texas A&M Oil spill / Outfall Calculator</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../user_manual.html">TAMOC User Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../unit_tests.html">Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../bugs.html">Reporting Bugs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html">Read Me File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../../user_manual.html">TAMOC User Manual</a><ul>
+  <li><a href="../../modules/dbm.html">Overview of the Discrete Bubble Model</a><ul>
+      <li>Previous: <a href="../../modules/dbm.html" title="previous chapter">Overview of the Discrete Bubble Model</a></li>
+      <li>Next: <a href="dbm.FluidMixture.biodegradation_rate.html" title="next chapter">dbm.FluidMixture.biodegradation_rate</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../_sources/autodoc/dbm/dbm.FluidMixture.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

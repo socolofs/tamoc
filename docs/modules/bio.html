@@ -1,0 +1,226 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Overview of Biodegradation Properties &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="biodeg_properties.load_data" href="../autodoc/chem/biodeg_properties.load_data.html" />
+    <link rel="prev" title="Overview of Chemical Properties" href="chem.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="overview-of-biodegradation-properties">
+<h1>Overview of Biodegradation Properties<a class="headerlink" href="#overview-of-biodegradation-properties" title="Permalink to this headline">¶</a></h1>
+<dl class="field-list simple">
+<dt class="field-odd">Release</dt>
+<dd class="field-odd"><p>2.0</p>
+</dd>
+<dt class="field-even">Date</dt>
+<dd class="field-even"><p>Mar 16, 2020</p>
+</dd>
+</dl>
+<span class="target" id="module-biodeg_properties"></span><div class="section" id="biodegradation-properties-script">
+<h2>Biodegradation Properties Script<a class="headerlink" href="#biodegradation-properties-script" title="Permalink to this headline">¶</a></h2>
+<p>Create a dictionary of biodegradation properties</p>
+<p>This script creates a dictionary of the properties of several hydrocarbons and
+chemicals of environmental interest in a global dictionary for use by other
+programs that need to know biodegradation properties.</p>
+<div class="section" id="parameters">
+<h3>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></h3>
+<p>The biodegradation data are stored in <code class="docutils literal notranslate"><span class="pre">./data/BioData.csv</span></code>. Header rows are 
+denoted by <cite>%, the last row of pure text is taken as the variable names and
+the last row with `()</cite> is taken as the units.  The columns should include
+a key name (e.g., <cite>methane</cite>), the first-order decay constant, and the 
+biodegrdation lag time.  For unknown parameter values, use -9999.</p>
+<p>For the data provided by the model, the data sources and more details are
+documented in the file <code class="docutils literal notranslate"><span class="pre">../docs/BioData_ReadMe.txt</span></code>.</p>
+<p>This module can read in any number of columns of chemical data, including
+parameters not listed below. Units will be converted to standard SI units,
+and the conversion function will operate on 1/d and d. The returned variables
+<cite>units</cite> will contain the final set of units for the database. To use the
+TAMOC suite of models, all parameters listed below in the <cite>data</cite> dictionary
+must be provided with the variable names listed.</p>
+</div>
+<div class="section" id="returns">
+<h3>Returns<a class="headerlink" href="#returns" title="Permalink to this headline">¶</a></h3>
+<dl>
+<dt>data<span class="classifier">dict</span></dt><dd><p>a nested dictionary containing the chemical name as the first key 
+and the following list of secondary keys matched with the numerical
+value of each variable:</p>
+<blockquote>
+<div><p>k_bio : first-order biodegradation rate constant (1/s)
+t_bio : biodegradation lag time (s)</p>
+</div></blockquote>
+</dd>
+<dt>units<span class="classifier">dict</span></dt><dd><p>dictionary with the same keys as the variable names listed above 
+(e.g., k_bio, t_bio, etc.) linked to a string containing the units of 
+each variable.</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="notes">
+<h3>Notes<a class="headerlink" href="#notes" title="Permalink to this headline">¶</a></h3>
+<p>To use the properties database distributed by TAMOC, simply import this file
+in Python: the results will be returned in <cite>biodeg_properties.data</cite>. To
+import a user-defined database of properties, use the function <code class="docutils literal notranslate"><span class="pre">load_data</span></code>
+provided in the <cite>chemical_properties</cite> module. The <code class="docutils literal notranslate"><span class="pre">TAMOC</span></code> suite of models
+will pull data from both the default and any user-specified database, giving
+first priority to parameter keys found in the user-specified database.</p>
+</div>
+<div class="section" id="see-also">
+<h3>See also<a class="headerlink" href="#see-also" title="Permalink to this headline">¶</a></h3>
+<p><cite>dbm</cite> : Uses these dictionaries to create chemical mixture objects.</p>
+</div>
+<div class="section" id="examples">
+<h3>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h3>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">tamoc</span> <span class="kn">import</span> <span class="n">biodeg_properties</span> <span class="k">as</span> <span class="n">biodeg</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">biodeg</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;methane&#39;</span><span class="p">][</span><span class="s1">&#39;k_bio&#39;</span><span class="p">]</span>
+<span class="go">x.xxxxx</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">biodeg</span><span class="o">.</span><span class="n">units</span><span class="p">[</span><span class="s1">&#39;k_bio&#39;</span><span class="p">]</span>
+<span class="go">&#39;(1/s)&#39;</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="module-functions">
+<h2>Module Functions<a class="headerlink" href="#module-functions" title="Permalink to this headline">¶</a></h2>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../autodoc/chem/biodeg_properties.load_data.html#biodeg_properties.load_data" title="biodeg_properties.load_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_data</span></code></a>(fname)</p></td>
+<td><p>Load a chemical properties file into memory</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="input-data-documentation">
+<h2>Input Data Documentation<a class="headerlink" href="#input-data-documentation" title="Permalink to this headline">¶</a></h2>
+<p>This script loads the biodegradation properties database into the name space.
+If the import command is:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">biodeg_properties</span>
+</pre></div>
+</div>
+<p>then the database is in the <code class="docutils literal notranslate"><span class="pre">biodeg_properties</span></code> namespace.  The <code class="docutils literal notranslate"><span class="pre">TAMOC</span></code>
+package usually imports using:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">chemical_properties</span> <span class="k">as</span> <span class="nn">biodeg</span>
+</pre></div>
+</div>
+<p>so that the database is in the <code class="docutils literal notranslate"><span class="pre">biodeg</span></code> namespace.</p>
+<p>The data loaded into these namespaces is stored in the file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">data</span><span class="o">/</span><span class="n">BioData</span><span class="o">.</span><span class="n">csv</span>
+</pre></div>
+</div>
+<p>The format for these data is described in</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bio_data.html">Sources of Data in BioData.csv</a></li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Texas A&M Oil spill / Outfall Calculator</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../user_manual.html">TAMOC User Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../unit_tests.html">Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../bugs.html">Reporting Bugs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../readme.html">Read Me File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../user_manual.html">TAMOC User Manual</a><ul>
+      <li>Previous: <a href="chem.html" title="previous chapter">Overview of Chemical Properties</a></li>
+      <li>Next: <a href="../autodoc/chem/biodeg_properties.load_data.html" title="next chapter">biodeg_properties.load_data</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/modules/bio.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

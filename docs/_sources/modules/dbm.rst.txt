@@ -1,6 +1,6 @@
-##############################################
-Overview of Discrete Bubble Model (DBM) Module
-##############################################
+#####################################
+Overview of the Discrete Bubble Model
+#####################################
 
 :Release: |version|
 :Date: |today|
@@ -9,24 +9,106 @@ Overview of Discrete Bubble Model (DBM) Module
 
 .. automodule:: dbm
 
-Class Objects
-=============
 
-.. autoclass:: FluidMixture
+Class Objects and Methods
+=========================
+
+.. currentmodule:: dbm
+
+Fluid Mixtures
+--------------
+
+The base object of this module defines a fluid mixture, which can represent
+any closed system and can include both gas and liquid together in the system.
+The ``FluidMixture`` object and its methods are described as follows:
+
+.. autosummary::
+   :toctree: ../autodoc/dbm
    
-.. autoclass:: FluidParticle
+   FluidMixture
+   FluidMixture.masses
+   FluidMixture.mass_frac
+   FluidMixture.moles
+   FluidMixture.mol_frac
+   FluidMixture.partial_pressures
+   FluidMixture.density
+   FluidMixture.fugacity
+   FluidMixture.viscosity
+   FluidMixture.interface_tension
+   FluidMixture.equilibrium
+   FluidMixture.solubility
+   FluidMixture.diffusivity
+   FluidMixture.hydrate_stability
+   FluidMixture.biodegradation_rate
 
-.. autoclass:: InsolubleParticle
+Fluid Particles
+---------------
+
+For bubbles or droplets that utilize the equations of states in the
+``FluidMixture`` object, we define the ``FluidParticle`` object, as described
+in the following:
+
+.. autosummary::
+   :toctree: ../autodoc/dbm
+   
+   FluidParticle
+   FluidParticle.masses
+   FluidParticle.mass_frac
+   FluidParticle.moles
+   FluidParticle.mol_frac
+   FluidParticle.partial_pressures
+   FluidParticle.density
+   FluidParticle.fugacity
+   FluidParticle.viscosity
+   FluidParticle.interface_tension
+   FluidParticle.equilibrium
+   FluidParticle.solubility
+   FluidParticle.diffusivity
+   FluidParticle.hydrate_stability
+   FluidParticle.biodegradation_rate
+   FluidParticle.masses_by_diameter
+   FluidParticle.diameter
+   FluidParticle.particle_shape
+   FluidParticle.slip_velocity
+   FluidParticle.surface_area
+   FluidParticle.mass_transfer
+   FluidParticle.heat_transfer
+   FluidParticle.return_all
+
+Inert Particles
+---------------
+
+When there is inadequate information to use the equations of state in this
+module, we define the ``InsolubleParticle`` object, as described in the
+following:
+
+.. autosummary::
+   :toctree: ../autodoc/dbm
+   
+   InsolubleParticle
+   InsolubleParticle.density
+   InsolubleParticle.viscosity
+   InsolubleParticle.interface_tension
+   InsolubleParticle.biodegradation_rate
+   InsolubleParticle.mass_by_diameter
+   InsolubleParticle.diameter
+   InsolubleParticle.particle_shape
+   InsolubleParticle.slip_velocity
+   InsolubleParticle.surface_area
+   InsolubleParticle.heat_transfer
+   InsolubleParticle.return_all
 
 Module Functions
 ================
 
-.. currentmodule:: dbm
+The objects in this module use the following functions in some of their
+calculations.  It is not expected that the user would call these directly;
+rather, please use one of the objects defined above.
 
 .. autosummary::
-   :toctree: ../dbm
-
+   :toctree: ../autodoc/dbm
+   
    equil_MM
-   successive_substitution
    stability_analysis
+   successive_substitution
    gas_liq_eq

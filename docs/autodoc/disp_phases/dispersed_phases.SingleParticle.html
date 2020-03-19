@@ -1,0 +1,247 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>dispersed_phases.SingleParticle &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="dispersed_phases.SingleParticle.biodegradation_rate" href="dispersed_phases.SingleParticle.biodegradation_rate.html" />
+    <link rel="prev" title="Overview of Dispersed Phases Module" href="../../modules/disp_phases.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="dispersed-phases-singleparticle">
+<h1>dispersed_phases.SingleParticle<a class="headerlink" href="#dispersed-phases-singleparticle" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="dispersed_phases.SingleParticle">
+<em class="property">class </em><code class="sig-prename descclassname">dispersed_phases.</code><code class="sig-name descname">SingleParticle</code><span class="sig-paren">(</span><em class="sig-param">dbm_particle</em>, <em class="sig-param">m0</em>, <em class="sig-param">T0</em>, <em class="sig-param">K=1.0</em>, <em class="sig-param">K_T=1.0</em>, <em class="sig-param">fdis=1e-06</em>, <em class="sig-param">t_hyd=0.0</em>, <em class="sig-param">lag_time=True</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/dispersed_phases.html#SingleParticle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dispersed_phases.SingleParticle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Interface to the <cite>dbm</cite> module and container for model parameters</p>
+<p>This class provides a uniform interface to the <cite>dbm</cite> module objects and
+methods and stores the particle-specific model parameters.  Because the
+methods for <cite>dbm.FluidParticle</cite> and <cite>dbm.InsolubleParticle</cite> sometimes have 
+different inputs and different outputs, there needs to be a method to 
+support these interface differences in a single location.  This object
+solves that problem by providing a single interface and uniform outputs
+for the particle properties needed by the single bubble model.  This also
+affords a convenient place to store the particle-specific model 
+parameters and behavior, such as mass transfer reduction factor, etc., 
+turning off heat transfer once the particle matches the ambient 
+temperature and turning off the particle buoyancy once the particle is
+dissolved.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>dbm_particle</strong><span class="classifier"><cite>dbm.FluidParticle</cite> or <cite>dbm.InsolubleParticle</cite> object</span></dt><dd><p>Object describing the particle properties and behavior</p>
+</dd>
+<dt><strong>m0</strong><span class="classifier">ndarray</span></dt><dd><p>Initial masses of the components of the <cite>dbm</cite> particle object (kg)</p>
+</dd>
+<dt><strong>T0</strong><span class="classifier">float</span></dt><dd><p>Initial temperature of the of <cite>dbm</cite> particle object (K)</p>
+</dd>
+<dt><strong>K</strong><span class="classifier">float, default = 1.</span></dt><dd><p>Mass transfer reduction factor (–).</p>
+</dd>
+<dt><strong>K_T</strong><span class="classifier">float, default = 1.</span></dt><dd><p>Heat transfer reduction factor (–).</p>
+</dd>
+<dt><strong>fdis</strong><span class="classifier">float, default = 1e-6</span></dt><dd><p>Fraction of the initial total mass (–) remaining when the particle 
+should be considered dissolved.</p>
+</dd>
+<dt><strong>t_hyd</strong><span class="classifier">float, default = 0.</span></dt><dd><p>Hydrate film formation time (s).  Mass transfer is computed by clean
+bubble methods for t less than t_hyd and by dirty bubble methods
+thereafter.  The default behavior is to assume the particle is dirty
+or hydrate covered from the release.</p>
+</dd>
+<dt><strong>lag_time</strong><span class="classifier">bool, default = True.</span></dt><dd><p>Flag that indicates whether (True) or not (False) to use the
+biodegradation lag times data.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This object only provides an interface to the <cite>return_all</cite> and 
+<cite>diameter</cite> methods of the <cite>dbm</cite> module objects.  The intent is to be as 
+fast as possible while providing a single location for the necessary 
+<cite>if</cite>-statements needed to select between soluble and insoluble particle 
+methods and facilitate turning heat transfer and dissolution on and off
+as necessary at the simulation progresses.</p>
+<p>Dissolution is turned off component by component as each components mass
+becomes fdis times smaller than the initial mass.  Once all of the initial
+components have been turned off, the particle is assumed to have a 
+density equation to the ambient water and a slip velocity of zero.</p>
+<p>Heat transfer is turned off once the particle comes within 0.1 K of the
+ambient temperature.  Thereafter, the temperature is forced to track 
+the ambient temperature.</p>
+<dl class="field-list">
+<dt class="field-odd">Attributes</dt>
+<dd class="field-odd"><dl>
+<dt><strong>particle</strong><span class="classifier"><cite>dbm.FluidParticle</cite> or <cite>dbm.InsolubleParticle</cite> object</span></dt><dd><p>Stores the <cite>dbm_particle</cite> object passed to <cite>__init__()</cite>.</p>
+</dd>
+<dt><strong>composition</strong><span class="classifier">str list</span></dt><dd><p>Copy of the <cite>composition</cite> attribute of the <cite>dbm_particle</cite> object.</p>
+</dd>
+<dt><strong>m0</strong><span class="classifier">ndarray</span></dt><dd><p>Initial masses (kg) of the particle components</p>
+</dd>
+<dt><strong>T0</strong><span class="classifier">float</span></dt><dd><p>Initial temperature (K) of the particle</p>
+</dd>
+<dt><strong>cp</strong><span class="classifier">float</span></dt><dd><p>Heat capacity at constant pressure (J/(kg K)) of the particle.</p>
+</dd>
+<dt><strong>K</strong><span class="classifier">float</span></dt><dd><p>Mass transfer reduction factor (–)</p>
+</dd>
+<dt><strong>K_T</strong><span class="classifier">float</span></dt><dd><p>Heat transfer reduction factor (–)</p>
+</dd>
+<dt><strong>fdis</strong><span class="classifier">float</span></dt><dd><p>Fraction of initial mass remaining as total dissolution (–)</p>
+</dd>
+<dt><strong>diss_indices</strong><span class="classifier">ndarray bool</span></dt><dd><p>Indices of m0 that are non-zero.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="dispersed_phases.SingleParticle.biodegradation_rate.html#dispersed_phases.SingleParticle.biodegradation_rate" title="dispersed_phases.SingleParticle.biodegradation_rate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">biodegradation_rate</span></code></a>(self, t)</p></td>
+<td><p>Compute the biodegradation rate constants</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="dispersed_phases.SingleParticle.diameter.html#dispersed_phases.SingleParticle.diameter" title="dispersed_phases.SingleParticle.diameter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">diameter</span></code></a>(self, m, T, P, Sa, Ta)</p></td>
+<td><p>Compute the diameter of a particle from mass and density</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="dispersed_phases.SingleParticle.properties.html#dispersed_phases.SingleParticle.properties" title="dispersed_phases.SingleParticle.properties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">properties</span></code></a>(self, m, T, P, Sa, Ta, t)</p></td>
+<td><p>Return the particle properties from the discrete bubble model</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="dispersed_phases.SingleParticle.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">dbm_particle</em>, <em class="sig-param">m0</em>, <em class="sig-param">T0</em>, <em class="sig-param">K=1.0</em>, <em class="sig-param">K_T=1.0</em>, <em class="sig-param">fdis=1e-06</em>, <em class="sig-param">t_hyd=0.0</em>, <em class="sig-param">lag_time=True</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/dispersed_phases.html#SingleParticle.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dispersed_phases.SingleParticle.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dispersed_phases.SingleParticle.__init__" title="dispersed_phases.SingleParticle.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(self, dbm_particle, m0, T0[, K, …])</p></td>
+<td><p>Initialize self.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="dispersed_phases.SingleParticle.biodegradation_rate.html#dispersed_phases.SingleParticle.biodegradation_rate" title="dispersed_phases.SingleParticle.biodegradation_rate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">biodegradation_rate</span></code></a>(self, t)</p></td>
+<td><p>Compute the biodegradation rate constants</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="dispersed_phases.SingleParticle.diameter.html#dispersed_phases.SingleParticle.diameter" title="dispersed_phases.SingleParticle.diameter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">diameter</span></code></a>(self, m, T, P, Sa, Ta)</p></td>
+<td><p>Compute the diameter of a particle from mass and density</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="dispersed_phases.SingleParticle.properties.html#dispersed_phases.SingleParticle.properties" title="dispersed_phases.SingleParticle.properties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">properties</span></code></a>(self, m, T, P, Sa, Ta, t)</p></td>
+<td><p>Return the particle properties from the discrete bubble model</p></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Texas A&M Oil spill / Outfall Calculator</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../user_manual.html">TAMOC User Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../unit_tests.html">Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../bugs.html">Reporting Bugs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html">Read Me File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../../user_manual.html">TAMOC User Manual</a><ul>
+  <li><a href="../../modules/disp_phases.html">Overview of Dispersed Phases Module</a><ul>
+      <li>Previous: <a href="../../modules/disp_phases.html" title="previous chapter">Overview of Dispersed Phases Module</a></li>
+      <li>Next: <a href="dispersed_phases.SingleParticle.biodegradation_rate.html" title="next chapter">dispersed_phases.SingleParticle.biodegradation_rate</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../_sources/autodoc/disp_phases/dispersed_phases.SingleParticle.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

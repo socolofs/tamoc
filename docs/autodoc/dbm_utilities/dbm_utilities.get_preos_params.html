@@ -1,0 +1,180 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>dbm_utilities.get_preos_params &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="dbm_utilities.pedersen" href="dbm_utilities.pedersen.html" />
+    <link rel="prev" title="dbm_utilities.get_henry_constant" href="dbm_utilities.get_henry_constant.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="dbm-utilities-get-preos-params">
+<h1>dbm_utilities.get_preos_params<a class="headerlink" href="#dbm-utilities-get-preos-params" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="dbm_utilities.get_preos_params">
+<code class="sig-prename descclassname">dbm_utilities.</code><code class="sig-name descname">get_preos_params</code><span class="sig-paren">(</span><em class="sig-param">Tb</em>, <em class="sig-param">M</em>, <em class="sig-param">rho</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/dbm_utilities.html#get_preos_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dbm_utilities.get_preos_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the parameters required by the Ping Robinson Equation of State</p>
+<p>We estimate the parameters required by the Ping Robinson equation of
+state using the methods in Twu (1984) and by Kesler and Lee reported in
+Chen et al. (1993). These are the critical point temperature, pressure,
+and specific volume and the acentric factor. We also estimate the binary
+interaction parameters using a method in Pedersen et al. (2014).</p>
+<p>In theory, the Twu and Kesler and Lee correlations should only be used
+for pseudo-components above n-C6, and literature property values should
+be used for pseudo-component below n-C6. When these lighter compounds are
+present, it is best for each molecule to have its own component
+properties.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>Tb</strong><span class="classifier">np.array</span></dt><dd><p>Array of boiling point temperatures for each pseudo-component in the
+oil (K).</p>
+</dd>
+<dt><strong>M</strong><span class="classifier">np.array</span></dt><dd><p>Array of molecular weights for each pseudo-component in the oil 
+(g/mol).</p>
+</dd>
+<dt><strong>rho</strong><span class="classifier">np.array</span></dt><dd><p>Density of each pseudo-component in the oil (kg/m^3).</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>Tc</strong><span class="classifier">np.array</span></dt><dd><p>Array of critical point temperatures for each pseudo-component in the
+oil (K).</p>
+</dd>
+<dt><strong>Pc</strong><span class="classifier">np.array</span></dt><dd><p>Array of critical point pressures for each pseudo-component in the
+oil (Pa).</p>
+</dd>
+<dt><strong>Vc</strong><span class="classifier">np.array</span></dt><dd><p>Array of critical point specific volumes for each pseudo-component in 
+the oil (m^3/mol).</p>
+</dd>
+<dt><strong>M</strong><span class="classifier">np.array</span></dt><dd><p>Array of the molecular weights of each pseudo-component in the oil 
+(kg/mol).</p>
+</dd>
+<dt><strong>omega</strong><span class="classifier">np.array</span></dt><dd><p>Array of acentric factors (–) for each pseudo-component in the oil.</p>
+</dd>
+<dt><strong>delta</strong><span class="classifier">np.array</span></dt><dd><p>Two-dimensional array of the binary interaction coefficients (–) 
+for the interactions of each pseudo-component in the oil.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The references used here are:</p>
+<p>Chen, D.H., Dinivahi, M.V., Jeng, C.Y., 1993. New acentric factor
+correlation based on the Antoine equation. Ind. Eng. Chem. Res. 32,
+241-244.</p>
+<p>Pedersen, K.S., Christensen, P.L., Shaikh, J.A., 2014. Phase Behavior of
+Petroleum Reservoir Fluids, 2nd ed. CRC Press, Boca Raton, Florida.</p>
+<p>Twu, C.H., 1984. An internally consistent correlation for predicting the
+critical properties and molecular weights of petroleum and coal-tar
+liquids. Fluid Phase Equilib. 16, 137-150.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Texas A&M Oil spill / Outfall Calculator</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../user_manual.html">TAMOC User Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../unit_tests.html">Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../bugs.html">Reporting Bugs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html">Read Me File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../../user_manual.html">TAMOC User Manual</a><ul>
+  <li><a href="../../modules/dbm_utils.html">Overview of DBM Utilities Module</a><ul>
+      <li>Previous: <a href="dbm_utilities.get_henry_constant.html" title="previous chapter">dbm_utilities.get_henry_constant</a></li>
+      <li>Next: <a href="dbm_utilities.pedersen.html" title="next chapter">dbm_utilities.pedersen</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../_sources/autodoc/dbm_utilities/dbm_utilities.get_preos_params.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

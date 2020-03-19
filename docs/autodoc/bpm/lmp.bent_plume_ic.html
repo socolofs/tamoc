@@ -1,0 +1,187 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>lmp.bent_plume_ic &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="lmp.zfe_volume_flux" href="lmp.zfe_volume_flux.html" />
+    <link rel="prev" title="lmp.main_ic" href="lmp.main_ic.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="lmp-bent-plume-ic">
+<h1>lmp.bent_plume_ic<a class="headerlink" href="#lmp-bent-plume-ic" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="lmp.bent_plume_ic">
+<code class="sig-prename descclassname">lmp.</code><code class="sig-name descname">bent_plume_ic</code><span class="sig-paren">(</span><em class="sig-param">profile</em>, <em class="sig-param">particles</em>, <em class="sig-param">Qj</em>, <em class="sig-param">A</em>, <em class="sig-param">D</em>, <em class="sig-param">X</em>, <em class="sig-param">phi_0</em>, <em class="sig-param">theta_0</em>, <em class="sig-param">Tj</em>, <em class="sig-param">Sj</em>, <em class="sig-param">Pj</em>, <em class="sig-param">rho_j</em>, <em class="sig-param">cj</em>, <em class="sig-param">chem_names</em>, <em class="sig-param">tracers</em>, <em class="sig-param">p</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/lmp.html#bent_plume_ic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lmp.bent_plume_ic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the Lagragian plume state space given the initial conditions</p>
+<p>Constructs the initial state space for a Lagrangian plume element from 
+the initial values for the base plume variables (e.g., Q, J, u, S, T, 
+etc.).</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>profile</strong><span class="classifier"><cite>ambient.Profile</cite> object</span></dt><dd><p>The ambient CTD object used by the single bubble model simulation.</p>
+</dd>
+<dt><strong>particles</strong><span class="classifier">list of <cite>Particle</cite> objects</span></dt><dd><p>List of <cite>bent_plume_model.Particle</cite> objects containing the dispersed 
+phase local conditions and behavior.</p>
+</dd>
+<dt><strong>Qj</strong><span class="classifier">Volume flux of continuous phase fluid at the discharge (m^3/s)</span></dt><dd></dd>
+<dt><strong>A</strong><span class="classifier">Cross-sectional area of the discharge (M^2)</span></dt><dd></dd>
+<dt><strong>D</strong><span class="classifier">float</span></dt><dd><p>Diameter for the equivalent circular cross-section of the release 
+(m)</p>
+</dd>
+<dt><strong>X</strong><span class="classifier">ndarray</span></dt><dd><p>Release location (x, y, z) in (m)</p>
+</dd>
+<dt><strong>phi_0</strong><span class="classifier">float</span></dt><dd><p>Vertical angle from the horizontal for the discharge orientation 
+(rad in range +/- pi/2)</p>
+</dd>
+<dt><strong>theta_0</strong><span class="classifier">float</span></dt><dd><p>Horizontal angle from the x-axis for the discharge orientation.  
+The x-axis is taken in the direction of the ambient current.  
+(rad in range 0 to 2 pi)</p>
+</dd>
+<dt><strong>Tj</strong><span class="classifier">float</span></dt><dd><p>Temperature of the continuous phase fluid in the discharge (T)</p>
+</dd>
+<dt><strong>Sj</strong><span class="classifier">float</span></dt><dd><p>Salinity of the continuous phase fluid in the discharge (psu)</p>
+</dd>
+<dt><strong>Pj</strong><span class="classifier">float</span></dt><dd><p>Pressure at the discharge (Pa)</p>
+</dd>
+<dt><strong>rho_j</strong><span class="classifier">float</span></dt><dd><p>Density of the continous phase fluid in the discharge (kg/m^3)</p>
+</dd>
+<dt><strong>cj</strong><span class="classifier">ndarray</span></dt><dd><p>Concentration of passive tracers in the discharge (user-defined)</p>
+</dd>
+<dt><strong>chem_names</strong><span class="classifier">string list</span></dt><dd><p>List of chemical parameters to track for the dissolution.  Only the 
+parameters in this list will be used to set background concentration
+for the dissolution, and the concentrations of these parameters are 
+computed separately from those listed in <cite>tracers</cite> or inputed from
+the discharge through <cite>cj</cite>.</p>
+</dd>
+<dt><strong>tracers</strong><span class="classifier">string list</span></dt><dd><p>List of passive tracers in the discharge.  These can be chemicals 
+present in the ambient <cite>profile</cite> data, and if so, entrainment of 
+these chemicals will change the concentrations computed for these 
+tracers.  However, none of these concentrations are used in the 
+dissolution of the dispersed phase.  Hence, <cite>tracers</cite> should not 
+contain any chemicals present in the dispersed phase particles.</p>
+</dd>
+<dt><strong>p</strong><span class="classifier"><cite>stratified_plume_model.ModelParams</cite> object</span></dt><dd><p>Object containing the fixed model parameters for the stratified 
+plume model.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>t</strong><span class="classifier">float</span></dt><dd><p>Initial time for the simulation (s)</p>
+</dd>
+<dt><strong>q</strong><span class="classifier">ndarray</span></dt><dd><p>Initial value of the plume state space</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Texas A&M Oil spill / Outfall Calculator</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../user_manual.html">TAMOC User Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../unit_tests.html">Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../bugs.html">Reporting Bugs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html">Read Me File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../../user_manual.html">TAMOC User Manual</a><ul>
+  <li><a href="../../modules/bpm.html">Overview of Bent Plume Model Module</a><ul>
+      <li>Previous: <a href="lmp.main_ic.html" title="previous chapter">lmp.main_ic</a></li>
+      <li>Next: <a href="lmp.zfe_volume_flux.html" title="next chapter">lmp.zfe_volume_flux</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../_sources/autodoc/bpm/lmp.bent_plume_ic.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,174 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>blowout.create_ambient_profile &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Unit Tests" href="../../unit_tests.html" />
+    <link rel="prev" title="blowout.get_ctd_from_txt" href="blowout.get_ctd_from_txt.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="blowout-create-ambient-profile">
+<h1>blowout.create_ambient_profile<a class="headerlink" href="#blowout-create-ambient-profile" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="blowout.create_ambient_profile">
+<code class="sig-prename descclassname">blowout.</code><code class="sig-name descname">create_ambient_profile</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">labels</em>, <em class="sig-param">units</em>, <em class="sig-param">comments</em>, <em class="sig-param">nc_name</em>, <em class="sig-param">summary</em>, <em class="sig-param">source</em>, <em class="sig-param">sea_name</em>, <em class="sig-param">p_lat</em>, <em class="sig-param">p_lon</em>, <em class="sig-param">p_time</em>, <em class="sig-param">ca=[]</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/blowout.html#create_ambient_profile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blowout.create_ambient_profile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create an ambient Profile object from given data</p>
+<p>Create an ambient.Profile object using the given CTD and current data.
+This function performs some standard operations to this data (unit
+conversion, computation of pressure, insertion of concentrations for
+dissolved gases, etc.) and returns the working ambient.Profile object.
+The idea behind this function is to separate data manipulation and
+creation of the ambient.Profile object from fetching of the data itself.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>data</strong><span class="classifier">np.array</span></dt><dd><p>Array of the ambient ocean data to write to the CTD file.  The 
+contents and dimensions of this data are specified in the labels 
+and units lists, below.</p>
+</dd>
+<dt><strong>labels</strong><span class="classifier">list</span></dt><dd><p>List of string names of each variable in the data array.</p>
+</dd>
+<dt><strong>units</strong><span class="classifier">list</span></dt><dd><p>List of units as strings for each variable in the data array.</p>
+</dd>
+<dt><strong>comments</strong><span class="classifier">list</span></dt><dd><p>List of comments as strings that explain the types of data in the 
+data array.  Typical comments include ‘measured’, ‘modeled’, or
+‘computed’.</p>
+</dd>
+<dt><strong>nc_name</strong><span class="classifier">str</span></dt><dd><p>String containing the file path and file name to use when creating
+the netCDF4 dataset that will contain this data.</p>
+</dd>
+<dt><strong>summary</strong><span class="classifier">str</span></dt><dd><p>String describing the simulation for which this data will be used.</p>
+</dd>
+<dt><strong>source</strong><span class="classifier">str</span></dt><dd><p>String documenting the source of the ambient ocean data provided.</p>
+</dd>
+<dt><strong>sea_name</strong><span class="classifier">str</span></dt><dd><p>NC-compliant name for the ocean water body as a string.</p>
+</dd>
+<dt><strong>p_lat</strong><span class="classifier">float</span></dt><dd><p>Latitude (deg)</p>
+</dd>
+<dt><strong>p_lon</strong><span class="classifier">float</span></dt><dd><p>Longitude, negative is west of 0 (deg)</p>
+</dd>
+<dt><strong>p_time</strong><span class="classifier">netCDF4 time format</span></dt><dd><p>Date and time of the CTD data using netCDF4.date2num().</p>
+</dd>
+<dt><strong>ca</strong><span class="classifier">list, default=[]</span></dt><dd><p>List of gases for which to compute a standard dissolved gas profile;
+choices are ‘nitrogen’, ‘oxygen’, ‘argon’, and ‘carbon_dioxide’.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>profile</strong><span class="classifier">ambient.Profile</span></dt><dd><p>Returns an ambient.Profile object for manipulating ambient water 
+column data in TAMOC.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Texas A&M Oil spill / Outfall Calculator</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../user_manual.html">TAMOC User Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../unit_tests.html">Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../bugs.html">Reporting Bugs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html">Read Me File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../../user_manual.html">TAMOC User Manual</a><ul>
+  <li><a href="../../modules/blowout.html">Overview of Blowout Module</a><ul>
+      <li>Previous: <a href="blowout.get_ctd_from_txt.html" title="previous chapter">blowout.get_ctd_from_txt</a></li>
+      <li>Next: <a href="../../unit_tests.html" title="next chapter">Unit Tests</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../_sources/autodoc/blowout/blowout.create_ambient_profile.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

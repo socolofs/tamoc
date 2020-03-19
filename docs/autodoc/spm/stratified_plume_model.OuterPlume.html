@@ -1,0 +1,225 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>stratified_plume_model.OuterPlume &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="stratified_plume_model.OuterPlume.update" href="stratified_plume_model.OuterPlume.update.html" />
+    <link rel="prev" title="stratified_plume_model.InnerPlume.update" href="stratified_plume_model.InnerPlume.update.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="stratified-plume-model-outerplume">
+<h1>stratified_plume_model.OuterPlume<a class="headerlink" href="#stratified-plume-model-outerplume" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="stratified_plume_model.OuterPlume">
+<em class="property">class </em><code class="sig-prename descclassname">stratified_plume_model.</code><code class="sig-name descname">OuterPlume</code><span class="sig-paren">(</span><em class="sig-param">z0</em>, <em class="sig-param">y0</em>, <em class="sig-param">profile</em>, <em class="sig-param">p</em>, <em class="sig-param">chem_names</em>, <em class="sig-param">bi</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/stratified_plume_model.html#OuterPlume"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stratified_plume_model.OuterPlume" title="Permalink to this definition">¶</a></dt>
+<dd><p>Manages the outer plume state space and derived variables</p>
+<p>Manages storage and calculation of the derived variables for the outer
+plume as a function of the state space.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>z0</strong><span class="classifier">float</span></dt><dd><p>Initial depth (m) of the outer plume</p>
+</dd>
+<dt><strong>y0</strong><span class="classifier">ndarray</span></dt><dd><p>Initial values for the outer plume state space.</p>
+</dd>
+<dt><strong>profile</strong><span class="classifier"><cite>ambient.Profile</cite> object</span></dt><dd><p>The ambient CTD object used by the simulation.</p>
+</dd>
+<dt><strong>p</strong><span class="classifier"><cite>ModelParams</cite> object</span></dt><dd><p>Object containing the fixed model parameters for the stratified 
+plume model.</p>
+</dd>
+<dt><strong>chem_names</strong><span class="classifier">str list</span></dt><dd><p>List of chemical names to track for the dissolution.</p>
+</dd>
+<dt><strong>bi</strong><span class="classifier">float</span></dt><dd><p>Half-width of the inner plume (m)</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Attributes</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>chem_names</strong><span class="classifier">str list</span></dt><dd><p>List is dissolved chemical species to track</p>
+</dd>
+<dt><strong>len</strong><span class="classifier">int</span></dt><dd><p>Number of dependent state space variables</p>
+</dd>
+<dt><strong>nchems</strong><span class="classifier">int</span></dt><dd><p>Number of chemical species to track for the dissolution</p>
+</dd>
+<dt><strong>z</strong><span class="classifier">float</span></dt><dd><p>Current value of the depth (m)</p>
+</dd>
+<dt><strong>y</strong><span class="classifier">ndarray</span></dt><dd><p>Current value of the state space vector</p>
+</dd>
+<dt><strong>Q</strong><span class="classifier">float</span></dt><dd><p>Volume flux of outer plume fluid (m^3/s)</p>
+</dd>
+<dt><strong>J</strong><span class="classifier">float</span></dt><dd><p>Momentum flux of outer plume fluid (m^3/s)</p>
+</dd>
+<dt><strong>S</strong><span class="classifier">float</span></dt><dd><p>Salinity flux in the outer plume (psu m^3/s)</p>
+</dd>
+<dt><strong>H</strong><span class="classifier">float</span></dt><dd><p>Heat flux in the outer plume (J/s)</p>
+</dd>
+<dt><strong>C</strong><span class="classifier">ndarray</span></dt><dd></dd>
+<dt><strong>Mass flux of dissolved species in the outer plume (kg/s)</strong></dt><dd></dd>
+<dt><strong>Ta</strong><span class="classifier">float</span></dt><dd><p>Ambient temperature outside the plume (K)</p>
+</dd>
+<dt><strong>Sa</strong><span class="classifier">float</span></dt><dd><p>Ambient salinity outside the plume (psu)</p>
+</dd>
+<dt><strong>P</strong><span class="classifier">float</span></dt><dd><p>Local pressure (Pa)</p>
+</dd>
+<dt><strong>rho_a</strong><span class="classifier">float</span></dt><dd><p>Ambient density outside the plume (kg/m^3)</p>
+</dd>
+<dt><strong>ca</strong><span class="classifier">ndarray</span></dt><dd><p>Ambient concentrations outside the plume (kg/m^3)</p>
+</dd>
+<dt><strong>u</strong><span class="classifier">float</span></dt><dd><p>Velocity of the outer plume (m/s)</p>
+</dd>
+<dt><strong>b</strong><span class="classifier">float</span></dt><dd><p>Half-width of the outer plume (m)</p>
+</dd>
+<dt><strong>s</strong><span class="classifier">float</span></dt><dd><p>Salinity of the outer plume continuous phase fluid (psu)</p>
+</dd>
+<dt><strong>T</strong><span class="classifier">float</span></dt><dd><p>Temperature of the outer plume continous phase fluid (K)</p>
+</dd>
+<dt><strong>c</strong><span class="classifier">ndarray</span></dt><dd><p>Concentration of dissolved species in the outer plume fluid (kg/m^2)</p>
+</dd>
+<dt><strong>rho</strong><span class="classifier">float</span></dt><dd><p>Density of the outer plume continuous phase fluid (kg/m^3)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="stratified_plume_model.OuterPlume.update.html#stratified_plume_model.OuterPlume.update" title="stratified_plume_model.OuterPlume.update"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update</span></code></a>(self, z, y, profile, p, bi)</p></td>
+<td><p>Update the <cite>OuterPlume</cite> object with the current local conditions</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="stratified_plume_model.OuterPlume.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">z0</em>, <em class="sig-param">y0</em>, <em class="sig-param">profile</em>, <em class="sig-param">p</em>, <em class="sig-param">chem_names</em>, <em class="sig-param">bi</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/stratified_plume_model.html#OuterPlume.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stratified_plume_model.OuterPlume.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#stratified_plume_model.OuterPlume.__init__" title="stratified_plume_model.OuterPlume.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(self, z0, y0, profile, p, …)</p></td>
+<td><p>Initialize self.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="stratified_plume_model.OuterPlume.update.html#stratified_plume_model.OuterPlume.update" title="stratified_plume_model.OuterPlume.update"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update</span></code></a>(self, z, y, profile, p, bi)</p></td>
+<td><p>Update the <cite>OuterPlume</cite> object with the current local conditions</p></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Texas A&M Oil spill / Outfall Calculator</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../user_manual.html">TAMOC User Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../unit_tests.html">Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../bugs.html">Reporting Bugs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html">Read Me File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../../user_manual.html">TAMOC User Manual</a><ul>
+  <li><a href="../../modules/spm.html">Overview of Stratified Plume Model Module</a><ul>
+      <li>Previous: <a href="stratified_plume_model.InnerPlume.update.html" title="previous chapter">stratified_plume_model.InnerPlume.update</a></li>
+      <li>Next: <a href="stratified_plume_model.OuterPlume.update.html" title="next chapter">stratified_plume_model.OuterPlume.update</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../_sources/autodoc/spm/stratified_plume_model.OuterPlume.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

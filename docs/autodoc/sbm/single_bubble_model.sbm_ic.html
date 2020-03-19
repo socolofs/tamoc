@@ -1,0 +1,187 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>single_bubble_model.sbm_ic &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="single_bubble_model.plot_state_space" href="single_bubble_model.plot_state_space.html" />
+    <link rel="prev" title="single_bubble_model.derivs" href="single_bubble_model.derivs.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="single-bubble-model-sbm-ic">
+<h1>single_bubble_model.sbm_ic<a class="headerlink" href="#single-bubble-model-sbm-ic" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="single_bubble_model.sbm_ic">
+<code class="sig-prename descclassname">single_bubble_model.</code><code class="sig-name descname">sbm_ic</code><span class="sig-paren">(</span><em class="sig-param">profile</em>, <em class="sig-param">particle</em>, <em class="sig-param">X0</em>, <em class="sig-param">de</em>, <em class="sig-param">yk</em>, <em class="sig-param">T0</em>, <em class="sig-param">K</em>, <em class="sig-param">K_T</em>, <em class="sig-param">fdis</em>, <em class="sig-param">t_hyd</em>, <em class="sig-param">lag_time</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/single_bubble_model.html#sbm_ic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#single_bubble_model.sbm_ic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the initial conditions for a single bubble model simulation</p>
+<p>Set up the state space at the release point for the single bubble model
+simulation</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>profile</strong><span class="classifier"><cite>ambient.Profile</cite> object</span></dt><dd><p>Ambient CTD data for the model simulation</p>
+</dd>
+<dt><strong>particle</strong><span class="classifier"><cite>dbm.FluidParticle</cite> or <cite>dbm.InsolubleParticle</cite> object</span></dt><dd><p>Object describing the properties and behavior of the particle.</p>
+</dd>
+<dt><strong>X0</strong><span class="classifier">ndarray</span></dt><dd><p>The release location (x, y, y) in m of the particle in the simulation</p>
+</dd>
+<dt><strong>de</strong><span class="classifier">float</span></dt><dd><p>Initial diameter of the particle (m)</p>
+</dd>
+<dt><strong>yk</strong><span class="classifier">ndarray</span></dt><dd><p>Initial mole fractions of each component in the particle (–)</p>
+</dd>
+<dt><strong>T0</strong><span class="classifier">float, optional</span></dt><dd><p>Initial temperature (K) of the particle at release if not equal 
+to the temperature of the surrounding fluid.  If omitted, the 
+model will set T0 to the ambient temperature.</p>
+</dd>
+<dt><strong>K</strong><span class="classifier">float</span></dt><dd><p>Mass transfer reduction factor (–). Pre-multiplies the mass 
+transfer coefficients providing amplification (&gt;1) or retardation 
+(&lt;1) of the dissolution.</p>
+</dd>
+<dt><strong>K_T</strong><span class="classifier">float</span></dt><dd><p>Heat transfer reduction factor (–). Pre-multiplies the heat 
+transfer coefficient providing amplification (&gt;1) or retardation 
+(&lt;1) of the heat flux.</p>
+</dd>
+<dt><strong>fdis</strong><span class="classifier">float</span></dt><dd><p>Fraction of the initial total mass (–) remaining when the 
+particle should be considered dissolved.</p>
+</dd>
+<dt><strong>t_hyd</strong><span class="classifier">float</span></dt><dd><p>Hydrate film formation time (s).  Mass transfer is computed by clean
+bubble methods for t less than t_hyd and by dirty bubble methods
+thereafter.  The default behavior is to assume the particle is dirty
+or hydrate covered from the release.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl>
+<dt><strong>particle</strong><span class="classifier"><cite>LagrangianParticle</cite> object</span></dt><dd><p>A <cite>LagrangianParticle</cite> object containing a unified interface to the 
+<cite>dbm</cite> module and the particle-specific model parameters (e.g., mass 
+transfer reduction factor, etc.)</p>
+</dd>
+<dt><strong>y0</strong><span class="classifier">ndarray</span></dt><dd><p>Model state space at the release point.  Includes the current depth 
+(m), the masses (kg) of each component of the particle, and the 
+particle heat content (J)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function converts an initial diameter and a list of mole fractions
+to the actual mass of each component in a particle.  This seems like 
+the most common method a single particle would be initialized.  Note, 
+however, that the user does not specify the mass: it is calculated in 
+this function.  If the same diameter particle is released as a deeper 
+depth, it will contain more mass (due to compressibility).  Likewise, 
+if the composition is changed while the depth and diameter are 
+maintained constant, the mass will change, altering the trajectory
+and simulation results.  If the mass is to be kept constant, this must
+be done outside this routine and the correct diameter calculated and
+passed to this function.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Texas A&M Oil spill / Outfall Calculator</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../user_manual.html">TAMOC User Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../unit_tests.html">Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../bugs.html">Reporting Bugs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html">Read Me File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../../user_manual.html">TAMOC User Manual</a><ul>
+  <li><a href="../../modules/sbm.html">Overview of Single Bubble Model Module</a><ul>
+      <li>Previous: <a href="single_bubble_model.derivs.html" title="previous chapter">single_bubble_model.derivs</a></li>
+      <li>Next: <a href="single_bubble_model.plot_state_space.html" title="next chapter">single_bubble_model.plot_state_space</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../_sources/autodoc/sbm/single_bubble_model.sbm_ic.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

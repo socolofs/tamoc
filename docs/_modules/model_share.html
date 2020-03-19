@@ -1,0 +1,251 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>model_share &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for model_share</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Model Share</span>
+<span class="sd">===========</span>
+
+<span class="sd">Provides functions that are common to all models in the TAMOC suite</span>
+
+<span class="sd">This module defines functions that perform standard tasks for the modeling</span>
+<span class="sd">modules in the TAMOC suite.  These include standard authoring of output </span>
+<span class="sd">files and reading ambient data from output files.  </span>
+
+<span class="sd">Notes </span>
+<span class="sd">----- </span>
+<span class="sd">These class objects and helper functions may be used throughout the TAMOC </span>
+<span class="sd">modeling suite.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="c1"># S. Socolofsky, November 2014, Texas A&amp;M University &lt;socolofs@tamu.edu&gt;.</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="p">(</span><span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">tamoc</span> <span class="kn">import</span> <span class="n">ambient</span>
+
+<span class="kn">from</span> <span class="nn">netCDF4</span> <span class="kn">import</span> <span class="n">Dataset</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">warnings</span> <span class="kn">import</span> <span class="n">warn</span>
+
+
+<span class="c1"># ----------------------------------------------------------------------------</span>
+<span class="c1"># Functions to work with netCDF datasets of model output</span>
+<span class="c1"># ----------------------------------------------------------------------------</span>
+
+
+<div class="viewcode-block" id="tamoc_nc_file"><a class="viewcode-back" href="../autodoc/model_share/model_share.tamoc_nc_file.html#model_share.tamoc_nc_file">[docs]</a><span class="k">def</span> <span class="nf">tamoc_nc_file</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">summary</span><span class="p">,</span> <span class="n">source</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Write the header meta data to an netCDF file for a TAMOC output</span>
+<span class="sd">    </span>
+<span class="sd">    The TAMOC suite stores its output by detaul in a netCDF dataset file.  </span>
+<span class="sd">    This function writes the standard TAMOC metadata to the header of the </span>
+<span class="sd">    netCDF file.  </span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fname : str</span>
+<span class="sd">        File name of the file to write</span>
+<span class="sd">    title:  str</span>
+<span class="sd">        String stating the TAMOC module where the data originated and the </span>
+<span class="sd">        type of data contained.  </span>
+<span class="sd">    summary : str</span>
+<span class="sd">        String summarizing what is contained in the dataset or information</span>
+<span class="sd">        needed to interpret the dataset</span>
+<span class="sd">    source : str</span>
+<span class="sd">        String describing the source of the data in the dataset or of related</span>
+<span class="sd">        datasets</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    nc : `netCDF4.Dataset` object</span>
+<span class="sd">        The `netCDF4.Dataset` object containing the open netCDF4 file where</span>
+<span class="sd">        the data should be stored.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="c1"># Create the netCDF dataset object</span>
+    <span class="n">nc</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;NETCDF4_CLASSIC&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># Write the netCDF header data for a TAMOC suite output</span>
+    <span class="n">nc</span><span class="o">.</span><span class="n">Conventions</span> <span class="o">=</span> <span class="s1">&#39;TAMOC Modeling Suite Output File&#39;</span>
+    <span class="n">nc</span><span class="o">.</span><span class="n">Metadata_Conventions</span> <span class="o">=</span> <span class="s1">&#39;TAMOC Python Model&#39;</span>
+    <span class="n">nc</span><span class="o">.</span><span class="n">featureType</span> <span class="o">=</span> <span class="s1">&#39;profile&#39;</span>
+    <span class="n">nc</span><span class="o">.</span><span class="n">cdm_data_type</span> <span class="o">=</span> <span class="s1">&#39;Profile&#39;</span>
+    <span class="n">nc</span><span class="o">.</span><span class="n">nodc_template_version</span> <span class="o">=</span> \
+        <span class="s1">&#39;NODC_NetCDF_Profile_Orthogonal_Template_v1.0&#39;</span>
+    <span class="n">nc</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">title</span>
+    <span class="n">nc</span><span class="o">.</span><span class="n">summary</span> <span class="o">=</span> <span class="n">summary</span>
+    <span class="n">nc</span><span class="o">.</span><span class="n">source</span> <span class="o">=</span> <span class="n">source</span>
+    <span class="n">nc</span><span class="o">.</span><span class="n">creator_url</span> <span class="o">=</span> <span class="s1">&#39;http://github.com/socolofs/tamoc&#39;</span>
+    <span class="n">nc</span><span class="o">.</span><span class="n">date_created</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+    <span class="n">nc</span><span class="o">.</span><span class="n">date_modified</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+    <span class="n">nc</span><span class="o">.</span><span class="n">history</span> <span class="o">=</span> <span class="s1">&#39;Creation&#39;</span>
+    
+    <span class="c1"># Return the netCDF dataset</span>
+    <span class="k">return</span> <span class="n">nc</span></div>
+
+
+<div class="viewcode-block" id="profile_from_model_savefile"><a class="viewcode-back" href="../autodoc/model_share/model_share.profile_from_model_savefile.html#model_share.profile_from_model_savefile">[docs]</a><span class="k">def</span> <span class="nf">profile_from_model_savefile</span><span class="p">(</span><span class="n">nc</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">ctdname</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load the `ambient.Profile` data pointed to by the netCDF file</span>
+<span class="sd">    </span>
+<span class="sd">    Each netCDF model save file for the TAMOC suite models stores the file</span>
+<span class="sd">    name and path to the ambient CTD data used in the simulation.  This </span>
+<span class="sd">    prevents the save files from having to encapsulate all of the ambient </span>
+<span class="sd">    CTD data with results for every simulation run.  This block of code</span>
+<span class="sd">    looks for the ambient data and loads it into memory if found.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    nc : `netCDF4.Dataset` object</span>
+<span class="sd">        The netCDF dataset object containing the saved model simulation</span>
+<span class="sd">    </span>
+<span class="sd">    fname : str</span>
+<span class="sd">        File name of the netCDF file.  This is used to get the complete</span>
+<span class="sd">        path to the current directory so that the Profile data can be found.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    profile : `ambient.Profile` object</span>
+<span class="sd">        The profile data as an `ambient.Profile` object.</span>
+<span class="sd">    </span>
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    single_bubble_model.Model.save_sim, stratified_plume_model.Mode.save_sim,</span>
+<span class="sd">    bent_plume_model.Model.save_sim</span>
+<span class="sd">    </span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    If the profile data are not found, a message is echoed to the command</span>
+<span class="sd">    line.  No other warnings or errors are thrown.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Try to locate and load in the profile data</span>
+        <span class="n">nc_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> \
+                                   <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">fname</span><span class="p">)))</span>
+        <span class="k">if</span> <span class="n">ctdname</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">prf_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">nc_path</span><span class="p">,</span> <span class="n">ctdname</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">prf_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">nc_path</span><span class="p">,</span> <span class="n">nc</span><span class="o">.</span><span class="n">summary</span><span class="p">))</span>
+        <span class="n">amb_data</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">(</span><span class="n">prf_path</span><span class="p">)</span>
+        <span class="n">profile</span> <span class="o">=</span> <span class="n">ambient</span><span class="o">.</span><span class="n">Profile</span><span class="p">(</span><span class="n">amb_data</span><span class="p">,</span> <span class="n">chem_names</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">)</span>
+        <span class="n">profile</span><span class="o">.</span><span class="n">close_nc</span><span class="p">()</span>
+        
+    <span class="k">except</span> <span class="ne">RuntimeError</span><span class="p">:</span>
+        <span class="c1"># Tell user that profile data read failed</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;File not found: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">prf_path</span><span class="p">]</span>
+        <span class="n">message</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39; ... Continuing without profile data&#39;</span><span class="p">)</span>
+        <span class="n">warn</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">message</span><span class="p">))</span>
+        <span class="n">profile</span> <span class="o">=</span> <span class="kc">None</span>
+    
+    <span class="c1"># Send back the final profile object</span>
+    <span class="k">return</span> <span class="n">profile</span></div>
+
+    
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Texas A&M Oil spill / Outfall Calculator</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_manual.html">TAMOC User Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../unit_tests.html">Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../bugs.html">Reporting Bugs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../readme.html">Read Me File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Scott A. Socolofsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
