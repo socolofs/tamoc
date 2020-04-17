@@ -12,7 +12,7 @@ distributed by NOAA ORR.
 
 from __future__ import (absolute_import, division, print_function)
 
-from tamoc import dbm
+from tamoc import seawater, dbm
 
 import numpy as np
 from scipy.optimize import fsolve, fmin
@@ -90,8 +90,9 @@ def get_oil(substance, q_oil, gor, ca=[]):
         delta = pedersen(oil.M, composition)
     
     # Create a live oil mixture for this oil that has the given GOR
-    composition, mass_frac, delta = mix_gas_for_gor(composition, 
-        mass_frac, user_data, delta, gor)
+    if gor > 0.:
+        composition, mass_frac, delta = mix_gas_for_gor(composition, 
+            mass_frac, user_data, delta, gor)
     
     # Get the mass flux for the desired oil flow rate
     mass_flux = set_mass_fluxes(composition, mass_frac, user_data, delta, 
@@ -145,6 +146,10 @@ def load_tamoc_oil(substance):
     # Extract the variables in the `substance` dictionary
     composition = substance['composition']
     masses = substance['masses']
+    if 'user_data' in substance.keys():
+        user_data = substance['user_data']
+    else:
+        user_data = None
     
     # Convert the masses to mass fraction 
     if isinstance(masses, float):
@@ -154,7 +159,10 @@ def load_tamoc_oil(substance):
     mass_frac = masses / np.sum(masses)
     
     # Create a dbm.FluidMixture object for this composition
-    oil = dbm.FluidMixture(composition)
+    if user_data == None:
+        oil = dbm.FluidMixture(composition)
+    else:
+        oil = dbm.FluidMixture(composition, user_data=user_data)
     
     # Extract the property data from this dbm.FluidMixture object
     user_data, units = format_dbm_data(composition, oil.M, oil.Pc, oil.Tc, 
@@ -553,10 +561,8 @@ def load_adios_oil(adios_id):
     
     # Read in the desired oil from the ADIOS Oil Library
     gnome_oil = get_oil_props(adios_id)
-    print('\n----------')
-    print('Loading NOAA Oil Library Oil:  ' + adios_id)
-    print('Record name:  ' + gnome_oil.record.name)
-    print('----------\n')
+    print('     -->Loading NOAA Oil Library Oil:  ' + adios_id)
+    print('     -->Record name:  ' + gnome_oil.record.name)
     
     # Extract properties of this oil from the gnome_oil object
     molecular_weight = gnome_oil.molecular_weight         # g/mol
@@ -1204,15 +1210,9 @@ def Vc_tuning(mass_frac, composition, rho_data, rho_i, delta, user_data):
             sum_rel += np.abs(rho_tamoc - rho_adios) / rho_adios
             num += 1.
     
-    # Compute statistics
+    # Compute statistics...can be printed if interested.
     err_abs = sum_abs / num
     err_rel = sum_rel / num
-    
-    # Report the statistics
-    print('\n----------')
-    print('Average absolute error for density:  %6.3f (kg/m^3) ' % err_abs)
-    print('Average relative error for density:  %6.4f (--)' % err_rel)
-    print('----------\n')
     
     # Return the optimized user_data dictionary
     return user_data

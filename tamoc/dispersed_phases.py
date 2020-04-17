@@ -857,7 +857,11 @@ def save_particle_to_nc_file(nc, chem_names, particles, K_T0):
         if particles[i].particle.issoluble:
             if len(particles[i].particle.user_data) > next_chems:
                 next_chems = len(particles[i].particle.user_data)
-                user_composition = particles[i].particle.user_data.keys()
+                # Python 3 will not index a dict_keys() object because that
+                # is not a good thing to do.  However, that is what we do
+                # below...hence, we need to make the dict_keys into a list
+                user_composition = \
+                    list(particles[i].particle.user_data.keys())
     
     if next_chems > 0:
         next_chems = nc.createDimension('next_chems', next_chems)

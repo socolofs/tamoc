@@ -109,3 +109,4 @@ if __name__ == '__main__':
     # Plot the full suite of model variables
     bpm.plot_all_variables(1)
 
+

@@ -404,6 +404,56 @@ class Blowout(object):
         # updated before it is run again
         self.update = False
     
+    def save_sim(self, fname, profile_path, profile_info):
+        """
+        Save the `bent_plume_model` complete solution in netCDF format
+        
+        Parameters
+        ----------
+        fname : str
+            File name of the netCDF file to write
+        profile_path : str
+            String stating the file path to the ambient profile data relative 
+            to the directory where `fname` will be saved.  
+        profile_info : str
+            Single line of text describing the ambient profile data.
+        
+        """
+        if self.bpm.sim_stored is False:
+            print('No simulation results available to store...')
+            print('Run Blowout.simulate() first.\n')
+            return
+        
+        self.bpm.save_sim(fname, profile_path, profile_info)
+    
+    def save_txt(self, base_name, profile_path, profile_info):
+        """
+        Save the `bent_plume_model` state space in ascii text format
+        
+        Parameters
+        ----------
+        base_name : str
+            Base file name for the output file.  This method will append the
+            .txt file extension to the data output and write a second file
+            with the header information called base_name_header.txt.  If the
+            particles that left the plume were tracked in the farfield, it
+            will also save the trajectory of those particles as 
+            base_name_nnn.txt (output data) and base_name_nnn_header.txt 
+            (header data for far field data).  
+        profile_path : str
+            String stating the file path to the ambient profile data relative 
+            to the directory where `fname` will be saved.  
+        profile_info : str
+            Single line of text describing the ambient profile data.
+        
+        """
+        if self.bpm.sim_stored is False:
+            print('No simulation results available to store...')
+            print('Run Blowout.simulate() first.\n')
+            return
+        
+        self.bpm.save_txt(base_name, profile_path, profile_info)
+    
     def plot_state_space(self, fignum=1):
         """
         Plot the `bent_plume_model` state space solution

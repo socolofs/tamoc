@@ -18,6 +18,7 @@ to compute the gas bubble and oil droplet size distributions.
 from __future__ import (absolute_import, division, print_function)
 
 from tamoc import ambient, dbm_utilities, blowout
+from tamoc import bent_plume_model as bpm
 
 import numpy as np
 import warnings
@@ -59,7 +60,6 @@ if __name__ == '__main__':
         current = np.array([0.09, 0., 0.])
     
     # Jet initial conditions
-    z0 = 1000.
     x0 = 0.
     y0 = 0.
     u0 = 0.              # no produced water
@@ -118,3 +118,23 @@ if __name__ == '__main__':
     spill.simulate()
     spill.plot_state_space(100)
     spill.plot_all_variables(110)
+    
+    # Try saving the bent plume model solution to the disk
+    save_file = './output/blowout_obj.nc'
+    ctd_file = '../../../test/output/test_BM54.nc'
+    ctd_data = 'Default data in the BM54.nc dataset distributed with TAMOC'
+    print('\nSaving present simulation to: ', save_file)
+    spill.save_sim(save_file, ctd_file, ctd_data)
+    
+    # Try saving an ascii text file for output
+    text_file = './output/blowout_obj.dat'
+    print('\nSaving text output...')
+    spill.save_txt(text_file, ctd_file, ctd_data)
+    
+    # We cannot load a saved simulation back into a Blowout object, but
+    # we could load it into a bent_plume_model.Model object...try this now
+    print('\nLoading saved simulation file...')
+    sim = bpm.Model(simfile=save_file)
+    sim.plot_state_space(200)
+    
+    print('\nDone.')
