@@ -30,8 +30,8 @@ import setuptools
 from numpy.distutils.core import Extension
 
 # Describe some attributes of the software
-classifiers = """\
-Development Status :: beta
+classifiers = \
+"""Development Status :: beta
 Environment :: Console
 Intended Audience :: Science/Research
 Intended Audience :: Developers
@@ -39,8 +39,7 @@ License :: MIT
 Operating System :: OS Independent
 Programming Language :: Python
 Topic :: Scientific/Engineering
-Topic :: Software Development :: Libraries :: Python Modules
-"""
+Topic :: Software Development :: Libraries :: Python Modules"""
 
 # Define the sample programs to include
 bin_files = ['./bin/dbm/air_eos.py',
@@ -111,5 +110,5 @@ if __name__ == '__main__':
           platforms=['any'],
           ext_package='tamoc',
           ext_modules=[ext_dbm_f],
-          classifiers=filter(None, classifiers.split("\n")),
+          classifiers=classifiers.split("\n"),
           )
