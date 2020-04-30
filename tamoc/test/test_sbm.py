@@ -46,6 +46,9 @@ from numpy.testing import assert_approx_equal
 # Helper functions
 # ----------------------------------------------------------------------------
 
+OUTPUT_DIR = os.path.realpath(os.path.join(os.path.dirname(__file__),'output'))
+
+
 def make_ctd_file():
     """
     Creates a netCDF dataset of ambient CTD data
@@ -360,14 +363,17 @@ def test_simulation():
         -2.91389824e-13, -1.08618680e-15, -1.37972400e-07]), decimal = 6)
 
     # Write the output files
-    sbm.save_sim('./output/sbm_data.nc', './test_BM54.nc',
+    sbm.save_sim(os.path.join(OUTPUT_DIR, 'sbm_data.nc'),
+                 './test_BM54.nc',
                  'Results of ./test_sbm.py script')
 
-    sbm.save_txt('./output/sbm_data', './test_BM54.nc',
+    sbm.save_txt(os.path.join(OUTPUT_DIR, 'sbm_data'),
+                 './test_BM54.nc',
                  'Results of ./test_sbm.py script')
 
     # Reload the simulation
-    sbm_f = single_bubble_model.Model(simfile = './output/sbm_data.nc')
+    sbm_f = single_bubble_model.Model(simfile = os.path.join(OUTPUT_DIR,
+                                                             'sbm_data.nc'))
 
     # Check that the attributes are loaded correctly
     assert sbm_f.y[0,0] == sbm.y[0,0]  # x0
@@ -400,7 +406,7 @@ def test_simulation():
         -2.91389824e-13, -1.08618680e-15, -1.37972400e-07]), decimal = 6)
 
     # Load the data in the txt file and check the solution
-    data = np.loadtxt('./output/sbm_data.txt')
+    data = np.loadtxt(os.path.join(OUTPUT_DIR, 'sbm_data.txt'))
     assert sbm.y.shape[0] == 1117
     assert sbm.y.shape[1] == 8
     assert sbm.t.shape[0] == 1117

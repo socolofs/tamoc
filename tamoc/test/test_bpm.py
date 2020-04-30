@@ -26,6 +26,8 @@ have been validated against measurements.
 
 from __future__ import (absolute_import, division, print_function)
 
+import os
+
 from tamoc import seawater
 from tamoc import ambient
 from . import test_sbm
@@ -41,6 +43,8 @@ from numpy.testing import assert_approx_equal
 # ----------------------------------------------------------------------------
 # Helper Functions
 # ----------------------------------------------------------------------------
+
+OUTPUT_DIR = os.path.realpath(os.path.join(os.path.dirname(__file__),'output'))
 
 def get_profile():
     """
@@ -77,6 +81,7 @@ def get_profile():
 
     # Return a profile object
     return profile
+
 
 def get_sim_data():
     """
@@ -574,13 +579,13 @@ def test_files():
         particles, track=True, dt_max=dt_max, sd_max=sd_max)
 
     # Save the simulation to a netCDF file
-    fname = './output/bpm_data.nc'
-    profile_path = './test_BM54.nc'
-    profile_info = 'Results of ./test_bpm.py script'
+    fname = os.path.join(OUTPUT_DIR, 'bpm_data.nc')
+    profile_path = os.path.join(OUTPUT_DIR, 'test_BM54.nc')
+    profile_info = 'Results of test_bpm.py script'
     bpm.save_sim(fname, profile_path, profile_info)
 
     # Save the simulation to a text file
-    base_name = './output/bpm_data'
+    base_name = os.path.join(OUTPUT_DIR, 'bpm_data')
     bpm.save_txt(base_name, profile_path, profile_info)
 
     # Load the simulation data from the netCDF file
