@@ -2098,7 +2098,8 @@ def convert_units(data, units):
                'kilogram meter-3': [1.0, 0., 'kg/m^3'], 
                'm/s': [1.0, 0., 'm/s'], 
                'mg/l': [1.e-3, 0., 'kg/m^3'],
-               'meter second-1' : [1.0, 0., 'm/s']
+               'meter second-1' : [1.0, 0., 'm/s'],
+               'm.s-1' : [1.0, 0., 'm/s']
            }
     
     # Make sure the data are a numpy array and the units are a list
