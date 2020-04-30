@@ -4,8 +4,8 @@ Particle Size Models
 
 Compute particle size distributions for jets of oil and gas
 
-This module provides an interface to available empirical models for bubble 
-and droplet size distributions for jet releases.  The empirical model 
+This module provides an interface to available empirical models for bubble
+and droplet size distributions for jet releases.  The empirical model
 functions are in `psf.py`; this module provides an object-oriented interface
 to these functions.  Gas bubble size distributions can be created from:
 
@@ -17,7 +17,7 @@ Oil droplet size distributions can be created from:
 * Johansen et al. (2013)
 * Li et al. (2017)
 
-All models support log-normal and Rosin-Rammler distributions.  
+All models support log-normal and Rosin-Rammler distributions.
 
 Notes
 -----
@@ -26,8 +26,8 @@ The particle size computational algorithms are contained in the module
 
     `psf.py` - Particle Size Fuctions
 
-This module is a function library used by the objects in this module.  In 
-general, the `psf` module can be replace by any module having the same 
+This module is a function library used by the objects in this module.  In
+general, the `psf` module can be replace by any module having the same
 application programming interface, whether programmed in Python, or another
 language and wrapped in Python.
 
@@ -52,17 +52,17 @@ from __future__ import (absolute_import, division, print_function)
 from tamoc import psf, seawater, dbm
 
 import numpy as np
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 class ModelBase(object):
     """
     Master class object for interfacing with functions in the `psf` module
-    
+
     This base model class contains the attributes necessary to directly call
     the functions in the `psf` module.  This class is also initialized with
     these fluid properties; hence, this class can be used independently of
     ``TAMOC`` or the discrete particle module (`dbm`) in TAMOC.
-    
+
     Parameters
     ----------
     rho_gas : float
@@ -77,13 +77,13 @@ class ModelBase(object):
     mu_oil : float
         Dynamic viscosity of the liquid phase released from the jet (Pa s)
     sigma_oil : float
-        Interfacial tension between the liquid phase released from the jet 
+        Interfacial tension between the liquid phase released from the jet
         and the continuous-phase receiving fluid (N/m)
     rho : float
         Density of the continuous-phase receiving fluid (kg/m^3)
     mu : float
         Dynamic viscosity of the continuous-phase receiving fluid (Pa s)
-    
+
     Attributes
     ----------
     rho_gas : float
@@ -98,14 +98,14 @@ class ModelBase(object):
     mu_oil : float
         Dynamic viscosity of the liquid phase released from the jet (Pa s)
     sigma_oil : float
-        Interfacial tension between the liquid phase released from the jet 
+        Interfacial tension between the liquid phase released from the jet
         and the continuous-phase receiving fluid (N/m)
     rho : float
         Density of the continuous-phase receiving fluid (kg/m^3)
     mu : float
         Dynamic viscosity of the continuous-phase receiving fluid (Pa s)
     sim_stored : bool
-        Flag indicating whether or not the particle size distribution 
+        Flag indicating whether or not the particle size distribution
         algorithm has been calculated since the last property update.
     distribution_stored : bool
         Flag indicating whether or not the particle size distribution has
@@ -117,21 +117,21 @@ class ModelBase(object):
     m_oil : float
         Mass flow rate of liquid released from the jet (kg/s)
     model_gas : str
-        Name of the model used for computing the gas bubble size 
+        Name of the model used for computing the gas bubble size
         distribution.  Choices are 'wang_etal' or 'li_etal':.
     model_oil : str
-        Name of the model used for computing the oil droplet size 
+        Name of the model used for computing the oil droplet size
         distribution.  Choices are 'sintef' or 'li_etal'.
     pdf_gas : str
-        Probability density function to use for the gas bubble size 
+        Probability density function to use for the gas bubble size
         distribution.  Choices are 'lognormal' or 'rosin-rammler'.
     pdf_oil : str
-        Probability density function to use for the oil droplet size 
+        Probability density function to use for the oil droplet size
         distribution.  Choices are 'lognormal' or 'rosin-rammler'.
     d50_gas : float
         Median equivalent spherical diameter of gas bubbles (m)
     de_max_gas : float
-        Maximum stable bubble size (equivalent spherical diameter) of gas 
+        Maximum stable bubble size (equivalent spherical diameter) of gas
         bubbles (m).
     de_gas : ndarray
         Array of equivalent spherical diameters of bubbles in the bubble
@@ -142,42 +142,42 @@ class ModelBase(object):
     d50_oil : float
         Median equivalent spherical diameter of oil droplets (m)
     de_max_oil : float
-        Maximum stable droplet size (equivalent spherical diameter) of oil 
+        Maximum stable droplet size (equivalent spherical diameter) of oil
         droplets (m).
     de_oil : ndarray
         Array of equivalent spherical diameters of droplets in the droplet
         size distribution (log-distributed, m)
     vf_oil : ndarray
         Array of volume fractions of oil corresponding to each droplet size
-        in the  `de_oil` droplet size distribution (--)    
-    
+        in the  `de_oil` droplet size distribution (--)
+
     See Also
     --------
     PureJet, Model
-    
+
     Notes
     -----
-    This class should only be used is the chemical properties are not going 
-    to be computed using the ``TAMOC`` `dbm`.  If the `dbm` is going to be 
+    This class should only be used is the chemical properties are not going
+    to be computed using the ``TAMOC`` `dbm`.  If the `dbm` is going to be
     used, then the regular `Model` class should be used instead.
-    
+
     """
-    def __init__(self, rho_gas, mu_gas, sigma_gas, rho_oil, mu_oil, 
+    def __init__(self, rho_gas, mu_gas, sigma_gas, rho_oil, mu_oil,
                  sigma_oil, rho, mu):
         super(ModelBase, self).__init__()
-        
+
         # Record the release properties
-        self.update_properties(rho_gas, mu_gas, sigma_gas, rho_oil, mu_oil, 
+        self.update_properties(rho_gas, mu_gas, sigma_gas, rho_oil, mu_oil,
                                sigma_oil, rho, mu)
-    
-    def update_properties(self, rho_gas, mu_gas, sigma_gas, rho_oil, mu_oil, 
+
+    def update_properties(self, rho_gas, mu_gas, sigma_gas, rho_oil, mu_oil,
                           sigma_oil, rho, mu):
         """
         Set the thermodynamic properties of the released and receiving fluids
-        
+
         Store the density, viscosity, and interfacial tension of the fluids
         involved in a jet breakup scenario.
-        
+
         Parameters
         ----------
         rho_gas : float
@@ -185,20 +185,20 @@ class ModelBase(object):
         mu_gas : float
             Dynamic viscosity of the gas phase released from the jet (Pa s)
         sigma_gas : float
-            Interfacial tension between the gas phase released from the jet 
+            Interfacial tension between the gas phase released from the jet
             and the continuous-phase receiving fluid (N/m)
         rho_oil : float
             Density of the liquid phase released from the jet (kg/m^3)
         mu_oil : float
             Dynamic viscosity of the liquid phase released from the jet (Pa s)
         sigma_oil : float
-            Interfacial tension between the liquid phase released from the 
+            Interfacial tension between the liquid phase released from the
             jet and the continuous-phase receiving fluid (N/m)
         rho : float
             Density of the continuous-phase receiving fluid (kg/m^3)
         mu : float
             Dynamic viscosity of the continuous-phase receiving fluid (Pa s)
-        
+
         """
         # Set the flags initially to False
         self.sim_stored = False
@@ -213,23 +213,23 @@ class ModelBase(object):
         self.sigma_oil = sigma_oil
         self.rho = rho
         self.mu = mu
-    
-    def simulate(self, d0, m_gas, m_oil, model_gas='wang_etal', 
-                 model_oil='sintef', pdf_gas='lognormal', 
+
+    def simulate(self, d0, m_gas, m_oil, model_gas='wang_etal',
+                 model_oil='sintef', pdf_gas='lognormal',
                  pdf_oil='rosin-rammler', Pa=4.e6, Ta=288.15):
         """
         Compute the parameters of the particle size distribution
-        
-        Computes the median bubble and droplet sizes and the spread 
+
+        Computes the median bubble and droplet sizes and the spread
         of the selected size distributions.  Models for gas bubble median
         size are `wang_etal` or `li_etal`; models for oil droplet median
-        size are `sintef` or `li_etal`.  Size distributions are either 
-        `lognormal` or `rosin-rammler`.  No matter what model is selected, 
+        size are `sintef` or `li_etal`.  Size distributions are either
+        `lognormal` or `rosin-rammler`.  No matter what model is selected,
         the `d_95`-rule is used when the predicted size distribution would
-        exceed the maximum stable bubble or droplet size.  Under that rule, 
-        the 95-percentile of the volume size distribution is set to the 
+        exceed the maximum stable bubble or droplet size.  Under that rule,
+        the 95-percentile of the volume size distribution is set to the
         maximum stable size, and the median size is adjusted downward.
-        
+
         Parameters
         ----------
         d0 : float
@@ -239,34 +239,34 @@ class ModelBase(object):
         m_oil : float
             Mass flow rate of liquid released from the jet (kg/s)
         model_gas : str, default='wang_etal'
-            Name of the model used for computing the gas bubble size 
+            Name of the model used for computing the gas bubble size
             distribution.  Choices are 'wang_etal' or 'li_etal':.
         model_oil : str, default='sintef'
-            Name of the model used for computing the oil droplet size 
+            Name of the model used for computing the oil droplet size
             distribution.  Choices are 'sintef' or 'li_etal'.
         pdf_gas : str, default='lognormal'
-            Probability density function to use for the gas bubble size 
+            Probability density function to use for the gas bubble size
             distribution.  Choices are 'lognormal' or 'rosin-rammler'.
         pdf_oil : str, default='rosin-rammler'
-            Probability density function to use for the oil droplet size 
+            Probability density function to use for the oil droplet size
             distribution.  Choices are 'lognormal' or 'rosin-rammler'.
         Pa : float, default=4.e6
             Pressure at the release point.  Used to compute the speed of
             sound in gas.
         Ta : float, default=288.15
-            Temperature of the released fluids.  Used to compute the 
+            Temperature of the released fluids.  Used to compute the
             speed of sound of gas.
-        
+
         Notes
         -----
         This method does not return any values.  Instead, the computed values
         are stored as attributes of the class object.  To report the computed
         values, use the `get`-methods.
-        
+
         See Also
         --------
         get_d50, get_de_max, get_distributions
-        
+
         """
         # Record the state of the release
         self.d0 = d0
@@ -276,13 +276,13 @@ class ModelBase(object):
         self.model_oil = model_oil
         self.pdf_gas = pdf_gas
         self.pdf_oil = pdf_oil
-        
+
         # Get the gas bubble size distribution
         if model_gas == 'wang_etal':
             # Get the parameters of the distribution
             self.d50_gas, m_gas, m_oil, self.de_max_gas, self.sigma_ln_gas = \
                 psf.wang_etal(
-                    self.d0, self.m_gas, self.rho_gas, self.mu_gas, 
+                    self.d0, self.m_gas, self.rho_gas, self.mu_gas,
                     self.sigma_gas, self.rho, self.mu, m_l=self.m_oil,
                     rho_l=self.rho_oil, P=Pa, T=Ta
                 )
@@ -295,8 +295,8 @@ class ModelBase(object):
             # Get the parameters of the distribution
             self.d50_gas, self.de_max_gas, self.k_gas, self.alpha_gas = \
                 psf.li_etal(
-                   self.d0, self.m_gas, self.rho_gas, self.m_oil, 
-                   self.rho_oil, self.mu_gas, self.sigma_gas, self.rho, 
+                   self.d0, self.m_gas, self.rho_gas, self.m_oil,
+                   self.rho_oil, self.mu_gas, self.sigma_gas, self.rho,
                    self.mu, fp_type=0
                 )
             if pdf_gas == 'lognormal':
@@ -304,22 +304,22 @@ class ModelBase(object):
                 self.d50_gas, self.sigma_ln_gas = psf.rr2ln(
                         self.d50_gas, self.k_gas, self.alpha_gas
                     )
-        
+
         # Get the oil droplet size distribution
         if model_oil == 'sintef':
             # Get the parameters of the distribution
             self.d50_oil, self.de_max_oil, self.k_oil, self.alpha_oil = \
                 psf.sintef(
-                   self.d0, self.m_gas, self.rho_gas, self.m_oil, 
-                   self.rho_oil, self.mu_oil, self.sigma_oil, self.rho, 
+                   self.d0, self.m_gas, self.rho_gas, self.m_oil,
+                   self.rho_oil, self.mu_oil, self.sigma_oil, self.rho,
                    self.mu, fp_type=1
                 )
         elif model_oil == 'li_etal':
             # Get the parameters of the distribution
             self.d50_oil, self.de_max_oil, self.k_oil, self.alpha_oil = \
                 psf.li_etal(
-                   self.d0, self.m_gas, self.rho_gas, self.m_oil, 
-                   self.rho_oil, self.mu_oil, self.sigma_oil, self.rho, 
+                   self.d0, self.m_gas, self.rho_gas, self.m_oil,
+                   self.rho_oil, self.mu_oil, self.sigma_oil, self.rho,
                    self.mu, fp_type=1
                 )
         if pdf_oil == 'lognormal':
@@ -327,26 +327,26 @@ class ModelBase(object):
             self.d50_oil, self.sigma_ln_oil = psf.rr2ln(
                     self.d50_oil, self.k_oil, self.alpha_oil
                 )
-        
+
         # Set the simulation flag to True
         self.sim_stored = True
-    
+
     def get_de_max(self, fp_type):
         """
         Report the maximum stable particle size of a fluid at the release
-        
+
         Parameters
         ----------
         fp_type : int
             Fluid for which the maximum stable particle size is desired:
             0 = gas, 1 = liquid.
-        
+
         Returns
         -------
         de_max : float
-            Equivalent spherical diameter of the maximum stable particle 
+            Equivalent spherical diameter of the maximum stable particle
             size (m)
-        
+
         """
         if self.sim_stored:
             # Use the simulated values stored in the present object
@@ -355,42 +355,42 @@ class ModelBase(object):
             else:
                 de_max = self.de_max_oil
         else:
-            # Compute new values since these are independent of orifice 
+            # Compute new values since these are independent of orifice
             # conditions
             if fp_type == 0:
                 # Get maximum stable particle size for gas
-                de_max = psf.grace(self.rho, self.rho_gas, self.mu, 
+                de_max = psf.grace(self.rho, self.rho_gas, self.mu,
                                    self.mu_gas, self.sigma_gas, fp_type)
             elif fp_type == 1:
                 # Get the maximum stable particle size for oil
-                de_max = psf.de_max_oil(self.rho_oil, self.sigma_oil, 
+                de_max = psf.de_max_oil(self.rho_oil, self.sigma_oil,
                                         self.rho)
-        
+
         return de_max
-    
+
     def get_d50(self, fp_type):
         """
         Report the median particle size of a fluid at the release
-        
+
         Parameters
         ----------
         fp_type : int
             Fluid for which the maximum stable particle size is desired:
             0 = gas, 1 = liquid.
-        
+
         Returns
         -------
         d50 : float
-            Equivalent spherical diameter of the median particle size of 
+            Equivalent spherical diameter of the median particle size of
             the volume size distribution (m)
-        
+
         Notes
         -----
         This method uses the parameters of the particle size distributions
-        determined by the `simulate()` method of the object.  You must 
+        determined by the `simulate()` method of the object.  You must
         run this method before calling this method to create the particle
         size distributions.
-        
+
         """
         if self.sim_stored:
             if fp_type == 0:
@@ -401,11 +401,11 @@ class ModelBase(object):
         else:
             print("You should run the .simulate() method first")
             return 0
-    
+
     def get_distributions(self, nbins_gas, nbins_oil):
         """
         Report the bubble and droplet size distributions
-        
+
         Parameters
         ----------
         nbins_gas : int
@@ -414,7 +414,7 @@ class ModelBase(object):
         nbins_oil : int
             Number of bin sizes to use in the oil droplet volume size
             distribution
-        
+
         Returns
         -------
         de_gas : ndarray
@@ -427,93 +427,95 @@ class ModelBase(object):
             Array of equivalent spherical diameters of droplets in the droplet
             size distribution (log-distributed, m)
         vf_oil : ndarray
-            Array of volume fractions of oil corresponding to each droplet 
+            Array of volume fractions of oil corresponding to each droplet
             size in the `de_oil` droplet size distribution (--)
-        
+
         Notes
         -----
         This method uses the parameters of the particle size distributions
-        determined by the `simulate()` method of the object.  You must 
+        determined by the `simulate()` method of the object.  You must
         run this method before calling this method to create the particle
         size distributions.
-        
+
         """
         if self.sim_stored:
             # Record the input parameters
             self.nbins_gas = nbins_gas
             self.nbins_oil = nbins_oil
-            
+
             if self.pdf_gas == 'rosin-rammler':
                 # Use Rosin-Rammler directly
-                self.de_gas, self.vf_gas = psf.rosin_rammler(self.nbins_gas, 
+                self.de_gas, self.vf_gas = psf.rosin_rammler(self.nbins_gas,
                     self.d50_gas, self.k_gas, self.alpha_gas
                     )
             elif self.pdf_gas == 'lognormal':
                 # Use the fitted lognormal distribution
-                self.de_gas, self.vf_gas = psf.log_normal(self.nbins_gas, 
+                self.de_gas, self.vf_gas = psf.log_normal(self.nbins_gas,
                     self.d50_gas, self.sigma_ln_gas
                     )
-            
+
             if self.pdf_oil == 'rosin-rammler':
                 # Use Rosin-Rammler directly
-                self.de_oil, self.vf_oil = psf.rosin_rammler(self.nbins_oil, 
+                self.de_oil, self.vf_oil = psf.rosin_rammler(self.nbins_oil,
                     self.d50_oil, self.k_oil, self.alpha_oil
                     )
             elif self.pdf_oil == 'lognormal':
                 # Use the fitted lognormal distribution
-                self.de_oil, self.vf_oil = psf.log_normal(self.nbins_oil, 
+                self.de_oil, self.vf_oil = psf.log_normal(self.nbins_oil,
                     self.d50_oil, self.sigma_ln_oil
                     )
-            
+
             # Set the distribution flag to true
             self.distribution_stored = True
-        
+
         else:
             print("You should run the .simulate() method first")
             return 0
-        
+
         return (self.de_gas, self.vf_gas, self.de_oil, self.vf_oil)
-    
-    
+
+
     def plot_psd(self, fig=1, fp_type=None):
         """
         Create plots of the bubble and droplet size distribution
-        
+
         Plots a standard presentation of the present gas bubble and oil
         droplet size distributions
-        
+
         Parameters
         ----------
         fig : int, default=1
             Figure number to plot
         fp_type : int, default=None
             Fluid to plot.  If `fp_type` = None, then both the gas bubbles
-            and liquid droplets are plotted.  Otherwise, only the 
-            distribution defined by this parameter is plotted:  0 = gas, 
+            and liquid droplets are plotted.  Otherwise, only the
+            distribution defined by this parameter is plotted:  0 = gas,
             1 = liquid.
-        
+
         Notes
         -----
-        This method relies on the distribution already being computed, 
-        which requires first calling the methods `simulate()` and 
-        `get_distributions()`.  If these have not been computed, an 
+        This method relies on the distribution already being computed,
+        which requires first calling the methods `simulate()` and
+        `get_distributions()`.  If these have not been computed, an
         error message will display and not plots will be created.
-        
+
         """
+        import matplotlib.pyplot as plt
+
         if self.sim_stored:
             if not self.distribution_stored:
                 # Prepare to plot d50 only
                 self.get_distributions(1, 1)
-                
+
             # Create the standard plots for gas and oil size distributions
             plt.figure(fig)
             plt.clf()
-            
+
             title_font = {'fontsize': 10,
                           'fontweight' : 1,
                           'verticalalignment': 'baseline',
                           'horizontalalignment': 'left'}
-            
+
             # Gas bubble distribution
             if fp_type == 0 or fp_type == None:
                 plt.subplot(211)
@@ -525,7 +527,7 @@ class ModelBase(object):
                             '; d_50 = ' + \
                             '%2.2f mm' % (self.get_d50(0) * 1000.)
                 plt.title(fig_title, loc='left', fontdict=title_font, pad=-35)
-            
+
             # Oil droplet distribution
             if fp_type == 1 or fp_type == None:
                 if fp_type == 1:
@@ -539,9 +541,9 @@ class ModelBase(object):
                             '; PDF = ' + self.pdf_oil + \
                             '; d_50 = ' + \
                             '%2.2f mm' % (self.get_d50(1) * 1000.)
-                plt.title(fig_title, loc='left', fontdict=title_font, 
+                plt.title(fig_title, loc='left', fontdict=title_font,
                           pad=-35)
-            
+
             plt.show()
         else:
             print("You should run the .simulate() and .get_distribution()")
@@ -551,11 +553,11 @@ class ModelBase(object):
 class PureJet(ModelBase):
     """
     Class object for pure gas or pure oil plumes
-    
+
     This class uses the `ModelBase` class, but provides an interface that
-    only expects one released fluid (based on `fp_type`; 0 = gas, 
+    only expects one released fluid (based on `fp_type`; 0 = gas,
     1 = liquid).
-    
+
     Parameters
     ----------
     rho_p : float
@@ -571,7 +573,7 @@ class PureJet(ModelBase):
         Dynamic viscosity of the continuous-phase receiving fluid (Pa s)
     fp_type : int, default=1
         Phase of the released fluid; 0 = gas, 1 = liquid.
-    
+
     Attributes
     ----------
     rho_gas : float
@@ -586,14 +588,14 @@ class PureJet(ModelBase):
     mu_oil : float
         Dynamic viscosity of the liquid phase released from the jet (Pa s)
     sigma_oil : float
-        Interfacial tension between the liquid phase released from the jet 
+        Interfacial tension between the liquid phase released from the jet
         and the continuous-phase receiving fluid (N/m)
     rho : float
         Density of the continuous-phase receiving fluid (kg/m^3)
     mu : float
         Dynamic viscosity of the continuous-phase receiving fluid (Pa s)
     sim_stored : bool
-        Flag indicating whether or not the particle size distribution 
+        Flag indicating whether or not the particle size distribution
         algorithm has been calculated since the last property update.
     distribution_stored : bool
         Flag indicating whether or not the particle size distribution has
@@ -605,21 +607,21 @@ class PureJet(ModelBase):
     m_oil : float
         Mass flow rate of liquid released from the jet (kg/s)
     model_gas : str
-        Name of the model used for computing the gas bubble size 
+        Name of the model used for computing the gas bubble size
         distribution.  Choices are 'wang_etal' or 'li_etal':.
     model_oil : str
-        Name of the model used for computing the oil droplet size 
+        Name of the model used for computing the oil droplet size
         distribution.  Choices are 'sintef' or 'li_etal'.
     pdf_gas : str
-        Probability density function to use for the gas bubble size 
+        Probability density function to use for the gas bubble size
         distribution.  Choices are 'lognormal' or 'rosin-rammler'.
     pdf_oil : str
-        Probability density function to use for the oil droplet size 
+        Probability density function to use for the oil droplet size
         distribution.  Choices are 'lognormal' or 'rosin-rammler'.
     d50_gas : float
         Median equivalent spherical diameter of gas bubbles (m)
     de_max_gas : float
-        Maximum stable bubble size (equivalent spherical diameter) of gas 
+        Maximum stable bubble size (equivalent spherical diameter) of gas
         bubbles (m).
     de_gas : ndarray
         Array of equivalent spherical diameters of bubbles in the bubble
@@ -630,36 +632,36 @@ class PureJet(ModelBase):
     d50_oil : float
         Median equivalent spherical diameter of oil droplets (m)
     de_max_oil : float
-        Maximum stable droplet size (equivalent spherical diameter) of oil 
+        Maximum stable droplet size (equivalent spherical diameter) of oil
         droplets (m).
     de_oil : ndarray
         Array of equivalent spherical diameters of droplets in the droplet
         size distribution (log-distributed, m)
     vf_oil : ndarray
         Array of volume fractions of oil corresponding to each droplet size
-        in the  `de_oil` droplet size distribution (--)    
-    
+        in the  `de_oil` droplet size distribution (--)
+
     See Also
     --------
     ModelBase, Model
-    
+
     Notes
     -----
     In the attributes above, the attributes attached to the fluid phase of
     interest will have values; whereas, the other phase will contain `None`.
-    For example, if this is a pure oil release, `rho_oil` will have a value, 
+    For example, if this is a pure oil release, `rho_oil` will have a value,
     but `rho_gas` will store `None`.
-    
+
     """
     def __init__(self, rho_p, mu_p, sigma_p, rho, mu, fp_type=1):
-        
+
         # Send the particle properties to the correct phase
         self.update_properties(rho_p, mu_p, sigma_p, rho, mu, fp_type)
-    
+
     def update_properties(self, rho_p, mu_p, sigma_p, rho, mu, fp_type):
         """
         Set the thermodynamic properties of the release and receiving fluids
-        
+
         Parameters
         ----------
         rho_p : float
@@ -667,7 +669,7 @@ class PureJet(ModelBase):
         mu_p : float
             Dynamic viscosity of the gas phase released from the jet (Pa s)
         sigma_p : float
-            Interfacial tension between the gas phase released from the jet 
+            Interfacial tension between the gas phase released from the jet
             and the continuous-phase receiving fluid (N/m)
         rho : float
             Density of the continuous-phase receiving fluid (kg/m^3)
@@ -675,41 +677,41 @@ class PureJet(ModelBase):
             Dynamic viscosity of the continuous-phase receiving fluid (Pa s)
         fp_type : int, default=1
             Phase of the released fluid; 0 = gas, 1 = liquid.
-        
+
         """
         # Set the flags initially to False
         self.sim_stored = False
         self.distribution_stored = False
-        
+
         # Record the fluid type
         self.fp_type = fp_type
-        
+
         # Send the particle properties to the correct phase
         if fp_type == 0:
-            ModelBase.update_properties(self, rho_p, mu_p, sigma_p, None, 
+            ModelBase.update_properties(self, rho_p, mu_p, sigma_p, None,
                 None, None, rho, mu)
-        
+
         elif fp_type == 1:
-            ModelBase.update_properties(self, None, None, None, rho_p, mu_p, 
+            ModelBase.update_properties(self, None, None, None, rho_p, mu_p,
                 sigma_p, rho, mu)
-        
+
     def simulate(self, d0, m, model='sintef', pdf='rosin-rammler'):
         """
         Compute the parameters of the particle size distribution
-        
-        Computes the median bubble or droplet sizes and the spread 
+
+        Computes the median bubble or droplet sizes and the spread
         of the selected size distributions.  Models for gas bubble median
         size are `wang_etal` or `li_etal`; models for oil droplet median
-        size are `sintef` or `li_etal`.  Size distributions are either 
-        `lognormal` or `rosin-rammler`.  No matter what model is selected, 
+        size are `sintef` or `li_etal`.  Size distributions are either
+        `lognormal` or `rosin-rammler`.  No matter what model is selected,
         the `d_95`-rule is used when the predicted size distribution would
-        exceed the maximum stable bubble or droplet size.  Under that rule, 
-        the 95-percentile of the volume size distribution is set to the 
+        exceed the maximum stable bubble or droplet size.  Under that rule,
+        the 95-percentile of the volume size distribution is set to the
         maximum stable size, and the median size is adjusted downward.
-        
+
         This method only computes size distribution values for the fluid
         type selected by the class attribute fp_type (0 = gas, 1 = liquid).
-        
+
         Parameters
         ----------
         d0 : float
@@ -717,89 +719,89 @@ class PureJet(ModelBase):
         m : float
             Mass flow rate of fluid released from the jet (kg/s)
         model : str, default='wang_etal'
-            Name of the model used for computing the particle size 
+            Name of the model used for computing the particle size
             distribution.  Choices are 'wang_etal', 'li_etal', or 'sintef'.
             Note that the model choice must agree with the fluid of interest;
             see paragraph above for details.
         pdf : str, default='rosin-rammler'
-            Probability density function to use for the particle size 
+            Probability density function to use for the particle size
             distribution.  Choices are 'lognormal' or 'rosin-rammler'.
-        
+
         Notes
         -----
         This method does not return any values.  Instead, the computed values
         are stored as attributes of the class object.  To report the computed
         values, use the `get`-methods.
-        
+
         See Also
         --------
         get_d50, get_de_max, get_distributions
-        
+
         """
         if self.fp_type == 0:
-            ModelBase.simulate(self, d0, m, np.array([0.]), model_gas=model, 
+            ModelBase.simulate(self, d0, m, np.array([0.]), model_gas=model,
                                pdf_gas=pdf)
         elif self.fp_type == 1:
             ModelBase.simulate(self, d0, np.array([0.]), m, model_oil=model,
                                pdf_oil=pdf)
-    
+
     def get_de_max(self, fp_type=None):
         """
         Report the maximum stable particle size of the fluid at the release
-        
+
         Returns
         -------
         de_max : float
-            Equivalent spherical diameter of the maximum stable particle 
+            Equivalent spherical diameter of the maximum stable particle
             size (m)
         """
         return ModelBase.get_de_max(self, self.fp_type)
-    
+
     def get_d50(self, fp_type=None):
         """
         Report the median particle size of a fluid at the release
-        
+
         Returns
         -------
         d50 : float
-            Equivalent spherical diameter of the median particle size of 
+            Equivalent spherical diameter of the median particle size of
             the volume size distribution (m)
-        
+
         Notes
         -----
         This method uses the parameters of the particle size distributions
-        determined by the `simulate()` method of the object.  You must 
+        determined by the `simulate()` method of the object.  You must
         run this method before calling this method to create the particle
         size distributions.
-        
+
         """
         return ModelBase.get_d50(self, self.fp_type)
-    
+
     def get_distributions(self, nbins):
         """
         Report the particle size distributions
-        
+
         Parameters
         ----------
         nbins : int
             Number of bin sizes to use in the volume size distribution
-        
+
         Returns
         -------
         de : ndarray
-            Array of equivalent spherical diameters of particles in the 
+            Array of equivalent spherical diameters of particles in the
             volume size distribution (log-distributed, m)
         vf : ndarray
-            Array of volume fractions of particles corresponding to each 
+            Array of volume fractions of particles corresponding to each
             particle size in the  `de` volume size distribution (--)
-        
+
         Notes
         -----
         This method uses the parameters of the particle size distributions
-        determined by the `simulate()` method of the object.  You must 
+        determined by the `simulate()` method of the object.  You must
         run this method before calling this method to create the particle
         size distributions.
-        
+
         """
         # Compute the appropriate distribution
         if self.fp_type == 0:
@@ -810,28 +812,28 @@ class PureJet(ModelBase):
             de_none, vf_none, de, vf = ModelBase.get_distributions(
                     self, 0, nbins
                 )
-        
+
         return (de, vf)
-        
+
     def plot_psd(self, fig_num):
         """
         Create a plot of the particle size distribution
-        
-        Plots a standard presentation of the present particle size 
+
+        Plots a standard presentation of the present particle size
         distribution
-        
+
         Parameters
         ----------
         fig_num : int, default=1
             Figure number to plot
-        
+
         Notes
         -----
-        This method relies on the distribution already being computed, 
-        which requires first calling the methods `simulate()` and 
-        `get_distributions()`.  If these have not been computed, an 
+        This method relies on the distribution already being computed,
+        which requires first calling the methods `simulate()` and
+        `get_distributions()`.  If these have not been computed, an
         error message will display and not plots will be created.
-        
+
         """
         ModelBase.plot_psd(self, fig_num, self.fp_type)
 
@@ -839,13 +841,13 @@ class PureJet(ModelBase):
 class Model(ModelBase):
     """
     Master lass object for computing bubble and droplet size distributions
-    
-    This model class contains handles the interface to the `ModelBase`, 
-    allowing particle size distributions to be easily computed given a 
-    `dbm.FluidMixture` description of the released fluids.  This is the 
+
+    This model class contains handles the interface to the `ModelBase`,
+    allowing particle size distributions to be easily computed given a
+    `dbm.FluidMixture` description of the released fluids.  This is the
     main class object that should be used to compute bubble and droplet
-    size distributions for the plume models in ``TAMOC``.  
-    
+    size distributions for the plume models in ``TAMOC``.
+
     Parameters
     ----------
     profile : `ambient.Profile` object
@@ -860,7 +862,7 @@ class Model(ModelBase):
         Release point of the jet orifice (m)
     Tj : float
         Temperature of the released fluids (K)
-    
+
     Attributes
     ----------
     profile : `ambient.Profile` object
@@ -882,7 +884,7 @@ class Model(ModelBase):
     P : float
         Pressure of the receiving fluid at the release (Pa)
     gas : `dbm.FluidParticle` object
-        A `dbm.FluidParticle` object for the gas phase fluid at the 
+        A `dbm.FluidParticle` object for the gas phase fluid at the
         release
     m_gas : ndarray
         An array of mass fluxes (kg/s) of each pseudo-component in the gas
@@ -895,7 +897,7 @@ class Model(ModelBase):
         Interfacial tension between the gas phase released from the jet and
         the continuous-phase receiving fluid (N/m)
     oil : `dbm.FluidParticle` object
-        A `dbm.FluidParticle` object for the liquid phase fluid at the 
+        A `dbm.FluidParticle` object for the liquid phase fluid at the
         release
     m_oil : ndarray
         An array of mass fluxes (kg/s) of each pseudo-component in the liquid
@@ -905,14 +907,14 @@ class Model(ModelBase):
     mu_oil : float
         Dynamic viscosity of the liquid phase released from the jet (Pa s)
     sigma_oil : float
-        Interfacial tension between the liquid phase released from the jet 
+        Interfacial tension between the liquid phase released from the jet
         and the continuous-phase receiving fluid (N/m)
     rho : float
         Density of the continuous-phase receiving fluid (kg/m^3)
     mu : float
         Dynamic viscosity of the continuous-phase receiving fluid (Pa s)
     sim_stored : bool
-        Flag indicating whether or not the particle size distribution 
+        Flag indicating whether or not the particle size distribution
         algorithm has been calculated since the last property update.
     distribution_stored : bool
         Flag indicating whether or not the particle size distribution has
@@ -924,21 +926,21 @@ class Model(ModelBase):
     m_oil : float
         Mass flow rate of liquid released from the jet (kg/s)
     model_gas : str
-        Name of the model used for computing the gas bubble size 
+        Name of the model used for computing the gas bubble size
         distribution.  Choices are 'wang_etal' or 'li_etal':.
     model_oil : str
-        Name of the model used for computing the oil droplet size 
+        Name of the model used for computing the oil droplet size
         distribution.  Choices are 'sintef' or 'li_etal'.
     pdf_gas : str
-        Probability density function to use for the gas bubble size 
+        Probability density function to use for the gas bubble size
         distribution.  Choices are 'lognormal' or 'rosin-rammler'.
     pdf_oil : str
-        Probability density function to use for the oil droplet size 
+        Probability density function to use for the oil droplet size
         distribution.  Choices are 'lognormal' or 'rosin-rammler'.
     d50_gas : float
         Median equivalent spherical diameter of gas bubbles (m)
     de_max_gas : float
-        Maximum stable bubble size (equivalent spherical diameter) of gas 
+        Maximum stable bubble size (equivalent spherical diameter) of gas
         bubbles (m).
     de_gas : ndarray
         Array of equivalent spherical diameters of bubbles in the bubble
@@ -949,37 +951,37 @@ class Model(ModelBase):
     d50_oil : float
         Median equivalent spherical diameter of oil droplets (m)
     de_max_oil : float
-        Maximum stable droplet size (equivalent spherical diameter) of oil 
+        Maximum stable droplet size (equivalent spherical diameter) of oil
         droplets (m).
     de_oil : ndarray
         Array of equivalent spherical diameters of droplets in the droplet
         size distribution (log-distributed, m)
     vf_oil : ndarray
         Array of volume fractions of oil corresponding to each droplet size
-        in the  `de_oil` droplet size distribution (--)    
-    
+        in the  `de_oil` droplet size distribution (--)
+
     See Also
     --------
     ModelBase
-    
+
     Notes
     -----
     This is the main class object that should be used for particle size
-    distributions using the ``TAMOC`` plume models.  
-    
+    distributions using the ``TAMOC`` plume models.
+
     """
     def __init__(self, profile, oil, m, z0, Tj=None):
-        
+
         # Compute and store the oil properties
         self.update_properties(profile, oil, m, z0, Tj)
-    
+
     def update_properties(self, profile, oil_mixture, m_mixture, z0, Tj=None):
         """
         Set the thermodynamic properties of the released and receiving fluids
-        
+
         Store the density, viscosity, and interfacial tension of the fluids
         involved in a jet breakup scenario.
-        
+
         Parameters
         ----------
         profile : `ambient.Profile` object
@@ -988,38 +990,38 @@ class Model(ModelBase):
             A `dbm.FluidMixture` object that contains the chemical description
             of an oil mixture.
         m_mixture : ndarray
-            An array of mass fluxes (kg/s) of each pseudo-component in the 
+            An array of mass fluxes (kg/s) of each pseudo-component in the
             live-oil mixture.
         z0 : float
             Release point of the jet orifice (m)
         Tj : float
             Temperature of the released fluids (K)
-        
+
         Notes
         -----
-        This method allows the complete release to be redefined.  If you 
+        This method allows the complete release to be redefined.  If you
         only want to update the release depth or release temperature, use
         `.update_z0()` or `update_Tj()`, instead.
-        
+
         """
         # Set the flags initially to False
         self.sim_stored = False
         self.distribution_stored = False
-        
+
         # Record the input parameters
         self.profile = profile
         self.oil_mixture = oil_mixture
         self.m_mixture = m_mixture
         self.z0 = z0
         self.Tj = Tj
-        
+
         # Compute the properties of seawater
-        self.T, self.S, self.P = self.profile.get_values(self.z0, 
+        self.T, self.S, self.P = self.profile.get_values(self.z0,
                ['temperature', 'salinity', 'pressure']
             )
         self.rho = seawater.density(self.T, self.S, self.P)
         self.mu = seawater.mu(self.T, self.S, self.P)
-        
+
         # Set jet temperature either to ambient or input value
         if Tj == None:
             # Use ambient temperature
@@ -1027,11 +1029,11 @@ class Model(ModelBase):
         else:
             # Use input temperature
             self.Tj = Tj
-        
+
         # Compute the gas/liquid equilibrium
-        m_eq, xi, K = self.oil_mixture.equilibrium(self.m_mixture, self.Tj, 
+        m_eq, xi, K = self.oil_mixture.equilibrium(self.m_mixture, self.Tj,
                                                    self.P)
-        
+
         # Compute the gas phase properties
         if np.sum(m_eq[0,:]) == 0:
             self.gas = None
@@ -1040,16 +1042,16 @@ class Model(ModelBase):
             self.mu_gas = None
             self.sigma_gas = None
         else:
-            self.gas = dbm.FluidParticle(self.oil_mixture.composition, 
-                                         fp_type=0, 
-                                         delta=oil_mixture.delta, 
+            self.gas = dbm.FluidParticle(self.oil_mixture.composition,
+                                         fp_type=0,
+                                         delta=oil_mixture.delta,
                                          user_data=oil_mixture.user_data)
             self.m_gas = m_eq[0,:]
             self.rho_gas = self.gas.density(self.m_gas, self.Tj, self.P)
             self.mu_gas = self.gas.viscosity(self.m_gas, self.Tj, self.P)
-            self.sigma_gas = self.gas.interface_tension(self.m_gas, self.Tj, 
+            self.sigma_gas = self.gas.interface_tension(self.m_gas, self.Tj,
                                                         self.S, self.P)
-        
+
         # Compute the liquid phase properties
         if np.sum(m_eq[1,:]) == 0:
             self.oil = None
@@ -1058,114 +1060,116 @@ class Model(ModelBase):
             self.mu_oil = None
             self.sigma_oil = None
         else:
-            self.oil = dbm.FluidParticle(self.oil_mixture.composition, 
+            self.oil = dbm.FluidParticle(self.oil_mixture.composition,
                                          fp_type=1,
-                                         delta=oil_mixture.delta, 
+                                         delta=oil_mixture.delta,
                                          user_data=oil_mixture.user_data)
-            
+
             self.m_oil = m_eq[1,:]
             self.rho_oil = self.oil.density(self.m_oil, self.Tj, self.P)
             self.mu_oil = self.oil.viscosity(self.m_oil, self.Tj, self.P)
-            self.sigma_oil = self.oil.interface_tension(self.m_oil, self.Tj, 
+            self.sigma_oil = self.oil.interface_tension(self.m_oil, self.Tj,
                                                     self.S, self.P)
-    
+
     def update_z0(self, z0):
         """
         Update the release depth of the jet
-        
+
         Parameters
         ----------
         z0 : float
             Release point of the jet orifice (m)
-        
+
         """
         self.z0 = z0
-        self.update_properties(self.profile, self.oil_mixture, 
+        self.update_properties(self.profile, self.oil_mixture,
                                self.m_mixture, self.z0, self.Tj)
-    
+
     def update_Tj(self, Tj):
         """
         Update the temperature of the released fluids in the jet
-        
+
         Parameters
         ----------
         Tj : float
             Temperature of the released fluids (K)
-        
+
         """
         self.Tj = Tj
-        self.update_properties(self.profile, self.oil_mixture, 
+        self.update_properties(self.profile, self.oil_mixture,
                                self.m_mixture, self.z0, self.Tj)
-    
+
     def update_m_mixture(self, m_mixture):
         """
         Update the total mass flux of the released fluids in the jet
-        
+
         Parameters
         ----------
         m_mixture : float
-            An array of mass fluxes (kg/s) of each pseudo-component in the 
+            An array of mass fluxes (kg/s) of each pseudo-component in the
             live-oil mixture.
-        
+
         """
         self.m_mixture = m_mixture
-        self.update_properties(self.profile, self.oil_mixture, 
+        self.update_properties(self.profile, self.oil_mixture,
                                self.m_mixture, self.z0, self.Tj)
-    
-    def simulate(self, d0, model_gas='wang_etal', pdf_gas='lognormal', 
+
+    def simulate(self, d0, model_gas='wang_etal', pdf_gas='lognormal',
                  model_oil='sintef', pdf_oil='rosin-rammler'):
         """
         Compute the parameters of the particle size distribution
-        
-        Computes the median bubble and droplet sizes and the spread 
+
+        Computes the median bubble and droplet sizes and the spread
         of the selected size distributions.  Models for gas bubble median
         size are `wang_etal` or `li_etal`; models for oil droplet median
-        size are `sintef` or `li_etal`.  Size distributions are either 
-        `lognormal` or `rosin-rammler`.  No matter what model is selected, 
+        size are `sintef` or `li_etal`.  Size distributions are either
+        `lognormal` or `rosin-rammler`.  No matter what model is selected,
         the `d_95`-rule is used when the predicted size distribution would
-        exceed the maximum stable bubble or droplet size.  Under that rule, 
-        the 95-percentile of the volume size distribution is set to the 
+        exceed the maximum stable bubble or droplet size.  Under that rule,
+        the 95-percentile of the volume size distribution is set to the
         maximum stable size, and the median size is adjusted downward.
-        
+
         Parameters
         ----------
         d0 : float
             Equivalent circular diameter of the release orifice (m)
         model_gas : str, default='wang_etal'
-            Name of the model used for computing the gas bubble size 
+            Name of the model used for computing the gas bubble size
             distribution.  Choices are 'wang_etal' or 'li_etal':.
         model_oil : str, default='sintef'
-            Name of the model used for computing the oil droplet size 
+            Name of the model used for computing the oil droplet size
             distribution.  Choices are 'sintef' or 'li_etal'.
         pdf_gas : str, default='lognormal'
-            Probability density function to use for the gas bubble size 
+            Probability density function to use for the gas bubble size
             distribution.  Choices are 'lognormal' or 'rosin-rammler'.
         pdf_oil : str, default='rosin-rammler'
-            Probability density function to use for the oil droplet size 
+            Probability density function to use for the oil droplet size
             distribution.  Choices are 'lognormal' or 'rosin-rammler'.
-        
+
         Notes
         -----
         This method does not return any values.  Instead, the computed values
         are stored as attributes of the class object.  To report the computed
         values, use the `get`-methods.
-        
+
         See Also
         --------
         get_d50, get_de_max, get_distributions
-        
+
         """
-        ModelBase.simulate(self, d0, self.m_gas, self.m_oil, 
-                           model_gas=model_gas, model_oil=model_oil, 
-                           pdf_gas=pdf_gas, pdf_oil=pdf_oil, Pa=self.P, 
+        ModelBase.simulate(self, d0, self.m_gas, self.m_oil,
+                           model_gas=model_gas, model_oil=model_oil,
+                           pdf_gas=pdf_gas, pdf_oil=pdf_oil, Pa=self.P,
                            Ta=self.Tj)
-        
+
 
 def plot_phase(nbins, de, vf, color):
     """
     docstring for plot_phase
-    
+
     """
+    import matplotlib.pyplot as plt
+
     # Prepare data for plotting
     if np.sum(vf) > 0:
         index = np.arange(nbins)
@@ -1183,5 +1187,4 @@ def plot_phase(nbins, de, vf, color):
             num = (y1 - y0) / (x1 - x0) * (ticlocs[i] - x0) + y0
             ticnums.append('%2.2f' % (num * 1000))
         plt.xticks(ticlocs, ticnums)
-    
-        
+
