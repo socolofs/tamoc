@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """
 SETUP.py - Setup utility for TAMOC: Texas A&M Oilspill Calculator
 
@@ -23,6 +25,8 @@ Author
 S. Socolofsky, January 2012, Texas A&M University <socolofs@tamu.edu>.
 
 """
+import os
+import setuptools
 from numpy.distutils.core import Extension
 
 # Describe some attributes of the software
@@ -71,31 +75,42 @@ bin_files = ['./bin/dbm/air_eos.py',
              './bin/bpm/blowout_obj.py']
 
 # Define the external Fortran sources
-ext_dbm_f = Extension(name = 'dbm_f', 
-                      sources = ['tamoc/src/dbm_eos.f95', 
-                                 'tamoc/src/dbm_phys.f95', 
+ext_dbm_f = Extension(name = 'dbm_f',
+                      sources = ['tamoc/src/dbm_eos.f95',
+                                 'tamoc/src/dbm_phys.f95',
                                  'tamoc/src/math_funcs.f95'])
+
+def get_version(pkg_name):
+    """
+    Reads the version string from the package __init__ and returns it
+    """
+    with open(os.path.join(pkg_name, "__init__.py")) as init_file:
+        for line in init_file:
+            parts = line.strip().partition("=")
+            if parts[0].strip() == "__version__":
+                return parts[2].strip().strip("'").strip('"')
+    return None
+
 
 # Provide the setup utility
 if __name__ == '__main__':
-    
+
     from numpy.distutils.core import setup
-    
+
     setup(
-        name = 'TAMOC',
-        version = '2.0.0',
-        description = 'Texas A&M Oilspill Calculator',
-        long_description = open('README.rst').read(),
-        license = 'LICENSE.txt',
-        author = 'Scott A. Socolofsky',
-        author_email = 'socolofs@tamu.edu',
+        name='TAMOC',
+        version=get_version("tamoc"),
+        description='Texas A&M Oilspill Calculator',
+        long_description=open('README.rst').read(),
+        license='LICENSE.txt',
+        author='Scott A. Socolofsky',
+        author_email='socolofs@tamu.edu',
         url="https://ceprofs.civil.tamu.edu/ssocolofsky/",
         scripts=bin_files,
-        packages = ['tamoc'],
+        packages=['tamoc'],
         package_data={'tamoc': ['data/*.csv', 'data/*.cnv', 'data/*.dat']},
-        platforms = ['any'],
-        ext_package = 'tamoc',
-        ext_modules = [ext_dbm_f],
-        classifiers = filter(None, classifiers.split("\n")),
-    )
-
+        platforms=['any'],
+        ext_package='tamoc',
+        ext_modules=[ext_dbm_f],
+        classifiers=filter(None, classifiers.split("\n")),
+          )
