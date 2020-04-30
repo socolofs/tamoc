@@ -1,7 +1,7 @@
 """
 Unit tests for the `blowout` module of ``TAMOC``
 
-Provides testing of the class definition, methods, and functions in the 
+Provides testing of the class definition, methods, and functions in the
 `blowout` module of ``TAMOC``.  These tests check the behavior of the class
 object, the results of simulations, and the related object methods.
 
@@ -9,7 +9,7 @@ The ambient data used here are from the `ctd_BM54.cnv` dataset, stored as::
 
     ./test/output/test_BM54.nc
 
-This netCDF file is written by the `test_ambient.test_from_ctd` function, 
+This netCDF file is written by the `test_ambient.test_from_ctd` function,
 which is run in the following as needed to ensure the dataset is available.
 
 Notes
@@ -28,7 +28,7 @@ from __future__ import (absolute_import, division, print_function)
 
 from tamoc import ambient, blowout
 
-import test_sbm
+from . import test_sbm
 
 import numpy as np
 from numpy.testing import assert_approx_equal
@@ -41,21 +41,21 @@ from numpy.testing import assert_array_almost_equal
 def get_ctd():
     """
     Provide the ambient CTD data
-    
+
     Load the required CTD data from the ./test/output/test_BM54.nc dataset
     and include water currents.
-    
+
     Returns
     -------
     profile : `ambient.Profile` object
-        An `ambient.Profile` object containing the required CTD data and 
+        An `ambient.Profile` object containing the required CTD data and
         currents for a `bent_plume_model` simulation.
-    
+
     """
     # Get the CTD data from the requested file
     nc = test_sbm.make_ctd_file()
     profile = ambient.Profile(nc, chem_names='all')
-    
+
     # Add the ambient currents
     z = profile.nc.variables['z'][:]
     ua = np.zeros(z.shape) + 0.09
@@ -65,17 +65,17 @@ def get_ctd():
     comments = ['measured', 'arbitrary crossflow velocity']
     profile.append(data, symbols, units, comments, 0)
     profile.close_nc()
-    
+
     # Return the profile object
     return profile
 
 def get_blowout():
     """
     Create the `blowout.Blowout` object for a basic case
-    
+
     Define the parameters for a basic, synthetic accidental subsea oil well
     blowout
-    
+
     Returns
     -------
     z0 : float, default=100
@@ -89,17 +89,17 @@ def get_blowout():
         NOAA OilLibrary, this should be a string containing the Adios oil
         ID number (e.g., 'AD01554' for Louisiana Light Sweet).
     q_oil : float, default=20000.
-        Release rate of the dead oil composition at the release point in 
+        Release rate of the dead oil composition at the release point in
         stock barrels of oil per day.
     gor : float, default=0.
-        Gas to oil ratio at standard surface conditions in standard cubic 
+        Gas to oil ratio at standard surface conditions in standard cubic
         feet per stock barrel of oil
     x0 : float, default=0
         x-coordinate of the release (m)
     y0 : float, default=0
         y-coordinate of the release (m)
     u0 : float, default=None
-        Exit velocity of continuous-phase fluid at the release.  This is 
+        Exit velocity of continuous-phase fluid at the release.  This is
         only used when produced water exits.  For a pure oil and gas release,
         this should be zero or None.
     phi_0 : float, default=-np.pi / 2. (vertical release)
@@ -118,14 +118,14 @@ def get_blowout():
         Data describing the ambient water temperature and salinity profile.
         See Notes below for details.
     current : various
-        Data describing the ambient current velocity profile.  See Notes 
+        Data describing the ambient current velocity profile.  See Notes
         below for details.
-    
+
     """
     # Define some typical blowout values
     z0 = 100.
     d0 = 0.2
-    substance = {'composition' : ['methane', 'ethane', 'propane', 
+    substance = {'composition' : ['methane', 'ethane', 'propane',
                                     'toluene', 'benzene'],
                  'masses' : np.array([0.2, 0.03, 0.02, 0.25, 0.5])}
     q_oil = 20000.
@@ -139,17 +139,17 @@ def get_blowout():
     num_oil_elements = 10
     water = None
     current = np.array([0.09, 0.0, 0.0])
-    
-    return (z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0, theta_0, 
+
+    return (z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0, theta_0,
             num_gas_elements, num_oil_elements, water, current)
 
-def check_attributes(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0, 
-                     theta_0, num_gas_elements, num_oil_elements, 
+def check_attributes(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0,
+                     theta_0, num_gas_elements, num_oil_elements,
                      water, current, spill):
     """
     Check that the attributes in the `blowout.Blowout` object contain the
     correct values
-    
+
     Parameters
     ----------
     z0 : float, default=100
@@ -163,17 +163,17 @@ def check_attributes(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0,
         NOAA OilLibrary, this should be a string containing the Adios oil
         ID number (e.g., 'AD01554' for Louisiana Light Sweet).
     q_oil : float, default=20000.
-        Release rate of the dead oil composition at the release point in 
+        Release rate of the dead oil composition at the release point in
         stock barrels of oil per day.
     gor : float, default=0.
-        Gas to oil ratio at standard surface conditions in standard cubic 
+        Gas to oil ratio at standard surface conditions in standard cubic
         feet per stock barrel of oil
     x0 : float, default=0
         x-coordinate of the release (m)
     y0 : float, default=0
         y-coordinate of the release (m)
     u0 : float, default=None
-        Exit velocity of continuous-phase fluid at the release.  This is 
+        Exit velocity of continuous-phase fluid at the release.  This is
         only used when produced water exits.  For a pure oil and gas release,
         this should be zero or None.
     phi_0 : float, default=-np.pi / 2. (vertical release)
@@ -192,11 +192,11 @@ def check_attributes(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0,
         Data describing the ambient water temperature and salinity profile.
         See Notes below for details.
     current : various
-        Data describing the ambient current velocity profile.  See Notes 
+        Data describing the ambient current velocity profile.  See Notes
         below for details.
     spill : `blowout.Blowout` object
         A `blowout.Blowout` object that contains the specified input data
-    
+
     """
     # Check each of the object attributes in the __init__() method
     assert spill.z0 == z0
@@ -227,18 +227,18 @@ def check_attributes(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0,
 def check_simulation(spill):
     """
     Compare the simulation solution stored in spill to the expected solution
-    
+
     Parameters
     ----------
     spill : `blowout.Blowout` object
-        A `blowout.Blowout` object that contains a simulation run already 
+        A `blowout.Blowout` object that contains a simulation run already
         completed
-    
+
     """
     # Check the model parameters
     assert spill.update == False
     assert spill.bpm.sim_stored == True
-    
+
     # Check that the object attributes are set properly
     assert_array_almost_equal(spill.bpm.X, np.array([spill.x0, spill.y0,
         spill.z0]), decimal=6)
@@ -255,10 +255,10 @@ def check_simulation(spill):
     assert spill.bpm.track == spill.track
     assert spill.bpm.dt_max == spill.dt_max
     assert spill.bpm.sd_max == spill.sd_max
-    assert_array_almost_equal(spill.bpm.K_T0, 
-        np.array([spill.disp_phases[i].K_T 
+    assert_array_almost_equal(spill.bpm.K_T0,
+        np.array([spill.disp_phases[i].K_T
         for i in range(len(spill.disp_phases))]), decimal=6)
-    
+
     # Check the model simulation results
     q0 = np.array([
         1.29037789e+00,  4.52019374e+01,  1.47755395e+06,  3.69108728e-15,
@@ -472,10 +472,10 @@ def check_simulation(spill):
     assert_approx_equal(spill.bpm.t[-1], 47.03022889191836, significant=6)
     for i in range(len(qn)):
         assert_approx_equal(spill.bpm.q[-1,i], qn[i], significant=6)
-    
+
     # Check tracking data for a particle outside the plume
     assert spill.bpm.particles[0].farfield == False
-    
+
 
 # ----------------------------------------------------------------------------
 # Unit Tests
@@ -484,26 +484,26 @@ def check_simulation(spill):
 def test_Blowout_inst():
     """
     Test instantiation of a `blowout.Blowout` object
-    
-    Test that the initializer of the `blowout.Blowout` class creates the 
+
+    Test that the initializer of the `blowout.Blowout` class creates the
     correct object
-    
+
     """
     # Get the input parameters for a typical blowout
     z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0, theta_0, \
         num_gas_elements, num_oil_elements, water, current = \
         get_blowout()
-    
+
     # Create the blowout.Blowout object
-    spill = blowout.Blowout(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0, 
-                            theta_0, num_gas_elements, num_oil_elements, 
+    spill = blowout.Blowout(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0,
+                            theta_0, num_gas_elements, num_oil_elements,
                             water, current)
-    
+
     # Check the object attributes set by the __init__() method
-    check_attributes(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0, 
-                     theta_0, num_gas_elements, num_oil_elements, 
+    check_attributes(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0,
+                     theta_0, num_gas_elements, num_oil_elements,
                      water, current, spill)
-    
+
     # Check the attributes not accessible to the user
     assert spill.new_oil == False
     assert spill.Sj == 0.
@@ -514,9 +514,9 @@ def test_Blowout_inst():
     assert spill.dt_max == 5. * 3600.
     assert spill.sd_max == 3. * z0 / d0
     assert spill.update == True
-    
+
     # Check the CTD data
-    T, S, P, ua, va = spill.profile.get_values(z0, ['temperature', 
+    T, S, P, ua, va = spill.profile.get_values(z0, ['temperature',
                       'salinity', 'pressure', 'ua', 'va'])
     assert_approx_equal(spill.T0, T, significant=6)
     assert_approx_equal(spill.S0, S, significant=6)
@@ -527,28 +527,28 @@ def test_Blowout_inst():
     assert_approx_equal(P, 1107655.378995259, significant=6)
     assert_approx_equal(ua, 0.09, significant=6)
     assert_approx_equal(va, 0., significant=6)
-    
+
     # Check the bubble and droplet sizes
-    de_gas = np.array([0.00367319, 0.00421546, 0.0048378 , 0.00555201, 
-       0.00637166, 0.00731231, 0.00839184, 0.00963073, 0.01105253, 
+    de_gas = np.array([0.00367319, 0.00421546, 0.0048378 , 0.00555201,
+       0.00637166, 0.00731231, 0.00839184, 0.00963073, 0.01105253,
        0.01268423])
-    vf_gas = np.array([0.01545088, 0.0432876 , 0.09350044, 0.15570546, 
-        0.19990978, 0.19788106, 0.15101303, 0.08885147, 0.04030462, 
+    vf_gas = np.array([0.01545088, 0.0432876 , 0.09350044, 0.15570546,
+        0.19990978, 0.19788106, 0.15101303, 0.08885147, 0.04030462,
         0.01409565])
-    de_oil = np.array([0.00044767, 0.00063414, 0.00089826, 0.00127239, 
-        0.00180236, 0.00255306, 0.00361644, 0.00512273, 0.0072564 , 
+    de_oil = np.array([0.00044767, 0.00063414, 0.00089826, 0.00127239,
+        0.00180236, 0.00255306, 0.00361644, 0.00512273, 0.0072564 ,
         0.01027876])
-    vf_oil = np.array([0.00876514, 0.01619931, 0.02961302, 0.05303846, 
-        0.09143938, 0.14684062, 0.20676085, 0.22874507, 0.16382356, 
+    vf_oil = np.array([0.00876514, 0.01619931, 0.02961302, 0.05303846,
+        0.09143938, 0.14684062, 0.20676085, 0.22874507, 0.16382356,
         0.05477458])
     assert_array_almost_equal(spill.d_gas, de_gas, decimal=6)
     assert_array_almost_equal(spill.vf_gas, vf_gas, decimal=6)
     assert_array_almost_equal(spill.d_liq, de_oil, decimal=6)
     assert_array_almost_equal(spill.vf_liq, vf_oil, decimal=6)
-    
+
     # Check the mass fluxes of each of the particles in the disp_phases
     # particle list
-    m0 = np.array([5.289671808056377e-07, 7.995318667820805e-07, 
+    m0 = np.array([5.289671808056377e-07, 7.995318667820805e-07,
         1.2084893528298558e-06, 1.8266270258633492e-06,
         2.760939749945933e-06, 4.173149852104387e-06, 6.307700009918694e-06,
         9.534064393845064e-06, 1.4410701796700701e-05,
@@ -557,368 +557,367 @@ def test_Blowout_inst():
         2.665967731077995e-06, 7.5772995096915136e-06,
         2.1536445167832175e-05, 6.121157938574416e-05,
         0.00017397752608186881, 0.0004944845384698018])
-    
+
     for i in range(len(m0)):
         assert_approx_equal(np.sum(spill.disp_phases[i].m), m0[i],
         significant=6)
 
 def test_update_release_depth():
     """
-    Check that the Blowout.update_release_depth() method works as 
+    Check that the Blowout.update_release_depth() method works as
     anticipated and with no side effects
-    
+
     """
     # Get the input parameters for a typical blowout
     z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0, theta_0, \
         num_gas_elements, num_oil_elements, water, current = \
         get_blowout()
-    
+
     # Create the blowout.Blowout object
-    spill = blowout.Blowout(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0, 
-                            theta_0, num_gas_elements, num_oil_elements, 
+    spill = blowout.Blowout(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0,
+                            theta_0, num_gas_elements, num_oil_elements,
                             water, current)
-    
+
     # Update the release depth
     z0 = 200.
     spill.update_release_depth(z0)
-    
+
     # Check that things were done correctly
     assert spill.update == False
     assert spill.bpm.sim_stored == False
-    check_attributes(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0, 
-                     theta_0, num_gas_elements, num_oil_elements, 
+    check_attributes(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0,
+                     theta_0, num_gas_elements, num_oil_elements,
                      water, current, spill)
 
 def test_update_orifice_diameter():
     """
-    Check that the Blowout.update_orifice_diameter() method works as 
+    Check that the Blowout.update_orifice_diameter() method works as
     anticipated and with no side effects
-    
+
     """
     # Get the input parameters for a typical blowout
     z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0, theta_0, \
         num_gas_elements, num_oil_elements, water, current = \
         get_blowout()
-    
+
     # Create the blowout.Blowout object
-    spill = blowout.Blowout(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0, 
-                            theta_0, num_gas_elements, num_oil_elements, 
+    spill = blowout.Blowout(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0,
+                            theta_0, num_gas_elements, num_oil_elements,
                             water, current)
-    
+
     # Update the release depth
     d0 = 0.1
     spill.update_orifice_diameter(d0)
-    
+
     # Check that things were done correctly
     assert spill.update == False
     assert spill.bpm.sim_stored == False
-    check_attributes(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0, 
-                     theta_0, num_gas_elements, num_oil_elements, 
+    check_attributes(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0,
+                     theta_0, num_gas_elements, num_oil_elements,
                      water, current, spill)
 
 def test_update_substance():
     """
-    Check that the Blowout.update_substance() method works as 
+    Check that the Blowout.update_substance() method works as
     anticipated and with no side effects
-    
+
     """
     # Get the input parameters for a typical blowout
     z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0, theta_0, \
         num_gas_elements, num_oil_elements, water, current = \
         get_blowout()
-    
+
     # Create the blowout.Blowout object
-    spill = blowout.Blowout(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0, 
-                            theta_0, num_gas_elements, num_oil_elements, 
+    spill = blowout.Blowout(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0,
+                            theta_0, num_gas_elements, num_oil_elements,
                             water, current)
-    
+
     # Update the release depth
-    substance = {'composition' : ['methane'], 
+    substance = {'composition' : ['methane'],
                  'masses' : np.array([1.0])}
     spill.update_substance(substance)
-    
+
     # Check that things were done correctly
     assert spill.update == False
     assert spill.bpm.sim_stored == False
-    check_attributes(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0, 
-                     theta_0, num_gas_elements, num_oil_elements, 
+    check_attributes(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0,
+                     theta_0, num_gas_elements, num_oil_elements,
                      water, current, spill)
 
 def test_update_q_oil():
     """
     Check that the Blowout.update_q_oil() method works as anticipated and
     with no side effects
-    
+
     """
     # Get the input parameters for a typical blowout
     z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0, theta_0, \
         num_gas_elements, num_oil_elements, water, current = \
         get_blowout()
-    
+
     # Create the blowout.Blowout object
-    spill = blowout.Blowout(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0, 
-                            theta_0, num_gas_elements, num_oil_elements, 
+    spill = blowout.Blowout(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0,
+                            theta_0, num_gas_elements, num_oil_elements,
                             water, current)
-    
+
     # Update the release depth
     q_oil = 30000.
     spill.update_q_oil(q_oil)
-    
+
     # Check that things were done correctly
     assert spill.update == False
     assert spill.bpm.sim_stored == False
-    check_attributes(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0, 
-                     theta_0, num_gas_elements, num_oil_elements, 
+    check_attributes(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0,
+                     theta_0, num_gas_elements, num_oil_elements,
                      water, current, spill)
 
 def test_update_gor():
     """
     Check that the Blowout.update_gor() method works as anticipated and with
     no side effects
-    
+
     """
     # Get the input parameters for a typical blowout
     z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0, theta_0, \
         num_gas_elements, num_oil_elements, water, current = \
         get_blowout()
-    
+
     # Create the blowout.Blowout object
-    spill = blowout.Blowout(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0, 
-                            theta_0, num_gas_elements, num_oil_elements, 
+    spill = blowout.Blowout(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0,
+                            theta_0, num_gas_elements, num_oil_elements,
                             water, current)
-    
+
     # Update the release depth
     gor = 500.
     spill.update_gor(gor)
-    
+
     # Check that things were done correctly
     assert spill.update == False
     assert spill.bpm.sim_stored == False
-    check_attributes(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0, 
-                     theta_0, num_gas_elements, num_oil_elements, 
+    check_attributes(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0,
+                     theta_0, num_gas_elements, num_oil_elements,
                      water, current, spill)
 
 def test_update_produced_water():
     """
-    Check that the Blowout.update_produced_water() method works as 
+    Check that the Blowout.update_produced_water() method works as
     anticipated and with no side effects
-    
+
     """
     # Get the input parameters for a typical blowout
     z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0, theta_0, \
         num_gas_elements, num_oil_elements, water, current = \
         get_blowout()
-    
+
     # Create the blowout.Blowout object
-    spill = blowout.Blowout(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0, 
-                            theta_0, num_gas_elements, num_oil_elements, 
+    spill = blowout.Blowout(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0,
+                            theta_0, num_gas_elements, num_oil_elements,
                             water, current)
-    
+
     # Update the release depth
     u0 = 1.3
     spill.update_produced_water(u0)
-    
+
     # Check that things were done correctly
     assert spill.update == False
     assert spill.bpm.sim_stored == False
-    check_attributes(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0, 
-                     theta_0, num_gas_elements, num_oil_elements, 
+    check_attributes(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0,
+                     theta_0, num_gas_elements, num_oil_elements,
                      water, current, spill)
 
 def test_update_vertical_orientation():
     """
-    Check that the Blowout.update_vertical_orientation() method works as 
+    Check that the Blowout.update_vertical_orientation() method works as
     anticipated and with no side effects
-    
+
     """
     # Get the input parameters for a typical blowout
     z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0, theta_0, \
         num_gas_elements, num_oil_elements, water, current = \
         get_blowout()
-    
+
     # Create the blowout.Blowout object
-    spill = blowout.Blowout(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0, 
-                            theta_0, num_gas_elements, num_oil_elements, 
+    spill = blowout.Blowout(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0,
+                            theta_0, num_gas_elements, num_oil_elements,
                             water, current)
-    
+
     # Update the release depth
     phi_0 = -np.pi / 4.
     spill.update_vertical_orientation(phi_0)
-    
+
     # Check that things were done correctly
     assert spill.update == False
     assert spill.bpm.sim_stored == False
-    check_attributes(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0, 
-                     theta_0, num_gas_elements, num_oil_elements, 
+    check_attributes(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0,
+                     theta_0, num_gas_elements, num_oil_elements,
                      water, current, spill)
 
 def test_update_horizontal_orientation():
     """
-    Check that the Blowout.update_horizontal_orientation() method works as 
+    Check that the Blowout.update_horizontal_orientation() method works as
     anticipated and with no side effects
-    
+
     """
     # Get the input parameters for a typical blowout
     z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0, theta_0, \
         num_gas_elements, num_oil_elements, water, current = \
         get_blowout()
-    
+
     # Create the blowout.Blowout object
-    spill = blowout.Blowout(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0, 
-                            theta_0, num_gas_elements, num_oil_elements, 
+    spill = blowout.Blowout(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0,
+                            theta_0, num_gas_elements, num_oil_elements,
                             water, current)
-    
+
     # Update the release depth
     theta_0 = np.pi
     spill.update_horizontal_orientation(theta_0)
-    
+
     # Check that things were done correctly
     assert spill.update == False
     assert spill.bpm.sim_stored == False
-    check_attributes(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0, 
-                     theta_0, num_gas_elements, num_oil_elements, 
+    check_attributes(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0,
+                     theta_0, num_gas_elements, num_oil_elements,
                      water, current, spill)
 
 def test_update_num_gas_elements():
     """
-    Check that the Blowout.update_num_gas_elements() method works as 
+    Check that the Blowout.update_num_gas_elements() method works as
     anticipated and with no side effects
-    
+
     """
     # Get the input parameters for a typical blowout
     z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0, theta_0, \
         num_gas_elements, num_oil_elements, water, current = \
         get_blowout()
-    
+
     # Create the blowout.Blowout object
-    spill = blowout.Blowout(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0, 
-                            theta_0, num_gas_elements, num_oil_elements, 
+    spill = blowout.Blowout(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0,
+                            theta_0, num_gas_elements, num_oil_elements,
                             water, current)
-    
+
     # Update the release depth
     num_gas_elements = 5
     spill.update_num_gas_elements(num_gas_elements)
-    
+
     # Check that things were done correctly
     assert spill.update == False
     assert spill.bpm.sim_stored == False
-    check_attributes(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0, 
-                     theta_0, num_gas_elements, num_oil_elements, 
+    check_attributes(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0,
+                     theta_0, num_gas_elements, num_oil_elements,
                      water, current, spill)
 
 def test_update_num_oil_elements():
     """
-    Check that the Blowout.update_num_oil_elements() method works as 
+    Check that the Blowout.update_num_oil_elements() method works as
     anticipated and with no side effects
-    
+
     """
     # Get the input parameters for a typical blowout
     z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0, theta_0, \
         num_gas_elements, num_oil_elements, water, current = \
         get_blowout()
-    
+
     # Create the blowout.Blowout object
-    spill = blowout.Blowout(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0, 
-                            theta_0, num_gas_elements, num_oil_elements, 
+    spill = blowout.Blowout(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0,
+                            theta_0, num_gas_elements, num_oil_elements,
                             water, current)
-    
+
     # Update the release depth
     num_oil_elements = 20
     spill.update_num_oil_elements(num_oil_elements)
-    
+
     # Check that things were done correctly
     assert spill.update == False
     assert spill.bpm.sim_stored == False
-    check_attributes(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0, 
-                     theta_0, num_gas_elements, num_oil_elements, 
+    check_attributes(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0,
+                     theta_0, num_gas_elements, num_oil_elements,
                      water, current, spill)
 
 def test_update_water_data():
     """
-    Check that the Blowout.update_water_data() method works as 
+    Check that the Blowout.update_water_data() method works as
     anticipated and with no side effects
-    
+
     """
     # Get the input parameters for a typical blowout
     z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0, theta_0, \
         num_gas_elements, num_oil_elements, water, current = \
         get_blowout()
-    
+
     # Create the blowout.Blowout object
-    spill = blowout.Blowout(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0, 
-                            theta_0, num_gas_elements, num_oil_elements, 
+    spill = blowout.Blowout(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0,
+                            theta_0, num_gas_elements, num_oil_elements,
                             water, current)
-    
+
     # Update the release depth
     water = get_ctd()
     spill.update_water_data(water)
-    
+
     # Check that things were done correctly
     assert spill.update == False
     assert spill.bpm.sim_stored == False
-    check_attributes(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0, 
-                     theta_0, num_gas_elements, num_oil_elements, 
+    check_attributes(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0,
+                     theta_0, num_gas_elements, num_oil_elements,
                      water, current, spill)
 
 def test_update_current_data():
     """
-    Check that the Blowout.update_current_data() method works as 
+    Check that the Blowout.update_current_data() method works as
     anticipated and with no side effects
-    
+
     """
     # Get the input parameters for a typical blowout
     z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0, theta_0, \
         num_gas_elements, num_oil_elements, water, current = \
         get_blowout()
-    
+
     # Create the blowout.Blowout object
-    spill = blowout.Blowout(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0, 
-                            theta_0, num_gas_elements, num_oil_elements, 
+    spill = blowout.Blowout(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0,
+                            theta_0, num_gas_elements, num_oil_elements,
                             water, current)
-    
+
     # Update the release depth
     current = 0.1
     spill.update_current_data(current)
-    
+
     # Check that things were done correctly
     assert spill.update == False
     assert spill.bpm.sim_stored == False
-    check_attributes(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0, 
-                     theta_0, num_gas_elements, num_oil_elements, 
+    check_attributes(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0,
+                     theta_0, num_gas_elements, num_oil_elements,
                      water, current, spill)
 
 def test_simulate():
     """
     Check that the Blowout.simulate() method works and produces the expected
     output.
-    
+
     """
     # Get the input parameters for a typical blowout
     z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0, theta_0, \
         num_gas_elements, num_oil_elements, water, current = \
         get_blowout()
-    
+
     # Create the blowout.Blowout object
-    spill = blowout.Blowout(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0, 
-                            theta_0, num_gas_elements, num_oil_elements, 
+    spill = blowout.Blowout(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0,
+                            theta_0, num_gas_elements, num_oil_elements,
                             water, current)
-    
+
     # Run the simulation
     # Get the input parameters for a typical blowout
     z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0, theta_0, \
         num_gas_elements, num_oil_elements, water, current = \
         get_blowout()
-    
+
     # Create the blowout.Blowout object
     spill.simulate()
-    
+
     # Check the simulation
     check_simulation(spill)
-    
+
     # Re-run the simulation and make sure the results are unchanged
     spill.simulate()
     check_simulation(spill)
-    
-    
-    
-                    
+
+
+
