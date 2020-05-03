@@ -27,7 +27,9 @@ S. Socolofsky, January 2012, Texas A&M University <socolofs@tamu.edu>.
 """
 import os
 import setuptools
-from numpy.distutils.core import Extension
+from numpy.distutils.core import setup, Extension
+from Cython.Build import cythonize
+
 
 # Describe some attributes of the software
 classifiers = """\
@@ -80,6 +82,8 @@ ext_dbm_f = Extension(name = 'dbm_f',
                                  'tamoc/src/dbm_phys.f95',
                                  'tamoc/src/math_funcs.f95'])
 
+ext_dbm_c = cythonize("tamoc/src/dbm_c.pyx")[0]
+
 def get_version(pkg_name):
     """
     Reads the version string from the package __init__ and returns it
@@ -95,8 +99,8 @@ def get_version(pkg_name):
 # Provide the setup utility
 if __name__ == '__main__':
 
-    from numpy.distutils.core import setup
-
+    print ext_dbm_f
+    print ext_dbm_c
     setup(name='TAMOC',
           version=get_version("tamoc"),
           description='Texas A&M Oilspill Calculator',
@@ -110,6 +114,6 @@ if __name__ == '__main__':
           package_data={'tamoc': ['data/*.csv', 'data/*.cnv', 'data/*.dat']},
           platforms=['any'],
           ext_package='tamoc',
-          ext_modules=[ext_dbm_f],
+          ext_modules=[ext_dbm_f, ext_dbm_c],
           classifiers=filter(None, classifiers.split("\n")),
           )
