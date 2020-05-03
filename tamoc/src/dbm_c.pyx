@@ -17,6 +17,8 @@ All in one file: it's easier that way with Cython
 """
 import sys
 
+cimport cython
+
 import numpy as np
 cimport numpy as np
 
@@ -114,6 +116,8 @@ def identity(np.ndarray [np.complex128_t, ndim=1] weights):
 
 
 #cpdef cubic_roots(np.ndarray[FLOAT_TYPE, ndim=1] p,
+@cython.boundscheck(False)  # Deactivate bounds checking
+@cython.wraparound(False)
 cpdef cubic_roots(np.ndarray p,
                   # x0 is output
                   # np.ndarray[FLOAT_TYPE, ndim=1] x0
@@ -152,7 +156,7 @@ cpdef cubic_roots(np.ndarray p,
 #     integer :: k
     cdef unsigned int k
 #     real(kind = DP) :: Delta, a, b, c, d, eps
-    cdef FLOAT_TYPE Delta, a, b, c, d, eps, s3
+    cdef FLOAT_TYPE Delta, a, b, c, d, s3
 #     real(kind = DP), dimension(N) :: Dk
     cdef FLOAT_TYPE[3] Dk  # is there a way to make this dynamic sized?
 #     complex(kind = DP), parameter :: I = cmplx(0.0, 1.0)
