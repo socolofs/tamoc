@@ -87,9 +87,6 @@ if __name__ == '__main__':
     z0 = 1000.       # release depth (m)
     d0 = 0.2         # orifice diameter (m)
     
-    # Import the oil with the desired gas to oil ratio
-    oil, mass_flux = dbm_utilities.get_oil(substance, q_oil, gor, ca)
-    
     # Decide on the number of Lagrangian elements to use for gas bubbles
     # and oil droplets
     num_gas_elements = 15

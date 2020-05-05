@@ -554,9 +554,9 @@ def test_files():
 
     # Load the simulation data from the netCDF file
     spm.load_sim(fname)
-    assert spm.sim_stored is True
+    assert spm.sim_stored
 
     # Initialize a Model object from the netCDF file
     spm_load = stratified_plume_model.Model(simfile=fname)
-    assert spm.sim_stored is True
+    assert spm.sim_stored
 

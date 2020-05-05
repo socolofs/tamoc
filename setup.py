@@ -32,8 +32,8 @@ from Cython.Build import cythonize
 
 
 # Describe some attributes of the software
-classifiers = """\
-Development Status :: beta
+classifiers = \
+"""Development Status :: beta
 Environment :: Console
 Intended Audience :: Science/Research
 Intended Audience :: Developers
@@ -41,8 +41,7 @@ License :: MIT
 Operating System :: OS Independent
 Programming Language :: Python
 Topic :: Scientific/Engineering
-Topic :: Software Development :: Libraries :: Python Modules
-"""
+Topic :: Software Development :: Libraries :: Python Modules"""
 
 # Define the sample programs to include
 bin_files = ['./bin/dbm/air_eos.py',
@@ -99,8 +98,6 @@ def get_version(pkg_name):
 # Provide the setup utility
 if __name__ == '__main__':
 
-    print ext_dbm_f
-    print ext_dbm_c
     setup(name='TAMOC',
           version=get_version("tamoc"),
           description='Texas A&M Oilspill Calculator',
@@ -115,5 +112,5 @@ if __name__ == '__main__':
           platforms=['any'],
           ext_package='tamoc',
           ext_modules=[ext_dbm_f, ext_dbm_c],
-          classifiers=filter(None, classifiers.split("\n")),
+          classifiers=classifiers.split("\n"),
           )
