@@ -28,7 +28,11 @@ S. Socolofsky, January 2012, Texas A&M University <socolofs@tamu.edu>.
 import os
 import setuptools
 from numpy.distutils.core import setup, Extension
+import Cython
 from Cython.Build import cythonize
+Cython.Compiler.Errors.LEVEL = 0  # to get more error checking at compile time.
+
+
 
 
 # Describe some attributes of the software
