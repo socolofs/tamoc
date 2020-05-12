@@ -937,8 +937,9 @@ cdef int viscosity_c(nc,
 
     # Get the density of methane at TTc0/Tc_mix and PPc0/Pc_mix
     # not sure this matters, but...
-    cdef FLOAT_TYPE T_temp = Tc0[0] / Tc_mix
+    cdef FLOAT_TYPE T_temp = T * Tc0[0] / Tc_mix
     cdef FLOAT_TYPE P_temp = P * Pc0[0] / Pc_mix
+    print("T as passed in to (methane?) density:", T_temp)
     density_c(1,
               T_temp,
               P_temp,
