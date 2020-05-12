@@ -31,8 +31,8 @@ ctypedef double complex COMPLEX_TYPE
 FLOAT_ARR_TEMPLATE = array.array('d', [])
 #COMPLEX_ARR_TEMPLATE = array.array('d', [])
 
-
-from libc.math cimport sqrt, exp, isnan
+from libc.stdlib cimport malloc, free
+from libc.math cimport sqrt, exp, isnan, log
 
 cdef extern from "<complex.h>" nogil:
     COMPLEX_TYPE csqrt(double complex z)
@@ -273,10 +273,35 @@ cpdef FLOAT_TYPE trial_nparray(int n,
 
     return result
 
-cdef mole_fraction(nc,
-                   FLOAT_TYPE[:] mass,
-                   FLOAT_TYPE[:] Mol_wt,
-                   FLOAT_TYPE[:] yk):
+def mole_fraction(FLOAT_TYPE[:] mass,
+                  FLOAT_TYPE[:] Mol_wt,
+                  ):
+    """
+    Python wrapper around the mole_fraction computation
+
+    Compute the mole fraction of a mixture from the mass
+
+    Converts the masses of each component in a mixture to the mole fraction
+    of each component in the mixture
+    """
+    cdef unsigned int nc = mass.shape[0]
+    if Mol_wt.shape[0] != nc:
+        raise ValueError("mass and Mol_wt arrays must be the same size")
+    yk = np.empty((nc,), dtype=np.float64)
+
+    mole_fraction_c(nc, mass, Mol_wt, yk)
+
+    return yk
+
+
+# # fixme: uncomment these once all tests pass!
+# @cython.boundscheck(False)  # Deactivate bounds checking
+# @cython.wraparound(False)
+# @cython.cdivision(True)
+cdef mole_fraction_c(unsigned int nc,
+                     FLOAT_TYPE[:] mass,
+                     FLOAT_TYPE[:] Mol_wt,
+                     FLOAT_TYPE[:] yk):
     """
     ! Compute the mole fraction of a mixture from the mass
     !
@@ -303,7 +328,18 @@ cdef mole_fraction(nc,
     # ! Declare the variables internal to the function
     # real(kind = DP), dimension(nc) :: n_moles
 
-    cdef FLOAT_TYPE[:] n_moles = np.zeros((nc,), dtype=np.float64)
+    # various options for a local array -- not sure which is best ...
+    # NOTE: make sure to call free if you use this!
+    # cdef FLOAT_TYPE *n_moles = <FLOAT_TYPE *> malloc(nc * sizeof(FLOAT_TYPE))
+
+    cdef FLOAT_TYPE[:] n_moles = array.clone(FLOAT_ARR_TEMPLATE, nc, zero=False)
+
+    # NOPE -- doesn't work cdef FLOAT_TYPE[:] n_moles = <FLOAT_TYPE> bytearray(nc * sizeof(FLOAT_TYPE))
+    # memoryview on Cython array
+    # cyarr = cvarray(shape=(nc,), itemsize=sizeof(FLOAT_TYPE), format="d")
+    # cdef FLOAT_TYPE[:] n_moles = cyarr
+    # # plain cython array
+    # cdef cvarray n_moles = cvarray(shape=(nc,), itemsize=sizeof(FLOAT_TYPE), format="d")
 
     cdef FLOAT_TYPE sum_moles = 0.0
     cdef unsigned int i
@@ -399,7 +435,7 @@ cdef coefs(unsigned int nc,
 
 #     ! Convert the masses to mole fraction
 #     call mole_fraction(nc, mass, Mol_wt, yk)
-    mole_fraction(nc, mass, Mol_wt, yk)
+    mole_fraction_c(nc, mass, Mol_wt, yk)
 
 #     ! Compute the coefficient values for each gas in the mixture.  Use the
 #     ! modified Peng-Robinson (1978) equations for mu
@@ -467,7 +503,7 @@ cdef coefs(unsigned int nc,
         Ap[i] = (1.0 / aT * (2.0 * aTk[i]**(1.0 / 2.0) * temp))
               # sum(yk(:) * aTk(:)**(1.0/2.0) * (1.0 - delta(:,i))))
 
-cdef void volume_trans(unsigned int nc,
+cdef int volume_trans(unsigned int nc,
                        FLOAT_TYPE T,
                        FLOAT_TYPE P,
                        FLOAT_TYPE[:] mass,
@@ -476,7 +512,7 @@ cdef void volume_trans(unsigned int nc,
                        FLOAT_TYPE[:] Tc,
                        FLOAT_TYPE[:] Vc,
                        FLOAT_TYPE[:] vt,
-                       ):
+                       ) except -1:
 
     """
     ! Computes the volume translation parameter to correct the density
@@ -545,7 +581,7 @@ cdef void volume_trans(unsigned int nc,
     for i in range(nc):
         vt[i] = f_Tr[i] * cc[i]
 
-    return
+    return 0
 
 cdef int z_pr(unsigned int nc,  # int return for error code
                FLOAT_TYPE T,
@@ -670,71 +706,74 @@ cdef int z_pr(unsigned int nc,  # int return for error code
 
     return 0
 
+
 def viscosity(FLOAT_TYPE T,
               FLOAT_TYPE P,
               FLOAT_TYPE[:] mass,
               FLOAT_TYPE[:] Mol_wt,
-                    FLOAT_TYPE[:] Pc,
-                    FLOAT_TYPE[:] Tc,
-                    FLOAT_TYPE[:] Vc,
-                    FLOAT_TYPE[:] omega,
-                    FLOAT_TYPE[:,:] delta,  # (nc, nc)
-                    FLOAT_TYPE[:,:] Aij,  # (15, 15)
-                    FLOAT_TYPE[:,:] Bij,  # (15, 15)
-                    FLOAT_TYPE[:,:] delta_groups, # (nc,15)
-                    int calc_delta,
-                    ):
+              FLOAT_TYPE[:] Pc,
+              FLOAT_TYPE[:] Tc,
+              FLOAT_TYPE[:] Vc,
+              FLOAT_TYPE[:] omega,
+              FLOAT_TYPE[:,:] delta,  # (nc, nc)
+              FLOAT_TYPE[:,:] Aij,  # (15, 15)
+              FLOAT_TYPE[:,:] Bij,  # (15, 15)
+              FLOAT_TYPE[:,:] delta_groups, # (nc,15)
+              int calc_delta,
+              ):
     """
     wrapper function around the c viscosity function:
 
-    f2py automatically converts output parameters, this is doing the same thing.
+    f2py automatically converts output parameters, this is doing
+    the same thing by hand.
     """
     nc = mass.shape[0]
-    cdef np.ndarray[FLOAT_TYPE, ndim=2] mu = np.empty((2,1), dtype=np.float64) # (2, 1)
+    cdef np.ndarray[FLOAT_TYPE, ndim=2] mu = np.zeros((2,1), dtype=np.float64) # (2, 1)
 
-    viscosity_c(nc,
-                    T,
-                    P,
-                    mass,
-                    Mol_wt,
-                    Pc,
-                    Tc,
-                    Vc,
-                    omega,
-                    delta,  # (nc, nc)
-                    Aij,  # (15, 15)
-                    Bij,  # (15, 15)
-                    delta_groups, # (nc,15)
-                    calc_delta,
-                    mu, # (2, 1)
-                    )
+    viscosity_c(
+        nc,
+        T,
+        P,
+        mass,
+        Mol_wt,
+        Pc,
+        Tc,
+        Vc,
+        omega,
+        delta,  # (nc, nc)
+        Aij,  # (15, 15)
+        Bij,  # (15, 15)
+        delta_groups,  # (nc,15)
+        calc_delta,
+        mu,  # (2, 1)
+    )
 
     return mu
 
 
 cdef int viscosity_c(nc,
-                      FLOAT_TYPE T,
-                      FLOAT_TYPE P,
-                      FLOAT_TYPE[:] mass,
-                      FLOAT_TYPE[:] Mol_wt,
-                      FLOAT_TYPE[:] Pc,
-                      FLOAT_TYPE[:] Tc,
-                      FLOAT_TYPE[:] Vc,
-                      FLOAT_TYPE[:] omega,
-                      FLOAT_TYPE[:, :] delta,  # (nc, nc)
-                      FLOAT_TYPE[:, :] Aij,  # (15, 15)
-                      FLOAT_TYPE[:, :] Bij,  # (15, 15)
-                      FLOAT_TYPE[:, :] delta_groups, # (nc,15)
-                      int calc_delta,
-                      FLOAT_TYPE[:, :] mu, # (2, 1)
-                      ) except -1:
+                     FLOAT_TYPE T,
+                     FLOAT_TYPE P,
+                     FLOAT_TYPE[:] mass,
+                     FLOAT_TYPE[:] Mol_wt,
+                     FLOAT_TYPE[:] Pc,
+                     FLOAT_TYPE[:] Tc,
+                     FLOAT_TYPE[:] Vc,
+                     FLOAT_TYPE[:] omega,
+                     FLOAT_TYPE[:, :] delta,  # (nc, nc)
+                     FLOAT_TYPE[:, :] Aij,  # (15, 15)
+                     FLOAT_TYPE[:, :] Bij,  # (15, 15)
+                     FLOAT_TYPE[:, :] delta_groups,  # (nc,15)
+                     int calc_delta,
+                     FLOAT_TYPE[:, :] mu,  # (2, 1)
+                     ) except -1:
 
     """
     ! Computes the viscosity of a petroleum fluid
     !
     ! Computes the viscosity of the given fluid mixture for the gas and
     ! liquid phases following the method in Pedersen et al. "Phase Behavior
-    ! of Petroleum Reservoir Fluids", 2nd edition, Chapeter 10.
+    ! of Petroleum Reservoir Fluids", 2nd edition, Chapter 10.
     !
     ! This method correlates the viscosity of the mixture to the viscosity
     ! of methane taken at a specialized corresponding state.  The function
@@ -780,7 +819,10 @@ cdef int viscosity_c(nc,
                M_bar_w, M_mix
 
 #     real(kind = DP), dimension(1) :: M0, Tc0, Pc0, omega0, Vc0
-    cdef FLOAT_TYPE M0[1], Tc0[1], Pc0[1], omega0[1], Vc0[1]
+    cdef FLOAT_TYPE M0[1], Tc0[1], Pc0[1], omega0[1], Vc0[1], M0_temp[1]
+
+    cdef FLOAT_TYPE ONE[1]
+    ONE[0] = 1.0
 #     real(kind = DP), dimension(2) :: T0, P0
     cdef FLOAT_TYPE T0[2], P0[2]
 #     real(kind = DP), dimension(7) :: jc, kc
@@ -819,7 +861,9 @@ cdef int viscosity_c(nc,
 #         & 81.8134D0, 15649.9D0]
     kc[:] = [-9.74602, 18.0834, -4126.66, 44.6055, 0.976544,
              81.8134, 15649.9]
-
+    print("GV:", GV)
+    print("jc:", jc)
+    print("kc:", kc)
 #     ! Enter the properties for the reference fluid (methane)
 #     M0(1) = 16.043D-3
 #     Tc0(1) = 190.56D0
@@ -848,7 +892,7 @@ cdef int viscosity_c(nc,
 
 #     ! Get the mole fraction of the components of the mixture
 #     call mole_fraction(nc, mass, Mol_wt, z)
-    mole_fraction(nc, mass, Mol_wt, z)
+    mole_fraction_c(nc, mass, Mol_wt, z)
 
 #     ! Compute equation (10.19)
 #     numerator = 0.0D0
@@ -869,83 +913,162 @@ cdef int viscosity_c(nc,
     denominator = 0.0
     for i in range(nc):
         for j in range(nc):
+            # fixme: compute denominator, then take sqrt for numerator?
             numerator = (numerator + z[i] * z[j] * ((Tc[i] / Pc[i])
-                         **(1.0/3.0) + (Tc[j] / Pc[j])**(1.0/3.0))
-                         **3 * sqrt(Tc[i] * Tc[j])
+                         **(1.0/3.0) + (Tc[j] / Pc[j])**(1.0/3.0))**3 *
+                         sqrt(Tc[i] * Tc[j])
                          )
             denominator = (denominator + z[i] * z[j] * ((Tc[i] / Pc[i])
-                           **(1.0/3.0) + (Tc[j] / Pc[j])**(1.0/3.0))
-                           **3
+                           **(1.0/3.0) + (Tc[j] / Pc[j])**(1.0/3.0))**3
                            )
     Tc_mix = numerator / denominator
 
+    print("Tc_mix:", Tc_mix)
 #     ! Compute equation (10.22)
 #     Pc_mix = 8.0D0 * numerator / denominator**2
     # Compute equation (10.22)
     Pc_mix = 8.0 * numerator / denominator**2
 
+    print("Pc_mix", Pc_mix)
 #     ! Get the density of methane at TTc0/Tc_mix and PPc0/Pc_mix
 #     call density(1, T * Tc0(1) / Tc_mix, P * Pc0(1) / Pc_mix, [1.0D0], M0, &
 #         &        Pc0, Tc0, Vc0, omega0, delta0, Aij, Bij, delta_groups0, &
 #         &        -1, rho0)
 
     # Get the density of methane at TTc0/Tc_mix and PPc0/Pc_mix
-    # reset to 1.0 for call to density()
-    mass[0] = 1.0
+    # not sure this matters, but...
+    cdef FLOAT_TYPE T_temp = Tc0[0] / Tc_mix
+    cdef FLOAT_TYPE P_temp = P * Pc0[0] / Pc_mix
     density_c(1,
-              T * Tc0[0] / Tc_mix,
-              P * Pc0[0] / Pc_mix,
-              mass,
+              T_temp,
+              P_temp,
+              ONE,
               M0,
               Pc0,
               Tc0,
               Vc0,
               omega0,
               delta0,
-              Aij, Bij, delta_groups0,
+              Aij, Bij,
+              delta_groups0,
               -1,
               rho0,
               )
 
-
 #     ! Compute equation (10.27)
 #     rho_r(:,1) = rho0(:,1) / rho_c0
+    rho_r[0][0] = rho0[0][0] / rho_c0
+    rho_r[1][0] = rho0[1][0] / rho_c0
 
 #     ! Compute equation (10.23), where M is in g/mol
-#     M = Mol_wt(:) * 1.0D3
-#     M_bar_n = sum(z(:) * M(:))
-#     M_bar_w = sum(z(:) * M(:)**2) / M_bar_n
-#     M_mix = 1.304D-4 * (M_bar_w**2.303D0 - M_bar_n**2.303D0) + M_bar_n
+    # M = Mol_wt(:) * 1.0D3
+    # M_bar_n = sum(z(:) * M(:))
+    # M_bar_w = sum(z(:) * M(:)**2) / M_bar_n
+    # M_mix = 1.304D-4 * (M_bar_w**2.303D0 - M_bar_n**2.303D0) + M_bar_n
+    for i in range(nc):
+        M[i] = Mol_wt[i] * 1.0  # fixme: why * 1.0?
+    M_bar_n = sum_mult(z, M)
+    for i in range(nc):
+        M[i] = M[i]**2
+    M_bar_w = sum_mult(z, M) / M_bar_n
+    M_mix = 1.304E-4 * (M_bar_w**2.303 - M_bar_n**2.303) + M_bar_n
 
 #     ! Compute equation (10.26), where M is in g/mol
 #     M0 = M0(:) * 1.0D3
 #     alpha_mix(:,1) = 1.0D0 + 7.378D-3 * rho_r(:,1)**1.847D0 * M_mix**0.5173D0
 #     alpha0(:,1) = 1.0D0 + 7.378D-3 * rho_r(:,1)**1.847D0 * M0(1)**0.5173D0
+    for i in range(nc):
+        M0[i] = M0[i] * 1.0E3
+    alpha_mix[0][0] = 1.0 + 7.378E-3 * rho_r[0][0]**1.847 * M_mix**0.5173
+    alpha_mix[1][0] = 1.0 + 7.378E-3 * rho_r[1][0]**1.847 * M_mix**0.5173
+    alpha0[0][0] = 1.0 + 7.378E-3 * rho_r[0][0]**1.847 * M0[0]**0.5173
+    alpha0[1][0] = 1.0 + 7.378E-3 * rho_r[1][0]**1.847 * M0[0]**0.5173
 
 #     ! 2.  Compute the viscosity of methane at the corresponding state --------
-
-#     ! Corresponding state
 #     T0 = T * Tc0(1) / Tc_mix * alpha0(:,1) / alpha_mix(:,1)
 #     P0 = P * Pc0(1) / Pc_mix * alpha0(:,1) / alpha_mix(:,1)
+    T0[0] = T * Tc0[0] / Tc_mix * alpha0[0][0] / alpha_mix[0][0]
+    T0[1] = T * Tc0[0] / Tc_mix * alpha0[1][0] / alpha_mix[1][0]
+
+    print("T0:", T0)
+
+    P0[0] = P * Pc0[0] / Pc_mix * alpha0[0][0] / alpha_mix[0][0]
+    P0[1] = P * Pc0[0] / Pc_mix * alpha0[1][0] / alpha_mix[1][0]
+    print("P0:", P0)
 
 #     ! Compute each state separately
 #     do i = 1,2
+    # fixme: maybe making a function and calling it twice would be better?
+    for i in range(2):
+        # ! Get the density of methane at T0 and P0.  Be sure to use molecular
+        # ! weight in kg/mol
+        # call density(1, T0(i), P0(i), [1.0D0], M0*1.0D-3, Pc0, Tc0, Vc0, &
+        #     &        omega0, delta0, Aij, Bij, delta_groups0, -1, rho0)
+        M0_temp[0] = M0[0] * 1.0E-3
+        T_temp = T0[i]  # probably not neccesary, but removes a warning
+        P_temp = P0[i]
+        density_c(1, T_temp, P_temp, ONE, M0_temp, Pc0, Tc0, Vc0,
+                  omega0, delta0, Aij, Bij, delta_groups0, -1, rho0)
 
-#         ! Get the density of methane at T0 and P0.  Be sure to use molecular
-#         ! weight in kg/mol
-#         call density(1, T0(i), P0(i), [1.0D0], M0*1.0D-3, Pc0, Tc0, Vc0, &
-#             &        omega0, delta0, Aij, Bij, delta_groups0, -1, rho0)
+        print("rho0 after density call:", rho0)
 
 #         ! Compute equation (10.10)
 #         theta(:,1) = (rho0(:,1) - rho_c0) / rho_c0
+        theta[0][0] = (rho0[0][0] - rho_c0) / rho_c0
+        theta[1][0] = (rho0[1][0] - rho_c0) / rho_c0
 
+        print("theta:", theta)
 #         ! Equation (10.9) with T in K and rho in g/cm^3
 #         rho0(:,1) = rho0(:,1) * 1.0D-3
+        print("rho0 before rescaling:", rho0)
+        rho0[0][0] = rho0[0][0] * 1.0E-3
+        rho0[1][0] = rho0[1][0] * 1.0E-3
 
+        print("rho0 after scaling:", rho0)
 #         delta_eta_p(:,1) = exp(jc(1) + jc(4) / T0(i)) * (exp(rho0(:,1) &
 #             &              **0.1D0 * (jc(2) + jc(3) / T0(i)**1.5D0) + &
 #             &              theta(:,1) * rho0(:,1)**0.5D0 * (jc(5) + jc(6) &
 #             &              / T0(i) + jc(7) / T0(i)**2)) - 1.0D0)
+
+        print("Components of delta_eta_p:")
+
+        print(exp(jc[0] + jc[3] / T0[i]))
+
+        print("a", (rho0[0][0]**0.1 * (jc[1] + jc[2] / T0[i]**1.5))
+              )
+
+        ## this part of the equation is huge -- leading to an inf in the exp() call
+        print("b", theta[0][0] * rho0[0][0]**0.5
+              )
+
+        print("c", (jc[4] + jc[5] / T0[i] + jc[6] / T0[i]**2)
+              )
+
+        print("d", (theta[0][0] * rho0[0][0]**0.5 *
+                                (jc[4] + jc[5] / T0[i] + jc[6] / T0[i]**2)
+                                  )
+              )
+
+        print("e", (exp(rho0[0][0]**0.1 * (jc[1] + jc[2] / T0[i]**1.5) +
+                                theta[0][0] * rho0[0][0]**0.5 *
+                                (jc[4] + jc[5] / T0[i] + jc[6] / T0[i]**2)
+                                  ) - 1.0
+                                 )
+              )
+
+        delta_eta_p[0][0] = (exp(jc[0] + jc[3] / T0[i]) *
+                             (exp(rho0[0][0]**0.1 * (jc[1] + jc[2] / T0[i]**1.5) +
+                                theta[0][0] * rho0[0][0]**0.5 *
+                                (jc[4] + jc[5] / T0[i] + jc[6] / T0[i]**2)
+                                  ) - 1.0
+                                 )
+                             )
+
+        delta_eta_p[1][0] = (exp(jc[0] + jc[3] / T0[i]) * (exp(rho0[1][0] \
+                             **0.1 * (jc[1] + jc[2] / T0[i]**1.5) + \
+                             theta[1][0] * rho0[1][0]**0.5 * (jc[4] + jc[4] \
+                             / T0[i] + jc[5] / T0[i]**2)) - 1.0))
+        print("delta_eta_p:", delta_eta_p)
 
 #         ! Equation (10.28)
 #         delta_eta_pp(:,1) = exp(kc(1) + kc(4) / T0(i)) * (exp(rho0(:,1) &
@@ -953,25 +1076,51 @@ cdef int viscosity_c(nc,
 #             &               theta(:,1) * rho0(:,1)**0.5D0 * (kc(5) + kc(6) &
 #             &               / T0(i) + kc(7) / T0(i)**2)) - 1.0D0)
 
+        delta_eta_pp[0][0] = exp(kc[0] + kc[3] / T0[i]) * (exp(rho0[0][0] \
+                             **0.1 * (kc[1] + kc[2] / T0[i]**1.5) + \
+                             theta[0][0] * rho0[0][0]**0.5 * (kc[4] + kc[5] \
+                             / T0[i] + kc[6] / T0[i]**2)) - 1.0)
+        delta_eta_pp[1][0] = exp(kc[0] + kc[3] / T0[i]) * (exp(rho0[1][0] \
+                             **0.1 * (kc[1] + kc[2] / T0[i]**1.5) + \
+                             theta[1][0] * rho0[1][0]**0.5 * (kc[4] + kc[5] \
+                             / T0[i] + kc[6] / T0[i]**2)) - 1.0)
+        print("delta_eta_pp:", delta_eta_pp)
+
 #         ! Equation (10.7)
 #         eta_0 = GV(1) / T0(i) + GV(2) / T0(i)**(2.0D0/3.0D0) + GV(3) / &
 #             &   T0(i)**(1.0D0/3.0D0) + GV(4) + GV(5) * T0(i)**(1.0D0/3.0D0) &
 #             &   + GV(6) * T0(i)**(2.0D0/3.0D0) + GV(7) * T0(i) + GV(8) * &
 #             &   T0(i)**(4.0D0/3.0D0) + GV(9) * T0(i)**(5.0D0/3.0D0)
 
+        eta_0 = GV[0] / T0[i] + GV[1] / T0[i]**(2.0/3.0) + GV[2] / \
+                T0[i]**(1.0/3.0) + GV[3] + GV[4] * T0[i]**(1.0/3.0) \
+                + GV[5] * T0[i]**(2.0/3.0) + GV[6] * T0[i] + GV[7] * \
+                T0[i]**(4.0/3.0) + GV[8] * T0[i]**(5.0/3.0)
+        print("eta_0:", eta_0)
+
 #         ! Equation (10.8)
 #         eta_1 = A + B * (C - log(T0(i) / F))**2
-
+        eta_1 = A + B * (C - log(T0[i] / F))**2
+        print("eta_1:", eta_1)
 #         ! Equation (10.32)
 #         delta_T = T0(i) - 91.0D0
-
+        delta_T = T0[i] - 91.0
+        print("delta_T", delta_T)
 #         ! Equation (10.31)
 #         htan = (exp(delta_T) - exp(-delta_T)) / (exp(delta_T) + exp(-delta_T))
-
+        ## fixme: this is the hyperbolic tangent, yes? better to use math.tanh()
+        #         and that's GOT to be there in Fortran!
+        #.        Also: withthe test code, I'm getting 1.0 anyway :-)
+        htan = (exp(delta_T) - exp(-delta_T)) / (exp(delta_T) + exp(-delta_T))
+        print("htan:", htan)
 #         ! Viscosity of methane (Equation 10.29) -- reported in (Pa s)
-#         eta_ch4(i,1) = (eta_0 + eta_1 + (htan + 1.0D0) / 2.0D0 * &
-#             &          delta_eta_p(i,1) + (1.0D0 - htan) / 2.0D0 * &
-#             &          delta_eta_pp(i,1)) * 1.0e-7
+        # eta_ch4(i,1) = (eta_0 + eta_1 + (htan + 1.0D0) / 2.0D0 * &
+        #     &          delta_eta_p(i,1) + (1.0D0 - htan) / 2.0D0 * &
+        #     &          delta_eta_pp(i,1)) * 1.0e-7
+        eta_ch4[i][0] = (eta_0 + eta_1 + (htan + 1.0) / 2.0 * \
+                         delta_eta_p[i][0] + (1.0 - htan) / 2.0 * \
+                         delta_eta_pp[i][0]) * 1.0E-7
+        print("i, eta_ch4:", i, eta_ch4)
 
 #     end do
 
@@ -979,8 +1128,17 @@ cdef int viscosity_c(nc,
 #     mu(:,1) = (Tc_mix / Tc0(1))**(-1.0D0/6.0D0) * (Pc_mix / Pc0(1))** &
 #         &     (2.0D0/3.0D0) * (M_mix / M0(1))**(0.5D0) * alpha_mix(:,1) / &
 #         &     alpha0(:,1) * eta_ch4(:,1)
+    print("mu: before setting", mu[0, 0], mu[1, 0])
+    mu[0][0] = ((Tc_mix / Tc0[0])**(-1.0 / 6.0) * (Pc_mix / Pc0[0])**
+                (2.0 / 3.0) * (M_mix / M0[0])**(0.5) * alpha_mix[0][0] /
+                alpha0[0][0] * eta_ch4[0][0])
+    mu[1][0] = ((Tc_mix / Tc0[0])**(-1.0 / 6.0) * (Pc_mix / Pc0[0])**
+                (2.0 / 3.0) * (M_mix / M0[0])**(0.5) * alpha_mix[1][0] /
+                alpha0[1][0] * eta_ch4[1][0])
+    print("mu: after setting", mu[0, 0], mu[1, 0])
 
 # end subroutine viscosity
+
 
 def density(FLOAT_TYPE T,
             FLOAT_TYPE P,
@@ -1117,7 +1275,7 @@ cdef int density_c(unsigned int nc,
          )
 
 #     ! Convert the masses to mole fraction
-    mole_fraction(nc, mass, Mol_wt, yk)
+    mole_fraction_c(nc, mass, Mol_wt, yk)
 
 #     ! Compute the volume translation coefficient
     volume_trans(nc, T, P, mass, Mol_wt, Pc, Tc, Vc, vt)
