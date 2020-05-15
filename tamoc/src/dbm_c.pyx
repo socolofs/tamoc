@@ -50,7 +50,9 @@ cdef FLOAT_TYPE PI = 3.141592653589793
 
 # ! Define constants for use by the Peng-Robinson equation of state
 # ! Ru in J / (mol K)
-cdef FLOAT_TYPE Ru = 8.314510
+# NOTE: this was "Ru" in one module, and "RU" in another
+cdef FLOAT_TYPE RU = 8.314510
+
 
 ## utilities that aren't in C
 
@@ -120,7 +122,7 @@ cpdef inline FLOAT_TYPE morton(FLOAT_TYPE rho_p,
     """
     return G * mu**4 * (rho - rho_p) / (rho**2 * sigma**3)
 
-cdef inline FLOAT_TYPE reynolds(FLOAT_TYPE de,
+cpdef inline FLOAT_TYPE reynolds(FLOAT_TYPE de,
                                 FLOAT_TYPE us,
                                 FLOAT_TYPE rho,
                                 FLOAT_TYPE mu):
@@ -139,6 +141,175 @@ cdef inline FLOAT_TYPE reynolds(FLOAT_TYPE de,
     ! June 2013
     """
     return rho * de * us / mu
+
+def kh_insitu(FLOAT_TYPE T,
+              FLOAT_TYPE P,
+              FLOAT_TYPE S,
+              FLOAT_TYPE[:] kh_0,
+              FLOAT_TYPE[:] dH_solR,
+              FLOAT_TYPE[:] nu_bar,
+              FLOAT_TYPE[:] Mol_wt,
+              FLOAT_TYPE[:] K_salt,
+              unsigned int nc,
+              ):
+    cdef np.ndarray[FLOAT_TYPE, ndim=1] kh = np.empty((nc,), dtype=np.float64)
+
+    kh_insitu_c(T, P, S, kh_0, dH_solR, nu_bar, Mol_wt, K_salt,
+                nc, kh)
+
+    return kh
+
+
+cdef kh_insitu_c(FLOAT_TYPE T,
+                 FLOAT_TYPE P,
+                 FLOAT_TYPE S,
+                 FLOAT_TYPE[:] kh_0,
+                 FLOAT_TYPE[:] dH_solR,
+                 FLOAT_TYPE[:] nu_bar,
+                 FLOAT_TYPE[:] Mol_wt,
+                 FLOAT_TYPE[:] K_salt,
+                 unsigned int nc,
+                 FLOAT_TYPE[:] kh):
+
+    """
+    ! Compute the in-situ Henry's law constant
+    !
+    ! Compute the in-situ Henry's law constant per the algorithm in McGinnis
+    ! et al. (2006).  This involves adjustment from Henry's coefficients at
+    ! STP to the appropriate values at ambient temperature, pressure, and
+    ! continuous phase salinity.  The conditions at STP are specified in the
+    ! source documentation for the input Henry's coefficients.  Adjustments
+    ! for temperature and pressure are per appropriate thermodynamic equations
+    ! of state.  The adjust for salinity is taken from detailed calculations
+    ! for dissolution of CO2 in seawater.  The form of the equation is
+    ! likely correct for a wide range of chemicals; however, the fit
+    ! coefficients used here were derived for CO2 and should be adjusted
+    ! when applied to other components.  No available method for adjustment
+    ! is provided in this function.
+    !
+    ! Input variables are:
+    !     T = temperature (K)
+    !     P = pressure (Pa)
+    !     S = salinity (psu)
+    !     kh_0 = Henry's Law constant at 298.15 K (kg/(m^3 Pa))
+    !     dH_solR = enthalpy of solution / R (K)
+    !     nu_bar = partial molar volume at infinite dilution (m^3/mol)
+    !     Mol_wt = array of molecular weights for each component (kg/mol)
+    !     K_salt = Setschenow constant (m^3/mol)
+    !
+    ! Returns an array of Henry's law coefficients (kg/(m^3 Pa))
+    !
+    ! S. Socolofsky
+    ! July 2013
+    """
+
+
+    # ! Declare the variables internal to the function
+    cdef unsigned int i
+    cdef FLOAT_TYPE P_ATM = 101325.0
+    cdef FLOAT_TYPE M_SEA = 0.06835
+
+    for i in range(nc):
+        if (kh_0[i] < 0.0):
+            # These are low solubility compounds for which we do not know
+            # the solubility...set kh to zero.
+            kh[i] = 0.0
+        else:
+            # Adjust from STP to ambient temperature
+            kh[i] = kh_0[i] * exp(dH_solR[i] * (1.0 / T - 1.0 / 298.15))
+
+            # Adjust to the ambient pressure
+            kh[i] = kh[i] * exp((P_ATM - P) * nu_bar[i] / (RU * T))
+
+            # Adjust for the salting out effect of salinity.
+            kh[i] = kh[i] * 10.0 ** (-S / M_SEA * K_salt[i])
+    return 0
+
+
+def sw_solubility(FLOAT_TYPE[:] f,
+                  FLOAT_TYPE[:] kh,
+                  unsigned int nc,
+                  ):
+    cdef np.ndarray[FLOAT_TYPE, ndim=1] Cs = np.empty((nc,), dtype=np.float64)
+    sw_solubility_c(f, kh, nc, Cs)
+
+    return Cs
+
+
+cdef int sw_solubility_c(FLOAT_TYPE[:] f,
+                         FLOAT_TYPE[:] kh,
+                         unsigned int nc,
+                         FLOAT_TYPE[:] Cs,
+                         ) except -1:
+    """
+    ! Compute the solubility of each component in a dispersed-phase mixture
+    !
+    ! Computes the solubility of each component in a dispersed-phase mixture
+    ! into the surrounding continuous phase.  The calculation follows
+    ! McGinnis et al. (2006) using the modified Henry's law coefficients and
+    ! the mixture fugacities.
+    !
+    ! Input variables are:
+    !     f = fugacity of each component in the dispersed-phase (Pa)
+    !     kh = modified Henry's law coefficients (kg/(m^3 Pa))
+    !
+    ! Returns an array of solubilities (kg/m^3) of dispersed-phase components
+    ! into the continuous phase.
+    !
+    ! S. Socolofsky
+    ! July 2013
+    """
+
+    cdef unsigned int i
+    for i in range(nc):
+        Cs[i] = f[i] * kh[i]
+
+    return 0
+
+
+def diffusivity(FLOAT_TYPE mu,
+                FLOAT_TYPE[:] Vb,
+                unsigned int nc):
+
+    cdef np.ndarray[FLOAT_TYPE, ndim=1] D = np.empty((nc,), dtype=np.float64)
+
+    diffusivity_c(mu, Vb, nc, D)
+    return D
+
+
+cdef int diffusivity_c(FLOAT_TYPE mu,
+                       FLOAT_TYPE[:] Vb,
+                       unsigned int nc,
+                       FLOAT_TYPE[:] D,
+                       ) except -1:
+    """
+    ! Compute the diffusivity of each component in a mixture into seawater
+    !
+    ! Computes the diffusivity of each component in a fluid mixture into
+    ! seawater at the given temperature.  The calculation is from Hayduk and
+    ! Laudie (1974), AIChE J., vol. 20, pp. 611-615.
+    !
+    ! Input variables are:
+    !     mu = viscosity of seawater at the ambient conditions (Pa s)
+    !     Vb = molar volume of each compound at its boiling point (m^3/mol)
+    !
+    ! Returns an array of diffusivities (m^2/s) for each component into water.
+    !
+    ! S. Socolofsky
+    ! February 2015
+    """
+
+    cdef unsigned int i=0
+
+    for i in range(nc):
+        if (Vb[i] < 0.0):
+            # ! For some insoluble compounds, we do not know the inputs...
+            # ! set diffusivity to zero
+            D[i] = 0.0
+        else:
+            # ! Use the Hayduk and Laudie formula
+            D[i] = 13.26E-9 / ((mu * 1.0E3)**1.14E0 * (Vb[i] * 1.0E6)**0.589E0)
+    return 0
 
 
 cdef inline FLOAT_TYPE h_parameter(FLOAT_TYPE Eo,
@@ -353,9 +524,10 @@ cdef mole_fraction_c(unsigned int nc,
     for i in range(nc):
         yk[i] = n_moles[i] / sum_moles
 
+    return 0
 
-cdef coefs(unsigned int nc,
-               FLOAT_TYPE T,
+
+def coefs(FLOAT_TYPE T,
                FLOAT_TYPE P,
                FLOAT_TYPE[:] mass,
                FLOAT_TYPE[:] Mol_wt,
@@ -367,12 +539,58 @@ cdef coefs(unsigned int nc,
                FLOAT_TYPE[:,:] Bij,  # (15, 15)
                FLOAT_TYPE[:,:] delta_groups,  # (nc,15)
                int calc_delta,
-               FLOAT_TYPE *A,
-               FLOAT_TYPE *B,
-               FLOAT_TYPE[:] Ap,
-               FLOAT_TYPE[:] Bp,
-               FLOAT_TYPE[:] yk
                ):
+
+    cdef unsigned int nc = mass.shape[0]
+
+    cdef FLOAT_TYPE A = 0.0
+    cdef FLOAT_TYPE B = 0.0
+    cdef np.ndarray[FLOAT_TYPE, ndim=1] Ap = np.zeros((nc,), dtype=np.float64)
+    cdef np.ndarray[FLOAT_TYPE, ndim=1] Bp = np.zeros((nc,), dtype=np.float64)
+    cdef np.ndarray[FLOAT_TYPE, ndim=1] yk = np.zeros((nc,), dtype=np.float64)
+
+    coefs_c(nc,
+            T,
+            P,
+            mass,
+            Mol_wt,
+            Pc,
+            Tc,
+            omega,
+            delta_in,  # (nc, nc)
+            Aij,  # (15, 15)
+            Bij,  # (15, 15)
+            delta_groups,  # (nc,15)
+            calc_delta,
+            &A,
+            &B,
+            Ap,
+            Bp,
+            yk
+            )
+
+    return A, B, Ap, Bp, yk
+
+
+cdef int coefs_c(unsigned int nc,
+                 FLOAT_TYPE T,
+                 FLOAT_TYPE P,
+                 FLOAT_TYPE[:] mass,
+                 FLOAT_TYPE[:] Mol_wt,
+                 FLOAT_TYPE[:] Pc,
+                 FLOAT_TYPE[:] Tc,
+                 FLOAT_TYPE[:] omega,
+                 FLOAT_TYPE[:,:] delta_in,  # (nc, nc)
+                 FLOAT_TYPE[:,:] Aij,  # (15, 15)
+                 FLOAT_TYPE[:,:] Bij,  # (15, 15)
+                 FLOAT_TYPE[:,:] delta_groups,  # (nc,15)
+                 int calc_delta,
+                 FLOAT_TYPE *A,
+                 FLOAT_TYPE *B,
+                 FLOAT_TYPE[:] Ap,
+                 FLOAT_TYPE[:] Bp,
+                 FLOAT_TYPE[:] yk
+                 ) except -1:
 
     """
     ! Computes the mixture coefficients for the P-R EOS
@@ -447,8 +665,8 @@ cdef coefs(unsigned int nc,
             mu[i] = 0.37464 + 1.54226 * omega[i] - 0.26992 * omega[i]**2
     for i in range(nc):
         alpha[i] = (1.0 + mu[i] * (1.0 - (T / Tc[i])**(1.0/2.0)))**2
-        aTk[i] = 0.45724 * Ru**2 * Tc[i]**2 / Pc[i] * alpha[i]
-        bk[i] = 0.07780 * Ru * Tc[i] / Pc[i]
+        aTk[i] = 0.45724 * RU**2 * Tc[i]**2 / Pc[i] * alpha[i]
+        bk[i] = 0.07780 * RU * Tc[i] / Pc[i]
 
 #     ! Initialize the output vector for delta to the input values
 #     delta(:,:) = delta_in(:,:)
@@ -493,15 +711,18 @@ cdef coefs(unsigned int nc,
             aT = aT + yk[i] * yk[j] * (aTk[i] * aTk[j])**(1.0/2.0) * (1.0 - delta[i,j])
 
 #     ! Compute the coefficients of the polynomials for z-factor and fugacity
-    A[0] = aT * P / (Ru**2 * T**2)
-    B[0] = bd * P / (Ru * T)
-    Bp = bk / bd
+    A[0] = aT * P / (RU**2 * T**2)
+    B[0] = bd * P / (RU * T)
+#     Bp = bk / bd
     for i in range(nc):
+        Bp[i] = bk[i] / bd
         temp = 0.0
         for j in range(nc):
             temp += yk[j] * aTk[j] ** (1.0 / 2.0) * (1.0 - delta[j, i])
         Ap[i] = (1.0 / aT * (2.0 * aTk[i]**(1.0 / 2.0) * temp))
               # sum(yk(:) * aTk(:)**(1.0/2.0) * (1.0 - delta(:,i))))
+
+    return 0
 
 cdef int volume_trans(unsigned int nc,
                        FLOAT_TYPE T,
@@ -553,7 +774,7 @@ cdef int volume_trans(unsigned int nc,
     # ! mixture
     # Zc = Pc(:) * Vc(:) / (Ru * Tc(:))
     for i in range(nc):
-        Zc[i] = Pc[i] * Vc[i] / (Ru * Tc[i])
+        Zc[i] = Pc[i] * Vc[i] / (RU * Tc[i])
 
     # ! Calculate the parameters in the Lin and Duan (2005) paper:  beta is
     # ! from equation (12)
@@ -574,7 +795,7 @@ cdef int volume_trans(unsigned int nc,
     # ! Compute the volume translation for the critical point (equation 9)
     # cc = (0.3074D0 - Zc(:)) * Ru * Tc(:) / Pc(:)
     for i in range(nc):
-        cc[i] = (0.3074 - Zc[i]) * Ru * Tc[i] / Pc[i]
+        cc[i] = (0.3074 - Zc[i]) * RU * Tc[i] / Pc[i]
 
     # ! Finally, the volume translation at the given state is (equation 8)
     # vt = f_Tr * cc
@@ -676,7 +897,7 @@ cdef int z_pr(unsigned int nc,  # int return for error code
 #         &      delta_groups, calc_delta, &
 #         &      A, B, Ap, Bp, yk)
 
-    coefs(nc, T, P, mass, Mol_wt, Pc, Tc, omega, delta, Aij, Bij,
+    coefs_c(nc, T, P, mass, Mol_wt, Pc, Tc, omega, delta, Aij, Bij,
           delta_groups, calc_delta, A, B, Ap, Bp, yk)
 
     p_coefs[0] = 1.0
@@ -1006,7 +1227,7 @@ cdef int viscosity_c(nc,
         # call density(1, T0(i), P0(i), [1.0D0], M0*1.0D-3, Pc0, Tc0, Vc0, &
         #     &        omega0, delta0, Aij, Bij, delta_groups0, -1, rho0)
         M0_temp[0] = M0[0] * 1.0E-3
-        T_temp = T0[i]  # probably not neccesary, but removes a warning
+        T_temp = T0[i]  # probably not necessary, but removes a warning
         P_temp = P0[i]
         density_c(1, T_temp, P_temp, ONE, M0_temp, Pc0, Tc0, Vc0,
                   omega0, delta0, Aij, Bij, delta_groups0, -1, rho0)
@@ -1287,7 +1508,7 @@ cdef int density_c(unsigned int nc,
         temp = 0.0
         for j in range(nc):  # fixme: use sum_mult() here
             temp += yk[j] * vt[j]
-        nu[i, 0] = z[i, 0] * Ru * T / P - temp
+        nu[i, 0] = z[i, 0] * RU * T / P - temp
 
 #     !0Compute and return the density
 #     r1o = 1.0D0 / nu * sum(yk(:) * Mol_wt(:))
