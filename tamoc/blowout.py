@@ -285,6 +285,15 @@ class Blowout(object):
         # Create a list of atmospheric gases
         self.ca = ['nitrogen', 'oxygen', 'argon', 'carbon_dioxide']
         self.new_oil = True
+        
+        # Decide which phase flow rate is reported
+        if self.num_oil_elements > 0:
+            # User is simulating oil; hence, oil flow rate should be given
+            self.q_type = 1
+        else:
+            # User is simulating gas only; hence, gas flow rate should be
+            # given
+            self.q_type = 0
 
         # Create the remaining object attributes needed to set up a `tamoc`
         # `bent_plume_model` simulation
@@ -308,7 +317,8 @@ class Blowout(object):
             self.oil, self.mass_flux = dbm_utilities.get_oil(self.substance,
                                                              self.q_oil,
                                                              self.gor,
-                                                             self.ca)
+                                                             self.ca,
+                                                             self.q_type)
             self.new_oil = False
 
         # Find the ocean conditions at the release
@@ -914,7 +924,7 @@ def get_ambient_profile(water, current, **kwargs):
     """
     NoneType = type(None)
     done = False
-
+    
     # Extract the temperature and salinity data
     if isinstance(water, NoneType):
 

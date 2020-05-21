@@ -17,7 +17,7 @@ from tamoc import seawater, dbm
 import numpy as np
 from scipy.optimize import fsolve, fmin
 
-def get_oil(substance, q_oil, gor, ca=[]):
+def get_oil(substance, q_oil, gor, ca=[], fp_type=1):
     """
     Create a dbm.FluidMixture object for this oil and given flow rate
     
@@ -48,6 +48,9 @@ def get_oil(substance, q_oil, gor, ca=[]):
     ca : list, default=[]
         List of dissolved atmospheric gases to track as part of the oil;
         choices are 'nitrogen', 'oxygen', 'argon', and 'carbon_dioxide'.
+    fp_type : int
+        Gives the fluid type (0: gas, 1: oil) for which the flow rate is
+        specified through the variable q_oil.
     
     Returns
     -------
@@ -96,7 +99,7 @@ def get_oil(substance, q_oil, gor, ca=[]):
     
     # Get the mass flux for the desired oil flow rate
     mass_flux = set_mass_fluxes(composition, mass_frac, user_data, delta, 
-        q_oil)
+        q_oil, fp_type)
     
     # Create the dbm.FluidMixture object
     oil = dbm.FluidMixture(composition, delta=delta, user_data=user_data)
@@ -468,7 +471,8 @@ def gas_fraction(beta, gor_0, oil, mf_gas, mf_oil, T, P):
     return gor - gor_0
 
 
-def set_mass_fluxes(composition, mass_frac, user_data, delta, q_oil):
+def set_mass_fluxes(composition, mass_frac, user_data, delta, q_oil, 
+    fp_type):
     """
     Compute the mass fluxes to achieve a desired oil flow rate
     
@@ -490,6 +494,9 @@ def set_mass_fluxes(composition, mass_frac, user_data, delta, q_oil):
         Array of binary interaction coefficients
     q_oil : float
         Flow rate of oil (bbl/d at standard conditions).
+    fp_type : int
+        Gives the fluid type (0: gas, 1: oil) for which the flow rate is
+        specified through the variable q_oil.
     
     Returns
     -------
@@ -511,8 +518,8 @@ def set_mass_fluxes(composition, mass_frac, user_data, delta, q_oil):
     # Get the volume flow rate of liquid oil at standard conditions for a 
     # total petroleum fluid flow rate of 1 kg/s (e.g., using mass_flux equal
     # to mass_frac)
-    p_oil = oil.density(m0[1,:], T0, P0)[1,0]
-    v_oil = np.sum(m0[1,:]) / p_oil / 0.158987 # bbl
+    p_oil = oil.density(m0[fp_type,:], T0, P0)[fp_type,0]
+    v_oil = np.sum(m0[fp_type,:]) / p_oil / 0.158987 # bbl
     
     # Adjust the masses to yield the desired flow rate of oil in bbl/d
     k_fac = (q_oil / 86400.) / v_oil
