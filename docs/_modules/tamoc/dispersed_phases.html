@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>tamoc.dispersed_phases &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <title>tamoc.dispersed_phases &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.1.0 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -890,7 +890,11 @@
         <span class="k">if</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">issoluble</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">user_data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">next_chems</span><span class="p">:</span>
                 <span class="n">next_chems</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">user_data</span><span class="p">)</span>
-                <span class="n">user_composition</span> <span class="o">=</span> <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">user_data</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                <span class="c1"># Python 3 will not index a dict_keys() object because that</span>
+                <span class="c1"># is not a good thing to do.  However, that is what we do</span>
+                <span class="c1"># below...hence, we need to make the dict_keys into a list</span>
+                <span class="n">user_composition</span> <span class="o">=</span> \
+                    <span class="nb">list</span><span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">particle</span><span class="o">.</span><span class="n">user_data</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
     
     <span class="k">if</span> <span class="n">next_chems</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">next_chems</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createDimension</span><span class="p">(</span><span class="s1">&#39;next_chems&#39;</span><span class="p">,</span> <span class="n">next_chems</span><span class="p">)</span>

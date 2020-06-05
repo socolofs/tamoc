@@ -8,14 +8,16 @@ Unit Tests
 This package is distributed with a set of unit tests to check most of the 
 functionality of the package.  To run the tests, install 
 `pytest <http://pytest.org/latest/>`_ into your Python distribution.  Then, 
-from a directory within the source files of the distribution, execute at
+from a directory outside of the source files of the distribution, execute at
 the command prompt::
 
-    % py.test -v
-
+    % py.test -v --pyargs tamoc
+    
 If any of the tests fail, first delete the ``__pycache__`` directory from the
-hard drive and re-run the test.  If that does not solve the problem, please
-read the test-specific guidelines below for further potential bug fixes.
+hard drive and re-run the test. If you are getting write permission errors,
+try executing the above command using `sudo`. If that does not solve the
+problem, please read the test-specific guidelines below for further potential
+bug fixes.
 
 test_ambient.py
 ===============

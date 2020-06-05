@@ -30,7 +30,7 @@ from __future__ import (absolute_import, division, print_function)
 
 from tamoc import seawater
 from tamoc import ambient
-from . import test_ambient
+from tamoc.test import test_ambient
 from tamoc import dbm
 from tamoc import dispersed_phases
 from tamoc import single_bubble_model

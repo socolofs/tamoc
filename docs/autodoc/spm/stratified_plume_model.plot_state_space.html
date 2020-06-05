@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>stratified_plume_model.plot_state_space &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <title>stratified_plume_model.plot_state_space &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.1.0 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -39,31 +39,31 @@
 <code class="sig-prename descclassname">stratified_plume_model.</code><code class="sig-name descname">plot_state_space</code><span class="sig-paren">(</span><em class="sig-param">zi</em>, <em class="sig-param">yi</em>, <em class="sig-param">zo</em>, <em class="sig-param">yo</em>, <em class="sig-param">yi_local</em>, <em class="sig-param">yo_local</em>, <em class="sig-param">particles</em>, <em class="sig-param">profile</em>, <em class="sig-param">p</em>, <em class="sig-param">fig</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/stratified_plume_model.html#plot_state_space"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stratified_plume_model.plot_state_space" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the state space for interrogation during model convergence</p>
 <p>Plot the simple state space variables volume flux, momentum flux, total
-particle mass flux, and dissolved component flux in order to observe 
+particle mass flux, and dissolved component flux in order to observe
 changes during each step of model iteration.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl>
 <dt><strong>zi</strong><span class="classifier">ndarray</span></dt><dd><p>Vector of depth for the inner plume solution (m).</p>
 </dd>
-<dt><strong>yi</strong><span class="classifier">ndarray</span></dt><dd><p>Matrix of inner plume solutions, with each row corresponding to a 
+<dt><strong>yi</strong><span class="classifier">ndarray</span></dt><dd><p>Matrix of inner plume solutions, with each row corresponding to a
 depth in <cite>zi</cite>.</p>
 </dd>
 <dt><strong>zo</strong><span class="classifier">ndarray</span></dt><dd><p>Vector of depth for the outer plume solution (m).</p>
 </dd>
-<dt><strong>yo</strong><span class="classifier">ndarray</span></dt><dd><p>Matrix of outer plume solutions, with each row corresponding to a 
+<dt><strong>yo</strong><span class="classifier">ndarray</span></dt><dd><p>Matrix of outer plume solutions, with each row corresponding to a
 depth in <cite>zo</cite>.</p>
 </dd>
 <dt><strong>yi_local</strong><span class="classifier"><cite>InnerPlume</cite> object</span></dt><dd><p>Inner plume object for extracting variables from the state space.</p>
 </dd>
 <dt><strong>yo_local</strong><span class="classifier"><cite>OuterPlume</cite> object</span></dt><dd><p>Outer plume object for extracting variables from the state space.</p>
 </dd>
-<dt><strong>particles</strong><span class="classifier">list of <cite>dispersed_phases.PlumeParticle</cite> objects</span></dt><dd><p>List of <cite>dispersed_phases.PlumeParticle</cite> objects containing the 
+<dt><strong>particles</strong><span class="classifier">list of <cite>dispersed_phases.PlumeParticle</cite> objects</span></dt><dd><p>List of <cite>dispersed_phases.PlumeParticle</cite> objects containing the
 dispersed phase local conditions and behavior.</p>
 </dd>
 <dt><strong>profile</strong><span class="classifier"><cite>ambient.Profile</cite> object</span></dt><dd><p>The ambient CTD object used by the simulation.</p>
 </dd>
-<dt><strong>p</strong><span class="classifier"><cite>ModelParams</cite> object</span></dt><dd><p>Object containing the fixed model parameters for the stratified 
+<dt><strong>p</strong><span class="classifier"><cite>ModelParams</cite> object</span></dt><dd><p>Object containing the fixed model parameters for the stratified
 plume model.</p>
 </dd>
 <dt><strong>fig</strong><span class="classifier">int</span></dt><dd><p>Figure number.  Number of the figure window in which to draw the plot.</p>

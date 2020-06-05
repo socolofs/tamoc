@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>blowout.particles &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <title>blowout.particles &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.1.0 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -38,7 +38,7 @@
 <dt id="blowout.particles">
 <code class="sig-prename descclassname">blowout.</code><code class="sig-name descname">particles</code><span class="sig-paren">(</span><em class="sig-param">m_tot</em>, <em class="sig-param">d</em>, <em class="sig-param">vf</em>, <em class="sig-param">profile</em>, <em class="sig-param">oil</em>, <em class="sig-param">yk</em>, <em class="sig-param">x0</em>, <em class="sig-param">y0</em>, <em class="sig-param">z0</em>, <em class="sig-param">Tj</em>, <em class="sig-param">lambda_1</em>, <em class="sig-param">lag_time</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/blowout.html#particles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blowout.particles" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create particles to add to a bent plume model simulation</p>
-<p>Creates bent_plume_model.Particle objects for the given particle 
+<p>Creates bent_plume_model.Particle objects for the given particle
 properties so that they can be added to the total list of particles
 in the simulation.</p>
 <dl class="field-list simple">
@@ -48,12 +48,12 @@ in the simulation.</p>
 </dd>
 <dt><strong>d</strong><span class="classifier">np.array</span></dt><dd><p>Array of particle sizes for this fluid phase (m)</p>
 </dd>
-<dt><strong>vf</strong><span class="classifier">np.array</span></dt><dd><p>Array of volume fractions for each particle size for this fluid 
+<dt><strong>vf</strong><span class="classifier">np.array</span></dt><dd><p>Array of volume fractions for each particle size for this fluid
 phase (–).  This array should sum to 1.0.</p>
 </dd>
 <dt><strong>profile</strong><span class="classifier">ambient.Profile</span></dt><dd><p>An ambient.Profile object with the ambient ocean water column data</p>
 </dd>
-<dt><strong>oil</strong><span class="classifier">dbm.FluidParticle</span></dt><dd><p>A dbm.FluidParticle object that contains the desired oil database 
+<dt><strong>oil</strong><span class="classifier">dbm.FluidParticle</span></dt><dd><p>A dbm.FluidParticle object that contains the desired oil database
 composition</p>
 </dd>
 <dt><strong>yk</strong><span class="classifier">np.array</span></dt><dd><p>Mole fractions of each compound in the chemical database of the oil
@@ -75,14 +75,14 @@ biodegradation lag times data.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><dl class="simple">
-<dt><strong>disp_phases</strong><span class="classifier">list of bent_plume_model.Particle objects</span></dt><dd><p>List of <cite>bent_plume_model.Particle</cite> objects to be added to the 
+<dt><strong>disp_phases</strong><span class="classifier">list of bent_plume_model.Particle objects</span></dt><dd><p>List of <cite>bent_plume_model.Particle</cite> objects to be added to the
 present bent plume model simulation based on the given input data.</p>
 </dd>
 </dl>
 </dd>
 </dl>
 <p class="rubric">Notes</p>
-<p>See the documentation for the <cite>bent_plume_model</cite> for more 
+<p>See the documentation for the <cite>bent_plume_model</cite> for more
 information on the <cite>Particle</cite> object.</p>
 </dd></dl>
 

@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>single_bubble_model.calculate_path &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <title>single_bubble_model.calculate_path &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.1.0 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -49,7 +49,7 @@ the <cite>scipy.integrate.ode</cite> object and associated methods.</p>
 </dd>
 <dt><strong>p</strong><span class="classifier"><cite>ModelParams</cite> object</span></dt><dd><p>Collection of model parameters passed to <cite>derivs</cite>.</p>
 </dd>
-<dt><strong>y0</strong><span class="classifier">ndarray</span></dt><dd><p>Initial values of the state space (depth in m, masses in kg, and heat 
+<dt><strong>y0</strong><span class="classifier">ndarray</span></dt><dd><p>Initial values of the state space (depth in m, masses in kg, and heat
 content in J of the particle) at the release point</p>
 </dd>
 <dt><strong>delta_t</strong><span class="classifier">float</span></dt><dd><p>Maximum step size (s) to take in the integration</p>
@@ -59,14 +59,14 @@ content in J of the particle) at the release point</p>
 </dl>
 <p class="rubric">Notes</p>
 <p>The differential equation in <cite>derivs</cite> is written with respect to time, so
-the independent variable in this simulation is time.  The vertical 
+the independent variable in this simulation is time.  The vertical
 coordinate; therefore, becomes a dependent variable, along with the masses
-of each component in the particle and the particle temperature.  Thus, 
+of each component in the particle and the particle temperature.  Thus,
 the state space is:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">z0</span><span class="p">,</span> <span class="n">m0</span><span class="p">,</span> <span class="n">H0</span><span class="p">))</span>
 </pre></div>
 </div>
-<p>where <cite>H0</cite> is the initial heat content, <cite>m_p * cp * T0</cite>.  The variables 
+<p>where <cite>H0</cite> is the initial heat content, <cite>m_p * cp * T0</cite>.  The variables
 in the state space can be returned by:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">seawater</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">z</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>

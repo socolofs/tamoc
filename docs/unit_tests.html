@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Unit Tests &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <title>Unit Tests &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.1.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -36,23 +36,25 @@
 <h1>Unit Tests<a class="headerlink" href="#unit-tests" title="Permalink to this headline">¶</a></h1>
 <dl class="field-list simple">
 <dt class="field-odd">Release</dt>
-<dd class="field-odd"><p>2.0</p>
+<dd class="field-odd"><p>2.1</p>
 </dd>
 <dt class="field-even">Date</dt>
-<dd class="field-even"><p>Mar 19, 2020</p>
+<dd class="field-even"><p>Jun 05, 2020</p>
 </dd>
 </dl>
 <p>This package is distributed with a set of unit tests to check most of the
 functionality of the package.  To run the tests, install
 <a class="reference external" href="http://pytest.org/latest/">pytest</a> into your Python distribution.  Then,
-from a directory within the source files of the distribution, execute at
+from a directory outside of the source files of the distribution, execute at
 the command prompt:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">py</span><span class="o">.</span><span class="n">test</span> <span class="o">-</span><span class="n">v</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">py</span><span class="o">.</span><span class="n">test</span> <span class="o">-</span><span class="n">v</span> <span class="o">--</span><span class="n">pyargs</span> <span class="n">tamoc</span>
 </pre></div>
 </div>
 <p>If any of the tests fail, first delete the <code class="docutils literal notranslate"><span class="pre">__pycache__</span></code> directory from the
-hard drive and re-run the test.  If that does not solve the problem, please
-read the test-specific guidelines below for further potential bug fixes.</p>
+hard drive and re-run the test. If you are getting write permission errors,
+try executing the above command using <cite>sudo</cite>. If that does not solve the
+problem, please read the test-specific guidelines below for further potential
+bug fixes.</p>
 <div class="section" id="module-test_ambient">
 <span id="test-ambient-py"></span><h2>test_ambient.py<a class="headerlink" href="#module-test_ambient" title="Permalink to this headline">¶</a></h2>
 <p>Unit tests for the <cite>ambient</cite> module of <code class="docutils literal notranslate"><span class="pre">TAMOC</span></code></p>
@@ -119,7 +121,7 @@ have been validated against measurements.</p>
 <div class="section" id="module-test_psm">
 <span id="test-psm-py"></span><h2>test_psm.py<a class="headerlink" href="#module-test_psm" title="Permalink to this headline">¶</a></h2>
 <p>Unit tests for the <cite>particle_size_model</cite> module of <code class="docutils literal notranslate"><span class="pre">TAMOC</span></code></p>
-<p>Provides testing of the classes, methods and functions defined in the 
+<p>Provides testing of the classes, methods and functions defined in the
 <cite>particle_size_models</cite> module of <code class="docutils literal notranslate"><span class="pre">TAMOC</span></code>.  These tests check the behavior
 of the class objects, the results of simulations, and the related object
 methods.</p>
@@ -128,9 +130,9 @@ are from the <cite>ctd_BM54.cnv</cite> dataset, stored as:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">test</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="n">test_BM54</span><span class="o">.</span><span class="n">nc</span>
 </pre></div>
 </div>
-<p>This netCDF file is written by the <cite>test_ambient.test_from_ctd</cite> function, 
+<p>This netCDF file is written by the <cite>test_ambient.test_from_ctd</cite> function,
 which is run in the following as needed to ensure the dataset is available.</p>
-<p>Since the <cite>particle_size_models</cite> module relies on the functions in the 
+<p>Since the <cite>particle_size_models</cite> module relies on the functions in the
 <cite>psf</cite> module to compute results, this set of tests checks the performance
 of both modules.</p>
 <div class="section" id="id3">
@@ -154,8 +156,8 @@ module to predict particle behavior. These tests check the behavior of the
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">test</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="n">test_BM54</span><span class="o">.</span><span class="n">nc</span>
 </pre></div>
 </div>
-<p>This netCDF file is written by the <cite>test_ambient.test_from_ctd</cite> function, 
-which is run in the following test script as needed to ensure the dataset is 
+<p>This netCDF file is written by the <cite>test_ambient.test_from_ctd</cite> function,
+which is run in the following test script as needed to ensure the dataset is
 available.</p>
 <div class="section" id="id4">
 <h3>Notes<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
@@ -170,7 +172,7 @@ have been validated against measurements.</p>
 <div class="section" id="module-test_sbm">
 <span id="test-sbm-py"></span><h2>test_sbm.py<a class="headerlink" href="#module-test_sbm" title="Permalink to this headline">¶</a></h2>
 <p>Unit tests for the <cite>single_bubble_model</cite> module of <code class="docutils literal notranslate"><span class="pre">TAMOC</span></code></p>
-<p>Provides testing of the objects, methods and functions defined in the 
+<p>Provides testing of the objects, methods and functions defined in the
 <cite>single_bubble_model</cite> module of <code class="docutils literal notranslate"><span class="pre">TAMOC</span></code>.  This module uses the <cite>ambient</cite>
 module to control ambient data and the <cite>dbm</cite> module to predict particle
 behavior.  These tests check the behavior of the object, the results of
@@ -179,7 +181,7 @@ the simulations, and the read/write algorithms.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">test</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="n">test_BM54</span><span class="o">.</span><span class="n">nc</span>
 </pre></div>
 </div>
-<p>This netCDF file is written by the <cite>test_ambient.test_from_ctd</cite> function, 
+<p>This netCDF file is written by the <cite>test_ambient.test_from_ctd</cite> function,
 which is run in the following as needed to ensure the dataset is available.</p>
 <div class="section" id="id5">
 <h3>Notes<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
@@ -194,7 +196,7 @@ have been validated against measurements.</p>
 <div class="section" id="module-test_spm">
 <span id="test-spm-py"></span><h2>test_spm.py<a class="headerlink" href="#module-test_spm" title="Permalink to this headline">¶</a></h2>
 <p>Unit tests for the <cite>stratified_plume_model</cite> module of <code class="docutils literal notranslate"><span class="pre">TAMOC</span></code></p>
-<p>Provides testing of the objects, methods and functions defined in the 
+<p>Provides testing of the objects, methods and functions defined in the
 <cite>stratified_plume_model</cite> module of <code class="docutils literal notranslate"><span class="pre">TAMOC</span></code>.  This module uses the <cite>ambient</cite>
 module to control ambient data and the <cite>dbm</cite> module to predict particle
 behavior.  These tests check the behavior of the object, the results of
@@ -203,7 +205,7 @@ the simulations, and the read/write algorithms.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">test</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="n">test_BM54</span><span class="o">.</span><span class="n">nc</span>
 </pre></div>
 </div>
-<p>This netCDF file is written by the <cite>test_ambient.test_from_ctd</cite> function, 
+<p>This netCDF file is written by the <cite>test_ambient.test_from_ctd</cite> function,
 which is run in the following as needed to ensure the dataset is available.</p>
 <div class="section" id="id6">
 <h3>Notes<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
@@ -225,7 +227,7 @@ object, the results of the simulations, and the read/write algorithms.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">test</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="n">test_BM54</span><span class="o">.</span><span class="n">nc</span>
 </pre></div>
 </div>
-<p>This netCDF file is written by the <cite>test_ambient.test_from_ctd</cite> function, 
+<p>This netCDF file is written by the <cite>test_ambient.test_from_ctd</cite> function,
 which is run in the following as needed to ensure the dataset is available.</p>
 <div class="section" id="id7">
 <h3>Notes<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
@@ -240,14 +242,14 @@ have been validated against measurements.</p>
 <div class="section" id="module-test_blowout">
 <span id="test-blowout-py"></span><h2>test_blowout.py<a class="headerlink" href="#module-test_blowout" title="Permalink to this headline">¶</a></h2>
 <p>Unit tests for the <cite>blowout</cite> module of <code class="docutils literal notranslate"><span class="pre">TAMOC</span></code></p>
-<p>Provides testing of the class definition, methods, and functions in the 
+<p>Provides testing of the class definition, methods, and functions in the
 <cite>blowout</cite> module of <code class="docutils literal notranslate"><span class="pre">TAMOC</span></code>.  These tests check the behavior of the class
 object, the results of simulations, and the related object methods.</p>
 <p>The ambient data used here are from the <cite>ctd_BM54.cnv</cite> dataset, stored as:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">test</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="n">test_BM54</span><span class="o">.</span><span class="n">nc</span>
 </pre></div>
 </div>
-<p>This netCDF file is written by the <cite>test_ambient.test_from_ctd</cite> function, 
+<p>This netCDF file is written by the <cite>test_ambient.test_from_ctd</cite> function,
 which is run in the following as needed to ensure the dataset is available.</p>
 <div class="section" id="id8">
 <h3>Notes<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>

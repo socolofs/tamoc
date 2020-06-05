@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>bent_plume_model.Particle.track &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <title>bent_plume_model.Particle.track &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.1.0 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -48,24 +48,24 @@ element and stop the integration when the particle exits the plume.</p>
 <dt><strong>X_cl</strong><span class="classifier">ndarray</span></dt><dd><p>Array of Cartesian coordinates (x,y,z) for the plume centerline
 (m).</p>
 </dd>
-<dt><strong>X_p</strong><span class="classifier">ndarray</span></dt><dd><p>Array of local plume coordinates (l,n,m) for the current 
-particle position (m)().  This method converts these coordinates, 
-which are solved by the bent plume model state space solution, to 
+<dt><strong>X_p</strong><span class="classifier">ndarray</span></dt><dd><p>Array of local plume coordinates (l,n,m) for the current
+particle position (m)().  This method converts these coordinates,
+which are solved by the bent plume model state space solution, to
 Cartesian coordinates.</p>
 </dd>
-<dt><strong>q_local</strong><span class="classifier"><cite>LagElement</cite> object</span></dt><dd><p>Object that translates the bent plume model state space <cite>t</cite> and 
+<dt><strong>q_local</strong><span class="classifier"><cite>LagElement</cite> object</span></dt><dd><p>Object that translates the bent plume model state space <cite>t</cite> and
 <cite>q</cite> into the comprehensive list of derived variables.</p>
 </dd>
 <dt><strong>Ainv</strong><span class="classifier">ndarray, default = None</span></dt><dd><p>Coordinate transformation matrix from the local plume coordinates
 (l,n,m) to Cartesian coordinates (x,y,z).  If <cite>Ainv</cite> is known, it
-can be passed to this function; otherwise, this function can 
+can be passed to this function; otherwise, this function can
 solve for <cite>Ainv</cite> using q_local.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><dl class="simple">
-<dt><strong>xp</strong><span class="classifier">ndarray</span></dt><dd><p>Array of Cartesian coordinates (x,y,z) for the current particle 
+<dt><strong>xp</strong><span class="classifier">ndarray</span></dt><dd><p>Array of Cartesian coordinates (x,y,z) for the current particle
 position (m).</p>
 </dd>
 </dl>

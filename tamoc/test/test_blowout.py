@@ -28,7 +28,7 @@ from __future__ import (absolute_import, division, print_function)
 
 from tamoc import ambient, blowout
 
-from . import test_sbm
+from tamoc.test import test_sbm
 
 import numpy as np
 from numpy.testing import assert_approx_equal

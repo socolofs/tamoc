@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>particle_size_models.ModelBase.simulate &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <title>particle_size_models.ModelBase.simulate &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.1.0 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -38,14 +38,14 @@
 <dt id="particle_size_models.ModelBase.simulate">
 <code class="sig-prename descclassname">ModelBase.</code><code class="sig-name descname">simulate</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">d0</em>, <em class="sig-param">m_gas</em>, <em class="sig-param">m_oil</em>, <em class="sig-param">model_gas='wang_etal'</em>, <em class="sig-param">model_oil='sintef'</em>, <em class="sig-param">pdf_gas='lognormal'</em>, <em class="sig-param">pdf_oil='rosin-rammler'</em>, <em class="sig-param">Pa=4000000.0</em>, <em class="sig-param">Ta=288.15</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/particle_size_models.html#ModelBase.simulate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#particle_size_models.ModelBase.simulate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the parameters of the particle size distribution</p>
-<p>Computes the median bubble and droplet sizes and the spread 
+<p>Computes the median bubble and droplet sizes and the spread
 of the selected size distributions.  Models for gas bubble median
 size are <cite>wang_etal</cite> or <cite>li_etal</cite>; models for oil droplet median
-size are <cite>sintef</cite> or <cite>li_etal</cite>.  Size distributions are either 
-<cite>lognormal</cite> or <cite>rosin-rammler</cite>.  No matter what model is selected, 
+size are <cite>sintef</cite> or <cite>li_etal</cite>.  Size distributions are either
+<cite>lognormal</cite> or <cite>rosin-rammler</cite>.  No matter what model is selected,
 the <cite>d_95</cite>-rule is used when the predicted size distribution would
-exceed the maximum stable bubble or droplet size.  Under that rule, 
-the 95-percentile of the volume size distribution is set to the 
+exceed the maximum stable bubble or droplet size.  Under that rule,
+the 95-percentile of the volume size distribution is set to the
 maximum stable size, and the median size is adjusted downward.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -56,22 +56,22 @@ maximum stable size, and the median size is adjusted downward.</p>
 </dd>
 <dt><strong>m_oil</strong><span class="classifier">float</span></dt><dd><p>Mass flow rate of liquid released from the jet (kg/s)</p>
 </dd>
-<dt><strong>model_gas</strong><span class="classifier">str, default=’wang_etal’</span></dt><dd><p>Name of the model used for computing the gas bubble size 
+<dt><strong>model_gas</strong><span class="classifier">str, default=’wang_etal’</span></dt><dd><p>Name of the model used for computing the gas bubble size
 distribution.  Choices are ‘wang_etal’ or ‘li_etal’:.</p>
 </dd>
-<dt><strong>model_oil</strong><span class="classifier">str, default=’sintef’</span></dt><dd><p>Name of the model used for computing the oil droplet size 
+<dt><strong>model_oil</strong><span class="classifier">str, default=’sintef’</span></dt><dd><p>Name of the model used for computing the oil droplet size
 distribution.  Choices are ‘sintef’ or ‘li_etal’.</p>
 </dd>
-<dt><strong>pdf_gas</strong><span class="classifier">str, default=’lognormal’</span></dt><dd><p>Probability density function to use for the gas bubble size 
+<dt><strong>pdf_gas</strong><span class="classifier">str, default=’lognormal’</span></dt><dd><p>Probability density function to use for the gas bubble size
 distribution.  Choices are ‘lognormal’ or ‘rosin-rammler’.</p>
 </dd>
-<dt><strong>pdf_oil</strong><span class="classifier">str, default=’rosin-rammler’</span></dt><dd><p>Probability density function to use for the oil droplet size 
+<dt><strong>pdf_oil</strong><span class="classifier">str, default=’rosin-rammler’</span></dt><dd><p>Probability density function to use for the oil droplet size
 distribution.  Choices are ‘lognormal’ or ‘rosin-rammler’.</p>
 </dd>
 <dt><strong>Pa</strong><span class="classifier">float, default=4.e6</span></dt><dd><p>Pressure at the release point.  Used to compute the speed of
 sound in gas.</p>
 </dd>
-<dt><strong>Ta</strong><span class="classifier">float, default=288.15</span></dt><dd><p>Temperature of the released fluids.  Used to compute the 
+<dt><strong>Ta</strong><span class="classifier">float, default=288.15</span></dt><dd><p>Temperature of the released fluids.  Used to compute the
 speed of sound of gas.</p>
 </dd>
 </dl>

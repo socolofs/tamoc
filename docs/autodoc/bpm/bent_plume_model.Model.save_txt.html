@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>bent_plume_model.Model.save_txt &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <title>bent_plume_model.Model.save_txt &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.1.0 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -38,7 +38,7 @@
 <dt id="bent_plume_model.Model.save_txt">
 <code class="sig-prename descclassname">Model.</code><code class="sig-name descname">save_txt</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">base_name</em>, <em class="sig-param">profile_path</em>, <em class="sig-param">profile_info</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/bent_plume_model.html#Model.save_txt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bent_plume_model.Model.save_txt" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save the state space in ascii text format for exporting</p>
-<p>Save the state space (dependent and independent variables) in an 
+<p>Save the state space (dependent and independent variables) in an
 ascii text file for exporting to other programs (e.g., Matlab).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -47,11 +47,11 @@ ascii text file for exporting to other programs (e.g., Matlab).</p>
 .txt file extension to the data output and write a second file
 with the header information called base_name_header.txt.  If the
 particles that left the plume were tracked in the farfield, it
-will also save the trajectory of those particles as 
-base_name_nnn.txt (output data) and base_name_nnn_header.txt 
+will also save the trajectory of those particles as
+base_name_nnn.txt (output data) and base_name_nnn_header.txt
 (header data for far field data).</p>
 </dd>
-<dt><strong>profile_path</strong><span class="classifier">str</span></dt><dd><p>String stating the file path to the ambient profile data relative 
+<dt><strong>profile_path</strong><span class="classifier">str</span></dt><dd><p>String stating the file path to the ambient profile data relative
 to the directory where <cite>fname</cite> will be saved.</p>
 </dd>
 <dt><strong>profile_info</strong><span class="classifier">str</span></dt><dd><p>Single line of text describing the ambient profile data.</p>
@@ -72,13 +72,13 @@ to the directory where <cite>fname</cite> will be saved.</p>
 <div><p>0   : time (s)
 1-n : state space</p>
 </div></blockquote>
-<p>The header to the output file will give the extact organization of 
+<p>The header to the output file will give the extact organization of
 each column of the output data.</p>
 <p>These output files are written using the <cite>numpy.savetxt</cite> method.</p>
-<p>Note, also, that this only saves the state space solution, and the 
-data saved by this function is inadequate to rebuild the <cite>Model</cite> 
+<p>Note, also, that this only saves the state space solution, and the
+data saved by this function is inadequate to rebuild the <cite>Model</cite>
 object by reloading a saved solution.  To have seamless saving and
-loading of <cite>Model</cite> objects, use the <cite>save_sim</cite> and <cite>load_sim</cite> 
+loading of <cite>Model</cite> objects, use the <cite>save_sim</cite> and <cite>load_sim</cite>
 commands.</p>
 </dd></dl>
 

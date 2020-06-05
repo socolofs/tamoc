@@ -30,7 +30,7 @@ import os
 
 from tamoc import seawater
 from tamoc import ambient
-from . import test_sbm
+from tamoc.test import test_sbm
 from tamoc import dbm
 from tamoc import dispersed_phases
 from tamoc import bent_plume_model

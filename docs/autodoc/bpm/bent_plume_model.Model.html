@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>bent_plume_model.Model &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <title>bent_plume_model.Model &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.1.0 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -41,13 +41,13 @@
 <dl class="field-list">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl>
-<dt><strong>profile</strong><span class="classifier"><cite>ambient.Profile</cite> object, default = None</span></dt><dd><p>An object containing the ambient CTD data and associated methods.  
-The netCDF dataset stored in the <cite>ambient.Profile</cite> object may be open 
-or closed at instantiation.  If open, the initializer will close the 
-file since this model does not support changing the ambient data once 
+<dt><strong>profile</strong><span class="classifier"><cite>ambient.Profile</cite> object, default = None</span></dt><dd><p>An object containing the ambient CTD data and associated methods.
+The netCDF dataset stored in the <cite>ambient.Profile</cite> object may be open
+or closed at instantiation.  If open, the initializer will close the
+file since this model does not support changing the ambient data once
 initialized.</p>
 </dd>
-<dt><strong>simfile: str, default = None</strong></dt><dd><p>File name of a netCDF file containing the results of a previous 
+<dt><strong>simfile: str, default = None</strong></dt><dd><p>File name of a netCDF file containing the results of a previous
 simulation run.</p>
 </dd>
 </dl>
@@ -70,7 +70,7 @@ loaded into the <cite>Model</cite> object memory</p>
 </dd>
 <dt><strong>p</strong><span class="classifier"><cite>ModelParams</cite></span></dt><dd><p>Container for the fixed model parameters</p>
 </dd>
-<dt><strong>sim_stored</strong><span class="classifier">bool</span></dt><dd><p>Flag indicating whether or not a simulation result is stored in the 
+<dt><strong>sim_stored</strong><span class="classifier">bool</span></dt><dd><p>Flag indicating whether or not a simulation result is stored in the
 object memory</p>
 </dd>
 <dt><strong>X</strong><span class="classifier">ndarray</span></dt><dd><p>Release location (x, y, z) in (m)</p>
@@ -78,14 +78,14 @@ object memory</p>
 <dt><strong>D</strong><span class="classifier">float</span></dt><dd><p>Diameter for the equivalent circular cross-section of the release (m)</p>
 </dd>
 <dt><strong>Vj</strong><span class="classifier">float</span></dt><dd><p>Scalar value of the magnitude of the discharge velocity for continuous
-phase fluid in the discharge.  This variable should be 0. or None for 
+phase fluid in the discharge.  This variable should be 0. or None for
 a pure multiphase discharge.</p>
 </dd>
-<dt><strong>phi_0</strong><span class="classifier">float</span></dt><dd><p>Vertical angle from the horizontal for the discharge orientation 
+<dt><strong>phi_0</strong><span class="classifier">float</span></dt><dd><p>Vertical angle from the horizontal for the discharge orientation
 (rad in range +/- pi/2)</p>
 </dd>
 <dt><strong>theta_0</strong><span class="classifier">float</span></dt><dd><p>Horizontal angle from the x-axis for the discharge orientation.  The
-x-axis is taken in the direction of the ambient current.  (rad in 
+x-axis is taken in the direction of the ambient current.  (rad in
 range 0 to 2 pi)</p>
 </dd>
 <dt><strong>Sj</strong><span class="classifier">float</span></dt><dd><p>Salinity of the continuous phase fluid in the discharge (psu)</p>
@@ -94,17 +94,17 @@ range 0 to 2 pi)</p>
 </dd>
 <dt><strong>cj</strong><span class="classifier">ndarray</span></dt><dd><p>Concentration of passive tracers in the discharge (user-defined)</p>
 </dd>
-<dt><strong>tracers</strong><span class="classifier">string list</span></dt><dd><p>List of passive tracers in the discharge.  These can be chemicals 
+<dt><strong>tracers</strong><span class="classifier">string list</span></dt><dd><p>List of passive tracers in the discharge.  These can be chemicals
 present in the ambient <cite>profile</cite> data, and if so, entrainment of these
 chemicals will change the concentrations computed for these tracers.
-However, none of these concentrations are used in the dissolution of 
-the dispersed phase.  Hence, <cite>tracers</cite> should not contain any 
+However, none of these concentrations are used in the dissolution of
+the dispersed phase.  Hence, <cite>tracers</cite> should not contain any
 chemicals present in the dispersed phase particles.</p>
 </dd>
-<dt><strong>particles</strong><span class="classifier">list of <cite>Particle</cite> objects</span></dt><dd><p>List of <cite>Particle</cite> objects describing each dispersed phase in the 
+<dt><strong>particles</strong><span class="classifier">list of <cite>Particle</cite> objects</span></dt><dd><p>List of <cite>Particle</cite> objects describing each dispersed phase in the
 simulation</p>
 </dd>
-<dt><strong>track</strong><span class="classifier">bool</span></dt><dd><p>Flag indicating whether or not to track the particle through 
+<dt><strong>track</strong><span class="classifier">bool</span></dt><dd><p>Flag indicating whether or not to track the particle through
 the water column using the <cite>single_bubble_model</cite>.</p>
 </dd>
 <dt><strong>dt_max</strong><span class="classifier">float</span></dt><dd><p>Maximum step size to take in the storage of the simulation solution
@@ -117,13 +117,13 @@ the plume centerline (m/m)</p>
 which is used to restart heat transfer after the simulation ends
 since during simulation, heat transfer is turned off.</p>
 </dd>
-<dt><strong>chem_names</strong><span class="classifier">string list</span></dt><dd><p>List of chemical parameters to track for the dissolution.  Only the 
+<dt><strong>chem_names</strong><span class="classifier">string list</span></dt><dd><p>List of chemical parameters to track for the dissolution.  Only the
 parameters in this list will be used to set background concentration
-for the dissolution, and the concentrations of these parameters are 
+for the dissolution, and the concentrations of these parameters are
 computed separately from those listed in <cite>tracers</cite> or inputed from
 the discharge through <cite>cj</cite>.</p>
 </dd>
-<dt><strong>q_local</strong><span class="classifier"><cite>LagElement</cite> object</span></dt><dd><p>Object that translates the <cite>Model</cite> state space <cite>t</cite> and <cite>q</cite> into the 
+<dt><strong>q_local</strong><span class="classifier"><cite>LagElement</cite> object</span></dt><dd><p>Object that translates the <cite>Model</cite> state space <cite>t</cite> and <cite>q</cite> into the
 comprehensive list of derived variables.</p>
 </dd>
 <dt><strong>t</strong><span class="classifier">ndarray</span></dt><dd><p>Array of times computed in the solution (s)</p>

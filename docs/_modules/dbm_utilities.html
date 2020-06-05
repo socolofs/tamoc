@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>dbm_utilities &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <title>dbm_utilities &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.1.0 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -45,12 +45,12 @@
 
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="p">(</span><span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">)</span>
 
-<span class="kn">from</span> <span class="nn">tamoc</span> <span class="kn">import</span> <span class="n">dbm</span>
+<span class="kn">from</span> <span class="nn">tamoc</span> <span class="kn">import</span> <span class="n">seawater</span><span class="p">,</span> <span class="n">dbm</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">fsolve</span><span class="p">,</span> <span class="n">fmin</span>
 
-<div class="viewcode-block" id="get_oil"><a class="viewcode-back" href="../autodoc/dbm_utilities/dbm_utilities.get_oil.html#dbm_utilities.get_oil">[docs]</a><span class="k">def</span> <span class="nf">get_oil</span><span class="p">(</span><span class="n">substance</span><span class="p">,</span> <span class="n">q_oil</span><span class="p">,</span> <span class="n">gor</span><span class="p">,</span> <span class="n">ca</span><span class="o">=</span><span class="p">[]):</span>
+<div class="viewcode-block" id="get_oil"><a class="viewcode-back" href="../autodoc/dbm_utilities/dbm_utilities.get_oil.html#dbm_utilities.get_oil">[docs]</a><span class="k">def</span> <span class="nf">get_oil</span><span class="p">(</span><span class="n">substance</span><span class="p">,</span> <span class="n">q_oil</span><span class="p">,</span> <span class="n">gor</span><span class="p">,</span> <span class="n">ca</span><span class="o">=</span><span class="p">[],</span> <span class="n">fp_type</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create a dbm.FluidMixture object for this oil and given flow rate</span>
 <span class="sd">    </span>
@@ -81,6 +81,9 @@
 <span class="sd">    ca : list, default=[]</span>
 <span class="sd">        List of dissolved atmospheric gases to track as part of the oil;</span>
 <span class="sd">        choices are &#39;nitrogen&#39;, &#39;oxygen&#39;, &#39;argon&#39;, and &#39;carbon_dioxide&#39;.</span>
+<span class="sd">    fp_type : int</span>
+<span class="sd">        Gives the fluid type (0: gas, 1: oil) for which the flow rate is</span>
+<span class="sd">        specified through the variable q_oil.</span>
 <span class="sd">    </span>
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -123,12 +126,13 @@
         <span class="n">delta</span> <span class="o">=</span> <span class="n">pedersen</span><span class="p">(</span><span class="n">oil</span><span class="o">.</span><span class="n">M</span><span class="p">,</span> <span class="n">composition</span><span class="p">)</span>
     
     <span class="c1"># Create a live oil mixture for this oil that has the given GOR</span>
-    <span class="n">composition</span><span class="p">,</span> <span class="n">mass_frac</span><span class="p">,</span> <span class="n">delta</span> <span class="o">=</span> <span class="n">mix_gas_for_gor</span><span class="p">(</span><span class="n">composition</span><span class="p">,</span> 
-        <span class="n">mass_frac</span><span class="p">,</span> <span class="n">user_data</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">gor</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">gor</span> <span class="o">&gt;</span> <span class="mf">0.</span><span class="p">:</span>
+        <span class="n">composition</span><span class="p">,</span> <span class="n">mass_frac</span><span class="p">,</span> <span class="n">delta</span> <span class="o">=</span> <span class="n">mix_gas_for_gor</span><span class="p">(</span><span class="n">composition</span><span class="p">,</span> 
+            <span class="n">mass_frac</span><span class="p">,</span> <span class="n">user_data</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">gor</span><span class="p">)</span>
     
     <span class="c1"># Get the mass flux for the desired oil flow rate</span>
     <span class="n">mass_flux</span> <span class="o">=</span> <span class="n">set_mass_fluxes</span><span class="p">(</span><span class="n">composition</span><span class="p">,</span> <span class="n">mass_frac</span><span class="p">,</span> <span class="n">user_data</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> 
-        <span class="n">q_oil</span><span class="p">)</span>
+        <span class="n">q_oil</span><span class="p">,</span> <span class="n">fp_type</span><span class="p">)</span>
     
     <span class="c1"># Create the dbm.FluidMixture object</span>
     <span class="n">oil</span> <span class="o">=</span> <span class="n">dbm</span><span class="o">.</span><span class="n">FluidMixture</span><span class="p">(</span><span class="n">composition</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="n">delta</span><span class="p">,</span> <span class="n">user_data</span><span class="o">=</span><span class="n">user_data</span><span class="p">)</span>
@@ -178,6 +182,10 @@
     <span class="c1"># Extract the variables in the `substance` dictionary</span>
     <span class="n">composition</span> <span class="o">=</span> <span class="n">substance</span><span class="p">[</span><span class="s1">&#39;composition&#39;</span><span class="p">]</span>
     <span class="n">masses</span> <span class="o">=</span> <span class="n">substance</span><span class="p">[</span><span class="s1">&#39;masses&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="s1">&#39;user_data&#39;</span> <span class="ow">in</span> <span class="n">substance</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">user_data</span> <span class="o">=</span> <span class="n">substance</span><span class="p">[</span><span class="s1">&#39;user_data&#39;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">user_data</span> <span class="o">=</span> <span class="kc">None</span>
     
     <span class="c1"># Convert the masses to mass fraction </span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">masses</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
@@ -187,7 +195,10 @@
     <span class="n">mass_frac</span> <span class="o">=</span> <span class="n">masses</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">masses</span><span class="p">)</span>
     
     <span class="c1"># Create a dbm.FluidMixture object for this composition</span>
-    <span class="n">oil</span> <span class="o">=</span> <span class="n">dbm</span><span class="o">.</span><span class="n">FluidMixture</span><span class="p">(</span><span class="n">composition</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">user_data</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">oil</span> <span class="o">=</span> <span class="n">dbm</span><span class="o">.</span><span class="n">FluidMixture</span><span class="p">(</span><span class="n">composition</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">oil</span> <span class="o">=</span> <span class="n">dbm</span><span class="o">.</span><span class="n">FluidMixture</span><span class="p">(</span><span class="n">composition</span><span class="p">,</span> <span class="n">user_data</span><span class="o">=</span><span class="n">user_data</span><span class="p">)</span>
     
     <span class="c1"># Extract the property data from this dbm.FluidMixture object</span>
     <span class="n">user_data</span><span class="p">,</span> <span class="n">units</span> <span class="o">=</span> <span class="n">format_dbm_data</span><span class="p">(</span><span class="n">composition</span><span class="p">,</span> <span class="n">oil</span><span class="o">.</span><span class="n">M</span><span class="p">,</span> <span class="n">oil</span><span class="o">.</span><span class="n">Pc</span><span class="p">,</span> <span class="n">oil</span><span class="o">.</span><span class="n">Tc</span><span class="p">,</span> 
@@ -493,7 +504,8 @@
     <span class="k">return</span> <span class="n">gor</span> <span class="o">-</span> <span class="n">gor_0</span></div>
 
 
-<div class="viewcode-block" id="set_mass_fluxes"><a class="viewcode-back" href="../autodoc/dbm_utilities/dbm_utilities.set_mass_fluxes.html#dbm_utilities.set_mass_fluxes">[docs]</a><span class="k">def</span> <span class="nf">set_mass_fluxes</span><span class="p">(</span><span class="n">composition</span><span class="p">,</span> <span class="n">mass_frac</span><span class="p">,</span> <span class="n">user_data</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">q_oil</span><span class="p">):</span>
+<div class="viewcode-block" id="set_mass_fluxes"><a class="viewcode-back" href="../autodoc/dbm_utilities/dbm_utilities.set_mass_fluxes.html#dbm_utilities.set_mass_fluxes">[docs]</a><span class="k">def</span> <span class="nf">set_mass_fluxes</span><span class="p">(</span><span class="n">composition</span><span class="p">,</span> <span class="n">mass_frac</span><span class="p">,</span> <span class="n">user_data</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">q_oil</span><span class="p">,</span> 
+    <span class="n">fp_type</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute the mass fluxes to achieve a desired oil flow rate</span>
 <span class="sd">    </span>
@@ -515,6 +527,9 @@
 <span class="sd">        Array of binary interaction coefficients</span>
 <span class="sd">    q_oil : float</span>
 <span class="sd">        Flow rate of oil (bbl/d at standard conditions).</span>
+<span class="sd">    fp_type : int</span>
+<span class="sd">        Gives the fluid type (0: gas, 1: oil) for which the flow rate is</span>
+<span class="sd">        specified through the variable q_oil.</span>
 <span class="sd">    </span>
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -536,8 +551,8 @@
     <span class="c1"># Get the volume flow rate of liquid oil at standard conditions for a </span>
     <span class="c1"># total petroleum fluid flow rate of 1 kg/s (e.g., using mass_flux equal</span>
     <span class="c1"># to mass_frac)</span>
-    <span class="n">p_oil</span> <span class="o">=</span> <span class="n">oil</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">m0</span><span class="p">[</span><span class="mi">1</span><span class="p">,:],</span> <span class="n">T0</span><span class="p">,</span> <span class="n">P0</span><span class="p">)[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">v_oil</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">m0</span><span class="p">[</span><span class="mi">1</span><span class="p">,:])</span> <span class="o">/</span> <span class="n">p_oil</span> <span class="o">/</span> <span class="mf">0.158987</span> <span class="c1"># bbl</span>
+    <span class="n">p_oil</span> <span class="o">=</span> <span class="n">oil</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">m0</span><span class="p">[</span><span class="n">fp_type</span><span class="p">,:],</span> <span class="n">T0</span><span class="p">,</span> <span class="n">P0</span><span class="p">)[</span><span class="n">fp_type</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">v_oil</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">m0</span><span class="p">[</span><span class="n">fp_type</span><span class="p">,:])</span> <span class="o">/</span> <span class="n">p_oil</span> <span class="o">/</span> <span class="mf">0.158987</span> <span class="c1"># bbl</span>
     
     <span class="c1"># Adjust the masses to yield the desired flow rate of oil in bbl/d</span>
     <span class="n">k_fac</span> <span class="o">=</span> <span class="p">(</span><span class="n">q_oil</span> <span class="o">/</span> <span class="mf">86400.</span><span class="p">)</span> <span class="o">/</span> <span class="n">v_oil</span>
@@ -586,10 +601,8 @@
     
     <span class="c1"># Read in the desired oil from the ADIOS Oil Library</span>
     <span class="n">gnome_oil</span> <span class="o">=</span> <span class="n">get_oil_props</span><span class="p">(</span><span class="n">adios_id</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">----------&#39;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Loading NOAA Oil Library Oil:  &#39;</span> <span class="o">+</span> <span class="n">adios_id</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Record name:  &#39;</span> <span class="o">+</span> <span class="n">gnome_oil</span><span class="o">.</span><span class="n">record</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;----------</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;     --&gt;Loading NOAA Oil Library Oil:  &#39;</span> <span class="o">+</span> <span class="n">adios_id</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;     --&gt;Record name:  &#39;</span> <span class="o">+</span> <span class="n">gnome_oil</span><span class="o">.</span><span class="n">record</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
     
     <span class="c1"># Extract properties of this oil from the gnome_oil object</span>
     <span class="n">molecular_weight</span> <span class="o">=</span> <span class="n">gnome_oil</span><span class="o">.</span><span class="n">molecular_weight</span>         <span class="c1"># g/mol</span>
@@ -1237,15 +1250,9 @@
             <span class="n">sum_rel</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">rho_tamoc</span> <span class="o">-</span> <span class="n">rho_adios</span><span class="p">)</span> <span class="o">/</span> <span class="n">rho_adios</span>
             <span class="n">num</span> <span class="o">+=</span> <span class="mf">1.</span>
     
-    <span class="c1"># Compute statistics</span>
+    <span class="c1"># Compute statistics...can be printed if interested.</span>
     <span class="n">err_abs</span> <span class="o">=</span> <span class="n">sum_abs</span> <span class="o">/</span> <span class="n">num</span>
     <span class="n">err_rel</span> <span class="o">=</span> <span class="n">sum_rel</span> <span class="o">/</span> <span class="n">num</span>
-    
-    <span class="c1"># Report the statistics</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">----------&#39;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Average absolute error for density:  </span><span class="si">%6.3f</span><span class="s1"> (kg/m^3) &#39;</span> <span class="o">%</span> <span class="n">err_abs</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Average relative error for density:  </span><span class="si">%6.4f</span><span class="s1"> (--)&#39;</span> <span class="o">%</span> <span class="n">err_rel</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;----------</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
     
     <span class="c1"># Return the optimized user_data dictionary</span>
     <span class="k">return</span> <span class="n">user_data</span></div>

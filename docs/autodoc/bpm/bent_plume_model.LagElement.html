@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>bent_plume_model.LagElement &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <title>bent_plume_model.LagElement &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.1.0 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -53,19 +53,19 @@ its individual parts and derived quantitites.</p>
 </dd>
 <dt><strong>p</strong><span class="classifier"><cite>ModelParams</cite></span></dt><dd><p>Container for the fixed model parameters</p>
 </dd>
-<dt><strong>particles</strong><span class="classifier">list of <cite>Particle</cite> objects</span></dt><dd><p>List of <cite>Particle</cite> objects describing each dispersed phase in the 
+<dt><strong>particles</strong><span class="classifier">list of <cite>Particle</cite> objects</span></dt><dd><p>List of <cite>Particle</cite> objects describing each dispersed phase in the
 simulation</p>
 </dd>
-<dt><strong>tracers</strong><span class="classifier">string list</span></dt><dd><p>List of passive tracers in the discharge.  These can be chemicals 
+<dt><strong>tracers</strong><span class="classifier">string list</span></dt><dd><p>List of passive tracers in the discharge.  These can be chemicals
 present in the ambient <cite>profile</cite> data, and if so, entrainment of these
 chemicals will change the concentrations computed for these tracers.
-However, none of these concentrations are used in the dissolution of 
-the dispersed phase.  Hence, <cite>tracers</cite> should not contain any 
+However, none of these concentrations are used in the dissolution of
+the dispersed phase.  Hence, <cite>tracers</cite> should not contain any
 chemicals present in the dispersed phase particles.</p>
 </dd>
-<dt><strong>chem_names</strong><span class="classifier">string list</span></dt><dd><p>List of chemical parameters to track for the dissolution.  Only the 
+<dt><strong>chem_names</strong><span class="classifier">string list</span></dt><dd><p>List of chemical parameters to track for the dissolution.  Only the
 parameters in this list will be used to set background concentration
-for the dissolution, and the concentrations of these parameters are 
+for the dissolution, and the concentrations of these parameters are
 computed separately from those listed in <cite>tracers</cite> or inputed from
 the discharge through <cite>cj</cite>.</p>
 </dd>
@@ -79,16 +79,16 @@ the discharge through <cite>cj</cite>.</p>
 </dd>
 <dt><strong>D</strong><span class="classifier">float</span></dt><dd><p>Diameter for the equivalent circular cross-section of the release (m)</p>
 </dd>
-<dt><strong>tracers</strong><span class="classifier">string list</span></dt><dd><p>List of passive tracers in the discharge.  These can be chemicals 
+<dt><strong>tracers</strong><span class="classifier">string list</span></dt><dd><p>List of passive tracers in the discharge.  These can be chemicals
 present in the ambient <cite>profile</cite> data, and if so, entrainment of these
 chemicals will change the concentrations computed for these tracers.
-However, none of these concentrations are used in the dissolution of 
-the dispersed phase.  Hence, <cite>tracers</cite> should not contain any 
+However, none of these concentrations are used in the dissolution of
+the dispersed phase.  Hence, <cite>tracers</cite> should not contain any
 chemicals present in the dispersed phase particles.</p>
 </dd>
-<dt><strong>chem_names</strong><span class="classifier">string list</span></dt><dd><p>List of chemical parameters to track for the dissolution.  Only the 
+<dt><strong>chem_names</strong><span class="classifier">string list</span></dt><dd><p>List of chemical parameters to track for the dissolution.  Only the
 parameters in this list will be used to set background concentration
-for the dissolution, and the concentrations of these parameters are 
+for the dissolution, and the concentrations of these parameters are
 computed separately from those listed in <cite>tracers</cite> or inputed from
 the discharge through <cite>cj</cite>.</p>
 </dd>
@@ -111,13 +111,13 @@ particles (–)</p>
 </dd>
 <dt><strong>He</strong><span class="classifier">float</span></dt><dd><p>Heat of the Lagrangian element (J)</p>
 </dd>
-<dt><strong>Jx</strong><span class="classifier">float</span></dt><dd><p>Dynamic momentum of the Lagrangian element in the x-direction 
+<dt><strong>Jx</strong><span class="classifier">float</span></dt><dd><p>Dynamic momentum of the Lagrangian element in the x-direction
 (kg m/s)</p>
 </dd>
-<dt><strong>Jy</strong><span class="classifier">float</span></dt><dd><p>Dynamic momentum of the Lagrangian element in the y-direction 
+<dt><strong>Jy</strong><span class="classifier">float</span></dt><dd><p>Dynamic momentum of the Lagrangian element in the y-direction
 (kg m/s)</p>
 </dd>
-<dt><strong>Jz</strong><span class="classifier">float</span></dt><dd><p>Dynamic momentum of the Lagrangian element in the z-direction 
+<dt><strong>Jz</strong><span class="classifier">float</span></dt><dd><p>Dynamic momentum of the Lagrangian element in the z-direction
 (kg m/s)</p>
 </dd>
 <dt><strong>H</strong><span class="classifier">float</span></dt><dd><p>Relative thickness of the Lagrangian element h/V (s)</p>
@@ -128,10 +128,10 @@ particles (–)</p>
 </dd>
 <dt><strong>z</strong><span class="classifier">float</span></dt><dd><p>Current z-position of the Lagrangian element (m)</p>
 </dd>
-<dt><strong>s</strong><span class="classifier">float</span></dt><dd><p>Current s-position along the centerline of the plume for the 
+<dt><strong>s</strong><span class="classifier">float</span></dt><dd><p>Current s-position along the centerline of the plume for the
 Lagrangian element (m)</p>
 </dd>
-<dt><strong>M_p</strong><span class="classifier">dict of ndarrays</span></dt><dd><p>For integer key: the total mass fluxes (kg/s) of each component in a 
+<dt><strong>M_p</strong><span class="classifier">dict of ndarrays</span></dt><dd><p>For integer key: the total mass fluxes (kg/s) of each component in a
 particle.</p>
 </dd>
 <dt><strong>H_p</strong><span class="classifier">ndarray</span></dt><dd><p>Total heat flux for each particle (J/s)</p>
@@ -150,13 +150,13 @@ particle.</p>
 </dd>
 <dt><strong>Sa</strong><span class="classifier">float</span></dt><dd><p>Ambient salinity at the current element location (psu)</p>
 </dd>
-<dt><strong>ua</strong><span class="classifier">float</span></dt><dd><p>Crossflow velocity in the x-direction at the current element location 
+<dt><strong>ua</strong><span class="classifier">float</span></dt><dd><p>Crossflow velocity in the x-direction at the current element location
 (m/s)</p>
 </dd>
-<dt><strong>ca_chems</strong><span class="classifier">ndarray</span></dt><dd><p>Ambient concentration of the chemical components involved in 
+<dt><strong>ca_chems</strong><span class="classifier">ndarray</span></dt><dd><p>Ambient concentration of the chemical components involved in
 dissolution at the current element location (kg/m^3)</p>
 </dd>
-<dt><strong>ca_tracers :</strong></dt><dd><p>Ambient concentration of the passive tracers in the plume at the 
+<dt><strong>ca_tracers :</strong></dt><dd><p>Ambient concentration of the passive tracers in the plume at the
 current element location (concentration)</p>
 </dd>
 <dt><strong>rho_a</strong><span class="classifier">float</span></dt><dd><p>Ambient density at the current element location (kg/m^3)</p>
@@ -168,7 +168,7 @@ current element location (concentration)</p>
 <dt><strong>c_chems :</strong></dt><dd><p>Concentration of the chemical components involved in dissolution for
 the Lagrangian element (kg/m^3)</p>
 </dd>
-<dt><strong>c_tracers :</strong></dt><dd><p>Concentration of the passive tracers in the Lagrangian element 
+<dt><strong>c_tracers :</strong></dt><dd><p>Concentration of the passive tracers in the Lagrangian element
 (concentration)</p>
 </dd>
 <dt><strong>u</strong><span class="classifier">float</span></dt><dd><p>Velocity in the x-direction of the Lagrangian element (m/s)</p>
@@ -196,22 +196,22 @@ the Lagrangian element (kg/m^3)</p>
 <dt><strong>cos_t</strong><span class="classifier">float</span></dt><dd><p>The cosine of the angle theta (–)</p>
 </dd>
 <dt><strong>phi</strong><span class="classifier">float</span></dt><dd><p>The vertical angle from horizontal of the current plume trajectory
-(rad in range +/- pi/2).  Since z is positive down (depth), phi = 
+(rad in range +/- pi/2).  Since z is positive down (depth), phi =
 pi/2 point down and -pi/2 points up.</p>
 </dd>
-<dt><strong>theta</strong><span class="classifier">float</span></dt><dd><p>The lateral angle in the horizontal plane from the x-axis to the 
+<dt><strong>theta</strong><span class="classifier">float</span></dt><dd><p>The lateral angle in the horizontal plane from the x-axis to the
 current plume trajectory (rad in range 0 to 2 pi)</p>
 </dd>
 <dt><strong>mp</strong><span class="classifier">ndarray</span></dt><dd><p>Masses of each of the dispersed phase particles in the <cite>particles</cite>
 variable</p>
 </dd>
-<dt><strong>fb</strong><span class="classifier">ndarray</span></dt><dd><p>Buoyant force for each of the dispersed phase particles in the 
+<dt><strong>fb</strong><span class="classifier">ndarray</span></dt><dd><p>Buoyant force for each of the dispersed phase particles in the
 <cite>particles</cite> variable as density difference (kg/m^3)</p>
 </dd>
 <dt><strong>x_p</strong><span class="classifier">ndarray</span></dt><dd></dd>
 <dt><strong>Mp</strong><span class="classifier">float</span></dt><dd><p>Total mass of dispersed phases in the Lagrangian element (kg)</p>
 </dd>
-<dt><strong>Fb</strong><span class="classifier">float</span></dt><dd><p>Total buoyant force as density difference of the dispersed phases in 
+<dt><strong>Fb</strong><span class="classifier">float</span></dt><dd><p>Total buoyant force as density difference of the dispersed phases in
 the Lagrangian element (kg/m^3)</p>
 </dd>
 </dl>

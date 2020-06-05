@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>dbm_utilities.get_oil &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <title>dbm_utilities.get_oil &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.1.0 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -36,7 +36,7 @@
 <h1>dbm_utilities.get_oil<a class="headerlink" href="#dbm-utilities-get-oil" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="dbm_utilities.get_oil">
-<code class="sig-prename descclassname">dbm_utilities.</code><code class="sig-name descname">get_oil</code><span class="sig-paren">(</span><em class="sig-param">substance</em>, <em class="sig-param">q_oil</em>, <em class="sig-param">gor</em>, <em class="sig-param">ca=[]</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/dbm_utilities.html#get_oil"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dbm_utilities.get_oil" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">dbm_utilities.</code><code class="sig-name descname">get_oil</code><span class="sig-paren">(</span><em class="sig-param">substance</em>, <em class="sig-param">q_oil</em>, <em class="sig-param">gor</em>, <em class="sig-param">ca=[]</em>, <em class="sig-param">fp_type=1</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/dbm_utilities.html#get_oil"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dbm_utilities.get_oil" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a dbm.FluidMixture object for this oil and given flow rate</p>
 <p>Create a dbm.FluidMixture object for the given substance and compute a
 matrix of mass fluxes per component of the oil to achieve the given 
@@ -65,6 +65,9 @@ will compute an equivalent mass fraction that does.</p>
 </dd>
 <dt><strong>ca</strong><span class="classifier">list, default=[]</span></dt><dd><p>List of dissolved atmospheric gases to track as part of the oil;
 choices are ‘nitrogen’, ‘oxygen’, ‘argon’, and ‘carbon_dioxide’.</p>
+</dd>
+<dt><strong>fp_type</strong><span class="classifier">int</span></dt><dd><p>Gives the fluid type (0: gas, 1: oil) for which the flow rate is
+specified through the variable q_oil.</p>
 </dd>
 </dl>
 </dd>
