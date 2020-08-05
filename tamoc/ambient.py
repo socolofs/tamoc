@@ -165,8 +165,8 @@ class BaseProfile(object):
                 data, ztsp, ztsp_units, chem_names, chem_units = \
                     get_world_ocean()
             self.data = data
-        self.ztsp = ztsp
-        self.ztsp_units = ztsp_units
+        self.ztsp = copy(ztsp)
+        self.ztsp_units = copy(ztsp_units)
         if isinstance(chem_names, str) or isinstance(chem_names, unicode):
             chem_names == [chem_names]
         if isinstance(chem_units, str) or isinstance(chem_units, unicode):

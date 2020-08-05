@@ -993,7 +993,6 @@ def plot_state_space(profile, particle, p, t, y, fig):
     ax4.invert_yaxis()
     ax4.locator_params(tight=True, nbins=6)
     ax4.grid(True)
-
     plt.draw()
 
     # Plot dissolution data

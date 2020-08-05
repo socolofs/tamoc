@@ -291,6 +291,10 @@ class Model(object):
                     print('\nTracking Particle %d of %d:' %
                         (i+1, len(self.particles)))
                     particles[i].run_sbm(self.profile)
+                elif particles[i].z > 0:
+                    print('\nTracking Plume Particle %d of %d:' %
+                        (i+1, len(self.particles)))
+                    particles[i].run_sbm(self.profile)
 
         # Update the status of the solution
         self.sim_stored = True
@@ -1692,6 +1696,9 @@ def plot_all_variables(t, q, q_local, profile, p, particles,
             if particles[i].integrate is False and particles[i].z > 0.:
                 ax1.plot(particles[i].sbm.y[:,0], particles[i].sbm.y[:,2],
                          '.:')
+            elif particles[i].z > 0:
+                ax1.plot(particles[i].sbm.y[:,0], particles[i].sbm.y[:,2],
+                         '.:')
     ax1.invert_yaxis()
     ax1.set_xlabel('x (m)')
     ax1.set_ylabel('z (m)')
@@ -1709,6 +1716,9 @@ def plot_all_variables(t, q, q_local, profile, p, particles,
             if particles[i].integrate is False and particles[i].z > 0.:
                 ax2.plot(particles[i].sbm.y[:,1], particles[i].sbm.y[:,2],
                          '.:')
+            elif particles[i].z > 0.:
+                ax2.plot(particles[i].sbm.y[:,1], particles[i].sbm.y[:,2],
+                         '.:')
     ax2.invert_yaxis()
     ax2.set_xlabel('y (m)')
     ax2.set_ylabel('z (m)')
@@ -1724,6 +1734,9 @@ def plot_all_variables(t, q, q_local, profile, p, particles,
         ax3.plot(xp[:,i*3], xp[:,i*3+1], '.--')
         if tracked:
             if particles[i].integrate is False and particles[i].z > 0.:
+                ax3.plot(particles[i].sbm.y[:,0], particles[i].sbm.y[:,1],
+                         '.:')
+            elif particles[i].z > 0:
                 ax3.plot(particles[i].sbm.y[:,0], particles[i].sbm.y[:,1],
                          '.:')
     ax3.set_xlabel('x (m)')

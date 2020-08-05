@@ -29,7 +29,7 @@ import numpy as np
 if __name__ == '__main__':
     
     # Get the ambient CTD profile data
-    nc = '../../test/output/test_BM54.nc'
+    nc = '../../tamoc/test/output/test_BM54.nc'
     try:
         # Open the lake dataset as a Profile object if it exists
         ctd = ambient.Profile(nc, chem_names='all')

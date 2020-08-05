@@ -677,53 +677,17 @@ def local_coords(q0_local, q1_local, ds):
     bent_plume_model.Particle.track
     
     """
-    # Get the rate of angular rotation for the centerline
-    if ds < 1.e-12:
-        phi_d = 0.
-        theta_d = 0.
-    else:
-        phi_d = (q1_local.phi - q0_local.phi) / ds
-        if np.abs(q1_local.theta - q0_local.theta) > np.pi:
-            # Angles are close to 0
-            if q1_local.theta > np.pi:
-                theta_d = (q1_local.theta - (q0_local.theta + 2. * np.pi)) / ds
-            else:
-                theta_d = (q1_local.theta + 2.* np.pi - q0_local.theta) / ds
-        else:
-            theta_d = (q1_local.theta - q0_local.theta) / ds
-    
-    # Get the value of 1 / R = r
-    r = np.sqrt(phi_d**2 + q1_local.cos_p**2 * theta_d**2)
-    
-    # Compute the rotation matrix between (i,j,k) and (l,n,m)
-    if r < 1.e-8:
-        # Trajectory is straight and R is infinite
-        A = np.array([
-            [q1_local.cos_p * q1_local.cos_t, 
-             q1_local.cos_p * q1_local.sin_t, 
-             q1_local.sin_p], 
-            [q1_local.cos_t * q1_local.sin_p,
-             q1_local.sin_t * q1_local.sin_p,
-             -q1_local.cos_p], 
-            [q1_local.sin_t,
-             -q1_local.cos_t,
-             0.]])
-    else:
-        # Trajectory is curving, and R is finite
-        A = np.array([
-            [q1_local.cos_p * q1_local.cos_t, 
-             q1_local.cos_p * q1_local.sin_t, 
-             q1_local.sin_p], 
-            [q1_local.cos_p * q1_local.sin_t * theta_d + q1_local.cos_t * 
-                q1_local.sin_p * phi_d, 
-             q1_local.sin_t * q1_local.sin_p * phi_d - q1_local.cos_p * 
-                q1_local.cos_t * theta_d, 
-             -q1_local.cos_p * phi_d] / r, 
-            [q1_local.sin_t * phi_d - q1_local.sin_p * q1_local.cos_p * 
-                q1_local.cos_t * theta_d,
-             -q1_local.cos_t * phi_d - q1_local.cos_p * q1_local.sin_t * 
-             q1_local.sin_p * theta_d, 
-             q1_local.cos_p**2 * theta_d] / r])
+    # l is along the s-axis, n is normal to l and m is normal to n and l
+    A = np.array([
+        [q1_local.cos_p * q1_local.cos_t, 
+         q1_local.cos_p * q1_local.sin_t, 
+         q1_local.sin_p], 
+        [q1_local.cos_t * q1_local.sin_p,
+         q1_local.sin_t * q1_local.sin_p,
+         -q1_local.cos_p], 
+        [q1_local.sin_t,
+         -q1_local.cos_t,
+         0.]])
     
     # Return the rotation matrix
     return A

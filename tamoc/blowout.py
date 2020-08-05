@@ -286,7 +286,7 @@ class Blowout(object):
         self.ca = ['nitrogen', 'oxygen', 'argon', 'carbon_dioxide']
         self.new_oil = True
         
-        # Decide which phase flow rate is reported
+        # Decide which phase flow rate is reported through q_oil
         if self.num_oil_elements > 0:
             # User is simulating oil; hence, oil flow rate should be given
             self.q_type = 1
@@ -370,7 +370,7 @@ class Blowout(object):
         # TODO:  consider which of these should be editable by the user
         self.track = True
         self.dt_max = 5. * 3600.
-        self.sd_max = 3. * self.z0 / self.d0
+        self.sd_max = 300. * self.z0 / self.d0
 
         # Create the initialized `bent_plume_model` object
         self.bpm = bent_plume_model.Model(self.profile)

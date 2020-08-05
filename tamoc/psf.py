@@ -549,6 +549,7 @@ def find_de(de, rho_d, rho_c, mu_d, mu_c, sigma, nu_d, nu_c, g, dp, K,
                                                       rho_d, K, c_0),
                    bounds=[(lam_crit, lam_max)]
                    ).x[0]
+    
     t_min = grow_time(lam, de, U, nu_c, nu_d,sigma, g, dp, rho_c, rho_d, K, 
                       c_0)
     
