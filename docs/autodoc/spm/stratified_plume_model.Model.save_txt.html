@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>stratified_plume_model.Model.save_txt &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <title>stratified_plume_model.Model.save_txt &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.1.0 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -38,21 +38,21 @@
 <dt id="stratified_plume_model.Model.save_txt">
 <code class="sig-prename descclassname">Model.</code><code class="sig-name descname">save_txt</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">base_name</em>, <em class="sig-param">profile_path</em>, <em class="sig-param">profile_info</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/stratified_plume_model.html#Model.save_txt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stratified_plume_model.Model.save_txt" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save the state space in ascii text format for exporting</p>
-<p>Save the state space (dependent and independent variables) in an 
-ascii text file for exporting to other programs (e.g., Matlab).  
-Because the vertical coordinate is different for the inner and 
+<p>Save the state space (dependent and independent variables) in an
+ascii text file for exporting to other programs (e.g., Matlab).
+Because the vertical coordinate is different for the inner and
 outer plume solutions and because we want this data to be easily
 loadable in Matlab (i.e., each column of data must have the same
-number of rows), this method writes two data files, one for the 
+number of rows), this method writes two data files, one for the
 inner plume and one for the outer plume.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>base_name</strong><span class="classifier">str</span></dt><dd><p>Base file name for the output file.  This method appends ‘inner’
-and ‘outer’ to the inner and outer solutions upstream of the 
+and ‘outer’ to the inner and outer solutions upstream of the
 dot-extension.</p>
 </dd>
-<dt><strong>profile_path</strong><span class="classifier">str</span></dt><dd><p>String stating the file path to the ambient profile data relative 
+<dt><strong>profile_path</strong><span class="classifier">str</span></dt><dd><p>String stating the file path to the ambient profile data relative
 to the directory where <cite>fname</cite> will be saved.</p>
 </dd>
 <dt><strong>profile_info</strong><span class="classifier">str</span></dt><dd><p>Single line of text describing the ambient profile data.</p>
@@ -72,7 +72,7 @@ to the directory where <cite>fname</cite> will be saved.</p>
 <div><p>0 : depth (m)
 1-n : state space</p>
 </div></blockquote>
-<p>A header will be written to a separate file with <cite>yi_header</cite> and 
+<p>A header will be written to a separate file with <cite>yi_header</cite> and
 <cite>yo_header</cite> appended to the base file name given above specifying
 the exact contents of the state space.</p>
 <p>These output files are written using the <cite>numpy.savetxt</cite> method.</p>

@@ -173,7 +173,7 @@ This package requires:
 
 * The Python netCDF4 package
 
-For interaction with ROMS output, TAMOC also requires:
+* For interaction with ROMS output, TAMOC also requires:
 
    * octant:  download from https://github.com/hetland/octant
 
@@ -188,11 +188,13 @@ For interaction with ROMS output, TAMOC also requires:
             the data into a numpy array and pass this data to the
             ambient.Profile object.
 
+* To view plots of the model output, TAMOC uses the matplotlib package
+
 Code development and testing for this package was conducted in the Mac OS X
-environment, Version 10.13.6. The Python environments were created using
-miniconda.  The Python 3 environment used Python 3.8.2; the Python 2
-environment used Python 2.7.15.  All scripts are tested in iPython with the
---pylab flag.
+environment, Version 10.13.6 through 10.14.6. The Python environments were
+created using miniconda. The Python 3 environment used Python 3.8.2; the
+Python 2 environment used Python 2.7.15. All scripts are tested in iPython
+with the --pylab flag.
 
 Fortran files are written in modern Fortran style and are fully compatible
 with gfortran 4.6.2 20111019 (prerelease). They have been compiled and tested
@@ -203,17 +205,22 @@ Quick Start
 
 * Edit setup.cfg to select the appropriate C/C++ and Fortran compilers
 
-* Run 'python setup.py build' followed by 'python setup.py install' (with
-  sudo if necessary).
+* For a normal install, run 'python setup.py build' followed by 'python  
+  setup.py install' (with sudo if necessary). To install using a local
+  install directory in develop mode, use: 'python setup.py develop'.
 
 * Test the installation by opening a Python session and executing
   `import tamoc` from the Python prompt.  Be sure that you are not in the
   same directory as the setup.py file so that Python will look for tamoc in
   the main Python package repository on your system.
 
-* To run all the tests, cd to the ./test directory and execute 'pytest'
-  from a command prompt.  If pytest is not installed, follow the instructions
-  here:  http://pytest.org/latest/getting-started.html
+* To run all the tests, execute 'pytest -v --pyargs tamoc'
+  from a command prompt outside of the TAMOC package. If pytest is not
+  installed, follow the instructions here:
+  http://pytest.org/latest/getting-started.html. The TAMOC tests write files
+  to test the storage and recovery methods of the model modules. If these
+  tests fail with write permission errors, you may try 'sudo pytest -v
+  --pyargs tamoc'.
 
 Platforms
 =========

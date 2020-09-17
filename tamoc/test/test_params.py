@@ -29,7 +29,7 @@ have been validated against measurements.
 from __future__ import (absolute_import, division, print_function)
 
 from tamoc import ambient
-from . import test_sbm
+from tamoc.test import test_sbm
 from tamoc import dbm
 from tamoc import stratified_plume_model
 from tamoc import params

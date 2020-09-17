@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>particle_size_models.PureJet.simulate &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <title>particle_size_models.PureJet.simulate &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.1.0 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -38,14 +38,14 @@
 <dt id="particle_size_models.PureJet.simulate">
 <code class="sig-prename descclassname">PureJet.</code><code class="sig-name descname">simulate</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">d0</em>, <em class="sig-param">m</em>, <em class="sig-param">model='sintef'</em>, <em class="sig-param">pdf='rosin-rammler'</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/particle_size_models.html#PureJet.simulate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#particle_size_models.PureJet.simulate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the parameters of the particle size distribution</p>
-<p>Computes the median bubble or droplet sizes and the spread 
+<p>Computes the median bubble or droplet sizes and the spread
 of the selected size distributions.  Models for gas bubble median
 size are <cite>wang_etal</cite> or <cite>li_etal</cite>; models for oil droplet median
-size are <cite>sintef</cite> or <cite>li_etal</cite>.  Size distributions are either 
-<cite>lognormal</cite> or <cite>rosin-rammler</cite>.  No matter what model is selected, 
+size are <cite>sintef</cite> or <cite>li_etal</cite>.  Size distributions are either
+<cite>lognormal</cite> or <cite>rosin-rammler</cite>.  No matter what model is selected,
 the <cite>d_95</cite>-rule is used when the predicted size distribution would
-exceed the maximum stable bubble or droplet size.  Under that rule, 
-the 95-percentile of the volume size distribution is set to the 
+exceed the maximum stable bubble or droplet size.  Under that rule,
+the 95-percentile of the volume size distribution is set to the
 maximum stable size, and the median size is adjusted downward.</p>
 <p>This method only computes size distribution values for the fluid
 type selected by the class attribute fp_type (0 = gas, 1 = liquid).</p>
@@ -56,12 +56,12 @@ type selected by the class attribute fp_type (0 = gas, 1 = liquid).</p>
 </dd>
 <dt><strong>m</strong><span class="classifier">float</span></dt><dd><p>Mass flow rate of fluid released from the jet (kg/s)</p>
 </dd>
-<dt><strong>model</strong><span class="classifier">str, default=’wang_etal’</span></dt><dd><p>Name of the model used for computing the particle size 
+<dt><strong>model</strong><span class="classifier">str, default=’wang_etal’</span></dt><dd><p>Name of the model used for computing the particle size
 distribution.  Choices are ‘wang_etal’, ‘li_etal’, or ‘sintef’.
 Note that the model choice must agree with the fluid of interest;
 see paragraph above for details.</p>
 </dd>
-<dt><strong>pdf</strong><span class="classifier">str, default=’rosin-rammler’</span></dt><dd><p>Probability density function to use for the particle size 
+<dt><strong>pdf</strong><span class="classifier">str, default=’rosin-rammler’</span></dt><dd><p>Probability density function to use for the particle size
 distribution.  Choices are ‘lognormal’ or ‘rosin-rammler’.</p>
 </dd>
 </dl>

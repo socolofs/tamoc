@@ -30,7 +30,7 @@ from __future__ import (absolute_import, division, print_function)
 
 from tamoc import seawater
 from tamoc import ambient
-from . import test_ambient
+from tamoc.test import test_ambient
 from tamoc import dbm
 from tamoc import dispersed_phases
 from tamoc import single_bubble_model
@@ -352,15 +352,15 @@ def test_simulation():
     # Run the simulation
     sbm.simulate(bub, np.array([0., 0., z0]), de, mol_frac, T0, K_T=1,
         fdis=1e-8, delta_t=10.)
-
+    
     # Check the solution
-    assert sbm.y.shape[0] == 1117
+    assert sbm.y.shape[0] == 1116
     assert sbm.y.shape[1] == 8
-    assert sbm.t.shape[0] == 1117
-    assert_approx_equal(sbm.t[-1], 11016.038751523512, significant = 6)
-    assert_array_almost_equal(sbm.y[-1,:], np.array([0.00000000e+00,
-        0.00000000e+00, 3.36934635e+02, 4.31711152e-14, 6.66318106e-15,
-        -2.91389824e-13, -1.08618680e-15, -1.37972400e-07]), decimal = 6)
+    assert sbm.t.shape[0] == 1116
+    assert_approx_equal(sbm.t[-1], 11006.038751523512, significant = 6)
+    assert_array_almost_equal(sbm.y[-1,:], np.array([ 0.00000000e+00,  
+        0.00000000e+00, 3.36934635e+02, 4.31711152e-14, 6.66318106e-15,  
+        0.00000000e+00, 0.00000000e+00, -1.41131463e-077]), decimal = 6)
 
     # Write the output files
     sbm.save_sim(os.path.join(OUTPUT_DIR, 'sbm_data.nc'),
@@ -397,23 +397,23 @@ def test_simulation():
     assert Pp == P
 
     # Check that the results are still correct
-    assert sbm.y.shape[0] == 1117
+    assert sbm.y.shape[0] == 1116
     assert sbm.y.shape[1] == 8
-    assert sbm.t.shape[0] == 1117
-    assert_approx_equal(sbm.t[-1], 11016.038751523512, significant = 6)
-    assert_array_almost_equal(sbm.y[-1,:], np.array([0.00000000e+00,
-        0.00000000e+00, 3.36934635e+02, 4.31711152e-14, 6.66318106e-15,
-        -2.91389824e-13, -1.08618680e-15, -1.37972400e-07]), decimal = 6)
+    assert sbm.t.shape[0] == 1116
+    assert_approx_equal(sbm.t[-1], 11006.038751523512, significant = 6)
+    assert_array_almost_equal(sbm.y[-1,:], np.array([ 0.00000000e+00,  
+        0.00000000e+00, 3.36934635e+02, 4.31711152e-14, 6.66318106e-15,  
+        0.00000000e+00, 0.00000000e+00, -1.41131463e-077]), decimal = 6)
 
     # Load the data in the txt file and check the solution
     data = np.loadtxt(os.path.join(OUTPUT_DIR, 'sbm_data.txt'))
-    assert sbm.y.shape[0] == 1117
+    assert sbm.y.shape[0] == 1116
     assert sbm.y.shape[1] == 8
-    assert sbm.t.shape[0] == 1117
-    assert_approx_equal(sbm.t[-1], 11016.038751523512, significant = 6)
-    assert_array_almost_equal(sbm.y[-1,:], np.array([0.00000000e+00,
-        0.00000000e+00, 3.36934635e+02, 4.31711152e-14, 6.66318106e-15,
-        -2.91389824e-13, -1.08618680e-15, -1.37972400e-07]), decimal = 6)
+    assert sbm.t.shape[0] == 1116
+    assert_approx_equal(sbm.t[-1], 11006.038751523512, significant = 6)
+    assert_array_almost_equal(sbm.y[-1,:], np.array([ 0.00000000e+00,  
+        0.00000000e+00, 3.36934635e+02, 4.31711152e-14, 6.66318106e-15,  
+        0.00000000e+00, 0.00000000e+00, -1.41131463e-077]), decimal = 6)
 
     # Create an inert particle that is compressible
     oil = dbm.InsolubleParticle(True, True, rho_p=840.)

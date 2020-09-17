@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Overview of Single Bubble Model Module &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <title>Overview of Single Bubble Model Module &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.1.0 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -36,10 +36,10 @@
 <h1>Overview of Single Bubble Model Module<a class="headerlink" href="#overview-of-single-bubble-model-module" title="Permalink to this headline">¶</a></h1>
 <dl class="field-list simple">
 <dt class="field-odd">Release</dt>
-<dd class="field-odd"><p>2.0</p>
+<dd class="field-odd"><p>2.1</p>
 </dd>
 <dt class="field-even">Date</dt>
-<dd class="field-even"><p>Mar 19, 2020</p>
+<dd class="field-even"><p>Jun 05, 2020</p>
 </dd>
 </dl>
 <span class="target" id="module-single_bubble_model"></span><div class="section" id="single-bubble-model">
@@ -56,7 +56,7 @@ objects is provided by the Particle class objects defined in
 <cite>dispersed_phases</cite>.</p>
 <div class="section" id="notes">
 <h3>Notes<a class="headerlink" href="#notes" title="Permalink to this headline">¶</a></h3>
-<p>This model solves for the trajectory <cite>vec(x)</cite> by the simple transport 
+<p>This model solves for the trajectory <cite>vec(x)</cite> by the simple transport
 equation:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">d</span> <span class="n">vec</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">/</span> <span class="n">dt</span> <span class="o">=</span> <span class="n">vec</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
 </pre></div>
@@ -70,18 +70,18 @@ particle <cite>m_i</cite>, given by:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">d</span> <span class="p">(</span><span class="n">m_i</span><span class="p">)</span> <span class="o">/</span> <span class="n">dt</span> <span class="o">=</span> <span class="o">-</span> <span class="n">beta</span> <span class="o">*</span> <span class="n">A</span> <span class="o">*</span> <span class="p">(</span><span class="n">Cs</span> <span class="o">-</span> <span class="n">C</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>where <cite>Cs</cite> is the local solubility of component <cite>i</cite> and <cite>C</cite> is the local 
+<p>where <cite>Cs</cite> is the local solubility of component <cite>i</cite> and <cite>C</cite> is the local
 concentration of component <cite>i</cite> in the surrounding water; <cite>beta</cite> is the mass
 transfer coefficient and <cite>A</cite> is the surface area.  Methods to compute
 <cite>beta</cite>, <cite>Cs</cite>, and <cite>A</cite> are provided in the <cite>dbm</cite> module.  Since source fluids
-may have different temperature than the ambient, heat transfer is also 
+may have different temperature than the ambient, heat transfer is also
 modeled:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">d</span> <span class="n">H</span> <span class="o">/</span> <span class="n">dt</span> <span class="o">=</span> <span class="o">-</span> <span class="n">rho_p</span> <span class="o">*</span> <span class="n">cp</span> <span class="o">*</span> <span class="n">A</span> <span class="o">*</span> <span class="n">beta_T</span> <span class="o">*</span> <span class="p">(</span><span class="n">T</span> <span class="o">-</span> <span class="n">Ta</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>where <cite>H</cite> is the heat content, given by <cite>m_p * cp * T</cite>; <cite>beta_T</cite> is the heat 
-transfer coefficient and <cite>m_p</cite> is the total mass of the particle.  Since some 
-mass is lost due to dissolution, the particle temperature must be adjusted 
+<p>where <cite>H</cite> is the heat content, given by <cite>m_p * cp * T</cite>; <cite>beta_T</cite> is the heat
+transfer coefficient and <cite>m_p</cite> is the total mass of the particle.  Since some
+mass is lost due to dissolution, the particle temperature must be adjusted
 by:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">d</span> <span class="n">H</span> <span class="o">/</span> <span class="n">dt</span> <span class="o">=</span> <span class="n">cp</span> <span class="o">*</span> <span class="n">d</span> <span class="p">(</span><span class="n">m_p</span><span class="p">)</span> <span class="o">/</span> <span class="n">dt</span> <span class="o">*</span> <span class="n">T</span>        <span class="c1"># Note d (m_p) / dt &lt; 0</span>
 </pre></div>
@@ -90,13 +90,13 @@ by:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">d</span> <span class="n">H</span> <span class="o">/</span> <span class="n">dt</span> <span class="o">=</span> <span class="nb">sum</span> <span class="p">(</span><span class="n">d</span> <span class="p">(</span><span class="n">m_i</span><span class="p">)</span> <span class="o">/</span><span class="n">dt</span> <span class="o">*</span> <span class="n">dH_solR_i</span> <span class="o">*</span> <span class="n">Ru</span> <span class="o">/</span> <span class="n">M_i</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>where <cite>dH_solR</cite> is the enthalpy of solution divided by the universal gas 
+<p>where <cite>dH_solR</cite> is the enthalpy of solution divided by the universal gas
 constant (<cite>Ru</cite>) and <cite>M_i</cite> is the molecular weight of constituent <cite>i</cite>.</p>
-<p>When the particle becomes very small, the heat transfer and dissolution 
-become unstable, leading to rapid oscillations in the predicted particle 
+<p>When the particle becomes very small, the heat transfer and dissolution
+become unstable, leading to rapid oscillations in the predicted particle
 temperature.  To avoid this problem, this module accounts for heat transfer
 until the particle temperature reaches equilibrium with the seawater (which
-happens very quickly).  Thereafter, the particle is assumed to be equal to 
+happens very quickly).  Thereafter, the particle is assumed to be equal to
 the temperature of the ambient water.</p>
 <p>The equations for heat and mass transfer and for slip velocity are
 discontinuous at the boundaries between particle shapes (e.g., ellipsoid and
@@ -105,11 +105,11 @@ stuck at the shape transition. The convergence criteria for the ODE solver are
 set at an optimal compromise for accuracy and for allowing a diverse range of
 particles to be simulated. Nonetheless, there are situations where these
 discontinuities may still break the solution.</p>
-<p>Finally, if the diameter of a fluid particle is observed to rapidly increase, 
+<p>Finally, if the diameter of a fluid particle is observed to rapidly increase,
 this is usually associated with a phase change from liquid to gas.  The
 diagnostic plots help to identify these effects by plotting the state space
-together with several descriptive variables, including diameter, density, 
-and shape.  However, there is no mechanism in this module to allow a droplet 
+together with several descriptive variables, including diameter, density,
+and shape.  However, there is no mechanism in this module to allow a droplet
 to break up into multiple bubbles.</p>
 </div>
 </div>

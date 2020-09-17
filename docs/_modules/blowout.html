@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>blowout &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <title>blowout &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.1.0 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -74,24 +74,23 @@
 <span class="kn">from</span> <span class="nn">netCDF4</span> <span class="kn">import</span> <span class="n">date2num</span><span class="p">,</span> <span class="n">Dataset</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 
 
 <div class="viewcode-block" id="Blowout"><a class="viewcode-back" href="../autodoc/blowout/blowout.Blowout.html#blowout.Blowout">[docs]</a><span class="k">class</span> <span class="nc">Blowout</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class to facilitiate creating simulations using the  `bent_plume_model`</span>
-<span class="sd">    </span>
+
 <span class="sd">    Class to help set up all of the elements necessary to run a blowout</span>
 <span class="sd">    simulation using the ``TAMOC`` `bent_plume_model`. This includes creating</span>
 <span class="sd">    the `ambient.Profile` object, defining an oil and gas composition using</span>
 <span class="sd">    the `dbm.FluidMixture` and `dbm.FluidParticle` objects, and generating</span>
 <span class="sd">    `particle` lists with initial conditions for the gas bubble and oil</span>
 <span class="sd">    droplet size distributions at the orifice.</span>
-<span class="sd">    </span>
+
 <span class="sd">    This class is designed for use in subsea oil well blowouts, hence, flow</span>
 <span class="sd">    rates of oil and gas can be specified using dead oil rates in bbl/d and</span>
 <span class="sd">    gas-to-oil ratio (GOR) in ft^3/bbl.</span>
-<span class="sd">    </span>
+
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    z0 : float, default=100</span>
@@ -105,17 +104,17 @@
 <span class="sd">        NOAA OilLibrary, this should be a string containing the Adios oil</span>
 <span class="sd">        ID number (e.g., &#39;AD01554&#39; for Louisiana Light Sweet).</span>
 <span class="sd">    q_oil : float, default=20000.</span>
-<span class="sd">        Release rate of the dead oil composition at the release point in </span>
+<span class="sd">        Release rate of the dead oil composition at the release point in</span>
 <span class="sd">        stock barrels of oil per day.</span>
 <span class="sd">    gor : float, default=0.</span>
-<span class="sd">        Gas to oil ratio at standard surface conditions in standard cubic </span>
+<span class="sd">        Gas to oil ratio at standard surface conditions in standard cubic</span>
 <span class="sd">        feet per stock barrel of oil</span>
 <span class="sd">    x0 : float, default=0</span>
 <span class="sd">        x-coordinate of the release (m)</span>
 <span class="sd">    y0 : float, default=0</span>
 <span class="sd">        y-coordinate of the release (m)</span>
 <span class="sd">    u0 : float, default=None</span>
-<span class="sd">        Exit velocity of continuous-phase fluid at the release.  This is </span>
+<span class="sd">        Exit velocity of continuous-phase fluid at the release.  This is</span>
 <span class="sd">        only used when produced water exits.  For a pure oil and gas release,</span>
 <span class="sd">        this should be zero or None.</span>
 <span class="sd">    phi_0 : float, default=-np.pi / 2. (vertical release)</span>
@@ -134,9 +133,9 @@
 <span class="sd">        Data describing the ambient water temperature and salinity profile.</span>
 <span class="sd">        See Notes below for details.</span>
 <span class="sd">    current : various</span>
-<span class="sd">        Data describing the ambient current velocity profile.  See Notes </span>
+<span class="sd">        Data describing the ambient current velocity profile.  See Notes</span>
 <span class="sd">        below for details.</span>
-<span class="sd">    </span>
+
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
 <span class="sd">    z0 : float, default=100</span>
@@ -150,17 +149,17 @@
 <span class="sd">        NOAA OilLibrary, this should be a string containing the Adios oil</span>
 <span class="sd">        ID number (e.g., &#39;AD01554&#39; for Louisiana Light Sweet).</span>
 <span class="sd">    q_oil : float, default=20000.</span>
-<span class="sd">        Release rate of the dead oil composition at the release point in </span>
+<span class="sd">        Release rate of the dead oil composition at the release point in</span>
 <span class="sd">        stock barrels of oil per day.</span>
 <span class="sd">    gor : float, default=0.</span>
-<span class="sd">        Gas to oil ratio at standard surface conditions in standard cubic </span>
+<span class="sd">        Gas to oil ratio at standard surface conditions in standard cubic</span>
 <span class="sd">        feet per stock barrel of oil</span>
 <span class="sd">    x0 : float, default=0</span>
 <span class="sd">        x-coordinate of the release (m)</span>
 <span class="sd">    y0 : float, default=0</span>
 <span class="sd">        y-coordinate of the release (m)</span>
 <span class="sd">    u0 : float, default=None</span>
-<span class="sd">        Exit velocity of continuous-phase fluid at the release.  This is </span>
+<span class="sd">        Exit velocity of continuous-phase fluid at the release.  This is</span>
 <span class="sd">        only used when produced water exits.  For a pure oil and gas release,</span>
 <span class="sd">        this should be zero or None.</span>
 <span class="sd">    phi_0 : float, default=-np.pi / 2. (vertical release)</span>
@@ -179,7 +178,7 @@
 <span class="sd">        Data describing the ambient water temperature and salinity profile.</span>
 <span class="sd">        See Notes below for details.</span>
 <span class="sd">    current : various</span>
-<span class="sd">        Data describing the ambient current velocity profile.  See Notes </span>
+<span class="sd">        Data describing the ambient current velocity profile.  See Notes</span>
 <span class="sd">        below for details.</span>
 <span class="sd">    profile : `ambient.Profile` object</span>
 <span class="sd">        An `ambient.Profile` object containing the ambient CTD and current</span>
@@ -191,7 +190,7 @@
 <span class="sd">    P0 : float</span>
 <span class="sd">        Ambient water pressure (Pa) at the release</span>
 <span class="sd">    gas : float</span>
-<span class="sd">        A `dbm.FluidParticle` object defining the gas-phase fluid at the </span>
+<span class="sd">        A `dbm.FluidParticle` object defining the gas-phase fluid at the</span>
 <span class="sd">        release</span>
 <span class="sd">    liq : float</span>
 <span class="sd">        A `dbm.FluidParticle` object defining the liquid-phase fluid at the</span>
@@ -206,51 +205,51 @@
 <span class="sd">    vf_liq : ndarray</span>
 <span class="sd">        Volume fraction of liquid in each of the diameters stored in `d_liq`</span>
 <span class="sd">    disp_phases : list</span>
-<span class="sd">        List of `bent_plume_model.Particle` objects that define each gas </span>
+<span class="sd">        List of `bent_plume_model.Particle` objects that define each gas</span>
 <span class="sd">        bubble and liquid droplet released from the orifice</span>
 <span class="sd">    bpm : `bent_plume_model.Model` object</span>
 <span class="sd">        A `bent_plume_model.Model` object that contains the simulation run</span>
-<span class="sd">        defined by the present class object.  </span>
-<span class="sd">    </span>
+<span class="sd">        defined by the present class object.</span>
+
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
 <span class="sd">    The spilled substance can either be taken from the NOAA OilLibrary or</span>
-<span class="sd">    can be created from individual pseudo-components in TAMOC.  The user may </span>
+<span class="sd">    can be created from individual pseudo-components in TAMOC.  The user may</span>
 <span class="sd">    define the `substance` in one of two ways:</span>
-<span class="sd">    </span>
+
 <span class="sd">    substance : str</span>
-<span class="sd">        Provide a unique OilLibrary ID number from the NOAA Python </span>
+<span class="sd">        Provide a unique OilLibrary ID number from the NOAA Python</span>
 <span class="sd">        OilLibrary package</span>
 <span class="sd">    substance : dict</span>
 <span class="sd">        Use the chemical properties database provided with TAMOC.  In this</span>
-<span class="sd">        case, use the dictionary keyword `composition` to pass a list </span>
-<span class="sd">        of chemical property names and the keyword `masses` to pass a </span>
+<span class="sd">        case, use the dictionary keyword `composition` to pass a list</span>
+<span class="sd">        of chemical property names and the keyword `masses` to pass a</span>
 <span class="sd">        list of mass fractions for each component in the composition</span>
 <span class="sd">        list.  If the masses variable does not sum to unity, this function</span>
 <span class="sd">        will compute an equivalent mass fraction that does.</span>
-<span class="sd">    </span>
+
 <span class="sd">    Likewise, the ambient water column data can be provided through several</span>
 <span class="sd">    different options.  The `water` variable contains temperature and salinity</span>
 <span class="sd">    data.  The user may define the `water` in the following ways:</span>
-<span class="sd">    </span>
+
 <span class="sd">    water : None</span>
 <span class="sd">        Indicates that we have no information about the ambient temperature</span>
-<span class="sd">        or salinity.  In this case, the model will import data for the </span>
+<span class="sd">        or salinity.  In this case, the model will import data for the</span>
 <span class="sd">        world-ocean average.</span>
 <span class="sd">    water : dict</span>
-<span class="sd">        If we only know the water temperature and salinity at the surface, </span>
+<span class="sd">        If we only know the water temperature and salinity at the surface,</span>
 <span class="sd">        this may be passed through a dictionary with keywords `temperature`</span>
 <span class="sd">        and `salinity`.  In this case, the model will import data for the</span>
 <span class="sd">        world-ocean average and adjust the data to have the given temperature</span>
 <span class="sd">        and salinity at the surface.</span>
 <span class="sd">    water : &#39;netCDF4.Dataset&#39;</span>
-<span class="sd">        If a &#39;netCDF4.Dataset&#39; object already contains the ambient CTD </span>
+<span class="sd">        If a &#39;netCDF4.Dataset&#39; object already contains the ambient CTD</span>
 <span class="sd">        data in a format appropriate for the `ambient.Profile` object, then</span>
 <span class="sd">        this can be passed.  In this case, it is assumed that the dataset</span>
-<span class="sd">        includes the currents; hence, the `currents` variable will be </span>
-<span class="sd">        ignored.  </span>
+<span class="sd">        includes the currents; hence, the `currents` variable will be</span>
+<span class="sd">        ignored.</span>
 <span class="sd">    water : `ambient.Profile` object</span>
-<span class="sd">        If we already created our own ambient Profile object, then this </span>
+<span class="sd">        If we already created our own ambient Profile object, then this</span>
 <span class="sd">        object can be used directly.</span>
 <span class="sd">    water = str</span>
 <span class="sd">        If we stored the water column profile in a file, we may provide the</span>
@@ -261,10 +260,10 @@
 <span class="sd">        the x-direction (m/s), velocity in the y-direction (m/s). Since this</span>
 <span class="sd">        option includes the currents, the current variable will be ignored in</span>
 <span class="sd">        this case. A comment string of `#` may be used in the text file.</span>
-<span class="sd">    </span>
+
 <span class="sd">    Finally, current profile data can be provided through several different</span>
 <span class="sd">    options.  The user may define the `current` in the following ways:</span>
-<span class="sd">    </span>
+
 <span class="sd">    current : float</span>
 <span class="sd">        This is assumed to be the current velocity along the x-axis and will</span>
 <span class="sd">        be uniform over the depth</span>
@@ -275,31 +274,31 @@
 <span class="sd">        this is a multi-dimensional array, then these values as assumed to</span>
 <span class="sd">        contain a profile of data, with the depth (m) as the first column of</span>
 <span class="sd">        data.</span>
-<span class="sd">    </span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="Blowout.__init__"><a class="viewcode-back" href="../autodoc/blowout/blowout.Blowout.html#blowout.Blowout.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
+<div class="viewcode-block" id="Blowout.__init__"><a class="viewcode-back" href="../autodoc/blowout/blowout.Blowout.html#blowout.Blowout.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                  <span class="n">z0</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
                  <span class="n">d0</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
                  <span class="n">substance</span><span class="o">=</span><span class="p">{</span>
-                     <span class="s1">&#39;composition&#39;</span> <span class="p">:</span> <span class="p">[</span><span class="s1">&#39;methane&#39;</span><span class="p">,</span> <span class="s1">&#39;ethane&#39;</span><span class="p">,</span> <span class="s1">&#39;propane&#39;</span><span class="p">,</span> 
+                     <span class="s1">&#39;composition&#39;</span> <span class="p">:</span> <span class="p">[</span><span class="s1">&#39;methane&#39;</span><span class="p">,</span> <span class="s1">&#39;ethane&#39;</span><span class="p">,</span> <span class="s1">&#39;propane&#39;</span><span class="p">,</span>
                                     <span class="s1">&#39;toluene&#39;</span><span class="p">,</span> <span class="s1">&#39;benzene&#39;</span><span class="p">],</span>
                      <span class="s1">&#39;masses&#39;</span> <span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">])</span>
                  <span class="p">},</span>
                  <span class="n">q_oil</span><span class="o">=</span><span class="mf">20000.</span><span class="p">,</span>
-                 <span class="n">gor</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> 
+                 <span class="n">gor</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span>
                  <span class="n">x0</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span>
                  <span class="n">y0</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span>
                  <span class="n">u0</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">phi_0</span><span class="o">=-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mf">2.</span><span class="p">,</span>
                  <span class="n">theta_0</span> <span class="o">=</span> <span class="mf">0.</span><span class="p">,</span>
                  <span class="n">num_gas_elements</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
-                 <span class="n">num_oil_elements</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> 
-                 <span class="n">water</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                 <span class="n">num_oil_elements</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span>
+                 <span class="n">water</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">current</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">])</span>
                  <span class="p">):</span>
-        
+
         <span class="nb">super</span><span class="p">(</span><span class="n">Blowout</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-        
+
         <span class="c1"># Store the model parameters</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">z0</span> <span class="o">=</span> <span class="n">z0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">d0</span> <span class="o">=</span> <span class="n">d0</span>
@@ -315,115 +314,125 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">num_oil_elements</span> <span class="o">=</span> <span class="n">num_oil_elements</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">water</span> <span class="o">=</span> <span class="n">water</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">current</span> <span class="o">=</span> <span class="n">current</span>
-        
+
         <span class="c1"># Create a list of atmospheric gases</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ca</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;nitrogen&#39;</span><span class="p">,</span> <span class="s1">&#39;oxygen&#39;</span><span class="p">,</span> <span class="s1">&#39;argon&#39;</span><span class="p">,</span> <span class="s1">&#39;carbon_dioxide&#39;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">new_oil</span> <span class="o">=</span> <span class="kc">True</span>
         
+        <span class="c1"># Decide which phase flow rate is reported</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_oil_elements</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># User is simulating oil; hence, oil flow rate should be given</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">q_type</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># User is simulating gas only; hence, gas flow rate should be</span>
+            <span class="c1"># given</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">q_type</span> <span class="o">=</span> <span class="mi">0</span>
+
         <span class="c1"># Create the remaining object attributes needed to set up a `tamoc`</span>
         <span class="c1"># `bent_plume_model` simulation</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update</span><span class="p">()</span></div>
-    
+
     <span class="k">def</span> <span class="nf">_update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize bent_plume_model for simulation run</span>
-<span class="sd">        </span>
+
 <span class="sd">        Set up the ambient profile, initial conditions, and model parameters</span>
 <span class="sd">        for a new simulation run of the `bent_plume_model`.</span>
-<span class="sd">        </span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Get an ambient Profile object</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">profile</span> <span class="o">=</span> <span class="n">get_ambient_profile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">water</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">,</span>
                        <span class="n">ca</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ca</span><span class="p">)</span>
-        
-        
+
+
         <span class="c1"># Import the oil with the desired gas-to-oil ratio</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">new_oil</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">oil</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mass_flux</span> <span class="o">=</span> <span class="n">dbm_utilities</span><span class="o">.</span><span class="n">get_oil</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">substance</span><span class="p">,</span> 
-                                                             <span class="bp">self</span><span class="o">.</span><span class="n">q_oil</span><span class="p">,</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">oil</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mass_flux</span> <span class="o">=</span> <span class="n">dbm_utilities</span><span class="o">.</span><span class="n">get_oil</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">substance</span><span class="p">,</span>
+                                                             <span class="bp">self</span><span class="o">.</span><span class="n">q_oil</span><span class="p">,</span>
                                                              <span class="bp">self</span><span class="o">.</span><span class="n">gor</span><span class="p">,</span>
-                                                             <span class="bp">self</span><span class="o">.</span><span class="n">ca</span><span class="p">)</span>
+                                                             <span class="bp">self</span><span class="o">.</span><span class="n">ca</span><span class="p">,</span>
+                                                             <span class="bp">self</span><span class="o">.</span><span class="n">q_type</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">new_oil</span> <span class="o">=</span> <span class="kc">False</span>
-        
+
         <span class="c1"># Find the ocean conditions at the release</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">T0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">S0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">P0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">z0</span><span class="p">,</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">T0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">S0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">P0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">z0</span><span class="p">,</span>
                                        <span class="p">[</span><span class="s1">&#39;temperature&#39;</span><span class="p">,</span>
                                         <span class="s1">&#39;salinity&#39;</span><span class="p">,</span>
                                         <span class="s1">&#39;pressure&#39;</span><span class="p">])</span>
-        
+
         <span class="c1"># Define some of the constant initial conditions</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Sj</span> <span class="o">=</span> <span class="mf">0.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Tj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">T0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cj</span> <span class="o">=</span> <span class="mf">1.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tracers</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;tracer&#39;</span><span class="p">]</span>
-        
+
         <span class="c1"># Compute the equilibrium mixture properties at the release</span>
         <span class="n">m</span><span class="p">,</span> <span class="n">xi</span><span class="p">,</span> <span class="n">K</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oil</span><span class="o">.</span><span class="n">equilibrium</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mass_flux</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">P0</span><span class="p">)</span>
-        
+
         <span class="c1"># Create the discrete bubble model objects for gas and liquid</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">gas</span> <span class="o">=</span> <span class="n">dbm</span><span class="o">.</span><span class="n">FluidParticle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">oil</span><span class="o">.</span><span class="n">composition</span><span class="p">,</span> 
-                                     <span class="n">fp_type</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> 
-                                     <span class="n">delta</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">oil</span><span class="o">.</span><span class="n">delta</span><span class="p">,</span> 
-                                     <span class="n">user_data</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">oil</span><span class="o">.</span><span class="n">user_data</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">liq</span> <span class="o">=</span> <span class="n">dbm</span><span class="o">.</span><span class="n">FluidParticle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">oil</span><span class="o">.</span><span class="n">composition</span><span class="p">,</span> 
-                                     <span class="n">fp_type</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">gas</span> <span class="o">=</span> <span class="n">dbm</span><span class="o">.</span><span class="n">FluidParticle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">oil</span><span class="o">.</span><span class="n">composition</span><span class="p">,</span>
+                                     <span class="n">fp_type</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
                                      <span class="n">delta</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">oil</span><span class="o">.</span><span class="n">delta</span><span class="p">,</span>
                                      <span class="n">user_data</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">oil</span><span class="o">.</span><span class="n">user_data</span><span class="p">)</span>
-        
+        <span class="bp">self</span><span class="o">.</span><span class="n">liq</span> <span class="o">=</span> <span class="n">dbm</span><span class="o">.</span><span class="n">FluidParticle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">oil</span><span class="o">.</span><span class="n">composition</span><span class="p">,</span>
+                                     <span class="n">fp_type</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                                     <span class="n">delta</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">oil</span><span class="o">.</span><span class="n">delta</span><span class="p">,</span>
+                                     <span class="n">user_data</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">oil</span><span class="o">.</span><span class="n">user_data</span><span class="p">)</span>
+
         <span class="c1"># Compute the bubble and droplet volume size distributions</span>
         <span class="n">breakup_model</span> <span class="o">=</span> <span class="n">psm</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">oil</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mass_flux</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">z0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tj</span><span class="p">)</span>
-        <span class="n">breakup_model</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">d0</span><span class="p">,</span> <span class="n">model_gas</span><span class="o">=</span><span class="s1">&#39;wang_etal&#39;</span><span class="p">,</span> 
+        <span class="n">breakup_model</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">d0</span><span class="p">,</span> <span class="n">model_gas</span><span class="o">=</span><span class="s1">&#39;wang_etal&#39;</span><span class="p">,</span>
             <span class="n">model_oil</span><span class="o">=</span><span class="s1">&#39;sintef&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">d_gas</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">vf_gas</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">d_liq</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">vf_liq</span> <span class="o">=</span> \
-            <span class="n">breakup_model</span><span class="o">.</span><span class="n">get_distributions</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_gas_elements</span><span class="p">,</span> 
+            <span class="n">breakup_model</span><span class="o">.</span><span class="n">get_distributions</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_gas_elements</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">num_oil_elements</span><span class="p">)</span>
-        
+
         <span class="c1"># Create the `bent_plume_model` particle list</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">disp_phases</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">disp_phases</span> <span class="o">+=</span> <span class="n">particles</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]),</span> <span class="bp">self</span><span class="o">.</span><span class="n">d_gas</span><span class="p">,</span> 
-                                      <span class="bp">self</span><span class="o">.</span><span class="n">vf_gas</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">gas</span><span class="p">,</span> 
-                                      <span class="n">xi</span><span class="p">[</span><span class="mi">0</span><span class="p">,:],</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">z0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tj</span><span class="p">,</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">disp_phases</span> <span class="o">+=</span> <span class="n">particles</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]),</span> <span class="bp">self</span><span class="o">.</span><span class="n">d_gas</span><span class="p">,</span>
+                                      <span class="bp">self</span><span class="o">.</span><span class="n">vf_gas</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">gas</span><span class="p">,</span>
+                                      <span class="n">xi</span><span class="p">[</span><span class="mi">0</span><span class="p">,:],</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">z0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tj</span><span class="p">,</span>
                                       <span class="mf">0.9</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">disp_phases</span> <span class="o">+=</span> <span class="n">particles</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="mi">1</span><span class="p">,:]),</span> <span class="bp">self</span><span class="o">.</span><span class="n">d_liq</span><span class="p">,</span> 
-                                      <span class="bp">self</span><span class="o">.</span><span class="n">vf_liq</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">liq</span><span class="p">,</span> 
-                                      <span class="n">xi</span><span class="p">[</span><span class="mi">1</span><span class="p">,:],</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">z0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tj</span><span class="p">,</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">disp_phases</span> <span class="o">+=</span> <span class="n">particles</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="mi">1</span><span class="p">,:]),</span> <span class="bp">self</span><span class="o">.</span><span class="n">d_liq</span><span class="p">,</span>
+                                      <span class="bp">self</span><span class="o">.</span><span class="n">vf_liq</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">liq</span><span class="p">,</span>
+                                      <span class="n">xi</span><span class="p">[</span><span class="mi">1</span><span class="p">,:],</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">z0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tj</span><span class="p">,</span>
                                       <span class="mf">0.98</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-        
+
         <span class="c1"># Set some of the hidden model parameters</span>
         <span class="c1"># TODO:  consider which of these should be editable by the user</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">track</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dt_max</span> <span class="o">=</span> <span class="mf">5.</span> <span class="o">*</span> <span class="mf">3600.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sd_max</span> <span class="o">=</span> <span class="mf">3.</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">z0</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">d0</span>
-        
+
         <span class="c1"># Create the initialized `bent_plume_model` object</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bpm</span> <span class="o">=</span> <span class="n">bent_plume_model</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">)</span>
-        
+
         <span class="c1"># Set the flag to indicate the model is ready to run</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">update</span> <span class="o">=</span> <span class="kc">True</span>
-    
+
 <div class="viewcode-block" id="Blowout.simulate"><a class="viewcode-back" href="../autodoc/blowout/blowout.Blowout.simulate.html#blowout.Blowout.simulate">[docs]</a>    <span class="k">def</span> <span class="nf">simulate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Run a bent_plume_model simulation for the present conditions</span>
-<span class="sd">        </span>
+
 <span class="sd">        Calls the `bent_plume_model.Model.simulate()` method with the initial</span>
 <span class="sd">        conditions presently stored in the class object. This method does not</span>
 <span class="sd">        have any input parameters and does not return a value. After the</span>
 <span class="sd">        simulation is run, the `bent_plume_model.Model` object will store the</span>
 <span class="sd">        solution, and this object is stored as the `bpm` attribute of the</span>
 <span class="sd">        present class.</span>
-<span class="sd">        </span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Check whether we need to update the model initial conditions</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_update</span><span class="p">()</span>
-        
+
         <span class="c1"># Run the new simulation</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">bpm</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">x0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">z0</span><span class="p">]),</span> 
-                          <span class="bp">self</span><span class="o">.</span><span class="n">d0</span><span class="p">,</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">bpm</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">x0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">z0</span><span class="p">]),</span>
+                          <span class="bp">self</span><span class="o">.</span><span class="n">d0</span><span class="p">,</span>
                           <span class="bp">self</span><span class="o">.</span><span class="n">u0</span><span class="p">,</span>
-                          <span class="bp">self</span><span class="o">.</span><span class="n">phi_0</span><span class="p">,</span> 
-                          <span class="bp">self</span><span class="o">.</span><span class="n">theta_0</span><span class="p">,</span> 
+                          <span class="bp">self</span><span class="o">.</span><span class="n">phi_0</span><span class="p">,</span>
+                          <span class="bp">self</span><span class="o">.</span><span class="n">theta_0</span><span class="p">,</span>
                           <span class="bp">self</span><span class="o">.</span><span class="n">Sj</span><span class="p">,</span>
                           <span class="bp">self</span><span class="o">.</span><span class="n">Tj</span><span class="p">,</span>
                           <span class="bp">self</span><span class="o">.</span><span class="n">cj</span><span class="p">,</span>
@@ -432,78 +441,128 @@
                           <span class="bp">self</span><span class="o">.</span><span class="n">track</span><span class="p">,</span>
                           <span class="bp">self</span><span class="o">.</span><span class="n">dt_max</span><span class="p">,</span>
                           <span class="bp">self</span><span class="o">.</span><span class="n">sd_max</span><span class="p">)</span>
-        
-        <span class="c1"># Set the flag to indicate that the model has run and needs to be </span>
+
+        <span class="c1"># Set the flag to indicate that the model has run and needs to be</span>
         <span class="c1"># updated before it is run again</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">update</span> <span class="o">=</span> <span class="kc">False</span></div>
-    
+
+<div class="viewcode-block" id="Blowout.save_sim"><a class="viewcode-back" href="../autodoc/blowout/blowout.Blowout.save_sim.html#blowout.Blowout.save_sim">[docs]</a>    <span class="k">def</span> <span class="nf">save_sim</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">profile_path</span><span class="p">,</span> <span class="n">profile_info</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save the `bent_plume_model` complete solution in netCDF format</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fname : str</span>
+<span class="sd">            File name of the netCDF file to write</span>
+<span class="sd">        profile_path : str</span>
+<span class="sd">            String stating the file path to the ambient profile data relative</span>
+<span class="sd">            to the directory where `fname` will be saved.</span>
+<span class="sd">        profile_info : str</span>
+<span class="sd">            Single line of text describing the ambient profile data.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bpm</span><span class="o">.</span><span class="n">sim_stored</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No simulation results available to store...&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Run Blowout.simulate() first.</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">bpm</span><span class="o">.</span><span class="n">save_sim</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">profile_path</span><span class="p">,</span> <span class="n">profile_info</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Blowout.save_txt"><a class="viewcode-back" href="../autodoc/blowout/blowout.Blowout.save_txt.html#blowout.Blowout.save_txt">[docs]</a>    <span class="k">def</span> <span class="nf">save_txt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_name</span><span class="p">,</span> <span class="n">profile_path</span><span class="p">,</span> <span class="n">profile_info</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save the `bent_plume_model` state space in ascii text format</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        base_name : str</span>
+<span class="sd">            Base file name for the output file.  This method will append the</span>
+<span class="sd">            .txt file extension to the data output and write a second file</span>
+<span class="sd">            with the header information called base_name_header.txt.  If the</span>
+<span class="sd">            particles that left the plume were tracked in the farfield, it</span>
+<span class="sd">            will also save the trajectory of those particles as</span>
+<span class="sd">            base_name_nnn.txt (output data) and base_name_nnn_header.txt</span>
+<span class="sd">            (header data for far field data).</span>
+<span class="sd">        profile_path : str</span>
+<span class="sd">            String stating the file path to the ambient profile data relative</span>
+<span class="sd">            to the directory where `fname` will be saved.</span>
+<span class="sd">        profile_info : str</span>
+<span class="sd">            Single line of text describing the ambient profile data.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bpm</span><span class="o">.</span><span class="n">sim_stored</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No simulation results available to store...&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Run Blowout.simulate() first.</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">bpm</span><span class="o">.</span><span class="n">save_txt</span><span class="p">(</span><span class="n">base_name</span><span class="p">,</span> <span class="n">profile_path</span><span class="p">,</span> <span class="n">profile_info</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="Blowout.plot_state_space"><a class="viewcode-back" href="../autodoc/blowout/blowout.Blowout.plot_state_space.html#blowout.Blowout.plot_state_space">[docs]</a>    <span class="k">def</span> <span class="nf">plot_state_space</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fignum</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Plot the `bent_plume_model` state space solution</span>
-<span class="sd">        </span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        fignum : int</span>
 <span class="sd">            Figure number to plot the data</span>
-<span class="sd">        </span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bpm</span><span class="o">.</span><span class="n">sim_stored</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No simulation results available to analyze...&#39;</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Run Blowout.simulate() first.</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
             <span class="k">return</span>
-        
+
         <span class="bp">self</span><span class="o">.</span><span class="n">bpm</span><span class="o">.</span><span class="n">plot_state_space</span><span class="p">(</span><span class="n">fignum</span><span class="p">)</span></div>
-    
+
 <div class="viewcode-block" id="Blowout.plot_all_variables"><a class="viewcode-back" href="../autodoc/blowout/blowout.Blowout.plot_all_variables.html#blowout.Blowout.plot_all_variables">[docs]</a>    <span class="k">def</span> <span class="nf">plot_all_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fignum</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Plot all variables for the `bent_plume_model` solution</span>
-<span class="sd">        </span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        fignum : int</span>
-<span class="sd">            Number for the first figure in the set of figures plotting the </span>
+<span class="sd">            Number for the first figure in the set of figures plotting the</span>
 <span class="sd">            complete model state space</span>
-<span class="sd">        </span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bpm</span><span class="o">.</span><span class="n">sim_stored</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No simulation results available to analyze...&#39;</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Run Blowout.simulate() first.</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
             <span class="k">return</span>
-        
+
         <span class="bp">self</span><span class="o">.</span><span class="n">bpm</span><span class="o">.</span><span class="n">plot_all_variables</span><span class="p">(</span><span class="n">fignum</span><span class="p">)</span></div>
-    
+
 <div class="viewcode-block" id="Blowout.update_release_depth"><a class="viewcode-back" href="../autodoc/blowout/blowout.Blowout.update_release_depth.html#blowout.Blowout.update_release_depth">[docs]</a>    <span class="k">def</span> <span class="nf">update_release_depth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Change the release depth (m) to use in a model simulation</span>
-<span class="sd">        </span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        z0 : float, default=100</span>
 <span class="sd">            Depth of the release point (m)</span>
-<span class="sd">        </span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">z0</span> <span class="o">=</span> <span class="n">z0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">update</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bpm</span><span class="o">.</span><span class="n">sim_stored</span> <span class="o">=</span> <span class="kc">False</span></div>
-    
+
 <div class="viewcode-block" id="Blowout.update_orifice_diameter"><a class="viewcode-back" href="../autodoc/blowout/blowout.Blowout.update_orifice_diameter.html#blowout.Blowout.update_orifice_diameter">[docs]</a>    <span class="k">def</span> <span class="nf">update_orifice_diameter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Change the orifice diametr (m) to use in a model simulation</span>
-<span class="sd">        </span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        d0 : float, default=0.1</span>
 <span class="sd">            Equivalent circular diameter of the release (m)</span>
-<span class="sd">        </span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">d0</span> <span class="o">=</span> <span class="n">d0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">update</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bpm</span><span class="o">.</span><span class="n">sim_stored</span> <span class="o">=</span> <span class="kc">False</span></div>
-    
+
 <div class="viewcode-block" id="Blowout.update_substance"><a class="viewcode-back" href="../autodoc/blowout/blowout.Blowout.update_substance.html#blowout.Blowout.update_substance">[docs]</a>    <span class="k">def</span> <span class="nf">update_substance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">substance</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Change the OilLibrary ID number to use in a model simulation</span>
-<span class="sd">        </span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        substance : str or list of str, default=[&#39;methane&#39;]</span>
@@ -513,156 +572,156 @@
 <span class="sd">            oil from the NOAA OilLibrary, this should be a string containing</span>
 <span class="sd">            the Adios oil ID number (e.g., &#39;AD01554&#39; for Louisiana Light</span>
 <span class="sd">            Sweet).</span>
-<span class="sd">        </span>
+
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
 <span class="sd">        The spilled substance can either be taken from the NOAA OilLibrary or</span>
 <span class="sd">        can be created from individual pseudo-components in TAMOC. The user</span>
 <span class="sd">        may define the `substance` in one of two ways:</span>
-<span class="sd">        </span>
+
 <span class="sd">        substance : str</span>
-<span class="sd">            Provide a unique OilLibrary ID number from the NOAA Python </span>
+<span class="sd">            Provide a unique OilLibrary ID number from the NOAA Python</span>
 <span class="sd">            OilLibrary package</span>
 <span class="sd">        substance : dict</span>
 <span class="sd">            Use the chemical properties database provided with TAMOC.  In this</span>
-<span class="sd">            case, use the dictionary keyword `composition` to pass a list </span>
-<span class="sd">            of chemical property names and the keyword `masses` to pass a </span>
+<span class="sd">            case, use the dictionary keyword `composition` to pass a list</span>
+<span class="sd">            of chemical property names and the keyword `masses` to pass a</span>
 <span class="sd">            list of mass fractions for each component in the composition</span>
 <span class="sd">            list.  If the masses variable does not sum to unity, this function</span>
 <span class="sd">            will compute an equivalent mass fraction that does.</span>
-<span class="sd">        </span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">substance</span> <span class="o">=</span> <span class="n">substance</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">update</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">new_oil</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bpm</span><span class="o">.</span><span class="n">sim_stored</span> <span class="o">=</span> <span class="kc">False</span></div>
-    
+
 <div class="viewcode-block" id="Blowout.update_q_oil"><a class="viewcode-back" href="../autodoc/blowout/blowout.Blowout.update_q_oil.html#blowout.Blowout.update_q_oil">[docs]</a>    <span class="k">def</span> <span class="nf">update_q_oil</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">q_oil</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Change the oil flow rate (bbl/d) to use in a model simulation</span>
-<span class="sd">        </span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        q_oil : float, default=20000.</span>
-<span class="sd">            Release rate of the dead oil composition at the release point in </span>
+<span class="sd">            Release rate of the dead oil composition at the release point in</span>
 <span class="sd">            stock barrels of oil per day.</span>
-<span class="sd">        </span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">q_oil</span> <span class="o">=</span> <span class="n">q_oil</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">update</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">new_oil</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bpm</span><span class="o">.</span><span class="n">sim_stored</span> <span class="o">=</span> <span class="kc">False</span></div>
-    
+
 <div class="viewcode-block" id="Blowout.update_gor"><a class="viewcode-back" href="../autodoc/blowout/blowout.Blowout.update_gor.html#blowout.Blowout.update_gor">[docs]</a>    <span class="k">def</span> <span class="nf">update_gor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gor</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Change the gas-to-oil ratio (std ft^3/bbl) to use in a model </span>
+<span class="sd">        Change the gas-to-oil ratio (std ft^3/bbl) to use in a model</span>
 <span class="sd">        simulation</span>
-<span class="sd">        </span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        gor : float, default=0.</span>
-<span class="sd">            Gas to oil ratio at standard surface conditions in standard cubic </span>
+<span class="sd">            Gas to oil ratio at standard surface conditions in standard cubic</span>
 <span class="sd">            feet per stock barrel of oil</span>
-<span class="sd">        </span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gor</span> <span class="o">=</span> <span class="n">gor</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">update</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">new_oil</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bpm</span><span class="o">.</span><span class="n">sim_stored</span> <span class="o">=</span> <span class="kc">False</span></div>
-    
+
 <div class="viewcode-block" id="Blowout.update_produced_water"><a class="viewcode-back" href="../autodoc/blowout/blowout.Blowout.update_produced_water.html#blowout.Blowout.update_produced_water">[docs]</a>    <span class="k">def</span> <span class="nf">update_produced_water</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Change the amount of produced water (m/s) exiting with the oil and </span>
+<span class="sd">        Change the amount of produced water (m/s) exiting with the oil and</span>
 <span class="sd">        gas through the orifice</span>
-<span class="sd">        </span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        u0 : float, default=None</span>
 <span class="sd">            Exit velocity of continuous-phase fluid at the release. This is</span>
 <span class="sd">            only used when produced water exits. For a pure oil and gas</span>
-<span class="sd">            release, this should be zero or None. </span>
-<span class="sd">        </span>
-<span class="sd">        &quot;&quot;&quot;</span> 
+<span class="sd">            release, this should be zero or None.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">u0</span> <span class="o">=</span> <span class="n">u0</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">update</span> <span class="o">=</span> <span class="kc">False</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bpm</span><span class="o">.</span><span class="n">sim_stored</span> <span class="o">=</span> <span class="kc">False</span></div>
-    
+
 <div class="viewcode-block" id="Blowout.update_vertical_orientation"><a class="viewcode-back" href="../autodoc/blowout/blowout.Blowout.update_vertical_orientation.html#blowout.Blowout.update_vertical_orientation">[docs]</a>    <span class="k">def</span> <span class="nf">update_vertical_orientation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phi_0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Change the vertical orientation (rad) of the release</span>
-<span class="sd">        </span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        phi_0 : float, default=-np.pi / 2. (vertical release)</span>
 <span class="sd">            Vertical angle of the release relative to the horizontal plane; z</span>
 <span class="sd">            is positive down so that -pi/2 represents a vertically upward</span>
 <span class="sd">            flowing release (rad)</span>
-<span class="sd">        </span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">phi_0</span> <span class="o">=</span> <span class="n">phi_0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">update</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bpm</span><span class="o">.</span><span class="n">sim_stored</span> <span class="o">=</span> <span class="kc">False</span></div>
-    
+
 <div class="viewcode-block" id="Blowout.update_horizontal_orientation"><a class="viewcode-back" href="../autodoc/blowout/blowout.Blowout.update_horizontal_orientation.html#blowout.Blowout.update_horizontal_orientation">[docs]</a>    <span class="k">def</span> <span class="nf">update_horizontal_orientation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">theta_0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Change the horizontal orientation (rad) of the release</span>
-<span class="sd">        </span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        theta_0 : float, default=0.</span>
 <span class="sd">            Horizontal angle of the release relative to the x-direction (rad)</span>
-<span class="sd">        </span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">theta_0</span> <span class="o">=</span> <span class="n">theta_0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">update</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bpm</span><span class="o">.</span><span class="n">sim_stored</span> <span class="o">=</span> <span class="kc">False</span></div>
-    
+
 <div class="viewcode-block" id="Blowout.update_num_gas_elements"><a class="viewcode-back" href="../autodoc/blowout/blowout.Blowout.update_num_gas_elements.html#blowout.Blowout.update_num_gas_elements">[docs]</a>    <span class="k">def</span> <span class="nf">update_num_gas_elements</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_gas_elements</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Change the number of gas bubbles to include in the simulation</span>
-<span class="sd">        </span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        num_gas_elements : int, default=10</span>
 <span class="sd">            Number of gas bubble sizes to include in the gas bubble size</span>
 <span class="sd">            distribution</span>
-<span class="sd">        </span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">num_gas_elements</span> <span class="o">=</span> <span class="n">num_gas_elements</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">update</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bpm</span><span class="o">.</span><span class="n">sim_stored</span> <span class="o">=</span> <span class="kc">False</span></div>
-    
+
 <div class="viewcode-block" id="Blowout.update_num_oil_elements"><a class="viewcode-back" href="../autodoc/blowout/blowout.Blowout.update_num_oil_elements.html#blowout.Blowout.update_num_oil_elements">[docs]</a>    <span class="k">def</span> <span class="nf">update_num_oil_elements</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_oil_elements</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Change the number of oil droplets to include in the simulation</span>
-<span class="sd">        </span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        num_oil_elements : int, default=25</span>
 <span class="sd">            Number of oil droplet sizes to include in the oil droplet size</span>
 <span class="sd">            distribution</span>
-<span class="sd">        </span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">num_oil_elements</span> <span class="o">=</span> <span class="n">num_oil_elements</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">update</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bpm</span><span class="o">.</span><span class="n">sim_stored</span> <span class="o">=</span> <span class="kc">False</span></div>
-    
+
 <div class="viewcode-block" id="Blowout.update_water_data"><a class="viewcode-back" href="../autodoc/blowout/blowout.Blowout.update_water_data.html#blowout.Blowout.update_water_data">[docs]</a>    <span class="k">def</span> <span class="nf">update_water_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">water</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Change the ambient temperature and salinity profile data</span>
-<span class="sd">        </span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        water : various</span>
-<span class="sd">            Data describing the ambient water temperature and salinity </span>
+<span class="sd">            Data describing the ambient water temperature and salinity</span>
 <span class="sd">            profile.  See Notes below for details.</span>
-<span class="sd">        </span>
+
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
 <span class="sd">        The ambient water column data can be provided through several</span>
 <span class="sd">        different options. The `water` variable contains temperature and</span>
 <span class="sd">        salinity data. The user may define the `water` in the following ways:</span>
-<span class="sd">        </span>
+
 <span class="sd">        water : None</span>
 <span class="sd">            Indicates that we have no information about the ambient</span>
 <span class="sd">            temperature or salinity. In this case, the model will import data</span>
@@ -680,7 +739,7 @@
 <span class="sd">            dataset includes the currents; hence, the `currents` variable</span>
 <span class="sd">            will be ignored.</span>
 <span class="sd">        water : `ambient.Profile` object</span>
-<span class="sd">            If we already created our own ambient Profile object, then this </span>
+<span class="sd">            If we already created our own ambient Profile object, then this</span>
 <span class="sd">            object can be used directly.</span>
 <span class="sd">        water = str</span>
 <span class="sd">            If we stored the water column profile in a file, we may provide</span>
@@ -692,27 +751,27 @@
 <span class="sd">            y-direction (m/s). Since this option includes the currents, the</span>
 <span class="sd">            current variable will be ignored in this case. A comment string</span>
 <span class="sd">            of `#` may be used in the text file.</span>
-<span class="sd">        </span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">water</span> <span class="o">=</span> <span class="n">water</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">update</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bpm</span><span class="o">.</span><span class="n">sim_stored</span> <span class="o">=</span> <span class="kc">False</span></div>
-    
+
 <div class="viewcode-block" id="Blowout.update_current_data"><a class="viewcode-back" href="../autodoc/blowout/blowout.Blowout.update_current_data.html#blowout.Blowout.update_current_data">[docs]</a>    <span class="k">def</span> <span class="nf">update_current_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Change the ambient current profile data</span>
-<span class="sd">        </span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        current : various</span>
-<span class="sd">            Data describing the ambient current velocity profile.  See Notes </span>
+<span class="sd">            Data describing the ambient current velocity profile.  See Notes</span>
 <span class="sd">            below for details.</span>
-<span class="sd">        </span>
+
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
 <span class="sd">        Current profile data can be provided through several different</span>
 <span class="sd">        options. The user may define the `current` in the following ways:</span>
-<span class="sd">        </span>
+
 <span class="sd">        current : float</span>
 <span class="sd">            This is assumed to be the current velocity along the x-axis and</span>
 <span class="sd">            will be uniform over the depth</span>
@@ -723,7 +782,7 @@
 <span class="sd">            depth. If this is a multi-dimensional array, then these values as</span>
 <span class="sd">            assumed to contain a profile of data, with the depth (m) as the</span>
 <span class="sd">            first column of data.</span>
-<span class="sd">        </span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">current</span> <span class="o">=</span> <span class="n">current</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">update</span> <span class="o">=</span> <span class="kc">False</span>
@@ -732,15 +791,15 @@
 
 <span class="c1"># --- Helper functions used by the Blowout object ---</span>
 
-<div class="viewcode-block" id="particles"><a class="viewcode-back" href="../autodoc/blowout/blowout.particles.html#blowout.particles">[docs]</a><span class="k">def</span> <span class="nf">particles</span><span class="p">(</span><span class="n">m_tot</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">vf</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">oil</span><span class="p">,</span> <span class="n">yk</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">z0</span><span class="p">,</span> <span class="n">Tj</span><span class="p">,</span> <span class="n">lambda_1</span><span class="p">,</span> 
+<div class="viewcode-block" id="particles"><a class="viewcode-back" href="../autodoc/blowout/blowout.particles.html#blowout.particles">[docs]</a><span class="k">def</span> <span class="nf">particles</span><span class="p">(</span><span class="n">m_tot</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">vf</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">oil</span><span class="p">,</span> <span class="n">yk</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">z0</span><span class="p">,</span> <span class="n">Tj</span><span class="p">,</span> <span class="n">lambda_1</span><span class="p">,</span>
               <span class="n">lag_time</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create particles to add to a bent plume model simulation</span>
-<span class="sd">    </span>
-<span class="sd">    Creates bent_plume_model.Particle objects for the given particle </span>
+
+<span class="sd">    Creates bent_plume_model.Particle objects for the given particle</span>
 <span class="sd">    properties so that they can be added to the total list of particles</span>
 <span class="sd">    in the simulation.</span>
-<span class="sd">    </span>
+
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    m_tot : float</span>
@@ -748,12 +807,12 @@
 <span class="sd">    d : np.array</span>
 <span class="sd">        Array of particle sizes for this fluid phase (m)</span>
 <span class="sd">    vf : np.array</span>
-<span class="sd">        Array of volume fractions for each particle size for this fluid </span>
+<span class="sd">        Array of volume fractions for each particle size for this fluid</span>
 <span class="sd">        phase (--).  This array should sum to 1.0.</span>
 <span class="sd">    profile : ambient.Profile</span>
 <span class="sd">        An ambient.Profile object with the ambient ocean water column data</span>
 <span class="sd">    oil : dbm.FluidParticle</span>
-<span class="sd">        A dbm.FluidParticle object that contains the desired oil database </span>
+<span class="sd">        A dbm.FluidParticle object that contains the desired oil database</span>
 <span class="sd">        composition</span>
 <span class="sd">    yk : np.array</span>
 <span class="sd">        Mole fractions of each compound in the chemical database of the oil</span>
@@ -770,38 +829,38 @@
 <span class="sd">    lag_time : bool</span>
 <span class="sd">        Flag that indicates whether (True) or not (False) to use the</span>
 <span class="sd">        biodegradation lag times data.</span>
-<span class="sd">    </span>
+
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    disp_phases : list of bent_plume_model.Particle objects</span>
-<span class="sd">        List of `bent_plume_model.Particle` objects to be added to the </span>
+<span class="sd">        List of `bent_plume_model.Particle` objects to be added to the</span>
 <span class="sd">        present bent plume model simulation based on the given input data.</span>
-<span class="sd">    </span>
+
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
-<span class="sd">    See the documentation for the `bent_plume_model` for more </span>
+<span class="sd">    See the documentation for the `bent_plume_model` for more</span>
 <span class="sd">    information on the `Particle` object.</span>
-<span class="sd">    </span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Create an empty list of particles</span>
     <span class="n">disp_phases</span> <span class="o">=</span> <span class="p">[]</span>
-    
+
     <span class="c1"># Add each particle in the distribution separately</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">d</span><span class="p">)):</span>
-        
-        <span class="c1"># Get the total mass flux of this fluid phase for the present </span>
+
+        <span class="c1"># Get the total mass flux of this fluid phase for the present</span>
         <span class="c1"># particle size</span>
         <span class="n">mb0</span> <span class="o">=</span> <span class="n">vf</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">m_tot</span>
-        
+
         <span class="c1"># Get the properties of these particles at the source</span>
         <span class="p">(</span><span class="n">m0</span><span class="p">,</span> <span class="n">T0</span><span class="p">,</span> <span class="n">nb0</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">)</span> <span class="o">=</span> <span class="n">dispersed_phases</span><span class="o">.</span><span class="n">initial_conditions</span><span class="p">(</span>
             <span class="n">profile</span><span class="p">,</span> <span class="n">z0</span><span class="p">,</span> <span class="n">oil</span><span class="p">,</span> <span class="n">yk</span><span class="p">,</span> <span class="n">mb0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">Tj</span><span class="p">)</span>
-        
+
         <span class="c1"># Append these particles to the list of particles in the simulation</span>
-        <span class="n">disp_phases</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bent_plume_model</span><span class="o">.</span><span class="n">Particle</span><span class="p">(</span><span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">z0</span><span class="p">,</span> <span class="n">oil</span><span class="p">,</span> <span class="n">m0</span><span class="p">,</span> <span class="n">T0</span><span class="p">,</span> 
-            <span class="n">nb0</span><span class="p">,</span> <span class="n">lambda_1</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">K_T</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">fdis</span><span class="o">=</span><span class="mf">1.e-6</span><span class="p">,</span> <span class="n">t_hyd</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> 
+        <span class="n">disp_phases</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bent_plume_model</span><span class="o">.</span><span class="n">Particle</span><span class="p">(</span><span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">z0</span><span class="p">,</span> <span class="n">oil</span><span class="p">,</span> <span class="n">m0</span><span class="p">,</span> <span class="n">T0</span><span class="p">,</span>
+            <span class="n">nb0</span><span class="p">,</span> <span class="n">lambda_1</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Sa</span><span class="p">,</span> <span class="n">Ta</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">K_T</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">fdis</span><span class="o">=</span><span class="mf">1.e-6</span><span class="p">,</span> <span class="n">t_hyd</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span>
             <span class="n">lag_time</span><span class="o">=</span><span class="n">lag_time</span><span class="p">))</span>
-    
+
     <span class="c1"># Return the list of particles</span>
     <span class="k">return</span> <span class="n">disp_phases</span></div>
 
@@ -809,24 +868,24 @@
 <div class="viewcode-block" id="get_ambient_profile"><a class="viewcode-back" href="../autodoc/blowout/blowout.get_ambient_profile.html#blowout.get_ambient_profile">[docs]</a><span class="k">def</span> <span class="nf">get_ambient_profile</span><span class="p">(</span><span class="n">water</span><span class="p">,</span> <span class="n">current</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create an `ambient.Profile` object from the given ambient data</span>
-<span class="sd">    </span>
-<span class="sd">    Based on the water column information provided, make an appropriate </span>
+
+<span class="sd">    Based on the water column information provided, make an appropriate</span>
 <span class="sd">    choice and create the `ambient.Profile` object required for a `tamoc`</span>
 <span class="sd">    simulation.</span>
-<span class="sd">    </span>
+
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    water : various</span>
 <span class="sd">        Data describing the ambient water temperature and salinity profile.</span>
 <span class="sd">        See Notes below for details.</span>
 <span class="sd">    current : various</span>
-<span class="sd">        Data describing the ambient current velocity profile.  See Notes </span>
+<span class="sd">        Data describing the ambient current velocity profile.  See Notes</span>
 <span class="sd">        below for details.</span>
 <span class="sd">    **kwargs : dict</span>
-<span class="sd">        Dictionary of optional keyword arguments that can be used when </span>
-<span class="sd">        creating an ambient.Profile object from a text file.  Optional </span>
+<span class="sd">        Dictionary of optional keyword arguments that can be used when</span>
+<span class="sd">        creating an ambient.Profile object from a text file.  Optional</span>
 <span class="sd">        arguments include:</span>
-<span class="sd">        </span>
+
 <span class="sd">        summary : str</span>
 <span class="sd">            String describing the simulation for which this data will be used.</span>
 <span class="sd">        source : str</span>
@@ -843,33 +902,33 @@
 <span class="sd">            List of dissolved atmospheric gases to include in the ambient</span>
 <span class="sd">            ocean data as a derived concentration; choices are &#39;nitrogen&#39;,</span>
 <span class="sd">            &#39;oxygen&#39;, &#39;argon&#39;, and &#39;carbon_dioxide&#39;.</span>
-<span class="sd">        </span>
-<span class="sd">        If any of these arguments are not passed, default values will be </span>
+
+<span class="sd">        If any of these arguments are not passed, default values will be</span>
 <span class="sd">        assigned by this function.</span>
-<span class="sd">    </span>
+
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
 <span class="sd">    The `water` variable contains information about the ambient temperature</span>
 <span class="sd">    and salinity profile.  Possible choices for `water` include the following:</span>
-<span class="sd">    </span>
+
 <span class="sd">    water : None</span>
 <span class="sd">        Indicates that we have no information about the ambient temperature</span>
-<span class="sd">        or salinity.  In this case, the model will import data for the </span>
+<span class="sd">        or salinity.  In this case, the model will import data for the</span>
 <span class="sd">        world-ocean average.</span>
 <span class="sd">    water : dict</span>
-<span class="sd">        If we only know the water temperature and salinity at the surface, </span>
+<span class="sd">        If we only know the water temperature and salinity at the surface,</span>
 <span class="sd">        this may be passed through a dictionary with keywords `temperature`</span>
 <span class="sd">        and `salinity`.  In this case, the model will import data for the</span>
 <span class="sd">        world-ocean average and adjust the data to have the given temperature</span>
 <span class="sd">        and salinity at the surface.</span>
 <span class="sd">    water : &#39;netCDF4.Dataset&#39; object</span>
-<span class="sd">        If a &#39;netCDF4.Dataset&#39; object already contains the ambient CTD </span>
+<span class="sd">        If a &#39;netCDF4.Dataset&#39; object already contains the ambient CTD</span>
 <span class="sd">        data in a format appropriate for the `ambient.Profile` object, then</span>
 <span class="sd">        this can be passed.  In this case, it is assumed that the dataset</span>
-<span class="sd">        includes the currents; hence, the `currents` variable will be </span>
-<span class="sd">        ignored.  </span>
+<span class="sd">        includes the currents; hence, the `currents` variable will be</span>
+<span class="sd">        ignored.</span>
 <span class="sd">    water : `ambient.Profile` object</span>
-<span class="sd">        If we already created our own ambient Profile object, then this </span>
+<span class="sd">        If we already created our own ambient Profile object, then this</span>
 <span class="sd">        object can be used directly.</span>
 <span class="sd">    water = str</span>
 <span class="sd">        If we stored the water column profile in a file, we may provide the</span>
@@ -880,10 +939,10 @@
 <span class="sd">        the x-direction (m/s), velocity in the y-direction (m/s). Since this</span>
 <span class="sd">        option includes the currents, the current variable will be ignored in</span>
 <span class="sd">        this case. A comment string of `#` may be used in the text file.</span>
-<span class="sd">    </span>
+
 <span class="sd">    The `current` variable contains information about the ambient current</span>
 <span class="sd">    profile.  Possible choices for `current` include the following:</span>
-<span class="sd">    </span>
+
 <span class="sd">    current : float</span>
 <span class="sd">        This is assumed to be the current velocity along the x-axis and will</span>
 <span class="sd">        be uniform over the depth</span>
@@ -894,48 +953,48 @@
 <span class="sd">        this is a multi-dimensional array, then these values as assumed to</span>
 <span class="sd">        contain a profile of data, with the depth (m) as the first column of</span>
 <span class="sd">        data.</span>
-<span class="sd">    </span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">NoneType</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
     <span class="n">done</span> <span class="o">=</span> <span class="kc">False</span>
     
     <span class="c1"># Extract the temperature and salinity data</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">water</span><span class="p">,</span> <span class="n">NoneType</span><span class="p">):</span>
-        
+
         <span class="c1"># Use the world-ocean average T(z) and S(z)</span>
         <span class="n">data</span> <span class="o">=</span> <span class="kc">None</span>
-    
+
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">water</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-        
+
         <span class="c1"># Get the water temperature and salinity at the surface</span>
         <span class="n">Ts</span> <span class="o">=</span> <span class="n">water</span><span class="p">[</span><span class="s1">&#39;temperature&#39;</span><span class="p">]</span>
         <span class="n">Ss</span> <span class="o">=</span> <span class="n">water</span><span class="p">[</span><span class="s1">&#39;salinity&#39;</span><span class="p">]</span>
-        
+
         <span class="c1"># Create a data array of depth, temperature, and salinity</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.</span><span class="p">,</span> <span class="n">Ts</span><span class="p">,</span> <span class="n">Ss</span><span class="p">])</span>
-    
+
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">water</span><span class="p">,</span> <span class="n">Dataset</span><span class="p">):</span>
-        
+
         <span class="c1"># A netCDF4 Dataset containing all of the profile data is stored</span>
         <span class="c1"># in water.  Use that to create the Profile object</span>
         <span class="n">profile</span> <span class="o">=</span> <span class="n">ambient</span><span class="o">.</span><span class="n">Profile</span><span class="p">(</span><span class="n">water</span><span class="p">)</span>
         <span class="n">done</span> <span class="o">=</span> <span class="kc">True</span>
-    
+
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">water</span><span class="p">,</span> <span class="n">ambient</span><span class="o">.</span><span class="n">Profile</span><span class="p">):</span>
         <span class="n">profile</span> <span class="o">=</span> <span class="n">water</span>
         <span class="n">done</span> <span class="o">=</span> <span class="kc">True</span>
-    
+
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">water</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">water</span><span class="p">,</span> <span class="n">unicode</span><span class="p">):</span>
-        
+
         <span class="k">if</span> <span class="n">water</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">:]</span> <span class="o">==</span> <span class="s1">&#39;.nc&#39;</span><span class="p">:</span>
-            
+
             <span class="c1"># Water contains a path to a netCDF4 dataset.  Use this to</span>
             <span class="c1"># create the Profile object</span>
             <span class="n">profile</span> <span class="o">=</span> <span class="n">ambient</span><span class="o">.</span><span class="n">Profile</span><span class="p">(</span><span class="n">water</span><span class="p">)</span>
             <span class="n">done</span> <span class="o">=</span> <span class="kc">True</span>
-        
+
         <span class="k">else</span><span class="p">:</span>
-            
+
             <span class="c1"># This must be a relative path to a text file</span>
             <span class="n">fname</span> <span class="o">=</span> <span class="n">water</span>
             <span class="n">x0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">])</span>
@@ -966,34 +1025,34 @@
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">p_time</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;p_time&#39;</span><span class="p">]</span>
             <span class="k">except</span><span class="p">:</span>
-                <span class="n">p_time</span> <span class="o">=</span> <span class="n">date2num</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(),</span> 
-                         <span class="n">units</span> <span class="o">=</span> <span class="s1">&#39;seconds since 1970-01-01 00:00:00 0:00&#39;</span><span class="p">,</span> 
+                <span class="n">p_time</span> <span class="o">=</span> <span class="n">date2num</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(),</span>
+                         <span class="n">units</span> <span class="o">=</span> <span class="s1">&#39;seconds since 1970-01-01 00:00:00 0:00&#39;</span><span class="p">,</span>
                          <span class="n">calendar</span> <span class="o">=</span> <span class="s1">&#39;julian&#39;</span><span class="p">)</span>
-            
-            <span class="n">profile</span> <span class="o">=</span> <span class="n">get_ctd_from_txt</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">summary</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> 
-                                       <span class="n">sea_name</span><span class="p">,</span> <span class="n">p_lat</span><span class="p">,</span> <span class="n">p_lon</span><span class="p">,</span> <span class="n">p_time</span><span class="p">,</span> 
+
+            <span class="n">profile</span> <span class="o">=</span> <span class="n">get_ctd_from_txt</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">summary</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span>
+                                       <span class="n">sea_name</span><span class="p">,</span> <span class="n">p_lat</span><span class="p">,</span> <span class="n">p_lon</span><span class="p">,</span> <span class="n">p_time</span><span class="p">,</span>
                                        <span class="n">ca</span><span class="p">)</span>
             <span class="n">done</span> <span class="o">=</span> <span class="kc">True</span>
-    
+
     <span class="c1"># Create the `ambient.Profile` object</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">done</span><span class="p">:</span>
         <span class="n">profile</span> <span class="o">=</span> <span class="n">ambient</span><span class="o">.</span><span class="n">Profile</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">current</span><span class="o">=</span><span class="n">current</span><span class="p">,</span> <span class="n">current_units</span><span class="o">=</span><span class="s1">&#39;m/s&#39;</span><span class="p">)</span>
-    
+
     <span class="c1"># Returen the profile</span>
     <span class="k">return</span> <span class="n">profile</span></div>
 
 
-<div class="viewcode-block" id="get_ctd_from_txt"><a class="viewcode-back" href="../autodoc/blowout/blowout.get_ctd_from_txt.html#blowout.get_ctd_from_txt">[docs]</a><span class="k">def</span> <span class="nf">get_ctd_from_txt</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">summary</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">sea_name</span><span class="p">,</span> <span class="n">p_lat</span><span class="p">,</span> <span class="n">p_lon</span><span class="p">,</span> 
+<div class="viewcode-block" id="get_ctd_from_txt"><a class="viewcode-back" href="../autodoc/blowout/blowout.get_ctd_from_txt.html#blowout.get_ctd_from_txt">[docs]</a><span class="k">def</span> <span class="nf">get_ctd_from_txt</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">summary</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">sea_name</span><span class="p">,</span> <span class="n">p_lat</span><span class="p">,</span> <span class="n">p_lon</span><span class="p">,</span>
     <span class="n">p_time</span><span class="p">,</span> <span class="n">ca</span><span class="o">=</span><span class="p">[]):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create an ambient.Profile object from a text file of ocean property data</span>
-<span class="sd">    </span>
+
 <span class="sd">    Read the CTD and current data in the given filename (fname) and use that</span>
 <span class="sd">    data to create an ambient.Profile object for use in TAMOC. This function</span>
 <span class="sd">    is built to work with an ascii file organized with data stored in columns</span>
 <span class="sd">    that report depth (m), temperature (deg C), salinity (psu), u-component</span>
 <span class="sd">    of velocity (m/s) and v-component of velocity (m/s).</span>
-<span class="sd">    </span>
+
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    fname : str</span>
@@ -1012,33 +1071,33 @@
 <span class="sd">        Date and time of the CTD data using netCDF4.date2num().</span>
 <span class="sd">    ca : list, default=[]</span>
 <span class="sd">        List of dissolved atmospheric gases to include in the ambient ocean</span>
-<span class="sd">        data as a derived concentration; choices are &#39;nitrogen&#39;, &#39;oxygen&#39;, </span>
-<span class="sd">        &#39;argon&#39;, and &#39;carbon_dioxide&#39;.  </span>
-<span class="sd">    </span>
+<span class="sd">        data as a derived concentration; choices are &#39;nitrogen&#39;, &#39;oxygen&#39;,</span>
+<span class="sd">        &#39;argon&#39;, and &#39;carbon_dioxide&#39;.</span>
+
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    profile : ambient.Profile</span>
-<span class="sd">        Returns an ambient.Profile object for manipulating ambient water </span>
+<span class="sd">        Returns an ambient.Profile object for manipulating ambient water</span>
 <span class="sd">        column data in TAMOC.</span>
-<span class="sd">    </span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Read in the data</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">comments</span><span class="o">=</span><span class="s1">&#39;#&#39;</span><span class="p">)</span>
-    
+
     <span class="c1"># Describe what should be stored in this dataset</span>
     <span class="n">units</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;m&#39;</span><span class="p">,</span> <span class="s1">&#39;deg C&#39;</span><span class="p">,</span> <span class="s1">&#39;psu&#39;</span><span class="p">,</span> <span class="s1">&#39;m/s&#39;</span><span class="p">,</span> <span class="s1">&#39;m/s&#39;</span><span class="p">]</span>
     <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="s1">&#39;temperature&#39;</span><span class="p">,</span> <span class="s1">&#39;salinity&#39;</span><span class="p">,</span> <span class="s1">&#39;ua&#39;</span><span class="p">,</span> <span class="s1">&#39;va&#39;</span><span class="p">]</span>
     <span class="n">comments</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;modeled&#39;</span><span class="p">,</span> <span class="s1">&#39;modeled&#39;</span><span class="p">,</span> <span class="s1">&#39;modeled&#39;</span><span class="p">,</span> <span class="s1">&#39;modeled&#39;</span><span class="p">,</span> <span class="s1">&#39;modeled&#39;</span><span class="p">]</span>
-    
+
     <span class="c1"># Extract a file name for the netCDF4 dataset that will hold this data</span>
     <span class="c1"># based on the name of the text file.</span>
     <span class="n">nc_name</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fname</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>  <span class="c1"># remove text file .-extension</span>
     <span class="n">nc_name</span> <span class="o">=</span> <span class="n">nc_name</span> <span class="o">+</span> <span class="s1">&#39;.nc&#39;</span>
-    
+
     <span class="c1"># Create the ambient.Profile object</span>
-    <span class="n">profile</span> <span class="o">=</span> <span class="n">create_ambient_profile</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">units</span><span class="p">,</span> <span class="n">comments</span><span class="p">,</span> <span class="n">nc_name</span><span class="p">,</span> 
+    <span class="n">profile</span> <span class="o">=</span> <span class="n">create_ambient_profile</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">units</span><span class="p">,</span> <span class="n">comments</span><span class="p">,</span> <span class="n">nc_name</span><span class="p">,</span>
         <span class="n">summary</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">sea_name</span><span class="p">,</span> <span class="n">p_lat</span><span class="p">,</span> <span class="n">p_lon</span><span class="p">,</span> <span class="n">p_time</span><span class="p">,</span> <span class="n">ca</span><span class="p">)</span>
-    
+
     <span class="k">return</span> <span class="n">profile</span></div>
 
 
@@ -1046,26 +1105,26 @@
     <span class="n">source</span><span class="p">,</span> <span class="n">sea_name</span><span class="p">,</span> <span class="n">p_lat</span><span class="p">,</span> <span class="n">p_lon</span><span class="p">,</span> <span class="n">p_time</span><span class="p">,</span> <span class="n">ca</span><span class="o">=</span><span class="p">[]):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create an ambient Profile object from given data</span>
-<span class="sd">    </span>
+
 <span class="sd">    Create an ambient.Profile object using the given CTD and current data.</span>
 <span class="sd">    This function performs some standard operations to this data (unit</span>
 <span class="sd">    conversion, computation of pressure, insertion of concentrations for</span>
 <span class="sd">    dissolved gases, etc.) and returns the working ambient.Profile object.</span>
 <span class="sd">    The idea behind this function is to separate data manipulation and</span>
 <span class="sd">    creation of the ambient.Profile object from fetching of the data itself.</span>
-<span class="sd">    </span>
+
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    data : np.array</span>
-<span class="sd">        Array of the ambient ocean data to write to the CTD file.  The </span>
-<span class="sd">        contents and dimensions of this data are specified in the labels </span>
+<span class="sd">        Array of the ambient ocean data to write to the CTD file.  The</span>
+<span class="sd">        contents and dimensions of this data are specified in the labels</span>
 <span class="sd">        and units lists, below.</span>
 <span class="sd">    labels : list</span>
 <span class="sd">        List of string names of each variable in the data array.</span>
 <span class="sd">    units : list</span>
 <span class="sd">        List of units as strings for each variable in the data array.</span>
 <span class="sd">    comments : list</span>
-<span class="sd">        List of comments as strings that explain the types of data in the </span>
+<span class="sd">        List of comments as strings that explain the types of data in the</span>
 <span class="sd">        data array.  Typical comments include &#39;measured&#39;, &#39;modeled&#39;, or</span>
 <span class="sd">        &#39;computed&#39;.</span>
 <span class="sd">    nc_name : str</span>
@@ -1086,88 +1145,87 @@
 <span class="sd">    ca : list, default=[]</span>
 <span class="sd">        List of gases for which to compute a standard dissolved gas profile;</span>
 <span class="sd">        choices are &#39;nitrogen&#39;, &#39;oxygen&#39;, &#39;argon&#39;, and &#39;carbon_dioxide&#39;.</span>
-<span class="sd">    </span>
+
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    profile : ambient.Profile</span>
-<span class="sd">        Returns an ambient.Profile object for manipulating ambient water </span>
+<span class="sd">        Returns an ambient.Profile object for manipulating ambient water</span>
 <span class="sd">        column data in TAMOC.</span>
-<span class="sd">    </span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Convert the data to standard units</span>
     <span class="n">data</span><span class="p">,</span> <span class="n">units</span> <span class="o">=</span> <span class="n">ambient</span><span class="o">.</span><span class="n">convert_units</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">units</span><span class="p">)</span>
-    
+
     <span class="c1"># Create an empty netCDF4-classic datast to store this CTD data</span>
     <span class="n">nc</span> <span class="o">=</span> <span class="n">ambient</span><span class="o">.</span><span class="n">create_nc_db</span><span class="p">(</span><span class="n">nc_name</span><span class="p">,</span> <span class="n">summary</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">sea_name</span><span class="p">,</span> <span class="n">p_lat</span><span class="p">,</span>
                               <span class="n">p_lon</span><span class="p">,</span> <span class="n">p_time</span><span class="p">)</span>
-    
+
     <span class="c1"># Put the CTD and current profile data into the ambient netCDF file</span>
     <span class="n">nc</span> <span class="o">=</span> <span class="n">ambient</span><span class="o">.</span><span class="n">fill_nc_db</span><span class="p">(</span><span class="n">nc</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">units</span><span class="p">,</span> <span class="n">comments</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-    
+
     <span class="c1"># Compute and insert the pressure data</span>
     <span class="n">z</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">][:]</span>
     <span class="n">T</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;temperature&#39;</span><span class="p">][:]</span>
     <span class="n">S</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;salinity&#39;</span><span class="p">][:]</span>
     <span class="n">P</span> <span class="o">=</span> <span class="n">ambient</span><span class="o">.</span><span class="n">compute_pressure</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
     <span class="n">P_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">z</span><span class="p">,</span> <span class="n">P</span><span class="p">))</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
-    <span class="n">nc</span> <span class="o">=</span> <span class="n">ambient</span><span class="o">.</span><span class="n">fill_nc_db</span><span class="p">(</span><span class="n">nc</span><span class="p">,</span> <span class="n">P_data</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="s1">&#39;pressure&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;m&#39;</span><span class="p">,</span> <span class="s1">&#39;Pa&#39;</span><span class="p">],</span> 
+    <span class="n">nc</span> <span class="o">=</span> <span class="n">ambient</span><span class="o">.</span><span class="n">fill_nc_db</span><span class="p">(</span><span class="n">nc</span><span class="p">,</span> <span class="n">P_data</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="s1">&#39;pressure&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;m&#39;</span><span class="p">,</span> <span class="s1">&#39;Pa&#39;</span><span class="p">],</span>
                             <span class="p">[</span><span class="s1">&#39;measured&#39;</span><span class="p">,</span> <span class="s1">&#39;computed&#39;</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
-    
+
     <span class="c1"># Use this netCDF file to create an ambient object</span>
-    <span class="n">profile</span> <span class="o">=</span> <span class="n">ambient</span><span class="o">.</span><span class="n">Profile</span><span class="p">(</span><span class="n">nc</span><span class="p">,</span> <span class="n">ztsp</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="s1">&#39;temperature&#39;</span><span class="p">,</span> <span class="s1">&#39;salinity&#39;</span><span class="p">,</span> 
+    <span class="n">profile</span> <span class="o">=</span> <span class="n">ambient</span><span class="o">.</span><span class="n">Profile</span><span class="p">(</span><span class="n">nc</span><span class="p">,</span> <span class="n">ztsp</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="s1">&#39;temperature&#39;</span><span class="p">,</span> <span class="s1">&#39;salinity&#39;</span><span class="p">,</span>
                  <span class="s1">&#39;pressure&#39;</span><span class="p">,</span> <span class="s1">&#39;ua&#39;</span><span class="p">,</span> <span class="s1">&#39;va&#39;</span><span class="p">])</span>
-    
+
     <span class="c1"># Compute dissolved gas profiles to add to this dataset</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ca</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-        
+
         <span class="c1"># Create a gas mixture object for air</span>
         <span class="n">gases</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;nitrogen&#39;</span><span class="p">,</span> <span class="s1">&#39;oxygen&#39;</span><span class="p">,</span> <span class="s1">&#39;argon&#39;</span><span class="p">,</span> <span class="s1">&#39;carbon_dioxide&#39;</span><span class="p">]</span>
         <span class="n">air</span> <span class="o">=</span> <span class="n">dbm</span><span class="o">.</span><span class="n">FluidMixture</span><span class="p">(</span><span class="n">gases</span><span class="p">)</span>
         <span class="n">yk</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.78084</span><span class="p">,</span> <span class="mf">0.20946</span><span class="p">,</span> <span class="mf">0.009340</span><span class="p">,</span> <span class="mf">0.00036</span><span class="p">])</span>
         <span class="n">m</span> <span class="o">=</span> <span class="n">air</span><span class="o">.</span><span class="n">masses</span><span class="p">(</span><span class="n">yk</span><span class="p">)</span>
-        
+
         <span class="c1"># Set atmospheric conditions</span>
         <span class="n">Pa</span> <span class="o">=</span> <span class="mf">101325.</span>
-        
+
         <span class="c1"># Compute the desired concentrations</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ca</span><span class="p">)):</span>
-            
+
             <span class="c1"># Initialize a dataset of concentration data</span>
             <span class="n">conc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">profile</span><span class="o">.</span><span class="n">z</span><span class="p">))</span>
-            
+
             <span class="c1"># Compute the concentrations at each depth</span>
             <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">conc</span><span class="p">)):</span>
-                
+
                 <span class="c1"># Get the local water column properties</span>
                 <span class="n">T</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">P</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="n">profile</span><span class="o">.</span><span class="n">z</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;temperature&#39;</span><span class="p">,</span>
                     <span class="s1">&#39;salinity&#39;</span><span class="p">,</span> <span class="s1">&#39;pressure&#39;</span><span class="p">])</span>
-                
-                <span class="c1"># Compute the gas solubility at this temperature and salinity </span>
+
+                <span class="c1"># Compute the gas solubility at this temperature and salinity</span>
                 <span class="c1"># at the sea surface</span>
                 <span class="n">Cs</span> <span class="o">=</span> <span class="n">air</span><span class="o">.</span><span class="n">solubility</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">Pa</span><span class="p">,</span> <span class="n">S</span><span class="p">)[</span><span class="mi">0</span><span class="p">,:]</span>
-                
+
                 <span class="c1"># Adjust the solubility to the present depth</span>
                 <span class="n">Cs</span> <span class="o">=</span> <span class="n">Cs</span> <span class="o">*</span> <span class="n">seawater</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span> <span class="o">/</span> \
                     <span class="n">seawater</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="mf">101325.</span><span class="p">)</span>
-                
+
                 <span class="c1"># Extract the right chemical</span>
                 <span class="n">conc</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">Cs</span><span class="p">[</span><span class="n">gases</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">ca</span><span class="p">[</span><span class="n">i</span><span class="p">])]</span>
-            
+
             <span class="c1"># Add this computed dissolved gas to the Profile dataset</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">profile</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="n">conc</span><span class="p">))</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
             <span class="n">symbols</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="n">ca</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span>
             <span class="n">units</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;m&#39;</span><span class="p">,</span> <span class="s1">&#39;kg/m^3&#39;</span><span class="p">]</span>
             <span class="n">comments</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;measured&#39;</span><span class="p">,</span> <span class="s1">&#39;computed from CTD data&#39;</span><span class="p">]</span>
             <span class="n">profile</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">symbols</span><span class="p">,</span> <span class="n">units</span><span class="p">,</span> <span class="n">comments</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-    
+
     <span class="c1"># Close the netCDF dataset</span>
     <span class="n">profile</span><span class="o">.</span><span class="n">close_nc</span><span class="p">()</span>
-    
+
     <span class="c1"># Return the profile object</span>
     <span class="k">return</span> <span class="n">profile</span></div>
 
 
-        
 </pre></div>
 
           </div>

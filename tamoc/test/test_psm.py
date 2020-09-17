@@ -36,7 +36,7 @@ from tamoc import ambient, blowout
 from tamoc import dbm_utilities
 from tamoc import particle_size_models as psm
 
-from . import test_sbm
+from tamoc.test import test_sbm
 
 from datetime import datetime
 from netCDF4 import date2num

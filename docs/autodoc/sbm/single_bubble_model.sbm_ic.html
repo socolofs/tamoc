@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>single_bubble_model.sbm_ic &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <title>single_bubble_model.sbm_ic &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.1.0 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -53,19 +53,19 @@ simulation</p>
 </dd>
 <dt><strong>yk</strong><span class="classifier">ndarray</span></dt><dd><p>Initial mole fractions of each component in the particle (–)</p>
 </dd>
-<dt><strong>T0</strong><span class="classifier">float, optional</span></dt><dd><p>Initial temperature (K) of the particle at release if not equal 
-to the temperature of the surrounding fluid.  If omitted, the 
+<dt><strong>T0</strong><span class="classifier">float, optional</span></dt><dd><p>Initial temperature (K) of the particle at release if not equal
+to the temperature of the surrounding fluid.  If omitted, the
 model will set T0 to the ambient temperature.</p>
 </dd>
-<dt><strong>K</strong><span class="classifier">float</span></dt><dd><p>Mass transfer reduction factor (–). Pre-multiplies the mass 
-transfer coefficients providing amplification (&gt;1) or retardation 
+<dt><strong>K</strong><span class="classifier">float</span></dt><dd><p>Mass transfer reduction factor (–). Pre-multiplies the mass
+transfer coefficients providing amplification (&gt;1) or retardation
 (&lt;1) of the dissolution.</p>
 </dd>
-<dt><strong>K_T</strong><span class="classifier">float</span></dt><dd><p>Heat transfer reduction factor (–). Pre-multiplies the heat 
-transfer coefficient providing amplification (&gt;1) or retardation 
+<dt><strong>K_T</strong><span class="classifier">float</span></dt><dd><p>Heat transfer reduction factor (–). Pre-multiplies the heat
+transfer coefficient providing amplification (&gt;1) or retardation
 (&lt;1) of the heat flux.</p>
 </dd>
-<dt><strong>fdis</strong><span class="classifier">float</span></dt><dd><p>Fraction of the initial total mass (–) remaining when the 
+<dt><strong>fdis</strong><span class="classifier">float</span></dt><dd><p>Fraction of the initial total mass (–) remaining when the
 particle should be considered dissolved.</p>
 </dd>
 <dt><strong>t_hyd</strong><span class="classifier">float</span></dt><dd><p>Hydrate film formation time (s).  Mass transfer is computed by clean
@@ -77,12 +77,12 @@ or hydrate covered from the release.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><dl>
-<dt><strong>particle</strong><span class="classifier"><cite>LagrangianParticle</cite> object</span></dt><dd><p>A <cite>LagrangianParticle</cite> object containing a unified interface to the 
-<cite>dbm</cite> module and the particle-specific model parameters (e.g., mass 
+<dt><strong>particle</strong><span class="classifier"><cite>LagrangianParticle</cite> object</span></dt><dd><p>A <cite>LagrangianParticle</cite> object containing a unified interface to the
+<cite>dbm</cite> module and the particle-specific model parameters (e.g., mass
 transfer reduction factor, etc.)</p>
 </dd>
-<dt><strong>y0</strong><span class="classifier">ndarray</span></dt><dd><p>Model state space at the release point.  Includes the current depth 
-(m), the masses (kg) of each component of the particle, and the 
+<dt><strong>y0</strong><span class="classifier">ndarray</span></dt><dd><p>Model state space at the release point.  Includes the current depth
+(m), the masses (kg) of each component of the particle, and the
 particle heat content (J)</p>
 </dd>
 </dl>
@@ -90,12 +90,12 @@ particle heat content (J)</p>
 </dl>
 <p class="rubric">Notes</p>
 <p>This function converts an initial diameter and a list of mole fractions
-to the actual mass of each component in a particle.  This seems like 
-the most common method a single particle would be initialized.  Note, 
-however, that the user does not specify the mass: it is calculated in 
-this function.  If the same diameter particle is released as a deeper 
-depth, it will contain more mass (due to compressibility).  Likewise, 
-if the composition is changed while the depth and diameter are 
+to the actual mass of each component in a particle.  This seems like
+the most common method a single particle would be initialized.  Note,
+however, that the user does not specify the mass: it is calculated in
+this function.  If the same diameter particle is released as a deeper
+depth, it will contain more mass (due to compressibility).  Likewise,
+if the composition is changed while the depth and diameter are
 maintained constant, the mass will change, altering the trajectory
 and simulation results.  If the mass is to be kept constant, this must
 be done outside this routine and the correct diameter calculated and

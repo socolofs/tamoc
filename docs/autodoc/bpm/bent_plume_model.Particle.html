@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>bent_plume_model.Particle &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <title>bent_plume_model.Particle &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.1.0 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -38,12 +38,12 @@
 <dt id="bent_plume_model.Particle">
 <em class="property">class </em><code class="sig-prename descclassname">bent_plume_model.</code><code class="sig-name descname">Particle</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">y</em>, <em class="sig-param">z</em>, <em class="sig-param">dbm_particle</em>, <em class="sig-param">m0</em>, <em class="sig-param">T0</em>, <em class="sig-param">nb0</em>, <em class="sig-param">lambda_1</em>, <em class="sig-param">P</em>, <em class="sig-param">Sa</em>, <em class="sig-param">Ta</em>, <em class="sig-param">K=1.0</em>, <em class="sig-param">K_T=1.0</em>, <em class="sig-param">fdis=1e-06</em>, <em class="sig-param">t_hyd=0.0</em>, <em class="sig-param">lag_time=True</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/bent_plume_model.html#Particle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bent_plume_model.Particle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Special model properties for tracking inside a Lagrangian plume object</p>
-<p>This new <cite>Particle</cite> class is needed to allow dispersed phase particles to 
-be tracked within the Lagrangian plume element during the solution and 
+<p>This new <cite>Particle</cite> class is needed to allow dispersed phase particles to
+be tracked within the Lagrangian plume element during the solution and
 to exit the plume at the right time.</p>
-<p>This object inherits the <cite>dispersed_phases.PlumeParticle</cite> object and 
-adds functionality for three-dimensional positioning and particle 
-tracking.  All behavior not associated with tracking is identical to 
+<p>This object inherits the <cite>dispersed_phases.PlumeParticle</cite> object and
+adds functionality for three-dimensional positioning and particle
+tracking.  All behavior not associated with tracking is identical to
 that in the <cite>dispersed_phases.PlumeParticle</cite> object.  Moreover, this
 object can be used in a <cite>stratified_plume_model.Model</cite> simulation.</p>
 <dl class="field-list">
@@ -57,7 +57,7 @@ object can be used in a <cite>stratified_plume_model.Model</cite> simulation.</p
 </dd>
 <dt><strong>dbm_particle</strong><span class="classifier"><cite>dbm.FluidParticle</cite> or <cite>dbm.InsolubleParticle</cite> object</span></dt><dd><p>Object describing the particle properties and behavior</p>
 </dd>
-<dt><strong>m0</strong><span class="classifier">ndarray</span></dt><dd><p>Initial masses of one particle for the components of the 
+<dt><strong>m0</strong><span class="classifier">ndarray</span></dt><dd><p>Initial masses of one particle for the components of the
 <cite>dbm_particle</cite> object (kg)</p>
 </dd>
 <dt><strong>T0</strong><span class="classifier">float</span></dt><dd><p>Initial temperature of the of <cite>dbm</cite> particle object (K)</p>
@@ -121,7 +121,7 @@ biodegradation lag times data.</p>
 </dd>
 <dt><strong>nb0</strong><span class="classifier">float</span></dt><dd><p>Initial number flux of particles at the release (#/s)</p>
 </dd>
-<dt><strong>nbe</strong><span class="classifier">float</span></dt><dd><p>Number of particles associated with a Lagrangian element (#).  This 
+<dt><strong>nbe</strong><span class="classifier">float</span></dt><dd><p>Number of particles associated with a Lagrangian element (#).  This
 number with the mass per particle sets the total mass of particles
 inside the Lagrangian element at any given time.  This value is set
 by <cite>lmp.bent_plume_ic</cite>.</p>
@@ -158,7 +158,7 @@ where its trajectory should continue to be integrated.</p>
 <dt><strong>p_fac</strong><span class="classifier">float</span></dt><dd><p>Buoyant force reduction factor due to a reduced buoyancy as the
 particle moves to the edge of the plume (–)</p>
 </dd>
-<dt><strong>b_local</strong><span class="classifier">float</span></dt><dd><p>Width of the bent plume model at the location where the particle 
+<dt><strong>b_local</strong><span class="classifier">float</span></dt><dd><p>Width of the bent plume model at the location where the particle
 exited the plume.</p>
 </dd>
 <dt><strong>sbm</strong><span class="classifier"><cite>single_bubble_model.Model</cite> object</span></dt><dd><p>Model object for tracking the particle outside the plume</p>

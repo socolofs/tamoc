@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>bent_plume_model.Model.simulate &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <title>bent_plume_model.Model.simulate &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.1.0 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -39,26 +39,26 @@
 <code class="sig-prename descclassname">Model.</code><code class="sig-name descname">simulate</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">X</em>, <em class="sig-param">D</em>, <em class="sig-param">Vj</em>, <em class="sig-param">phi_0</em>, <em class="sig-param">theta_0</em>, <em class="sig-param">Sj</em>, <em class="sig-param">Tj</em>, <em class="sig-param">cj</em>, <em class="sig-param">tracers</em>, <em class="sig-param">particles=[]</em>, <em class="sig-param">track=False</em>, <em class="sig-param">dt_max=60.0</em>, <em class="sig-param">sd_max=350.0</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/bent_plume_model.html#Model.simulate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bent_plume_model.Model.simulate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Simulate the plume dynamics from given initial conditions</p>
 <p>Simulate the buoyant plume using a Lagrangian plume integral model
-approach until the plume reaches the surface, the integration 
-exceeds the given s/D (<cite>sd_max</cite>), or the intrusion reaches a point of 
+approach until the plume reaches the surface, the integration
+exceeds the given s/D (<cite>sd_max</cite>), or the intrusion reaches a point of
 neutral buoyancy.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl>
 <dt><strong>X</strong><span class="classifier">ndarray</span></dt><dd><p>Release location (x, y, z) in (m)</p>
 </dd>
-<dt><strong>D</strong><span class="classifier">float</span></dt><dd><p>Diameter for the equivalent circular cross-section of the release 
+<dt><strong>D</strong><span class="classifier">float</span></dt><dd><p>Diameter for the equivalent circular cross-section of the release
 (m)</p>
 </dd>
-<dt><strong>Vj</strong><span class="classifier">float</span></dt><dd><p>Scalar value of the magnitude of the discharge velocity for 
-continuous phase fluid in the discharge.  This variable should be 
+<dt><strong>Vj</strong><span class="classifier">float</span></dt><dd><p>Scalar value of the magnitude of the discharge velocity for
+continuous phase fluid in the discharge.  This variable should be
 0. or None for a pure multiphase discharge.</p>
 </dd>
-<dt><strong>phi_0</strong><span class="classifier">float</span></dt><dd><p>Vertical angle from the horizontal for the discharge orientation 
+<dt><strong>phi_0</strong><span class="classifier">float</span></dt><dd><p>Vertical angle from the horizontal for the discharge orientation
 (rad in range +/- pi/2)</p>
 </dd>
-<dt><strong>theta_0</strong><span class="classifier">float</span></dt><dd><p>Horizontal angle from the x-axis for the discharge orientation.  
-The x-axis is taken in the direction of the ambient current.  
+<dt><strong>theta_0</strong><span class="classifier">float</span></dt><dd><p>Horizontal angle from the x-axis for the discharge orientation.
+The x-axis is taken in the direction of the ambient current.
 (rad in range 0 to 2 pi)</p>
 </dd>
 <dt><strong>Sj</strong><span class="classifier">float</span></dt><dd><p>Salinity of the continuous phase fluid in the discharge (psu)</p>
@@ -67,20 +67,20 @@ The x-axis is taken in the direction of the ambient current.
 </dd>
 <dt><strong>cj</strong><span class="classifier">ndarray</span></dt><dd><p>Concentration of passive tracers in the discharge (user-defined)</p>
 </dd>
-<dt><strong>tracers</strong><span class="classifier">string list</span></dt><dd><p>List of passive tracers in the discharge.  These can be chemicals 
-present in the ambient <cite>profile</cite> data, and if so, entrainment of 
-these chemicals will change the concentrations computed for these 
-tracers.  However, none of these concentrations are used in the 
-dissolution of the dispersed phase.  Hence, <cite>tracers</cite> should not 
+<dt><strong>tracers</strong><span class="classifier">string list</span></dt><dd><p>List of passive tracers in the discharge.  These can be chemicals
+present in the ambient <cite>profile</cite> data, and if so, entrainment of
+these chemicals will change the concentrations computed for these
+tracers.  However, none of these concentrations are used in the
+dissolution of the dispersed phase.  Hence, <cite>tracers</cite> should not
 contain any chemicals present in the dispersed phase particles.</p>
 </dd>
-<dt><strong>particles</strong><span class="classifier">list of <cite>Particle</cite> objects</span></dt><dd><p>List of <cite>Particle</cite> objects describing each dispersed phase in the 
+<dt><strong>particles</strong><span class="classifier">list of <cite>Particle</cite> objects</span></dt><dd><p>List of <cite>Particle</cite> objects describing each dispersed phase in the
 simulation</p>
 </dd>
-<dt><strong>track</strong><span class="classifier">bool</span></dt><dd><p>Flag indicating whether or not to track the particle through 
+<dt><strong>track</strong><span class="classifier">bool</span></dt><dd><p>Flag indicating whether or not to track the particle through
 the water column using the <cite>single_bubble_model</cite>.</p>
 </dd>
-<dt><strong>dt_max</strong><span class="classifier">float</span></dt><dd><p>Maximum step size to take in the storage of the simulation 
+<dt><strong>dt_max</strong><span class="classifier">float</span></dt><dd><p>Maximum step size to take in the storage of the simulation
 solution (s)</p>
 </dd>
 <dt><strong>sd_max</strong><span class="classifier">float</span></dt><dd><p>Maximum number of orifice diameters to compute the solution along

@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>bent_plume_model.Model.save_sim &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <title>bent_plume_model.Model.save_sim &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.1.0 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -38,7 +38,7 @@
 <dt id="bent_plume_model.Model.save_sim">
 <code class="sig-prename descclassname">Model.</code><code class="sig-name descname">save_sim</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">fname</em>, <em class="sig-param">profile_path</em>, <em class="sig-param">profile_info</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/bent_plume_model.html#Model.save_sim"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bent_plume_model.Model.save_sim" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save the current simulation results</p>
-<p>Save the current simulation results and the model parameters so that 
+<p>Save the current simulation results and the model parameters so that
 all information needed to rebuild the class object is stored in a
 file.  The output data are stored in netCDF4-classic format.</p>
 <dl class="field-list simple">
@@ -46,7 +46,7 @@ file.  The output data are stored in netCDF4-classic format.</p>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>fname</strong><span class="classifier">str</span></dt><dd><p>File name of the netCDF file to write</p>
 </dd>
-<dt><strong>profile_path</strong><span class="classifier">str</span></dt><dd><p>String stating the file path to the ambient profile data relative 
+<dt><strong>profile_path</strong><span class="classifier">str</span></dt><dd><p>String stating the file path to the ambient profile data relative
 to the directory where <cite>fname</cite> will be saved.</p>
 </dd>
 <dt><strong>profile_info</strong><span class="classifier">str</span></dt><dd><p>Single line of text describing the ambient profile data.</p>
@@ -63,11 +63,11 @@ to the directory where <cite>fname</cite> will be saved.</p>
 <p class="rubric">Notes</p>
 <p>It does not make sense to store the ambient data together with every
 simulation output file.  On the other hand, the simulation results
-may be meaningless without the context of the ambient data.  The 
+may be meaningless without the context of the ambient data.  The
 parameter <cite>profile_path</cite> provides a means to automatically load the
-ambient data assuming the profile data are kept in the same place 
-relative to the output file.  Since this cannot be guaranteed, the 
-<cite>profile_info</cite> variable provides additional descriptive information 
+ambient data assuming the profile data are kept in the same place
+relative to the output file.  Since this cannot be guaranteed, the
+<cite>profile_info</cite> variable provides additional descriptive information
 so that the ambient data can be identified if they have been moved.</p>
 </dd></dl>
 

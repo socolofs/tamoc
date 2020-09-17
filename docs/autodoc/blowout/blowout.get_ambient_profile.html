@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>blowout.get_ambient_profile &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <title>blowout.get_ambient_profile &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.1.0 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -38,7 +38,7 @@
 <dt id="blowout.get_ambient_profile">
 <code class="sig-prename descclassname">blowout.</code><code class="sig-name descname">get_ambient_profile</code><span class="sig-paren">(</span><em class="sig-param">water</em>, <em class="sig-param">current</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/blowout.html#get_ambient_profile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blowout.get_ambient_profile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create an <cite>ambient.Profile</cite> object from the given ambient data</p>
-<p>Based on the water column information provided, make an appropriate 
+<p>Based on the water column information provided, make an appropriate
 choice and create the <cite>ambient.Profile</cite> object required for a <cite>tamoc</cite>
 simulation.</p>
 <dl class="field-list">
@@ -47,11 +47,11 @@ simulation.</p>
 <dt><strong>water</strong><span class="classifier">various</span></dt><dd><p>Data describing the ambient water temperature and salinity profile.
 See Notes below for details.</p>
 </dd>
-<dt><strong>current</strong><span class="classifier">various</span></dt><dd><p>Data describing the ambient current velocity profile.  See Notes 
+<dt><strong>current</strong><span class="classifier">various</span></dt><dd><p>Data describing the ambient current velocity profile.  See Notes
 below for details.</p>
 </dd>
-<dt><strong>**kwargs</strong><span class="classifier">dict</span></dt><dd><p>Dictionary of optional keyword arguments that can be used when 
-creating an ambient.Profile object from a text file.  Optional 
+<dt><strong>**kwargs</strong><span class="classifier">dict</span></dt><dd><p>Dictionary of optional keyword arguments that can be used when
+creating an ambient.Profile object from a text file.  Optional
 arguments include:</p>
 <dl class="simple">
 <dt>summary<span class="classifier">str</span></dt><dd><p>String describing the simulation for which this data will be used.</p>
@@ -71,7 +71,7 @@ ocean data as a derived concentration; choices are ‘nitrogen’,
 ‘oxygen’, ‘argon’, and ‘carbon_dioxide’.</p>
 </dd>
 </dl>
-<p>If any of these arguments are not passed, default values will be 
+<p>If any of these arguments are not passed, default values will be
 assigned by this function.</p>
 </dd>
 </dl>
@@ -82,22 +82,22 @@ assigned by this function.</p>
 and salinity profile.  Possible choices for <cite>water</cite> include the following:</p>
 <dl>
 <dt>water<span class="classifier">None</span></dt><dd><p>Indicates that we have no information about the ambient temperature
-or salinity.  In this case, the model will import data for the 
+or salinity.  In this case, the model will import data for the
 world-ocean average.</p>
 </dd>
-<dt>water<span class="classifier">dict</span></dt><dd><p>If we only know the water temperature and salinity at the surface, 
+<dt>water<span class="classifier">dict</span></dt><dd><p>If we only know the water temperature and salinity at the surface,
 this may be passed through a dictionary with keywords <cite>temperature</cite>
 and <cite>salinity</cite>.  In this case, the model will import data for the
 world-ocean average and adjust the data to have the given temperature
 and salinity at the surface.</p>
 </dd>
-<dt>water<span class="classifier">‘netCDF4.Dataset’ object</span></dt><dd><p>If a ‘netCDF4.Dataset’ object already contains the ambient CTD 
+<dt>water<span class="classifier">‘netCDF4.Dataset’ object</span></dt><dd><p>If a ‘netCDF4.Dataset’ object already contains the ambient CTD
 data in a format appropriate for the <cite>ambient.Profile</cite> object, then
 this can be passed.  In this case, it is assumed that the dataset
-includes the currents; hence, the <cite>currents</cite> variable will be 
+includes the currents; hence, the <cite>currents</cite> variable will be
 ignored.</p>
 </dd>
-<dt>water<span class="classifier"><cite>ambient.Profile</cite> object</span></dt><dd><p>If we already created our own ambient Profile object, then this 
+<dt>water<span class="classifier"><cite>ambient.Profile</cite> object</span></dt><dd><p>If we already created our own ambient Profile object, then this
 object can be used directly.</p>
 </dd>
 <dt>water = str</dt><dd><p>If we stored the water column profile in a file, we may provide the

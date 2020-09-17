@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Overview of Bent Plume Model Module &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <title>Overview of Bent Plume Model Module &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.1.0 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -36,10 +36,10 @@
 <h1>Overview of Bent Plume Model Module<a class="headerlink" href="#overview-of-bent-plume-model-module" title="Permalink to this headline">¶</a></h1>
 <dl class="field-list simple">
 <dt class="field-odd">Release</dt>
-<dd class="field-odd"><p>2.0</p>
+<dd class="field-odd"><p>2.1</p>
 </dd>
 <dt class="field-even">Date</dt>
-<dd class="field-even"><p>Mar 19, 2020</p>
+<dd class="field-even"><p>Jun 05, 2020</p>
 </dd>
 </dl>
 <span class="target" id="module-bent_plume_model"></span><div class="section" id="bent-plume-model">
@@ -52,31 +52,31 @@ plume. The ambient water properties are provided through an <cite>ambient.Profil
 class object, which contains a netCDF4-classic dataset of CTD data and the
 needed interpolation methods. The <cite>dbm</cite> class objects <cite>dbm.FluidParticle</cite> and
 <cite>dbm.InsolubleParticle</cite> report the properties of the dispersed phase during
-the simulation, and these methods are provided to the model through the 
+the simulation, and these methods are provided to the model through the
 objects defined in <cite>dispersed_phases</cite>.</p>
 <p>This module manages the setup, simulation, and post-processing for the model.
 The numerical solution is contained in the <cite>lpm</cite> module.</p>
 <div class="section" id="notes">
 <h3>Notes<a class="headerlink" href="#notes" title="Permalink to this headline">¶</a></h3>
 <p>This model is a Lagrangian plume integral model following the approach in
-Lee and Cheung (1990) for single-phase plumes, updated using the shear 
+Lee and Cheung (1990) for single-phase plumes, updated using the shear
 entrainment formulation in Jirka (2004), and adapted to multiphase plumes
 following the methods of Johansen (2000, 2003) and Zheng and Yapa (1997).
 Several modifications are made to make the model consistent with the approach
 in Socolofsky et al. (2008) and to match the available validation data.</p>
-<p>The model can run as a single-phase or multi-phase plume.  A single-phase 
+<p>The model can run as a single-phase or multi-phase plume.  A single-phase
 plume simply has an empty <cite>particles</cite> list.</p>
 </div>
 <div class="section" id="see-also">
 <h3>See Also<a class="headerlink" href="#see-also" title="Permalink to this headline">¶</a></h3>
 <dl class="simple">
-<dt><cite>stratified_plume_model</cite><span class="classifier">Predicts the plume solution for quiescent ambient</span></dt><dd><p>conditions or weak crossflows, where the intrusion (outer plume) 
+<dt><cite>stratified_plume_model</cite><span class="classifier">Predicts the plume solution for quiescent ambient</span></dt><dd><p>conditions or weak crossflows, where the intrusion (outer plume)
 interacts with the upward rising plume in a double-plume integral model
-approach.  Such a situation is handeled properly in the 
+approach.  Such a situation is handeled properly in the
 <cite>stratified_plume_model</cite> and would violate the assumption of non-
 iteracting Lagrangian plume elements as required in this module.</p>
 </dd>
-<dt><cite>single_bubble_model</cite><span class="classifier">Tracks the trajectory of a single bubble, drop or </span></dt><dd><p>particle through the water column.  The numerical solution used here, 
+<dt><cite>single_bubble_model</cite><span class="classifier">Tracks the trajectory of a single bubble, drop or</span></dt><dd><p>particle through the water column.  The numerical solution used here,
 including the various object types and their functionality, follows the
 pattern in the <cite>single_bubble_model</cite>.  The main difference is the more
 complex state space and governing equations.</p>

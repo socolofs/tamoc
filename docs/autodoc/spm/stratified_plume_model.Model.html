@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>stratified_plume_model.Model &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.0.0 documentation</title>
+    <title>stratified_plume_model.Model &#8212; Texas A&amp;M Oil spill / Outfall Calculator 2.1.0 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -41,13 +41,13 @@
 <dl class="field-list">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl>
-<dt><strong>profile</strong><span class="classifier"><cite>ambient.Profile</cite> object, default = None</span></dt><dd><p>An object containing the ambient CTD data and associated methods.  
-The netCDF dataset stored in the <cite>ambient.Profile</cite> object may be open 
-or closed at instantiation.  If open, the initializer will close the 
-file since this model does not support changing the ambient data once 
+<dt><strong>profile</strong><span class="classifier"><cite>ambient.Profile</cite> object, default = None</span></dt><dd><p>An object containing the ambient CTD data and associated methods.
+The netCDF dataset stored in the <cite>ambient.Profile</cite> object may be open
+or closed at instantiation.  If open, the initializer will close the
+file since this model does not support changing the ambient data once
 initialized.</p>
 </dd>
-<dt><strong>simfile: str, default = None</strong></dt><dd><p>File name of a netCDF file containing the results of a previous 
+<dt><strong>simfile: str, default = None</strong></dt><dd><p>File name of a netCDF file containing the results of a previous
 simulation run.</p>
 </dd>
 </dl>
@@ -68,16 +68,16 @@ simulation run.</p>
 loaded into the <cite>Model</cite> object memory.    p : <cite>ModelParams</cite>
 Container for the fixed model parameters</p>
 </dd>
-<dt><strong>sim_stored</strong><span class="classifier">bool</span></dt><dd><p>Flag indicating whether or not a simulation result is stored in the 
+<dt><strong>sim_stored</strong><span class="classifier">bool</span></dt><dd><p>Flag indicating whether or not a simulation result is stored in the
 object memory</p>
 </dd>
-<dt><strong>particles</strong><span class="classifier">list</span></dt><dd><p>List of <cite>dispersed_phases.PlumeParticle</cite> objects describing each 
+<dt><strong>particles</strong><span class="classifier">list</span></dt><dd><p>List of <cite>dispersed_phases.PlumeParticle</cite> objects describing each
 dispersed phase in the simulation</p>
 </dd>
 <dt><strong>K_T0</strong><span class="classifier">ndarray</span></dt><dd><p>Array of the initial values of K_T for each of the dispersed phase
 particles.  Since this solution is iterative, heat transfer needs
 to be re-initialized at the start of each iteration, and thus, it is
-not sufficient to rely on the value of K_T stored inside the 
+not sufficient to rely on the value of K_T stored inside the
 <cite>particles</cite> list.</p>
 </dd>
 <dt><strong>R</strong><span class="classifier">float</span></dt><dd><p>Radius of the release point (m)</p>
@@ -100,10 +100,10 @@ converged</p>
 </dd>
 <dt><strong>yo</strong><span class="classifier">ndarray</span></dt><dd><p>Array of state space values computed for the outer plume solution</p>
 </dd>
-<dt><strong>yi_local</strong><span class="classifier"><cite>InnerPlume</cite> object</span></dt><dd><p>Object that translates the <cite>yi</cite> state space into the comprehensive 
+<dt><strong>yi_local</strong><span class="classifier"><cite>InnerPlume</cite> object</span></dt><dd><p>Object that translates the <cite>yi</cite> state space into the comprehensive
 list of derived variables.</p>
 </dd>
-<dt><strong>yo_local</strong><span class="classifier"><cite>OuterPlume</cite> object</span></dt><dd><p>Object that translates the <cite>yo</cite> state space into the comprehensive 
+<dt><strong>yo_local</strong><span class="classifier"><cite>OuterPlume</cite> object</span></dt><dd><p>Object that translates the <cite>yo</cite> state space into the comprehensive
 list of derived variables.</p>
 </dd>
 </dl>

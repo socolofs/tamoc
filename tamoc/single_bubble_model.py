@@ -633,9 +633,12 @@ def calculate_path(profile, particle, p, y0, delta_t):
     while r.successful() and not stop:
 
         # Print progress to the screen
+        m0 = np.sum(y[0][3:-1])
+        mt = np.sum(y[-1][3:-1])
+        f = mt / m0
         if np.remainder(np.float(k), psteps) == 0.:
-            print('    Depth:  %g (m), t:  %g (s), k: %d' %
-                (r.y[2], t[-1], k))
+            print('    Depth:  %g (m), t:  %g (s), k: %d, f: %g (--)' %
+                (r.y[2], t[-1], k, f))
 
         # Perform one step of the integration
         r.integrate(t[-1] + delta_t, step=True)
@@ -645,15 +648,22 @@ def calculate_path(profile, particle, p, y0, delta_t):
             # Make the state-space heat correct
             Ta = profile.get_values(r.y[2], 'temperature')
             r.y[-1] = np.sum(r.y[3:-1]) * particle.cp * Ta
+        for i in range(len(r.y[3:-1])):
+            if r.y[i+3] < 0.:
+                # Concentration should not overshoot zero
+                r.y[i+3] = 0.
         t.append(r.t)
         y.append(r.y)
         k += 1
 
         # Evaluate stop criteria
         if r.successful():
-            # Check if bubble dissolved (us = 0) or reached the free surface
+            # Check if bubble dissolved (us = 0 or based on fdis) or reached 
+            # the free surface
             us = - (y[-2][2] - y[-1][2]) / (t[-2] - t[-1])
-            if r.y[2] <= profile.z_min or us <= 0.:
+            if r.y[2] <= profile.z_min or us <= 0. or f < particle.fdis:
+                stop = True
+            if k > 5000:
                 stop = True
 
     # Remove any negative depths due to overshooting the free surface
@@ -983,7 +993,6 @@ def plot_state_space(profile, particle, p, t, y, fig):
     ax4.invert_yaxis()
     ax4.locator_params(tight=True, nbins=6)
     ax4.grid(True)
-
     plt.draw()
 
     # Plot dissolution data
