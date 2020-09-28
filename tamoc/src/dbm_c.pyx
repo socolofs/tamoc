@@ -1254,37 +1254,71 @@ cdef int viscosity_c(nc,
 
         print("Components of delta_eta_p:")
 
-        print(exp(jc[0] + jc[3] / T0[i]))
-
-        print("a", (rho0[0][0]**0.1 * (jc[1] + jc[2] / T0[i]**1.5))
+        print("full", exp(jc[0] + jc[3] / T0[i]) * (exp(rho0[0][0]**0.1 * (jc[1] + jc[2] / T0[i]**1.5) + theta[0][0] * rho0[0][0]**0.5 * (jc[4] + jc[5] / T0[i] + jc[6] / T0[i]**2)) - 1.0)
               )
 
-        ## this part of the equation is huge -- leading to an inf in the exp() call
-        print("b", theta[0][0] * rho0[0][0]**0.5
+        print("a", exp(jc[0] + jc[3] / T0[i])
               )
 
-        print("c", (jc[4] + jc[5] / T0[i] + jc[6] / T0[i]**2)
+        print("b", (exp(rho0[0][0]**0.1 * (jc[1] + jc[2] / T0[i]**1.5) + theta[0][0] * rho0[0][0]**0.5 * (jc[4] + jc[5] / T0[i] + jc[6] / T0[i]**2)) - 1.0)
               )
 
-        print("d", (theta[0][0] * rho0[0][0]**0.5 *
-                                (jc[4] + jc[5] / T0[i] + jc[6] / T0[i]**2)
-                                  )
+        print("c", exp(rho0[0][0]**0.1 * (jc[1] + jc[2] / T0[i]**1.5) + theta[0][0] * rho0[0][0]**0.5 * (jc[4] + jc[5] / T0[i] + jc[6] / T0[i]**2))
               )
 
-        print("e", (exp(rho0[0][0]**0.1 * (jc[1] + jc[2] / T0[i]**1.5) +
-                                theta[0][0] * rho0[0][0]**0.5 *
-                                (jc[4] + jc[5] / T0[i] + jc[6] / T0[i]**2)
-                                  ) - 1.0
-                                 )
+        print("d", rho0[0][0]**0.1 * (jc[1] + jc[2] / T0[i]**1.5) + theta[0][0] * rho0[0][0]**0.5 * (jc[4] + jc[5] / T0[i] + jc[6] / T0[i]**2)
               )
 
-        delta_eta_p[0][0] = (exp(jc[0] + jc[3] / T0[i]) *
-                             (exp(rho0[0][0]**0.1 * (jc[1] + jc[2] / T0[i]**1.5) +
-                                theta[0][0] * rho0[0][0]**0.5 *
-                                (jc[4] + jc[5] / T0[i] + jc[6] / T0[i]**2)
-                                  ) - 1.0
-                                 )
-                             )
+        print("e", rho0[0][0]**0.1
+              )
+
+        print("f", (jc[1] + jc[2] / T0[i]**1.5) + theta[0][0] * rho0[0][0]**0.5 * (jc[4] + jc[5] / T0[i] + jc[6] / T0[i]**2)
+              )
+
+        print("g", jc[1] + jc[2] / T0[i]**1.5
+              )
+
+        print("h", theta[0][0] * rho0[0][0]**0.5 * (jc[4] + jc[5] / T0[i] + jc[6] / T0[i]**2)
+              )
+
+        print("i", theta[0][0]
+              )
+
+        print("j", rho0[0][0]**0.5 * (jc[4] + jc[5] / T0[i] + jc[6] / T0[i]**2)
+              )
+
+        print("k", (jc[4] + jc[5] / T0[i] + jc[6] / T0[i]**2)
+              )
+
+        print("l", jc[4] + jc[5]
+              )
+
+        print("m", T0[i] + jc[6] / T0[i]**2
+              )
+
+        print("n", jc[6] / T0[i]**2
+              )
+
+        print("o", jc[6]
+              )
+
+        print("p", T0[i]**2
+              )
+
+        print("T0[i]", T0[i])
+
+
+
+        # print("g", jc[1] + jc[2] / T0[i]**1.5) + theta[0][0] * rho0[0][0]**0.5 * (jc[4] + jc[5] / T0[i] + jc[6] / T0[i]**2)
+        #       )
+        # print("g", jc[1] + jc[2] / T0[i]**1.5) + theta[0][0] * rho0[0][0]**0.5 * (jc[4] + jc[5] / T0[i] + jc[6] / T0[i]**2)
+        #       )
+
+
+        delta_eta_p[0][0] = exp(jc[0] + jc[3] / T0[i]) * (exp(rho0[0][0] \
+                            **0.1 * (jc[1] + jc[2] / T0[i]**1.5) + \
+                            theta[0][0] * rho0[0][0]**0.5 * (jc[4] + jc[5] \
+                            / T0[i] + jc[6] / T0[i]**2)) - 1.0)
 
         delta_eta_p[1][0] = (exp(jc[0] + jc[3] / T0[i]) * (exp(rho0[1][0] \
                              **0.1 * (jc[1] + jc[2] / T0[i]**1.5) + \

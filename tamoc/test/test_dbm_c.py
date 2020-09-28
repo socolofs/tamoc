@@ -244,11 +244,14 @@ def particle_fortran_funcs(mass, T, P, Sa, Ta, Mol_wt, fp_type, Pc, Tc, Vc,
     else:
         m_g = np.zeros(len(mass))
         m_o = mass
+    print("in particle_fortran_funcs, mu_p", mu_p)
+
     assert_approx_equal(mu_p,
                         dbm_f.viscosity(T, P, mass, Mol_wt, Pc, Tc, Vc,
                                         omega, delta, Aij, Bij, delta_groups,
                                         calc_delta)[fp_type, 0],
                         significant = 6)
+
     f = dbm_f.fugacity(T, P, mass, Mol_wt, Pc, Tc, omega, delta, Aij, Bij,
                        delta_groups, calc_delta)[fp_type, :]
     kh = dbm_f.kh_insitu(T, P, Sa, kh_0, neg_dH_solR, nu_bar,
