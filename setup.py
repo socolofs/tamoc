@@ -26,13 +26,11 @@ S. Socolofsky, January 2012, Texas A&M University <socolofs@tamu.edu>.
 
 """
 import os
-import setuptools
+import setuptools  # need to get "develop" mode.
 from numpy.distutils.core import setup, Extension
 import Cython
 from Cython.Build import cythonize
 Cython.Compiler.Errors.LEVEL = 0  # to get more error checking at compile time.
-
-
 
 
 # Describe some attributes of the software
@@ -86,6 +84,7 @@ ext_dbm_f = Extension(name = 'dbm_f',
                                  'tamoc/src/math_funcs.f95'])
 
 ext_dbm_c = cythonize("tamoc/src/dbm_c.pyx")[0]
+
 
 def get_version(pkg_name):
     """
