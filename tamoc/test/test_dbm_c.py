@@ -251,6 +251,7 @@ def particle_fortran_funcs(mass, T, P, Sa, Ta, Mol_wt, fp_type, Pc, Tc, Vc,
                                         omega, delta, Aij, Bij, delta_groups,
                                         calc_delta)[fp_type, 0],
                         significant = 6)
+    assert False
 
     f = dbm_f.fugacity(T, P, mass, Mol_wt, Pc, Tc, omega, delta, Aij, Bij,
                        delta_groups, calc_delta)[fp_type, :]
@@ -360,6 +361,7 @@ def test_sphere():
         omega, delta, kh_0, neg_dH_solR, nu_bar, Aij, Bij, delta_groups,
         calc_delta, K_salt, rho, mu, sigma, shape, rho_p, us, A, Cs, beta,
         beta_T, de, mu_p, D)
+
 
     particle_fortran_funcs(mass, T, P, S_S, T, Mol_wt, fp_type, Pc, Tc, Vc,
         Vb, omega, delta, kh_0, neg_dH_solR, nu_bar, Aij, Bij, delta_groups,

@@ -256,7 +256,11 @@ class Model(object):
         self.X = X
         self.D = D
         self.Vj = Vj
-        self.phi_0 = phi_0
+        # phi cannot be exactly zero...substitute small number if needed
+        if phi_0 == 0:
+            self.phi_0 = -1.e-8
+        else:
+            self.phi_0 = phi_0
         self.theta_0 = theta_0
         self.Sj = Sj
         self.Tj = Tj

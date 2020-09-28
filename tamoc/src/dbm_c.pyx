@@ -1028,7 +1028,6 @@ cdef int viscosity_c(nc,
     ! June 2015
     !
     """
-
 #     ! Declare the variables internal to the function
 #     integer :: i, j
     cdef unsigned int i, j
@@ -1065,6 +1064,15 @@ cdef int viscosity_c(nc,
     cdef FLOAT_TYPE theta[2][1], delta_eta_p[2][1], delta_eta_pp[2][1], \
                     rho0[2][1], eta_ch4[2][1], rho_r[2][1], alpha_mix[2][1], \
                     alpha0[2][1]
+# Print inputs
+    print('nc = ', nc)
+    print('T = ', T)
+    print('P = ', P)
+    print('Pc = ', Pc)
+    print('Tc = ', Tc)
+    print('Vc = ', Vc)
+    print('omega = ', omega)
+
 #     ! Enter the parameter values from Table 10.1
 #     GV = [-2.090975D5, 2.647269D5, -1.472818D5, 4.716740D4, -9.491872D3, &
 #         & 1.219979D3, -9.627993D1, 4.274152D0, -8.141531D-2]
