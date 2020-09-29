@@ -971,6 +971,11 @@ def viscosity(FLOAT_TYPE T,
 
     return mu
 
+def print_mem_view(mv, dim=1):
+    for i in range(mv.shape[0]):
+        print mv[i],
+    print
+
 
 cdef int viscosity_c(nc,
                      FLOAT_TYPE T,
@@ -1065,13 +1070,19 @@ cdef int viscosity_c(nc,
                     rho0[2][1], eta_ch4[2][1], rho_r[2][1], alpha_mix[2][1], \
                     alpha0[2][1]
 # Print inputs
+    print("Start of Cython viscosity function")
+
     print('nc = ', nc)
     print('T = ', T)
     print('P = ', P)
-    print('Pc = ', Pc)
-    print('Tc = ', Tc)
-    print('Vc = ', Vc)
-    print('omega = ', omega)
+    print('Pc = ')
+    print_mem_view(Pc)
+    print('Tc = ')
+    print_mem_view(Tc)
+    print('Vc = ')
+    print_mem_view(Vc)
+    print('omega = ')
+    print_mem_view(omega)
 
 #     ! Enter the parameter values from Table 10.1
 #     GV = [-2.090975D5, 2.647269D5, -1.472818D5, 4.716740D4, -9.491872D3, &
@@ -1090,9 +1101,9 @@ cdef int viscosity_c(nc,
 #         & 81.8134D0, 15649.9D0]
     kc[:] = [-9.74602, 18.0834, -4126.66, 44.6055, 0.976544,
              81.8134, 15649.9]
-    print("GV:", GV)
-    print("jc:", jc)
-    print("kc:", kc)
+    # print("GV:", GV)
+    # print("jc:", jc)
+    # print("kc:", kc)
 #     ! Enter the properties for the reference fluid (methane)
 #     M0(1) = 16.043D-3
 #     Tc0(1) = 190.56D0
@@ -1106,6 +1117,7 @@ cdef int viscosity_c(nc,
     omega0[0] = 0.011
     Vc0[0] = 9.86E-5
     delta0[0][0] = 0.0
+
 
 #     delta_groups0(1,:) = [0.0D0, 0.0D0, 0.0D0, 0.0D0, 1.0D0, 0.0D0, 0.0D0, &
 #         &                 0.0D0, 0.0D0, 0.0D0, 0.0D0, 0.0D0, 0.0D0, 0.0D0, &
@@ -1152,13 +1164,13 @@ cdef int viscosity_c(nc,
                            )
     Tc_mix = numerator / denominator
 
-    print("Tc_mix:", Tc_mix)
+    # print("Tc_mix:", Tc_mix)
 #     ! Compute equation (10.22)
 #     Pc_mix = 8.0D0 * numerator / denominator**2
     # Compute equation (10.22)
     Pc_mix = 8.0 * numerator / denominator**2
 
-    print("Pc_mix", Pc_mix)
+    # print("Pc_mix", Pc_mix)
 #     ! Get the density of methane at TTc0/Tc_mix and PPc0/Pc_mix
 #     call density(1, T * Tc0(1) / Tc_mix, P * Pc0(1) / Pc_mix, [1.0D0], M0, &
 #         &        Pc0, Tc0, Vc0, omega0, delta0, Aij, Bij, delta_groups0, &
@@ -1168,7 +1180,7 @@ cdef int viscosity_c(nc,
     # not sure this matters, but...
     cdef FLOAT_TYPE T_temp = T * Tc0[0] / Tc_mix
     cdef FLOAT_TYPE P_temp = P * Pc0[0] / Pc_mix
-    print("T as passed in to (methane?) density:", T_temp)
+    # print("T as passed in to (methane?) density:", T_temp)
     density_c(1,
               T_temp,
               P_temp,
@@ -1184,6 +1196,9 @@ cdef int viscosity_c(nc,
               -1,
               rho0,
               )
+
+    # same as fortran to 8 digits or so
+    print('density of methane: rho0', rho0)
 
 #     ! Compute equation (10.27)
 #     rho_r(:,1) = rho0(:,1) / rho_c0
@@ -1207,25 +1222,29 @@ cdef int viscosity_c(nc,
 #     M0 = M0(:) * 1.0D3
 #     alpha_mix(:,1) = 1.0D0 + 7.378D-3 * rho_r(:,1)**1.847D0 * M_mix**0.5173D0
 #     alpha0(:,1) = 1.0D0 + 7.378D-3 * rho_r(:,1)**1.847D0 * M0(1)**0.5173D0
-    for i in range(nc):
-        M0[i] = M0[i] * 1.0E3
+
+    M0[0] = M0[0] * 1.0E3
     alpha_mix[0][0] = 1.0 + 7.378E-3 * rho_r[0][0]**1.847 * M_mix**0.5173
     alpha_mix[1][0] = 1.0 + 7.378E-3 * rho_r[1][0]**1.847 * M_mix**0.5173
     alpha0[0][0] = 1.0 + 7.378E-3 * rho_r[0][0]**1.847 * M0[0]**0.5173
     alpha0[1][0] = 1.0 + 7.378E-3 * rho_r[1][0]**1.847 * M0[0]**0.5173
 
+
+    # these match to 6 digitd
+    print("alpha_mix: ", alpha_mix[0][0], alpha_mix[1][0])
+    print("alpha0: ", alpha0[0][0], alpha0[1][0])
 #     ! 2.  Compute the viscosity of methane at the corresponding state --------
 #     T0 = T * Tc0(1) / Tc_mix * alpha0(:,1) / alpha_mix(:,1)
 #     P0 = P * Pc0(1) / Pc_mix * alpha0(:,1) / alpha_mix(:,1)
     T0[0] = T * Tc0[0] / Tc_mix * alpha0[0][0] / alpha_mix[0][0]
     T0[1] = T * Tc0[0] / Tc_mix * alpha0[1][0] / alpha_mix[1][0]
 
-    print("T0:", T0)
-
     P0[0] = P * Pc0[0] / Pc_mix * alpha0[0][0] / alpha_mix[0][0]
     P0[1] = P * Pc0[0] / Pc_mix * alpha0[1][0] / alpha_mix[1][0]
-    print("P0:", P0)
 
+    ## These match to 5 digits.
+    print('T0:', T0[0], T0[1])
+    print('P0:', P0[0], P0[1])
 #     ! Compute each state separately
 #     do i = 1,2
     # fixme: maybe making a function and calling it twice would be better?
@@ -1250,7 +1269,7 @@ cdef int viscosity_c(nc,
         print("theta:", theta)
 #         ! Equation (10.9) with T in K and rho in g/cm^3
 #         rho0(:,1) = rho0(:,1) * 1.0D-3
-        print("rho0 before rescaling:", rho0)
+        # print("rho0 before rescaling:", rho0)
         rho0[0][0] = rho0[0][0] * 1.0E-3
         rho0[1][0] = rho0[1][0] * 1.0E-3
 
@@ -1260,60 +1279,60 @@ cdef int viscosity_c(nc,
 #             &              theta(:,1) * rho0(:,1)**0.5D0 * (jc(5) + jc(6) &
 #             &              / T0(i) + jc(7) / T0(i)**2)) - 1.0D0)
 
-        print("Components of delta_eta_p:")
+        # print("Components of delta_eta_p:")
 
-        print("full", exp(jc[0] + jc[3] / T0[i]) * (exp(rho0[0][0]**0.1 * (jc[1] + jc[2] / T0[i]**1.5) + theta[0][0] * rho0[0][0]**0.5 * (jc[4] + jc[5] / T0[i] + jc[6] / T0[i]**2)) - 1.0)
-              )
+        # print("full", exp(jc[0] + jc[3] / T0[i]) * (exp(rho0[0][0]**0.1 * (jc[1] + jc[2] / T0[i]**1.5) + theta[0][0] * rho0[0][0]**0.5 * (jc[4] + jc[5] / T0[i] + jc[6] / T0[i]**2)) - 1.0)
+        #       )
 
-        print("a", exp(jc[0] + jc[3] / T0[i])
-              )
+        # print("a", exp(jc[0] + jc[3] / T0[i])
+        #       )
 
-        print("b", (exp(rho0[0][0]**0.1 * (jc[1] + jc[2] / T0[i]**1.5) + theta[0][0] * rho0[0][0]**0.5 * (jc[4] + jc[5] / T0[i] + jc[6] / T0[i]**2)) - 1.0)
-              )
+        # print("b", (exp(rho0[0][0]**0.1 * (jc[1] + jc[2] / T0[i]**1.5) + theta[0][0] * rho0[0][0]**0.5 * (jc[4] + jc[5] / T0[i] + jc[6] / T0[i]**2)) - 1.0)
+        #       )
 
-        print("c", exp(rho0[0][0]**0.1 * (jc[1] + jc[2] / T0[i]**1.5) + theta[0][0] * rho0[0][0]**0.5 * (jc[4] + jc[5] / T0[i] + jc[6] / T0[i]**2))
-              )
+        # print("c", exp(rho0[0][0]**0.1 * (jc[1] + jc[2] / T0[i]**1.5) + theta[0][0] * rho0[0][0]**0.5 * (jc[4] + jc[5] / T0[i] + jc[6] / T0[i]**2))
+        #       )
 
-        print("d", rho0[0][0]**0.1 * (jc[1] + jc[2] / T0[i]**1.5) + theta[0][0] * rho0[0][0]**0.5 * (jc[4] + jc[5] / T0[i] + jc[6] / T0[i]**2)
-              )
+        # print("d", rho0[0][0]**0.1 * (jc[1] + jc[2] / T0[i]**1.5) + theta[0][0] * rho0[0][0]**0.5 * (jc[4] + jc[5] / T0[i] + jc[6] / T0[i]**2)
+        #       )
 
-        print("e", rho0[0][0]**0.1
-              )
+        # print("e", rho0[0][0]**0.1
+        #       )
 
-        print("f", (jc[1] + jc[2] / T0[i]**1.5) + theta[0][0] * rho0[0][0]**0.5 * (jc[4] + jc[5] / T0[i] + jc[6] / T0[i]**2)
-              )
+        # print("f", (jc[1] + jc[2] / T0[i]**1.5) + theta[0][0] * rho0[0][0]**0.5 * (jc[4] + jc[5] / T0[i] + jc[6] / T0[i]**2)
+        #       )
 
-        print("g", jc[1] + jc[2] / T0[i]**1.5
-              )
+        # print("g", jc[1] + jc[2] / T0[i]**1.5
+        #       )
 
-        print("h", theta[0][0] * rho0[0][0]**0.5 * (jc[4] + jc[5] / T0[i] + jc[6] / T0[i]**2)
-              )
+        # print("h", theta[0][0] * rho0[0][0]**0.5 * (jc[4] + jc[5] / T0[i] + jc[6] / T0[i]**2)
+        #       )
 
-        print("i", theta[0][0]
-              )
+        # print("i", theta[0][0]
+        #       )
 
-        print("j", rho0[0][0]**0.5 * (jc[4] + jc[5] / T0[i] + jc[6] / T0[i]**2)
-              )
+        # print("j", rho0[0][0]**0.5 * (jc[4] + jc[5] / T0[i] + jc[6] / T0[i]**2)
+        #       )
 
-        print("k", (jc[4] + jc[5] / T0[i] + jc[6] / T0[i]**2)
-              )
+        # print("k", (jc[4] + jc[5] / T0[i] + jc[6] / T0[i]**2)
+        #       )
 
-        print("l", jc[4] + jc[5]
-              )
+        # print("l", jc[4] + jc[5]
+        #       )
 
-        print("m", T0[i] + jc[6] / T0[i]**2
-              )
+        # print("m", T0[i] + jc[6] / T0[i]**2
+        #       )
 
-        print("n", jc[6] / T0[i]**2
-              )
+        # print("n", jc[6] / T0[i]**2
+        #       )
 
-        print("o", jc[6]
-              )
+        # print("o", jc[6]
+        #       )
 
-        print("p", T0[i]**2
-              )
+        # print("p", T0[i]**2
+        #       )
 
-        print("T0[i]", T0[i])
+        # print("T0[i]", T0[i])
 
 
 
@@ -1330,8 +1349,9 @@ cdef int viscosity_c(nc,
 
         delta_eta_p[1][0] = (exp(jc[0] + jc[3] / T0[i]) * (exp(rho0[1][0] \
                              **0.1 * (jc[1] + jc[2] / T0[i]**1.5) + \
-                             theta[1][0] * rho0[1][0]**0.5 * (jc[4] + jc[4] \
-                             / T0[i] + jc[5] / T0[i]**2)) - 1.0))
+                             theta[1][0] * rho0[1][0]**0.5 * (jc[4] + jc[5] \
+                             / T0[i] + jc[6] / T0[i]**2)) - 1.0))
+        # matches Fortran
         print("delta_eta_p:", delta_eta_p)
 
 #         ! Equation (10.28)
@@ -1348,6 +1368,8 @@ cdef int viscosity_c(nc,
                              **0.1 * (kc[1] + kc[2] / T0[i]**1.5) + \
                              theta[1][0] * rho0[1][0]**0.5 * (kc[4] + kc[5] \
                              / T0[i] + kc[6] / T0[i]**2)) - 1.0)
+
+        # matches fortran"
         print("delta_eta_pp:", delta_eta_pp)
 
 #         ! Equation (10.7)

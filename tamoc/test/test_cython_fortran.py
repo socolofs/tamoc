@@ -94,11 +94,14 @@ def test_viscosity():
     mass = np.array([9.54296597e-13, 2.92408701e-13, 1.62778641e-14,
                      6.91208976e-16])
 
-    print("expected viscosity:", mu_p)
+
+    print("*****Calling Cython version*********")
 
     viscosity_c = dbm_c.viscosity(T, P, mass, Mol_wt, Pc, Tc, Vc,
                                   omega, delta, Aij, Bij, delta_groups,
                                   calc_delta)
+
+    print("*****Calling Fortran version*********")
 
     viscosity_f = dbm_f.viscosity(T, P, mass, Mol_wt, Pc, Tc, Vc,
                                   omega, delta, Aij, Bij, delta_groups,
