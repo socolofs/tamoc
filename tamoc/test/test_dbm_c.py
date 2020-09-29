@@ -251,7 +251,6 @@ def particle_fortran_funcs(mass, T, P, Sa, Ta, Mol_wt, fp_type, Pc, Tc, Vc,
                                         omega, delta, Aij, Bij, delta_groups,
                                         calc_delta)[fp_type, 0],
                         significant = 6)
-    assert False
 
     f = dbm_f.fugacity(T, P, mass, Mol_wt, Pc, Tc, omega, delta, Aij, Bij,
                        delta_groups, calc_delta)[fp_type, :]
@@ -323,7 +322,7 @@ def test_sphere():
     # updated.
     de = 0.0001
     mass = np.array([9.54296597e-13, 2.92408701e-13, 1.62778641e-14,
-        6.91208976e-16])
+                     6.91208976e-16])
     fp_type = 0
 
     # Choose a thermodynamic state and composition
@@ -351,10 +350,13 @@ def test_sphere():
     # Perform the tests on the dbm_object
     bub = dbm.FluidParticle(['nitrogen', 'oxygen', 'argon', 'carbon_dioxide'],
                             fp_type=fp_type)
+
     particle_obj_funcs(bub, mass, yk, Mol_wt, fp_type, T, P, S, T, rho_p,
         us, A, Cs, beta, beta_T, de, shape, sigma)
+
     particle_obj_funcs(bub, mass, yk, Mol_wt, fp_type, T, P, S_S, T, rho_p_S,
         us_S, A_S, Cs_S, beta_S, beta_T_S, de, shape, sigma_S)
+
 
     # Check the implementation of the dbm_f functions
     particle_fortran_funcs(mass, T, P, S, T, Mol_wt, fp_type, Pc, Tc, Vc, Vb,
