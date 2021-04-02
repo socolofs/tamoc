@@ -175,12 +175,12 @@ This package requires:
 
 * For interaction with ROMS output, TAMOC also requires:
 
-   * octant:  download from https://github.com/hetland/octant
+   - octant:  download from https://github.com/hetland/octant
 
-   * mpl_toolkits.basemap:  download from
+   - mpl_toolkits.basemap:  download from
      http://sourceforge.net/projects/matplotlib/files/matplotlib-toolkits/
 
-   * NOTE:  While this still works, octant has been deprecated and is now
+   - NOTE:  While this still works, octant has been deprecated and is now
             replaced by the xarray package.  TAMOC has not yet been updated
             to use xarray.
 
@@ -258,11 +258,30 @@ The following method has been tested for installation on Mac OS X 10.7.
   completed by the author using a 32-bit and 64-bit Python installations.
   The Python distribution will have to be compatible with your C/C++ and
   Fortran compiler.
+  
+* NOTE: conda and the conda-forge channel can provide all of these:
+
+  - Install Anaconda or miniconda (https://docs.conda.io/en/latest/miniconda.html)
+  
+  - Add the conda forge channel to your conda install (https://conda-forge.org/)::
+    
+      conda config --add channels conda-forge`
+      conda config --set channel_priority strict`
+
+  - Create a conda environment for TAMOC::
+
+      conda create -n tamoc python=3.8 --file conda_requirements.txt
+      
+  - Activate the environment::
+  
+      conda activate tamoc
 
 * Install the free XCode app in order to provide C/C++ compiler capability.
-  Be sure to install the command-line tools.
+  Be sure to install the command-line tools. (note, you can isntall only the command line tools.
+  Apple keeps changin how to do this, so you'll need to google it.
 
 * Download and install the gfortran binary. See,
   http://gcc.gnu.org/wiki/GFortranBinaries
-
+  NOTE: this is provided by conda if you used conda above.
+  
 * Follow the steps in the Quick Start section above to complete installation.
