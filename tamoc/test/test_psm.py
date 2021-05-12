@@ -133,7 +133,7 @@ def get_blowout_ans():
     Report the correct answer for the base blowout case
 
     """
-    de_max_gas = 0.033172284658376426
+    de_max_gas = 0.0313470341427564
     de_max_oil = 0.007475379384955715
 
     return (de_max_gas, de_max_oil)
@@ -197,8 +197,8 @@ def test_psm_ModelBase():
     de_max_oil_model = spill.get_de_max(1)
 
     # Compare results to the correct answer
-    assert de_max_gas_model == de_max_gas
-    assert de_max_oil_model == de_max_oil
+    assert_approx_equal(de_max_gas_model, de_max_gas, significant = 6)
+    assert_approx_equal(de_max_oil_model, de_max_oil, significant = 6)
 
     # Simulate a given release condition
     spill.simulate(d0, m_gas, m_oil)
@@ -223,7 +223,7 @@ def test_psm_ModelBase():
     # Check that the model stores the right solution -------------------------
     assert_approx_equal(spill.d50_gas, 0.01134713688939418, significant=6)
     assert_approx_equal(spill.d50_oil, 0.0033149657926870454,significant=6)
-    assert_approx_equal(spill.de_max_gas, 0.033172284658376426,significant=6)
+    assert_approx_equal(spill.de_max_gas, 0.0313470341427564,significant=6)
     assert_approx_equal(spill.de_max_oil, 0.007475379384955715,
         significant=6)
     assert spill.sigma_ln_gas == 0.27
@@ -443,9 +443,9 @@ def test_psm_ModelBase():
     de_gas_model, vf_gas_model, de_oil_model, vf_oil_model = \
         spill.get_distributions(nbins_gas, nbins_oil)
 
-    de_gas = np.array([0.01070212, 0.01228209, 0.0140953, 0.01617621, 
-        0.01856432, 0.021305, 0.02445028, 0.02805991, 0.03220242, 
-        0.03695651])
+    de_gas = np.array([0.01011325, 0.01160628, 0.01331973, 0.01528614, 
+        0.01754285, 0.02013273, 0.02310494, 0.02651596, 0.03043054, 
+        0.03492304])
     vf_gas = np.array([0.01545088, 0.0432876 , 0.09350044, 0.15570546,
         0.19990978, 0.19788106, 0.15101303, 0.08885147, 0.04030462,
         0.01409565])

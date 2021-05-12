@@ -454,8 +454,12 @@ def grow_rate(n, k, nu_c, nu_d, sigma, g, dp, rho_c, rho_d, K):
     
     """
     # Compute more derived variables
-    m_c = np.sqrt(k**2 + n / nu_c)
-    m_d = np.sqrt(k**2 + n / nu_d)
+    if n < 0.:
+        m_c = k
+        m_d = k
+    else:
+        m_c = np.sqrt(k**2 + n / nu_c)
+        m_d = np.sqrt(k**2 + n / nu_d)
     mu_c = nu_c / rho_c
     
     # Compute the residual of the root function
