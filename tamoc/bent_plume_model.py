@@ -1441,6 +1441,8 @@ class LagElement(object):
             # Store biodegradation rates to use with dissolved phase
             if particles[i].particle.issoluble:
                 self.k_bio = particles[i].k_bio
+            else:
+                self.k_bio = 0.
 
             # Track the particle in the plume
             self.t_p[i], self.x_p[i,:] = particles[i].track(self.t_p[i],
@@ -1762,7 +1764,7 @@ def plot_all_variables(t, q, q_local, profile, p, particles,
     ax1 = plt.subplot(121)
     ax1.plot(s, h, 'b-')
     ax1.set_xlabel('s (m)')
-    ax1.set_ylabel('h (m/s)')
+    ax1.set_ylabel('h (m)')
     ax1.grid(b=True, which='major', color='0.5', linestyle='-')
 
     ax2 = plt.subplot(122)

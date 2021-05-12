@@ -362,7 +362,8 @@ subroutine us_sphere(de, rho_p, rho, mu, &
         Re = 10.0D0**(5.33283D0 - 1.21728D0 * W + 0.19007D0 * W**2 - &
            & 0.007005D0 * W**3)
     else
-        print *, "US_SPHERE: Outside range of Nd -- RE not assigned"
+        print *, "US_SPHERE: Outside range of Nd -- RE set to zero"
+        Re = 0.0D0
     end if 
     
     ! Return the slip velocity

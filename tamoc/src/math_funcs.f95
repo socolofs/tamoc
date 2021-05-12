@@ -81,11 +81,11 @@ subroutine cubic_roots(p, x0)
     do k = 1, N
         ! Real part first
         if (abs(real(x0(k))) < eps) then
-            x0(k) = cmplx(0.0, aimag(x0(k)))
+            x0(k) = cmplx(0.0D0, aimag(x0(k)), kind = DP)
         end if
         ! And imaginary part
         if (abs(aimag(x0(k))) < eps) then
-            x0(k) = cmplx(real(x0(k)), 0.0)
+            x0(k) = cmplx(real(x0(k)), 0.0D0, kind = DP)
         end if
     end do
     

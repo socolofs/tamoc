@@ -133,7 +133,7 @@ def get_blowout_ans():
     Report the correct answer for the base blowout case
 
     """
-    de_max_gas = 0.03294393791256645
+    de_max_gas = 0.033172284658376426
     de_max_oil = 0.007475379384955715
 
     return (de_max_gas, de_max_oil)
@@ -223,7 +223,7 @@ def test_psm_ModelBase():
     # Check that the model stores the right solution -------------------------
     assert_approx_equal(spill.d50_gas, 0.01134713688939418, significant=6)
     assert_approx_equal(spill.d50_oil, 0.0033149657926870454,significant=6)
-    assert_approx_equal(spill.de_max_gas, 0.03294393791256645,significant=6)
+    assert_approx_equal(spill.de_max_gas, 0.033172284658376426,significant=6)
     assert_approx_equal(spill.de_max_oil, 0.007475379384955715,
         significant=6)
     assert spill.sigma_ln_gas == 0.27
@@ -257,7 +257,7 @@ def test_psm_ModelBase():
         spill.get_distributions(nbins_gas, nbins_oil)
 
     # Check whether the values were updated correctly
-    assert_approx_equal(spill.d50_gas, 0.006521627004747406, significant=6)
+    assert_approx_equal(spill.d50_gas, 0.0065216270047474025, significant=6)
     assert_approx_equal(spill.k_gas, -0.6931471805599453,significant=6)
     assert spill.alpha_gas == 1.8
 
@@ -443,9 +443,9 @@ def test_psm_ModelBase():
     de_gas_model, vf_gas_model, de_oil_model, vf_oil_model = \
         spill.get_distributions(nbins_gas, nbins_oil)
 
-    de_gas = np.array([0.01062845, 0.01219754, 0.01399828, 0.01606486,
-        0.01843653, 0.02115834, 0.02428197, 0.02786675, 0.03198075,
-        0.03670211])
+    de_gas = np.array([0.01070212, 0.01228209, 0.0140953, 0.01617621, 
+        0.01856432, 0.021305, 0.02445028, 0.02805991, 0.03220242, 
+        0.03695651])
     vf_gas = np.array([0.01545088, 0.0432876 , 0.09350044, 0.15570546,
         0.19990978, 0.19788106, 0.15101303, 0.08885147, 0.04030462,
         0.01409565])
@@ -497,12 +497,12 @@ def test_psm_Model():
     de_gas_model, vf_gas_model, de_oil_model, vf_oil_model = \
         spill.get_distributions(nbins_gas, nbins_oil)
 
-    de_max_gas = 0.031667073026852774
+    de_max_gas = 0.03168440098720765
     de_max_oil = 0.019433783423489368
-    d50_gas = 0.004757196250447496
+    d50_gas = 0.004757196222196337
     d50_oil = 0.004183783481056991
-    de_gas = np.array([0.00239291, 0.00274617, 0.00315159, 0.00361687,
-        0.00415083, 0.00476362, 0.00546688, 0.00627396, 0.0072002 ,
+    de_gas = np.array([0.00239291, 0.00274617, 0.00315159, 0.00361687, 
+        0.00415083, 0.00476362, 0.00546688, 0.00627396, 0.0072002,
         0.00826317])
     vf_gas = np.array([0.01545088, 0.0432876 , 0.09350044, 0.15570546,
         0.19990978, 0.19788106, 0.15101303, 0.08885147, 0.04030462,
@@ -560,10 +560,10 @@ def test_psm_Model():
     de_gas_model, vf_gas_model, de_oil_model, vf_oil_model = \
         spill.get_distributions(nbins_gas, nbins_oil)
 
-    de_max_gas = 0.031667073026852774
-    d50_gas = 0.00042029308524755096
+    de_max_gas = 0.03168440098720765
+    d50_gas = 0.0004202930757153284
     d50_oil = 0.004183783481056991
-    de_gas = np.array([0.00011944, 0.00015369, 0.00019776, 0.00025447,
+    de_gas = np.array([0.00011944, 0.00015369, 0.00019776, 0.00025447, 
         0.00032744, 0.00042133, 0.00054215, 0.00069762, 0.00089766,
         0.00115507])
     vf_gas = np.array([0.02515921, 0.06286577, 0.12110766, 0.17987423,

@@ -1288,27 +1288,10 @@ def hydrate_formation_time(dbm_obj, z, m, T, profile):
         t_hyd = np.inf
     
     else:
-        # The particle is below the hydrate stability zone, compute the 
-        # skin formation time.  
-        t_star = 85206. * de - 243.276
-        
-        if t_star < 0.:
-            # Hydate skin formation time cannot be zero.
-            t_star = 0.
-        
-        # Get the subcooling acceleration factor.
-        phi = -0.1158 * (T_hyd - Ta) + 2.2692
-        
-        if phi > 1.:
-            # Acceleration cannot be more than one.
-            phi = 1.
-            
-        elif phi < 0.:
-            # Acceleration cannot be less than 0.
-            phi = 0.
-        
-        # Compute the in situ hydrate formation time
-        t_hyd = phi * t_star
+        # Follow Wang et al. (2020) GRL
+        alpha = 3.915
+        beta = -0.333
+        t_hyd = alpha * np.pi * (de * 1000)**2 * (T_hyd - Ta)**beta
     
     # Return the formation time
     return t_hyd

@@ -261,8 +261,9 @@ class BaseProfile(object):
         self.f_units = self.ztsp_units[1:] + self.chem_units
         
         # Create the interpolation function
-        self.data = coarsen(self.data, self.err)
-        self.data = stabilize(self.data)
+        if self.err > 0.:
+            self.data = coarsen(self.data, self.err)
+            self.data = stabilize(self.data)
         self.f = interp1d(self.data[:,0], self.data[:,1:].transpose())
         
         # Set the valid range of the interpolator
@@ -2091,7 +2092,8 @@ def convert_units(data, units):
                'db' : [1.e4, 101325., 'Pa'], 
                'Pa' : [1.0, 0., 'Pa'],
                'mg/m^3': [1.e-6, 0., 'kg/m^3'], 
-               'S/m': [1.0, 0., 'S/m'], 
+               'S/m': [1.0, 0., 'S/m'],
+               'mS/m' : [1.e-3, 0., 'S/m'],
                'psu': [1.0, 0., 'psu'], 
                'salinity': [1.0, 0., 'psu'], 
                'kg/m^3': [1.0, 0., 'kg/m^3'], 

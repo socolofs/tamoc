@@ -264,30 +264,27 @@ def check_sim(X0, D, Vj, phi_0, theta_0, Sj, Tj, cj, tracers,
          0.00000000e+00, 4.36126913e+00])
     for i in range(len(ans)):
         assert_approx_equal(bpm.q[0,i], ans[i], significant=6)
-    assert_approx_equal(bpm.t[-1], 754.04743746254962, significant=6)
-    ans = np.array([2.09574277e+04, 7.60091581e+05, 2.42850867e+10,
-         3.14295996e+03, 0.00000000e+00, 3.01315440e+03,
-         1.67158177e-02, 1.12825739e+02, 0.00000000e+00,
-         1.87428810e+02, 2.28955413e+02, 7.69082580e-06,
-         0.00000000e+00, 0.00000000e+00, 4.45599465e+00,
-         4.13949516e+02,         np.nan,         np.nan,
-                 np.nan, 1.47912969e+01, 8.56994317e+06,
-         5.43208258e+02,         np.nan,         np.nan,
-                 np.nan, 9.87531122e-02, 0.00000000e+00,
-         0.00000000e+00, 4.36126913e+00])
+    assert_approx_equal(bpm.t[-1], 754.0476015818639, significant=6)
+    ans = np.array([2.09574332e+04, 7.60091780e+05, 2.42850931e+10,     
+        3.14296079e+03, 0.00000000e+00, 3.01315489e+03, 1.67158177e-02,
+        1.12825763e+02, 0.00000000e+00, 1.87428826e+02, 2.28955442e+02,
+        7.69082550e-06, 0.00000000e+00, 0.00000000e+00, 4.45599447e+00,
+        4.13949608e+02,         np.nan,         np.nan,         np.nan, 
+        1.47912969e+01, 8.56994316e+06, 5.43208481e+02,         np.nan,      
+        np.nan, np.nan, 9.87531383e-02, 0.00000000e+00, 0.00000000e+00,
+        4.36126913e+000])
     for i in range(len(ans)):
         assert_approx_equal(bpm.q[-1,i], ans[i], significant=6)
 
     # Check the tracking data for the particles that left the plume
     assert bpm.particles[0].farfield == True
-    ans = np.array([1.42109058e+02, 0.00000000e+00, 8.44025880e-01,
-         3.00267642e-06, 0.00000000e+00, 0.00000000e+00,
-         1.80293441e+00])
+    ans = np.array([1.42203079e+02, 0.00000000e+00, 6.65081807e-01, 
+        2.99900981e-06, 0.00000000e+00, 0.00000000e+00, 1.80073283e+00])
     for i in range(len(ans)):
         assert_approx_equal(bpm.particles[0].sbm.y[-1,i], ans[i],
             significant=6)
-    ans = np.array([2.04628617e+02, 0.00000000e+00, 1.82583548e+00,
-         4.63392573e-04, 2.78240576e+02])
+    ans = np.array([2.04628642e+02, 0.00000000e+00, 1.82582477e+00, 
+        4.63392573e-04, 2.78240576e+02])
     for i in range(len(ans)):
         assert_approx_equal(bpm.particles[1].sbm.y[-1,i], ans[i],
             significant=6)

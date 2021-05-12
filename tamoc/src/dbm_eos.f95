@@ -86,7 +86,7 @@ subroutine density(nc, T, P, mass, Mol_wt, Pc, Tc, Vc, omega, delta, Aij, &
     real(kind = DP), intent(out), dimension(2, 1) :: rho
     
     ! Declare the variables internal to the function
-    real(kind = DP) :: A, B, R
+    real(kind = DP) :: A, B
     real(kind = DP), dimension(2, 1) :: z, nu
     real(kind = DP), dimension(nc) :: Ap, Bp, yk, vt
     
@@ -387,6 +387,8 @@ subroutine coefs(nc, T, P, mass, Mol_wt, Pc, Tc, omega, delta_in, Aij, Bij, &
     ! 
     
     use EOS_Constants
+    use ieee_arithmetic
+    
     implicit none
     
     ! Declare the input and output variable types
@@ -439,7 +441,7 @@ subroutine coefs(nc, T, P, mass, Mol_wt, Pc, Tc, omega, delta_in, Aij, Bij, &
                                  & delta_groups(j,l)) * Aij(k, l) * &
                                  & (298.15D0 / T) ** (Bij(k,l) / Aij(k,l) - &
                                  & 1.0D0)
-                        if (.not. isnan(sum_term)) then
+                        if (.not. ieee_is_nan(sum_term)) then
                             sum1 = sum1 + sum_term
                         end if
                     end do
