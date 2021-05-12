@@ -190,20 +190,18 @@ def check_sim(particles, R, maxit, toler, delta_z, spm):
          2.93018840e-04, 0.00000000e+00, 0.00000000e+00])
     for i in range(len(ans)):
         assert_approx_equal(spm.yi[0,i], ans[i], significant=6)
-    assert spm.zi[-1] <= 0.
-    ans = np.array([5.18036231e+00, 2.41530993e+00, 1.87789943e+02,
-         6.36290863e+09, 2.24296796e-02, 0.00000000e+00,
-         0.00000000e+00, 1.33602581e+04, 6.19888756e+02,
-         0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
-         5.00000000e+01, 2.97825434e+07, 7.51442212e+02,
-         0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
-         3.78194343e-02, 0.00000000e+00, 0.00000000e+00])
+    assert_approx_equal(spm.zi[-2], 0.08960250785768409)
+    ans = np.array([2.24851947e+00, 1.39407121e+00, 8.14846101e+01, 
+        2.76282516e+09, 2.29378374e-02, 0.00000000e+00, 0.00000000e+00,
+        1.36680149e+04, 6.09497177e+02, 0.00000000e+00, 0.00000000e+00,
+        0.00000000e+00, 5.00000000e+01, 2.97935997e+07, 7.34916343e+02,
+        0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 1.65095472e-02,
+        0.00000000e+00, 0.00000000e+00])
     for i in range(len(ans)):
-        assert_approx_equal(spm.yi[-1,i], ans[i], significant=2)
+        assert_approx_equal(spm.yi[-2,i], ans[i], significant=2)
     assert spm.zo[0] == 0.
-    ans = np.array([-5.67240759e+00, 1.32105552e-01, -2.05550069e+02,
-        -6.97216733e+09, -4.11791785e-02, -0.00000000e+00,
-        -0.00000000e+00])
+    ans = np.array([-2.50241502e+00,  4.91509680e-02, -9.06509922e+01, 
+        -3.07706725e+09, -1.82603514e-02, -0.00000000e+00, -0.00000000e+00])
     assert spm.zo[-1] >= 300.
     for i in range(len(ans)):
         assert_approx_equal(spm.yo[0,i], ans[i], significant=2)
@@ -524,6 +522,7 @@ def test_simulate():
 
     # Check that the results are correct
     assert spm.sim_stored == True
+    check_sim(particles, R, maxit, toler, delta_z, spm)
 
 def test_files():
     """
