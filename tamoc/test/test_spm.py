@@ -200,8 +200,8 @@ def check_sim(particles, R, maxit, toler, delta_z, spm):
     for i in range(len(ans)):
         assert_approx_equal(spm.yi[5,i], ans[i], significant=2)
     assert spm.zo[0] == 0.
-    ans = np.array([-2.50241502e+00,  4.91509680e-02, -9.06509922e+01, 
-        -3.07706725e+09, -1.82603514e-02, -0.00000000e+00, -0.00000000e+00])
+    ans = np.array([-2.47370067e+00,  4.75048532e-02, -8.95931526e+01, 
+        -3.04286381e+09, -1.79824583e-02, -0.00000000e+00, -0.00000000e+00])
     assert spm.zo[-1] >= 300.
     for i in range(len(ans)):
         assert_approx_equal(spm.yo[0,i], ans[i], significant=2)
@@ -380,8 +380,8 @@ def test_plume_objs():
     assert_array_almost_equal(yi.M_p[0], np.array([0.0587744, 0., 0.]),
         decimal=6)
     assert_array_almost_equal(yi.M_p[1], np.array([50.]), decimal=6)
-    assert_array_almost_equal(yi.H_p, np.array([33541.299481,
-        28533906.998053]), decimal=6)
+    assert_array_almost_equal(yi.H_p, np.array([33541.29892424, 
+        28533906.99805339]), decimal=6)
     assert_array_almost_equal(yi.C, np.array([0.00029302, 0., 0.]), decimal=6)
     assert_approx_equal(yi.Ta, 285.52466101019053, significant=8)
     assert_approx_equal(yi.Sa, 35.52902290651307, significant=8)
@@ -456,8 +456,8 @@ def test_plume_objs():
     assert_array_almost_equal(yi.M_p[0], np.array([0.05877446, 0., 0.]),
                               decimal=6)
     assert_array_almost_equal(yi.M_p[1], np.array([50.]), decimal=6)
-    assert_array_almost_equal(yi.H_p, np.array([33541.299481,
-        28533906.998053]), decimal=6)
+    assert_array_almost_equal(yi.H_p, np.array([33541.29892424, 
+        28533906.99805339]), decimal=6)
     assert_array_almost_equal(yi.C, np.array([0.00029302, 0., 0.]), decimal=6)
     assert_approx_equal(yi.Ta, 285.52466101019053, significant=8)
     assert_approx_equal(yi.Sa, 35.52902290651307, significant=8)

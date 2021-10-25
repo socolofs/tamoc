@@ -663,7 +663,7 @@ def calculate_path(profile, particle, p, y0, delta_t):
             us = - (y[-2][2] - y[-1][2]) / (t[-2] - t[-1])
             if r.y[2] <= profile.z_min or us <= 0. or f < particle.fdis:
                 stop = True
-            if k > 5000:
+            if k > 300000:
                 stop = True
 
     # Remove any negative depths due to overshooting the free surface
@@ -724,9 +724,10 @@ def derivs(t, y, profile, particle, p):
     # Get the physical particle properties
     (us, rho_p, A, Cs, beta, beta_T, T) = particle.properties(m, T, P, Sa,
                                                               Ta, t)
+    
     # Get the biodegradation rate constants
     k_bio = particle.biodegradation_rate(t)
-
+    
     # Advection
     yp[0] = ua
     yp[1] = va

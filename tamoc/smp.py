@@ -129,8 +129,9 @@ def derivs_inner(z, y, yi, yo, particles, profile, p, neighbor):
                 delDiss_p[j] += yp[idx]
                 
                 # Update continuous phase temperature with heat of solution
-                yp[3] += yp[idx] * particles[i].particle.neg_dH_solR[j] * p.Ru / \
-                        particles[i].particle.M[j]
+                yp[3] += yp[idx] * (-1.) * \
+                    particles[i].particle.neg_dH_solR[j] * p.Ru / \
+                    particles[i].particle.M[j]
                 idx += 1
             
         else:

@@ -1106,10 +1106,17 @@ class Particle(dispersed_phases.PlumeParticle):
             yk = self.particle.mol_frac(self.m)
         else:
             yk = 1.
+        if self.t_hyd > 0.:
+            if self.t > self.t_hyd:
+                t_hyd = 0.
+            else:
+                t_hyd = self.t_hyd - self.t
+        else:
+            t_hyd = 0.
 
         # Run the simulation
         self.sbm.simulate(self.particle, X0, de, yk, self.T, self.K,
-            self.K_T, self.fdis, self.t_hyd, self.lag_time, delta_t=100000.)
+            self.K_T, self.fdis, t_hyd, self.lag_time, delta_t=100000.)
 
         # Set flag indicating that far-field solution was computed
         self.farfield = True

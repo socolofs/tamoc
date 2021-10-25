@@ -2101,8 +2101,9 @@ def convert_units(data, units):
                'm/s': [1.0, 0., 'm/s'], 
                'mg/l': [1.e-3, 0., 'kg/m^3'],
                'meter second-1' : [1.0, 0., 'm/s'],
-               'm.s-1' : [1.0, 0., 'm/s']
-           }
+               'm.s-1' : [1.0, 0., 'm/s'],
+               'pH units' : [1.0, 0., 'pH units']
+           } 
     
     # Make sure the data are a numpy array and the units are a list
     if isinstance(data, float) or isinstance(data, int):

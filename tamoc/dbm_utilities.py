@@ -65,10 +65,21 @@ def get_oil(substance, q_oil, gor, ca=[], fp_type=1):
     """
     if isinstance(substance, dict):
         
-        # The user is using the TAMOC properties database
-        composition, mass_frac, user_data, delta, units = load_tamoc_oil(
-            substance
-        )
+        if 'composition' in substance:
+            # The user is using the TAMOC properties database
+            composition, mass_frac, user_data, delta, units = load_tamoc_oil(
+                substance
+            )
+        elif 'dbm_mixture' in substance:
+            dbm_mixture = substance['dbm_mixture']
+            composition = dbm_mixture.composition
+            user_data = dbm_mixture.user_data
+            delta = dbm_mixture.delta
+            units = dbm_mixture.chem_units
+            mass_frac = substance['masses']
+        else:
+            print('Error:  TAMOC substance dictionary does not have correct', 
+                'keys')
     
     elif isinstance(substance, str) or isinstance(substance, unicode):
         

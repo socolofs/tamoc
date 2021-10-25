@@ -130,7 +130,7 @@ def profile_from_model_savefile(nc, fname, ctdname=None):
         profile = ambient.Profile(amb_data, chem_names='all')
         profile.close_nc()
         
-    except RuntimeError:
+    except IOError:
         # Tell user that profile data read failed
         message = ['File not found: %s' % prf_path]
         message.append(' ... Continuing without profile data')

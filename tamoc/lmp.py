@@ -114,7 +114,7 @@ def derivs(t, q, q0_local, q1_local, profile, p, particles):
                 
                 # Update continuous phase temperature with heat of 
                 # solution
-                qp[2] += np.sum(dm_pc * \
+                qp[2] += np.sum(dm_pc * (-1.) * \
                          particles[i].particle.neg_dH_solR \
                          * p.Ru / particles[i].particle.M)
                 

@@ -957,7 +957,7 @@ def get_ambient_profile(water, current, **kwargs):
 
             # Water contains a path to a netCDF4 dataset.  Use this to
             # create the Profile object
-            profile = ambient.Profile(water)
+            profile = ambient.Profile(water, chem_names='all')
             done = True
 
         else:

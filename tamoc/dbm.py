@@ -85,11 +85,11 @@ class FluidMixture(object):
         Jaubert (2012) group contribution method for binary interaction 
         coefficients.  Default is None, in which case the values in `delta`
         will be used.
-    air : bool
+    isair : bool
         Flag indicating whether or not fluid is air.  The methods for 
         viscosity and interfacial tension below use correlations developed
-        for hydocarbons.  If `air` is False (default value), these built
-        in methods are used.  If `air` is True, then these methods are 
+        for hydocarbons.  If `isair` is False (default value), these built
+        in methods are used.  If `isair` is True, then these methods are 
         replaced with correlations between air and seawater.
     sigma_correction : ndarray, default = np.array([[1], [1]])
         Correction factor to adjust the interfacial tension value supplied by
@@ -216,10 +216,17 @@ class FluidMixture(object):
             self.omega[i] = properties['omega']
             self.kh_0[i] = properties['kh_0']
             self.neg_dH_solR[i] = properties['-dH_solR']
-            if properties['nu_bar'] < 0.:
-                # Use empirical equation from Jonas Gros
-                self.nu_bar[i] = (1.148236984 * self.M[i]*1000. + 
-                    6.789136822) / 100.**3
+            if properties['nu_bar'] < 0.: 
+                # Check if pure compound is a gas
+                if self.Tb[i] < 273.15 + 10.:
+                    # Use Lyckman formula
+                    self.nu_bar[i] = (0.095 + 2.35 * (298.15 * self.Pc[i] / 
+                        (2.2973e9 * self.Tc[i]))) * 8.314510 * self.Tc[i] \
+                        / self.Pc[i]
+                else:
+                    # Use empirical equation from Jonas Gros
+                    self.nu_bar[i] = (1.148236984 * self.M[i]*1000. + 
+                        6.789136822) / 100.**3
             else:
                 self.nu_bar[i] = properties['nu_bar']
             
@@ -2543,6 +2550,43 @@ def successive_substitution(m, T, P, max_iter, M, Pc, Tc, omega, delta, Aij,
         # If the mass of any component in the mixture is zero, make sure the
         # K-factor is also zero.
         K_new[np.isnan(K_new)] = 0.
+        
+        # Follow what is said by Michelsen & Mollerup, at page 259, just 
+        # above equation 27:
+        if steps==0.:
+            moles = m / M
+            zi = moles / np.sum(moles)
+            if np.sum(zi*K_new) - 1. <= 0.: # Condition 4 page 252
+                xi[0,:] = K_new * zi / np.sum(K_new*zi)
+                xi[1,:] = zi
+                
+                # Recompute fugacities of gas and liquid:
+                # Get tha gas and liquid fugacities for the current 
+                # composition
+                f_gas = dbm_f.fugacity(T, P, xi[0,:]*M, M, Pc, Tc, omega, 
+                    delta, Aij, Bij, delta_groups, calc_delta)[0,:]
+                f_liq = dbm_f.fugacity(T, P, xi[1,:]*M, M, Pc, Tc, omega, 
+                    delta, Aij, Bij, delta_groups, calc_delta)[1,:]
+                                   
+                # Update K using K = (phi_liq / phi_gas)
+                K_new = (f_liq / (xi[1,:] * P)) / (f_gas / (xi[0,:] * P))
+                K_new[np.isnan(K_new)] = 0.
+            
+            elif (1.-np.sum(zi/K_new))>=0.: # % Condition 5 page 252
+                xi[0,:] = zi
+                xi[1,:] = (zi/K_new)/np.sum(zi/K_new)
+                
+                # Recompute fugacities of gas and liquid:
+                # Get tha gas and liquid fugacities for the current 
+                # composition
+                f_gas = dbm_f.fugacity(T, P, xi[0,:]*M, M, Pc, Tc, omega, 
+                    delta, Aij, Bij, delta_groups, calc_delta)[0,:]
+                f_liq = dbm_f.fugacity(T, P, xi[1,:]*M, M, Pc, Tc, omega, 
+                    delta, Aij, Bij, delta_groups, calc_delta)[1,:]
+                                   
+                # Update K using K = (phi_liq / phi_gas)
+                K_new = (f_liq / (xi[1,:] * P)) / (f_gas / (xi[0,:] * P))
+                K_new[np.isnan(K_new)] = 0.
         
         # Return an updated value for the K factors
         return (K_new, beta)
