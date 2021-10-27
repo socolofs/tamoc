@@ -102,6 +102,12 @@ class Blowout(object):
     current : various
         Data describing the ambient current velocity profile.  See Notes
         below for details.
+    ca : str or list
+        Atmospheric gases to add to the oil composition data. The default is
+        'all', which will add nitrogen, oxygen, argon, and carbon dioxide to
+        the oil composition data. For other choices, include a list of
+        compound names. If all desired compounds are already in the oil
+        composition data, this list should be empty.
 
     Attributes
     ----------
@@ -261,7 +267,8 @@ class Blowout(object):
                  num_gas_elements=10,
                  num_oil_elements=25,
                  water=None,
-                 current=np.array([0.1, 0., 0.])
+                 current=np.array([0.1, 0., 0.]),
+                 ca='all'
                  ):
 
         super(Blowout, self).__init__()
@@ -283,8 +290,12 @@ class Blowout(object):
         self.current = current
 
         # Create a list of atmospheric gases
-        self.ca = ['nitrogen', 'oxygen', 'argon', 'carbon_dioxide']
-        self.new_oil = True
+        if ca == 'all':
+            self.ca = ['nitrogen', 'oxygen', 'argon', 'carbon_dioxide']
+            self.new_oil = True
+        else:
+            self.ca = ca
+            self.new_oil = True
         
         # Decide which phase flow rate is reported through q_oil
         if self.num_oil_elements > 0:
@@ -944,7 +955,7 @@ def get_ambient_profile(water, current, **kwargs):
 
         # A netCDF4 Dataset containing all of the profile data is stored
         # in water.  Use that to create the Profile object
-        profile = ambient.Profile(water)
+        profile = ambient.Profile(water, chem_names='all')
         done = True
 
     if isinstance(water, ambient.Profile):

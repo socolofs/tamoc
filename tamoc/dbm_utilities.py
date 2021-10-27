@@ -67,16 +67,18 @@ def get_oil(substance, q_oil, gor, ca=[], fp_type=1):
         
         if 'composition' in substance:
             # The user is using the TAMOC properties database
-            composition, mass_frac, user_data, delta, units = load_tamoc_oil(
-                substance
-            )
+            composition, mass_frac, user_data, delta, delta_groups, units = \
+                load_tamoc_oil(substance)
+        
         elif 'dbm_mixture' in substance:
             dbm_mixture = substance['dbm_mixture']
             composition = dbm_mixture.composition
             user_data = dbm_mixture.user_data
-            delta = dbm_mixture.delta
+            delta = None
+            delta_groups = dbm_mixture.delta_groups
             units = dbm_mixture.chem_units
             mass_frac = substance['masses']
+        
         else:
             print('Error:  TAMOC substance dictionary does not have correct', 
                 'keys')
@@ -84,9 +86,8 @@ def get_oil(substance, q_oil, gor, ca=[], fp_type=1):
     elif isinstance(substance, str) or isinstance(substance, unicode):
         
         # Assume this variable contains an NOAA OilLibrary ID number
-        composition, mass_frac, user_data, delta, units = load_adios_oil(
-            substance
-        )
+        composition, mass_frac, user_data, delta, delta_groups, units = \
+            load_adios_oil(substance)
     
     # Add the atmospherica gases to the FluidMixture, if desired
     if len(ca) > 0:
@@ -99,21 +100,33 @@ def get_oil(substance, q_oil, gor, ca=[], fp_type=1):
         new_mf[0:len(mass_frac)] = mass_frac
         mass_frac = new_mf
         
-        # Update the binary interaction parameters
-        oil = dbm.FluidMixture(composition, user_data=user_data)
-        delta = pedersen(oil.M, composition)
+        # Update the binary interaction coefficients
+        if delta_groups == None:
+            oil = dbm.FluidMixture(composition, user_data=user_data)
+            delta = pedersen(oil.M, composition)
+        else:
+            air_groups = np.zeros((len(ca),15))
+            for i in range(len(ca)):
+                if ca[i] == 'nitrogen':
+                    air_groups[i,12] = 1.
+                if ca[i] == 'carbon_dioxide':
+                    air_groups[i,11] = 1.
+            delta_groups = np.vstack((delta_group, air_groups))
+    
     
     # Create a live oil mixture for this oil that has the given GOR
     if gor > 0.:
-        composition, mass_frac, delta = mix_gas_for_gor(composition, 
-            mass_frac, user_data, delta, gor)
+        composition, mass_frac, delta, delta_grous = \
+            mix_gas_for_gor(composition, mass_frac, user_data, delta, 
+            delta_groups, gor)
     
     # Get the mass flux for the desired oil flow rate
     mass_flux = set_mass_fluxes(composition, mass_frac, user_data, delta, 
-        q_oil, fp_type)
+        delta_groups, q_oil, fp_type)
     
     # Create the dbm.FluidMixture object
-    oil = dbm.FluidMixture(composition, delta=delta, user_data=user_data)
+    oil = dbm.FluidMixture(composition, delta=delta, 
+        delta_groups=delta_groups, user_data=user_data)
     
     # Return the results
     return (oil, mass_flux)
@@ -153,6 +166,10 @@ def load_tamoc_oil(substance):
         the tamoc.dbm module FluidMixture or FluidParticle objects.
     delta : np.array (len M, len M)
         Array of binary interaction coefficients
+    delta_groups : None or np.array    
+        If `delta_groups` is not `None`, then this array contains the group
+        contributions for the Privat and Jaubert 2012 method for estimating
+        the binary interaction coefficients
     units : dict
         List of units corresponding to the dictionary of `user_data`
     
@@ -163,7 +180,7 @@ def load_tamoc_oil(substance):
     if 'user_data' in substance.keys():
         user_data = substance['user_data']
     else:
-        user_data = None
+        user_data = {}
     
     # Convert the masses to mass fraction 
     if isinstance(masses, float):
@@ -173,10 +190,7 @@ def load_tamoc_oil(substance):
     mass_frac = masses / np.sum(masses)
     
     # Create a dbm.FluidMixture object for this composition
-    if user_data == None:
-        oil = dbm.FluidMixture(composition)
-    else:
-        oil = dbm.FluidMixture(composition, user_data=user_data)
+    oil = dbm.FluidMixture(composition, user_data=user_data)
     
     # Extract the property data from this dbm.FluidMixture object
     user_data, units = format_dbm_data(composition, oil.M, oil.Pc, oil.Tc, 
@@ -185,10 +199,11 @@ def load_tamoc_oil(substance):
                                        oil.Tb, oil.Vb, oil.B, oil.dE)
     
     delta = pedersen(oil.M, composition)
+    delta_groups = None
     units = oil.chem_units
     
     # Return the results
-    return (composition, mass_frac, user_data, delta, units)
+    return (composition, mass_frac, user_data, delta, delta_groups, units)
 
 
 def format_dbm_data(composition, M, Pc, Tc, omega, kh_0, neg_dH_solR, nu_bar, 
@@ -307,7 +322,8 @@ def format_dbm_data(composition, M, Pc, Tc, omega, kh_0, neg_dH_solR, nu_bar,
     return (data, units)
 
 
-def mix_gas_for_gor(dead_composition, dead_mass_frac, user_data, delta, gor):
+def mix_gas_for_gor(dead_composition, dead_mass_frac, user_data, delta, 
+    delta_groups, gor):
     """
     Create a live oil with a given gas to oil ratio (GOR)
     
@@ -333,6 +349,10 @@ def mix_gas_for_gor(dead_composition, dead_mass_frac, user_data, delta, gor):
         the tamoc.dbm FluidMixture and FluidParticle module objects.
     delta : np.array (len M, len M)
         Array of binary interaction coefficients
+    delta_groups : None or np.array    
+        If `delta_groups` is not `None`, then this array contains the group
+        contributions for the Privat and Jaubert 2012 method for estimating
+        the binary interaction coefficients
     gor : float
         Gas to oil ratio desired for a given live-oil release.  We add light
         gas compounds to the dead oil composition and iterate the gas 
@@ -351,10 +371,14 @@ def mix_gas_for_gor(dead_composition, dead_mass_frac, user_data, delta, gor):
     delta : np.array (len M, len M)
         An updated array of binary interaction coefficients that includes the
         interactions among all compounds in composition.
+    delta_groups : None or np.array    
+        If `delta_groups` is not `None`, then this array contains the group
+        contributions for the Privat and Jaubert 2012 method for estimating
+        the binary interaction coefficients
     
     """
     # Get the composition of a natural gas
-    gas_comp, gas_mf = natural_gas()
+    gas_comp, gas_mf, gas_groups = natural_gas()
     
     # Get a list of all compounds in the live oil and gas mixture
     composition = gas_comp + dead_composition
@@ -366,16 +390,17 @@ def mix_gas_for_gor(dead_composition, dead_mass_frac, user_data, delta, gor):
     mf_gas[0:len(gas_mf)] = gas_mf
     mf_oil[len(gas_mf):] = dead_mass_frac
     
-    # Create a dbm.FluidMixture object with this composition, but not yet
-    # knowing the binary interaction coefficients
-    oil = dbm.FluidMixture(composition, user_data=user_data)
-    
-    # Use the Pedersen method to estimate the binary interaction parameters
-    delta = pedersen(oil.M, composition)
+    # Update the binary interaction coefficients
+    if delta_groups == None:
+        oil = dbm.FluidMixture(composition, user_data=user_data)
+        delta = pedersen(oil.M, composition)
+    else:
+        delta_groups = np.vstack((gas_groups, delta_groups))
     
     # Create a new dbm.FluidMixture object with the correct binary
     # interaction matrix
-    oil = dbm.FluidMixture(composition, delta=delta, user_data=user_data)
+    oil = dbm.FluidMixture(composition, delta=delta, 
+        delta_groups=delta_groups, user_data=user_data)
     
     # Set up the GOR at atmospheric pressure and 15 deg C
     P = 101325.
@@ -398,7 +423,7 @@ def mix_gas_for_gor(dead_composition, dead_mass_frac, user_data, delta, gor):
     mass_frac = beta * mf_gas + (1. - beta) * mf_oil
     
     # Return this petroleum fluid property data
-    return (composition, mass_frac, delta)
+    return (composition, mass_frac, delta, delta_groups)
 
 
 def natural_gas():
@@ -414,12 +439,26 @@ def natural_gas():
     gas_fractions : np.array
         Array of the mass fractions of each gaseous compound in the pure
         gas (kg/kg)
+    delta_groups : None or np.array    
+        If `delta_groups` is not `None`, then this array contains the group
+        contributions for the Privat and Jaubert 2012 method for estimating
+        the binary interaction coefficients
     
     """
+    # Define the gas composition
     gas_compounds = ['methane', 'ethane', 'propane', 'isobutane', 'n-butane']
     gas_fractions = np.array([0.939, 0.042, 0.0184, 0.0003, 0.0003])
     
-    return (gas_compounds, gas_fractions)
+    # Insert the Privat and Jaubert group contribution method coefficients
+    # for estimating binary interaction coefficients
+    gas_delta_groups = np.zeros((5,15))
+    gas_delta_groups[0,4] = 1.
+    gas_delta_groups[1,5] = 1.
+    gas_delta_groups[2,:2] = np.array([2., 1.])
+    gas_delta_groups[3,:3] = np.array([3., 0., 1.])
+    gas_delta_groups[4,:2] = np.array([2., 2.])
+    
+    return (gas_compounds, gas_fractions, gas_delta_groups)
 
 
 def gas_fraction(beta, gor_0, oil, mf_gas, mf_oil, T, P):
@@ -482,8 +521,8 @@ def gas_fraction(beta, gor_0, oil, mf_gas, mf_oil, T, P):
     return gor - gor_0
 
 
-def set_mass_fluxes(composition, mass_frac, user_data, delta, q_oil, 
-    fp_type):
+def set_mass_fluxes(composition, mass_frac, user_data, delta, delta_groups, 
+    q_oil, fp_type):
     """
     Compute the mass fluxes to achieve a desired oil flow rate
     
@@ -519,7 +558,8 @@ def set_mass_fluxes(composition, mass_frac, user_data, delta, q_oil,
     
     """
     # Create a dbm.FluidMixture object
-    oil = dbm.FluidMixture(composition, delta=delta, user_data=user_data)
+    oil = dbm.FluidMixture(composition, delta=delta, 
+        delta_groups=delta_groups, user_data=user_data)
     
     # Get the equilibrium at standard conditions
     P0 = 101325.
@@ -570,6 +610,10 @@ def load_adios_oil(adios_id):
         the tamoc.dbm module FluidMixture or FluidParticle objects.
     delta : np.array (len M, len M)
         Array of binary interaction coefficients
+    delta_groups : None or np.array    
+        If `delta_groups` is not `None`, then this array contains the group
+        contributions for the Privat and Jaubert 2012 method for estimating
+        the binary interaction coefficients
     units : dict
         Dictionary of units corresponding to the dictionary of `user_data`
         
@@ -656,8 +700,12 @@ def load_adios_oil(adios_id):
         Vb = compute_Vb(Vc)
         user_data[composition[i]]['Vb'] = Vb
     
+    # We do not use the group contribution methods for the binary interaction
+    # coefficients
+    delta_groups = None
+    
     # Return the results
-    return (composition, mass_frac, user_data, delta, units)
+    return (composition, mass_frac, user_data, delta, delta_groups, units)
 
 
 def sequence_names(sara_names, name):
@@ -1324,7 +1372,8 @@ def print_composition(composition, mass_frac):
     print('----------\n')
 
 
-def print_petroleum_props(comp, mass_frac, data, delta, T, S, P, q_oil=None):
+def print_petroleum_props(comp, mass_frac, data, delta, delta_groups, T, S, 
+    P, q_oil=None):
     """
     Compute the gas and liquid properties of a petroleum fluid
     
@@ -1346,6 +1395,10 @@ def print_petroleum_props(comp, mass_frac, data, delta, T, S, P, q_oil=None):
         the tamoc.dbm FluidMixture and FluidParticle module objects.
     delta : np.array (len M, len M)
         Array of binary interaction coefficients
+    delta_groups : None or np.array    
+        If `delta_groups` is not `None`, then this array contains the group
+        contributions for the Privat and Jaubert 2012 method for estimating
+        the binary interaction coefficients
     T : float
         Temperature to compute gas-liquid equilibrium and viscosity (K)
     S : float
@@ -1367,7 +1420,8 @@ def print_petroleum_props(comp, mass_frac, data, delta, T, S, P, q_oil=None):
     
     """
     # Create a dbm.FluidMixture object
-    oil = dbm.FluidMixture(comp, delta=delta, user_data=data)
+    oil = dbm.FluidMixture(comp, delta=delta, delta_groups=delta_groups, 
+        user_data=data)
     
     # Compute the equilibrium composition
     print('\nComputing oil/gas equilibrium at:')
