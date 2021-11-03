@@ -74,8 +74,14 @@ def get_oil(substance, q_oil, gor, ca=[], fp_type=1):
             dbm_mixture = substance['dbm_mixture']
             composition = dbm_mixture.composition
             user_data = dbm_mixture.user_data
-            delta = None
-            delta_groups = dbm_mixture.delta_groups
+            if np.sum(dbm_mixture.delta) == 0.:
+                delta = None
+            else:
+                delta = dbm_mixture.delta
+            if np.sum(dbm_mixture.delta_groups) == 0.:
+                delta_groups = None
+            else:
+                delta_groups = dbm_mixture.delta_groups
             units = dbm_mixture.chem_units
             mass_frac = substance['masses']
         

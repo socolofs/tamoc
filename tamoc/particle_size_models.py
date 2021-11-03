@@ -526,7 +526,7 @@ class ModelBase(object):
                             '; PDF = ' + self.pdf_gas + \
                             '; d_50 = ' + \
                             '%2.2f mm' % (self.get_d50(0) * 1000.)
-                plt.title(fig_title, loc='left', fontdict=title_font, pad=-35)
+                plt.title(fig_title, loc='left', fontdict=title_font, pad=-15)
 
             # Oil droplet distribution
             if fp_type == 1 or fp_type == None:
@@ -540,9 +540,9 @@ class ModelBase(object):
                 fig_title = ' Oil model = ' + self.model_oil + \
                             '; PDF = ' + self.pdf_oil + \
                             '; d_50 = ' + \
-                            '%2.2f mm' % (self.get_d50(1) * 1000.)
+                            '%3.3f mm' % (self.get_d50(1) * 1000.)
                 plt.title(fig_title, loc='left', fontdict=title_font,
-                          pad=-35)
+                          pad=-15)
 
             plt.show()
         else:
@@ -1169,7 +1169,7 @@ def plot_phase(nbins, de, vf, color):
 
     """
     import matplotlib.pyplot as plt
-
+    from scipy.interpolate import interp1d
     # Prepare data for plotting
     if np.sum(vf) > 0:
         index = np.arange(nbins)
@@ -1177,14 +1177,10 @@ def plot_phase(nbins, de, vf, color):
         opacity = 0.4
         plt.bar(index, vf, bar_width, alpha=opacity, color=color)
         ntics = 10
-        ticlocs = np.linspace(0, nbins, ntics)
+        ticlocs = np.linspace(0, nbins-1, ntics)
         ticnums = []
-        for i in range(ntics-1):
-            x0 = int(ticlocs[i])
-            x1 = x0 + 1
-            y0 = de[x0]
-            y1 = de[x1]
-            num = (y1 - y0) / (x1 - x0) * (ticlocs[i] - x0) + y0
-            ticnums.append('%2.2f' % (num * 1000))
+        de_vals = interp1d(index, de)
+        for i in range(ntics):
+            ticnums.append('%2.2f' % (de_vals(ticlocs[i]) * 1000))
         plt.xticks(ticlocs, ticnums)
 

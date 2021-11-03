@@ -358,12 +358,12 @@ class Blowout(object):
                                      user_data=self.oil.user_data)
 
         # Compute the bubble and droplet volume size distributions
-        breakup_model = psm.Model(self.profile, self.oil, self.mass_flux,
+        self.breakup_model = psm.Model(self.profile, self.oil, self.mass_flux,
             self.z0, self.Tj)
-        breakup_model.simulate(self.d0, model_gas='wang_etal',
+        self.breakup_model.simulate(self.d0, model_gas='wang_etal',
             model_oil='sintef')
         self.d_gas, self.vf_gas, self.d_liq, self.vf_liq = \
-            breakup_model.get_distributions(self.num_gas_elements,
+            self.breakup_model.get_distributions(self.num_gas_elements,
             self.num_oil_elements)
 
         # Create the `bent_plume_model` particle list

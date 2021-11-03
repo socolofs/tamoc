@@ -665,6 +665,9 @@ def calculate_path(profile, particle, p, y0, delta_t):
                 stop = True
             if k > 300000:
                 stop = True
+            if t[-1] > 1209600:
+                # Particle has reached 14 days of simulation
+                stop = True
 
     # Remove any negative depths due to overshooting the free surface
     t = np.array(t)
