@@ -263,12 +263,13 @@ class Blowout(object):
                  y0=0.,
                  u0=None,
                  phi_0=-np.pi / 2.,
-                 theta_0 = 0.,
+                 theta_0=0.,
                  num_gas_elements=10,
                  num_oil_elements=25,
+                 size_distribution=None,
                  water=None,
                  current=np.array([0.1, 0., 0.]),
-                 ca='all'
+                 ca='all',
                  ):
 
         super(Blowout, self).__init__()
@@ -286,6 +287,7 @@ class Blowout(object):
         self.theta_0 = theta_0
         self.num_gas_elements = num_gas_elements
         self.num_oil_elements = num_oil_elements
+        self.size_distribution = size_distribution
         self.water = water
         self.current = current
 
@@ -358,13 +360,20 @@ class Blowout(object):
                                      user_data=self.oil.user_data)
 
         # Compute the bubble and droplet volume size distributions
-        self.breakup_model = psm.Model(self.profile, self.oil, self.mass_flux,
-            self.z0, self.Tj)
-        self.breakup_model.simulate(self.d0, model_gas='wang_etal',
-            model_oil='sintef')
-        self.d_gas, self.vf_gas, self.d_liq, self.vf_liq = \
-            self.breakup_model.get_distributions(self.num_gas_elements,
-            self.num_oil_elements)
+        if self.size_distribution == None:
+            self.breakup_model = psm.Model(self.profile, self.oil, 
+                self.mass_flux, self.z0, self.Tj)
+            self.breakup_model.simulate(self.d0, model_gas='wang_etal',
+                model_oil='sintef')
+            self.d_gas, self.vf_gas, self.d_liq, self.vf_liq = \
+                self.breakup_model.get_distributions(self.num_gas_elements,
+                self.num_oil_elements)
+        else:
+            self.breakup_model = None
+            self.d_gas = self.size_distribution['d_gas']
+            self.vf_gas = self.size_distribution['vf_gas']
+            self.d_liq = self.size_distribution['d_liq']
+            self.vf_liq = self.size_distribution['vf_liq']
 
         # Create the `bent_plume_model` particle list
         self.disp_phases = []

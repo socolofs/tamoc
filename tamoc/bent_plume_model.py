@@ -291,6 +291,9 @@ class Model(object):
                     print('\nTracking Particle %d of %d:' %
                         (i+1, len(self.particles)))
                     particles[i].run_sbm(self.profile)
+                
+                # Code below forces tracking of all particles, including
+                # those trapped in the intrusion layer
                 elif particles[i].z > 0:
                     print('\nTracking Plume Particle %d of %d:' %
                         (i+1, len(self.particles)))
@@ -1116,7 +1119,7 @@ class Particle(dispersed_phases.PlumeParticle):
 
         # Run the simulation
         self.sbm.simulate(self.particle, X0, de, yk, self.T, self.K,
-            self.K_T, self.fdis, t_hyd, self.lag_time, delta_t=100000.)
+            self.K_T, self.fdis, t_hyd, self.lag_time, delta_t=1000.)
 
         # Set flag indicating that far-field solution was computed
         self.farfield = True
@@ -1727,7 +1730,7 @@ def plot_all_variables(t, q, q_local, profile, p, particles,
                          '.:')
             elif particles[i].z > 0.:
                 ax2.plot(particles[i].sbm.y[:,1], particles[i].sbm.y[:,2],
-                         '.:')
+                        '.:')
     ax2.invert_yaxis()
     ax2.set_xlabel('y (m)')
     ax2.set_ylabel('z (m)')

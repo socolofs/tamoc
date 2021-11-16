@@ -2129,7 +2129,7 @@ def plot_all_variables(zi, yi, zo, yo, yi_local, yo_local, particles,
     plt.figure(fig)
     plt.clf()
 
-    # Velocity
+    # Void Fraction
     ax1 = plt.subplot(221)
     ax1.plot(xi, zi)
     ax1.plot(Xi, zi, 'k-', linewidth=2)
@@ -2139,7 +2139,7 @@ def plot_all_variables(zi, yi, zo, yo, yi_local, yo_local, particles,
     ax1.invert_yaxis()
     ax1.grid(True)
 
-    # Half-width
+    # Buoyant force of particles
     ax2 = plt.subplot(222)
     ax2.plot(fb, zi)
     ax2.plot(Fb, zi, 'k-', linewidth=2)
