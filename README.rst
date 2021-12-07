@@ -12,6 +12,11 @@ size distributions from source flow conditions.
 For typical usage, please see the ./bin directory of the source distribution
 for various example scripts.
 
+Version 2.1.0: Updated the readme file with instructions for modern version
+               of Windows. Updated the model with various improvements,
+               including some additional chemical property data, additional
+               functionality in the blowout.py module. Small, additional bug
+               fixes.
 Version 2.0.0:  Updated the complete model system for compatibility with both
                 Python 2.7 and Python 3.8+. Updated the ambient.Profile
                 object so that netCDF files do not have to be used and
@@ -225,28 +230,40 @@ Quick Start
 Platforms
 =========
 
-Windows 7
+Windows 10
 ---------
 
-The following method has been tested for installation on Windows 7.
+The following method has been tested for installation on Windows 10 using Miniconda environments.
 
-* Install a complete Python distribution that includes Python, Numpy, and
-  Scipy with versions compatible with the above list.  Testing has been
-  completed by the author using a 32-bit Python installation.  The Python
-  distribution will have to be compatible with your C/C++ and Fortran
-  compiler.  The free compilers available from MinGW that work with Python
-  f2py are typically 32 bit.  There are work-arounds, but the instructions
-  here were all tested on 32-bit installations.
+* Create a new Conda environment for Python 3. This has been tested up to
+  Python version 3.8.8. Install the required dependencies using: 
+  
+  conda install numpy scipy matplotlib netCDF4 pytest
+  
+  Also install the free GNU fortran compiler using: 
+  
+  conda install -c conda-forge fortran-compiler 
+  
+  Note that this fortran compiler requires that the following, free software
+  also be installed on the Windows box: Microsoft Visual C++ 14.0 or greater.
+  You can obtain this with the Microsoft C++ Built Tools at:
+  https://visualstudio.microsoft.com/visual-cpp-build-tools/.
 
-* Download and install the MinGW compiler suite.  During installation, be sure
-  to select a C, C++, and Fortran compiler.  See,
-  http://sourceforge.net/projects/mingw/files/
+* Download the TAMOC source files. Activate your conda environment, and in
+  the ./tamoc directory at a command prompt try: 
+  
+  python setup.py install
+  
+  Alternatively, you can install a development version with: 
+  
+  python setup.py develop.
 
-* Edit the Windows > System > Environment Variables so that the PATH can find
-  your Python and MinGW installation.
+* Change directly to a directory outside of your TAMOC source files. Check
+  the TAMOC package installation by running the following command at a
+  command prompt: 
+  
+  pytest -v --pyargs tamoc
 
-* Open a command prompt from Start > Run > Command Prompt and follow the steps
-  in the Quick Start section above to complete installation.
 
 Mac OS X / Unix
 ---------------
