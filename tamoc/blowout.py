@@ -266,10 +266,10 @@ class Blowout(object):
                  theta_0=0.,
                  num_gas_elements=10,
                  num_oil_elements=25,
-                 size_distribution=None,
                  water=None,
                  current=np.array([0.1, 0., 0.]),
                  ca='all',
+                 size_distribution=None
                  ):
 
         super(Blowout, self).__init__()
@@ -968,6 +968,8 @@ def get_ambient_profile(water, current, **kwargs):
         done = True
 
     if isinstance(water, ambient.Profile):
+        
+        # An ambient.Profile object has been provided; use that profile
         profile = water
         done = True
 

@@ -495,6 +495,7 @@ def test_Blowout_inst():
         get_blowout()
 
     # Create the blowout.Blowout object
+    print(water)
     spill = blowout.Blowout(z0, d0, substance, q_oil, gor, x0, y0, u0, phi_0,
                             theta_0, num_gas_elements, num_oil_elements,
                             water, current)
