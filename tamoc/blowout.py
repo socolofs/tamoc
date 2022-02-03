@@ -290,7 +290,10 @@ class Blowout(object):
         self.size_distribution = size_distribution
         self.water = water
         self.current = current
-
+        
+        # Set some additional default parameters
+        self.track = True
+        
         # Create a list of atmospheric gases
         if ca == 'all':
             self.ca = ['nitrogen', 'oxygen', 'argon', 'carbon_dioxide']
@@ -387,8 +390,6 @@ class Blowout(object):
                                       0.98, False)
 
         # Set some of the hidden model parameters
-        # TODO:  consider which of these should be editable by the user
-        self.track = True
         self.dt_max = 5. * 3600.
         self.sd_max = 300. * self.z0 / self.d0
 
@@ -772,6 +773,23 @@ class Blowout(object):
 
         """
         self.current = current
+        self.update = False
+        self.bpm.sim_stored = False
+
+
+    def update_track_particles(self, track):
+        """
+        Set whether the fluid particles are tracked in the far-field
+
+        Parameters
+        ----------
+        track : bool
+            Flag indicating whether or not to track the fluid particles at
+            the end of the near-field into the far-field. Default behavior of
+            the blowout object is to set track = True.
+
+        """
+        self.track = track
         self.update = False
         self.bpm.sim_stored = False
 

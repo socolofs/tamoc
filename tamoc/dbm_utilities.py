@@ -634,8 +634,12 @@ def load_adios_oil(adios_id):
     
     # Extract properties of this oil from the gnome_oil object
     molecular_weight = gnome_oil.molecular_weight         # g/mol
+    print(molecular_weight)
     mass_frac = gnome_oil.mass_fraction                   # --
+    print(np.sum(mass_frac[0:20:2]), np.sum(mass_frac[1:20:2]))
+    print(np.sum(mass_frac))
     boiling_point = gnome_oil.boiling_point               # K
+    print(boiling_point)
     vapor_pressure_5C = gnome_oil.vapor_pressure(278.15)  # Pa
     vapor_pressure_25C = gnome_oil.vapor_pressure(298.15) # Pa
     
@@ -649,6 +653,7 @@ def load_adios_oil(adios_id):
     
     # Read in the names of each of the oil pseudocomponents
     composition = list(gnome_oil.component_types)
+    print(composition)
     
     # TAMOC requires unique names for each pseudocomponent; we add a counter
     # to each SARA analysis type (e.g., Saturates1, Saturates2, etc.)

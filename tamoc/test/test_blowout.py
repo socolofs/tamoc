@@ -469,9 +469,9 @@ def check_simulation(spill):
     assert spill.bpm.t[0] == 0.
     for i in range(len(q0)):
         assert_approx_equal(spill.bpm.q[0,i], q0[i], significant=6)
-    assert_approx_equal(spill.bpm.t[-1], 48.43900465427086, significant=6)
+    assert_approx_equal(spill.bpm.t[-1], 48.439163984340084, significant=6)
     for i in range(len(qn)):
-        assert_approx_equal(spill.bpm.q[-1,i], qn[i], significant=6)
+        assert_approx_equal(spill.bpm.q[-1,i], qn[i], significant=3)
 
     # Check tracking data for a particle outside the plume
     assert spill.bpm.particles[0].farfield == False
