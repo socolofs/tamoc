@@ -6,6 +6,8 @@ Use the TAMOC ambient module to open a Profile object, compute some buoyancy
 frequencies and then artificially extend the profile to deeper depths while
 maintaining a fixed buoyancy frequency.
 
+This script demonstrates the new version of the `ambient.Profile` object, which uses `xarray`.  For the older version, which used netCDF datasets, see the script with the same file name but prepended by 'nc'.  
+
 Notes
 -----
 There are any number of ways that CTD data could be artificially extended to
@@ -40,11 +42,14 @@ written to the file::
 from __future__ import (absolute_import, division, print_function, 
                         unicode_literals)
 
-from tamoc import ambient
+from tamoc import ambient #old_ambient as ambient
 from tamoc import seawater
 
 from netCDF4 import date2num, num2date
 from datetime import datetime
+from time import ctime
+
+import xarray as xr
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -53,11 +58,11 @@ import os
     
 def get_ctd_profile():
     """
-    Load the ASCII CTD Data into an `ambient.Profile` object.
+    Load CTD Data into an 'ambient.Profile' object.
     
     This function performs the steps in ./profile_from_ctd.py to read in the
     CTD data and create a Profile object.  This is the data set that will be
-    used to demonstrate how to append data to a Profile object.
+    used to demonstrate how to append data to a Profiile object.
     
     """
     # Get the path to the input file
@@ -70,43 +75,44 @@ def get_ctd_profile():
     raw = np.loadtxt(dat_file, comments = '#', skiprows = 175, 
                      usecols = (0, 1, 3, 8, 9, 10, 12))
     
-    # Describe the organization of the data in raw.  
-    var_names = ['temperature', 'pressure', 'wetlab_fluorescence', 'z', 
-                 'salinity', 'density', 'oxygen']
-    var_units = ['deg C', 'db', 'mg/m^3', 'm', 'psu', 'kg/m^3', 'mg/l']
-    z_col = 3
+    # Remove reversals in the CTD data and get only the down-cast
+    data = ambient.extract_profile(raw, z_col=3, z_start=50.0)
     
-    # Clean the profile to remove reversals in the depth coordinate
-    data = ambient.extract_profile(raw, z_col, 50.0)
-    
-    # Convert the profile data to standard units in TAMOC
-    profile, units = ambient.convert_units(data, var_units)
-    
-    # Create an empty netCDF4-classic dataset to store this CTD data
-    __location__ = os.path.realpath(os.path.join(os.getcwd(),
-                                    os.path.dirname(__file__), 
-                                    '../../test/output'))
-    nc_file = os.path.join(__location__,'BM54.nc')
-    summary = 'Dataset created by profile_from_ctd in the ./bin directory' \
-              + ' of TAMOC'
-    source = 'R/V Brooks McCall, station BM54'
-    sea_name = 'Gulf of Mexico'
-    p_lat = 28.0 + 43.945 / 60.0
-    p_lon = 360 - (88.0 + 22.607 / 60.0) 
-    p_time = date2num(datetime(2010, 5, 30, 18, 22, 12), 
+    # Insert this data into an xarray.Dataset
+    ds = xr.Dataset(
+        {
+            'temperature' : (('z'), data[:,0]),
+            'pressure' : (('z'), data[:,1]),
+            'wetlab_fluorescence' : (('z'), data[:,2]),
+            'salinity' : (('z'), data[:,4]),
+            'density' : (('z'), data[:,5]),
+            'oxygen' : (('z'), data[:,6]),
+        },
+        coords = {
+            'z' : (['z'], data[:,3]),
+            'time' : date2num(datetime(2010, 5, 30, 18, 22, 12), 
                       units = 'seconds since 1970-01-01 00:00:00 0:00', 
-                      calendar = 'julian')
-    nc = ambient.create_nc_db(nc_file, summary, source, sea_name, p_lat, 
-                              p_lon, p_time)
-    
-    # Insert the CTD data into the netCDF dataset
-    comments = ['measured'] * len(var_names)
-    nc = ambient.fill_nc_db(nc, profile, var_names, units, comments, z_col)
+                      calendar = 'julian'),
+            'lat' : 28.0 + 43.945 / 60.0,
+            'lon' : 360 - (88.0 + 22.607 / 60.0),
+        }
+    )
+    ds.attrs['summary'] = 'Dataset created by profile_from_ctd in the'\
+        ' ./bin directory of TAMOC'
+    ds.attrs['source'] = 'R/V Brooks McCall, station BM54'
+    ds.attrs['sea_name'] = 'Gulf of Mexico'
+    ds['temperature'].attrs = {'units' : 'deg C'}
+    ds['pressure'].attrs = {'units' : 'db'}
+    ds['wetlab_fluorescence'].attrs = {'units' : 'mg/m^3'}
+    ds['salinity'].attrs = {'units' : 'psu'}
+    ds['density'].attrs = {'units' : 'kg/m^3'}
+    ds['oxygen'].attrs = {'units' : 'mg/l'}
+    ds.coords['z'].attrs = {'units' : 'm'}
     
     # Create an ambient.Profile object for this dataset
-    bm54 = ambient.Profile(nc, chem_names=['oxygen'])
+    chem_names = ['oxygen']
+    bm54 = ambient.Profile(ds, chem_names=chem_names)
     
-    # Return the Profile object
     return bm54
 
 if __name__ == '__main__':
@@ -122,13 +128,13 @@ if __name__ == '__main__':
         print('    N(%d m) = %g (1/s) ' % (z[i], N[i]))
     
     # Plot the potential density profile and corresponding buoyancy frequency
-    z_min = ctd.nc.variables['z'].valid_min
-    z_max = ctd.nc.variables['z'].valid_max
+    z_min = ctd.z_min
+    z_max = ctd.z_max
     z = np.linspace(z_min, z_max, 500)
     ts = ctd.get_values(z, ['temperature', 'salinity'])
     rho = seawater.density(ts[:,0], ts[:,1], 101325.)
     N = ctd.buoyancy_frequency(z)
-    fig = plt.figure(1)
+    fig = plt.figure(3)
     plt.clf()
     ax1 = plt.subplot(121)
     ax1.plot(rho, z)
@@ -146,20 +152,20 @@ if __name__ == '__main__':
     # Get the path to the output file
     __location__ = os.path.realpath(os.path.join(os.getcwd(),
                                     os.path.dirname(__file__), 
-                                    '../../test/output'))
+                                    '../../tamoc/test/output'))
     
     # Extend the CTD profile to 2500 m
     dat_file = os.path.join(__location__,'BM54_deeper.nc')
     ctd.extend_profile_deeper(2500., dat_file)
     
     # Plot the new potential density and buoyancy frequency profiles
-    z_min = ctd.nc.variables['z'].valid_min
-    z_max = ctd.nc.variables['z'].valid_max
+    z_min = ctd.z_min
+    z_max = ctd.z_max
     z = np.linspace(z_min, z_max, 750)
     ts = ctd.get_values(z, ['temperature', 'salinity'])
     rho = seawater.density(ts[:,0], ts[:,1], 101325.)
     N = ctd.buoyancy_frequency(z)
-    fig = plt.figure(2)
+    fig = plt.figure(4)
     plt.clf()
     ax1 = plt.subplot(121)
     ax1.plot(rho, z)
@@ -172,6 +178,6 @@ if __name__ == '__main__':
     ax2.invert_yaxis()
     plt.show()
     
-    ctd.nc.close()
+    ctd.close_nc()
 
     

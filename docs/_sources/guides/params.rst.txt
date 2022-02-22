@@ -1,27 +1,8 @@
-##########################
-Params Module User's Guide
-##########################
+#############
+Params Module
+#############
 
-:Release: |version|
-:Date: |today|
-
-Scripts
-=======
-
-The object and methods defined in the `params` module stores the parameters
-defining a plume model simulation, computes the governing dimensional 
-parameters, and computes the characteristic length and velocity scales using
-empirical formulas from Socolofsky and Adams (2002 and 2005).  
-
-The example detailed below demonstrates how to interact with the object and
-methods defined in the `params` module. Further examples are presented in the
-following script distributed in the ``./bin/params`` directory with the
-source code.
-
-.. toctree::
-   :maxdepth: 1
-   
-   ../scripts/params/scales
+It is important to know when to use the stratified plume model or the bent plume model.  Generally, when the crossflow is weak enough that the density stratification will cause an intrusion layer to form before the crossflow will cause the entrained water to leave the dispersed phases, the stratified plume model may be used.  Otherwise, the bent plume model is more appropriate.  The ``params`` module computes several non-dimensional scales for multiphase plumes in stratified cross-flow and predicts the length scales for trapping, peeling, and cross-flow separation.  The following examples demonstrate its usage.
 
 Examples
 ========

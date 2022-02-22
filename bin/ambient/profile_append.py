@@ -10,6 +10,8 @@ BM 54 on May 30, 2010, stored in the file /Raw_Data/ctd_BM54.cnv.
 In this example, we compute a typical nitrogen profile and append that data 
 to the data in the CTD dataset.
 
+This script demonstrates the new version of the `ambient.Profile` object, which uses `xarray`.  For the older version, which used netCDF datasets, see the script with the same file name but prepended by 'nc'.  
+
 Notes
 -----
 Much of the input data in the script (e.g., columns to extract, column names,
@@ -45,6 +47,8 @@ from tamoc import dbm
 from netCDF4 import date2num, num2date
 from datetime import datetime
 
+import xarray as xr
+
 import numpy as np
 import matplotlib.pyplot as plt
 import os
@@ -52,7 +56,7 @@ import os
 
 def get_ctd_profile():
     """
-    Load the ASCII CTD Data into an 'ambient.Profile' object.
+    Load CTD Data into an 'ambient.Profile' object.
     
     This function performs the steps in ./profile_from_ctd.py to read in the
     CTD data and create a Profile object.  This is the data set that will be
@@ -69,45 +73,39 @@ def get_ctd_profile():
     raw = np.loadtxt(dat_file, comments = '#', skiprows = 175, 
                      usecols = (0, 1, 3, 8, 9, 10, 12))
     
-    # Describe the organization of the data in raw.  
-    var_names = ['temperature', 'pressure', 'wetlab_fluorescence', 'z', 
-                 'salinity', 'density', 'oxygen']
-    var_units = ['deg C', 'db', 'mg/m^3', 'm', 'psu', 'kg/m^3', 'mg/l']
-    z_col = 3
+    # Remove reversals in the CTD data and get only the down-cast
+    data = ambient.extract_profile(raw, z_col=3, z_start=50.0)
     
-    # Clean the profile to remove reversals in the depth coordinate
-    data = ambient.extract_profile(raw, z_col, 50.0)
-    
-    # Convert the profile data to standard units in TAMOC
-    profile, units = ambient.convert_units(data, var_units)
-    
-    # Create an empty netCDF4-classic dataset to store this CTD data
-    __location__ = os.path.realpath(os.path.join(os.getcwd(),
-                                    os.path.dirname(__file__), 
-                                    '../../test/output'))
-    nc_file = os.path.join(__location__,'BM54.nc')
-    summary = 'Dataset created by profile_from_ctd in the ./bin directory' \
-              + ' of TAMOC'
-    source = 'R/V Brooks McCall, station BM54'
-    sea_name = 'Gulf of Mexico'
-    p_lat = 28.0 + 43.945 / 60.0
-    p_lon = 360 - (88.0 + 22.607 / 60.0) 
-    p_time = date2num(datetime(2010, 5, 30, 18, 22, 12), 
-                      units = 'seconds since 1970-01-01 00:00:00 0:00', 
-                      calendar = 'julian')
-    nc = ambient.create_nc_db(nc_file, summary, source, sea_name, p_lat, 
-                              p_lon, p_time)
-    
-    # Insert the CTD data into the netCDF dataset
-    comments = ['measured'] * len(var_names)
-    nc = ambient.fill_nc_db(nc, profile, var_names, units, comments, z_col)
+    # Insert this data into an xarray.Dataset
+    ds = xr.Dataset()
+    ds.coords['z'] = (['z'], data[:,3])
+    ds['temperature'] = (('z'), data[:,0])
+    ds['pressure'] = (('z'), data[:,1])
+    ds['wetlab_fluorescence'] = (('z'), data[:,2])
+    ds['salinity'] = (('z'), data[:,4])
+    ds['density'] = (('z'), data[:,5])
+    ds['oxygen'] = (('z'), data[:,6])
+    ds.coords['time'] = date2num(datetime(2010, 5, 30, 18, 22, 12), 
+        units = 'seconds since 1970-01-01 00:00:00 0:00', 
+        calendar = 'julian')
+    ds.coords['lat'] = 28.0 + 43.945 / 60.0
+    ds.coords['lon'] = 360. - (88.0 + 22.607 / 60.0)
+    ds.attrs['summary'] = 'Dataset created by profile_from_ctd in the'\
+        ' ./bin directory of TAMOC'
+    ds.attrs['source'] = 'R/V Brooks McCall, station BM54'
+    ds.attrs['sea_name'] = 'Gulf of Mexico'
+    ds['temperature'].attrs = {'units' : 'deg C'}
+    ds['pressure'].attrs = {'units' : 'db'}
+    ds['wetlab_fluorescence'].attrs = {'units' : 'mg/m^3'}
+    ds['salinity'].attrs = {'units' : 'psu'}
+    ds['density'].attrs = {'units' : 'kg/m^3'}
+    ds['oxygen'].attrs = {'units' : 'mg/l'}
+    ds.coords['z'].attrs = {'units' : 'm'}
     
     # Create an ambient.Profile object for this dataset
-    bm54 = ambient.Profile(nc, chem_names=['oxygen'])
+    bm54 = ambient.Profile(ds, chem_names=['oxygen'])
     
-    # Return the Profile object
     return bm54
-
 
 if __name__ == '__main__':
     """
@@ -124,16 +122,17 @@ if __name__ == '__main__':
     
     # Compute the solubility of nitrogen at the air-water interface, then 
     # correct for seawater compressibility
-    n2_conc = np.zeros(len(profile.z))
-    for i in range(len(profile.z)):
-        T, S, P = profile.get_values(profile.z[i], ['temperature', 'salinity', 
+    z_coords = profile.interp_ds.coords['z'].values
+    n2_conc = np.zeros(len(z_coords))
+    for i in range(len(z_coords)):
+        T, S, P = profile.get_values(z_coords[i], ['temperature', 'salinity', 
                   'pressure'])
         Cs = air.solubility(m, T, 101325., S)[0,:] * \
              seawater.density(T, S, P) / seawater.density(T, S, 101325.)
         n2_conc[i] = Cs[0]
     
     # Add this computed nitrogen profile to the Profile dataset
-    data = np.vstack((profile.z, n2_conc)).transpose()
+    data = np.vstack((z_coords, n2_conc)).transpose()
     symbols = ['z', 'nitrogen']
     units = ['m', 'kg/m^3']
     comments = ['measured', 'computed from CTD data']

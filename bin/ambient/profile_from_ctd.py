@@ -7,6 +7,8 @@ TAMOC from data in text files downloaded from a CTD.  This file demonstrates
 working with the data from the R/V Brooks McCall at Station BM 54 on May 30,
 2010, stored in the file /Raw_Data/ctd_BM54.cnv.
 
+This script demonstrates the new version of the `ambient.Profile` object, which uses `xarray`.  For the older version, which used netCDF datasets, see the script with the same file name but prepended by 'nc'.  
+
 Notes
 -----
 Much of the input data in the script (e.g., columns to extract, column names,
@@ -41,6 +43,8 @@ from tamoc import seawater
 from netCDF4 import date2num, num2date
 from datetime import datetime
 
+import xarray as xr
+
 import numpy as np
 import matplotlib.pyplot as plt
 import os
@@ -57,54 +61,46 @@ if __name__ == '__main__':
     raw = np.loadtxt(dat_file, comments = '#', skiprows = 175, 
                      usecols = (0, 1, 3, 8, 9, 10, 12))
     
-    # Describe the organization of the data in raw.  
-    var_names = ['temperature', 'pressure', 'wetlab_fluorescence', 'z', 
-                 'salinity', 'density', 'oxygen']
-    var_units = ['deg C', 'db', 'mg/m^3', 'm', 'psu', 'kg/m^3', 'mg/l']
-    z_col = 3
+    # Remove reversals in the CTD data and get only the down-cast
+    data = ambient.extract_profile(raw, z_col=3, z_start=50.0)
     
-    # Clean the profile to remove reversals in the depth coordinate
-    data = ambient.extract_profile(raw, z_col, 50.0)
-    
-    # Convert the profile data to standard units in TAMOC
-    profile, units = ambient.convert_units(data, var_units)
-    
-    # Create an empty netCDF4-classic dataset to store this CTD data
-    __location__ = os.path.realpath(os.path.join(os.getcwd(),
-                                    os.path.dirname(__file__), 
-                                    '../../test/output'))
-    nc_file = os.path.join(__location__,'BM54.nc')
-    summary = 'Dataset created by profile_from_ctd in the ./bin directory' \
-              + ' of TAMOC'
-    source = 'R/V Brooks McCall, station BM54'
-    sea_name = 'Gulf of Mexico'
-    p_lat = 28.0 + 43.945 / 60.0
-    p_lon = 360 - (88.0 + 22.607 / 60.0) 
-    p_time = date2num(datetime(2010, 5, 30, 18, 22, 12), 
+    # Insert this data into an xarray.Dataset
+    ds = xr.Dataset(
+        {
+            'temperature' : (('z'), data[:,0]),
+            'pressure' : (('z'), data[:,1]),
+            'wetlab_fluorescence' : (('z'), data[:,2]),
+            'salinity' : (('z'), data[:,4]),
+            'density' : (('z'), data[:,5]),
+            'oxygen' : (('z'), data[:,6]),
+        },
+        coords = {
+            'z' : (['z'], data[:,3]),
+            'time' : date2num(datetime(2010, 5, 30, 18, 22, 12), 
                       units = 'seconds since 1970-01-01 00:00:00 0:00', 
-                      calendar = 'julian')
-    nc = ambient.create_nc_db(nc_file, summary, source, sea_name, p_lat, 
-                              p_lon, p_time)
-    
-    # Insert the CTD data into the netCDF dataset
-    comments = ['measured'] * len(var_names)
-    nc = ambient.fill_nc_db(nc, profile, var_names, units, comments, z_col)
+                      calendar = 'julian'),
+            'lat' : 28.0 + 43.945 / 60.0,
+            'lon' : 360 - (88.0 + 22.607 / 60.0),
+        }
+    )
+    ds.attrs['summary'] = 'Dataset created by profile_from_ctd in the'\
+        ' ./bin directory of TAMOC'
+    ds.attrs['source'] = 'R/V Brooks McCall, station BM54'
+    ds.attrs['sea_name'] = 'Gulf of Mexico'
+    ds['temperature'].attrs = {'units' : 'deg C'}
+    ds['pressure'].attrs = {'units' : 'db'}
+    ds['wetlab_fluorescence'].attrs = {'units' : 'mg/m^3'}
+    ds['salinity'].attrs = {'units' : 'psu'}
+    ds['density'].attrs = {'units' : 'kg/m^3'}
+    ds['oxygen'].attrs = {'units' : 'mg/l'}
+    ds.coords['z'].attrs = {'units' : 'm'}
     
     # Create an ambient.Profile object for this dataset
-    bm54 = ambient.Profile(nc, chem_names=['oxygen'], err=0.00001)
-    
-    # Close the netCDF dataset
-    bm54.nc.close()
-    
-    # Since the netCDF file is now fully stored on the hard drive in the 
-    # correct format, we can initialize an ambient.Profile object directly
-    # from the netCDF file
-    bm54 = ambient.Profile(nc_file, chem_names='all')
+    chem_names = ['oxygen', 'wetlab_fluorescence', 'density']
+    bm54 = ambient.Profile(ds, chem_names=chem_names, err=0.00001)
     
     # Plot the density profile using the interpolation function
-    z = np.linspace(bm54.nc.variables['z'].valid_min, 
-                    bm54.nc.variables['z'].valid_max, 250)
-    
+    z = np.linspace(bm54.z_min, bm54.z_max, 250)
     rho = np.zeros(z.shape)
     T = np.zeros(z.shape)
     S = np.zeros(z.shape)
@@ -115,6 +111,10 @@ if __name__ == '__main__':
         rho[i] = seawater.density(tsp[i,0], tsp[i,1], tsp[i,2])
         T[i], S[i], C[i], O2[i] = bm54.get_values(z[i], ['temperature', 
             'salinity', 'wetlab_fluorescence', 'oxygen'])
+    
+    # Extract data for comparison
+    z_m = bm54.ds.coords['z'].values
+    rho_m = bm54.ds['density'].values
     
     plt.figure(1)
     plt.clf()
@@ -128,8 +128,6 @@ if __name__ == '__main__':
     ax1.set_title('Computed data')
     
     # Compare to the measured profile
-    z_m = bm54.nc.variables['z'][:]
-    rho_m = bm54.nc.variables['density'][:]
     ax2 = plt.subplot(1,2,2)
     ax2.plot(rho_m, z_m)
     ax2.set_xlabel('Density (kg/m^3)')
@@ -179,5 +177,5 @@ if __name__ == '__main__':
     plt.draw()
     
     # Close the netCDF dataset
-    bm54.nc.close()
+    bm54.close_nc()
 

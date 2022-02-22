@@ -1,25 +1,8 @@
-#############################
-Dispersed Phases User's Guide
-#############################
+################
+Dispersed Phases
+################
 
-:Release: |version|
-:Date: |today|
-
-Scripts
-=======
-
-The class objects and method functions defined in the `dispersed_phases`
-module provide provide an interface to the `dbm` objects, methods, and
-functions through the definition of two new objects: the `SingleParticle`
-object, used to describe one particle, and the `PlumeParticle` object used to
-describe one group of particle in a plume model simulation. These functions
-are almost never used alone, but rather as part of a model simulation. To see
-examples of how these are used in the context of the various models, see the
-scripts in ``./bin/sbm``, ``./bin/spm``, and ``./bin/bpm``.
-
-The `bent_plume_model` contains one more object, the `bent_plume_model.Particle`
-object, which inherits the `PlumeParticle` object and adds functionality for
-particle tracking within the Lagrangian plume model solution.  
+The simulation modules in ``tamoc`` need a structured API for interacting with the properties of the fluid or solid particles in the simulation.  This is provided by the classes defined in the ``dispersed_phases`` module in ``tamoc``.  For the single bubble model, the simulation only requires one particle.  For the stratified or bent plume models, multiple particles are allowed, and these are provided through a particles list.  The following examples demonstrate creating particle objects, adding them to a list for a simulation, and extracting information from the particle objects.
 
 Examples
 ========

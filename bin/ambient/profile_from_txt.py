@@ -5,10 +5,12 @@ Create a profile from arbitrary ASCII text files
 Script profile_from_txt
 -----------------------
 
-Use the TAMOC ambient module to create profiles in netCDF format for use by
+Use the TAMOC ambient module to create profiles for use by
 TAMOC from data in text files. This file demonstrates working with data
 digitized from plots of temperature and salinity in the SINTEF DeepSpill 
-report
+report.
+
+This script demonstrates the new version of the `ambient.Profile` object, which uses `xarray`.  For the older version, which used netCDF datasets, see the script with the same file name but prepended by 'nc'.  
 
 Notes
 -----
@@ -39,8 +41,10 @@ from __future__ import (absolute_import, division, print_function,
 from tamoc import ambient
 from tamoc import seawater
 
-from netCDF4 import date2num, num2date
+from netCDF4 import date2num
 from datetime import datetime
+
+import xarray as xr
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -63,60 +67,52 @@ if __name__ == '__main__':
     C_data = ambient.extract_profile(C_raw, 1, 25.0)
     T_data = ambient.extract_profile(T_raw, 1, 25.0)
     
-    # Convert the data to standard units
-    C_profile, C_units = ambient.convert_units(C_data, ['psu', 'm'])
-    T_profile, T_units = ambient.convert_units(T_data, ['deg C', 'm'])
-        
-    # Create an empty netCDF4-classic dataset to store this CTD data
-    __location__ = os.path.realpath(os.path.join(os.getcwd(),
-                                    os.path.dirname(__file__), 
-                                    '../../test/output'))
-    nc_file = os.path.join(__location__,'DS.nc')
-    summary = 'Dataset created by profile_from_txt in the ./bin directory' \
-              + ' of TAMOC'
-    source = 'Digitized data from the average CTD profile in the SINTEF ' + \
-             'DeepSpill Report'
-    sea_name = 'Norwegian Sea'
-    p_lat = 64.99066
-    p_lon = 4.84725 
-    p_time = date2num(datetime(2000, 6, 27, 12, 0, 0), 
-                      units = 'seconds since 1970-01-01 00:00:00 0:00', 
-                      calendar = 'julian')
-    nc = ambient.create_nc_db(nc_file, summary, source, sea_name, p_lat, 
-                              p_lon, p_time)
+    # These datasets have different z-coordinates.  Choose one as the base
+    # dataset
+    ds = xr.Dataset()
+    ds.coords['z'] = C_data[:,1]
+    ds['salinity'] = (('z'), C_data[:,0])
+    ztsp = ['z', 'salinity']
+    ztsp_units = ['m', 'psu']
     
-    # Insert the CTD data into the netCDF dataset
-    comments = ['digitized', 'digitized']
-    nc = ambient.fill_nc_db(nc, C_profile, ['salinity', 'z'], C_units, 
-                            comments, 1)
-    nc = ambient.fill_nc_db(nc, T_profile, ['temperature', 'z'], T_units, 
-                            comments, 1)
+    # Create a Profile object with these data.  Note: this is not a complete
+    # profile as the minimum requirements are to provide temperature and
+    # salinity.  We will use this profile to merge the two dataset, then
+    # we will re-build the profile.
+    profile1 = ambient.Profile(ds, ztsp, ztsp_units=ztsp_units, err=0.)
     
-    # Calculate and insert the pressure data
-    z = nc.variables['z'][:]
-    T = nc.variables['temperature'][:]
-    S = nc.variables['salinity'][:]
-    P = ambient.compute_pressure(z, T, S, 0)
-    P_data = np.vstack((z, P)).transpose()
-    nc = ambient.fill_nc_db(nc, P_data, ['z', 'pressure'], ['m', 'Pa'], 
-                            ['measured', 'computed'], 0)
+    # Insert the temperature data
+    profile1.append(T_data, ['temperature', 'z'], ['deg C', 'm'], z_col=1)
     
-    # Create an ambient.Profile object for this dataset
-    ds = ambient.Profile(nc)
+    # Get the dataset out of this profile object
+    ds = profile1.ds
     
-    # Close the netCDF dataset
-    ds.nc.close()
+    # Add some options attributes to the dataset
+    ds.attrs['summary'] = 'Dataset created by profile_from_txt in the ./bin'\
+        ' directory of TAMOC'
+    ds.attrs['source'] = 'Digitized data from the average CTD profile in'\
+        ' the SINTEF DeepSpill Report'
+    ds.attrs['sea_name'] = 'Norwegian Sea'
+    ds.coords['lat'] = 64.99066
+    ds.coords['lon'] = 4.84725
+    ds.coords['time'] = date2num(datetime(2000, 6, 27, 12, 0, 0), 
+        units = 'seconds since 1970-01-01 00:00:00 0:00', 
+        calendar = 'julian')
     
-    # Since the netCDF file is now fully stored on the hard drive in the 
-    # correct format, we can initialize an ambient.Profile object directly
-    # from the netCDF file
-    ds = ambient.Profile(nc_file, chem_names='all')
+    # Create a "complete" profile with these merged data...Note: this Profile
+    # initializer will fill in the pressure data
+    ztsp = ['z', 'temperature', 'salinity', 'pressure']
+    ztsp_units = ['m']
+    ztsp_units += [ds['temperature'].attrs['units']]
+    ztsp_units += [ds['salinity'].attrs['units']]
+    ztsp_units += ['Pa']
+    profile = ambient.Profile(ds, ztsp, ztsp_units=ztsp_units, err=0.)
     
     # Plot the density profile using the interpolation function
-    z = np.linspace(ds.nc.variables['z'].valid_min, 
-                    ds.nc.variables['z'].valid_max, 250)
+    z = np.linspace(profile.z_min, 
+                    profile.z_max, 250)
     rho = np.zeros(z.shape)
-    tsp = ds.get_values(z, ['temperature', 'salinity', 'pressure'])
+    tsp = profile.get_values(z, ['temperature', 'salinity', 'pressure'])
     for i in range(len(z)):
         rho[i] = seawater.density(tsp[i,0], tsp[i,1], tsp[i,2])
     
@@ -129,6 +125,3 @@ if __name__ == '__main__':
     ax1.set_title('Computed data')
     plt.show()
     
-    # Close the netCDF dataset
-    ds.nc.close()
-

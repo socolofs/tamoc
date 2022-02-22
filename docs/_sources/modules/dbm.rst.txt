@@ -1,31 +1,36 @@
-#####################################
-Overview of the Discrete Bubble Model
-#####################################
+.. currentmodule:: tamoc
 
-:Release: |version|
-:Date: |today|
+.. _dbm:
 
-.. currentmodule:: dbm
+########################
+Discrete Particle Module
+########################
 
-.. automodule:: dbm
-
-
-Class Objects and Methods
-=========================
-
-.. currentmodule:: dbm
-
-Fluid Mixtures
---------------
-
-The base object of this module defines a fluid mixture, which can represent
-any closed system and can include both gas and liquid together in the system.
-The ``FluidMixture`` object and its methods are described as follows:
+This page is an index and launchpad to explore all of the classes, methods, and functions in the discrete particle module, or ``dbm`` module of ``tamoc``. 
 
 .. autosummary::
-   :toctree: ../autodoc/dbm
+   :toctree: ../generated/
+   
+   dbm
+
+``dbm`` Class Objects
+---------------------
+
+.. currentmodule:: tamoc.dbm
+
+.. autosummary::
+   :toctree: ../generated/
    
    FluidMixture
+   FluidParticle
+   InsolubleParticle
+
+``dbm.FluidMixture`` Methods
+----------------------------
+
+.. autosummary::
+   :toctree: ../generated/
+   
    FluidMixture.masses
    FluidMixture.mass_frac
    FluidMixture.moles
@@ -41,17 +46,12 @@ The ``FluidMixture`` object and its methods are described as follows:
    FluidMixture.hydrate_stability
    FluidMixture.biodegradation_rate
 
-Fluid Particles
----------------
-
-For bubbles or droplets that utilize the equations of states in the
-``FluidMixture`` object, we define the ``FluidParticle`` object, as described
-in the following:
+``dbm.FluidParticle`` Methods
+-----------------------------
 
 .. autosummary::
-   :toctree: ../autodoc/dbm
+   :toctree: ../generated/
    
-   FluidParticle
    FluidParticle.masses
    FluidParticle.mass_frac
    FluidParticle.moles
@@ -75,17 +75,13 @@ in the following:
    FluidParticle.heat_transfer
    FluidParticle.return_all
 
-Inert Particles
----------------
 
-When there is inadequate information to use the equations of state in this
-module, we define the ``InsolubleParticle`` object, as described in the
-following:
+``dbm.InsolubleParticle`` Methods
+---------------------------------
 
 .. autosummary::
-   :toctree: ../autodoc/dbm
+   :toctree: ../generated/
    
-   InsolubleParticle
    InsolubleParticle.density
    InsolubleParticle.viscosity
    InsolubleParticle.interface_tension
@@ -98,15 +94,11 @@ following:
    InsolubleParticle.heat_transfer
    InsolubleParticle.return_all
 
-Module Functions
-================
-
-The objects in this module use the following functions in some of their
-calculations.  It is not expected that the user would call these directly;
-rather, please use one of the objects defined above.
+``dbm`` Module Helper Functions
+-------------------------------
 
 .. autosummary::
-   :toctree: ../autodoc/dbm
+   :toctree: ../generated/
    
    equil_MM
    stability_analysis

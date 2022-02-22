@@ -21,24 +21,7 @@ modeling suite.
 
 See Also
 --------
-`stratified_plume_model` : Predicts the plume solution for quiescent ambient
-    conditions or weak crossflows, where the intrusion (outer plume) 
-    interacts with the upward rising plume in a double-plume integral model
-    approach.  Such a situation is handeled properly in the 
-    `stratified_plume_model` and would violate the assumption of non-
-    iteracting Lagrangian plume elements as required in this module.
-
-`single_bubble_model` : Tracks the trajectory of a single bubble, drop or 
-    particle through the water column.  The numerical solution, including
-    the various object types and their functionality, used here follows the
-    pattern in the `single_bubble_model`.  The main difference is the more
-    complex state space and governing equations.
-
-`bent_plume_model` : Simulates a multiphase plume as a Lagrangian plume 
-    model, which makes the model much more amenable to a crossflow.  This 
-    model is similar to the `stratified_plume_model`, except that it does
-    not have an outer plume that interacts with the inner plume (Lagrangian
-    elements are independent).  
+single_bubble_model, stratified_plume_model, bent_plume_model
 
 """
 # S. Socolofsky, October 2014, Texas A&M University <socolofs@tamu.edu>.

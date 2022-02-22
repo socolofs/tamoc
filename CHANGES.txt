@@ -1,3 +1,40 @@
+V2.2.0, February 2022 --
+   . Updated the ambient.py module to use xarray Datasets as the primary
+     container for storing and manipulating ambient Profile data. The user
+     can still initialize ambient.Profile objects from netCDF files or
+     Datasets or from numpy arrays, as in past versions of TAMOC. In these
+     cases, the input data are converted to xarray Datasets and stored as
+     such in the Profile object. The user can also now initialize an
+     ambient.Profile object directly from an xarray.Dataset.
+   . Updated the ambient.Profile class to allow instantiation of an object
+     with just depth, temperature, and salinity. In this case, the __init__()
+     function recognizes that pressure data are missing, calculates the data,
+     and adds them to the Profile object.
+   . Updated the ambient.Profile class with several new functions, building
+     on the abilities of xarray. These include: (a) support for multiple
+     times in the profile data, though only data for one time are available
+     for any given TAMOC simulation, (b) a method to compute the
+     concentrations of atmospheric gases and add them to the profile dataset,
+     (c) a method to compute the density and add this to the dataset, (d)
+     and, new plotting methods, utilizing the xarray interface to
+     matplotlib.pyplot.
+   . Updated all of the examples in the ./bin/ambient directory to
+     demonstrate the new capabilities of the xarray versin of the ambient
+     module.
+   . Updated all of the tests to pass with the current version of TAMOC,
+     including all tests for the new version of the ambient module.
+   . Updated the tests so that they will create the ./tamoc/test/output
+     directory if it does not exist so that fresh installations will not fail.
+   . Redesigned the TAMOC documentation with a new template. Updated the
+     documentation so that the current code docstrings are included in the
+     docs.   
+   . Updated some errors in the docstrings of the various modules so that
+     they compiled properly with Sphinx.
+   . Added a new function to the dbm_utilities module to read in property
+     data as formatted for the RPS SIMAP program, then convert the data to a
+     normal dbm.FluidMixture or dbm.FluidParticle object. Note that only
+     relatively light pseudo-components are included so that the density
+     estimation from the dbm module is not quite right.
 V2.1.0, December 2021 --
    . TAMOC has been fully tested on Windows 10 using Python 3.8 under
      Miniconda environments. These instructions have been updated in the

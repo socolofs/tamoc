@@ -1,66 +1,76 @@
-##########################
-Overview of Ambient Module
-##########################
+.. currentmodule:: tamoc
 
-:Release: |version|
-:Date: |today|
+.. _ambient:
 
-.. currentmodule:: ambient
+##############
+Ambient Module
+##############
 
-.. automodule:: ambient
-
-
-Class Objects and Methods
-=========================
-
-.. currentmodule:: ambient
+This page is an index and launchpad to explore all of the classes, methods, and functions in the ``ambient`` module of ``tamoc``. 
 
 .. autosummary::
-   :toctree: ../autodoc/ambient
+   :toctree: ../generated/
+   
+   ambient
+
+``ambient`` Class Objects
+---------------------------------
+
+.. currentmodule:: tamoc.ambient
+
+.. autosummary::
+   :toctree: ../generated/
    
    Profile
+   BaseProfile
+
+``ambient.Profile`` Methods
+---------------------------
+
+.. autosummary::
+   :toctree: ../generated/
+   
    Profile.get_values
    Profile.get_units
    Profile.append
-   Profile.buoyancy_frequency
    Profile.extend_profile_deeper
+   Profile.add_computed_gas_concentrations
+   Profile.buoyancy_frequency
+   Profile.insert_density
+   Profile.insert_potential_density
+   Profile.insert_buoyancy_frequency
+   Profile.plot_parameter
+   Profile.plot_profiles
+   Profile.plot_physical_profiles
+   Profile.plot_chem_profiles
    Profile.close_nc
 
-Module Functions
-================
-
-Functions for Working With NetCDF Files
----------------------------------------
+``ambient`` Module Helper Functions
+-----------------------------------
 
 .. autosummary::
-   :toctree: ../autodoc/ambient
+   :toctree: ../generated/
    
+   xr_check_units
+   xr_convert_units
+   xr_coarsen_dataset
+   xr_stabilize_dataset
+   xr_dataset_to_array
+   xr_array_to_dataset
+   xr_add_data_from_numpy
    create_nc_db
    fill_nc_db
-   extract_profile
-
-
-Functions for Working With np.array() Profiles
-----------------------------------------------
-
-.. autosummary::
-   :toctree: ../autodoc/ambient
-   
+   fill_nc_db_variable
+   get_nc_data
    add_data
-   get_world_ocean
-   load_raw
-
-
-Functions for Modifying Profile Data
-------------------------------------
-
-.. autosummary::
-   :toctree: ../autodoc/ambient
-   
+   extract_profile
    coarsen
    stabilize
    compute_pressure
    convert_units
+   get_world_ocean
+   load_raw
+   
    
 
 

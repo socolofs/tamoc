@@ -24,11 +24,7 @@ Detrainment to for subsurface intrusions follows the approach in Crounse
 
 See Also
 --------
-`single_bubble_model` : Tracks the trajectory of a single bubble, drop or
-    particle through the water column.  The numerical solution used here,
-    including the various object types and their functionality, follows the
-    pattern in the `single_bubble_model`.  The main difference is the more
-    complex state space and governing equations.
+single_bubble_model
 
 """
 # S. Socolofsky, November 2014, Texas A&M University <socolofs@tamu.edu>.

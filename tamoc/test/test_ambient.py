@@ -29,6 +29,9 @@ from netCDF4 import Dataset, date2num, num2date
 DATA_DIR = os.path.realpath(os.path.join(os.path.dirname(tamoc.__file__),'data'))
 OUTPUT_DIR = os.path.realpath(os.path.join(os.path.dirname(__file__),'output'))
 
+if not os.path.exists(OUTPUT_DIR):
+    os.mkdir(OUTPUT_DIR)
+
 def get_units(data, units, nr, nc, mks_units, ans=None):
     """
     Run the ambient.convert_units function and test that the data are
@@ -186,17 +189,21 @@ def get_profile_obj(nc, chem_names, chem_units):
     # Check the interpolator function ...
     # Pick a point in the middle of the raw dataset and read off the depth
     # and the values of all the variables
-    nz = prf.nc.variables['z'].shape[0] // 2
-    z = prf.z[nz]
-    y = prf.y[nz,:]
+    nz = prf.ds.dims['z'] // 2
+    z = prf.ds.coords['z'][nz]
+    y = np.zeros(len(name_list))
+    for name in name_list:
+        y[name_list.index(name)] = prf.ds[name].values[nz]
     # Get an interpolated set of values at this same elevation
-    yp = prf.f(z)
+    yp = prf.get_values(z, name_list)
     # Check if the results are within the level of error expected by err
     for i in range(len(name_list)):
         assert np.abs((yp[i] - y[i]) / yp[i]) <= prf.err
 
     # Next, check that the variables returned by the get_values function are
     # the variables we expect
+    nz = prf.nc.variables['z'].shape[0] // 2
+    z = float(prf.nc.variables['z'][nz])
     Tp, Sp, Pp = prf.get_values(z, ['temperature', 'salinity', 'pressure'])
     T = prf.nc.variables['temperature'][nz]
     S = prf.nc.variables['salinity'][nz]
@@ -215,8 +222,8 @@ def get_profile_obj(nc, chem_names, chem_units):
     # Test the append() method by inserting the temperature data as a new
     # profile, this time in degrees celsius using the variable name temp
     n0 = prf.nchems
-    z = prf.nc.variables['z'][:]
-    T = prf.nc.variables['temperature'][:]
+    z = prf.ds.coords['z'].values
+    T = prf.ds['temperature'].values
     T_degC = T - 273.15
     assert_array_almost_equal(T_degC + 273.15, T, decimal = 6)
     data = np.vstack((z, T_degC)).transpose()
@@ -226,8 +233,8 @@ def get_profile_obj(nc, chem_names, chem_units):
     prf.append(data, symbols, units, comments, 0)
 
     # Check that the data were inserted correctly
-    Tnc = prf.nc.variables['temp'][:]
-    assert_array_almost_equal(Tnc, T_degC, decimal = 6)
+    Tnc = prf.ds['temp'].values
+    assert_array_almost_equal(Tnc, T_degC+273.15, decimal = 6)
     assert prf.nc.variables['temp'].units == 'deg C'
 
     # Check that get_values works correctly with vector inputs for depth
@@ -235,11 +242,11 @@ def get_profile_obj(nc, chem_names, chem_units):
                          prf.nc.variables['z'].valid_max, 100)
     Temps = prf.get_values(depths, ['temperature', 'temp'])
     for i in range(len(depths)):
-        assert_approx_equal(Temps[i,0], Temps[i,1] + 273.15, significant = 6)
+        assert_approx_equal(Temps[i,0], Temps[i,1], significant = 6)
 
     # Make sure the units are returned correctly
-    assert prf.get_units('temp')[0] == 'deg C'
-    assert prf.nc.variables['temp'].units == 'deg C'
+    assert prf.get_units('temp')[0] == 'K'
+    assert prf.ds['temp'].attrs['units'] == 'K'
 
     # Check that temp is now listed as a chemical
     assert prf.nchems == n0 + 1
@@ -255,20 +262,20 @@ def get_profile_obj(nc, chem_names, chem_units):
     return prf
 
 
-def check_net_numpy(net_ds, num_ds, currents):
+def check_net_numpy(net_ds, num_ds):
     """
     Check that an ambient.Profile object is created correctly and that the
     methods operate as expected.
 
     """
-    chem_names = net_ds.f_names
-    chem_units = net_ds.f_units
+    chem_names = net_ds.chem_names
+    chem_units = net_ds.chem_units
 
     # Check the chemical names and units are correct
     for i in range(3):
-        assert num_ds.f_names[i] == chem_names[i]
-        assert num_ds.f_units[i] == chem_units[i]
-    assert num_ds.nchems == 2
+        assert num_ds.chem_names[i] in chem_names
+        assert num_ds.chem_units[i] in chem_units
+    assert num_ds.nchems == 4
 
     # Check the error criteria on the interpolator
     assert num_ds.err == 0.01
@@ -297,38 +304,27 @@ def check_net_numpy(net_ds, num_ds, currents):
 
     # Test the append() method by inserting the temperature data as a new
     # profile, this time in degrees celsius using the variable name temp
-    n0 = num_ds.nchems
-    z = num_ds.data[:,0]
-    T = num_ds.data[:,1]
-    T_degC = T - 273.15
-    data = np.vstack((z, T_degC)).transpose()
-    symbols = ['z', 'temp']
-    units = ['m', 'deg C']
-    comments = ['measured', 'identical to temperature, but in deg C']
-    num_ds.append(data, symbols, units, comments, 0)
-
-    # Check that the data were inserted correctly
-    Tnc = num_ds.data[:,num_ds.chem_names.index('temp')+7]
-    assert_array_almost_equal(Tnc, T_degC, decimal = 6)
-    assert num_ds.get_units('temp')[0] == 'deg C'
+    net_temp = net_ds.ds['temp'].values
+    num_temp = num_ds.ds['temp'].values
+    assert_array_almost_equal(net_temp, num_temp, decimal = 6)
+    assert num_ds.get_units('temp')[0] == 'K'
 
     # Check that get_values works correctly with vector inputs for depth
     Temps = num_ds.get_values(z, ['temperature', 'temp'])
     for i in range(len(z)):
-        assert_approx_equal(Temps[i,0], Temps[i,1] + 273.15, significant = 6)
+        assert_approx_equal(Temps[i,0], Temps[i,1], significant = 6)
 
     # Make sure the units are returned correctly
-    assert num_ds.get_units('temp')[0] == 'deg C'
+    assert num_ds.get_units('temp')[0] == 'K'
 
     # Check that temp is now listed as a chemical
-    assert num_ds.nchems == n0 + 1
     assert num_ds.chem_names[-1] == 'temp'
 
     # Test the API for calculating the buoyancy frequency (note that we do
     # not check the result, just that the function call does not raise an
     # error)
     N_num = num_ds.buoyancy_frequency(z)
-    N_net = num_ds.buoyancy_frequency(z)
+    N_net = net_ds.buoyancy_frequency(z)
     assert_array_almost_equal(N_num, N_net, decimal=6)
 
 
@@ -513,7 +509,7 @@ def test_from_txt():
     ds = get_profile_obj(nc, [], [])
 
     # Close down the pipes to the netCDF dataset files
-    ds.nc.close()
+    ds.close_nc()
 
     return ds
 
@@ -567,21 +563,35 @@ def test_using_numpy():
     data = ambient.add_data(data, 3, 'pressure', P_data, ['z', 'pressure'],
                             ['m', 'Pa'], ['measured', 'measured'], 0)
 
+    # Select some current data
+    current = np.array([0.15, 0.])
+    current_units =['m/s', 'm/s']
+   
     # Create the profile object
     ztsp = ['z', 'temperature', 'salinity', 'pressure']
     ztsp_units = ['m', 'K', 'psu', 'Pa']
     ds = ambient.Profile(data, ztsp, None, 0.01, ztsp_units, None,
-                         current=np.array([0., 0.]),
-                         current_units=['m/s', 'm/s'])
-
-    # Add currents
-    currents = np.array([[0, 0.1, 0.05], [500, 0.1, 0.05]])
-    var_names = ['z', 'u', 'v']
-    var_units = ['m', 'm/s', 'm/s']
-    ds.append(currents, var_names, var_units, 0)
-
+                         current=current, current_units=current_units)
+    
+    # Add these currents to the netCDF profile
+    current = np.array([[0., 0.15, 0., 0.],
+                        [800., 0.15, 0., 0.]])
+    current_names = ['z', 'ua', 'va', 'wa']
+    current_units = ['m', 'm/s', 'm/s', 'm/s']
+    net_profile.append(current, current_names, current_units, z_col=0)
+    
+    # Add the 'temp' data to the numpy dataset
+    z = ds.ds.coords['z'].values
+    T = ds.ds['temperature'].values
+    T_degC = T - 273.15
+    data = np.vstack((z, T_degC)).transpose()
+    symbols = ['z', 'temp']
+    units = ['m', 'deg C']
+    comments = ['measured', 'identical to temperature, but in deg C']
+    ds.append(data, symbols, units, comments, 0)
+    
     # Check if the two objects are equal
-    check_net_numpy(net_profile, ds, currents)
+    check_net_numpy(net_profile, ds)
 
     return ds
 
@@ -745,7 +755,7 @@ def test_profile_deeper():
     # Record a few values to check after running the extension method
     T0, S0, P0, o20 = ctd.get_values(1000., ['temperature', 'salinity',
                                      'pressure', 'oxygen'])
-    z0 = ctd.data[:,0]
+    z0 = ctd.interp_ds.coords['z'].values
 
     # Extend the profile to 2500 m
     nc_file = os.path.join(OUTPUT_DIR,'test_BM54_deeper.nc')
@@ -754,13 +764,14 @@ def test_profile_deeper():
     # Check if the original data is preserved
     T1, S1, P1, o21 = ctd.get_values(1000., ['temperature', 'salinity',
                                      'pressure', 'oxygen'])
-    z1 = ctd.data[:,0]
+    z1 = ctd.interp_ds.coords['z'].values
 
     # Make sure the results are still right
     assert_approx_equal(T1, T0, significant=6)
     assert_approx_equal(S1, S0, significant=6)
     assert_approx_equal(P1, P0, significant=6)
     assert_approx_equal(o21, o20, significant=6)
+    print(z1.shape, z0.shape)
     assert z1.shape[0] > z0.shape[0]
     assert z1[-1] == 2500.
     # Note that the buoyancy frequency shifts very slightly because density
@@ -768,7 +779,7 @@ def test_profile_deeper():
     # close to what we want, so this method of extending the profile works
     # adequately.
     N = ctd.buoyancy_frequency(1500.)
-    assert_approx_equal(N, 0.0006377576016247663, significant=6)
+    assert_approx_equal(N, 0.0006320416080592639, significant=6)
     N = ctd.buoyancy_frequency(2500.)
     assert_approx_equal(N, 0.0006146292892002274, significant=6)
 

@@ -1,30 +1,10 @@
-#################################
-Discrete Bubble Model Users Guide
-#################################
+#####################
+Discrete Bubble Model
+#####################
 
-:Release: |version|
-:Date: |today|
+The simulation tools in ``tamoc`` track the trajectory and evolution of various fluid or solid particles as the transit the ocean water column from a spill source.  In order to accurately predict the rise velocity and evolution of these particles, a complete module for the equations of state of these particles is needed.  This is provided in the ``dbm`` module.  
 
-Scripts
-=======
-
-The class objects and method functions defined in the `dbm` module provide a 
-flexible structure to handle the chemistry and thermodynamics of mixtures.  
-The examples detailed below show a few of the common tasks that may be 
-facilitated by the `dbm` module.  Further examples are presented in the 
-following scripts distributed in the ``./bin`` directory with the source 
-code.
-
-.. toctree::
-   :maxdepth: 1
-   
-   ../scripts/dbm/air_eos
-   ../scripts/dbm/co2_eos
-   ../scripts/dbm/dead_oil
-   ../scripts/dbm/equilibrium
-   ../scripts/dbm/droplet_rise
-   ../scripts/dbm/gas_bubbles
-   ../scripts/dbm/hydrocarbon_drops
+The user interacts with this module primarily when setting up the fluids that will be used in a simulation and sometimes in post-processing simulation results.  Here is a brief introduction to the tools available in the ``dbm`` module.
 
 Examples
 ========

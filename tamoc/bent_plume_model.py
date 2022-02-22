@@ -31,18 +31,7 @@ plume simply has an empty `particles` list.
 
 See Also
 --------
-`stratified_plume_model` : Predicts the plume solution for quiescent ambient
-    conditions or weak crossflows, where the intrusion (outer plume)
-    interacts with the upward rising plume in a double-plume integral model
-    approach.  Such a situation is handeled properly in the
-    `stratified_plume_model` and would violate the assumption of non-
-    iteracting Lagrangian plume elements as required in this module.
-
-`single_bubble_model` : Tracks the trajectory of a single bubble, drop or
-    particle through the water column.  The numerical solution used here,
-    including the various object types and their functionality, follows the
-    pattern in the `single_bubble_model`.  The main difference is the more
-    complex state space and governing equations.
+stratified_plume_model, single_bubble_model
 
 """
 # S. Socolofsky, November 2014, Texas A&M University <socolofs@tamu.edu>.

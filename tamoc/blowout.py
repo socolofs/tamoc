@@ -64,12 +64,12 @@ class Blowout(object):
         Depth of the release point (m)
     d0 : float, default=0.1
         Equivalent circular diameter of the release (m)
-    substance : str or list of str, default=['methane']
+    substance : str or list of str, default=[methane]
         The chemical composition of the released petroleum fluid.  If using
         the chemical property data distributed with TAMOC, this should be a
         list of TAMOC chemical property names.  If using an oil from the
         NOAA OilLibrary, this should be a string containing the Adios oil
-        ID number (e.g., 'AD01554' for Louisiana Light Sweet).
+        ID number (e.g., "AD01554" for Louisiana Light Sweet).
     q_oil : float, default=20000.
         Release rate of the dead oil composition at the release point in
         stock barrels of oil per day.
@@ -115,7 +115,7 @@ class Blowout(object):
         Depth of the release point (m)
     d0 : float, default=0.1
         Equivalent circular diameter of the release (m)
-    substance : str or list of str, default=['methane']
+    substance : str or list of str, default=[methane]
         The chemical composition of the released petroleum fluid.  If using
         the chemical property data distributed with TAMOC, this should be a
         list of TAMOC chemical property names.  If using an oil from the
@@ -215,13 +215,13 @@ class Blowout(object):
         and `salinity`.  In this case, the model will import data for the
         world-ocean average and adjust the data to have the given temperature
         and salinity at the surface.
-    water : 'netCDF4.Dataset'
+    water : netCDF4.Dataset
         If a 'netCDF4.Dataset' object already contains the ambient CTD
         data in a format appropriate for the `ambient.Profile` object, then
         this can be passed.  In this case, it is assumed that the dataset
         includes the currents; hence, the `currents` variable will be
         ignored.
-    water : `ambient.Profile` object
+    water : ambient.Profile
         If we already created our own ambient Profile object, then this
         object can be used directly.
     water = str
@@ -550,10 +550,10 @@ class Blowout(object):
     def update_substance(self, substance):
         """
         Change the OilLibrary ID number to use in a model simulation
-
+        
         Parameters
         ----------
-        substance : str or list of str, default=['methane']
+        substance : str or list of str, default=[methane]
             The chemical composition of the released petroleum fluid. If
             using the chemical property data distributed with TAMOC, this
             should be a list of TAMOC chemical property names. If using an

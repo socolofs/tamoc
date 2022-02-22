@@ -1,45 +1,52 @@
-#######################################
-Overview of Particle Size Models Module
-#######################################
+.. currentmodule:: tamoc
 
-:Release: |version|
-:Date: |today|
+.. _psm:
 
-.. currentmodule:: particle_size_models
+##########################
+Particle Size Model Module
+##########################
 
-.. automodule:: particle_size_models
-
-
-Class Objects and Methods
-=========================
-
-Base Model Object
------------------
-
-The base model object handles computing fluid properties and selecting 
-appropriate particle size models.  It is documented in the following:
+This page is an index and launchpad to explore all of the classes, methods, and functions in the ``particle_size_models`` module of ``tamoc``. 
 
 .. autosummary::
-   :toctree: ../autodoc/psd
+   :toctree: ../generated/
    
-   ModelBase
-   ModelBase.update_properties
-   ModelBase.simulate
-   ModelBase.get_de_max
-   ModelBase.get_d50
-   ModelBase.get_distributions
-   ModelBase.plot_psd
-   
-Pure Jet Object
----------------
+   particle_size_models
 
-When only one phase (liquid or gas) is emitted from an orifice, properties
-for another phase should not be required.  This is solved using the ``PureJet`` object, described in the following:
+``particle_size_models`` Class Objects
+--------------------------------------
+
+.. currentmodule:: tamoc.particle_size_models
 
 .. autosummary::
-   :toctree: ../autodoc/psd
+   :toctree: ../generated/
    
+   Model
    PureJet
+   ModelBase
+   
+``particle_size_models.Model`` Methods
+--------------------------------------
+
+.. autosummary::
+   :toctree: ../generated/
+   
+   Model.update_properties
+   Model.update_z0
+   Model.update_Tj
+   Model.update_m_mixture
+   Model.simulate
+   Model.get_de_max
+   Model.get_d50
+   Model.get_distributions
+   Model.plot_psd
+
+``particle_size_models.PureJet`` Methods
+----------------------------------------
+
+.. autosummary::
+   :toctree: ../generated/
+   
    PureJet.update_properties
    PureJet.simulate
    PureJet.get_de_max
@@ -47,64 +54,23 @@ for another phase should not be required.  This is solved using the ``PureJet`` 
    PureJet.get_distributions
    PureJet.plot_psd
 
-Normal Model Object
--------------------
-
-In most blowout cases, the ``Model`` object should be used.  This object is
-described in the following:
+``particle_size_models.ModelBase`` Methods
+------------------------------------------
 
 .. autosummary::
-   :toctree: ../autodoc/psd
+   :toctree: ../generated/
    
-   Model
-   Model.update_properties
-   Model.simulate
-   Model.update_z0
-   Model.update_Tj
-   Model.update_m_mixture
-   Model.get_de_max
-   Model.get_d50
-   Model.get_distributions
-   Model.plot_psd
+   ModelBase.update_properties
+   ModelBase.simulate
+   ModelBase.get_de_max
+   ModelBase.get_d50
+   ModelBase.get_distributions
+   ModelBase.plot_psd
 
-Module Functions
-================
-
-Helper Functions
-----------------
-
-The objects defined above use one helper-function to plot the data.  This function is described below and should normally not be called directly by the user:
+``particle_size_models`` Module Helper Functions
+------------------------------------------------
 
 .. autosummary::
-   :toctree: ../autodoc/psd
+   :toctree: ../generated/
    
    plot_phase
-
-External Utilities
-------------------
-
-Each of the particle size models themselves are contained in separate 
-functions defined in the ``psf`` module.  While these functions could be 
-called directly for scripting purposes, it is recommended that the objects
-defined above be used instead.  These utilities are the following:
-
-.. currentmodule:: psf
-
-.. autosummary::
-   :toctree: ../autodoc/psd
-   
-   mass2vol
-   rosin_rammler
-   log_normal
-   ln2rr
-   rr2ln
-   rosin_rammler_fit
-   log_normal_fit
-   de_max_oil
-   grace
-   sintef
-   li_etal
-   wang_etal
-   
-
-

@@ -12,11 +12,17 @@ size distributions from source flow conditions.
 For typical usage, please see the ./bin directory of the source distribution
 for various example scripts.
 
+Version 2.2.0:  Updated the ambient module so that it is not based on and
+                compatible with xarray Dataset objects, updated all tests to
+                pass with the latest version of TAMOC, revised the
+                documentation with a new template and organization, and
+                updated some of the source docstrings to compile with Sphinx.
+
 Version 2.1.0: Updated the readme file with instructions for modern version
-               of Windows. Updated the model with various improvements,
-               including some additional chemical property data, additional
-               functionality in the blowout.py module. Small, additional bug
-               fixes.
+                of Windows. Updated the model with various improvements,
+                including some additional chemical property data, additional
+                functionality in the blowout.py module. Small, additional bug
+                fixes.
 Version 2.0.0:  Updated the complete model system for compatibility with both
                 Python 2.7 and Python 3.8+. Updated the ambient.Profile
                 object so that netCDF files do not have to be used and
@@ -178,20 +184,7 @@ This package requires:
 
 * The Python netCDF4 package
 
-* For interaction with ROMS output, TAMOC also requires:
-
-   * octant:  download from https://github.com/hetland/octant
-
-   * mpl_toolkits.basemap:  download from
-     http://sourceforge.net/projects/matplotlib/files/matplotlib-toolkits/
-
-   * NOTE:  While this still works, octant has been deprecated and is now
-            replaced by the xarray package.  TAMOC has not yet been updated
-            to use xarray.
-
-            If profile data are available from ROMS, write a script to read
-            the data into a numpy array and pass this data to the
-            ambient.Profile object.
+* The Python xarray package
 
 * To view plots of the model output, TAMOC uses the matplotlib package
 
@@ -207,6 +200,8 @@ by the author using f2py Version 2.
 
 Quick Start
 ===========
+
+For the best and most complete information, please see the documentation web pages in the `./doc/` directory of the TAMOC repository.  A step-by-step installation guide is included in the Getting Started rubric of the documentation.  A brief summary that may still work is provided below.
 
 * Edit setup.cfg to select the appropriate C/C++ and Fortran compilers
 

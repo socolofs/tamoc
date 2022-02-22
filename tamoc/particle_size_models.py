@@ -889,6 +889,9 @@ class Model(ModelBase):
     m_gas : ndarray
         An array of mass fluxes (kg/s) of each pseudo-component in the gas
         phase of the released fluids.
+    m_oil : ndarray
+        An array of mass fluxes (kg/s) of each pseudo-component in the oil
+        phase of the released fluids.
     rho_gas : float
         Density of the gas phase released from the jet (kg/m^3)
     mu_gas : float
@@ -899,9 +902,6 @@ class Model(ModelBase):
     oil : `dbm.FluidParticle` object
         A `dbm.FluidParticle` object for the liquid phase fluid at the
         release
-    m_oil : ndarray
-        An array of mass fluxes (kg/s) of each pseudo-component in the liquid
-        phase of the released fluids.
     rho_oil : float
         Density of the liquid phase released from the jet (kg/m^3)
     mu_oil : float
@@ -921,10 +921,6 @@ class Model(ModelBase):
         been computed and stored since the last property update.
     d0 : float
         Equivalent circular diameter of the release orifice (m)
-    m_gas : float
-        Mass flow rate of gas released from the jet (kg/s)
-    m_oil : float
-        Mass flow rate of liquid released from the jet (kg/s)
     model_gas : str
         Name of the model used for computing the gas bubble size
         distribution.  Choices are 'wang_etal' or 'li_etal':.

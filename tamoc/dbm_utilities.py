@@ -70,6 +70,11 @@ def get_oil(substance, q_oil, gor, ca=[], fp_type=1):
             composition, mass_frac, user_data, delta, delta_groups, units = \
                 load_tamoc_oil(substance)
         
+        elif 'simap_names' in substance:
+            # User wants to convert a SIMAP oil to a TAMOC oil
+            composition, mass_frac, user_data, delta, delta_groups, units = \
+                load_simap_oil(substance)
+        
         elif 'dbm_mixture' in substance:
             dbm_mixture = substance['dbm_mixture']
             composition = dbm_mixture.composition
@@ -634,13 +639,12 @@ def load_adios_oil(adios_id):
     
     # Extract properties of this oil from the gnome_oil object
     molecular_weight = gnome_oil.molecular_weight         # g/mol
-    print(molecular_weight)
+
     mass_frac = gnome_oil.mass_fraction                   # --
-    print(np.sum(mass_frac[0:20:2]), np.sum(mass_frac[1:20:2]))
-    print(np.sum(mass_frac))
+
     boiling_point = gnome_oil.boiling_point               # K
-    print(boiling_point)
-    vapor_pressure_5C = gnome_oil.vapor_pressure(278.15)  # Pa
+
+    vapor_pressure_5C = gnome_oil.vapor_pressure(278.15)  # Pa -- not used
     vapor_pressure_25C = gnome_oil.vapor_pressure(298.15) # Pa
     
     # Extract the densities of each pseudocomponent
@@ -653,7 +657,6 @@ def load_adios_oil(adios_id):
     
     # Read in the names of each of the oil pseudocomponents
     composition = list(gnome_oil.component_types)
-    print(composition)
     
     # TAMOC requires unique names for each pseudocomponent; we add a counter
     # to each SARA analysis type (e.g., Saturates1, Saturates2, etc.)
@@ -671,6 +674,7 @@ def load_adios_oil(adios_id):
     
     # Estimate oil properties using methods in Gros et al. (2018)
     solubility = get_solubility(molecular_weight, density)
+    print(solubility)
     k_h_0 = get_henry_constant(solubility, vapor_pressure_25C, 
         molecular_weight)
     (Tc, Pc, Vc, M, omega, delta) = get_preos_params(boiling_point, 
@@ -699,9 +703,202 @@ def load_adios_oil(adios_id):
         
     # Extract the measurements of the whole oil density
     rho_data = gnome_oil.culled_densities()
+    T_0 = np.zeros(len(rho_data))
+    rho_0 = np.zeros(len(rho_data))
+    w_0 = np.zeros(len(rho_data))
+    for i in range(len(rho_data)):
+        T_0[i] = rho_data[i].ref_temp_k
+        rho_0[i] = rho_data[i].kg_m_3
+        w_0[i] = rho_data[i].weathering
     
     # Perform tuning of Vc to get better densities
-    user_data = Vc_tuning(mass_frac, composition, rho_data, density2,
+    user_data = Vc_tuning(mass_frac, composition, T_0, rho_0, w_0, density2,
+        delta, user_data)
+    
+    # Update the value of Vb in the user_data database using the final 
+    # value of Vc after tuning.
+    for i in range(len(composition)):
+        Vc = user_data[composition[i]]['Vc']
+        Vb = compute_Vb(Vc)
+        user_data[composition[i]]['Vb'] = Vb
+    
+    # We do not use the group contribution methods for the binary interaction
+    # coefficients
+    delta_groups = None
+    
+    # Return the results
+    return (composition, mass_frac, user_data, delta, delta_groups, units)
+
+
+def load_simap_oil(simap):
+    """
+    Create a TAMOC oil from the SIMAP pseudo-components and their properties
+    
+    Create a TAMOC oil object using the chemical property data for a
+    SIMAP psuedo-component model.  This function uses the same algorithms
+    as defined by Jonas Gros in Gros et al. (2018), which were originally 
+    developed for the ADIOS database.  Here, the SIMAP oil description does
+    not use the same estimations as the ADIOS system does; hence, the  
+    results may be more accurate.  On the other hand, Gros et al. calibrated
+    some of their expressions to the ADIOS database data; hence, eventually, 
+    these algorithms should be checked.
+    
+    Parameters
+    ----------
+    simap : dict
+        A dictionary containing the property names of the simap 19-component
+        model with numpy arrays containing the property data for each 
+        pseudo-component
+    
+    Returns
+    -------
+    composition : list
+        List of strings containing the names of the oil components in the 
+        dead oil from the Adios database.
+    mass_frac : np.array
+        An array of mass fractions for all compounds in the dead oil from 
+        the Adios database (kg).
+    user_data : dict
+        A dictionary of chemical property data in the format expected by 
+        the tamoc.dbm module FluidMixture or FluidParticle objects.
+    delta : np.array (len M, len M)
+        Array of binary interaction coefficients
+    delta_groups : None or np.array    
+        If `delta_groups` is not `None`, then this array contains the group
+        contributions for the Privat and Jaubert 2012 method for estimating
+        the binary interaction coefficients
+    units : dict
+        Dictionary of units corresponding to the dictionary of `user_data`
+    
+    Notes
+    -----
+    The following SIMAP properties are used by this function and should be
+    provided in the ``simap`` dictionary, with each key name in the dictionary 
+    corresponding to a variable name in the list below.
+    
+    name : str
+        Name as a string descriptor of the dataset
+    molecular_weight : np.ndarray
+        Molecular weight of each pseudo-component in g/mol
+    mass_fraction : np.ndarray
+        Mass fraction of each pseudo-component in the mixture in g/g
+    boiling_point : np.ndarray
+        Boiling point of each pseudo-component in deg C
+    vapor_pressure : np.ndarray
+        Vapor pressure at 25C of each pseudo-component in atm
+    solubility : np.ndarray
+        Solubility at 25C of each pseudo-component in mg/l
+    simap_names : list of str
+        String name for each pseudo-component in the mixture
+    T_0 : np.ndarray
+        An array of temperatures (K) for which the oil density has
+            been measured
+    rho_0 : np.ndarray
+        An array of measured oil densities (kg/m^3) -- these should 
+            only be for non-weathered samples
+    
+    Other properties that may be contained in the SIMAP model, but are not 
+    used here include the following.
+    
+    melting_point : np.ndarray
+        Melting point of each pseudo-component in deg C
+    log_Kow : np.ndarray
+        Log K_ow of each pseudo-component in dimensionless units
+    diffusion_coefficient : 
+        Diffusion coefficient of each pseudo-component in cm2/s
+    E_solubility : np.ndarray,
+        Solubility enhancement factor of each pseudo-component in
+        dimensionless units
+    dgair : np.ndarray
+        Biodegradation rate constants at the surface for each pseudo-component 
+        in 1/day
+    dgwu : np.ndarray
+        Biodegradation rate constants in the upper water column for each
+        pseudo-component in 1/day
+    dgwl : np.ndarray
+        Biodegradation rate constants in the lower water column for each
+        pseudo-component in 1/day
+    dgsd : np.ndarray
+        Biodegradation rate constants at the sediment for each
+        pseudo-component in 1/day
+    
+    """
+    # Alert the user to the conversion process
+    print('    -->Converting SIMAP 19-component oil to TAMOC FluidParticle.')
+    print('    -->SIMAP model name:  ' + simap['name'])
+    
+    # Extract the baseline properties needed to create the TAMOC oil
+    molecular_weight = simap['molecular_weight']  # g/mol
+    mass_frac = simap['mass_fraction']            # g/g
+    boiling_point = simap['boiling_point']        # deg C
+    vapor_pressure = simap['vapor_pressure']      # atm
+    solubility = simap['solubility']              # mg/l
+    composition = simap['simap_names']            # string names
+    T_0 = simap['T_0']                            # K
+    rho_0 = simap['rho_0']                        # kg/m^3
+    
+    # Convert the input units to those used in ADIOS and the dbm_utilities
+    # methods for converting ADIOS oils
+    boiling_point = boiling_point + 273.15
+    vapor_pressure = vapor_pressure * 101325.
+    solubility = solubility / molecular_weight / 1000.
+    
+    # Use the ADIOS equations to estimate the density of each psuedo-component
+    density = np.zeros(boiling_point.shape)
+    for i in range(len(composition)):
+        if 'AR' in composition[i]:
+            K_w = 10.
+        elif 'AL' in composition[i]:
+            K_w = 12.
+        else:
+            K_w = 0.
+        
+        if K_w == 0:
+            density[i] = 1100.
+        else:
+            density[i] = 1000. * (1.8 * boiling_point[i]) ** (1. / 3.) / K_w
+    
+    # Convert these densities to the definitions used by Gros et al.
+    density2 = density * (np.sum(density * mass_frac)) / (1. / 
+        np.sum(mass_frac / density))
+    
+    # Report any error messages or warnings
+    if np.any(boiling_point < 231):
+        # The below methods do not work for compounds more volatile than 
+        # propane:
+        print('\nWARNING:  This oil entry has compounds more volatile than')
+        print('          propane.  Current property estimation methods are')
+        print('          not designed for this situation.  Errors may occur')
+        print('          using this oil.\n')
+    
+    # Estimate oil properties using Gros et al. (2018)
+    k_h_0 = get_henry_constant(solubility, vapor_pressure, molecular_weight)
+    Tc, Pc, Vc, M, omega, delta = get_preos_params(boiling_point, 
+        molecular_weight, density)
+    nu_bar = (-2.203e-5 * Pc + 518.6 * M + 143.4) * 1.e-6
+    neg_delta_H_sol_R = 2.637 * Tc + 22.48e6 * nu_bar + 314.6
+    K_salt = (-1.345 * M + 2799.4 * nu_bar +  0.083556) / 1000.
+    
+    # Estimate Vb based on the Tyn an Calus formula (see dbm.py)
+    Vb = compute_Vb(Vc)
+    
+    # Turn off solubility of non-aromatic hydrocarbons
+    for i in range(len(composition)):
+        if 'AR' not in composition[i]:
+            # Use -9999. flag expected in dbm module of TAMOC
+            neg_delta_H_sol_R[i] = -9999.
+            k_h_0[i] = -9999.
+            nu_bar[i] = -9999.
+            K_salt[i] = -9999.
+    
+    # Format these data as they are normally used in the dbm module of TAMOC
+    user_data, units = format_dbm_data(composition, M, Pc, Tc, omega, k_h_0, 
+        neg_delta_H_sol_R, nu_bar, K_salt, Vc, boiling_point, Vb, 
+        B=None, dE=None)
+    
+    # Perform tuning of Vc to get better densities
+    w_0 = np.zeros(len(T_0))
+    user_data = Vc_tuning(mass_frac, composition, T_0, rho_0, w_0, density2,
         delta, user_data)
     
     # Update the value of Vb in the user_data database using the final 
@@ -1147,7 +1344,8 @@ def compute_Vb(Vc):
     return (0.285 * (Vc * 1.e6)**1.048) * 1.e-6
 
 
-def Vc_tuning(mass_frac, composition, rho_data, rho_i, delta, user_data):
+def Vc_tuning(mass_frac, composition, T_0, rho_0, w_0, rho_i, delta,
+    user_data):
     """
     Tune Vc to get better density estimates
     
@@ -1162,10 +1360,12 @@ def Vc_tuning(mass_frac, composition, rho_data, rho_i, delta, user_data):
     composition : list
         List of strings containing unique names for each chemical in the 
         present oil composition.
-    rho_data : np.array
-        List of NOAA Oil Library models.Density objects.  These objects 
-        contain measurements of the whole oil density at different
-        temperature and weathering conditions.
+    T_0 : np.array
+        Temperatures at which the whole-oil density was evaluated (K)
+    rho_0 : np.array
+        Densities reported for the whole-oil (kg/m^3)
+    w_0 : np.array
+        Array of weathering states for the density data (--)
     rho_i : np.array
         Array of densities of each pseudo-component in the Adios database,  
         re-scaled such that density whole oil = (1./np.sum(mass_frac/rho_i))
@@ -1260,16 +1460,6 @@ def Vc_tuning(mass_frac, composition, rho_data, rho_i, delta, user_data):
         # Store the optimized value in user_data
         user_data[composition[i]]['Vc'] = Vc
     
-    # Extract the density information reported in the Adios database for the
-    # whole oil.
-    T_0 = np.zeros(len(rho_data))
-    rho_0 = np.zeros(len(rho_data))
-    w_0 = np.zeros(len(rho_data))
-    for i in range(len(rho_data)):
-        T_0[i] = rho_data[i].ref_temp_k
-        rho_0[i] = rho_data[i].kg_m_3
-        w_0[i] = rho_data[i].weathering
-    
     # Compare the TAMOC predictions to each of the measurements in Adios that
     # ignore weathering.
     num = 0.
@@ -1281,6 +1471,13 @@ def Vc_tuning(mass_frac, composition, rho_data, rho_i, delta, user_data):
             # Compute the whole-oil density in TAMOC
             rho_tamoc = oil.density(mass_frac, T_0[i], P)[1,0]
             rho_adios = rho_0[i]
+            
+            # Print the comparisons
+            print('\n    Density estimates with new TAMOC oil:')
+            print('    -->Measured density at %g K:  %g' % (T_0[i], 
+                rho_0[i]))
+            print('    -->Computed density at %g K:  %g' % (T_0[i], 
+                rho_tamoc))
             
             # Update statistics
             sum_abs += np.abs(rho_tamoc - rho_adios)

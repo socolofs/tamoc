@@ -60,3 +60,7 @@ if __name__ == '__main__':
     
     # Simulate the gas transport through a filled pipe network.
     frac.simulate_pipe_flow(1.0, mass_frac, gas, profile)
+    
+    # Plot default results
+    frac.plot_state_space()
+    frac.plot_component_map()
