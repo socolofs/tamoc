@@ -1451,9 +1451,8 @@ class InsolubleParticle(object):
     
     Parameters
     ----------
-    isfluid : logical
-        `True` or `False`; states whether or not the inert particle could have 
-        a mobile interface.  For example, choose `True` for oil and `False` 
+    isfluid : bool
+        True or False; states whether or not the inert particle could have            a mobile interface.  For example, choose True for oil and False
         for sand.
     iscompressible : logical
         `True` or `False`; selects the equation of state for density.  `True` 
@@ -2022,7 +2021,6 @@ class InsolubleParticle(object):
                                               k, status)[0]
         
         return (shape, de, rho_p, us, A, beta_T)
-    
 
 # ----------------------------------------------------------------------------
 # Functions used by classes to compute gas/liquid equilibrium of a mixture

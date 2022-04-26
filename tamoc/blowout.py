@@ -1185,46 +1185,48 @@ def create_ambient_profile(data, labels, units, comments, nc_name, summary,
 
     # Compute dissolved gas profiles to add to this dataset
     if len(ca) > 0:
-
+        
+        profile.add_computed_gas_concentrations()
+    
         # Create a gas mixture object for air
-        gases = ['nitrogen', 'oxygen', 'argon', 'carbon_dioxide']
-        air = dbm.FluidMixture(gases)
-        yk = np.array([0.78084, 0.20946, 0.009340, 0.00036])
-        m = air.masses(yk)
+        #gases = ['nitrogen', 'oxygen', 'argon', 'carbon_dioxide']
+        #air = dbm.FluidMixture(gases)
+        #yk = np.array([0.78084, 0.20946, 0.009340, 0.00036])
+        #m = air.masses(yk)
 
         # Set atmospheric conditions
-        Pa = 101325.
+        #Pa = 101325.
 
         # Compute the desired concentrations
-        for i in range(len(ca)):
+        #for i in range(len(ca)):
 
             # Initialize a dataset of concentration data
-            conc = np.zeros(len(profile.z))
+            #conc = np.zeros(len(profile.z))
 
             # Compute the concentrations at each depth
-            for j in range(len(conc)):
+            #for j in range(len(conc)):
 
                 # Get the local water column properties
-                T, S, P = profile.get_values(profile.z[j], ['temperature',
-                    'salinity', 'pressure'])
+                #T, S, P = profile.get_values(profile.z[j], ['temperature',
+                #   'salinity', 'pressure'])
 
                 # Compute the gas solubility at this temperature and salinity
                 # at the sea surface
-                Cs = air.solubility(m, T, Pa, S)[0,:]
+                #Cs = air.solubility(m, T, Pa, S)[0,:]
 
                 # Adjust the solubility to the present depth
-                Cs = Cs * seawater.density(T, S, P) / \
-                    seawater.density(T, S, 101325.)
+                #Cs = Cs * seawater.density(T, S, P) / \
+                #    seawater.density(T, S, 101325.)
 
                 # Extract the right chemical
-                conc[j] = Cs[gases.index(ca[i])]
+                #conc[j] = Cs[gases.index(ca[i])]
 
             # Add this computed dissolved gas to the Profile dataset
-            data = np.vstack((profile.z, conc)).transpose()
-            symbols = ['z', ca[i]]
-            units = ['m', 'kg/m^3']
-            comments = ['measured', 'computed from CTD data']
-            profile.append(data, symbols, units, comments, 0)
+            #data = np.vstack((profile.z, conc)).transpose()
+            #symbols = ['z', ca[i]]
+            #units = ['m', 'kg/m^3']
+            #comments = ['measured', 'computed from CTD data']
+            #profile.append(data, symbols, units, comments, 0)
 
     # Close the netCDF dataset
     profile.close_nc()

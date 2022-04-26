@@ -114,10 +114,10 @@ class BaseProfile(object):
         
         # Save the raw input data
         self.data = data
-        self.ztsp = ztsp.copy()
-        self.ztsp_units = ztsp_units.copy()
-        self.chem_names = chem_names.copy()
-        self.chem_units = chem_units.copy()
+        self.ztsp = ztsp[:]
+        self.ztsp_units = ztsp_units[:]
+        self.chem_names = chem_names[:]
+        self.chem_units = chem_units[:]
         self.nchems = len(self.chem_names)
         self.err = err
         
@@ -188,7 +188,8 @@ class BaseProfile(object):
         keep_names = self.ztsp + self.chem_names
         for name in self.ds.data_vars:
             if name not in keep_names:
-                self.ds = self.ds.drop_vars([name])
+#                self.ds = self.ds.drop_vars([name])
+                self.ds = self.ds.drop([name])
         
         # Add the unit labels passed to the initializer if they are not
         # already in the dataset
@@ -798,6 +799,8 @@ class BaseProfile(object):
         for parm in parameters:
             ax = plt.subplot(nrows, 3, parameters.index(parm)+1)
             self.plot_parameter(parm)
+        
+        plt.tight_layout()
     
     def plot_physical_profiles(self, fig=2):
         """
@@ -1247,6 +1250,11 @@ class Profile(BaseProfile):
             if isinstance(var_symbols, str) or \
                 isinstance(var_symbols, unicode):
                     var_symbols = [var_symbols]
+            if isinstance(comments, str):
+                comments = [comments]
+            elif isinstance(comments, type(None)):
+                comments = ['computed'] * len(var_symbols)
+            
             # Add the data to the netCDF dataset
             self.nc = fill_nc_db(self.nc, data, 
                 var_symbols, var_units, comments, z_col)

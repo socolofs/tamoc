@@ -1724,7 +1724,7 @@ def plot_all_variables(t, q, q_local, profile, p, particles,
     ax2.set_xlabel('y (m)')
     ax2.set_ylabel('z (m)')
     ax2.grid(b=True, which='major', color='0.5', linestyle='-')
-
+    
     ax3 = plt.subplot(223)
     ax3.plot(x, y, 'b-')
     [x1, y1, x2, y2] = width_projection(Sx, Sy, b)
@@ -1743,7 +1743,7 @@ def plot_all_variables(t, q, q_local, profile, p, particles,
     ax3.set_xlabel('x (m)')
     ax3.set_ylabel('y (m)')
     ax3.grid(b=True, which='major', color='0.5', linestyle='-')
-
+    
     ax4 = plt.subplot(224)
     ax4.plot(s, np.zeros(s.shape), 'b-')
     ax4.plot(s, b, 'b--')
@@ -1751,7 +1751,8 @@ def plot_all_variables(t, q, q_local, profile, p, particles,
     ax4.set_xlabel('s (m)')
     ax4.set_ylabel('r (m)')
     ax4.grid(b=True, which='major', color='0.5', linestyle='-')
-
+    
+    plt.tight_layout()
     plt.draw()
 
     # Plot the Lagrangian element height and entrainment rate

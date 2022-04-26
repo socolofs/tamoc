@@ -17,6 +17,18 @@ from tamoc import seawater, dbm
 import numpy as np
 from scipy.optimize import fsolve, fmin
 
+# Compatibility issues for Python 2
+try:
+    FileNotFoundError
+except NameError:
+    FileNotFoundError = IOError
+
+try:
+    ModuleNotFoundError
+except NameError:
+    ModuleNotFoundError = ImportError
+
+
 def get_oil(substance, q_oil, gor, ca=[], fp_type=1):
     """
     Create a dbm.FluidMixture object for this oil and given flow rate
@@ -96,9 +108,54 @@ def get_oil(substance, q_oil, gor, ca=[], fp_type=1):
     
     elif isinstance(substance, str) or isinstance(substance, unicode):
         
-        # Assume this variable contains an NOAA OilLibrary ID number
-        composition, mass_frac, user_data, delta, delta_groups, units = \
-            load_adios_oil(substance)
+        # We want to create an oil from a NOAA ADIOS library...but the
+        # oil_library package is Python 2 only and no longer supported. 
+        # The adios_db package contains similar tools, but they are accessed
+        # differently.  First, we try to figure out whether or not the 
+        # oil_library is installed and working, then we try to decide whether
+        # the .json file that goes with the adios_db is available or not.
+        # Finally, we decide which way to try to load this oil
+        try:
+            import oil_library
+            # The oil_library exists, but the user may still want to use 
+            # the adios_db.  Check whether it exists and the required inputs 
+            # are available
+            try:
+                import adios_db
+                # Lastly, we check for the .json file required by the 
+                # adios_db
+                try:
+                    # Try to open ``substance`` as a file
+                    f = open(substance)
+                    f.close()
+                    
+                    # Make sure this file is a .json file
+                    if 'json' in substance:
+                        # Use the adios_db with this .json file
+                        composition, mass_frac, user_data, delta, \
+                            delta_groups, units = load_adios_oil(substance)
+                    else:
+                        # This is a file name, but not a .json file, so we 
+                        # have to try the oil library
+                        composition, mass_frac, user_data, delta, \
+                            delta_groups, units = load_gnome_oil(substance)
+                            
+                except FileNotFoundError:
+                    # We have to use the oil_library
+                    composition, mass_frac, user_data, delta, delta_groups, \
+                        units = load_gnome_oil(substance)
+            
+            except ModuleNotFoundError:
+                # The user does not have the adios_db installed, so we have to 
+                # use the oil_library
+                composition, mass_frac, user_data, delta, delta_groups, \
+                    units = load_gnome_oil(substance)
+        
+        except ModuleNotFoundError:
+            # The user does not have the oil_library; hence, the 
+            # adios_db package is the only way this will work
+            composition, mass_frac, user_data, delta, delta_groups, units = \
+                load_adios_oil(substance)
     
     # Add the atmospherica gases to the FluidMixture, if desired
     if len(ca) > 0:
@@ -592,7 +649,7 @@ def set_mass_fluxes(composition, mass_frac, user_data, delta, delta_groups,
 
 # --- OilLibrary Utilities ---
 
-def load_adios_oil(adios_id):
+def load_gnome_oil(adios_id):
     """
     Load an oil from the NOAA OilLibrary (formerly, ADIOS)
     
@@ -639,11 +696,8 @@ def load_adios_oil(adios_id):
     
     # Extract properties of this oil from the gnome_oil object
     molecular_weight = gnome_oil.molecular_weight         # g/mol
-
     mass_frac = gnome_oil.mass_fraction                   # --
-
     boiling_point = gnome_oil.boiling_point               # K
-
     vapor_pressure_5C = gnome_oil.vapor_pressure(278.15)  # Pa -- not used
     vapor_pressure_25C = gnome_oil.vapor_pressure(298.15) # Pa
     
@@ -674,7 +728,6 @@ def load_adios_oil(adios_id):
     
     # Estimate oil properties using methods in Gros et al. (2018)
     solubility = get_solubility(molecular_weight, density)
-    print(solubility)
     k_h_0 = get_henry_constant(solubility, vapor_pressure_25C, 
         molecular_weight)
     (Tc, Pc, Vc, M, omega, delta) = get_preos_params(boiling_point, 
@@ -710,6 +763,146 @@ def load_adios_oil(adios_id):
         T_0[i] = rho_data[i].ref_temp_k
         rho_0[i] = rho_data[i].kg_m_3
         w_0[i] = rho_data[i].weathering
+    
+    # Perform tuning of Vc to get better densities
+    user_data = Vc_tuning(mass_frac, composition, T_0, rho_0, w_0, density2,
+        delta, user_data)
+    
+    # Update the value of Vb in the user_data database using the final 
+    # value of Vc after tuning.
+    for i in range(len(composition)):
+        Vc = user_data[composition[i]]['Vc']
+        Vb = compute_Vb(Vc)
+        user_data[composition[i]]['Vb'] = Vb
+    
+    # We do not use the group contribution methods for the binary interaction
+    # coefficients
+    delta_groups = None
+    
+    # Return the results
+    return (composition, mass_frac, user_data, delta, delta_groups, units)
+
+
+def load_adios_oil(adios_id):
+    """
+    Load an oil from the NOAA OilLibrary (formerly, ADIOS)
+    
+    Create the chemical property data for a TAMOC discrete bubble model
+    FluidMixture or FluidParticle object from data for an oil in the ADIOS
+    library. This function reads in the oil properties from the NOAA Oil
+    Library and computes the inputs needed by TAMOC using methods published
+    in Gros et al. (2018) MPB, 137:627-637.
+    
+    Parameters
+    ----------
+    adios_id : str
+        The unique ADIOS ID number of an oil in the NOAA Oil Library as a 
+        string.
+    
+    Returns
+    -------
+    composition : list
+        List of strings containing the names of the oil components in the 
+        dead oil from the Adios database.
+    mass_frac : np.array
+        An array of mass fractions for all compounds in the dead oil from 
+        the Adios database (kg).
+    user_data : dict
+        A dictionary of chemical property data in the format expected by 
+        the tamoc.dbm module FluidMixture or FluidParticle objects.
+    delta : np.array (len M, len M)
+        Array of binary interaction coefficients
+    delta_groups : None or np.array    
+        If `delta_groups` is not `None`, then this array contains the group
+        contributions for the Privat and Jaubert 2012 method for estimating
+        the binary interaction coefficients
+    units : dict
+        Dictionary of units corresponding to the dictionary of `user_data`
+        
+    """
+    # Import the tools needed from the NOAA Oil Library
+    from adios_db.models.oil.oil import Oil
+    from adios_db.computation.gnome_oil import make_gnome_oil
+    
+    # Read in the desired oil from the ADIOS Oil Library
+    adios_db_oil = Oil.from_file(adios_id)
+    print('     -->Loading NOAA Oil Library Oil:  ' + adios_id)
+    print('     -->Record name:  ' + adios_db_oil.metadata.name)
+    
+    # Create a GNOME oil object from this record
+    gnome_oil = make_gnome_oil(adios_db_oil)
+    
+    # Extract properties of this oil from the gnome_oil object
+    molecular_weight = np.array(gnome_oil['molecular_weight'])  # g/mol
+    mass_frac = np.array(gnome_oil['mass_fraction'])            # --
+    boiling_point = np.array(gnome_oil['boiling_point'])        # K
+    vapor_pressure_5C = gnome_vapor_pressure(gnome_oil, 278.15) # Pa
+    vapor_pressure_25C = gnome_vapor_pressure(gnome_oil, 298.15) # Pa
+    
+    # Extract the densities of each pseudocomponent
+    density = np.array(gnome_oil['component_density'])
+    
+    # Convert these densities so that the new densities will give the same 
+    # oil density using the formula density = 1. / sum(mass_frac / density)
+    density2 = density * (np.sum(density * mass_frac)) / (1. / 
+        np.sum(mass_frac / density))
+    
+    # Read in the names of each of the oil pseudocomponents
+    composition = list(gnome_oil['sara_type'])
+    
+    # TAMOC requires unique names for each pseudocomponent; we add a counter
+    # to each SARA analysis type (e.g., Saturates1, Saturates2, etc.)
+    sequence_names(composition, 'Saturates')
+    sequence_names(composition, 'Aromatics')
+    
+    # Report any error messages or warnings
+    if np.any(boiling_point < 231):
+        # The below methods do not work for compounds more volatile than 
+        # propane:
+        print('\nWARNING:  This oil entry has compounds more volatile than')
+        print('          propane.  Current property estimation methods are')
+        print('          not designed for this situation.  Errors may occur')
+        print('          using this oil.\n')
+    
+    # Estimate oil properties using methods in Gros et al. (2018)
+    solubility = get_solubility(molecular_weight, density)
+    k_h_0 = get_henry_constant(solubility, vapor_pressure_25C, 
+        molecular_weight)
+    (Tc, Pc, Vc, M, omega, delta) = get_preos_params(boiling_point, 
+        molecular_weight, density)
+    
+    nu_bar = (-2.203e-5 * Pc + 518.6 * M + 143.4) * 1.e-6
+    neg_delta_H_sol_R = 2.637 * Tc + 22.48e6 * nu_bar + 314.6
+    K_salt = (-1.345 * M + 2799.4 * nu_bar +  0.083556) / 1000.
+              
+    # Estimate Vb based on the Tyn and Calus formula (see dbm.py)
+    Vb = compute_Vb(Vc)
+    
+    # Turn off solubility of non-aromatic hydrocarbons
+    for i in range(len(composition)):
+        if composition[i].find('Aromatics') < 0:
+            # Use -9999. flag expected in dbm module of TAMOC
+            neg_delta_H_sol_R[i] = -9999.
+            k_h_0[i] = -9999.
+            nu_bar[i] = -9999.
+            K_salt[i] = -9999.
+    
+    # Format these data as they are normally used in the dbm module of TAMOC
+    user_data, units = format_dbm_data(composition, M, Pc, Tc, omega, k_h_0, 
+        neg_delta_H_sol_R, nu_bar, K_salt, Vc, boiling_point, Vb, 
+        B=None, dE=None)
+        
+    # Extract the measurements of the whole oil density
+    rho_data = gnome_oil['densities']
+    rho_ref_temps = gnome_oil['density_ref_temps']
+    rho_weathering = gnome_oil['density_weathering']
+    T_0 = np.zeros(len(rho_data))
+    rho_0 = np.zeros(len(rho_data))
+    w_0 = np.zeros(len(rho_data))
+    for i in range(len(rho_data)):
+        T_0[i] = rho_ref_temps[i]
+        rho_0[i] = rho_data[i]
+        w_0[i] = rho_weathering[i]
     
     # Perform tuning of Vc to get better densities
     user_data = Vc_tuning(mass_frac, composition, T_0, rho_0, w_0, density2,
@@ -941,6 +1134,43 @@ def sequence_names(sara_names, name):
         if sara_names[i] == name:
             sara_names[i] = sara_names[i] + str(id_num)
             id_num += 1
+
+
+def gnome_vapor_pressure(gnome_oil, Ta):
+    """
+    Compute the vapor pressure for each pseudo-component in a ``gnome_oil``
+    
+    This function is copied directly from the NOAA PyGnome from the module
+    PyGnome - pygnome - gnome - spill - gnome_oil.py.  This method uses the 
+    boiling points to estimate vapor pressures.
+    
+    Parameters
+    ----------
+    gnome_oil : dict
+        Dictionary of parameters required to create a GNOME Oil object.
+    Ta : float
+        Temperature (K)
+    
+    Returns
+    -------
+    vapor_pressure : ndarray
+        Estimate of the vapor pressure (Pa) for each pseudo-component in the 
+        gnome-oil object
+    
+    """
+    Tb = np.array(gnome_oil['boiling_point'])
+    D_Zb = 0.97
+    R_cal = 1.987  # calories
+    
+    D_S = 8.75 + R_cal * np.log(Tb)
+    C_2i = 0.19 * Tb - 18.
+    
+    var = 1. / (Tb - C_2i) - 1. / (Ta - C_2i)
+    ln_Pi_Po = ((D_S * (Tb - C_2i) ** 2 /
+                (D_Zb * R_cal * Tb)) * var)
+    vapor_pressure = np.exp(ln_Pi_Po) * 101325.
+    
+    return vapor_pressure
 
 
 def get_solubility(molecular_weight, density):
@@ -1476,7 +1706,7 @@ def Vc_tuning(mass_frac, composition, T_0, rho_0, w_0, rho_i, delta,
             print('\n    Density estimates with new TAMOC oil:')
             print('    -->Measured density at %g K:  %g' % (T_0[i], 
                 rho_0[i]))
-            print('    -->Computed density at %g K:  %g' % (T_0[i], 
+            print('    -->Computed density at %g K:  %g\n' % (T_0[i], 
                 rho_tamoc))
             
             # Update statistics
