@@ -29,7 +29,11 @@ have been validated against measurements.
 
 from __future__ import (absolute_import, division, print_function)
 
-from tamoc import dbm_f
+# Select the best available equations of state module
+try:
+    from tamoc import dbm_f
+except ImportError:
+    from tamoc.src import dbm_p as dbm_f
 
 import numpy as np
 from numpy.testing import assert_array_almost_equal
@@ -104,7 +108,7 @@ def test_cubic_roots():
         0.28178023+1.31915051j])
     
     # Check the solution
-    assert_array_almost_equal(xr, ans, decimal=6)
+    assert_array_almost_equal(np.abs(xr), np.abs(ans), decimal=6)
 
 def test_eotvos():
     """
@@ -323,7 +327,7 @@ def test_xfer_kumar_hartland():
     # Compute the mass transfer coefficients from Kumar and Hartland
     de = 0.001
     us = 0.3511735400683849
-    beta = dbm_f.xfer_kumar_hartland(de, us, rho, mu, D, sigma, mu_p, 4)
+    beta = dbm_f.xfer_kumar_hartland(de, us, rho, mu, D, sigma, mu_p)
     ans = np.array([0.00071983, 0.00076744, 0.00075723, 0.00070475])
     
     # Check the solution
@@ -342,7 +346,7 @@ def test_xfer_johnson():
     # Compute and the mass transfer coefficients from Johnson
     de = 0.001
     us = 0.3511735400683849
-    beta = dbm_f.xfer_johnson(de, us, D, 4)
+    beta = dbm_f.xfer_johnson(de, us, D)
     ans = np.array([0.00036758, 0.00039197, 0.00038675, 0.00035984])
     
     # Check the solution
@@ -361,7 +365,7 @@ def test_xfer_clift():
     # Compute and the mass transfer coefficients from Clift et al.
     de = 0.0004
     us = 0.0383009640907029
-    beta = dbm_f.xfer_clift(de, us, rho, mu, D, 4)
+    beta = dbm_f.xfer_clift(de, us, rho, mu, D)
     ans = np.array([9.91108368e-05, 1.08142556e-04, 1.06190553e-04, 
         9.62898245e-05])
     
@@ -381,14 +385,14 @@ def test_xfer_sphere():
     # Compute and check the mass transfer coefficients for a clean sphere
     de = 0.0004
     us = 0.0383009640907029
-    beta = dbm_f.xfer_sphere(de, us, rho, mu, D, sigma, mu_p, 0, 1, 4)
+    beta = dbm_f.xfer_sphere(de, us, rho, mu, D, sigma, mu_p, 0, 1)
     ans = np.array([0.00012297, 0.00013113, 0.00012939, 0.00012039])
     assert_array_almost_equal(beta, ans, decimal=6)
     
     # Compute and check the mass transfer coefficients for a dirty sphere
     de = 0.0004
     us = 0.0383009640907029
-    beta = dbm_f.xfer_sphere(de, us, rho, mu, D, sigma, mu_p, 0, -1, 4)
+    beta = dbm_f.xfer_sphere(de, us, rho, mu, D, sigma, mu_p, 0, -1)
     ans = np.array([9.91108368e-05, 1.08142556e-04, 1.06190553e-04, 
         9.62898245e-05])
     assert_array_almost_equal(beta, ans, decimal=6)
@@ -407,14 +411,14 @@ def test_xfer_ellipsoid():
     # ellipsoidal bubble
     de = 0.001
     us = 0.3511735400683849
-    beta = dbm_f.xfer_ellipsoid(de, us, rho, mu, D, sigma, mu_p, 0, 1, 4)
+    beta = dbm_f.xfer_ellipsoid(de, us, rho, mu, D, sigma, mu_p, 0, 1)
     ans = np.array([0.00036758, 0.00039197, 0.00038675, 0.00035984])
     assert_array_almost_equal(beta, ans, decimal=6)
     
     # Compute and check the mass transfer for a dirty ellipsoidal bubble
     de = 0.001
     us = 0.1183154621133231
-    beta = dbm_f.xfer_ellipsoid(de, us, rho, mu, D, sigma, mu_p, 0, -1, 4)
+    beta = dbm_f.xfer_ellipsoid(de, us, rho, mu, D, sigma, mu_p, 0, -1)
     ans = np.array([8.99773552e-05, 9.80906597e-05, 9.63380316e-05, 
         8.74410374e-05])
     assert_array_almost_equal(beta, ans, decimal=6)
@@ -433,7 +437,7 @@ def test_xfer_spherical_cap():
     # cap bubble
     de = 0.05
     us = 0.4973521249888033
-    beta = dbm_f.xfer_spherical_cap(de, us, rho, rho_p, mu, D, 1, 4)
+    beta = dbm_f.xfer_spherical_cap(de, us, rho, rho_p, mu, D, 1)
     ans = np.array([0.00024905, 0.00026557, 0.00026204, 0.00024381])
     assert_array_almost_equal(beta, ans, decimal=6)
     
@@ -441,7 +445,7 @@ def test_xfer_spherical_cap():
     # cap bubble
     de = 0.05
     us = 0.4973521249888033
-    beta = dbm_f.xfer_spherical_cap(de, us, rho, rho_p, mu, D, -1, 4)
+    beta = dbm_f.xfer_spherical_cap(de, us, rho, rho_p, mu, D, -1)
     ans = np.array([0.00010399, 0.00011089, 0.00010941, 0.0001018 ])
     assert_array_almost_equal(beta, ans, decimal=6)
 
@@ -623,8 +627,7 @@ def test_kh_insitu():
         K_salt, rho, mu, rho_p, Cs, sigma, mu_p, D = base_state()
     
     # Compute the Henry's coefficients at in situ conditions
-    kh = dbm_f.kh_insitu(T, P, S, kh_0, neg_dH_solR, nu_bar, Mol_wt, K_salt, 
-        4)
+    kh = dbm_f.kh_insitu(T, P, S, kh_0, neg_dH_solR, nu_bar, Mol_wt, K_salt)
     ans = np.array([2.02357544e-07, 4.96821922e-07, 6.41950275e-07, 
         1.93991261e-05])
     
@@ -646,7 +649,7 @@ def test_sw_solubility():
         7.12092269e+01])
     kh = np.array([2.02357544e-07, 4.96821922e-07, 6.41950275e-07, 
         1.93991261e-05])
-    Cs = dbm_f.sw_solubility(f, kh, 4)
+    Cs = dbm_f.sw_solubility(f, kh)
     ans = np.array([0.03147573, 0.02070961, 0.00119322, 0.0013814 ])
     
     # Check the solution
@@ -663,7 +666,7 @@ def test_diffusivity():
         K_salt, rho, mu, rho_p, Cs, sigma, mu_p, D = base_state()
     
     # Compute the diffusivities at in situ conditions
-    D_fun = dbm_f.diffusivity(mu, Vb, 4)
+    D_fun = dbm_f.diffusivity(mu, Vb)
     ans = np.array([0.03147573, 0.02070961, 0.00119322, 0.0013814 ])
     
     # Check the solution

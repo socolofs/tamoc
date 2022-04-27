@@ -1,7 +1,13 @@
 from tamoc.dbm import InsolubleParticle
-from tamoc import dbm_f, seawater
+from tamoc import seawater
 
 import numpy as np
+
+# Select the best available equations of state module
+try:
+    from tamoc import dbm_f
+except ImportError:
+    from tamoc.src import dbm_p as dbm_f
 
 class EmpiricalParticle(InsolubleParticle):
     """

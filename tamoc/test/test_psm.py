@@ -515,7 +515,7 @@ def test_psm_Model():
         0.02631885, 0.03859967, 0.05559785, 0.07791868, 0.10476347,
         0.13228731, 0.15193437, 0.15128424, 0.12160947, 0.0710618 ,
         0.02592687])
-    assert_approx_equal(spill.get_de_max(0), de_max_gas)
+    assert_approx_equal(spill.get_de_max(0), de_max_gas, significant=5)
     assert_approx_equal(spill.get_de_max(1), de_max_oil)
     assert_approx_equal(spill.get_d50(0), d50_gas)
     assert_approx_equal(spill.get_d50(1), d50_oil)
@@ -542,7 +542,7 @@ def test_psm_Model():
         0.02631885, 0.03859967, 0.05559785, 0.07791868, 0.10476347,
         0.13228731, 0.15193437, 0.15128424, 0.12160947, 0.0710618 ,
         0.02592687])
-    assert_approx_equal(spill.get_de_max(0), de_max_gas)
+    assert_approx_equal(spill.get_de_max(0), de_max_gas, significant=5)
     assert_approx_equal(spill.get_de_max(1), de_max_oil)
     assert_approx_equal(spill.get_d50(0), d50_gas)
     assert_approx_equal(spill.get_d50(1), d50_oil)
@@ -577,7 +577,7 @@ def test_psm_Model():
         0.02631885, 0.03859967, 0.05559785, 0.07791868, 0.10476347,
         0.13228731, 0.15193437, 0.15128424, 0.12160947, 0.0710618 ,
         0.02592687])
-    assert_approx_equal(spill.get_de_max(0), de_max_gas)
+    assert_approx_equal(spill.get_de_max(0), de_max_gas, significant=5)
     assert_approx_equal(spill.get_de_max(1), de_max_oil)
     assert_approx_equal(spill.get_d50(0), d50_gas)
     assert_approx_equal(spill.get_d50(1), d50_oil)

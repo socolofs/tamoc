@@ -12,12 +12,15 @@ size distributions from source flow conditions.
 For typical usage, please see the ./bin directory of the source distribution
 for various example scripts.
 
+Version 2.3.0:  Added new post-processing methods to the bent plume model
+                module and added a new module to replace the Fortran codes
+                that are used by the dbm module. Now, a Fortran compiler is
+                not required to install and run TAMOC.
 Version 2.2.0:  Updated the ambient module so that it is not based on and
                 compatible with xarray Dataset objects, updated all tests to
                 pass with the latest version of TAMOC, revised the
                 documentation with a new template and organization, and
                 updated some of the source docstrings to compile with Sphinx.
-
 Version 2.1.0: Updated the readme file with instructions for modern version
                 of Windows. Updated the model with various improvements,
                 including some additional chemical property data, additional
@@ -180,11 +183,13 @@ This package requires:
 
 * Scipy version 1.2.0 or higher
 
-* A modern Fortran compiler
-
 * The Python netCDF4 package
 
 * The Python xarray package
+
+* To use the Fortran versions of the equations of state, a modern Fortran 
+  compiler is required. Otherwise, the Python version of these codes will be
+  used.
 
 * To view plots of the model output, TAMOC uses the matplotlib package
 

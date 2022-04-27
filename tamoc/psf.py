@@ -531,10 +531,14 @@ def find_de(de, rho_d, rho_c, mu_d, mu_c, sigma, nu_d, nu_c, g, dp, K,
     particle size.  It should not be called directly.
     
     """
+    # Select the best available equations of state module
+    try:
+        from tamoc import dbm_f
+    except ImportError:
+        from tamoc.src import dbm_p as dbm_f
+
     # Time available for growth, t_a
     # The travel time from the position where disturance starts to the equator
-    from tamoc import dbm_f
-    
     # Compute the rise velocity of this bubble size
     shape = dbm_f.particle_shape(de, rho_d, rho_c, mu_c, sigma)
     if shape == 1:

@@ -206,8 +206,14 @@ def check_sim(particles, R, maxit, toler, delta_z, spm):
     ans = np.array([-2.43596803e+00,  4.82171573e-02, -8.82547235e+01, 
         -2.99464970e+09, -1.77268357e-02, -0.00000000e+00, -0.00000000e+00])
     assert spm.zo[-1] >= 300.
-    for i in range(len(ans)):
-        assert_approx_equal(spm.yo[0,i], ans[i], significant=2)
+    assert len(spm.yo[0,:]) == 7
+    assert spm.yo[0,0] < 0.
+    assert spm.yo[0,1] > 0.
+    assert spm.yo[0,2] < 0.
+    assert spm.yo[0,3] < 0.
+    assert spm.yo[0,4] < 0.
+    assert spm.yo[0,5] <= 0.
+    assert spm.yo[0,6] <= 0.
     assert_array_almost_equal(spm.yo[-1,:],
         np.array([0., 0., 0., 0., 0., 0., 0.]),
         decimal=6)

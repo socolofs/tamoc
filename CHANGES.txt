@@ -1,3 +1,16 @@
+V2.3.0, April 2022 --
+   . Found some new features added since switching to Python 3 that are not
+     backward-compatible with Python 2. While these will not always be
+     supported, these were fixed in this version so that TAMOC remains fully
+     compatible with Python 2.
+   . Updated all tests so that they are compatible with the current versions
+     of each module.
+   . Created a Python-only version of the Fortran codes so that a Fortran
+     compiler is not required. This new module is dbm_p.py, and is distributed
+     in the ./src directory of TAMOC. The TAMOC modules first try to import the
+     compiled Fortran code (dbm_f), and if that fails, they then import this new
+     module. The new module passed all the same tests as the dbm_f library as of
+     this release.
 V2.2.0, February 2022 --
    . Updated the ambient.py module to use xarray Datasets as the primary
      container for storing and manipulating ambient Profile data. The user
@@ -19,7 +32,7 @@ V2.2.0, February 2022 --
      and, new plotting methods, utilizing the xarray interface to
      matplotlib.pyplot.
    . Updated all of the examples in the ./bin/ambient directory to
-     demonstrate the new capabilities of the xarray versin of the ambient
+     demonstrate the new capabilities of the xarray version of the ambient
      module.
    . Updated all of the tests to pass with the current version of TAMOC,
      including all tests for the new version of the ambient module.

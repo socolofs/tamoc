@@ -44,12 +44,18 @@ the discrete bubble model have not been ported to Fortran and reside in the
 from __future__ import (absolute_import, division, print_function)
 
 from tamoc import chemical_properties
-from tamoc import dbm_f
 from tamoc import seawater
 
 import os
 import numpy as np
 from scipy.optimize import fsolve
+
+# Select the best available equations of state module
+try:
+    from tamoc import dbm_f
+except ImportError:
+    from tamoc.src import dbm_p as dbm_f
+
 
 class FluidMixture(object):
     """
@@ -1313,8 +1319,8 @@ class FluidParticle(FluidMixture):
              self.particle_shape(m, T, P, Sa, Ta)
         
         # Get the thermal conductivity of seawater
-        k = seawater.k(Ta, Sa, P) / (seawater.density(Ta, Sa, P) * 
-            seawater.cp())
+        k = np.array([seawater.k(Ta, Sa, P) / (seawater.density(Ta, Sa, P) * 
+            seawater.cp())])
         
         # Compute the slip velocity
         us = self.slip_velocity(m, T, P, Sa, Ta, status)
@@ -1392,7 +1398,7 @@ class FluidParticle(FluidMixture):
         mu = seawater.mu(Ta, Sa, P)
         sigma = self.interface_tension(m, T, Sa, P)
         D = dbm_f.diffusivity(mu, self.Vb)
-        k = seawater.k(Ta, Sa, P) / (rho * seawater.cp())
+        k = np.array([seawater.k(Ta, Sa, P) / (rho * seawater.cp())])
         
         # Particle density, equivalent diameter and shape
         rho_p = dbm_f.density(T, P, m, self.M, self.Pc, self.Tc, self.Vc, 
@@ -1918,8 +1924,8 @@ class InsolubleParticle(object):
              self.particle_shape(m, T, P, Sa, Ta)
         
         # Get the thermal conductivity of seawater
-        k = seawater.k(Ta, Sa, P) / (seawater.density(Ta, Sa, P) * 
-            seawater.cp())
+        k = np.array([seawater.k(Ta, Sa, P) / (seawater.density(Ta, Sa, P) * 
+            seawater.cp())])
         
         # Compute the slip velocity
         us = self.slip_velocity(m, T, P, Sa, Ta, status)
@@ -1989,7 +1995,7 @@ class InsolubleParticle(object):
         rho = seawater.density(Ta, Sa, P)
         mu = seawater.mu(Ta, Sa, P)
         sigma = self.interface_tension(T)
-        k = seawater.k(Ta, Sa, P) / (rho * seawater.cp())
+        k = np.array([seawater.k(Ta, Sa, P) / (rho * seawater.cp())])
         
         # Particle density, equivalent diameter and shape
         rho_p = self.density(T, P, Sa, Ta)
