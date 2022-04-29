@@ -138,21 +138,6 @@ if __name__ == '__main__':
     if python_only:
         # User wants to install only the python version of TAMOC
         pass # just in case there's something to do in the future
-        # setup(name='TAMOC',
-        #       version=get_version("tamoc"),
-        #       description='Texas A&M Oilspill Calculator',
-        #       long_description=open('README.rst').read(),
-        #       license='LICENSE.txt',
-        #       author='Scott A. Socolofsky',
-        #       author_email='socolofs@tamu.edu',
-        #       url="https://ceprofs.civil.tamu.edu/ssocolofsky/",
-        #       scripts=bin_files,
-        #       packages=['tamoc', 'tamoc.test'],
-        #       package_data={'tamoc': ['data/*.csv', 'data/*.cnv',
-        #           'data/*.dat']},
-        #       platforms=['any'],
-        #       classifiers=classifiers.split("\n"),
-        #       )
     else:
         # User want to try installing the TAMOC version that uses the
         # fortran extension module dbm_f
