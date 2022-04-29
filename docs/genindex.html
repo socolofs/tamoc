@@ -7,8 +7,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Index</title>
     
-  <link href="_static/css/theme.css" rel="stylesheet">
-  <link href="_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
 
     
   <link rel="stylesheet"
@@ -18,18 +19,15 @@
   <link rel="preload" as="font" type="font/woff2" crossorigin
     href="_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
 
-    
-      
-
-    
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/sphinx-book-theme.css?digest=84ace793992934648b4de8eed757e5a2" />
+    <link rel="stylesheet" href="_static/styles/sphinx-book-theme.css?digest=62ba249389abaaa9ffc34bf36a076bdc1d65ee18" type="text/css" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
     <link rel="stylesheet" type="text/css" href="_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
     
-  <link rel="preload" as="script" href="_static/js/index.be7d3bbb2ef33a8344ce.js">
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
 
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
@@ -37,8 +35,8 @@
     <script src="_static/doctools.js"></script>
     <script src="_static/clipboard.min.js"></script>
     <script src="_static/copybutton.js"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?digest=f31d14ad54b65d19161ba51d4ffff3a77ae00456"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script src="_static/sphinx-book-theme.9d8b4a8b9bb19db25eeaddc40d639ba2.js"></script>
     <link rel="shortcut icon" href="_static/tamoc_favicon.ico"/>
     <link rel="index" title="Index" href="#" />
     <link rel="search" title="Search" href="search.html" />
@@ -49,7 +47,21 @@
     <!-- Google Analytics -->
     
   </head>
-  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"></div>
+<div class="header header-item noprint"></div>
+
     
     <div class="container-fluid" id="banner"></div>
 
@@ -58,14 +70,10 @@
     <div class="container-xl">
       <div class="row">
           
-<!-- Checkboxes to toggle the left sidebar -->
-<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
-<label class="overlay" for="__navigation">
-    <div class="visually-hidden">Toggle navigation sidebar</div>
-</label>
-<div class="col-12 col-md-3 bd-sidebar site-navigation " id="site-navigation">
-    
-        <div class="navbar-brand-box">
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
     <a class="navbar-brand text-wrap" href="index.html">
       
         <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
@@ -152,6 +160,11 @@
    <li class="toctree-l2">
     <a class="reference internal" href="guides/dbm.html">
      Discrete Bubble Model
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="guides/dbm_p.html">
+     Discrete Bubble Model – Properties Functions
     </a>
    </li>
    <li class="toctree-l2">
@@ -1016,11 +1029,173 @@
     </ul>
    </li>
    <li class="toctree-l2 has-children">
-    <a class="reference internal" href="modules/dbm_utilities.html">
-     DBM Utilities Module
+    <a class="reference internal" href="modules/dbm_p.html">
+     Discrete Particle Module – Properties Functions
     </a>
     <input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" type="checkbox"/>
     <label for="toctree-checkbox-16">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3">
+      <a class="reference internal" href="generated/tamoc.dbm_p.html">
+       tamoc.dbm_p
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="generated/tamoc.dbm_p.cubic_roots.html">
+       tamoc.dbm_p.cubic_roots
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="generated/tamoc.dbm_p.eotvos.html">
+       tamoc.dbm_p.eotvos
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="generated/tamoc.dbm_p.morton.html">
+       tamoc.dbm_p.morton
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="generated/tamoc.dbm_p.reynolds.html">
+       tamoc.dbm_p.reynolds
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="generated/tamoc.dbm_p.h_parameter.html">
+       tamoc.dbm_p.h_parameter
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="generated/tamoc.dbm_p.particle_shape.html">
+       tamoc.dbm_p.particle_shape
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="generated/tamoc.dbm_p.theta_w_sc.html">
+       tamoc.dbm_p.theta_w_sc
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="generated/tamoc.dbm_p.surface_area_sc.html">
+       tamoc.dbm_p.surface_area_sc
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="generated/tamoc.dbm_p.surface_area_sphere.html">
+       tamoc.dbm_p.surface_area_sphere
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="generated/tamoc.dbm_p.us_sphere.html">
+       tamoc.dbm_p.us_sphere
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="generated/tamoc.dbm_p.us_ellipsoid.html">
+       tamoc.dbm_p.us_ellipsoid
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="generated/tamoc.dbm_p.us_spherical_cap.html">
+       tamoc.dbm_p.us_spherical_cap
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="generated/tamoc.dbm_p.xfer_kumar_hartland.html">
+       tamoc.dbm_p.xfer_kumar_hartland
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="generated/tamoc.dbm_p.xfer_johnson.html">
+       tamoc.dbm_p.xfer_johnson
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="generated/tamoc.dbm_p.xfer_clift.html">
+       tamoc.dbm_p.xfer_clift
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="generated/tamoc.dbm_p.xfer_sphere.html">
+       tamoc.dbm_p.xfer_sphere
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="generated/tamoc.dbm_p.xfer_ellipsoid.html">
+       tamoc.dbm_p.xfer_ellipsoid
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="generated/tamoc.dbm_p.xfer_spherical_cap.html">
+       tamoc.dbm_p.xfer_spherical_cap
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="generated/tamoc.dbm_p.density.html">
+       tamoc.dbm_p.density
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="generated/tamoc.dbm_p.fugacity.html">
+       tamoc.dbm_p.fugacity
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="generated/tamoc.dbm_p.volume_trans.html">
+       tamoc.dbm_p.volume_trans
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="generated/tamoc.dbm_p.z_pr.html">
+       tamoc.dbm_p.z_pr
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="generated/tamoc.dbm_p.coefs.html">
+       tamoc.dbm_p.coefs
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="generated/tamoc.dbm_p.mole_fraction.html">
+       tamoc.dbm_p.mole_fraction
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="generated/tamoc.dbm_p.viscosity.html">
+       tamoc.dbm_p.viscosity
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="generated/tamoc.dbm_p.kh_insitu.html">
+       tamoc.dbm_p.kh_insitu
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="generated/tamoc.dbm_p.sw_solubility.html">
+       tamoc.dbm_p.sw_solubility
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="generated/tamoc.dbm_p.diffusivity.html">
+       tamoc.dbm_p.diffusivity
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="generated/tamoc.dbm_p.kvsi_hydrate.html">
+       tamoc.dbm_p.kvsi_hydrate
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="modules/dbm_utilities.html">
+     DBM Utilities Module
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-17" name="toctree-checkbox-17" type="checkbox"/>
+    <label for="toctree-checkbox-17">
      <i class="fas fa-chevron-down">
      </i>
     </label>
@@ -1131,8 +1306,8 @@
     <a class="reference internal" href="modules/dispersed_phases.html">
      Dispersed Phases Module
     </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-17" name="toctree-checkbox-17" type="checkbox"/>
-    <label for="toctree-checkbox-17">
+    <input class="toctree-checkbox" id="toctree-checkbox-18" name="toctree-checkbox-18" type="checkbox"/>
+    <label for="toctree-checkbox-18">
      <i class="fas fa-chevron-down">
      </i>
     </label>
@@ -1243,8 +1418,8 @@
     <a class="reference internal" href="modules/single_bubble_model.html">
      Single Bubble Model Module
     </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-18" name="toctree-checkbox-18" type="checkbox"/>
-    <label for="toctree-checkbox-18">
+    <input class="toctree-checkbox" id="toctree-checkbox-19" name="toctree-checkbox-19" type="checkbox"/>
+    <label for="toctree-checkbox-19">
      <i class="fas fa-chevron-down">
      </i>
     </label>
@@ -1315,8 +1490,8 @@
     <a class="reference internal" href="modules/stratified_plume_model.html">
      Stratified Plume Model Module
     </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-19" name="toctree-checkbox-19" type="checkbox"/>
-    <label for="toctree-checkbox-19">
+    <input class="toctree-checkbox" id="toctree-checkbox-20" name="toctree-checkbox-20" type="checkbox"/>
+    <label for="toctree-checkbox-20">
      <i class="fas fa-chevron-down">
      </i>
     </label>
@@ -1427,8 +1602,8 @@
     <a class="reference internal" href="modules/bent_plume_model.html">
      Bent Plume Model Module
     </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-20" name="toctree-checkbox-20" type="checkbox"/>
-    <label for="toctree-checkbox-20">
+    <input class="toctree-checkbox" id="toctree-checkbox-21" name="toctree-checkbox-21" type="checkbox"/>
+    <label for="toctree-checkbox-21">
      <i class="fas fa-chevron-down">
      </i>
     </label>
@@ -1479,6 +1654,21 @@
       </a>
      </li>
      <li class="toctree-l3">
+      <a class="reference internal" href="generated/tamoc.bent_plume_model.Model.report_psds.html">
+       tamoc.bent_plume_model.Model.report_psds
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="generated/tamoc.bent_plume_model.Model.report_mass_fluxes.html">
+       tamoc.bent_plume_model.Model.report_mass_fluxes
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="generated/tamoc.bent_plume_model.Model.report_surfacing_fluxes.html">
+       tamoc.bent_plume_model.Model.report_surfacing_fluxes
+      </a>
+     </li>
+     <li class="toctree-l3">
       <a class="reference internal" href="generated/tamoc.bent_plume_model.Model.plot_state_space.html">
        tamoc.bent_plume_model.Model.plot_state_space
       </a>
@@ -1486,6 +1676,21 @@
      <li class="toctree-l3">
       <a class="reference internal" href="generated/tamoc.bent_plume_model.Model.plot_all_variables.html">
        tamoc.bent_plume_model.Model.plot_all_variables
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="generated/tamoc.bent_plume_model.Model.plot_psds.html">
+       tamoc.bent_plume_model.Model.plot_psds
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="generated/tamoc.bent_plume_model.Model.plot_fractions_dissolved.html">
+       tamoc.bent_plume_model.Model.plot_fractions_dissolved
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="generated/tamoc.bent_plume_model.Model.plot_mass_balance.html">
+       tamoc.bent_plume_model.Model.plot_mass_balance
       </a>
      </li>
      <li class="toctree-l3">
@@ -1529,8 +1734,8 @@
     <a class="reference internal" href="modules/particle_size_models.html">
      Particle Size Model Module
     </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-21" name="toctree-checkbox-21" type="checkbox"/>
-    <label for="toctree-checkbox-21">
+    <input class="toctree-checkbox" id="toctree-checkbox-22" name="toctree-checkbox-22" type="checkbox"/>
+    <label for="toctree-checkbox-22">
      <i class="fas fa-chevron-down">
      </i>
     </label>
@@ -1671,8 +1876,8 @@
     <a class="reference internal" href="modules/blowout.html">
      Blowout Module
     </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-22" name="toctree-checkbox-22" type="checkbox"/>
-    <label for="toctree-checkbox-22">
+    <input class="toctree-checkbox" id="toctree-checkbox-23" name="toctree-checkbox-23" type="checkbox"/>
+    <label for="toctree-checkbox-23">
      <i class="fas fa-chevron-down">
      </i>
     </label>
@@ -1798,8 +2003,8 @@
     <a class="reference internal" href="modules/params.html">
      Non-Dimensional Parameters Module
     </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-23" name="toctree-checkbox-23" type="checkbox"/>
-    <label for="toctree-checkbox-23">
+    <input class="toctree-checkbox" id="toctree-checkbox-24" name="toctree-checkbox-24" type="checkbox"/>
+    <label for="toctree-checkbox-24">
      <i class="fas fa-chevron-down">
      </i>
     </label>
@@ -1869,8 +2074,8 @@
   <a class="reference internal" href="tests.html">
    Test Package
   </a>
-  <input class="toctree-checkbox" id="toctree-checkbox-24" name="toctree-checkbox-24" type="checkbox"/>
-  <label for="toctree-checkbox-24">
+  <input class="toctree-checkbox" id="toctree-checkbox-25" name="toctree-checkbox-25" type="checkbox"/>
+  <label for="toctree-checkbox-25">
    <i class="fas fa-chevron-down">
    </i>
   </label>
@@ -1940,57 +2145,77 @@
 </ul>
 
     </div>
-</nav> <!-- To handle the deprecated key -->
-
-<div class="navbar_extra_footer">
-  Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
-</div>
-
-</div>
-
-
-          
-
-
-          
-<!-- This is an invisible pixel that we watch to see if we've scrolled. -->
-<div class="sbt-scroll-pixel-helper"></div>
-<main class="col py-md-3 pl-md-4 bd-content overflow-auto" role="main">
-    
-    <div class="topbar container-xl fixed-top">
-    <div class="topbar-contents row">
-        <div class="col-12 col-md-3 bd-topbar-whitespace site-navigation show"></div>
-        <div class="col pl-md-4 topbar-main">
-            <div class="topbar-left">
-                
-                <label class="nav-toggle-button" for="__navigation">
-                    <div class="visually-hidden">Toggle navigation</div>
-                    <i class="fas fa-bars"></i>
-                </label>
-                
-            </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
             
-            <!-- Source interaction buttons -->
-
-            <!-- Full screen (wrap in <a> to have style consistency -->
-
-<a class="full-screen-button"><button type="button" class="btn btn-secondary topbarbtn" data-toggle="tooltip"
-        data-placement="bottom" onclick="toggleFullScreen()" aria-label="Fullscreen mode"
-        title="Fullscreen mode"><i
-            class="fas fa-expand"></i></button></a>
-
-            <!-- Launch buttons -->
-
-        </div>
-
-        <!-- Table of contents -->
-        <div class="d-none d-md-block col-md-2 bd-toc show noprint">
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
             
         </div>
     </div>
+    <div id="rtd-footer-container"></div>
 </div>
-    <div id="main-content" class="row">
-        <div class="col-12 col-md-9 pl-md-3 pr-md-0">
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
             <!-- Table of contents that is only displayed when printing the page -->
             <div id="jb-print-docs-body" class="onlyprint">
                 <h1></h1>
@@ -2001,7 +2226,8 @@
                     </div>
                 </div>
             </div>
-            
+            <main id="main-content" role="main">
+                
               <div>
                 
 
@@ -2479,9 +2705,11 @@
 </li>
       <li><a href="generated/tamoc.ambient.Profile.close_nc.html#tamoc.ambient.Profile.close_nc">close_nc() (tamoc.ambient.Profile method)</a>
 </li>
+      <li><a href="generated/tamoc.ambient.coarsen.html#tamoc.ambient.coarsen">coarsen() (in module tamoc.ambient)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="generated/tamoc.ambient.coarsen.html#tamoc.ambient.coarsen">coarsen() (in module tamoc.ambient)</a>
+      <li><a href="generated/tamoc.dbm_p.coefs.html#tamoc.dbm_p.coefs">coefs() (in module tamoc.dbm_p)</a>
 </li>
       <li><a href="generated/tamoc.bent_plume_model.Particle.html#tamoc.bent_plume_model.Particle.composition">composition (tamoc.bent_plume_model.Particle attribute)</a>
 
@@ -2526,6 +2754,8 @@
 </li>
       </ul></li>
       <li><a href="generated/tamoc.bent_plume_model.LagElement.html#tamoc.bent_plume_model.LagElement.cte">cte (tamoc.bent_plume_model.LagElement attribute)</a>
+</li>
+      <li><a href="generated/tamoc.dbm_p.cubic_roots.html#tamoc.dbm_p.cubic_roots">cubic_roots() (in module tamoc.dbm_p)</a>
 </li>
       <li><a href="generated/tamoc.blowout.Blowout.html#tamoc.blowout.Blowout.current">current (tamoc.blowout.Blowout attribute)</a>
 </li>
@@ -2613,9 +2843,11 @@
 </li>
       <li><a href="generated/tamoc.stratified_plume_model.Model.html#tamoc.stratified_plume_model.Model.delta_z">delta_z (tamoc.stratified_plume_model.Model attribute)</a>
 </li>
-      <li><a href="generated/tamoc.seawater.density.html#tamoc.seawater.density">density() (in module tamoc.seawater)</a>
+      <li><a href="generated/tamoc.dbm_p.density.html#tamoc.dbm_p.density">density() (in module tamoc.dbm_p)</a>
 
       <ul>
+        <li><a href="generated/tamoc.seawater.density.html#tamoc.seawater.density">(in module tamoc.seawater)</a>
+</li>
         <li><a href="generated/tamoc.dbm.FluidMixture.density.html#tamoc.dbm.FluidMixture.density">(tamoc.dbm.FluidMixture method)</a>
 </li>
         <li><a href="generated/tamoc.dbm.FluidParticle.density.html#tamoc.dbm.FluidParticle.density">(tamoc.dbm.FluidParticle method)</a>
@@ -2635,9 +2867,11 @@
         <li><a href="generated/tamoc.dispersed_phases.SingleParticle.diameter.html#tamoc.dispersed_phases.SingleParticle.diameter">(tamoc.dispersed_phases.SingleParticle method)</a>
 </li>
       </ul></li>
-      <li><a href="generated/tamoc.dbm.FluidMixture.diffusivity.html#tamoc.dbm.FluidMixture.diffusivity">diffusivity() (tamoc.dbm.FluidMixture method)</a>
+      <li><a href="generated/tamoc.dbm_p.diffusivity.html#tamoc.dbm_p.diffusivity">diffusivity() (in module tamoc.dbm_p)</a>
 
       <ul>
+        <li><a href="generated/tamoc.dbm.FluidMixture.diffusivity.html#tamoc.dbm.FluidMixture.diffusivity">(tamoc.dbm.FluidMixture method)</a>
+</li>
         <li><a href="generated/tamoc.dbm.FluidParticle.diffusivity.html#tamoc.dbm.FluidParticle.diffusivity">(tamoc.dbm.FluidParticle method)</a>
 </li>
       </ul></li>
@@ -2667,20 +2901,22 @@
 <h2 id="E">E</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/tamoc.dbm_p.eotvos.html#tamoc.dbm_p.eotvos">eotvos() (in module tamoc.dbm_p)</a>
+</li>
       <li><a href="generated/tamoc.stratified_plume_model.InnerPlume.html#tamoc.stratified_plume_model.InnerPlume.Ep">Ep (tamoc.stratified_plume_model.InnerPlume attribute)</a>
 </li>
       <li><a href="generated/tamoc.stratified_plume_model.ModelParams.html#tamoc.stratified_plume_model.ModelParams.epsilon">epsilon (tamoc.stratified_plume_model.ModelParams attribute)</a>
 </li>
       <li><a href="generated/tamoc.dbm.equil_MM.html#tamoc.dbm.equil_MM">equil_MM() (in module tamoc.dbm)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/tamoc.dbm.FluidMixture.equilibrium.html#tamoc.dbm.FluidMixture.equilibrium">equilibrium() (tamoc.dbm.FluidMixture method)</a>
 
       <ul>
         <li><a href="generated/tamoc.dbm.FluidParticle.equilibrium.html#tamoc.dbm.FluidParticle.equilibrium">(tamoc.dbm.FluidParticle method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/tamoc.stratified_plume_model.err_check.html#tamoc.stratified_plume_model.err_check">err_check() (in module tamoc.stratified_plume_model)</a>
 </li>
       <li><a href="generated/tamoc.ambient.Profile.extend_profile_deeper.html#tamoc.ambient.Profile.extend_profile_deeper">extend_profile_deeper() (tamoc.ambient.Profile method)</a>
@@ -2713,10 +2949,10 @@
       </ul></li>
       <li><a href="generated/tamoc.stratified_plume_model.ModelParams.html#tamoc.stratified_plume_model.ModelParams.fe">fe (tamoc.stratified_plume_model.ModelParams attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/tamoc.ambient.fill_nc_db.html#tamoc.ambient.fill_nc_db">fill_nc_db() (in module tamoc.ambient)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/tamoc.ambient.fill_nc_db_variable.html#tamoc.ambient.fill_nc_db_variable">fill_nc_db_variable() (in module tamoc.ambient)</a>
 </li>
       <li><a href="generated/tamoc.dbm.FluidMixture.html#tamoc.dbm.FluidMixture">FluidMixture (class in tamoc.dbm)</a>
@@ -2733,9 +2969,11 @@
       </ul></li>
       <li><a href="generated/tamoc.stratified_plume_model.ModelParams.html#tamoc.stratified_plume_model.ModelParams.Fro_0">Fro_0 (tamoc.stratified_plume_model.ModelParams attribute)</a>
 </li>
-      <li><a href="generated/tamoc.dbm.FluidMixture.fugacity.html#tamoc.dbm.FluidMixture.fugacity">fugacity() (tamoc.dbm.FluidMixture method)</a>
+      <li><a href="generated/tamoc.dbm_p.fugacity.html#tamoc.dbm_p.fugacity">fugacity() (in module tamoc.dbm_p)</a>
 
       <ul>
+        <li><a href="generated/tamoc.dbm.FluidMixture.fugacity.html#tamoc.dbm.FluidMixture.fugacity">(tamoc.dbm.FluidMixture method)</a>
+</li>
         <li><a href="generated/tamoc.dbm.FluidParticle.fugacity.html#tamoc.dbm.FluidParticle.fugacity">(tamoc.dbm.FluidParticle method)</a>
 </li>
       </ul></li>
@@ -2851,10 +3089,12 @@
       </ul></li>
       <li><a href="generated/tamoc.params.Scales.h_P.html#tamoc.params.Scales.h_P">h_P() (tamoc.params.Scales method)</a>
 </li>
-      <li><a href="generated/tamoc.params.Scales.h_S.html#tamoc.params.Scales.h_S">h_S() (tamoc.params.Scales method)</a>
+      <li><a href="generated/tamoc.dbm_p.h_parameter.html#tamoc.dbm_p.h_parameter">h_parameter() (in module tamoc.dbm_p)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/tamoc.params.Scales.h_S.html#tamoc.params.Scales.h_S">h_S() (tamoc.params.Scales method)</a>
+</li>
       <li><a href="generated/tamoc.params.Scales.h_T.html#tamoc.params.Scales.h_T">h_T() (tamoc.params.Scales method)</a>
 </li>
       <li><a href="generated/tamoc.bent_plume_model.LagElement.html#tamoc.bent_plume_model.LagElement.He">He (tamoc.bent_plume_model.LagElement attribute)</a>
@@ -2953,8 +3193,6 @@
 </li>
       <li><a href="generated/tamoc.dbm.FluidMixture.html#tamoc.dbm.FluidMixture.K_salt">K_salt (tamoc.dbm.FluidMixture attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/tamoc.bent_plume_model.Particle.html#tamoc.bent_plume_model.Particle.K_T">K_T (tamoc.bent_plume_model.Particle attribute)</a>
 
       <ul>
@@ -2965,6 +3203,8 @@
         <li><a href="generated/tamoc.single_bubble_model.Model.html#tamoc.single_bubble_model.Model.K_T">(tamoc.single_bubble_model.Model attribute)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/tamoc.bent_plume_model.Model.html#tamoc.bent_plume_model.Model.K_T0">K_T0 (tamoc.bent_plume_model.Model attribute)</a>
 
       <ul>
@@ -2972,6 +3212,10 @@
 </li>
       </ul></li>
       <li><a href="generated/tamoc.dbm.FluidMixture.html#tamoc.dbm.FluidMixture.kh_0">kh_0 (tamoc.dbm.FluidMixture attribute)</a>
+</li>
+      <li><a href="generated/tamoc.dbm_p.kh_insitu.html#tamoc.dbm_p.kh_insitu">kh_insitu() (in module tamoc.dbm_p)</a>
+</li>
+      <li><a href="generated/tamoc.dbm_p.kvsi_hydrate.html#tamoc.dbm_p.kvsi_hydrate">kvsi_hydrate() (in module tamoc.dbm_p)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -3211,6 +3455,8 @@
 </li>
         <li><a href="generated/tamoc.dbm.html#module-tamoc.dbm">tamoc.dbm</a>
 </li>
+        <li><a href="generated/tamoc.dbm_p.html#module-tamoc.dbm_p">tamoc.dbm_p</a>
+</li>
         <li><a href="generated/tamoc.dbm_utilities.html#module-tamoc.dbm_utilities">tamoc.dbm_utilities</a>
 </li>
         <li><a href="generated/tamoc.dispersed_phases.html#module-tamoc.dispersed_phases">tamoc.dispersed_phases</a>
@@ -3256,12 +3502,16 @@
         <li><a href="generated/tamoc.dbm.FluidParticle.mol_frac.html#tamoc.dbm.FluidParticle.mol_frac">(tamoc.dbm.FluidParticle method)</a>
 </li>
       </ul></li>
+      <li><a href="generated/tamoc.dbm_p.mole_fraction.html#tamoc.dbm_p.mole_fraction">mole_fraction() (in module tamoc.dbm_p)</a>
+</li>
       <li><a href="generated/tamoc.dbm.FluidMixture.moles.html#tamoc.dbm.FluidMixture.moles">moles() (tamoc.dbm.FluidMixture method)</a>
 
       <ul>
         <li><a href="generated/tamoc.dbm.FluidParticle.moles.html#tamoc.dbm.FluidParticle.moles">(tamoc.dbm.FluidParticle method)</a>
 </li>
       </ul></li>
+      <li><a href="generated/tamoc.dbm_p.morton.html#tamoc.dbm_p.morton">morton() (in module tamoc.dbm_p)</a>
+</li>
       <li><a href="generated/tamoc.bent_plume_model.LagElement.html#tamoc.bent_plume_model.LagElement.Mp">Mp (tamoc.bent_plume_model.LagElement attribute)</a>
 </li>
       <li><a href="generated/tamoc.bent_plume_model.LagElement.html#tamoc.bent_plume_model.LagElement.mp">mp (tamoc.bent_plume_model.LagElement attribute)</a>
@@ -3410,9 +3660,11 @@
 </li>
       <li><a href="generated/tamoc.stratified_plume_model.particle_from_Q.html#tamoc.stratified_plume_model.particle_from_Q">particle_from_Q() (in module tamoc.stratified_plume_model)</a>
 </li>
-      <li><a href="generated/tamoc.dbm.FluidParticle.particle_shape.html#tamoc.dbm.FluidParticle.particle_shape">particle_shape() (tamoc.dbm.FluidParticle method)</a>
+      <li><a href="generated/tamoc.dbm_p.particle_shape.html#tamoc.dbm_p.particle_shape">particle_shape() (in module tamoc.dbm_p)</a>
 
       <ul>
+        <li><a href="generated/tamoc.dbm.FluidParticle.particle_shape.html#tamoc.dbm.FluidParticle.particle_shape">(tamoc.dbm.FluidParticle method)</a>
+</li>
         <li><a href="generated/tamoc.dbm.InsolubleParticle.particle_shape.html#tamoc.dbm.InsolubleParticle.particle_shape">(tamoc.dbm.InsolubleParticle method)</a>
 </li>
       </ul></li>
@@ -3472,6 +3724,10 @@
       </ul></li>
       <li><a href="generated/tamoc.ambient.Profile.plot_chem_profiles.html#tamoc.ambient.Profile.plot_chem_profiles">plot_chem_profiles() (tamoc.ambient.Profile method)</a>
 </li>
+      <li><a href="generated/tamoc.bent_plume_model.Model.plot_fractions_dissolved.html#tamoc.bent_plume_model.Model.plot_fractions_dissolved">plot_fractions_dissolved() (tamoc.bent_plume_model.Model method)</a>
+</li>
+      <li><a href="generated/tamoc.bent_plume_model.Model.plot_mass_balance.html#tamoc.bent_plume_model.Model.plot_mass_balance">plot_mass_balance() (tamoc.bent_plume_model.Model method)</a>
+</li>
       <li><a href="generated/tamoc.ambient.Profile.plot_parameter.html#tamoc.ambient.Profile.plot_parameter">plot_parameter() (tamoc.ambient.Profile method)</a>
 </li>
       <li><a href="generated/tamoc.particle_size_models.plot_phase.html#tamoc.particle_size_models.plot_phase">plot_phase() (in module tamoc.particle_size_models)</a>
@@ -3488,6 +3744,8 @@
         <li><a href="generated/tamoc.particle_size_models.PureJet.plot_psd.html#tamoc.particle_size_models.PureJet.plot_psd">(tamoc.particle_size_models.PureJet method)</a>
 </li>
       </ul></li>
+      <li><a href="generated/tamoc.bent_plume_model.Model.plot_psds.html#tamoc.bent_plume_model.Model.plot_psds">plot_psds() (tamoc.bent_plume_model.Model method)</a>
+</li>
       <li><a href="generated/tamoc.bent_plume_model.plot_state_space.html#tamoc.bent_plume_model.plot_state_space">plot_state_space() (in module tamoc.bent_plume_model)</a>
 
       <ul>
@@ -3570,12 +3828,20 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/tamoc.stratified_plume_model.Model.html#tamoc.stratified_plume_model.Model.R">R (tamoc.stratified_plume_model.Model attribute)</a>
 </li>
+      <li><a href="generated/tamoc.bent_plume_model.Model.report_mass_fluxes.html#tamoc.bent_plume_model.Model.report_mass_fluxes">report_mass_fluxes() (tamoc.bent_plume_model.Model method)</a>
+</li>
+      <li><a href="generated/tamoc.bent_plume_model.Model.report_psds.html#tamoc.bent_plume_model.Model.report_psds">report_psds() (tamoc.bent_plume_model.Model method)</a>
+</li>
+      <li><a href="generated/tamoc.bent_plume_model.Model.report_surfacing_fluxes.html#tamoc.bent_plume_model.Model.report_surfacing_fluxes">report_surfacing_fluxes() (tamoc.bent_plume_model.Model method)</a>
+</li>
       <li><a href="generated/tamoc.dbm.FluidParticle.return_all.html#tamoc.dbm.FluidParticle.return_all">return_all() (tamoc.dbm.FluidParticle method)</a>
 
       <ul>
         <li><a href="generated/tamoc.dbm.InsolubleParticle.return_all.html#tamoc.dbm.InsolubleParticle.return_all">(tamoc.dbm.InsolubleParticle method)</a>
 </li>
       </ul></li>
+      <li><a href="generated/tamoc.dbm_p.reynolds.html#tamoc.dbm_p.reynolds">reynolds() (in module tamoc.dbm_p)</a>
+</li>
       <li><a href="generated/tamoc.bent_plume_model.LagElement.html#tamoc.bent_plume_model.LagElement.rho">rho (tamoc.bent_plume_model.LagElement attribute)</a>
 
       <ul>
@@ -3598,6 +3864,8 @@
         <li><a href="generated/tamoc.stratified_plume_model.OuterPlume.html#tamoc.stratified_plume_model.OuterPlume.rho_a">(tamoc.stratified_plume_model.OuterPlume attribute)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/tamoc.particle_size_models.Model.html#tamoc.particle_size_models.Model.rho_gas">rho_gas (tamoc.particle_size_models.Model attribute)</a>
 
       <ul>
@@ -3606,8 +3874,6 @@
         <li><a href="generated/tamoc.particle_size_models.PureJet.html#tamoc.particle_size_models.PureJet.rho_gas">(tamoc.particle_size_models.PureJet attribute)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/tamoc.particle_size_models.Model.html#tamoc.particle_size_models.Model.rho_oil">rho_oil (tamoc.particle_size_models.Model attribute)</a>
 
       <ul>
@@ -3798,6 +4064,12 @@
         <li><a href="generated/tamoc.dbm.InsolubleParticle.surface_area.html#tamoc.dbm.InsolubleParticle.surface_area">(tamoc.dbm.InsolubleParticle method)</a>
 </li>
       </ul></li>
+      <li><a href="generated/tamoc.dbm_p.surface_area_sc.html#tamoc.dbm_p.surface_area_sc">surface_area_sc() (in module tamoc.dbm_p)</a>
+</li>
+      <li><a href="generated/tamoc.dbm_p.surface_area_sphere.html#tamoc.dbm_p.surface_area_sphere">surface_area_sphere() (in module tamoc.dbm_p)</a>
+</li>
+      <li><a href="generated/tamoc.dbm_p.sw_solubility.html#tamoc.dbm_p.sw_solubility">sw_solubility() (in module tamoc.dbm_p)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -3885,6 +4157,13 @@
 </li>
       </ul></li>
       <li>
+    tamoc.dbm_p
+
+      <ul>
+        <li><a href="generated/tamoc.dbm_p.html#module-tamoc.dbm_p">module</a>
+</li>
+      </ul></li>
+      <li>
     tamoc.dbm_utilities
 
       <ul>
@@ -3912,6 +4191,8 @@
         <li><a href="generated/tamoc.particle_size_models.html#module-tamoc.particle_size_models">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     tamoc.seawater
 
@@ -3919,8 +4200,6 @@
         <li><a href="generated/tamoc.seawater.html#module-tamoc.seawater">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     tamoc.single_bubble_model
 
@@ -4022,6 +4301,8 @@
         <li><a href="generated/tamoc.blowout.Blowout.html#tamoc.blowout.Blowout.theta_0">(tamoc.blowout.Blowout attribute)</a>
 </li>
       </ul></li>
+      <li><a href="generated/tamoc.dbm_p.theta_w_sc.html#tamoc.dbm_p.theta_w_sc">theta_w_sc() (in module tamoc.dbm_p)</a>
+</li>
       <li><a href="generated/tamoc.bent_plume_model.Model.html#tamoc.bent_plume_model.Model.Tj">Tj (tamoc.bent_plume_model.Model attribute)</a>
 
       <ul>
@@ -4080,10 +4361,10 @@
 </li>
       <li><a href="generated/tamoc.blowout.Blowout.update_num_gas_elements.html#tamoc.blowout.Blowout.update_num_gas_elements">update_num_gas_elements() (tamoc.blowout.Blowout method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/tamoc.blowout.Blowout.update_orifice_diameter.html#tamoc.blowout.Blowout.update_orifice_diameter">update_orifice_diameter() (tamoc.blowout.Blowout method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/tamoc.blowout.Blowout.update_produced_water.html#tamoc.blowout.Blowout.update_produced_water">update_produced_water() (tamoc.blowout.Blowout method)</a>
 </li>
       <li><a href="generated/tamoc.particle_size_models.Model.update_properties.html#tamoc.particle_size_models.Model.update_properties">update_properties() (tamoc.particle_size_models.Model method)</a>
@@ -4116,6 +4397,12 @@
         <li><a href="generated/tamoc.dispersed_phases.PlumeParticle.html#tamoc.dispersed_phases.PlumeParticle.us">(tamoc.dispersed_phases.PlumeParticle attribute)</a>
 </li>
       </ul></li>
+      <li><a href="generated/tamoc.dbm_p.us_ellipsoid.html#tamoc.dbm_p.us_ellipsoid">us_ellipsoid() (in module tamoc.dbm_p)</a>
+</li>
+      <li><a href="generated/tamoc.dbm_p.us_sphere.html#tamoc.dbm_p.us_sphere">us_sphere() (in module tamoc.dbm_p)</a>
+</li>
+      <li><a href="generated/tamoc.dbm_p.us_spherical_cap.html#tamoc.dbm_p.us_spherical_cap">us_spherical_cap() (in module tamoc.dbm_p)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -4138,10 +4425,10 @@
         <li><a href="generated/tamoc.particle_size_models.PureJet.html#tamoc.particle_size_models.PureJet.vf_gas">(tamoc.particle_size_models.PureJet attribute)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/tamoc.blowout.Blowout.html#tamoc.blowout.Blowout.vf_liq">vf_liq (tamoc.blowout.Blowout attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/tamoc.particle_size_models.Model.html#tamoc.particle_size_models.Model.vf_oil">vf_oil (tamoc.particle_size_models.Model attribute)</a>
 
       <ul>
@@ -4150,15 +4437,19 @@
         <li><a href="generated/tamoc.particle_size_models.PureJet.html#tamoc.particle_size_models.PureJet.vf_oil">(tamoc.particle_size_models.PureJet attribute)</a>
 </li>
       </ul></li>
-      <li><a href="generated/tamoc.dbm.FluidMixture.viscosity.html#tamoc.dbm.FluidMixture.viscosity">viscosity() (tamoc.dbm.FluidMixture method)</a>
+      <li><a href="generated/tamoc.dbm_p.viscosity.html#tamoc.dbm_p.viscosity">viscosity() (in module tamoc.dbm_p)</a>
 
       <ul>
+        <li><a href="generated/tamoc.dbm.FluidMixture.viscosity.html#tamoc.dbm.FluidMixture.viscosity">(tamoc.dbm.FluidMixture method)</a>
+</li>
         <li><a href="generated/tamoc.dbm.FluidParticle.viscosity.html#tamoc.dbm.FluidParticle.viscosity">(tamoc.dbm.FluidParticle method)</a>
 </li>
         <li><a href="generated/tamoc.dbm.InsolubleParticle.viscosity.html#tamoc.dbm.InsolubleParticle.viscosity">(tamoc.dbm.InsolubleParticle method)</a>
 </li>
       </ul></li>
       <li><a href="generated/tamoc.bent_plume_model.Model.html#tamoc.bent_plume_model.Model.Vj">Vj (tamoc.bent_plume_model.Model attribute)</a>
+</li>
+      <li><a href="generated/tamoc.dbm_p.volume_trans.html#tamoc.dbm_p.volume_trans">volume_trans() (in module tamoc.dbm_p)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -4198,10 +4489,22 @@
 </li>
       <li><a href="generated/tamoc.bent_plume_model.LagElement.html#tamoc.bent_plume_model.LagElement.x_p">x_p (tamoc.bent_plume_model.LagElement attribute)</a>
 </li>
-      <li><a href="generated/tamoc.stratified_plume_model.InnerPlume.html#tamoc.stratified_plume_model.InnerPlume.Xi">Xi (tamoc.stratified_plume_model.InnerPlume attribute)</a>
+      <li><a href="generated/tamoc.dbm_p.xfer_clift.html#tamoc.dbm_p.xfer_clift">xfer_clift() (in module tamoc.dbm_p)</a>
+</li>
+      <li><a href="generated/tamoc.dbm_p.xfer_ellipsoid.html#tamoc.dbm_p.xfer_ellipsoid">xfer_ellipsoid() (in module tamoc.dbm_p)</a>
+</li>
+      <li><a href="generated/tamoc.dbm_p.xfer_johnson.html#tamoc.dbm_p.xfer_johnson">xfer_johnson() (in module tamoc.dbm_p)</a>
+</li>
+      <li><a href="generated/tamoc.dbm_p.xfer_kumar_hartland.html#tamoc.dbm_p.xfer_kumar_hartland">xfer_kumar_hartland() (in module tamoc.dbm_p)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/tamoc.dbm_p.xfer_sphere.html#tamoc.dbm_p.xfer_sphere">xfer_sphere() (in module tamoc.dbm_p)</a>
+</li>
+      <li><a href="generated/tamoc.dbm_p.xfer_spherical_cap.html#tamoc.dbm_p.xfer_spherical_cap">xfer_spherical_cap() (in module tamoc.dbm_p)</a>
+</li>
+      <li><a href="generated/tamoc.stratified_plume_model.InnerPlume.html#tamoc.stratified_plume_model.InnerPlume.Xi">Xi (tamoc.stratified_plume_model.InnerPlume attribute)</a>
+</li>
       <li><a href="generated/tamoc.stratified_plume_model.InnerPlume.html#tamoc.stratified_plume_model.InnerPlume.xi">xi (tamoc.stratified_plume_model.InnerPlume attribute)</a>
 </li>
       <li><a href="generated/tamoc.ambient.xr_add_data_from_numpy.html#tamoc.ambient.xr_add_data_from_numpy">xr_add_data_from_numpy() (in module tamoc.ambient)</a>
@@ -4284,6 +4587,8 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/tamoc.dbm_p.z_pr.html#tamoc.dbm_p.z_pr">z_pr() (in module tamoc.dbm_p)</a>
+</li>
       <li><a href="generated/tamoc.dispersed_phases.zfe_volume_flux.html#tamoc.dispersed_phases.zfe_volume_flux">zfe_volume_flux() (in module tamoc.dispersed_phases)</a>
 </li>
       <li><a href="generated/tamoc.stratified_plume_model.Model.html#tamoc.stratified_plume_model.Model.zi">zi (tamoc.stratified_plume_model.Model attribute)</a>
@@ -4297,28 +4602,34 @@
 
               </div>
               
-            
-                <!-- Previous / next buttons -->
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
 <div class='prev-next-area'>
 </div>
-            
+            </footer>
         </div>
     </div>
-    <footer class="footer">
-  <p>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By Scott A. Socolofsky<br/>
+  
+      &copy; Copyright 2022, Scott A. Socolofsky.<br/>
+</p>
+        </footer>
+    </div>
     
-      By Scott A. Socolofsky<br/>
-    
-        &copy; Copyright 2022, Scott A. Socolofsky.<br/>
-  </p>
-</footer>
-</main>
+</div>
 
 
       </div>
     </div>
   
-  <script src="_static/js/index.be7d3bbb2ef33a8344ce.js"></script>
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+
 
   </body>
 </html>

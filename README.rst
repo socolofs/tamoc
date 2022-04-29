@@ -12,10 +12,11 @@ size distributions from source flow conditions.
 For typical usage, please see the ./bin directory of the source distribution
 for various example scripts.
 
-Version 2.3.0:  Added new post-processing methods to the bent plume model
-                module and added a new module to replace the Fortran codes
-                that are used by the dbm module. Now, a Fortran compiler is
-                not required to install and run TAMOC.
+Version 2.3.1:  Added new post-processing methods to the bent plume model
+                module.
+Version 2.3.0:  Added a new module to replace the Fortran codes that are used
+                by the dbm module. Now, a Fortran compiler is not required to
+                install and run TAMOC.
 Version 2.2.0:  Updated the ambient module so that it is not based on and
                 compatible with xarray Dataset objects, updated all tests to
                 pass with the latest version of TAMOC, revised the
@@ -214,6 +215,10 @@ For the best and most complete information, please see the documentation web pag
   setup.py install' (with sudo if necessary). To install using a local
   install directory in develop mode, use: 'python setup.py develop'.
 
+* To skip the Fortran extension library and install a Python-only version of 
+  ``tamoc``, use the ``--python-only`` flag in the install command, e.g., 
+  'python setup.py develop --python-only'.
+
 * Test the installation by opening a Python session and executing
   `import tamoc` from the Python prompt.  Be sure that you are not in the
   same directory as the setup.py file so that Python will look for tamoc in
@@ -252,11 +257,13 @@ The following method has been tested for installation on Windows 10 using Minico
 * Download the TAMOC source files. Activate your conda environment, and in
   the ./tamoc directory at a command prompt try: 
   
-  python setup.py install
+  python setup.py install <--python-only>
   
   Alternatively, you can install a development version with: 
   
-  python setup.py develop.
+  python setup.py develop <--python-only>
+  
+  where the flag '--python-only' is optional
 
 * Change directly to a directory outside of your TAMOC source files. Check
   the TAMOC package installation by running the following command at a

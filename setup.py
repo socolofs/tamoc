@@ -25,7 +25,7 @@ Author
 S. Socolofsky, January 2012, Texas A&M University <socolofs@tamu.edu>.
 
 """
-import os
+import os, sys
 import setuptools
 from numpy.distutils.core import Extension
 
@@ -103,22 +103,52 @@ def get_version(pkg_name):
 
 # Provide the setup utility
 if __name__ == '__main__':
-
+    
     from numpy.distutils.core import setup
+    
+    # Check if the user wants to try installing the Fortran library extension
+    python_only = False
+    if '--python-only' in sys.argv:
+        python_only = True
+        index = sys.argv.index('--python-only')
+        sys.argv.pop(index)
+    
+    if python_only:
+        # User wants to install only the python version of TAMOC
+        setup(name='TAMOC',
+              version=get_version("tamoc"),
+              description='Texas A&M Oilspill Calculator',
+              long_description=open('README.rst').read(),
+              license='LICENSE.txt',
+              author='Scott A. Socolofsky',
+              author_email='socolofs@tamu.edu',
+              url="https://ceprofs.civil.tamu.edu/ssocolofsky/",
+              scripts=bin_files,
+              packages=['tamoc', 'tamoc.test'],
+              package_data={'tamoc': ['data/*.csv', 'data/*.cnv', 
+                  'data/*.dat']},
+              platforms=['any'],
+              classifiers=classifiers.split("\n"),
+              )
+    else:
+        # User want to try installing the TAMOC version that uses the 
+        # fortran extension module dbm_f
+        setup(name='TAMOC',
+              version=get_version("tamoc"),
+              description='Texas A&M Oilspill Calculator',
+              long_description=open('README.rst').read(),
+              license='LICENSE.txt',
+              author='Scott A. Socolofsky',
+              author_email='socolofs@tamu.edu',
+              url="https://ceprofs.civil.tamu.edu/ssocolofsky/",
+              scripts=bin_files,
+              packages=['tamoc', 'tamoc.test'],
+              package_data={'tamoc': ['data/*.csv', 'data/*.cnv', 
+                  'data/*.dat']},
+              platforms=['any'],
+              ext_package='tamoc',
+              ext_modules=[ext_dbm_f],
+              classifiers=classifiers.split("\n"),
+              )
+        
 
-    setup(name='TAMOC',
-          version=get_version("tamoc"),
-          description='Texas A&M Oilspill Calculator',
-          long_description=open('README.rst').read(),
-          license='LICENSE.txt',
-          author='Scott A. Socolofsky',
-          author_email='socolofs@tamu.edu',
-          url="https://ceprofs.civil.tamu.edu/ssocolofsky/",
-          scripts=bin_files,
-          packages=['tamoc', 'tamoc.test'],
-          package_data={'tamoc': ['data/*.csv', 'data/*.cnv', 'data/*.dat']},
-          platforms=['any'],
-          ext_package='tamoc',
-          ext_modules=[ext_dbm_f],
-          classifiers=classifiers.split("\n"),
-          )

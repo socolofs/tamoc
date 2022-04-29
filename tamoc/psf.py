@@ -535,7 +535,7 @@ def find_de(de, rho_d, rho_c, mu_d, mu_c, sigma, nu_d, nu_c, g, dp, K,
     try:
         from tamoc import dbm_f
     except ImportError:
-        from tamoc.src import dbm_p as dbm_f
+        from tamoc import dbm_p as dbm_f
 
     # Time available for growth, t_a
     # The travel time from the position where disturance starts to the equator

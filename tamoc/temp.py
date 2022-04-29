@@ -7,7 +7,7 @@ import numpy as np
 try:
     from tamoc import dbm_f
 except ImportError:
-    from tamoc.src import dbm_p as dbm_f
+    from tamoc import dbm_p as dbm_f
 
 class EmpiricalParticle(InsolubleParticle):
     """

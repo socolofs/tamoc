@@ -1,3 +1,35 @@
+V2.3.1, April 2022 --
+   . Updated the bent_plume_model module so that the Model class now includes
+     several useful post-processing methods. These allow the user to compute
+     several diagnostics of the model output that one may normally want to
+     know. These include:
+     + Model.report_psds: reports the bubble and droplet size distribution data
+       (diameter and volume fraction) at requested model steps within the
+       near-field plume solution or at given water depths in the Lagrangian
+       particle tracking phase of model simulation.
+     + Model.report_mass_fluxes: this method computes the particulate mass
+       fluxes at any point along the solution trajectory for any list of
+       compounds in the simulated mixture. This method does not interpolate, but
+       rather reports output at actual model computed points. The user can
+       obtain data from the near-field plume or the Lagrangian particle tracking
+       phase of transport (if it exists). Output include the particle fluxes at
+       the selected point and the difference between these fluxes and the
+       initial fluxes at the start of the release.
+     + Model.report_surfacing_fluxes: this method computes the mass flux
+       reaching the sea surface for particles and for the plume, if it
+       surfaces, and also tracks the time that each particle reaches the
+       surface. This method relies on Model.report_mass_fluxes to compute the
+       mass.
+     + Model.plot_psds: plot the bubble and droplet size distributions within
+       the near-field plume and the Lagrangian particle tracking phases of
+       plume transport.
+     + Model.plot_fractions_dissolved: plots the fraction of each component
+       that dissolves into the ocean water column in different stages of
+       transport, either the near-field plume, the far-field particle tracking,
+       or the whole simulation.
+     + Model.plot_mass_balance: plots the time history of the mass balance,
+       tracking material in the ocean water column, on the sea surface, and
+       biodegraded.
 V2.3.0, April 2022 --
    . Found some new features added since switching to Python 3 that are not
      backward-compatible with Python 2. While these will not always be

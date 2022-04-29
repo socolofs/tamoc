@@ -686,7 +686,7 @@ def xfer_ellipsoid(de, us, rho, mu, D, sigma, mu_p, fp_type, status):
     Compute the mass transfer coefficients for an ellipsoidal fluid particle
     
     Clift is not very clear on what equations should be used for ellipsoidal
-    fluid particles (drops and bubbles), but indicates that in contaminanted
+    fluid particles (drops and bubbles), but indicates that in contaminated
     liquids, the mass transfer is close to that of rigid particles (i.e.,
     there is no internal circulation due to the contamination).  Thus, this
     subroutine currently returns the result for rigid spheres if the 
@@ -759,8 +759,8 @@ def xfer_spherical_cap(de, us, rho, rho_p, mu, D, status):
     Computes the mass transfer coefficient for spherical-cap bubbles or
     droplets.  If the particles are clean, it uses equation (42) in 
     Johnson et al. (1969).  If the particles are dirty, it uses equation 
-    (8-28) in Clift et al. (1978), p. 214.  
-    !
+    (8-28) in Clift et al. (1978), p. 214.
+    
     Parameters
     ----------
     de : float
@@ -778,7 +778,7 @@ def xfer_spherical_cap(de, us, rho, rho_p, mu, D, status):
         continuous phase fluid (m^2/s)
     status : int
         Flag indicating whether the interface is clean (status = 1)
-        or dirty (status = -1)    
+        or dirty (status = -1)
     
     Returns
     -------

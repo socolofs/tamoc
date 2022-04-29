@@ -54,7 +54,7 @@ from scipy.optimize import fsolve
 try:
     from tamoc import dbm_f
 except ImportError:
-    from tamoc.src import dbm_p as dbm_f
+    from tamoc import dbm_p as dbm_f
 
 
 class FluidMixture(object):

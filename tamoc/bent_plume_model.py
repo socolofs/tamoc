@@ -702,7 +702,386 @@ class Model(object):
         # Close the netCDF dataset
         nc.close()
         self.sim_stored = True
+    
+    def report_psds(self, loc, stage):
+        """
+        docstring for plot_psds
+        
+        """
+        # Check whether the simulation data exist
+        if not self.sim_stored:
+            print('\nERROR:  Run a simulation before interrogating results.')
+            print('    --> Execute Model.simulate() to proceed.\n')
+            return(0, 0)
+        
+        # Initialize lists to hold the model results
+        d_gas = []
+        v_gas = []
+        d_liq = []
+        v_liq = []
+        
+        if stage == 0:
+            # Get results from the near-field plume...
+            # Update the plume element to the desired index
+            self.q_local.update(self.t[loc], self.q[loc], self.profile, 
+                self.p, self.particles)
+        
+            # Get the conditions at desired index point
+            for particle in self.particles:
+                mp = particle.m
+                Tp = particle.T
+                Ta = self.q_local.Ta
+                Sa = self.q_local.Sa
+                Pa = self.q_local.Pa
+                de = particle.diameter(mp, Tp, Pa, Sa, Ta)
+                Vp = 4./3. * np.pi * (de/2.)**3
+                Vf = Vp * particle.nb0
+                if particle.particle.fp_type == 0:
+                    d_gas.append(de)
+                    v_gas.append(Vf)
+                else:
+                    d_liq.append(de)
+                    v_liq.append(Vf)
+        
+        elif stage == 1:
+            # Get results from the far-field Lagrantian particle tracking...
+            if not self.track:
+                print('ERROR:  The far-field tracking was not activated.')
+                print('    --> Plot results from the near-field plume')
+                print('        (stage = 0) or rerun the simulation with')
+                print('        track = True.')
+                return (-1, -1, -1, -1)
+            for particle in self.particles:
+                # Interpolate the SBM output to the requested vertical level
+                z = particle.sbm.y[:,2]
+                i0 = np.max(np.where(z>=loc))
+                if i0 + 1 == len(z):
+                    i1 = i0 - 1
+                else:
+                    i1 = i0 + 1
+                z0 = z[i0]
+                z1 = z[i1]
+                y0 = particle.sbm.y[i0,:]
+                y1 = particle.sbm.y[i1,:]
+                y = (y1 - y0) / (z1  - z0) * (loc - z0) + y0
+                
+                # Extract the particle properties
+                zp = loc
+                mp = y[3:-1]
+                Tp = y[-1] / (np.sum(mp) * particle.cp)
+                
+                # Get the ambient data
+                Ta, Sa, Pa = self.profile.get_values(zp, ['temperature',
+                    'salinity', 'pressure'])
+                
+                # Get the diameter
+                de = particle.diameter(mp, Tp, Pa, Sa, Ta)
+                Vp = 4./3. * np.pi * (de/2.)**3
+                Vf = Vp * particle.nb0
+                if particle.particle.fp_type == 0:
+                    d_gas.append(de)
+                    v_gas.append(Vf)
+                else:
+                    d_liq.append(de)
+                    v_liq.append(Vf)
+        
+        else:
+            print('\nERROR:  Requested simulation data unknown.')
+            print('    --> Choose a simulation stage = 0 (nearfield plume)')
+            print('        or 1 (farfield particle tracking)\n')
+            return (-1, -1, -1, -1)
+        
+        # Convert lists to arrays
+        d_gas = np.array(d_gas)
+        v_gas = np.array(v_gas)
+        d_liq = np.array(d_liq)
+        v_liq = np.array(v_liq)
+    
+        # Convert the volume distributions to volume fraction
+        v_gas = v_gas / np.sum(v_gas)
+        v_liq = v_liq / np.sum(v_liq)
+    
+        # Return the results
+        return (d_gas, v_gas, d_liq, v_liq)
+    
+    
+    def report_mass_fluxes(self, idx, stage=0, chems=None, fp_type=-1):
+        """
+        Report the particulate mass fluxes at a given point
+        
+        Compute the mass flux of each compound in a mixture for each tracked
+        particle and report these data at a requested simulation index. The
+        user may request output either from the near-field plume (stage = 0)
+        or the Lagrangian particle tracking phase of transport (stage = 1).
+        The list of compounds to track can be specified with chems, and the
+        particle phase can be limited using fp_type. To track all particles,
+        set fp_type = -1. To track only particles that were initially gas,
+        set fp_type = 0. To track particles that were initially liquid, set
+        fp_type = 1.
+        
+        This method returns the actual mass fluxes for the requested
+        particles at the requested index to the solution (mp) and the
+        difference between these current values and their initial values
+        (md). This latter variable should be equal to the mass that has
+        dissolved and biodegraded from the release to the present simulation
+        step.
+        
+        Parameters
+        ----------
+        idx : int
+            Index to the simulation step for which data should be reported.
+            This can be any acceptable numpy index to an array, but not a
+            slice. The purpose of this method is to output data at a single
+            point in the solution.  Zero will yield the initial condition, -1 
+            will give the last computed point, and any other integer will 
+            index that respective point in the output arrays.
+        stage : int, default=0
+            Flag indicating whether the user wants data from the near-field
+            plume (stage = 0) or the Lagrangian particle tracking stage of
+            transport (stage = 1). The idx value will index the respective
+            model simulation vector that matches the chosen stage of the
+            solution.
+        chems : list
+            A list of chemical compounds to track.  This may be a list of 
+            chemical names or a list of index-numbers corresponding to 
+            chemicals in the mixture composition.
+        fp_type : int
+            A flag indicating which particles should be included. 0 -- will
+            include only particles that were initially gas-phase, 1 -- will
+            include only particles that were initially liquid-phase particles,
+            and -1 -- will include all particles.
+        
+        Returns
+        -------
+        mp : ndarray
+            Mass flux (kg/s) of compounds for each selected particle at the
+            given point in the simulation. These data are stored with the
+            row-index corresponding to a given particle and the column-index
+            corresponding to a mixture compound in the chems list
+        md : ndarray
+            Difference (kg/s) between the current mass flux at the given point
+            in the solution and the initial mass flux for the selected 
+            particles and compounds.
+        
+        """
+        # Check whether the simulation data exist
+        if not self.sim_stored:
+            print('\nERROR:  Run a simulation before interrogating results.')
+            print('    --> Execute Model.simulate() to proceed.\n')
+            return(0, 0)
+        
+        # Get the indices to the chems we want to track
+        c_idx = chem_idx_list(chems, self.particles[0].particle.composition)
+        
+        # Initialize matrices to hold the model results
+        mp = np.zeros((len(self.particles), len(c_idx)))
+        md = np.zeros((len(self.particles), len(c_idx)))
+        
+        # Get the conditions at the release (initial conditions)
+        self.q_local.update(self.t[0], self.q[0], self.profile, self.p, 
+            self.particles)
+        
+        # Store all the initial particle fluxes
+        m0 = np.zeros((len(self.particles), len(c_idx)))
+        for particle in self.particles:
+            m0[self.particles.index(particle), :] = particle.nb0 * \
+                particle.m[c_idx]
+        
+        # Update the LagElement at the selected index
+        if stage == 0:
+            # Use the index to the near-field plume specified by the user
+            self.q_local.update(self.t[idx], self.q[idx], self.profile, 
+                self.p, self.particles)
+        else:
+            # Update the LagElement to the last point in the plume
+            self.q_local.update(self.t[-1], self.q[-1], self.profile, self.p,
+                self.particles)
+        
+        # Add up the contributions from each particle
+        for particle in self.particles:
+            
+            if fp_type < 0 or particle.particle.fp_type == fp_type:
+                # Include this particle in the mass balance
+                
+                if stage == 0:
+                    # Get results from the near-field plume
+                    n_dot = particle.nb0
+                    m = particle.m[c_idx]
+                
+                else:
+                    # Get results from the Lagrangian particle-tracking
+                    n_dot = particle.nb0
+                    if self.track:
+                        m = particle.sbm.y[idx, 3:-1][c_idx]
+                    else:
+                        m = np.zeros(len(c_idx))
+                
+                # Compute the mass flux
+                mp[self.particles.index(particle), :] = n_dot * m
+                md[self.particles.index(particle), :] = \
+                    m0[self.particles.index(particle), :] - n_dot * m
+        
+        return (mp, md)
+    
+    def report_surfacing_fluxes(self, chems=None, fp_type=-1):
+        """
+        Report the mass fluxes reaching the sea surface
+        
+        Compute the mass fluxes of the listed compounds (chems) as they reach
+        the sea surface. These mass fluxes include the fluxes of selected
+        particles plus all dissolved-phase masses if the near-field plume
+        reaches the surface. Set fp_type=-1 to track all particles, fp_type=0
+        to track only initially gas-phase particles, and fp_type=1 to track
+        only initially liquid-phase particles. The results report both the
+        surfacing mass flux and the time for which that portion of the mass
+        reaches the sea surface. The sea surface is defined as the region
+        within 50 m of the surface.
+        
+        Parameters
+        ----------
+        chems : list
+            A list of chemical compounds to track.  This may be a list of 
+            chemical names or a list of index-numbers corresponding to 
+            chemicals in the mixture composition.
+        fp_type : int
+            A flag indicating which particles should be included. 0 -- will
+            include only particles that were initially gas-phase, 1 -- will
+            include only particles that were initially liquid-phase particles,
+            and -1 -- will include all particles.
+        
+        Returns
+        -------
+        mp : ndarray
+            Mass flux (kg/s) of compounds for each selected particle at the
+            given point in the simulation. These data are stored with the
+            row-index corresponding to a given particle and the column-index
+            corresponding to a mixture compound in the chems list
+        mc : ndarray
+            Mass flux (kg/s) for each compound reaching the sea surface in the
+            dissolved phase due to the near-field plume surfacing.  If the 
+            near-field plume traps below 50 m depth, this array will contain
+            zeros.
+        tp : ndarray
+            Array of surfacing times (s) for each particle in the mp array.
+        tc : float
+            Surfacing time (s) for the near-field plume.  Will equal np.nan 
+            if the near-field plume does not surface.
+        
+        """
+        # Check whether the simulation data exist
+        if not self.sim_stored:
+            print('\nERROR:  Run a simulation before interrogating results.')
+            print('    --> Execute Model.simulate() to proceed.\n')
+            return(0, 0)
+        
+        # Get the indices to the chems we want to trac
+        c_idx = chem_idx_list(chems, self.particles[0].particle.composition)
+        
+        # Determine whether the near-field plume surfaced
+        if self.q[-1,9] <= 50.:
+            # The plume surfaced...get the dissolved mass fluxes
+            plume_surfaced = True
+            self.q_local.update(self.t[-1], self.q[-1], self.profile, self.p, 
+                self.particles)
+            V = self.q_local.V
+            b = self.q_local.b
+            Q = np.pi * b**2 * V
+            mc = self.q_local.c_chems[c_idx] * Q
+            tc = self.t[-1]
+        else:
+            # The near-field plume trapped
+            plume_surfaced = False
+            mc = np.zeros(len(c_idx))
+            tc = np.nan
+        
+        # Initialize an array to store the particle surfacing times
+        tp = np.zeros(len(self.particles))
+        
+        # Get the mass fluxes of the particles as they surface
+        if not plume_surfaced and not self.track:
+            print('\nERROR:  The plume did not surface, and the particles')
+            print('        were not tracked.  Hence, we cannot compute the')
+            print('        surfacing fluxes of the particles.')
+            print('    --> Rerun the simulation with track=True.\n')
+            return (0, 0, 0, 0)
+        
+        elif plume_surfaced:
+            # Particle masses are from the plume solution
+            mp, md = self.report_masss_fluxes(-1, stage=0, chems=c_idx, 
+                fp_type=fp_type)
+            for particle in self.particles:
+                # Only track particles of the right type
+                if fp_type < 0 or particle.particle.fp_type == fp_type:
+                    if particle.z >= 50.:
+                        # This particle did not surface
+                        tp[particles.index(particle)] = np.nan
+                        mp[particles.index(particle), :] = np.zeros(c_idx)   
+                    else:
+                        # This particle did surface
+                        tp[particles.index(particle)] = particle.t
+            
+            # Warn the user about untracked particles
+            if not self.track:
+                print('\nWARNING:  Plume surfaced, but particles were not')
+                print('          tracked.  If particles exited the plume ')
+                print('          before surfacing, they will not be counted.')
+                print('      --> Proceeding with calculation...')
+                print('      --> To fix, re-run simulation with track=True.')
+        
+        else:
+            # Particle masses are from the SBM solution
+            mp, md = self.report_mass_fluxes(-1, stage=1, chems=c_idx, 
+                fp_type=fp_type)
+            for particle in self.particles:
+                # Only track particles of the right type
+                if fp_type < 0 or particle.particle.fp_type == fp_type:
+                    if particle.sbm.y[-1,2] >= 50.:
+                        # This particle did not surface
+                        tp[self.particles.index(particle)] = np.nan
+                        mp[self.particles.index(particle), :] = \
+                            np.zeros(c_idx)
+                    else:
+                        # This particle did surface
+                        tp[self.particles.index(particle)] = particle.t + \
+                            particle.sbm.t[-1]
+        
+        # Return all the results
+        return (mp, mc, tp, tc)
 
+    def plot_psds(self, fig, idx=0, stage=0, clear=True):
+        """
+        docstring for plot_psds
+        
+        """
+        import matplotlib.pyplot as plt
+        
+        # Get the particle size distributions from the model
+        d_gas, vf_gas, d_liq, vf_liq = self.report_psds(idx, stage)
+        
+        # Prepare the figure for plotting
+        plt.figure(fig, figsize=(8,7))
+        if clear:
+            plt.clf()
+        
+        # Plot the gas
+        ax = plt.subplot(211)
+        ax.semilogx(d_gas * 1.e6, vf_gas, '.-')
+        ax.set_xlabel('Gas bubble diameter, (um)')
+        ax.set_ylabel('Volume fraction, (--)')
+        ax.grid(True, which='major')
+        ax.grid(True, which='minor')
+    
+        # Plot the oil
+        ax = plt.subplot(212)
+        ax.semilogx(d_liq * 1.e6, vf_liq, '.-')
+        ax.set_xlabel('Liquid droplet diameter, (um)')
+        ax.set_ylabel('Volume fraction, (--)')
+        ax.grid(True, which='major')
+        ax.grid(True, which='minor')
+    
+        plt.tight_layout()
+        plt.show()
+    
     def plot_state_space(self, fig):
         """
         Plot the simulation state space
@@ -765,6 +1144,207 @@ class Model(object):
         plot_all_variables(self.t, self.q, self.q_local, self.profile,
             self.p, self.particles, self.track, fig)
         print('Done.\n')
+    
+    def plot_fractions_dissolved(self, fig, chems=None, stage=1, fp_type=-1,
+        clear=True):
+        """
+        Plot the fraction of each chem dissolved subsea
+        
+        Plot the fraction of each compound (chems) that is dissolved subsea 
+        within either the near-field plume (stage=0) or after the far-field
+        particle tracking (stage=1).
+        
+        Parameters
+        ----------
+        fig : int
+            The figure number to plot
+        chems : list, default=None
+            A list of chemical compounds to track.  This may be a list of 
+            chemical names or a list of index-numbers corresponding to 
+            chemicals in the mixture composition.  If None, then all tracked
+            compounds are included.
+        stage : int, default=1
+            Flag indicating whether the user wants data from the near-field
+            plume (stage = 0), the Lagrangian particle tracking stage of
+            transport (stage = 1), or the whole simulation. The idx value
+            will index the respective model simulation vector that matches 
+            the chosen stage of the solution.
+        fp_type : int, default=-11
+            A flag indicating which particles should be included. 0 -- will
+            include only particles that were initially gas-phase, 1 -- will
+            include only particles that were initially liquid-phase particles,
+            and -1 -- will include all particles.
+        clear : bool, default=True
+            Flag indicating whether the figure should be cleared before 
+            plotting
+        
+        """
+        import matplotlib.pyplot as plt
+        
+        # Prepare the figure for plotting
+        plt.figure(fig, figsize=(9,6))
+        if clear:
+            plt.clf()
+        
+        # Get the composition and indices
+        composition = self.particles[0].particle.composition
+        c_idx = chem_idx_list(chems, composition)
+        
+        # Get the mass fluxes at the beginning and end of the specified stage
+        # of transport
+        mp0, md0 = self.report_mass_fluxes(0, 0, chems, fp_type)
+        mpp, mdp = self.report_mass_fluxes(-1, 0, chems, fp_type)
+        if self.track:
+            mps, mds = self.report_mass_fluxes(-1, 1, chems, fp_type)
+        if stage == 0:
+            mp1 = mpp
+        elif stage == 1:
+            mp1 = mp0 - (mpp - mps)
+        else:
+            mp1 = mps
+        
+        # Compute the percentage changes
+        npart, ncomp = mp0.shape
+        m0 = np.zeros(ncomp)
+        m1 = np.zeros(ncomp)
+        for i in range(npart):
+            for j in range(ncomp):
+                if mp1[i,j] >= 0.:
+                    m1[j] += mp1[i,j]
+                if mp0[i,j] >= 0.:
+                    m0[j] += mp0[i,j]
+        f = np.zeros(ncomp)
+        for i in range(ncomp):
+            if m0[i] != 0:
+                f[i] = (m0[i] - m1[i]) / m0[i] * 100.
+            else:
+                f[i] = 0.
+            if f[i] < 0.:
+                f[i] = 0.
+        
+        # Get the composition names
+        compounds = [composition[i] for i in c_idx]
+        
+        # Plot the data
+        ax = plt.subplot(111)
+        ax.plot(range(ncomp), f, '-o')
+        ax.set_xticks(range(ncomp))
+        ax.set_xticklabels(compounds, rotation=90)
+        ax.set_ylabel('Fraction dissolved, (%)')
+        plt.tight_layout()
+        plt.show()
+    
+    def plot_mass_balance(self, fig, chems=None, fp_type=-1, clear=True):
+        """
+        Plot the time-history of the mass balance
+        
+        Plot the total mass in the ocean system as a function of time and 
+        location, up to the duration of the simulation or a user-specified 
+        time.  The figure plots the mass subsea, the mass at the surface,
+        and the mass biodegraded.  The subsea mass includes all dissolved,
+        bubble, and droplet mass that has not surfaced.  The surface mass
+        only includes mass that has reached the surface.  The biodegraded 
+        mass reports the fraction of subsea mass that has biodegraded.  Hence,
+        the total subsea mass includes the mass that has biodegraded.
+        
+        Parameters
+        ----------
+        fig : int
+            The figure number to plot
+        chems : list, default=None
+            A list of chemical compounds to track.  This may be a list of 
+            chemical names or a list of index-numbers corresponding to 
+            chemicals in the mixture composition.  If None, then all tracked
+            compounds are included.
+        fp_type : int, default=-11
+            A flag indicating which particles should be included. 0 -- will
+            include only particles that were initially gas-phase, 1 -- will
+            include only particles that were initially liquid-phase particles,
+            and -1 -- will include all particles.
+        t_max : float, default=-1
+            The maximum time to plot the mass history (days).  If -1, then 
+            the maximum surfacing time in the simulation is used.
+        clear : bool, default=True
+            Flag indicating whether the figure should be cleared before 
+            plotting
+        
+        """
+        import matplotlib.pyplot as plt
+        
+        # Prepare the figure for plotting
+        plt.figure(fig, figsize=(8,5))
+        if clear:
+            plt.clf()
+        
+        # Get the initial mass fluxes
+        mp0, md0 = self.report_mass_fluxes(0, 0, chems, fp_type)
+        npart, ncomp = mp0.shape
+        
+        # Get the mass fluxes at the surface
+        mp, mc, tp, tc = self.report_surfacing_fluxes(chems, fp_type)
+        
+        # Find the maximum surfacing time in the dataset
+        t_max_p = np.max(tp)
+        if t_max_p < tc:
+            t_max_p = tc
+        
+        # Make sure this time is more than a few seconds
+        if t_max_p < 12.*3600.:
+            t_max_p = 12.*3600.
+        
+        # Create a time series with 500 points within this range
+        if t_max < 0:
+            t = np.linspace(1., t_max_p, num=500)
+        else:
+            t = np.linspace(1., t_max, num=500)
+        
+        # Track the masses released and surfaced
+        m0 = np.zeros(t.shape)
+        ms = np.zeros(t.shape)
+        md = np.zeros(t.shape)
+        for i in range(len(t)):
+            
+            # Get the particle mass fluxes for this time step
+            for j in range(npart):
+                
+                # ...at the release
+                m0[i] += np.sum(mp0[j,:]) * t[i]
+                
+                # ...and at the surface
+                if t[i] > tp[j]:
+                    ms[i] += np.sum(mp[j,:]) * (t[i] - tp[j])
+                
+                # ...and the total amount of biodegradation
+                particle = self.particles[j]
+                for k in range(ncomp):
+                    if particle.lag_time:
+                        t_bio = particle.particle.t_bio[k]
+                    else:
+                        t_bio = 0.
+                    if t[i] >= t_bio:
+                        k_bio = particle.particle.k_bio[k]
+                        if k_bio > 0.:
+                            md[i] += mp0[j,k] * ((t[i] - t_bio) - 
+                                1./k_bio * (1. - np.exp(-k_bio * (t[i] -
+                                t_bio))))
+            
+            # And the dissolved plume flux (if applicable)
+            if not np.isnan(tc):
+                if t[i] >= tc:
+                    ms[i] += np.sum(mc) * (t[i] - tc)
+        
+        # Plot the results
+        plt.plot(t / 3600. / 24., ms / m0 * 100.)
+        plt.plot(t / 3600. / 24., (m0 - ms) / m0 * 100.)
+        plt.plot(t / 3600. / 24., md / m0 * 100.)
+        plt.legend(('Fraction surfacing', 'Fraction subsea', 
+            'Fraction biodegraded'))
+        plt.xlabel('Time, (days)')
+        plt.ylabel('Mass, (kg)')
+        plt.tight_layout()
+        plt.grid(True)
+        
+        plt.show()
 
 
 # ----------------------------------------------------------------------------
@@ -1930,3 +2510,48 @@ def width_projection(Sx, Sy, b):
 
     return (x1, y1, x2, y2)
 
+
+def chem_idx_list(chems, composition):
+    """
+    Find the indices corresponding to chem in the composition list
+    
+    Parameters
+    ----------
+    chems : list
+        A list of chemical compounds to track.  This may be a list of 
+        chemical names or a list of index-numbers corresponding to chemicals
+        in the mixture composition.
+    composition : list
+        A list of chemical compounds in the mixture.
+    
+    Returns
+    -------
+    c_idx : list
+        A list of array indices corresponding to the positions of the variables
+        in the chems list within the composition list.
+    
+    """
+    # Make sure the chems variable contains a list of names or indices
+    if isinstance(chems, type(None)):
+        # Report all compounds in the mixture
+        chems = composition[:]
+    elif not isinstance(chems, type(list)):
+        chems = list(chems)
+    else:
+        # Report all compounds, but warn user
+        print('\nWARNING:  Input chems list not recognized.')
+        print('      --> Proceeding with full composition list...\n')
+        chems = composition[:]
+    
+    # Find the desired list of array indices to track chemicals
+    if isinstance(chems[0], str):
+        # Report the compounds provided by name
+        c_idx = []
+        for comp in composition:
+            if comp in chems:
+                c_idx.append(composition.index(comp))
+    else:
+        # Report the compounds provided by index
+        c_idx = chems[:]
+    
+    return c_idx

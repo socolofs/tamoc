@@ -762,8 +762,8 @@ def main_ic(profile, particles, X, D, Vj, phi_0, theta_0, Sj, Tj, cj,
     if Vj is None or Vj == 0.:
         # This is a pure multiphase plume.  Estimate the initial conditions 
         # using Wuest et al. 1992.
-        Q, A, X, Tj, Sj, Pj, rho_j = dispersed_phases.zfe_volume_flux(profile, 
-            particles, p, X, D/2.)
+        Q, A, X, Tj, Sj, Pj, rho_j = \
+            dispersed_phases.zfe_volume_flux(profile, particles, p, X, D/2.)
     
     else:
         # The discharge contains continuous phase fluid.  Get the flow rate
