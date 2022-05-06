@@ -58,10 +58,17 @@ def pipe_derivs(t, y, parcel):
     yp[0] = parcel.us
     
     # Compute the mass transfer
-    yp[1:-1] = 0.
+    md_diss = - parcel.As * parcel.beta * (parcel.Cs - parcel.Ca)
+    md_biodeg = np.zeros(md_diss.shape)
+    yp[1:-1] = md_diss + md_biodeg
     
-    # Compute the heat transfer
-    yp[-1] = 0.
+    # Compute the heat transfer...due to conduction
+    dT = - parcel.rho * parcel.cp * parcel.As * parcel.beta_T * \
+        (T - parcel.Ta)
+    yp[-1] = dT
+    
+    # and adjust for lost mass
+    yp[-1] += parcel.cp * np.sum(md_diss + md_biodeg) * T
     
     # Return the derivatives
     return yp
@@ -75,15 +82,9 @@ def calculate_pipe(s_max, parcel, t0, y0, delta_t):
     s_max : float
         Final position in the along-pipe (s) coordinate system to stop
         integration (m)
-    profile : ambient.Profile object
-        Ambient temperature, salinity, pressure, and dissolved components
-        data stored as a function of depth (m) from the ocean surface
     parcel : LagrangianParcel object
         Object describing the properties and behavior of the Lagrangian 
         parcel
-    p : ModelParams object
-        Object containing all of the model constants that are not adjustable
-        by the user
     t0 : float
         Time corresponding to the initial time of the simulation (s)
     y0 : ndarray
@@ -107,6 +108,12 @@ def calculate_pipe(s_max, parcel, t0, y0, delta_t):
     mixture, and y[-1] is the heat content of the Lagrangian parcel.
     
     """
+    print(s_max)
+    print(parcel)
+    print(t0)
+    print(y0)
+    print(delta_t)
+    
     # Import the ODE solver library
     from scipy import integrate
     

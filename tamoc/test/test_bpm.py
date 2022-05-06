@@ -284,6 +284,7 @@ def check_sim(X0, D, Vj, phi_0, theta_0, Sj, Tj, cj, tracers,
     assert bpm.particles[0].farfield == True
     ans = np.array([1.40767197e+02, 0.00000000e+00, 3.34101214e+00, 
         3.06813420e-06, 0.00000000e+00, 0.00000000e+00, 1.84215984e+00])
+    print(bpm.particles[0].sbm.y[-1,:])
     for i in range(len(ans)):
         assert_approx_equal(bpm.particles[0].sbm.y[-1,i], ans[i],
             significant=6)

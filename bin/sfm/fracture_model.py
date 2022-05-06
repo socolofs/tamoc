@@ -53,13 +53,13 @@ if __name__ == '__main__':
     profile.close_nc()
     
     # Create a model object with the fracture network
-    frac = sfm.Model(H, Hs, dx, du, mu_D, sigma_D, x0, delta_s)
+    frac = sfm.Model(profile, H, Hs, dx, du, mu_D, sigma_D, x0, delta_s)
     
     # Show the network
     frac.show_network()
     
     # Simulate the gas transport through a filled pipe network.
-    frac.simulate_pipe_flow(1.0, mass_frac, gas, profile)
+    frac.simulate_pipe_flow(1.0, mass_frac, gas)
     
     # Plot default results
     frac.plot_state_space()

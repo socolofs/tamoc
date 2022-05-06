@@ -42,11 +42,12 @@ class Model(object):
         not support changing the ambient data once initialized.
     
     """
-    def __init__(self, H, Hs, dx, du, mu_d, sigma_d, 
+    def __init__(self, profile, H, Hs, dx, du, mu_d, sigma_d, 
         x0=np.zeros(2), delta_s=1.):
         super(Model, self).__init__()
         
         # Store the model parameters
+        self.profile = profile
         self.H = H
         self.Hs = Hs
         self.dx = dx
@@ -140,7 +141,7 @@ class Model(object):
         self.x = interp1d(self.sp, self.xp, axis=0, 
             fill_value=fill_value, bounds_error=False)
     
-    def simulate_pipe_flow(self, u0, mass_frac, fluid, profile, dt_max=60.):
+    def simulate_pipe_flow(self, u0, mass_frac, fluid, dt_max=60.):
         """
         Simulate the gas migration assuming tubes are full of reservoir fluid
         
@@ -149,7 +150,6 @@ class Model(object):
         self.u0 = u0
         self.mass_frac = mass_frac
         self.fluid = fluid
-        self.profile = profile
         self.dt_max = dt_max
         
         # Choose a heat capacity value for the petroleum fluid
@@ -312,7 +312,10 @@ class PipeParcel(object):
         # Get the local ambient conditions
         self.Pa, self.Ta, self.Sa = self.profile.get_values(self.zp, 
             ['pressure', 'temperature', 'salinity'])
-        self.Ca = self.profile.get_values(self.zp, self.composition)
+        gas_sat = self.profile.get_values(self.zp, ['gas_saturation'])
+        self.Cs = self.fluid.solubility(self.m, self.Ta, self.Pa, 
+            self.Sa)[0,:]
+        self.Ca = gas_sat * self.Cs
         self.rho_a = seawater.density(self.Ta, self.Sa, self.Pa)
         
         # Compute the derived quantities
@@ -323,6 +326,8 @@ class PipeParcel(object):
         self.hs = self.V / self.Ap
         self.ds = np.sqrt(self.Ap / np.pi) * 2.
         self.As = np.pi * self.ds
+        self.beta = 1.e-8
+        self.beta_T = 1.e-6
 
 
 def fracture_network(H, Hs, dx, du, delta_s):

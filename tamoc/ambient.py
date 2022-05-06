@@ -2653,7 +2653,13 @@ def convert_units(data, units):
                'mg/l': [1.e-3, 0., 'kg/m^3'],
                'meter second-1' : [1.0, 0., 'm/s'],
                'm.s-1' : [1.0, 0., 'm/s'],
-               'pH units' : [1.0, 0., 'pH units']
+               'pH units' : [1.0, 0., 'pH units'],
+               'MPa' : [1.e6, 0., 'Pa'],
+               '--' : [1.0, 0., '--'],
+               'mD' : [9.869233e-16, 0., 'm^2'],
+               'um' : [1.e-6, 0., 'm'],
+               'm/s 1e-9' : [1.e-9, 0., 'm/s'],
+               'm/s 1e-7' : [1.e-7, 0., 'm/s']
            } 
     
     # Make sure the data are a numpy array and the units are a list
