@@ -125,9 +125,9 @@ fortran_params = {'ext_package': 'tamoc',
                   
 # Provide the setup utility
 if __name__ == '__main__':
-    
+
     from numpy.distutils.core import setup
-    
+
     # Check if the user wants to try installing the Fortran library extension
     if '--python-only' in sys.argv:
         python_only = True
@@ -135,15 +135,16 @@ if __name__ == '__main__':
         print('Not attempting Fortran build -- installing Python-only version')
     else:
         python_only = False
-    
+
     if python_only:
         # User wants to install only the python version of TAMOC
-        pass # Just in case there's something to do in the future
+        pass # just in case there's something to do in the future
     else:
-        # User want to try installing the TAMOC version that uses the 
+        # User want to try installing the TAMOC version that uses the
         # fortran extension module dbm_f
         setup_params.update(fortran_params)
-    
+
+    # Run the setup function
     setup(**setup_params)
 
 
