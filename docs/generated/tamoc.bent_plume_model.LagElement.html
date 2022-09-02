@@ -392,6 +392,11 @@
        bin.sbm.drop_biodeg
       </a>
      </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="bin.sbm.CO2_bubble.html">
+       bin.sbm.CO2_bubble
+      </a>
+     </li>
     </ul>
    </li>
    <li class="toctree-l2 has-children">
@@ -556,6 +561,11 @@
        tamoc.seawater.cp
       </a>
      </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="tamoc.seawater.pH.html">
+       tamoc.seawater.pH
+      </a>
+     </li>
     </ul>
    </li>
    <li class="toctree-l2 has-children">
@@ -706,6 +716,11 @@
      <li class="toctree-l3">
       <a class="reference internal" href="tamoc.ambient.get_nc_data.html">
        tamoc.ambient.get_nc_data
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="tamoc.ambient.get_xarray_data.html">
+       tamoc.ambient.get_xarray_data
       </a>
      </li>
      <li class="toctree-l3">
@@ -1648,6 +1663,21 @@
       </a>
      </li>
      <li class="toctree-l3">
+      <a class="reference internal" href="tamoc.bent_plume_model.Model.get_intrusion_concentration.html">
+       tamoc.bent_plume_model.Model.get_intrusion_concentration
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="tamoc.bent_plume_model.Model.get_grid_concentrations.html">
+       tamoc.bent_plume_model.Model.get_grid_concentrations
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="tamoc.bent_plume_model.Model.get_planar_concentrations.html">
+       tamoc.bent_plume_model.Model.get_planar_concentrations
+      </a>
+     </li>
+     <li class="toctree-l3">
       <a class="reference internal" href="tamoc.bent_plume_model.Model.save_sim.html">
        tamoc.bent_plume_model.Model.save_sim
       </a>
@@ -1663,11 +1693,6 @@
       </a>
      </li>
      <li class="toctree-l3">
-      <a class="reference internal" href="tamoc.bent_plume_model.Model.report_psds.html">
-       tamoc.bent_plume_model.Model.report_psds
-      </a>
-     </li>
-     <li class="toctree-l3">
       <a class="reference internal" href="tamoc.bent_plume_model.Model.report_mass_fluxes.html">
        tamoc.bent_plume_model.Model.report_mass_fluxes
       </a>
@@ -1678,6 +1703,16 @@
       </a>
      </li>
      <li class="toctree-l3">
+      <a class="reference internal" href="tamoc.bent_plume_model.Model.report_psds.html">
+       tamoc.bent_plume_model.Model.report_psds
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="tamoc.bent_plume_model.Model.plot_psds.html">
+       tamoc.bent_plume_model.Model.plot_psds
+      </a>
+     </li>
+     <li class="toctree-l3">
       <a class="reference internal" href="tamoc.bent_plume_model.Model.plot_state_space.html">
        tamoc.bent_plume_model.Model.plot_state_space
       </a>
@@ -1685,11 +1720,6 @@
      <li class="toctree-l3">
       <a class="reference internal" href="tamoc.bent_plume_model.Model.plot_all_variables.html">
        tamoc.bent_plume_model.Model.plot_all_variables
-      </a>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="tamoc.bent_plume_model.Model.plot_psds.html">
-       tamoc.bent_plume_model.Model.plot_psds
       </a>
      </li>
      <li class="toctree-l3">
@@ -1718,6 +1748,16 @@
       </a>
      </li>
      <li class="toctree-l3">
+      <a class="reference internal" href="tamoc.bent_plume_model.Particle.point_concentration.html">
+       tamoc.bent_plume_model.Particle.point_concentration
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="tamoc.bent_plume_model.Particle.grid_concentrations.html">
+       tamoc.bent_plume_model.Particle.grid_concentrations
+      </a>
+     </li>
+     <li class="toctree-l3">
       <a class="reference internal" href="tamoc.bent_plume_model.LagElement.update.html">
        tamoc.bent_plume_model.LagElement.update
       </a>
@@ -1735,6 +1775,11 @@
      <li class="toctree-l3">
       <a class="reference internal" href="tamoc.bent_plume_model.width_projection.html">
        tamoc.bent_plume_model.width_projection
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="tamoc.bent_plume_model.chem_idx_list.html">
+       tamoc.bent_plume_model.chem_idx_list
       </a>
      </li>
     </ul>
@@ -2289,7 +2334,7 @@ title="Print to PDF"
 <h1>tamoc.bent_plume_model.LagElement<a class="headerlink" href="#tamoc-bent-plume-model-lagelement" title="Permalink to this headline">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="tamoc.bent_plume_model.LagElement">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tamoc.bent_plume_model.</span></span><span class="sig-name descname"><span class="pre">LagElement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">D</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">particles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tracers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chem_names</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/socolofs/tamoc/tree/master/tamoc/bent_plume_model.py#L1701-L2046"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tamoc.bent_plume_model.LagElement" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tamoc.bent_plume_model.</span></span><span class="sig-name descname"><span class="pre">LagElement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">D</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">particles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tracers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chem_names</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/socolofs/tamoc/tree/master/tamoc/bent_plume_model.py#L2253-L2598"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tamoc.bent_plume_model.LagElement" title="Permalink to this definition">#</a></dt>
 <dd><p>Manages the Lagragian plume element state space and derived variables</p>
 <p>Translates the state space variables for a Lagrangian plume element into
 its individual parts and derived quantitites.</p>
@@ -2967,7 +3012,7 @@ the Lagrangian element (kg/m^3)</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tamoc.bent_plume_model.LagElement.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">D</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">particles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tracers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chem_names</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/socolofs/tamoc/tree/master/tamoc/bent_plume_model.py#L1882-L1898"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tamoc.bent_plume_model.LagElement.__init__" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">D</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">particles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tracers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chem_names</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/socolofs/tamoc/tree/master/tamoc/bent_plume_model.py#L2434-L2450"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tamoc.bent_plume_model.LagElement.__init__" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <p class="rubric">Methods</p>

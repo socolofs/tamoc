@@ -52,7 +52,10 @@ def pipe_derivs(t, y, parcel):
     # Extract the state space variables for speed and ease of reading code
     s = y[0]
     m = y[1:-1]
-    T = y[-1] / (np.sum(m) * parcel.cp)
+    if np.sum(m) > 0.:
+        T = y[-1] / (np.sum(m) * parcel.cp)
+    else:
+        T = parcel.Ta
     
     # Compute the advection step
     yp[0] = parcel.us
@@ -62,13 +65,22 @@ def pipe_derivs(t, y, parcel):
     md_biodeg = np.zeros(md_diss.shape)
     yp[1:-1] = md_diss + md_biodeg
     
-    # Compute the heat transfer...due to conduction
-    dT = - parcel.rho * parcel.cp * parcel.As * parcel.beta_T * \
-        (T - parcel.Ta)
-    yp[-1] = dT
+    # Compute the heat transfer
+    if parcel.beta_T == 0.:
+        # At thermal equilibrium
+        yp[-1] = 0.
+    else:
+        # Contribution from conduction and convection
+        dH = - parcel.rho * parcel.cp * parcel.As * parcel.K_T * parcel.beta_T * \
+            (T - parcel.Ta)
+        yp[-1] = dH
+        
+        # and contribution from mass loss
+        yp[-1] += parcel.cp * np.sum(md_diss + md_biodeg) * T
     
-    # and adjust for lost mass
-    yp[-1] += parcel.cp * np.sum(md_diss + md_biodeg) * T
+    # Ensure all evolution is zero if everything has dissolved
+    if np.sum(parcel.beta) == 0.:
+        yp[1:-1] = np.zeros(len(y[1:-1]))
     
     # Return the derivatives
     return yp
@@ -108,12 +120,6 @@ def calculate_pipe(s_max, parcel, t0, y0, delta_t):
     mixture, and y[-1] is the heat content of the Lagrangian parcel.
     
     """
-    print(s_max)
-    print(parcel)
-    print(t0)
-    print(y0)
-    print(delta_t)
-    
     # Import the ODE solver library
     from scipy import integrate
     
@@ -133,6 +139,9 @@ def calculate_pipe(s_max, parcel, t0, y0, delta_t):
     t = [t0]
     y = [y0]
     
+    # Create vectors to save some of the computed variables during a simulation
+    alpha = [parcel.alpha]
+    
     # Integrate to the top of the subsurface region (parcel.z_min)
     k = 0
     k_limit = 300000
@@ -150,19 +159,32 @@ def calculate_pipe(s_max, parcel, t0, y0, delta_t):
         r.integrate(t[-1] + delta_t, step=True)
         
         # Store the results
+        if parcel.K_T == 0:
+            # Make the state-space heat correct
+            Ta = parcel.profile.get_values(parcel.x(r.y[0])[2], 'temperature')
+            r.y[-1] = np.sum(r.y[1:-1]) * parcel.cp * Ta
+        for i in range(len(r.y[1:-1])):
+            if r.y[i+1] < 0.:
+                # Concentration should not overshoot zero
+                r.y[i+1] = 0.
         t.append(r.t)
         y.append(r.y)
+        alpha.append(parcel.alpha)
         k += 1
         
         # Evaluate the stop criteria
-        if r.successful():
+        if r.successful(): 
             
             # Check if we reached the end of the pipe
             if r.y[0] >= s_max:
                 stop = True
             
             # Check if the control volume has lost all its mass
-            if np.sum(r.y[1:-1]) <= 0.:
+            if np.sum(parcel.beta) == 0:
+                stop = True
+            
+            # Check if the solution is still defined
+            if np.sum(np.where(np.isnan(r.y))) > 0:
                 stop = True
             
             # Make sure the iterations eventually stop if we are stuck
@@ -181,15 +203,17 @@ def calculate_pipe(s_max, parcel, t0, y0, delta_t):
     # Convert the solution vectors to numpy arrays
     t = np.array(t)
     y = np.array(y)
+    alpha = np.array(alpha)
     
     # Print the final position to the screen
     print('   Distance: %g (m), t: %g (s), k: %d, m: %g' %
         (r.y[0], r.t, k, np.sum(r.y[1:-1])))
     
     # Return the results
-    return (t, y)
+    params = [alpha]
+    return (t, y, params)
 
-def main_ic(z0, u0, Ap, mass_frac, fluid, cp, profile):
+def main_ic(z0, m_dot, Ap, mass_frac, fluid, cp, profile):
     """
     Compute the initial conditions from the given information
     
@@ -200,10 +224,6 @@ def main_ic(z0, u0, Ap, mass_frac, fluid, cp, profile):
     
     # Compute the fluid density
     rho = fluid.density(mass_frac, Ta, Pa)[0]
-    print(rho)
-    
-    # Compute the mass flux
-    m_dot = u0 * Ap * rho
     
     # Get a mass for this element such that the initial Lagrangian element is 
     # shorter than it is wide

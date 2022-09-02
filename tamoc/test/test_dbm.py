@@ -30,8 +30,12 @@ have been validated against measurements.
 
 from __future__ import (absolute_import, division, print_function)
 
-from tamoc import dbm_f
 from tamoc import dbm
+
+try:
+    from tamoc import dbm_f
+except ImportError:
+    from tamoc import dbm_p as dbm_f
 
 import numpy as np
 from numpy.testing import assert_array_almost_equal

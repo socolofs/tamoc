@@ -22,9 +22,11 @@ def density(T, S, P):
     """
     Computes the density of seawater from Gill (1982)
     
-    Computes the density of seawater using the equation of state in Gill
-    (1982), *Ocean-Atmosphere Dynamics*, Academic Press, New York.  The
-    equations for this code are taken from Appendix B in Crounse (2000).
+    Computes the density of seawater. For temperatures less than 40 deg C, this
+    function uses the equation of state in Gill (1982), *Ocean-Atmosphere
+    Dynamics*, Academic Press, New York; the equations for this code are taken from
+    Appendix B in Crounse (2000). For higher temperatures, this function uses the
+    equations in Sun et al. (2008), Deep-Sea Research I, Volume 55, pages 1304-1310.
     
     Parameters
     ----------
@@ -41,36 +43,58 @@ def density(T, S, P):
         seawater density (kg/m^3)
     
     """
-    # Convert T to dec C and P to bar
-    T = T - 273.15
-    P = P * 1.e-5
+    if T < 273.15 + 40:
+        # Convert T to dec C and P to bar
+        T = T - 273.15
+        P = P * 1.e-5
     
-    # Compute the density at atmospheric pressure
-    rho_sw_0 = (
-                999.842594 + 6.793952e-2 * T - 9.095290e-3 * T**2 
-                + 1.001685e-4 * T**3 - 1.120083e-6 * T**4 + 6.536332e-9 * T**5 
-                + 8.24493e-1 * S - 5.72466e-3 * S**(3./2.) + 4.8314e-4 * S**2 
-                - 4.0899e-3 * T*S + 7.6438e-5 * T**2 * S - 8.2467e-7 * T**3 * 
-                S + 5.3875e-9 * T**4 * S + 1.0227e-4 * T * S**(3./2.) 
-                - 1.6546e-6 * T**2 * S**(3./2.)
-                )
+        # Compute the density at atmospheric pressure
+        rho_sw_0 = (
+                    999.842594 + 6.793952e-2 * T - 9.095290e-3 * T**2 
+                    + 1.001685e-4 * T**3 - 1.120083e-6 * T**4 + 6.536332e-9 * T**5 
+                    + 8.24493e-1 * S - 5.72466e-3 * S**(3./2.) + 4.8314e-4 * S**2 
+                    - 4.0899e-3 * T*S + 7.6438e-5 * T**2 * S - 8.2467e-7 * T**3 * 
+                    S + 5.3875e-9 * T**4 * S + 1.0227e-4 * T * S**(3./2.) 
+                    - 1.6546e-6 * T**2 * S**(3./2.)
+                    )
     
-    # Compute the pressure correction coefficient
-    K = (
-         19652.21 + 148.4206 * T - 2.327105 * T**2 + 1.360477e-2 * T**3 
-         - 5.155288e-5 * T**4 + 3.239908 * P + 1.43713e-3 * T * P 
-         + 1.16092e-4 * T**2 * P - 5.77905e-7 * T**3 * P 
-         + 8.50935e-5 * P**2 - 6.12293e-6 * T * P**2 
-         + 5.2787e-8 * T**2 * P**2 + 54.6746 * S - 0.603459 * T * S 
-         + 1.09987e-2 * T**2 * S - 6.1670e-5 * T**3 * S 
-         + 7.944e-2 * S**(3./2.) + 1.64833e-2 * T * S**(3./2.) 
-         - 5.3009e-4 * T**2 * S**(3./2.) + 2.2838e-3 * P * S 
-         - 1.0981e-5 * T * P * S - 1.6078e-6 * T**2 * P * S 
-         + 1.91075e-4 * P * S**(3./2.) - 9.9348e-7 * P**2 * S 
-         + 2.0816e-8 * T * P**2 * S + 9.1697e-10 * T**2 * P**2 * S
-         )
+        # Compute the pressure correction coefficient
+        K = (
+             19652.21 + 148.4206 * T - 2.327105 * T**2 + 1.360477e-2 * T**3 
+             - 5.155288e-5 * T**4 + 3.239908 * P + 1.43713e-3 * T * P 
+             + 1.16092e-4 * T**2 * P - 5.77905e-7 * T**3 * P 
+             + 8.50935e-5 * P**2 - 6.12293e-6 * T * P**2 
+             + 5.2787e-8 * T**2 * P**2 + 54.6746 * S - 0.603459 * T * S 
+             + 1.09987e-2 * T**2 * S - 6.1670e-5 * T**3 * S 
+             + 7.944e-2 * S**(3./2.) + 1.64833e-2 * T * S**(3./2.) 
+             - 5.3009e-4 * T**2 * S**(3./2.) + 2.2838e-3 * P * S 
+             - 1.0981e-5 * T * P * S - 1.6078e-6 * T**2 * P * S 
+             + 1.91075e-4 * P * S**(3./2.) - 9.9348e-7 * P**2 * S 
+             + 2.0816e-8 * T * P**2 * S + 9.1697e-10 * T**2 * P**2 * S
+             )
+        
+        rho = rho_sw_0 / (1 - P / K)
     
-    return rho_sw_0 / (1 - P / K)
+    else:
+        # Convert T to deg C and P to MPa
+        T = T - 273.15
+        P = P / 1.e6
+        
+        # Summations
+        left_col = 9.9920571e2 + 9.5390097e-2 * T - 7.6186636e-3 * T**2 + \
+            3.1305828e-5 * T**3 - 6.1737704e-8  * T**4 + 4.3368858e-1 * P + \
+            2.5495667e-5 * P*T**2 - 2.8988021e-7 * P*T**3 + \
+            9.5784313e-10 * P*T**4 + 1.7627497e-3 * P**2 - 1.2312703e-4 * P**2*T \
+            + 1.3659381e-6 * P**2*T**2 + 4.0454583e-9 * P**2*T**3 - 1.4673241e-5 \
+            * P**3 + 8.8391585e-7 * P**3*T - 1.1021321e-9 * P**3*T**2 + \
+            4.2472611e-11 * P**3*T**3 - 3.9591772e-14 * P**3*T**4
+        right_col = -7.99992230e-1 * S + 2.40936500e-3 * S*T - 2.58052775e-5 * \
+            S*T**2 + 6.85608405e-8 * S*T**3 + 6.29761106e-4 * P*S - \
+            9.36263713e-7 * P**2*S
+        
+        rho = left_col - right_col
+    
+    return rho
 
 def mu(T, S, P):
     """
@@ -243,4 +267,81 @@ def cp():
     
     """
     return 3997.4
+
+def pH(co2, Ta, alk=0.002300, ph_guess=9):
+    """ 
+    Compute the pH given the DIC in kg/m^3 of CO2
+    
+    Compute the pH of a solution of CO2 in water given the DIC measured in
+    kg/m^3 of CO2. This algorithm assumes an ocean alkalinity of 2,300 ueq/l
+    and converts the given `co2` input in kg/m^3 to DIC in mol/L using the
+    molecular weight of CO2. The solution method and solubility constants come
+    from the EPA document:
+    
+        https://www.epa.gov/sites/default/files/2018-05/ 
+        documents/wasp-ph-release-notes.pdf
+    
+    The non-linear solution algorithm is sensitive to the initial guess for the
+    pH, which can be adjusted by the optional input parameter.
+    
+    Parameters
+    ----------
+    co2 : float
+        Total dissolved inorganic carbon in kg/m^3 of CO2.
+    Ta : float
+        Ambient temperature (K)
+    alk : float, default=0.002300
+        Alkalinity in eq/l.  The average ocean value is 2300 ueq/l, which is the
+        value supplied by default.
+    ph_guess : float, default=9        
+        Initial guess for the pH. It seems the algorithm easily diverges if the
+        initial guess is too close to the final answer. Approaching the
+        solution from a higher pH seems to be stable.
+    
+    Returns
+    -------
+    ph : float
+        Converged value of the pH.
+    
+    """
+    # Convert kg/m^3 of co2 to mol / l
+    cT = co2 / (12.011 / 1000.) / 1000.
+    
+    def h_residual(h):
+        """
+        Compute the residual of the pH calculation
+        
+        Following the EPA documentation, which is based on Stumm and Morgan
+        (1996), the pH is computed from a non-linear, root-finding problem. This
+        function returns the residual of the root-finding equation.
+        
+        """
+        # Compute the temperature-dependent solubility constants
+        pKw = 4787.3 / Ta + 7.1321 * np.log10(Ta) + 0.010365 * Ta - 22.80
+        log_K1 = -356.3094 - 0.06091964 * Ta + 21834.37 / Ta + \
+            126.8339 * np.log10(Ta) - 1684915. / Ta**2
+        log_K2 = -107.8871 - 0.03252849 * Ta + 5151.79 / Ta + \
+            38.92561 * np.log10(Ta) - 563713.9 / Ta**2
+        
+        # Convert these constants from their log-values to actual numbers
+        Kw = 10. ** (-pKw)
+        K1 = 10. ** log_K1
+        K2 = 10. ** log_K2
+        
+        # Compute the coefficients of the root-finding equation
+        a1 = K1 * h / (h**2 + K1 * h + K1 * K2)
+        a2 = K1 * K2 / (h**2 + K1 * h * K1 * K2)
+        
+        # Return the residual of the root-finding equation
+        return (a1 + 2. * a2) * cT + Kw / h - h - alk
+    
+    # Use a root-finding algorithm to converge on the correct pH
+    from scipy.optimize import fsolve
+    h = fsolve(h_residual, 10**-9)[0]
+    
+    # Convert the hydrogen ion concentration to a pH value
+    ph = -np.log10(h)
+    
+    # Return the result
+    return ph
 

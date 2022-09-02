@@ -208,7 +208,7 @@ def crossflow_plume(fig):
     ax1.set_xlabel('x / D')
     ax1.set_ylabel('z / D')
     ax1.invert_yaxis()
-    ax1.grid(b=True, which='major', color='0.65', linestyle='-')
+    ax1.grid(visible=True, which='major', color='0.65', linestyle='-')
     
     plt.draw()
     

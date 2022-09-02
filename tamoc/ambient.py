@@ -1007,9 +1007,9 @@ class Profile(BaseProfile):
                 chem_units)
         
         elif isinstance(data, type(xr.Dataset())):
-            # The user passed an xarray Dataset object...no pre-processing
-            # is required
-            pass
+            # The user passed an xarray Dataset object
+            ztsp_units, chem_names, chem_units = \
+                self._from_xarray_Dataset(data, ztsp, chem_names)
         
         else:
             # The user wants to use data from the world-ocean average
@@ -1122,6 +1122,35 @@ class Profile(BaseProfile):
         return (ds, ztsp, ztsp_units, chem_names, chem_units)
         
     
+    def _from_xarray_Dataset(self, ds, ztsp, chem_names):
+        """
+        Create a profile object from an open netCDF dataset
+        
+        """        
+        # Get the variable names in the Dataset
+        keys = []
+        for key in ds.data_vars:
+            keys += [key]
+                
+        # Get the correct set of variables chosen by the user
+        if 'all' in chem_names:
+            # We need to take all variables in the dataset
+            non_chems = ['time', 'lat', 'lon'] + ztsp
+            chem_names = [name for name in keys if name not in non_chems]
+        
+        # Make sure the current data are included as the user probably
+        # considers them much like the temperature and pressure
+        current_vars = ['ua', 'va', 'wa']
+        for var in current_vars:
+            if var not in chem_names and var in keys:
+                chem_names += [var]
+        
+        # Load the data from the netCDF dataset variables
+        ztsp_units, chem_units = get_xarray_data(ds, ztsp, chem_names)
+                
+        # Return the final set of data
+        return (ztsp_units, chem_names, chem_units)
+
     def _from_tamoc(self, data, ztsp, ztps_units, chem_names, chem_units):
         """        
         Create a profile from data for the world-ocean average temperature,
@@ -2187,6 +2216,44 @@ def get_nc_data(nc, ztsp, chem_names):
     chem_units = y_units[len(ztsp):]
     
     return (data, ztsp_units, chem_units)
+
+def get_xarray_data(ds, ztsp, chem_names):
+    """
+    Extract named data from an xarray Dataset
+    
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        An existing xarray dataset object that contains the data that are 
+        to be extracted
+    ztsp : list of str
+        A list of string names that will be used to specify the depth
+        (``z``), temperature, salinity, and pressure.
+    chem_names : list of str
+        A list of additional parameters passed in through ds.  These
+        will be the string names used to access ``Profile`` data through the
+        ``get_values()`` method.
+    
+    Returns
+    -------
+    ztsp_units : list of str
+        A list of units for the depth, temperature, salinity, and pressure 
+        data
+    chem_units : list of str
+        A list of units for the data in the chem_names list
+    
+    """
+    # Get the units of each variable
+    y_names = ztsp + chem_names
+    y_units = []
+    for name in y_names:
+        y_units.append(ds[name].attrs['units'])
+    
+    # Extract the ztsp variables and chem variables separately
+    ztsp_units = y_units[0:4]
+    chem_units = y_units[4:]
+    
+    return (ztsp_units, chem_units)
 
 
 # - Functions for manipulating numpy arrays -----------------------------------

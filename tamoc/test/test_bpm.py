@@ -284,7 +284,6 @@ def check_sim(X0, D, Vj, phi_0, theta_0, Sj, Tj, cj, tracers,
     assert bpm.particles[0].farfield == True
     ans = np.array([1.40767197e+02, 0.00000000e+00, 3.34101214e+00, 
         3.06813420e-06, 0.00000000e+00, 0.00000000e+00, 1.84215984e+00])
-    print(bpm.particles[0].sbm.y[-1,:])
     for i in range(len(ans)):
         assert_approx_equal(bpm.particles[0].sbm.y[-1,i], ans[i],
             significant=6)
@@ -592,11 +591,13 @@ def test_files():
 
     # Load the simulation data from the netCDF file
     bpm.load_sim(fname)
+    print('Checking simulation...')
     check_sim(X0, D, Vj, phi_0, theta_0, Sj, Tj, cj, tracers, particles,
         dt_max, sd_max, bpm)
 
     # Initialize a Model object from the netCDF file
     bpm_load = bent_plume_model.Model(simfile = fname)
+    print('Checking simulatio')
     check_sim(X0, D, Vj, phi_0, theta_0, Sj, Tj, cj, tracers, particles,
         dt_max, sd_max, bpm)
 

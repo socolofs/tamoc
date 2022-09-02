@@ -12,8 +12,14 @@ size distributions from source flow conditions.
 For typical usage, please see the ./bin directory of the source distribution
 for various example scripts.
 
+Version 2.4.0:  Added additional post-processing methods to the bent plume
+                model to extract dissolved-phase concentration maps. Also made
+                it easier to use the Privat and Jaubert binary interaction
+                coefficients and updated the seawater module with a density
+                equation for very hot seawater and a function to compute pH.
 Version 2.3.1:  Added new post-processing methods to the bent plume model
-                module.
+                module to track mass balances and plot particle size 
+                distributions.
 Version 2.3.0:  Added a new module to replace the Fortran codes that are used
                 by the dbm module. Now, a Fortran compiler is not required to
                 install and run TAMOC.

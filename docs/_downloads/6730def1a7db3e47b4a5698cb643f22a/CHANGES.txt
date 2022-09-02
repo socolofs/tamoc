@@ -1,4 +1,23 @@
-V2.3.1, April 2022 --
+V2.4.0, September 2022 --
+   . Updated the bent_plume_model with post-processing capability to compute
+     dissolved concentrations. These methods follow those used by Socolofsky
+     and Gros in the NASEM Dispersants Committee Report, Appendix E.
+   . Updated the ambient module to correctly initiate a Profile object from 
+     xarray data. 
+   . Changed the way the binary interaction coefficient data can up passed to
+     the dbm module. Previous methods using user-defined data still work. The
+     new method also includes loading the Privat and Jaubert coefficients from
+     the data directory so that these are more easily used.
+   . Added a new equation of state in the seawater module for density at very
+     high temperatures. This was needed to allow simulation of submarine black
+     smokers.
+   . Added a new example in the ./bin/sbm directory for simulating a single CO2
+     bubble rising in the ocean water column. Also added a new method in the
+     seawater module to compute the pH given the dissolved inorganic carbon
+     (DIC) and the temperature.
+   . Other minor updates to fix typos in axis labels and fix any identified 
+     bugs.
+V2.3.1, July 2022 --
    . Updated the bent_plume_model module so that the Model class now includes
      several useful post-processing methods. These allow the user to compute
      several diagnostics of the model output that one may normally want to

@@ -41,6 +41,7 @@ from __future__ import (absolute_import, division, print_function)
 from tamoc import model_share
 from tamoc import ambient
 from tamoc import seawater
+from tamoc import dbm
 from tamoc import single_bubble_model
 from tamoc import dispersed_phases
 from tamoc import lmp
@@ -257,6 +258,10 @@ class Model(object):
         self.sd_max = sd_max
         self.K_T0 = np.array([self.particles[i].K_T for i in
                               range(len(self.particles))])
+        if len(self.particles) > 0:
+            self.composition = self.particles[0].particle.composition
+        else:
+            self.composition = []
 
         # Create the initial state space from the given input variables
         t0, q0, self.chem_names = lmp.main_ic(self.profile,
@@ -266,7 +271,7 @@ class Model(object):
         # Store the initial conditions in a Lagrangian element object
         self.q_local = LagElement(t0, q0, D, self.profile, self.p,
                        self.particles, self.tracers, self.chem_names)
-
+        
         # Compute the buoyant jet trajectory
         print('\n-- TEXAS A&M OIL-SPILL CALCULATOR (TAMOC) --')
         print('-- Bent Plume Model                       --\n')
@@ -295,6 +300,220 @@ class Model(object):
         for i in range(len(self.particles)):
             self.particles[i].sim_stored = True
             self.particles[i].K_T = self.K_T0[i]
+    
+    def get_intrusion_concentration(self):
+        """
+        Extract the concentrations of dissolved compounds entering the intrusion
+        
+        Extract the concentration of dissolved compounds in seawater at the end
+        of the near-field simulation.  This represents the concentrations of 
+        dissolved material entering the intrusion layer.
+        
+        Returns
+        -------
+        Cp : ndarray
+            Array of dissolved concentrations (kg/m^3) for each compound in the
+            model composition at the end of the near-field plume simulation
+        
+        """
+        # Update the LagElement at the end of the near-field plume
+        self.q_local.update(self.t[-1], self.q[-1], self.profile, self.p,
+            self.particles)
+        
+        # Extract the concentration and mass flux
+        Cp = self.q_local.c_chems
+        
+        # Return the results
+        return Cp
+    
+    def get_grid_concentrations(self, x, max_C=True, Et=5.0e-4):
+        """
+        Compute the concentrations in the far-field from all particles
+        
+        Uses the method `Particle.field_concentrations` to compute the 
+        contributions from each `Particle` and then superposes these values to 
+        yield the total dissolved concentrations at the requested points.
+        
+        Parameters
+        ----------
+        x : ndarray
+            Array of three-dimensional positions where the concentrations should
+            be computed. Each row of `x` corresponds to a different point, with
+            the columns of `x` giving the x-, y-, and z-coordinates of each 
+            point.
+        max_C : bool, default=True
+            A flag indicating how to interpret the horizontal coordinates x and
+            y. The maximum concentration will occur along a line parallel to
+            the currents, which may change direction with height. If `max_C` is
+            `True`, then the x-coordinate is taken as the distance along the
+            current direction and the y-coordinate is taken as the distance
+            perpendicular to x. Thus, if y=0, then this will always return the
+            maximum concentration a distance x from the particle center of
+            mass. If `max_C` is `False`, then the x- and y-coordinates are to
+            be taken as absolute coordinates in the reference frame of the
+            release. If they are located upstream of the particle center, the
+            concentration will be zero; otherwise, the analytical solution is
+            computed and the corresponding concentrations returned.
+        Et : float, default=5.0e-4
+            The horizontal eddy diffusivity of the particle spreading (m^2/s).
+            The default value is from Wang et al. (2020, GRL), which was
+            measured for a bubble stream above the natural seeps at MC 118 in
+            the deep Gulf of Mexico.
+        
+        Returns
+        -------
+        C_vals : ndarray
+            A two-dimensional array of concentrations at the given points. Each
+            row of `C_vals` corresponds to a row of `x`; the columns of `C_vals`
+            each correspond to a compound in the `Particle` composition.
+        
+        Notes
+        -----
+        When a simulation includes more than one `Particle`, the `max_C=True`
+        flag should be interpreted as follows. Each particle may be located
+        along a different line in the horizontal r-theta plane. If all
+        particles are not along the same line as the currents, then this method
+        will treat them as if they are so aligned. Hence, it will always return
+        the absolute maximum possible concentration. If the real concentration
+        of the distributed particles is desired, then `max_C` should be set as
+        `False`, and the concentrations will be computed at the given `x`
+        points using absolute coordinates. The user will have to ensure that
+        this set of points includes all relevant points in relation to the
+        currents at each depth.
+        
+        """
+        # Set up a matrix to hold the concentration data
+        Cvals = np.zeros((x.shape[0], len(self.composition)))
+        
+        # Get the concentrations for each particle and use superposition to get
+        # the concentration of the whole field
+        for i in range(len(self.particles)):
+            Cvals += self.particles[i].grid_concentrations(x, max_C, Et)
+        
+        # Return the result
+        return Cvals
+    
+    def get_planar_concentrations(self, x, y, z, max_C=True, Et=5.0e-4):
+        """
+        Compute far-field concentrations on a designated plane
+        
+        This method is similar to `get_grid_concentrations`, but uses the
+        `np.meshgrid` method to compute concentrations on a grid of points in
+        one of the xy-, xz-, or yz-planes. These data can easily be visualized
+        using the `plt.pcolor` plotting method. 
+        
+        Parameters
+        ----------
+        x : float or ndarray
+            Coordinate(s) along the x-axis for which concentration values are 
+            desired
+        y : float or ndarray
+            Coordinate(s) along the y-axis for which concentration values are
+            desired
+        z : float or ndarray
+            Coordinate(s) along the z-axis for which concentration values are
+            desired
+        max_C : bool, default=True
+            A flag indicating how to interpret the horizontal coordinates x and
+            y. The maximum concentration will occur along a line parallel to
+            the currents, which may change direction with height. If `max_C` is
+            `True`, then the x-coordinate is taken as the distance along the
+            current direction and the y-coordinate is taken as the distance
+            perpendicular to x. Thus, if y=0, then this will always return the
+            maximum concentration a distance x from the particle center of
+            mass. If `max_C` is `False`, then the x- and y-coordinates are to
+            be taken as absolute coordinates in the reference frame of the
+            release. If they are located upstream of the particle center, the
+            concentration will be zero; otherwise, the analytical solution is
+            computed and the corresponding concentrations returned.
+        Et : float, default=5.0e-4
+            The horizontal eddy diffusivity of the particle spreading (m^2/s).
+            The default value is from Wang et al. (2020, GRL), which was
+            measured for a bubble stream above the natural seeps at MC 118 in
+            the deep Gulf of Mexico.
+        
+        Returns
+        -------
+        plane_0 : ndarray
+            `np.meshgrid` coordinates for one of the coordinate axes along the 
+            defined concentration plane
+        plane_1 : ndarray
+            `np.meshgrid` coordinates for the other coordinate axis along the
+            defined concentration plane
+        Cp : ndarray
+            A three-dimensional array of concentration data on the defined
+            plane. The first two coordinates of the array correspond to the
+            coordinates of the defined plane; the third coordinate corresponds
+            to each compound in the model composition.
+            
+        Notes
+        -----
+        One of the parameters `x`, `y`, or `z` should be a float or 1x1 array;
+        the desired plane will be defined by the other two variables and going
+        through this 1x1 array point.
+        
+        See also the notes above for `get_grid_concentrations` to understand
+        the implications of the `max_C` parameter when more than one `Particle`
+        object is present within a simulation.
+        
+        Example
+        -------
+        >>> # Create a bent_plume_model.Model object called bpm
+        >>> # Execute the bpm.simulate() method
+        >>> # Then, compute and plot far-field concentrations as follows
+        >>> x = 2500
+        >>> y = np.linspace(-15., 15., num=25)
+        >>> z = np.linspace(0., 500., num=100)
+        >>> yp, zp, Cp = bpm.get_planar_concentrations(x, y, z)
+        >>> plt.pcolor(yp, zp, Cp[:,:,0])
+        >>> plt.colorbar()
+        >>> plt.gca().invert_yaxis()
+        
+        """
+        # Make sure all the position data are arrays
+        if isinstance(x, float):
+            x = np.array([x])
+        if isinstance(y, float):
+            y = np.array([y])
+        if isinstance(z, float):
+            z = np.array([z])
+        
+        # Determine which plane to compute
+        if len(x) == 1:
+            # yz-plane
+            plane = np.meshgrid(y, z)
+            fixed_pt = x
+            indices = [0, 1, 2]
+        elif len(y) == 1:
+            # xz-plane
+            plane = np.meshgrid(x, z)
+            fixed_pt = y
+            indices = [1, 0, 2]
+        else:
+            # xy-plane
+            plane = np.meshgrid(x, y)
+            fixed_pt = z
+            indices = [2, 0, 1]
+        
+        # Set up a three-dimensional matrix to hold the concentration data
+        nx, ny = plane[0].shape
+        Cp = np.zeros((nx, ny, len(self.composition)))
+        
+        # Compute all of the data
+        print('\nComputing the far-field planar concentration data...')
+        x = np.zeros((ny, 3))
+        for i in range(nx):
+            print('   --> Level %3.3d of %3.3d' % (i+1, nx))
+            x[:,indices[0]] = fixed_pt
+            x[:,indices[1]] = plane[0][i,:]
+            x[:,indices[2]] = plane[1][i,:]
+            Cvals = self.get_grid_concentrations(x, max_C, Et)
+            for j in range(len(self.composition)):
+                Cp[i,:,j] = Cvals[:,j]
+        print('Done.')
+        
+        # Return the computed data
+        return (plane[0], plane[1], Cp)
 
     def save_sim(self, fname, profile_path, profile_info):
         """
@@ -701,109 +920,7 @@ class Model(object):
 
         # Close the netCDF dataset
         nc.close()
-        self.sim_stored = True
-    
-    def report_psds(self, loc, stage):
-        """
-        docstring for plot_psds
-        
-        """
-        # Check whether the simulation data exist
-        if not self.sim_stored:
-            print('\nERROR:  Run a simulation before interrogating results.')
-            print('    --> Execute Model.simulate() to proceed.\n')
-            return(0, 0)
-        
-        # Initialize lists to hold the model results
-        d_gas = []
-        v_gas = []
-        d_liq = []
-        v_liq = []
-        
-        if stage == 0:
-            # Get results from the near-field plume...
-            # Update the plume element to the desired index
-            self.q_local.update(self.t[loc], self.q[loc], self.profile, 
-                self.p, self.particles)
-        
-            # Get the conditions at desired index point
-            for particle in self.particles:
-                mp = particle.m
-                Tp = particle.T
-                Ta = self.q_local.Ta
-                Sa = self.q_local.Sa
-                Pa = self.q_local.Pa
-                de = particle.diameter(mp, Tp, Pa, Sa, Ta)
-                Vp = 4./3. * np.pi * (de/2.)**3
-                Vf = Vp * particle.nb0
-                if particle.particle.fp_type == 0:
-                    d_gas.append(de)
-                    v_gas.append(Vf)
-                else:
-                    d_liq.append(de)
-                    v_liq.append(Vf)
-        
-        elif stage == 1:
-            # Get results from the far-field Lagrantian particle tracking...
-            if not self.track:
-                print('ERROR:  The far-field tracking was not activated.')
-                print('    --> Plot results from the near-field plume')
-                print('        (stage = 0) or rerun the simulation with')
-                print('        track = True.')
-                return (-1, -1, -1, -1)
-            for particle in self.particles:
-                # Interpolate the SBM output to the requested vertical level
-                z = particle.sbm.y[:,2]
-                i0 = np.max(np.where(z>=loc))
-                if i0 + 1 == len(z):
-                    i1 = i0 - 1
-                else:
-                    i1 = i0 + 1
-                z0 = z[i0]
-                z1 = z[i1]
-                y0 = particle.sbm.y[i0,:]
-                y1 = particle.sbm.y[i1,:]
-                y = (y1 - y0) / (z1  - z0) * (loc - z0) + y0
-                
-                # Extract the particle properties
-                zp = loc
-                mp = y[3:-1]
-                Tp = y[-1] / (np.sum(mp) * particle.cp)
-                
-                # Get the ambient data
-                Ta, Sa, Pa = self.profile.get_values(zp, ['temperature',
-                    'salinity', 'pressure'])
-                
-                # Get the diameter
-                de = particle.diameter(mp, Tp, Pa, Sa, Ta)
-                Vp = 4./3. * np.pi * (de/2.)**3
-                Vf = Vp * particle.nb0
-                if particle.particle.fp_type == 0:
-                    d_gas.append(de)
-                    v_gas.append(Vf)
-                else:
-                    d_liq.append(de)
-                    v_liq.append(Vf)
-        
-        else:
-            print('\nERROR:  Requested simulation data unknown.')
-            print('    --> Choose a simulation stage = 0 (nearfield plume)')
-            print('        or 1 (farfield particle tracking)\n')
-            return (-1, -1, -1, -1)
-        
-        # Convert lists to arrays
-        d_gas = np.array(d_gas)
-        v_gas = np.array(v_gas)
-        d_liq = np.array(d_liq)
-        v_liq = np.array(v_liq)
-    
-        # Convert the volume distributions to volume fraction
-        v_gas = v_gas / np.sum(v_gas)
-        v_liq = v_liq / np.sum(v_liq)
-    
-        # Return the results
-        return (d_gas, v_gas, d_liq, v_liq)
-    
+        self.sim_stored = True 
     
     def report_mass_fluxes(self, idx, stage=0, chems=None, fp_type=-1):
         """
@@ -1007,18 +1124,18 @@ class Model(object):
         
         elif plume_surfaced:
             # Particle masses are from the plume solution
-            mp, md = self.report_masss_fluxes(-1, stage=0, chems=c_idx, 
+            mp, md = self.report_mass_fluxes(-1, stage=0, chems=c_idx, 
                 fp_type=fp_type)
             for particle in self.particles:
                 # Only track particles of the right type
                 if fp_type < 0 or particle.particle.fp_type == fp_type:
                     if particle.z >= 50.:
                         # This particle did not surface
-                        tp[particles.index(particle)] = np.nan
-                        mp[particles.index(particle), :] = np.zeros(c_idx)   
+                        tp[self.particles.index(particle)] = np.nan
+                        mp[self.particles.index(particle), :] = np.zeros(c_idx)   
                     else:
                         # This particle did surface
-                        tp[particles.index(particle)] = particle.t
+                        tp[self.particles.index(particle)] = particle.t
             
             # Warn the user about untracked particles
             if not self.track:
@@ -1048,15 +1165,166 @@ class Model(object):
         # Return all the results
         return (mp, mc, tp, tc)
 
-    def plot_psds(self, fig, idx=0, stage=0, clear=True):
+    def report_psds(self, loc, stage):
         """
-        docstring for plot_psds
+        Return the gas and liquid particle distributions
+        
+        Extracts the gas bubble and liquid droplet particle size distributions
+        at the position in the simulation solution vector given by `loc` (see
+        parameter description below for details). The `stage` flag is used to
+        indicate whether the results should be taken from the nearfield plume
+        simulation (`stage` = 0) or the farfield particle tracking (`stage` =
+        1).
+        
+        Parameters
+        ----------
+        loc : int or float
+            Location where the particle size distribution should be computed.
+            If `stage` = 0, this is an index to the solution vector of the
+            nearfield plume in a bent plume model simulation. If `stage` = 1,
+            this is a depth (m) where the output data should be extracted.
+        stage : int
+            Flag indicating whether to return results for the nearfield plume
+            solution (`stage` = 0) or the farfield particle tracking (`stage` =
+            1)
+        
+        Returns
+        -------
+        d_gas : float
+            Diameters (m) of the gas bubbles
+        v_gas : float
+            Volume fraction (--) corresponding to each gas bubble size
+        d_liq : float
+            Diameters (m) of the liquid droplets
+        v_liq : float
+            Volume fraction (--) corresponding to each liquid droplet size
+        
+        """
+        # Check whether the simulation data exist
+        if not self.sim_stored:
+            print('\nERROR:  Run a simulation before interrogating results.')
+            print('    --> Execute Model.simulate() to proceed.\n')
+            return(0, 0)
+        
+        # Initialize lists to hold the model results
+        d_gas = []
+        v_gas = []
+        d_liq = []
+        v_liq = []
+        
+        if stage == 0:
+            # Get results from the near-field plume...
+            # Update the plume element to the desired index
+            self.q_local.update(self.t[loc], self.q[loc], self.profile, 
+                self.p, self.particles)
+        
+            # Get the conditions at desired index point
+            for particle in self.particles:
+                mp = particle.m
+                Tp = particle.T
+                Ta = self.q_local.Ta
+                Sa = self.q_local.Sa
+                Pa = self.q_local.Pa
+                de = particle.diameter(mp, Tp, Pa, Sa, Ta)
+                Vp = 4./3. * np.pi * (de/2.)**3
+                Vf = Vp * particle.nb0
+                if particle.particle.fp_type == 0:
+                    d_gas.append(de)
+                    v_gas.append(Vf)
+                else:
+                    d_liq.append(de)
+                    v_liq.append(Vf)
+        
+        elif stage == 1:
+            # Get results from the far-field Lagrantian particle tracking...
+            if not self.track:
+                print('ERROR:  The far-field tracking was not activated.')
+                print('    --> Plot results from the near-field plume')
+                print('        (stage = 0) or rerun the simulation with')
+                print('        track = True.')
+                return (-1, -1, -1, -1)
+            for particle in self.particles:
+                # Interpolate the SBM output to the requested vertical level
+                z = particle.sbm.y[:,2]
+                i0 = np.max(np.where(z>=loc))
+                if i0 + 1 == len(z):
+                    i1 = i0 - 1
+                else:
+                    i1 = i0 + 1
+                z0 = z[i0]
+                z1 = z[i1]
+                y0 = particle.sbm.y[i0,:]
+                y1 = particle.sbm.y[i1,:]
+                y = (y1 - y0) / (z1  - z0) * (loc - z0) + y0
+                
+                # Extract the particle properties
+                zp = loc
+                mp = y[3:-1]
+                Tp = y[-1] / (np.sum(mp) * particle.cp)
+                
+                # Get the ambient data
+                Ta, Sa, Pa = self.profile.get_values(zp, ['temperature',
+                    'salinity', 'pressure'])
+                
+                # Get the diameter
+                de = particle.diameter(mp, Tp, Pa, Sa, Ta)
+                Vp = 4./3. * np.pi * (de/2.)**3
+                Vf = Vp * particle.nb0
+                if particle.particle.fp_type == 0:
+                    d_gas.append(de)
+                    v_gas.append(Vf)
+                else:
+                    d_liq.append(de)
+                    v_liq.append(Vf)
+        
+        else:
+            print('\nERROR:  Requested simulation data unknown.')
+            print('    --> Choose a simulation stage = 0 (nearfield plume)')
+            print('        or 1 (farfield particle tracking)\n')
+            return (-1, -1, -1, -1)
+        
+        # Convert lists to arrays
+        d_gas = np.array(d_gas)
+        v_gas = np.array(v_gas)
+        d_liq = np.array(d_liq)
+        v_liq = np.array(v_liq)
+    
+        # Convert the volume distributions to volume fraction
+        v_gas = v_gas / np.sum(v_gas)
+        v_liq = v_liq / np.sum(v_liq)
+    
+        # Return the results
+        return (d_gas, v_gas, d_liq, v_liq)
+    
+    def plot_psds(self, fig, loc=0, stage=0, clear=True):
+        """
+        Plot bubble and droplet size distributions
+        
+        Plot the gas bubble and liquid droplet size distributions
+        
+        Parameters
+        ----------
+        fig : int
+            Figure number to create
+        loc : int or float (default=0)
+            Position where the size distributions should be computed. This
+            parameter is passed to `report_psds`. If `stage` = 0, this is an
+            index to the solution vector of the nearfield plume in a bent plume
+            model simulation. If `stage` = 1, this is a depth (m) where the
+            output data should be extracted.
+        stage : int
+            Flag indicating whether to return results for the nearfield plume
+            solution (`stage` = 0) or the farfield particle tracking (`stage` =
+            1)
+        clear : bool
+            Flag indicating whether or not to clear the contents of the
+            requested figure number before plotting
         
         """
         import matplotlib.pyplot as plt
         
         # Get the particle size distributions from the model
-        d_gas, vf_gas, d_liq, vf_liq = self.report_psds(idx, stage)
+        d_gas, vf_gas, d_liq, vf_liq = self.report_psds(loc, stage)
         
         # Prepare the figure for plotting
         plt.figure(fig, figsize=(8,7))
@@ -1234,7 +1502,7 @@ class Model(object):
         plt.tight_layout()
         plt.show()
     
-    def plot_mass_balance(self, fig, chems=None, fp_type=-1, clear=True):
+    def plot_mass_balance(self, fig, chems=None, fp_type=-1, t_max=-1, clear=True):
         """
         Plot the time-history of the mass balance
         
@@ -1340,7 +1608,7 @@ class Model(object):
         plt.legend(('Fraction surfacing', 'Fraction subsea', 
             'Fraction biodegraded'))
         plt.xlabel('Time, (days)')
-        plt.ylabel('Mass, (kg)')
+        plt.ylabel('Mass, (%)')
         plt.tight_layout()
         plt.grid(True)
         
@@ -1611,11 +1879,13 @@ class Particle(dispersed_phases.PlumeParticle):
             self.p_fac = (q_local.b - lp)**4 / q_local.b**4
             if self.p_fac < 0.:
                 self.p_fac = 0.
+            
+            # Store the plume width
+            self.b_local = q_local.b
 
             # Check if the particle exited the plume
-            if lp > q_local.b:
+            if lp > self.b_local:
                 self.p_fac = 0.
-                self.b_local = q_local.b
 
         else:
             # Return the time and position when the particle exited the plume
@@ -1692,6 +1962,288 @@ class Particle(dispersed_phases.PlumeParticle):
 
         # Set flag indicating that far-field solution was computed
         self.farfield = True
+        
+        # Prepare for computing far-field concentrations
+        self._create_concentration_model()
+    
+    def _create_concentration_model(self, k=1000):
+        """
+        Internal method to setup parameters to compute far-field concentrations
+        
+        The far-field concentration model relies on an analytical solution for
+        a continuous line source. This method creates the variables that remain
+        constant in this solution for the present `Particle`. These values are
+        stored in the attributes described below. This method automatically is
+        computed after running the `single_bubble_model` particle tracking
+        (e.g., `Particle.run_sbm`) and only needs to be computed once before
+        making far-field concentration calculations using `point_concentration`
+        or `field_concentrations`.
+        
+        Parameters
+        ----------
+        k : int
+            Number of random particle locations to include in the analytical
+            model.
+        
+        Attributes
+        ----------
+        xp : ndarray
+            Array of `k` random x-coordinates for the particle locations in the 
+            analytical model
+        yp : ndarray
+            Array of `k` random y-coordinates for the particle locations in the
+            analytical model
+        xh : scipy.interpolate.interp1d
+            An interpolation function that returns the particle x- and
+            y-coordinate along its trajectory as a function of depth `z`
+        currents : scipy.interpolate.interp1d
+            An interpolation function that returns the current speed (m/s) and
+            angle from the x-axis (rad, -pi to pi) as a function of depth `z`
+        age : scipy.interpolate.interp1d     
+            An interpolation function that returns the time (s) since the start
+            of the particle trajectory as a function of depth `z`
+        md_p : scipy.interpolate.interp1d
+            An interpolation function that returns the mass flux (kg/m/s) of
+            each compound in the `Particle` composition as a function of depth
+            `z`
+        solubility : scipy.interpolate.interp1d
+            An interpolation function that returns the solubility (kg/m^3) of
+            each compound in the `Particle` composition as a function of depth
+            `z`
+        z_min : float
+            Shallowest depth included in the particle trajectory; hence, the
+            shallowest depth available within the interpolation functions.
+        z_max : float    
+            Deepest depth included in the particle trajectory; hence, the
+            deepest depth available within the interpolation functions.
+        sigma_0 : float
+            The width of the near-field plume at the start of the far-field
+            trajectory for this `Particle`
+        
+        """
+        # Get random positions for k realizations of particle position assuming
+        # a unit standard deviation
+        from scipy.stats import norm
+        self.xp = norm.rvs(0., scale=1., size=k)
+        self.yp = norm.rvs(0., scale=1., size=k)
+        
+        # Store the particle trajectory and ambient currents
+        t = np.zeros(len(self.sbm.t))
+        z = np.zeros(len(self.sbm.t))
+        xh = np.zeros((len(self.sbm.t), 2))
+        currents = np.zeros((len(self.sbm.t), 2))
+        for i in range(len(self.sbm.t)):
+            t[i] = self.sbm.t[i]
+            z[i] = self.sbm.y[i,2]
+            xh[i,0:2] = self.sbm.y[i,0:2]
+            ua, va = self.sbm.profile.get_values(z[i], ['ua', 'va'])
+            currents[i,0] = np.sqrt(ua**2 + va**2)
+            currents[i,1] = np.arctan2(va, ua)
+        
+        # Create interpolation functions to access these data at any height
+        from scipy.interpolate import interp1d
+        self.xh = interp1d(z, xh, axis=0)
+        self.currents = interp1d(z, currents, axis=0)
+        self.age = interp1d(z, t)
+        self.z_min = np.min(z)
+        self.z_max = np.max(z)
+            
+        # Compute the dissolution rate for each chemical along the particle
+        # trajectory
+        md_p = np.zeros((len(self.sbm.t), len(self.particle.composition)))
+        Cs = np.zeros((len(self.sbm.t), len(self.particle.composition)))
+        if not isinstance(self.sbm.particle.particle, dbm.InsolubleParticle):
+            for i in range(len(self.sbm.t)):
+                m = self.sbm.y[i,3:-1]
+                T = self.sbm.y[i,-1] / (np.sum(m) * self.sbm.particle.cp)
+                Ta, Sa, Pa = self.sbm.profile.get_values(z[i], ['temperature',
+                    'salinity', 'pressure'])
+                (us, rho_p, A, Cs[i,:], beta, beta_t, T) = \
+                    self.sbm.particle.properties(m, T, Pa, Sa, Ta, t[i])
+                Ca = self.sbm.profile.get_values(z[i], 
+                    self.particle.composition)
+                md_p[i,:] = A * self.nb0 * beta / us * (Cs[i,:] - Ca)
+        
+        # Store the dissolution rates in an interpolation function
+        self.md_p = interp1d(z, md_p, axis=0)
+        self.solubility = interp1d(z, Cs, axis=0)
+        
+        # Store the Gaussian standard-deviation for the plume width at the point
+        # where this particle exited the plume
+        self.sigma_0 = self.b_local / 2.
+        
+    def point_concentration(self, x, max_C=True, Et=5.0e-4):
+        """
+        Compute the dissolved concentration at a point downstream of particle
+        
+        Compute the dissolved concentration in seawater at a point downstream
+        of the present particle. This method utilizes the analytical solution
+        for a continuous line source and computes the concentrations of all
+        compounds in the particle composition. Because each 'Particle' is a
+        stream of bubbles or droplets that are spreading out, this method
+        simulates the random locations of 1000 particles and superposes their
+        concentration fields to get the downstream concentration.
+        
+        Parameters
+        ----------
+        x : ndarray
+            Array containing the three coordinates of the x, y, and z position
+            (m) where the concentration is to be computed
+        max_C : bool, default=True
+            A flag indicating how to interpret the horizontal coordinates x and
+            y. The maximum concentration will occur along a line parallel to
+            the currents, which may change direction with height. If `max_C` is
+            `True`, then the x-coordinate is taken as the distance along the
+            current direction and the y-coordinate is taken as the distance
+            perpendicular to x. Thus, if y=0, then this will always return the
+            maximum concentration a distance x from the particle center of
+            mass. If `max_C` is `False`, then the x- and y-coordinates are to
+            be taken as absolute coordinates in the reference frame of the
+            release. If they are located upstream of the particle center, the
+            concentration will be zero; otherwise, the analytical solution is
+            computed and the corresponding concentrations returned.
+        Et : float, default=5.0e-4        
+            The horizontal eddy diffusivity of the particle spreading (m^2/s).
+            The default value is from Wang et al. (2020, GRL), which was
+            measured for a bubble stream above the natural seeps at MC 118 in
+            the deep Gulf of Mexico.
+        
+        Returns
+        -------
+        Cp : ndarray
+            Array of the concentrations (kg/m^3) at the given point. Each
+            element of the array corresponds to a compound in the `Particle`
+            composition.
+        
+        """
+        # Check whether the desired location is within the vertical bounds of this
+        # particle
+        if x[2] < self.z_min or x[2] > self.z_max:
+            return np.zeros(len(self.particle.composition))
+        
+        # Extract the currents
+        Ua = self.currents(x[2])[0]
+        theta = self.currents(x[2])[1]
+        if theta < 0.:
+            theta = 2. * np.pi + theta
+        R = np.array([[np.cos(theta), -np.sin(theta)],[np.sin(theta),
+            np.cos(theta)]])
+        
+        # Get the desired point in a currents-based and particle-center based
+        # Coordinate system
+        if max_C:
+            # The user specified the downstream distance and lateral offset
+            Lx = x[0]
+            Ly = x[1]
+        else:
+            # The user has provided absolute coordinates in the model 
+            # coordinate system
+            alpha = np.arctan2(x[1], x[0])
+            if alpha < 0.:
+                alpha = 2. * np.pi + alpha
+            if np.abs(theta - alpha) < np.pi / 2.:
+                # The chosen point is in the downstream direction: a non-zero
+                # solution for concentration exists
+                xs = np.matmul(R.transpose(), x[0:2])
+                Lx = xs[0]
+                Ly = xs[1]
+                
+            else:
+                # The chosen point is upstream of the particles: the concentrations
+                # will all be zero
+                return np.zeros(len(self.particle.composition))
+        
+        # Get the downstream distance to the current particle center
+        xp = np.matmul(R, self.xh(x[2]))
+        Lp = np.sqrt(xp[0]**2 + xp[1]**2)
+        
+        # Get the local width of the bubble cloud
+        sigma = np.sqrt(2. * Et * self.age(x[2]) + self.sigma_0**2)
+        
+        # Get locations for the random particle positions
+        sx = Lp + sigma * self.xp
+        sy = 0. + sigma * self.yp
+        k = len(self.xp)
+        
+        # Compute length to advection-dominated region
+        alpha = 10.
+        Ua = self.currents(x[2])[0]
+        L_D = Et / (alpha * Ua)
+        
+        # Compute the contributions from each random particle position
+        md_p = self.md_p(x[2])
+        Cp = np.zeros(len(md_p))
+        for j in range(k):
+            # Get distance along s from particle to plane of interest
+            L = Lx - sx[j]
+            H = Ly - sy[j]
+            
+            
+            # Only include this particle if in advection-dominated region
+            if L > L_D:
+                Cp += md_p / np.float(k) / np.sqrt(4. * np.pi * L * Ua * Et) * \
+                    np.exp(-(Ua * H**2) / (4. * Et * L))
+        
+        # Concentration cannot be higher than saturation
+        Cs = self.solubility(x[2])
+        for i in range(len(self.particle.composition)):
+            if Cp[i] > Cs[i]:
+                Cp[i] = Cs[i]
+        
+        return Cp
+    
+    def grid_concentrations(self, x, max_C=True, Et=5.0e-4):
+        """
+        Compute the dissolved concentrations for points in the far-field
+        
+        Computes the dissolved concentrations in seawater for each compound in
+        the Particle composition at each point in a vector of locations, x.
+        This method uses `point_concentration` to compute the concentration,
+        iteratively cycling through all the points in the given `x` array.
+        
+        Parameters
+        ----------
+        x : ndarray
+            Array of three-dimensional positions where the concentrations should
+            be computed. Each row of `x` corresponds to a different point, with
+            the columns of `x` giving the x-, y-, and z-coordinates of each 
+            point.
+        max_C : bool, default=True            
+            A flag indicating how to interpret the horizontal coordinates x and
+            y. The maximum concentration will occur along a line parallel to
+            the currents, which may change direction with height. If `max_C` is
+            `True`, then the x-coordinate is taken as the distance along the
+            current direction and the y-coordinate is taken as the distance
+            perpendicular to x. Thus, if y=0, then this will always return the
+            maximum concentration a distance x from the particle center of
+            mass. If `max_C` is `False`, then the x- and y-coordinates are to
+            be taken as absolute coordinates in the reference frame of the
+            release. If they are located upstream of the particle center, the
+            concentration will be zero; otherwise, the analytical solution is
+            computed and the corresponding concentrations returned.
+        Et : float, default=5.0e-4
+            The horizontal eddy diffusivity of the particle spreading (m^2/s).
+            The default value is from Wang et al. (2020, GRL), which was
+            measured for a bubble stream above the natural seeps at MC 118 in
+            the deep Gulf of Mexico.
+        
+        Returns
+        -------
+        C_vals : ndarray
+            A two-dimensional array of concentrations at the given points. Each
+            row of `C_vals` corresponds to a row of `x`; the columns of `C_vals`
+            each correspond to a compound in the `Particle` composition.
+         
+        """
+        # Set up a matrix to store solutions
+        C_vals = np.zeros((x.shape[0], len(self.particle.composition)))
+        
+        # Loop through all the points
+        for i in range(x.shape[0]):
+            C_vals[i,:] = self.point_concentration(x[i,:], max_C, Et)
+         
+        # Return the solution set
+        return C_vals
 
 
 # ----------------------------------------------------------------------------

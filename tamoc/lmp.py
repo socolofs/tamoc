@@ -172,9 +172,10 @@ def derivs(t, q, q0_local, q1_local, profile, p, particles):
             idx += particles[i].particle.nc + 5
     
     # Conservation equations for the dissolved constituents in the plume
-    qp[idx:idx+q1_local.nchems] = md / q1_local.rho_a * q1_local.ca_chems \
-        - dm - q1_local.k_bio * q1_local.cpe
-    idx += q1_local.nchems
+    if q1_local.nchems > 0:
+        qp[idx:idx+q1_local.nchems] = md / q1_local.rho_a * q1_local.ca_chems \
+            - dm - q1_local.k_bio * q1_local.cpe
+        idx += q1_local.nchems
     
     # Conservation equation for the passive tracers in the plume
     qp[idx:] = md / q1_local.rho_a * q1_local.ca_tracers
@@ -894,7 +895,7 @@ def bent_plume_ic(profile, particles, Qj, A, D, X, phi_0, theta_0, Tj, Sj,
     q.extend(Mj / rho_j * ca)
     
     # Add in the tracers discharged with the jet
-    q.extend(Mj*cj)
+    q.extend(Mj / rho_j * cj)
     
     # Return the complete initial conditions
     return (t, np.array(q))
@@ -947,7 +948,7 @@ def zfe_volume_flux(profile, X0, R, Vj, Sj, Tj):
     # Get the jet density from the discharge characteristics
     Ta, Sa, P = profile.get_values(X[2], ['temperature', 'salinity', 
         'pressure'])
-    rho_j = seawater.density(Ta, Sa, P)
+    rho_j = seawater.density(Tj, Sj, P)
     
     # Pressure at the discharge is the ambient pressure
     Pj = P

@@ -200,13 +200,15 @@ def tamoc_data():
     # Create the full relative path to the default data in ChemData.csv
     chem_fname = os.path.join(__location__,'ChemData.csv')
     bio_fname = os.path.join(__location__,'BioData.csv')
+    PJ_fname = os.path.join(__location__,'PJData.csv')
     
     # Load in the default data and their units
     chem_data, chem_units = load_data(chem_fname)
     bio_data, bio_units = load_data(bio_fname)
+    PJ_data, PJ_units = load_data(PJ_fname)
     
     # Return the results
-    return (chem_data, chem_units, bio_data, bio_units)
+    return (chem_data, chem_units, bio_data, bio_units, PJ_data, PJ_units)
 
 
 

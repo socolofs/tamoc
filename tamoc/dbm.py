@@ -157,23 +157,16 @@ class FluidMixture(object):
         if isinstance(delta, float) or isinstance(delta, list):
             delta = np.atleast_2d(delta)
         
+        if isinstance(delta_groups, list):
+            delta_groups = np.array(delta_groups)
+        
         # Store the input variables and some of their derived properties
         self.composition = composition
         self.nc = len(composition)
-        if delta is None:
-            self.delta = np.zeros((self.nc, self.nc))
-        else:
-            if (delta.shape[0] == self.nc) and (delta.shape[1]==self.nc):
-                self.delta = delta
-            else:
-                print('\nError: Delta wrong shape, should be (%d, %d)' %
-                    (self.nc, self.nc))
-                print('Set to np.zeros((%d, %d))\n' % (self.nc, self.nc))
-                self.delta = np.zeros((self.nc, self.nc))
         
         # Store all of the chemical data
-        (self.chem_db, self.chem_units, self.bio_db, self.bio_units) = \
-            chemical_properties.tamoc_data()
+        (self.chem_db, self.chem_units, self.bio_db, self.bio_units,
+            self.pj_data, self.pj_units) = chemical_properties.tamoc_data()
         self.user_data = user_data
         
         # Initialize the chemical composition variables used in TAMOC
@@ -262,21 +255,93 @@ class FluidMixture(object):
             else:
                 self.t_bio[i] = 0.
         
-        # If we are using group contribution method (Privat and Jaubert 2012) 
-        # for the binary interaction matrix, then we must import Aij and Bij
+        # If the user provided a binary interaction coefficients matrix, 
+        # use them as a constant; otherwise, initialize an empty matrix
+        if delta is None:
+            self.delta = np.zeros((self.nc, self.nc))
+        else:
+            if (delta.shape[0] == self.nc) and (delta.shape[1] == self.nc):
+                self.delta = delta
+            else:
+                print('\nError: Delta wrong shape, should be (%d, %d)' %
+                    (self.nc, self.nc))
+                print('Set to np.zeros((%d, %d))\n' % (self.nc, self.nc))
+                self.delta = np.zeros((self.nc, self.nc))
+        
+        # Decide whether to use the Privat and Jaubert (2012) group 
+        # contributions method to estimate the temperature-dependent
+        # binary interaction coefficients
         if delta_groups is not None:
-            self.calc_delta = 1
-            self.delta_groups = delta_groups
+            
+            if isinstance(delta_groups, np.ndarray):
+                # User provided data as an array
+                
+                if np.sum(np.sum(delta_groups)) > 0.:
+                    # But, the data are empty
+                    self.calc_delta = -1
+                    self.delta_groups = np.zeros((self.nc, 15))
+                
+                else:
+                    # Use their data
+                    self.calc_delta = 1
+                    if (delta_groups.shape[0] == self.nc) and \
+                        (delta_groups.shape[1]==15):
+                        self.delta_groups = delta_groups
+                        for i in range(len(composition)):
+                            self.delta_groups[i,:] = self.delta_groups[i,:] / \
+                                np.sum(self.delta_groups[i,:])
+                    else:
+                        print('\nError: Delta groups wrong shape, should be'
+                            + ' (%d, %d)' % (self.nc, 15))
+                        print('Set to np.zeros((%d, %d))\n' % 
+                            (self.nc, 15))
+                        self.calc_delta = -1
+                        self.delta_groups = np.zeros((self.nc, 15))
+            
+            else:
+                # User wants to use the built-in data or provided a 
+                # dictionary
+                self.calc_delta = 1
+                group_names = ['Privat_CH3', 'Privat_CH2', 'Privat_CH', 
+                    'Privat_C', 'Privat_CH4', 'Privat_C2H6', 
+                    'Privat_CarH', 'Privat_Car', 'Privat_Cfused', 
+                    'Privat_cCH2', 'Privat_cCH', 'Privat_CO2', 
+                    'Privat_N2', 'Privat_H2S', 'Privat_SH']
+                self.delta_groups = np.zeros((self.nc, 15))
+                for i in range(self.nc):
+                    if composition[i] in delta_groups:
+                        # Use the data from the user
+                        pj_vals = delta_groups[composition[i]]
+                    
+                    else:
+                        # Use the built-in data
+                        if composition[i] in self.pj_data:
+                            pj_vals = self.pj_data[composition[i]]
+                        else:
+                            print('\nERROR:  %s is not in the ' % 
+                            composition[i] + 'Privat & Jaubert'
+                            + ' database\n')
+                    # Fill in the matrix
+                    for j in range(len(group_names)):
+                        self.delta_groups[i,j] = pj_vals[group_names[j]]
+                    
+                    # Normalize the data
+                    self.delta_groups[i,:] = self.delta_groups[i,:] / \
+                            np.sum(self.delta_groups[i,:])
+        else:
+            # Do not use the group contributions method
+            self.calc_delta = -1
+            self.delta_groups = np.zeros((self.nc, 15))
+        
+        # Get the corresponding Aij and Bij matrices
+        if self.calc_delta > 0:
             aij_file = os.path.join(os.path.realpath(os.path.join(os.getcwd(), 
                        os.path.dirname(__file__), 'data')),'Aij.csv')
             bij_file = os.path.join(os.path.realpath(os.path.join(os.getcwd(), 
                        os.path.dirname(__file__), 'data')),'Bij.csv')
             self.Aij = np.loadtxt(aij_file, delimiter=',') * 1.e6 # Pa
             self.Bij = np.loadtxt(bij_file, delimiter=',') * 1.e6 # Pa
-        
         else:
-            self.calc_delta = -1
-            self.delta_groups = np.zeros((self.nc, 15))
             self.Aij = np.zeros((15, 15))
             self.Bij = np.zeros((15, 15))
         
@@ -2844,4 +2909,5 @@ def gas_liq_eq(m, M, K):
     # converged value of beta
     return (np.array([zi * K / (1. + beta * (K - 1.)), 
                      zi / (1. + beta * (K - 1.))]), beta)
+
 

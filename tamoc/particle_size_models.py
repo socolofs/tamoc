@@ -1029,7 +1029,7 @@ class Model(ModelBase):
         # Compute the gas/liquid equilibrium
         m_eq, xi, K = self.oil_mixture.equilibrium(self.m_mixture, self.Tj,
                                                    self.P)
-
+        
         # Compute the gas phase properties
         if np.sum(m_eq[0,:]) == 0:
             self.gas = None

@@ -942,6 +942,7 @@ def plot_state_space(profile, particle, p, t, y, fig):
     ax3.set_xlabel('Component masses (kg)')
     ax3.locator_params(axis='y', tight=True, nbins=6)
     #ax3.xaxis.set_major_locator(mpl.ticker.LogLocator(base=1e2))
+    ax3.legend(tuple(particle.composition))
     ax3.grid(True)
 
     # Heat
@@ -1013,6 +1014,7 @@ def plot_state_space(profile, particle, p, t, y, fig):
     #ax1.xaxis.set_major_locator(mpl.ticker.LogLocator(base=1e2))
     ax1.invert_yaxis()
     ax1.grid(True)
+    ax1.legend(tuple(particle.composition))
 
     # Solubility
     ax2 = plt.subplot(222)

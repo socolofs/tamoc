@@ -42,7 +42,7 @@ class Model(object):
         not support changing the ambient data once initialized.
     
     """
-    def __init__(self, profile, H, Hs, dx, du, mu_d, sigma_d, 
+    def __init__(self, profile, H, Hs, spacing, dx, du, mu_d, sigma_d, 
         x0=np.zeros(2), delta_s=1.):
         super(Model, self).__init__()
         
@@ -50,6 +50,7 @@ class Model(object):
         self.profile = profile
         self.H = H
         self.Hs = Hs
+        self.spacing = spacing
         self.dx = dx
         self.du = du
         self.mu_d = mu_d
@@ -120,11 +121,7 @@ class Model(object):
         
         # Shift network to origin
         self.xp[:,:2] = self.x0 + self.xp[:,:2]
-        
-        # Select diameters for each segment of the network using a log-normal
-        # distribution
-        self.As = fracture_areas(self.xp.shape[0], self.mu_A, self.sigma_A)
-        
+                
         # Generate a path-length coordinate system
         sp = np.zeros(self.xp.shape[0])
         for i in range(len(sp)-1):
@@ -140,6 +137,28 @@ class Model(object):
         fill_value = (self.xp[0,:], self.xp[-1,:])
         self.x = interp1d(self.sp, self.xp, axis=0, 
             fill_value=fill_value, bounds_error=False)
+        
+        # Select diameters for each segment of the network using a log-normal
+        # distribution
+        from scipy.stats import lognorm
+        self.As = np.zeros(len(self.sp))
+        for i in range(len(self.sp)):
+            xp = self.x(self.sp[i])
+            a = self.profile.get_values(xp[2], 'aperture')
+            if a == 0.:
+                # The aperture is not in the profile data
+                mu_A = self.mu_A
+                sigma_A = self.sigma_A
+            else:
+                # Aperture is in the profile data...compute the equivalent
+                # cylindrical diameter and use that
+                gas_sat = self.profile.get_values(xp[2], 'gas_saturation')
+                a = gas_sat * a
+                mu_A = 2. * a * self.spacing - a**2
+                sigma_A = (mu_A / self.mu_A) * self.sigma_A
+            mu = np.log(mu_A / np.sqrt(1. + (sigma_A / mu_A)**2))
+            sigma = np.sqrt(np.log(1. + (sigma_A / mu_A)**2))
+            self.As[i] = lognorm.rvs(sigma, scale=np.exp(mu), size=1)
     
     def simulate_pipe_flow(self, u0, mass_frac, fluid, dt_max=60.):
         """
@@ -151,6 +170,7 @@ class Model(object):
         self.mass_frac = mass_frac
         self.fluid = fluid
         self.dt_max = dt_max
+        self.fdis = 1.e-6
         
         # Choose a heat capacity value for the petroleum fluid
         self.cp = seawater.cp() * 0.5
@@ -163,13 +183,13 @@ class Model(object):
         # Create a Lagrangian Parcel object to handle the properties of the
         # Lagrangian element
         self.y_local = PipeParcel(t0, y0, self.p, self.m_dot, self.fluid,
-            self.cp, self.x, self.get_A_seg, self.profile)
+            self.cp, self.x, self.get_A_seg, self.profile, self.fdis)
         
         # Compute the evolution along this flow path
         print('\n-- TEXAS A&M OIL-SPILL CALCULATOR (TAMOC) --')
         print('-- Subsurface Fracture Model              --\n')
-        self.t, self.y = lfm.calculate_pipe(np.max(self.sp), self.y_local,
-            t0, y0, self.dt_max)
+        self.t, self.y, self.params = lfm.calculate_pipe(np.max(self.sp),
+            self.y_local, t0, y0, self.dt_max)
         
     
     def get_A_seg(self, s):
@@ -243,7 +263,7 @@ class Model(object):
             comps = self.y_local.composition
         
         # Create the plot
-        plot_component_map(self.t, self.y, self.y_local, comps, fig)
+        plot_component_map(self.t, self.y, self.y_local, self.params, comps, fig)
 
 
 class ModelParams(object):
@@ -271,7 +291,7 @@ class PipeParcel(object):
     Lagrangian element for a slice of fluid in a pipe-flow
     
     """
-    def __init__(self, t0, y0, p, m_dot, fluid, cp, x, A, profile):
+    def __init__(self, t0, y0, p, m_dot, fluid, cp, x, A, profile, fdis):
         super(PipeParcel, self).__init__()
         
         # Store the initial values of the input variables
@@ -284,9 +304,28 @@ class PipeParcel(object):
         self.x = x
         self.A = A
         self.profile = profile
+        self.fdis = fdis
+        self.K_T = 0.
         
         # Extract some additional parameters
         self.composition = self.fluid.composition
+        self.m0 = self.y0[1:-1]
+        self.diss_indices = self.m0 > 0.
+        self.delta_z_equil = 5.
+        self.z_equil = 0.
+        
+        # Perform an initial equilibrium calculation
+        self.xp, self.yp, self.zp = self.x(y0[0])
+        self.Pa, self.Ta, self.Sa = self.profile.get_values(self.zp, 
+            ['pressure', 'temperature', 'salinity'])
+        self.me, self.xe, self.K = self.fluid.equilibrium(self.m0, self.Ta,
+                    self.Pa)
+        self.rho_gas = self.fluid.density(self.me[0,:], self.Ta, self.Pa)[0][0]
+        self.rho_liq = self.fluid.density(self.me[1,:], self.Ta, self.Pa)[1][0]
+        Vg = np.sum(self.me[0,:]) / self.rho_gas
+        Vl = np.sum(self.me[1,:]) / self.rho_liq
+        self.alpha = Vg / (Vg + Vl)
+        self.rho = self.rho_gas * self.alpha + self.rho_liq * (1. - self.alpha)
         
         # Update the parcel with the present state space
         self.update(t0, y0)
@@ -312,22 +351,96 @@ class PipeParcel(object):
         # Get the local ambient conditions
         self.Pa, self.Ta, self.Sa = self.profile.get_values(self.zp, 
             ['pressure', 'temperature', 'salinity'])
-        gas_sat = self.profile.get_values(self.zp, ['gas_saturation'])
-        self.Cs = self.fluid.solubility(self.m, self.Ta, self.Pa, 
-            self.Sa)[0,:]
-        self.Ca = gas_sat * self.Cs
+        self.Ca = np.zeros(len(self.m))
         self.rho_a = seawater.density(self.Ta, self.Sa, self.Pa)
+        
+        # Perform the flash equilibrium calculation every delta_s_equilibrium
+        if (self.zp - self.z_equil > self.delta_z_equil):
+            # We need to make a new equilibrium calculation
+            self.me, self.xe, self.K = self.fluid.equilibrium(self.m, self.Ta, 
+                self.Pa, self.K)
+            self.z_equil = self.zp
+        
+        # Get the correct densities and solubility or the fluid mixture components
+        if np.sum(self.me[0,:]) == 0.:
+            # This is pure liquid
+            self.rho_gas = 0.
+            self.rho_liq = self.fluid.density(self.me[1,:], self.Ta, self.Pa)[1][0]
+            self.alpha = 0.
+            self.Cs = self.fluid.solubility(self.me[1,:], self.Ta, self.Pa, 
+                self.Sa)[1,:]
+        elif np.sum(self.me[1,:]) == 0.:
+            # This is pure gas
+            self.rho_gas = self.fluid.density(self.me[0,:], self.Ta, self.Pa)[0][0]
+            self.rho_liq = 0.
+            self.alpha = 1.
+            self.Cs = self.fluid.solubility(self.me[0,:], self.Ta, self.Pa, 
+                self.Sa)[0,:]
+        else:
+            # This is a gas/liquid mixture
+            self.rho_gas = self.fluid.density(self.me[0,:], self.Ta, self.Pa)[0][0]
+            self.rho_liq = self.fluid.density(self.me[1,:], self.Ta, self.Pa)[1][0]
+            Vg = np.sum(self.me[0,:]) / self.rho_gas
+            Vl = np.sum(self.me[1,:]) / self.rho_liq
+            self.alpha = Vg / (Vg + Vl)
+            self.Cs = self.fluid.solubility(self.me[0,:], self.Ta, self.Pa, 
+                self.Sa)[0,:]  # Gas and liquid are equal at equilibrium
+        
+        # Get the mixture density
+        self.rho = self.rho_gas * self.alpha + self.rho_liq * (1. - self.alpha)
         
         # Compute the derived quantities
         self.T = self.h / (np.sum(self.m) * self.cp)
-        self.rho = self.fluid.density(self.m, self.T, self.Pa)[0]
-        self.us = self.m_dot / self.Ap / self.rho
+        if self.rho > 0.:
+            self.us = self.m_dot / self.Ap / self.rho
+        else:
+            self.us = 0.
         self.V = np.sum(self.m) / self.rho
         self.hs = self.V / self.Ap
         self.ds = np.sqrt(self.Ap / np.pi) * 2.
-        self.As = np.pi * self.ds
-        self.beta = 1.e-8
-        self.beta_T = 1.e-6
+        self.As = np.pi * self.ds * self.hs
+        self.mu = self.fluid.viscosity(self.m, self.T, self.Pa)[0]
+        self.D = self.fluid.diffusivity(self.T, self.Sa, self.Pa)
+        self.kh = seawater.k(self.Ta, self.Sa, self.Pa) / \
+            (seawater.density(self.Ta, self.Sa, self.Pa) * seawater.cp())
+        
+        # Compute the mass transfer coefficient
+        Re = self.rho * self.ds * self. us / self.mu
+        Sc = self.mu / (self.rho * self.D)
+        Pr = self.mu / (self.rho * self.kh) 
+        Sh = 3.0 + 0.7 * Re**(1./2.) * Sc**(1./3.)
+        # Set maximum Sh from Panga et al. (2005), p. 3236
+        for i in range(len(Sh)):
+            if Sh[i] > 4.36:
+                Sh[i] = 4.36
+        self.beta = 0.00001 * Sh * self.D /  self.ds
+        
+        # Or, we can use diffusion-limited dissolution with a characteristic 
+        # system time
+        t_diss = 60. * 60. * 24. * 360. * 10.
+        self.beta = np.sqrt(self.D / (np.pi * t_diss))
+        
+        # Get the equivalent heat-transfer coefficient
+        Nu = 3.0 + 0.7 * Re**(1./2.) * Pr**(1./3.)
+        self.beta_T = Nu * self.kh / self.ds
+        
+        # Turn off dissolution for dissolved components
+        frac_diss = np.ones(np.size(self.m))
+        frac_diss[self.diss_indices] = \
+            self.m[self.diss_indices] / self.m0[self.diss_indices]
+        self.beta[frac_diss < self.fdis] = 0.
+        self.beta[np.where(np.isnan(self.beta))] = 0.
+        
+        # Turn off heat transfer when at equilibrium
+        if self.beta_T > 0. and np.abs(self.Ta - self.T) < 0.5:
+            self.K_T = 0.
+        
+        if self.K_T == 0.:
+            self.beta_T = 0.
+        
+        # Use the right temperature
+        if self.beta_T == 0.:
+            self.T = self.Ta
 
 
 def fracture_network(H, Hs, dx, du, delta_s):
@@ -385,12 +498,13 @@ def fracture_areas(n_A, mu_A, sigma_A, dist='lognorm'):
     ----------
     n_A : int
         Number of segments in the fracture network
-        mu_A : float
-            Arithmetic average of the cross-sectional areas of each segment
-            of the fracture network (m^2)
-        sigma_A : float
-            Sample standard deviation of the cross-sectional areas of each
-            segment of the fracture network (m^2)
+    mu_A : float
+        Arithmetic average of the cross-sectional areas of each segment
+        of the fracture network (m^2)
+    sigma_A : float
+        Sample standard deviation of the cross-sectional areas of each
+        segment of the fracture network (m^2)
+    
     """
     # Generate the areas from a probability density function
     if dist == 'lognorm':
@@ -476,7 +590,7 @@ def plot_state_space(t, y, parcel, fig):
     
     plt.show()
 
-def plot_component_map(t, y, parcel, comps, fig):
+def plot_component_map(t, y, parcel, params, comps, fig):
     """
     docstring for plot_component_map
     
@@ -501,14 +615,17 @@ def plot_component_map(t, y, parcel, comps, fig):
     for i in range(len(t)):
         m[i,:] = y[i,1:-1][im]
     
+    # Compute the fraction of gas
+    alpha = params[0]
+    
     # Figure out the figure size and number of subplots
-    if len(comps) >= 5:
+    if len(comps) + 1 >= 5:
         cols = 5
     else:
-        cols = len(comps)
+        cols = len(comps) + 1
     if cols == 5:
-        rows = int(len(comps) / cols)
-        if len(comps) % cols > 0:
+        rows = int((len(comps) + 1) / cols)
+        if (len(comps) + 1) % cols > 0:
             rows += 1
     else:
         rows = 1
@@ -521,15 +638,6 @@ def plot_component_map(t, y, parcel, comps, fig):
     add_bar = True
     for i in range(len(comps)):
         ax = plt.subplot(rows, cols, i+1)
-#        ax.plot(m[:,i], s, label=comps[i])
-#        ax.legend()
-#        ax.set_xlabel(comps[i] + ' mass, (kg)')
-#        plt.setp(ax.get_xticklabels(), rotation=30,                
-#            horizontalalignment='right')
-#        if i % cols == 0:
-#            ax.set_ylabel('Distance, (m)')
-#    plt.tight_layout()
-#    plt.show()
         for j in range(2):
             points = np.array([x[:,j], x[:,2]]).T.reshape(-1, 1, 2)
             segments = np.concatenate([points[:-1], points[1:]], axis=1)
@@ -552,6 +660,31 @@ def plot_component_map(t, y, parcel, comps, fig):
                 ax.set_ylabel('Depth, (m)')
             ax.invert_yaxis()
             ax.legend()
+    
+    # And plot the fraction of gas
+    ax = plt.subplot(rows, cols, i+2)
+    add_bar = True
+    for j in range(2):
+        points = np.array([x[:,j], x[:,2]]).T.reshape(-1, 1, 2)
+        segments = np.concatenate([points[:-1], points[1:]], axis=1)
+        if j == 0:
+            norm = plt.Normalize(0, np.max(alpha))
+            lc = LineCollection(segments, cmap='viridis', norm=norm, 
+                label='Fraction gas')
+        else:
+            lc = LineCollection(segments, cmap='viridis', norm=norm)
+        lc.set_array(alpha)
+        line = ax.add_collection(lc)
+        ax.set(xlim=(np.min(x[:,j]), np.max(x[:,j])), 
+            ylim=(np.min(x[:,2]), np.max(x[:,2])))
+        if add_bar:
+            figure.colorbar(line, ax=ax, label='(--)')
+            add_bar = False
+        ax.set_xlabel('Distance, (m)')
+        if (i+1) % cols == 0:
+            ax.set_ylabel('Depth, (m)')
+        ax.invert_yaxis()
+        ax.legend()
     
     plt.tight_layout()
     plt.show()
