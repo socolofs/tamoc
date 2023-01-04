@@ -410,13 +410,13 @@
     </label>
     <ul>
      <li class="toctree-l3">
-      <a class="reference internal" href="bin.spm.lake_part.html">
-       bin.spm.lake_part
+      <a class="reference internal" href="bin.spm.lake_bub.html">
+       bin.spm.lake_bub
       </a>
      </li>
      <li class="toctree-l3">
-      <a class="reference internal" href="bin.spm.lake_bub.html">
-       bin.spm.lake_bub
+      <a class="reference internal" href="bin.spm.lake_part.html">
+       bin.spm.lake_part
       </a>
      </li>
      <li class="toctree-l3">
@@ -2334,7 +2334,7 @@ title="Print to PDF"
 <h1>tamoc.bent_plume_model.Model.simulate<a class="headerlink" href="#tamoc-bent-plume-model-model-simulate" title="Permalink to this headline">#</a></h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="tamoc.bent_plume_model.Model.simulate">
-<span class="sig-prename descclassname"><span class="pre">Model.</span></span><span class="sig-name descname"><span class="pre">simulate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">D</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Vj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phi_0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta_0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Sj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Tj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tracers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">particles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">track</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sd_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">350.0</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/socolofs/tamoc/tree/master/tamoc/bent_plume_model.py#L173-L302"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tamoc.bent_plume_model.Model.simulate" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">Model.</span></span><span class="sig-name descname"><span class="pre">simulate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">D</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Vj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phi_0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta_0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Sj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Tj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tracers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">particles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">track</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sd_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">350.0</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/socolofs/tamoc/tree/master/tamoc/bent_plume_model.py#L173-L308"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tamoc.bent_plume_model.Model.simulate" title="Permalink to this definition">#</a></dt>
 <dd><p>Simulate the plume dynamics from given initial conditions</p>
 <p>Simulate the buoyant plume using a Lagrangian plume integral model
 approach until the plume reaches the surface, the integration
@@ -2344,18 +2344,18 @@ neutral buoyancy.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>X</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Release location (x, y, z) in (m)</p></li>
-<li><p><strong>D</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Diameter for the equivalent circular cross-section of the release
+<li><p><strong>D</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Diameter for the equivalent circular cross-section of the release
 (m)</p></li>
-<li><p><strong>Vj</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Scalar value of the magnitude of the discharge velocity for
+<li><p><strong>Vj</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Scalar value of the magnitude of the discharge velocity for
 continuous phase fluid in the discharge.  This variable should be
 0. or None for a pure multiphase discharge.</p></li>
-<li><p><strong>phi_0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Vertical angle from the horizontal for the discharge orientation
+<li><p><strong>phi_0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Vertical angle from the horizontal for the discharge orientation
 (rad in range +/- pi/2)</p></li>
-<li><p><strong>theta_0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Horizontal angle from the x-axis for the discharge orientation.
+<li><p><strong>theta_0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Horizontal angle from the x-axis for the discharge orientation.
 The x-axis is taken in the direction of the ambient current.
 (rad in range 0 to 2 pi)</p></li>
-<li><p><strong>Sj</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Salinity of the continuous phase fluid in the discharge (psu)</p></li>
-<li><p><strong>Tj</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Temperature of the continuous phase fluid in the discharge (T)</p></li>
+<li><p><strong>Sj</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Salinity of the continuous phase fluid in the discharge (psu)</p></li>
+<li><p><strong>Tj</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Temperature of the continuous phase fluid in the discharge (T)</p></li>
 <li><p><strong>cj</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Concentration of passive tracers in the discharge (user-defined)</p></li>
 <li><p><strong>tracers</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">string</span> <span class="pre">list</span></code>) – List of passive tracers in the discharge.  These can be chemicals
 present in the ambient <cite>profile</cite> data, and if so, entrainment of
@@ -2363,13 +2363,13 @@ these chemicals will change the concentrations computed for these
 tracers.  However, none of these concentrations are used in the
 dissolution of the dispersed phase.  Hence, <cite>tracers</cite> should not
 contain any chemicals present in the dispersed phase particles.</p></li>
-<li><p><strong>particles</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <cite>Particle</cite> objects) – List of <cite>Particle</cite> objects describing each dispersed phase in the
+<li><p><strong>particles</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <cite>Particle</cite> objects) – List of <cite>Particle</cite> objects describing each dispersed phase in the
 simulation</p></li>
-<li><p><strong>track</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – Flag indicating whether or not to track the particle through
+<li><p><strong>track</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – Flag indicating whether or not to track the particle through
 the water column using the <cite>single_bubble_model</cite>.</p></li>
-<li><p><strong>dt_max</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Maximum step size to take in the storage of the simulation
+<li><p><strong>dt_max</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Maximum step size to take in the storage of the simulation
 solution (s)</p></li>
-<li><p><strong>sd_max</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Maximum number of orifice diameters to compute the solution along
+<li><p><strong>sd_max</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Maximum number of orifice diameters to compute the solution along
 the plume centerline (m/m)</p></li>
 </ul>
 </dd>

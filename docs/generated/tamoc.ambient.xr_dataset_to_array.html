@@ -410,13 +410,13 @@
     </label>
     <ul>
      <li class="toctree-l3">
-      <a class="reference internal" href="bin.spm.lake_part.html">
-       bin.spm.lake_part
+      <a class="reference internal" href="bin.spm.lake_bub.html">
+       bin.spm.lake_bub
       </a>
      </li>
      <li class="toctree-l3">
-      <a class="reference internal" href="bin.spm.lake_bub.html">
-       bin.spm.lake_bub
+      <a class="reference internal" href="bin.spm.lake_part.html">
+       bin.spm.lake_part
       </a>
      </li>
      <li class="toctree-l3">
@@ -2334,13 +2334,13 @@ title="Print to PDF"
 <h1>tamoc.ambient.xr_dataset_to_array<a class="headerlink" href="#tamoc-ambient-xr-dataset-to-array" title="Permalink to this headline">#</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="tamoc.ambient.xr_dataset_to_array">
-<span class="sig-prename descclassname"><span class="pre">tamoc.ambient.</span></span><span class="sig-name descname"><span class="pre">xr_dataset_to_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_coord</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/socolofs/tamoc/tree/master/tamoc/ambient.py#L1610-L1655"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tamoc.ambient.xr_dataset_to_array" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tamoc.ambient.</span></span><span class="sig-name descname"><span class="pre">xr_dataset_to_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_coord</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/socolofs/tamoc/tree/master/tamoc/ambient.py#L1608-L1653"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tamoc.ambient.xr_dataset_to_array" title="Permalink to this definition">#</a></dt>
 <dd><p>Extract the data in an xarray.Dataset and store as a numpy array</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>ds</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code>) – Dataset containing the complete database of profile data</p></li>
-<li><p><strong>z_coord</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – String name for the dependent variable in the dataset</p></li>
+<li><p><strong>z_coord</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – String name for the dependent variable in the dataset</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -2348,8 +2348,8 @@ title="Print to PDF"
 <li><p><strong>data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">np.ndarray</span></code>) – A numpy array of profile data with the organized in columns by the
 depth coordinate, temperature, salinity, pressure, and the chem_names
 properties, which could include the ambient velocity data.</p></li>
-<li><p><strong>names</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – A list of string names for each column in the data array</p></li>
-<li><p><strong>units</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – A list of units for each parameter in the names list</p></li>
+<li><p><strong>names</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – A list of string names for each column in the data array</p></li>
+<li><p><strong>units</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – A list of units for each parameter in the names list</p></li>
 </ul>
 </p>
 </dd>

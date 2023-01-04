@@ -410,13 +410,13 @@
     </label>
     <ul>
      <li class="toctree-l3">
-      <a class="reference internal" href="bin.spm.lake_part.html">
-       bin.spm.lake_part
+      <a class="reference internal" href="bin.spm.lake_bub.html">
+       bin.spm.lake_bub
       </a>
      </li>
      <li class="toctree-l3">
-      <a class="reference internal" href="bin.spm.lake_bub.html">
-       bin.spm.lake_bub
+      <a class="reference internal" href="bin.spm.lake_part.html">
+       bin.spm.lake_part
       </a>
      </li>
      <li class="toctree-l3">
@@ -2334,7 +2334,7 @@ title="Print to PDF"
 <h1>tamoc.blowout.get_ctd_from_txt<a class="headerlink" href="#tamoc-blowout-get-ctd-from-txt" title="Permalink to this headline">#</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="tamoc.blowout.get_ctd_from_txt">
-<span class="sig-prename descclassname"><span class="pre">tamoc.blowout.</span></span><span class="sig-name descname"><span class="pre">get_ctd_from_txt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">summary</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sea_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_lat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_lon</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ca</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/socolofs/tamoc/tree/master/tamoc/blowout.py#L1052-L1108"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tamoc.blowout.get_ctd_from_txt" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tamoc.blowout.</span></span><span class="sig-name descname"><span class="pre">get_ctd_from_txt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">summary</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sea_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_lat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_lon</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ca</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/socolofs/tamoc/tree/master/tamoc/blowout.py#L1055-L1111"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tamoc.blowout.get_ctd_from_txt" title="Permalink to this definition">#</a></dt>
 <dd><p>Create an ambient.Profile object from a text file of ocean property data</p>
 <p>Read the CTD and current data in the given filename (fname) and use that
 data to create an ambient.Profile object for use in TAMOC. This function
@@ -2344,14 +2344,14 @@ of velocity (m/s) and v-component of velocity (m/s).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>fname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – String containing the relative path to the water column data file.</p></li>
-<li><p><strong>summary</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – String describing the simulation for which this data will be used.</p></li>
-<li><p><strong>source</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – String documenting the source of the ambient ocean data provided.</p></li>
-<li><p><strong>sea_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – NC-compliant name for the ocean water body as a string.</p></li>
-<li><p><strong>p_lat</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Latitude (deg)</p></li>
-<li><p><strong>p_lon</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Longitude, negative is west of 0 (deg)</p></li>
+<li><p><strong>fname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – String containing the relative path to the water column data file.</p></li>
+<li><p><strong>summary</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – String describing the simulation for which this data will be used.</p></li>
+<li><p><strong>source</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – String documenting the source of the ambient ocean data provided.</p></li>
+<li><p><strong>sea_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – NC-compliant name for the ocean water body as a string.</p></li>
+<li><p><strong>p_lat</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Latitude (deg)</p></li>
+<li><p><strong>p_lon</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Longitude, negative is west of 0 (deg)</p></li>
 <li><p><strong>p_time</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">netCDF4</span> <span class="pre">time</span> <span class="pre">format</span></code>) – Date and time of the CTD data using netCDF4.date2num().</p></li>
-<li><p><strong>ca</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>, <em>default</em> <code class="xref py py-class docutils literal notranslate"><span class="pre">[]</span></code>) – List of dissolved atmospheric gases to include in the ambient ocean
+<li><p><strong>ca</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>, <em>default</em> <code class="xref py py-class docutils literal notranslate"><span class="pre">[]</span></code>) – List of dissolved atmospheric gases to include in the ambient ocean
 data as a derived concentration; choices are ‘nitrogen’, ‘oxygen’,
 ‘argon’, and ‘carbon_dioxide’.</p></li>
 </ul>

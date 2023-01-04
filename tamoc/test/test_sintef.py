@@ -79,7 +79,7 @@ def test_sintef_module():
     rho = 1035.
     
     # Enter the maximum allowable bubble and droplet size
-    dmax_gas = 0.019607423346901465
+    dmax_gas = 0.04591838346719777
     dmax_oil = 0.016262984601677299
     
     # Test a strongly atomized source of oil

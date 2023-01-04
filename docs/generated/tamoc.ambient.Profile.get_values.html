@@ -410,13 +410,13 @@
     </label>
     <ul>
      <li class="toctree-l3">
-      <a class="reference internal" href="bin.spm.lake_part.html">
-       bin.spm.lake_part
+      <a class="reference internal" href="bin.spm.lake_bub.html">
+       bin.spm.lake_bub
       </a>
      </li>
      <li class="toctree-l3">
-      <a class="reference internal" href="bin.spm.lake_bub.html">
-       bin.spm.lake_bub
+      <a class="reference internal" href="bin.spm.lake_part.html">
+       bin.spm.lake_part
       </a>
      </li>
      <li class="toctree-l3">
@@ -2334,7 +2334,7 @@ title="Print to PDF"
 <h1>tamoc.ambient.Profile.get_values<a class="headerlink" href="#tamoc-ambient-profile-get-values" title="Permalink to this headline">#</a></h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="tamoc.ambient.Profile.get_values">
-<span class="sig-prename descclassname"><span class="pre">Profile.</span></span><span class="sig-name descname"><span class="pre">get_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/socolofs/tamoc/tree/master/tamoc/ambient.py#L452-L528"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tamoc.ambient.Profile.get_values" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">Profile.</span></span><span class="sig-name descname"><span class="pre">get_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/socolofs/tamoc/tree/master/tamoc/ambient.py#L451-L526"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tamoc.ambient.Profile.get_values" title="Permalink to this definition">#</a></dt>
 <dd><p>Return the values for the requested variables at the given depths</p>
 <p>This method queries the <code class="docutils literal notranslate"><span class="pre">Profile</span></code> database for the parameters
 listed in <code class="docutils literal notranslate"><span class="pre">names</span></code> and interpolates their values to the depth <code class="docutils literal notranslate"><span class="pre">z</span></code>.
@@ -2349,8 +2349,8 @@ overshoot the surface.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>z</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> or <code class="xref py py-class docutils literal notranslate"><span class="pre">np.ndarray</span></code>) – Depth(s) for which the parameter values are desired.</p></li>
-<li><p><strong>names</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – A list of string names corresponding to parameters in the
+<li><p><strong>z</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> or <code class="xref py py-class docutils literal notranslate"><span class="pre">np.ndarray</span></code>) – Depth(s) for which the parameter values are desired.</p></li>
+<li><p><strong>names</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – A list of string names corresponding to parameters in the
 <code class="docutils literal notranslate"><span class="pre">Profile</span></code> database. These names are case sensitive, and must
 exactly match a parameter in the database; otherwise, a zero
 value is returned</p></li>

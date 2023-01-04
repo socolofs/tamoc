@@ -417,7 +417,7 @@ def correct_particle_tracking(r, particles):
     -------
     r : `sciply.integrate.ode` object
         The updated extrinsic state space with the correct values for heat
-        as were used in the calcualtion.
+        as were used in the calculation.
     
     """
     # Skip through the single-phase state space
@@ -760,7 +760,7 @@ def main_ic(profile, particles, X, D, Vj, phi_0, theta_0, Sj, Tj, cj,
     
     """
     # Get the initial volume flux
-    if Vj is None or Vj == 0.:
+    if isinstance(Vj, type(None)) or Vj == 0.:
         # This is a pure multiphase plume.  Estimate the initial conditions 
         # using Wuest et al. 1992.
         Q, A, X, Tj, Sj, Pj, rho_j = \
@@ -848,6 +848,8 @@ def bent_plume_ic(profile, particles, Qj, A, D, X, phi_0, theta_0, Tj, Sj,
         Initial value of the plume state space
     
     """
+    # Find the effective diameter of the source area
+    D = np.sqrt(4. * A / np.pi)
     
     # Set the dimensions of the initial Lagrangian plume element.
     b = D / 2.

@@ -410,13 +410,13 @@
     </label>
     <ul>
      <li class="toctree-l3">
-      <a class="reference internal" href="bin.spm.lake_part.html">
-       bin.spm.lake_part
+      <a class="reference internal" href="bin.spm.lake_bub.html">
+       bin.spm.lake_bub
       </a>
      </li>
      <li class="toctree-l3">
-      <a class="reference internal" href="bin.spm.lake_bub.html">
-       bin.spm.lake_bub
+      <a class="reference internal" href="bin.spm.lake_part.html">
+       bin.spm.lake_part
       </a>
      </li>
      <li class="toctree-l3">
@@ -2334,7 +2334,7 @@ title="Print to PDF"
 <h1>tamoc.ambient.load_raw<a class="headerlink" href="#tamoc-ambient-load-raw" title="Permalink to this headline">#</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="tamoc.ambient.load_raw">
-<span class="sig-prename descclassname"><span class="pre">tamoc.ambient.</span></span><span class="sig-name descname"><span class="pre">load_raw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/socolofs/tamoc/tree/master/tamoc/ambient.py#L2856-L2913"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tamoc.ambient.load_raw" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tamoc.ambient.</span></span><span class="sig-name descname"><span class="pre">load_raw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/socolofs/tamoc/tree/master/tamoc/ambient.py#L2858-L2915"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tamoc.ambient.load_raw" title="Permalink to this definition">#</a></dt>
 <dd><p>Use numpy.loadtxt instead when possible</p>
 <p>This function is retained to allow complete backward compatibility with
 any scripts that may have used it. Please use <code class="docutils literal notranslate"><span class="pre">numpy.loadtxt</span></code> instead
@@ -2352,9 +2352,9 @@ Data are assumed to be separated by spaces.</p>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <dl class="simple">
-<dt><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.fromfile.html#numpy.fromfile" title="(in NumPy v1.23)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.fromfile</span></code></a></dt><dd><p>Read data from a simple text file in single table format. Similar to the Matlab <cite>load</cite> function.  Does not support comments or skipped lines.  Works for text or binary files.</p>
+<dt><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.fromfile.html#numpy.fromfile" title="(in NumPy v1.24)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.fromfile</span></code></a></dt><dd><p>Read data from a simple text file in single table format. Similar to the Matlab <cite>load</cite> function.  Does not support comments or skipped lines.  Works for text or binary files.</p>
 </dd>
-<dt><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.loadtxt.html#numpy.loadtxt" title="(in NumPy v1.23)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.loadtxt</span></code></a></dt><dd><p>A more sophisticated method to read data from a text file. This method can handle multiple data types (e.g., strings, floats, and integers together), can perform transformation on the data (e.g., date format to a date object), and can unpack to a tuple of variables.  One limitation is that all rows must have the same number of columns and there is no method to handle missing data.</p>
+<dt><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.loadtxt.html#numpy.loadtxt" title="(in NumPy v1.24)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.loadtxt</span></code></a></dt><dd><p>A more sophisticated method to read data from a text file. This method can handle multiple data types (e.g., strings, floats, and integers together), can perform transformation on the data (e.g., date format to a date object), and can unpack to a tuple of variables.  One limitation is that all rows must have the same number of columns and there is no method to handle missing data.</p>
 </dd>
 <dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.genfromtext</span></code></dt><dd><p>The most advanced numpy method to read data from a file. Includes the capabilities in <cite>np.loadtxt</cite>, but also allows for missing data, data flags, and multiple methods to replace missing data or flags.</p>
 </dd>

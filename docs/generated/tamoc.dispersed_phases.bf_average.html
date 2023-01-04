@@ -410,13 +410,13 @@
     </label>
     <ul>
      <li class="toctree-l3">
-      <a class="reference internal" href="bin.spm.lake_part.html">
-       bin.spm.lake_part
+      <a class="reference internal" href="bin.spm.lake_bub.html">
+       bin.spm.lake_bub
       </a>
      </li>
      <li class="toctree-l3">
-      <a class="reference internal" href="bin.spm.lake_bub.html">
-       bin.spm.lake_bub
+      <a class="reference internal" href="bin.spm.lake_part.html">
+       bin.spm.lake_part
       </a>
      </li>
      <li class="toctree-l3">
@@ -2334,7 +2334,7 @@ title="Print to PDF"
 <h1>tamoc.dispersed_phases.bf_average<a class="headerlink" href="#tamoc-dispersed-phases-bf-average" title="Permalink to this headline">#</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="tamoc.dispersed_phases.bf_average">
-<span class="sig-prename descclassname"><span class="pre">tamoc.dispersed_phases.</span></span><span class="sig-name descname"><span class="pre">bf_average</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">particles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">g</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho_r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parm</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/socolofs/tamoc/tree/master/tamoc/dispersed_phases.py#L1438-L1483"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tamoc.dispersed_phases.bf_average" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tamoc.dispersed_phases.</span></span><span class="sig-name descname"><span class="pre">bf_average</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">particles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">g</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho_r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parm</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/socolofs/tamoc/tree/master/tamoc/dispersed_phases.py#L1498-L1543"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tamoc.dispersed_phases.bf_average" title="Permalink to this definition">#</a></dt>
 <dd><p>Compute a buoyancy-flux-weighted average of <cite>parm</cite></p>
 <p>Computes a weighted average of the values in <cite>parm</cite> using the kinematic
 buoyancy flux of each particle containing parm as the weight in the
@@ -2342,18 +2342,18 @@ average calculation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>particles</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <cite>Particle</cite> objects) – List of <cite>SingleParticle</cite>, <cite>PlumeParticle</cite>, or
+<li><p><strong>particles</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <cite>Particle</cite> objects) – List of <cite>SingleParticle</cite>, <cite>PlumeParticle</cite>, or
 <cite>bent_plume_model.Particle</cite> objects describing each dispersed phase
 in the simulation</p></li>
-<li><p><strong>rho</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Local density of ambient fluid outside plume (kg/m^3).</p></li>
-<li><p><strong>g</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Acceleration of gravity (m/s^2).</p></li>
-<li><p><strong>rho_r</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Model reference density (kg/m^3).</p></li>
+<li><p><strong>rho</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Local density of ambient fluid outside plume (kg/m^3).</p></li>
+<li><p><strong>g</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Acceleration of gravity (m/s^2).</p></li>
+<li><p><strong>rho_r</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Model reference density (kg/m^3).</p></li>
 <li><p><strong>parm</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Numpy array of parameters to average, one value for each
 dispersed phase entry (same as elements in parm).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>parm_ave</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – The weighted average of <cite>parm</cite>.</p>
+<dd class="field-even"><p><strong>parm_ave</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – The weighted average of <cite>parm</cite>.</p>
 </dd>
 </dl>
 </dd></dl>

@@ -410,13 +410,13 @@
     </label>
     <ul>
      <li class="toctree-l3">
-      <a class="reference internal" href="bin.spm.lake_part.html">
-       bin.spm.lake_part
+      <a class="reference internal" href="bin.spm.lake_bub.html">
+       bin.spm.lake_bub
       </a>
      </li>
      <li class="toctree-l3">
-      <a class="reference internal" href="bin.spm.lake_bub.html">
-       bin.spm.lake_bub
+      <a class="reference internal" href="bin.spm.lake_part.html">
+       bin.spm.lake_part
       </a>
      </li>
      <li class="toctree-l3">
@@ -2334,7 +2334,7 @@ title="Print to PDF"
 <h1>tamoc.dbm.FluidMixture.viscosity<a class="headerlink" href="#tamoc-dbm-fluidmixture-viscosity" title="Permalink to this headline">#</a></h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="tamoc.dbm.FluidMixture.viscosity">
-<span class="sig-prename descclassname"><span class="pre">FluidMixture.</span></span><span class="sig-name descname"><span class="pre">viscosity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">P</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/socolofs/tamoc/tree/master/tamoc/dbm.py#L515-L541"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tamoc.dbm.FluidMixture.viscosity" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">FluidMixture.</span></span><span class="sig-name descname"><span class="pre">viscosity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">P</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/socolofs/tamoc/tree/master/tamoc/dbm.py#L514-L542"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tamoc.dbm.FluidMixture.viscosity" title="Permalink to this definition">#</a></dt>
 <dd><p>Computes the dynamic viscosity of the gas/liquid mixture.</p>
 <p>Computes the dynamic viscosity of gas and liquid using correlation
 equations in Pedersen et al. (2014) “Phase Behavior of Petroleum
@@ -2342,17 +2342,16 @@ Reservoir Fluids”, 2nd edition, chapter 10.  This function has been
 tested for non-hydrocarbon mixtures (oxygen, carbon dioxide) and
 shown to give reasonable results; hence, the same equations are used
 for all mixtures.</p>
-<dl class="simple">
-<dt>Parameters size (nc)</dt><dd><p>masses of each component in a mixture (kg)</p>
-</dd>
-<dt>T<span class="classifier">float</span></dt><dd><p>mixture temperature (K)</p>
-</dd>
-<dt>P<span class="classifier">float</span></dt><dd><p>mixture pressure (Pa)</p>
-</dd>
-</dl>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><strong>mu_p</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">size</span> <span class="pre">(2)</span></code>) – dynamic viscosity for gas (row 1) and liquid (row 2) (Pa s)</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>m</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">size</span> <span class="pre">(nc)</span></code>) – masses of each component in a mixture (kg)</p></li>
+<li><p><strong>T</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – mixture temperature (K)</p></li>
+<li><p><strong>P</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – mixture pressure (Pa)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>mu_p</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">size</span> <span class="pre">(2)</span></code>) – dynamic viscosity for gas (row 1) and liquid (row 2) (Pa s)</p>
 </dd>
 </dl>
 </dd></dl>

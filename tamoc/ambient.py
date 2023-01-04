@@ -188,7 +188,6 @@ class BaseProfile(object):
         keep_names = self.ztsp + self.chem_names
         for name in self.ds.data_vars:
             if name not in keep_names:
-#                self.ds = self.ds.drop_vars([name])
                 self.ds = self.ds.drop([name])
         
         # Add the unit labels passed to the initializer if they are not
@@ -503,21 +502,20 @@ class BaseProfile(object):
         # in the output vector
         ans_cols = [names.index(name) 
                     for name in names if name in self.f_names]
-        
+
         # Interpolate the data
         if ans_cols:
             # Get the names and locations of these interpolated data
             i_names = [names[col] for col in ans_cols]
             i_cols = [self.f_names.index(name) for name in i_names]
-            
             if z.shape[0] == 1:
                 ans = np.zeros(len(names))
                 interp_data = self.f(z)[i_cols].transpose()
                 ans[ans_cols] = interp_data
             else:
                 ans = np.zeros((z.shape[0], len(names)))
-                interp_data = self.f(z).transpose()[:,i_cols]
-                ans[:,ans_cols] = interp_data
+                interp_data = self.f(z)[i_cols,:].transpose()
+                ans[:,ans_cols] = interp_data[:]
         else:
             if z.shape[0] == 1:
                 ans = np.zeros(len(names))
@@ -2726,7 +2724,11 @@ def convert_units(data, units):
                'mD' : [9.869233e-16, 0., 'm^2'],
                'um' : [1.e-6, 0., 'm'],
                'm/s 1e-9' : [1.e-9, 0., 'm/s'],
-               'm/s 1e-7' : [1.e-7, 0., 'm/s']
+               'm/s 1e-7' : [1.e-7, 0., 'm/s'],
+               'wt.%' : [10., 0., 'psu'],
+               '10^-15 m^2' : [1.e-15, 0., 'm^2'],
+               'm^2' : [1., 0., 'm^2'],
+               'kg/m^2/year' : [3.168808781402895e-08, 0., 'kg/m^2/s']  
            } 
     
     # Make sure the data are a numpy array and the units are a list

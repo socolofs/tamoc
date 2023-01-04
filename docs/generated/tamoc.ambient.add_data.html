@@ -410,13 +410,13 @@
     </label>
     <ul>
      <li class="toctree-l3">
-      <a class="reference internal" href="bin.spm.lake_part.html">
-       bin.spm.lake_part
+      <a class="reference internal" href="bin.spm.lake_bub.html">
+       bin.spm.lake_bub
       </a>
      </li>
      <li class="toctree-l3">
-      <a class="reference internal" href="bin.spm.lake_bub.html">
-       bin.spm.lake_bub
+      <a class="reference internal" href="bin.spm.lake_part.html">
+       bin.spm.lake_part
       </a>
      </li>
      <li class="toctree-l3">
@@ -2334,7 +2334,7 @@ title="Print to PDF"
 <h1>tamoc.ambient.add_data<a class="headerlink" href="#tamoc-ambient-add-data" title="Permalink to this headline">#</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="tamoc.ambient.add_data">
-<span class="sig-prename descclassname"><span class="pre">tamoc.ambient.</span></span><span class="sig-name descname"><span class="pre">add_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">col</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var_symbols</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var_units</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comments</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_col</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/socolofs/tamoc/tree/master/tamoc/ambient.py#L2261-L2337"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tamoc.ambient.add_data" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tamoc.ambient.</span></span><span class="sig-name descname"><span class="pre">add_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">col</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var_symbols</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var_units</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comments</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_col</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/socolofs/tamoc/tree/master/tamoc/ambient.py#L2259-L2335"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tamoc.ambient.add_data" title="Permalink to this definition">#</a></dt>
 <dd><p>Add data to a numpy array</p>
 <p>Adds data to a profile data base contained in a numpy array.  This
 function is similar to fill_nc_db(), but operating on numpy arrays
@@ -2346,18 +2346,18 @@ instead of a netCDF dataset.</p>
 should be the independent variable (depth), followed sequentially
 by the dependent variables (temperature, salinity, pressure and any
 included dissolved chemicals).</p></li>
-<li><p><strong>col</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Number of the column in <cite>data</cite> to be added.</p></li>
-<li><p><strong>var</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – String containing the variable name of the new data to add to the
+<li><p><strong>col</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Number of the column in <cite>data</cite> to be added.</p></li>
+<li><p><strong>var</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – String containing the variable name of the new data to add to the
 profile dataset.</p></li>
 <li><p><strong>new_data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – <cite>Numpy</cite> array containing the new data to be added to the current
 dataset.</p></li>
-<li><p><strong>var_symbols</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – List of strings containing the variable names of the variables
+<li><p><strong>var_symbols</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – List of strings containing the variable names of the variables
 in the new_data dataset.</p></li>
-<li><p><strong>var_units</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – List of strings containing the units of the variables in the
+<li><p><strong>var_units</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – List of strings containing the units of the variables in the
 new_data dataset.</p></li>
-<li><p><strong>comments</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – String containing comments for the comment attribute of the variable.
+<li><p><strong>comments</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – String containing comments for the comment attribute of the variable.
 For instance, ‘Measured’, ‘Derived quantity’, etc.</p></li>
-<li><p><strong>z_col</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <em>default</em> <code class="xref py py-class docutils literal notranslate"><span class="pre">is</span> <span class="pre">0</span></code>) – Column number of the column containing the depth data.  The first
+<li><p><strong>z_col</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <em>default</em> <code class="xref py py-class docutils literal notranslate"><span class="pre">is</span> <span class="pre">0</span></code>) – Column number of the column containing the depth data.  The first
 column is numbered zero.</p></li>
 </ul>
 </dd>

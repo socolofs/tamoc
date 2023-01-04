@@ -12,6 +12,16 @@ size distributions from source flow conditions.
 For typical usage, please see the ./bin directory of the source distribution
 for various example scripts.
 
+Version 2.5.0:  Added the capability to have mixed-phase particles of gas and
+                liquid fused together.  Updated the initial conditions methods
+                for pure multi-phase plumes so that a void fraction between
+                0 and 1 is enforced.  This may result in a different orifice 
+                diameter being used than specified by the user, but ensures the
+                dilute plume assumption is not violated.  This new capability
+                becomes important when simulating accidental spills from 
+                subsea CO2 sequestration pipelines in which very large 
+                quantities of CO2 may be released through a small orifice.  
+                Other model updates improve intuition of using the model.
 Version 2.4.0:  Added additional post-processing methods to the bent plume
                 model to extract dissolved-phase concentration maps. Also made
                 it easier to use the Privat and Jaubert binary interaction
@@ -184,7 +194,8 @@ Requirements
 This package requires:
 
 * Python 2.3 or higher and is now compatible with both Python 2.7 and
-  Python 3.8+
+  Python 3.8+.  Python 2 compatibility is will no longer be ensured.  Please 
+  move to Python 3 if you have not already done so.
 
 * Numpy version 1.16 or higher
 
@@ -241,8 +252,8 @@ For the best and most complete information, please see the documentation web pag
 Platforms
 =========
 
-Windows 10
----------
+Windows
+-------
 
 The following method has been tested for installation on Windows 10 using Miniconda environments.
 

@@ -410,13 +410,13 @@
     </label>
     <ul>
      <li class="toctree-l3">
-      <a class="reference internal" href="bin.spm.lake_part.html">
-       bin.spm.lake_part
+      <a class="reference internal" href="bin.spm.lake_bub.html">
+       bin.spm.lake_bub
       </a>
      </li>
      <li class="toctree-l3">
-      <a class="reference internal" href="bin.spm.lake_bub.html">
-       bin.spm.lake_bub
+      <a class="reference internal" href="bin.spm.lake_part.html">
+       bin.spm.lake_part
       </a>
      </li>
      <li class="toctree-l3">
@@ -2334,7 +2334,7 @@ title="Print to PDF"
 <h1>tamoc.ambient.Profile.buoyancy_frequency<a class="headerlink" href="#tamoc-ambient-profile-buoyancy-frequency" title="Permalink to this headline">#</a></h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="tamoc.ambient.Profile.buoyancy_frequency">
-<span class="sig-prename descclassname"><span class="pre">Profile.</span></span><span class="sig-name descname"><span class="pre">buoyancy_frequency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/socolofs/tamoc/tree/master/tamoc/ambient.py#L565-L643"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tamoc.ambient.Profile.buoyancy_frequency" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">Profile.</span></span><span class="sig-name descname"><span class="pre">buoyancy_frequency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/socolofs/tamoc/tree/master/tamoc/ambient.py#L563-L641"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tamoc.ambient.Profile.buoyancy_frequency" title="Permalink to this definition">#</a></dt>
 <dd><p>Calculate the local buoyancy frequency at the given depth</p>
 <p>Calculate the buoyancy frequency at the depth <code class="docutils literal notranslate"><span class="pre">z</span></code>, optionally using
 the length-scale <code class="docutils literal notranslate"><span class="pre">h</span></code> to obtain smooth results. This calculation
@@ -2344,15 +2344,15 @@ for the potential density.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>z</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> or <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Depth(s) (m) at which data are desired.  The value of z must
+<li><p><strong>z</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> or <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Depth(s) (m) at which data are desired.  The value of z must
 lie between the <code class="docutils literal notranslate"><span class="pre">z_min</span></code> and <code class="docutils literal notranslate"><span class="pre">z_max</span></code> values of the depth
 coordinate in the <code class="docutils literal notranslate"><span class="pre">Profile</span></code> database.</p></li>
-<li><p><strong>h</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <em>default</em> <code class="xref py py-class docutils literal notranslate"><span class="pre">value</span> <span class="pre">is</span> <span class="pre">0.01</span></code>) – Fraction of the water depth (–) to use as the length-scale in a
+<li><p><strong>h</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <em>default</em> <code class="xref py py-class docutils literal notranslate"><span class="pre">value</span> <span class="pre">is</span> <span class="pre">0.01</span></code>) – Fraction of the water depth (–) to use as the length-scale in a
 finite-difference approximation to the density gradient.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>N</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – The buoyancy frequency (1/s).</p>
+<dd class="field-even"><p><strong>N</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – The buoyancy frequency (1/s).</p>
 </dd>
 </dl>
 <p class="rubric">Notes</p>

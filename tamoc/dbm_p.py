@@ -1182,7 +1182,7 @@ def coefs(T, P, mass, Mol_wt, Pc, Tc, omega, delta_in, Aij, Bij,
                 
                 delta[i, j] = - (0.5 * sum1 + (np.sqrt(aTk[i]) / bk[i] - 
                               np.sqrt(aTk[j]) / bk[j]) ** 2) / \
-                              (2. * np.sqrt(aTk[i] * aTk[i]) /
+                              (2. * np.sqrt(aTk[i] * aTk[j]) /
                               (bk[i] * bk[j]))
                 delta[j, i] = delta[i,j]
     

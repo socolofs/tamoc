@@ -410,13 +410,13 @@
     </label>
     <ul>
      <li class="toctree-l3">
-      <a class="reference internal" href="bin.spm.lake_part.html">
-       bin.spm.lake_part
+      <a class="reference internal" href="bin.spm.lake_bub.html">
+       bin.spm.lake_bub
       </a>
      </li>
      <li class="toctree-l3">
-      <a class="reference internal" href="bin.spm.lake_bub.html">
-       bin.spm.lake_bub
+      <a class="reference internal" href="bin.spm.lake_part.html">
+       bin.spm.lake_part
       </a>
      </li>
      <li class="toctree-l3">
@@ -2334,7 +2334,7 @@ title="Print to PDF"
 <h1>tamoc.ambient.xr_stabilize_dataset<a class="headerlink" href="#tamoc-ambient-xr-stabilize-dataset" title="Permalink to this headline">#</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="tamoc.ambient.xr_stabilize_dataset">
-<span class="sig-prename descclassname"><span class="pre">tamoc.ambient.</span></span><span class="sig-name descname"><span class="pre">xr_stabilize_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_coord</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ztsp_names</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/socolofs/tamoc/tree/master/tamoc/ambient.py#L1554-L1608"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tamoc.ambient.xr_stabilize_dataset" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tamoc.ambient.</span></span><span class="sig-name descname"><span class="pre">xr_stabilize_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_coord</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ztsp_names</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/socolofs/tamoc/tree/master/tamoc/ambient.py#L1552-L1606"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tamoc.ambient.xr_stabilize_dataset" title="Permalink to this definition">#</a></dt>
 <dd><p>Stabilize the profile so that there are no density reversals</p>
 <p>When collecting CTD data, it is common that reversals in the density
 profile are captured (heavier water at lower depths than lighter water).
@@ -2347,8 +2347,8 @@ neutral or stable.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>ds</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code>) – Dataset containing the complete database of profile data</p></li>
-<li><p><strong>z_coord</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – String name for the dependent variable in the dataset</p></li>
-<li><p><strong>ztsp_names</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – A list of string names that will be used to specify the depth
+<li><p><strong>z_coord</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – String name for the dependent variable in the dataset</p></li>
+<li><p><strong>ztsp_names</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – A list of string names that will be used to specify the depth
 (<code class="docutils literal notranslate"><span class="pre">z</span></code>), temperature, salinity, and pressure.</p></li>
 </ul>
 </dd>

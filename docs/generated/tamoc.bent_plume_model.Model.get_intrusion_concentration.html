@@ -410,13 +410,13 @@
     </label>
     <ul>
      <li class="toctree-l3">
-      <a class="reference internal" href="bin.spm.lake_part.html">
-       bin.spm.lake_part
+      <a class="reference internal" href="bin.spm.lake_bub.html">
+       bin.spm.lake_bub
       </a>
      </li>
      <li class="toctree-l3">
-      <a class="reference internal" href="bin.spm.lake_bub.html">
-       bin.spm.lake_bub
+      <a class="reference internal" href="bin.spm.lake_part.html">
+       bin.spm.lake_part
       </a>
      </li>
      <li class="toctree-l3">
@@ -2334,17 +2334,50 @@ title="Print to PDF"
 <h1>tamoc.bent_plume_model.Model.get_intrusion_concentration<a class="headerlink" href="#tamoc-bent-plume-model-model-get-intrusion-concentration" title="Permalink to this headline">#</a></h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="tamoc.bent_plume_model.Model.get_intrusion_concentration">
-<span class="sig-prename descclassname"><span class="pre">Model.</span></span><span class="sig-name descname"><span class="pre">get_intrusion_concentration</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/socolofs/tamoc/tree/master/tamoc/bent_plume_model.py#L304-L327"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tamoc.bent_plume_model.Model.get_intrusion_concentration" title="Permalink to this definition">#</a></dt>
-<dd><p>Extract the concentrations of dissolved compounds entering the intrusion</p>
-<p>Extract the concentration of dissolved compounds in seawater at the end
-of the near-field simulation.  This represents the concentrations of
-dissolved material entering the intrusion layer.</p>
+<span class="sig-prename descclassname"><span class="pre">Model.</span></span><span class="sig-name descname"><span class="pre">get_intrusion_concentration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_C</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/socolofs/tamoc/tree/master/tamoc/bent_plume_model.py#L380-L505"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tamoc.bent_plume_model.Model.get_intrusion_concentration" title="Permalink to this definition">#</a></dt>
+<dd><p>Compute the concentrations of dissolved compounds in the intrusion</p>
+<p>Computes the concentrations of dissolved compounds in the intrusion
+layer using the wastewater outfall solution in Chin (2013), pp. 325ff.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><strong>Cp</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Array of dissolved concentrations (kg/m^3) for each compound in the
-model composition at the end of the near-field plume simulation</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Array of three-dimensional positions where the concentrations should
+be computed. Each row of <cite>x</cite> corresponds to a different point, with
+the columns of <cite>x</cite> giving the x-, y-, and z-coordinates of each
+point.  The x-axis is aligned along the plume centerline, with the
+y-axis transverse in the horizontal plane, and the z-axis the
+vertical axis, taken as positive downward.</p></li>
+<li><p><strong>max_C</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <em>default</em> <a class="reference external" href="https://docs.python.org/3/library/constants.html#True" title="(in Python v3.11)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code></a>) – A flag indicating how to interpret the horizontal coordinates x and
+y. The maximum concentration will occur along a line parallel to
+the currents, which may change direction with height. If <cite>max_C</cite> is
+<cite>True</cite>, then the x-coordinate is taken as the distance along the
+current direction and the y-coordinate is taken as the distance
+perpendicular to x. Thus, if y=0, then this will always return the
+maximum concentration a distance x from the particle center of
+mass. If <cite>max_C</cite> is <cite>False</cite>, then the x- and y-coordinates are to
+be taken as absolute coordinates in the reference frame of the
+release. If they are located upstream of the particle center, the
+concentration will be zero; otherwise, the analytical solution is
+computed and the corresponding concentrations returned.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>Cp</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – A two-dimensional array of concentrations at the given points. Each
+row of <cite>Cp</cite> corresponds to a row of <cite>x</cite>; the columns of <cite>Cp</cite>
+each correspond to a compound in the mixture composition.</p>
 </dd>
 </dl>
+<p class="rubric">Notes</p>
+<p>This method uses the far-field model for wastewater outfalls suggested
+by Chin (John Wiley and Sons, Inc., 2013, 2nd edition, pp. 326). This
+model assumes no vertical turbulent diffusion and takes lateral
+apparent diffusion coefficients from the Okubo-diagram.</p>
+<p>There is no analytical solution for the whole concentration field for
+the scenario of a finite-size source. Here, the analytical solution is
+only valid for the plume centerline. Off the centerline, we can use a
+Gaussian distribution to estimate concentrations, but these may not
+completely conserve mass since off the plume centerline, this is an
+approximation, and not an analytical solution.</p>
 </dd></dl>
 
 </section>

@@ -214,7 +214,7 @@ def log_normal(nbins, d50, sigma):
                          (np.log(bin_edges[i+1]) - np.log(bin_edges[i])) / 2.)
     
     # Compute the actual diameters of each particle
-    de = d50 * bin_centers
+    de = d50 * bin_edges[1:]
     
     # Compute log-normal parameters for de/d50 distribution
     mu = np.log(1.)
@@ -223,8 +223,11 @@ def log_normal(nbins, d50, sigma):
     if d50 == 0:
         vf = np.zeros(len(bin_centers))
     else:
-        vf = 1. / bin_centers * 1. / (sigma * np.sqrt(2. * np.pi)) * \
-             np.exp(-(np.log(bin_centers) - mu)**2 / (2. * sigma**2))
+        vf = np.zeros(len(bin_centers))
+        for i in range(len(bin_centers)):
+            vf[i] = 1. / bin_centers[i] * 1. / (sigma * 
+                np.sqrt(2. * np.pi)) * np.exp(-(np.log(bin_centers[i]) - 
+                mu)**2 / (2. * sigma**2)) * (bin_edges[i+1] - bin_edges[i]) 
         vf = vf / np.sum(vf)
     
     # Return the particle size distribution
@@ -337,7 +340,7 @@ def rosin_rammler_fit(d50, d_max, alpha=1.8):
     k = np.log(0.5)
     
     # Adjust down if d95 exceeds the de_max
-    if d_max == None:
+    if isinstance(d_max, type(None)):
         d50 = d50
     
     else:
@@ -346,6 +349,8 @@ def rosin_rammler_fit(d50, d_max, alpha=1.8):
         
         # Adjust d50 so that d95 does not exceed d_max
         if d95 > d_max:
+            print('\nPredicted size distribution exceeds d50...')
+            print('    ---> Adjusting size distribution down.\n')
             d95 = d_max
             k95 = np.log(0.05)
             d50 = d95 * (np.log(1. - 0.5) / k95)**(1. / alpha)
@@ -398,6 +403,8 @@ def log_normal_fit(d50, d_max, sigma=0.27):
         
         # Adjust d_50 so that d_95 does not exceed d_max
         if d95 > d_max:
+            print('\nPredicted size distribution exceeds d50...')
+            print('    ---> Adjusting size distribution down.\n')
             d50 = np.exp(np.log(d_max) - 1.6449 * sigma)
     
     # Return the final distribution fit
@@ -453,6 +460,9 @@ def grow_rate(n, k, nu_c, nu_d, sigma, g, dp, rho_c, rho_d, K):
     particle size.  It should not be called directly.
     
     """
+    # Compute the kinematic viscosity from the dynamic viscosity
+    mu_c = nu_c * rho_c
+
     # Compute more derived variables
     if n < 0.:
         m_c = k
@@ -460,7 +470,6 @@ def grow_rate(n, k, nu_c, nu_d, sigma, g, dp, rho_c, rho_d, K):
     else:
         m_c = np.sqrt(k**2 + n / nu_c)
         m_d = np.sqrt(k**2 + n / nu_d)
-    mu_c = nu_c / rho_c
     
     # Compute the residual of the root function
     res = (sigma * k**3 - g * k * dp + n**2 * (rho_c + rho_d)) * \
@@ -500,8 +509,8 @@ def grow_time(lam, de, U, nu_c, nu_d, sigma, g, dp, rho_c, rho_d, K, c_0):
           theta_1 / 2.))
     
     # Compute the grwoth rate of this disturbance
-    n0 = 1. / t_a
-    n = fsolve(grow_rate, n0, args=(k, nu_c, nu_d, sigma, g, dp, rho_c, 
+    n0 = 1. / t_a  # Value at the critical point
+    n = fsolve(grow_rate, 5. * n0, args=(k, nu_c, nu_d, sigma, g, dp, rho_c, 
                                  rho_d, K)
               )[0]
     
@@ -774,8 +783,10 @@ def sintef_model(Uc, d0, q, rho_p, mu_p, sigma, rho, mu, is_gas=False,
             de_max = grace(rho, rho_p, mu, mu_p, sigma, fp_type=0)
         else:
             de_max = de_max_oil(rho_p, sigma, rho)
+        print('Max stable droplet size = %g (m)' % de_max)
         
         # Get the adjusted particle size distribution
+        print('    ---> Predicted median droplet size = %g (m)' % d50)
         d50_from95, k, alpha = rosin_rammler_fit(d50, de_max)
         
         # Return the desired value for d50
@@ -963,8 +974,10 @@ def li_etal_model(Uc, d0, q, rho_p, mu_p, sigma, rho, mu, is_gas=False):
             de_max = grace(rho, rho_p, mu, mu_p, sigma, fp_type=0)
         else:
             de_max = de_max_oil(rho_p, sigma, rho)
+        print('Max stable droplet size = %g (m)' % de_max)
         
         # Get the adjusted particle size distribution
+        print('    ---> Predicted droplet size = %g (m)' % d50)
         d50, k, alpha = rosin_rammler_fit(d50, None)
     
     else:
@@ -1174,8 +1187,10 @@ def wang_etal_model(A, n, Ug, rho_g, mu_g, sigma_g, Ul, rho_l, rho, mu):
         
         # Compute the maximum stable bubble size
         de_max = grace(rho, rho_g, mu, mu_g, sigma_g, fp_type=0)
+        print('\nMax stable bubble size:  %g (m)' % de_max)
         
         # Get the adjusted particle size distribution
+        print('    ---> Predicted median bubble size = %g (m)' % d)
         d50_gas, sigma_ln = log_normal_fit(d, de_max, sigma=0.27)
         
     else:

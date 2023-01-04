@@ -164,11 +164,11 @@ def get_sim_data():
     composition = ['inert']
     yk = np.array([1.])
     oil = dbm.InsolubleParticle(True, True)
-    mb0 = 1.
+    mb0 = 10.
     de = 0.01
     lambda_1 = 0.8
     (m0, T0, nb0, P, Sa, Ta) = dispersed_phases.initial_conditions(
-        profile, z0, oil, yk, mb0, 1, de)
+        profile, z0, oil, yk, mb0, 2, de)
     particles.append(bent_plume_model.Particle(0., 0., z0, oil, m0, T0,
         nb0, lambda_1, P, Sa, Ta, K=1., K_T=1., fdis=1.e-6, t_hyd=0.))
 
@@ -258,37 +258,36 @@ def check_sim(X0, D, Vj, phi_0, theta_0, Sj, Tj, cj, tracers,
     # Check the model output
     assert bpm.sim_stored == True
     assert bpm.t[0] == 0.
-    ans = np.array([4.36126914e+00,  1.54951631e+02,  4.97776192e+06,  
-        9.58555699e-16, 0.00000000e+00, -1.56544025e+01,  1.67158183e-02, 
-        0.00000000e+00, 0.00000000e+00,  3.00000000e+02,  0.00000000e+00, 
-        9.82463192e-06, 0.00000000e+00,  0.00000000e+00,  5.60670267e+00, 
-        0.00000000e+00, 0.00000000e+00,  0.00000000e+00,  0.00000000e+00, 
-        1.47912974e+01, 8.44107011e+06,  0.00000000e+00,  0.00000000e+00, 
-        0.00000000e+00, 0.00000000e+00,  1.73577224e-05,  0.00000000e+00, 
-        0.00000000e+00, 4.36126914e+00])
+    ans = np.array([4.36126913e+00,  1.54951631e+02,  4.97776191e+06,  
+        1.41352957e-16, 0.00000000e+00, -2.30846897e+00, 1.13354847e-01,
+        0.00000000e+00, 0.00000000e+00, 3.00000000e+02, 0.00000000e+00,
+        6.66236993e-05, 0.00000000e+00, 0.00000000e+00, 3.80206888e+01,
+        0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
+        1.13354847e+00, 6.46891333e+05, 0.00000000e+00, 0.00000000e+00,
+        0.00000000e+00, 0.00000000e+00, 1.73577225e-05, 0.00000000e+00,
+        0.00000000e+00, 4.24115008e-03])
     for i in range(len(ans)):
         assert_approx_equal(bpm.q[0,i], ans[i], significant=6)
-    assert_approx_equal(bpm.t[-1], 754.0477427796773, significant=6)
-    ans = np.array([2.09574409e+04, 7.60092060e+05, 2.42851020e+10, 
-        3.14296195e+03, 0.00000000e+00, 3.01315539e+03, 1.67158177e-02,
-        1.12825784e+02, 0.00000000e+00, 1.87428851e+02, 2.28955475e+02,
-        7.69082485e-06, 0.00000000e+00, 0.00000000e+00, 4.45599410e+00,
-        4.13949750e+02,         np.nan,         np.nan,         np.nan,
-        1.47912969e+01, 8.56994316e+06, 5.43208668e+02,         np.nan,      
-        np.nan, np.nan, 9.87531753e-02, 0.00000000e+00, 0.00000000e+00,
-       4.36126913e+00])
+    assert_approx_equal(bpm.t[-1], 1147.9493273189328, significant=6)
+    ans = np.array([2.61953650e+03, 9.31317467e+04, 2.99118513e+09, 
+        3.92276284e+02, 0.00000000e+00, 1.01029373e+01, 1.13354847e-01,
+        1.71199411e+02, 0.00000000e+00, 2.93084183e+02, 1.74083221e+02,
+        6.58401430e-05, 0.00000000e+00, 0.00000000e+00, 3.75906304e+01,
+        1.74241653e+01, np.nan, np.nan, np.nan, 1.13354847e+00, 6.47185740e+05,
+        2.84433399e+01, np.nan, np.nan, np.nan, 1.03485668e-02, 0.00000000e+00,
+        0.00000000e+00, 4.24115008e-03])
     for i in range(len(ans)):
         assert_approx_equal(bpm.q[-1,i], ans[i], significant=6)
 
     # Check the tracking data for the particles that left the plume
     assert bpm.particles[0].farfield == True
-    ans = np.array([1.40767197e+02, 0.00000000e+00, 3.34101214e+00, 
-        3.06813420e-06, 0.00000000e+00, 0.00000000e+00, 1.84215984e+00])
+    ans = np.array([2.04762227e+02, 0.00000000e+00, 1.49786084e+00, 
+        3.01711218e-06, 0.00000000e+00, 0.00000000e+00, 1.81160226e+00])
     for i in range(len(ans)):
         assert_approx_equal(bpm.particles[0].sbm.y[-1,i], ans[i],
             significant=6)
-    ans = np.array([1.23823814e+02, 0.00000000e+00, 7.87245185e+01, 
-        4.63392573e-04, 2.70570149e+02])
+    ans = np.array([1.93463857e+02, 0.00000000e+00, 1.11491145e+02, 
+        4.63392573e-04, 2.70044428e+02])
     for i in range(len(ans)):
         assert_approx_equal(bpm.particles[1].sbm.y[-1,i], ans[i],
             significant=6)
@@ -460,7 +459,7 @@ def test_plume_objs():
     # Create the `LagElement` object:
     q_local = bent_plume_model.LagElement(t0, q0, D, profile, p, particles,
         tracers, chem_names)
-
+    
     # Validate the values in q_local
     assert q_local.t0 == t0
     assert_array_almost_equal(q_local.q0, q0, decimal = 6)
@@ -485,12 +484,12 @@ def test_plume_objs():
     assert q_local.y == q0[8]
     assert q_local.z == q0[9]
     assert q_local.s == q0[10]
-    assert_array_almost_equal(q_local.M_p[0], np.array([9.82463141e-06,
+    assert_array_almost_equal(q_local.M_p[0], np.array([6.66236993e-05,
         0.00000000e+00, 0.00000000e+00]), decimal=6)
-    assert_array_almost_equal(q_local.M_p[1], np.array([14.79129693]),
+    assert_array_almost_equal(q_local.M_p[1], np.array([1.13354847]),
         decimal=6)
-    assert_approx_equal(q_local.H_p[0], 5.60670238e+00, significant=6)
-    assert_approx_equal(q_local.H_p[1], 8.44106982e+06, significant=6)
+    assert_approx_equal(q_local.H_p[0], 3.80206888e+01, significant=6)
+    assert_approx_equal(q_local.H_p[1], 6.46891333e+05, significant=6)
     assert_array_almost_equal(q_local.t_p, np.array([0., 0.]), decimal=6)
     assert_array_almost_equal(q_local.X_p[0], np.array([0., 0., 0.]),
         decimal=6)
@@ -498,7 +497,7 @@ def test_plume_objs():
         decimal=6)
     assert_array_almost_equal(q_local.cpe, np.array([1.73577225e-05,
         0.00000000e+00, 0.00000000e+00]), decimal=6)
-    assert_array_almost_equal(q_local.cte, np.array([4.36126913]), decimal=6)
+    assert_array_almost_equal(q_local.cte, np.array([0.00424115]), decimal=6)
     assert_approx_equal(q_local.Ta, 285.52466101019053, significant=6)
     assert_approx_equal(q_local.Sa, 35.52902290651307, significant=6)
     assert_approx_equal(q_local.Pa, 3123785.3190075322, significant=6)
@@ -513,13 +512,13 @@ def test_plume_objs():
     assert_approx_equal(q_local.rho, 1028.32228185795, significant=6)
     assert_array_almost_equal(q_local.c_chems, np.array([0.00409269, 0., 0.]),
         decimal=6)
-    assert_array_almost_equal(q_local.c_tracers, np.array([1028.32228186]),
+    assert_array_almost_equal(q_local.c_tracers, np.array([1.]),
         decimal=6)
-    assert_approx_equal(q_local.u, 2.1978825486814211e-16, significant=6)
+    assert_approx_equal(q_local.u, 3.241096864109426e-17, significant=6)
     assert_approx_equal(q_local.v, 0., significant=6)
-    assert_approx_equal(q_local.w, -3.5894145972727363, significant=6)
-    assert_approx_equal(q_local.hvel, 2.1978825486814211e-16, significant=6)
-    assert_approx_equal(q_local.V, 3.5894145972727363, significant=6)
+    assert_approx_equal(q_local.w, -0.5293112865466196, significant=6)
+    assert_approx_equal(q_local.hvel, 3.241096864109426e-17, significant=6)
+    assert_approx_equal(q_local.V, 0.5293112865466196, significant=6)
     assert_approx_equal(q_local.h, 0.060000000000000005, significant=6)
     assert_approx_equal(q_local.b, 0.15000000000000002, significant=6)
     assert_approx_equal(q_local.sin_p, -1., significant=6)
@@ -528,14 +527,14 @@ def test_plume_objs():
     assert_approx_equal(q_local.cos_t, 1., significant=6)
     assert_approx_equal(q_local.phi, -1.5707963267948966, significant=6)
     assert_approx_equal(q_local.theta, 0., significant=6)
-    assert_approx_equal(q_local.fb[0], 2.29871281e-01, significant=6)
-    assert_approx_equal(q_local.fb[1], 2.46294355e+03, significant=6)
-    assert_array_almost_equal(q_local.mp, np.array([9.82463141e-06,
-        1.47912969e+01]), decimal=6)
+    assert_approx_equal(q_local.fb[0], 1.55882441, significant=6)
+    assert_approx_equal(q_local.fb[1], 188.75058126, significant=6)
+    assert_array_almost_equal(q_local.mp, np.array([6.66236993e-05,
+        1.13354847e+00]), decimal=6)
     assert_array_almost_equal(q_local.x_p, np.array([[0., 0., 300.],[0., 0.,
         300.]]), decimal=6)
     assert_array_almost_equal(q_local.t_p, np.array([ 0.,  0.]), decimal=6)
-    assert_approx_equal(q_local.Fb, 2463.1734167520308, significant=6)
+    assert_approx_equal(q_local.Fb, 190.3094056738958, significant=6)
 
 def test_simulate():
     """

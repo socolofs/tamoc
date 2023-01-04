@@ -132,7 +132,7 @@ def load_data(fname):
                 data[chemical][variable] = data[chemical][variable] * 6894.76
                 units[variable] = '(Pa)'
             
-            if read_units[variable].find('F') >= 0:
+            if read_units[variable].find('(deg F)') >= 0:
                 # Convert to K
                 data[chemical][variable] = (data[chemical][variable] - 32.) * \
                                            5. / 9. + 273.15
@@ -170,6 +170,54 @@ def load_data(fname):
                 data[chemical][variable] = data[chemical][variable] * 86400.
                 units[variable] = '(s)'
             
+            if read_units[variable].find('(g/cm^3)') >= 0.:
+                # Convert to kg/m^3
+                data[chemical][variable] = data[chemical][variable] / 1000. \
+                    * 100.**3
+                units[variable] = '(kg/m^3)'
+            
+            if read_units[variable].find('(ft^3/lb-mol)') >= 0.:
+                # Convert to m^3/mol
+                data[chemical][variable] = data[chemical][variable] * \
+                    (12. * 2.54 / 100.)**3 / 453.59237
+                units[variable] = '(m^3/mol)'
+            
+            if read_units[variable].find('(ft^3/lb-mol/deg F)') >= 0.:
+                # Convert to m^3/mol
+                data[chemical][variable] = data[chemical][variable] * \
+                    (12. * 2.54 / 100.)**3 / 453.59237 / (5./9.)
+                units[variable] = '(m^3/mol/deg C)'
+
+            if read_units[variable].find('(BTU/lb-mol)') >= 0.:
+                # Convert to J/mol
+                data[chemical][variable] = data[chemical][variable] * \
+                    1055.06 / 453.59237 
+                units[variable] = '(J/mol)'
+            
+            if read_units[variable].find('(BTU/lb-mol/deg F)') >= 0.:
+                # Convert to J/mol/deg C
+                data[chemical][variable] = data[chemical][variable] * \
+                    1055.06 / 453.59237 / (5./9.)
+                units[variable] = '(J/mol/deg C)'
+           
+            if read_units[variable].find('(BTU/lb-mol/deg F^2)') >= 0.:
+                # Convert to J/mol/deg C^2
+                data[chemical][variable] = data[chemical][variable] * \
+                    1055.06 / 453.59237 / (5./9.)**2
+                units[variable] = '(J/mol/deg C^2)'
+
+            if read_units[variable].find('(BTU/lb-mol/deg F^3)') >= 0.:
+                # Convert to J/mol/deg C^3
+                data[chemical][variable] = data[chemical][variable] * \
+                    1055.06 / 453.59237 / (5./9.)**3
+                units[variable] = '(J/mol/deg C^3)'
+
+            if read_units[variable].find('(BTU/lb-mol/deg F^4)') >= 0.:
+                # Convert to J/mol/deg C^4
+                data[chemical][variable] = data[chemical][variable] * \
+                    1055.06 / 453.59237 / (5./9.)**4
+                units[variable] = '(J/mol/deg C^4)'
+
     return (data, units)
 
 def tamoc_data():

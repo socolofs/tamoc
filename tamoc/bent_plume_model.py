@@ -289,6 +289,12 @@ class Model(object):
                 # Code below forces tracking of all particles, including
                 # those trapped in the intrusion layer
                 elif particles[i].z > 0:
+                    # Update information at the end of the near-field
+                    particles[i].te = particles[i].t
+                    particles[i].xe = particles[i].x
+                    particles[i].ye = particles[i].y
+                    particles[i].ze = particles[i].z
+                    # Track the particles
                     print('\nTracking Plume Particle %d of %d:' %
                         (i+1, len(self.particles)))
                     particles[i].run_sbm(self.profile)
@@ -301,7 +307,7 @@ class Model(object):
             self.particles[i].sim_stored = True
             self.particles[i].K_T = self.K_T0[i]
     
-    def get_intrusion_concentration(self):
+    def get_intrusion_initial_condition(self):
         """
         Extract the concentrations of dissolved compounds entering the intrusion
         
@@ -314,19 +320,191 @@ class Model(object):
         Cp : ndarray
             Array of dissolved concentrations (kg/m^3) for each compound in the
             model composition at the end of the near-field plume simulation
+        z0 : float
+            Depth of the intrusion centerline (m)
+        h : float
+            Total thickness of the intrusion layer (m)
+        L : float
+            Total width of the intrusion layer (m)
+        
+        Notes
+        -----
+        To predict the geometry of the intrusion layer (depth and width), we
+        use thickness equation from Socolofsky et al. (2011, GRL) and 
+        conservation of mass.
         
         """
         # Update the LagElement at the end of the near-field plume
         self.q_local.update(self.t[-1], self.q[-1], self.profile, self.p,
             self.particles)
         
-        # Extract the concentration and mass flux
+        # Extract the concentrations
         Cp = self.q_local.c_chems
         
+        # Depth of the plume centerline
+        z0 = self.q_local.z
+        if z0 <= 0.:
+            # The plume reached the surface...get data just below
+            z0 = 0.1
+        
+        # Use the intrusion formation equations from Socolofsky et al.
+        # (GRL, 2011).
+        N = self.profile.buoyancy_frequency(z0)
+        U = self.q_local.hvel
+        Q = np.pi * self.q_local.b**2 * self.q_local.V
+        
+        # The intrusion is assumed to travel with the mean currents
+        ua, va = self.profile.get_values(z0, ['ua', 'va'])
+        Ua = np.sqrt(ua**2 + va**2)
+        
+        # Estimate the total intrusion thickness after buoyant collapse using
+        # the equation from Akar and Jirka (1995) as defined in Socolofsky 
+        # et al. (2011)
+        h = 2.4 * Ua / N    # total thickness
+        
+        # Compute the intrusion layer width to preserve the given mass flux
+        # and velocity
+        if h > 2. * self.q_local.b:
+            # Thickness is predicted to be greater than plume width -- ensure
+            # width is preserved
+            L = 2. * self.q_local.b
+            h = Q / (Ua * L)
+        else:
+            # Thickness is less than plume width -- this is expected, so 
+            # compute width to preserve mass
+            L = Q / (Ua * h) 
+        
         # Return the results
+        return (Cp, z0, h, L)
+    
+    def get_intrusion_concentration(self, x, max_C=True):
+        """
+        Compute the concentrations of dissolved compounds in the intrusion
+        
+        Computes the concentrations of dissolved compounds in the intrusion
+        layer using the wastewater outfall solution in Chin (2013), pp. 325ff.
+        
+        Parameters
+        ----------
+        x : ndarray
+            Array of three-dimensional positions where the concentrations should
+            be computed. Each row of `x` corresponds to a different point, with
+            the columns of `x` giving the x-, y-, and z-coordinates of each 
+            point.  The x-axis is aligned along the plume centerline, with the
+            y-axis transverse in the horizontal plane, and the z-axis the 
+            vertical axis, taken as positive downward.
+        max_C : bool, default=True
+            A flag indicating how to interpret the horizontal coordinates x and
+            y. The maximum concentration will occur along a line parallel to
+            the currents, which may change direction with height. If `max_C` is
+            `True`, then the x-coordinate is taken as the distance along the
+            current direction and the y-coordinate is taken as the distance
+            perpendicular to x. Thus, if y=0, then this will always return the
+            maximum concentration a distance x from the particle center of
+            mass. If `max_C` is `False`, then the x- and y-coordinates are to
+            be taken as absolute coordinates in the reference frame of the
+            release. If they are located upstream of the particle center, the
+            concentration will be zero; otherwise, the analytical solution is
+            computed and the corresponding concentrations returned.
+        
+        Returns
+        -------
+        Cp : ndarray
+            A two-dimensional array of concentrations at the given points. Each
+            row of `Cp` corresponds to a row of `x`; the columns of `Cp`
+            each correspond to a compound in the mixture composition.
+        
+        Notes
+        -----
+        This method uses the far-field model for wastewater outfalls suggested
+        by Chin (John Wiley and Sons, Inc., 2013, 2nd edition, pp. 326). This
+        model assumes no vertical turbulent diffusion and takes lateral
+        apparent diffusion coefficients from the Okubo-diagram.
+        
+        There is no analytical solution for the whole concentration field for
+        the scenario of a finite-size source. Here, the analytical solution is
+        only valid for the plume centerline. Off the centerline, we can use a
+        Gaussian distribution to estimate concentrations, but these may not
+        completely conserve mass since off the plume centerline, this is an
+        approximation, and not an analytical solution.
+        
+        """
+        # Get the initial concentration and width of the intrusion
+        Cp_0, z0, h, L = self.get_intrusion_initial_condition()
+        
+        # Get the horizontal ambient velocity
+        ua, va = self.profile.get_values(z0, ['ua', 'va'])
+        hvel = np.sqrt(ua**2 + va**2)
+        
+        # Convert to a coordinate system linked to the currents
+        npoints, ndimensions = x.shape
+        Lx = np.zeros(npoints)
+        Ly = np.zeros(npoints)
+        if max_C:
+            Lx = x[:,0]
+            Ly = x[:,1]
+        else:
+            # Create the coordinate transformation at the present location
+            Ua = np.sqrt(ua**2 + va**2)
+            theta = np.arctan2(va, ua)
+            if theta < 0.:
+                theta = 2. * np.pi + theta
+            R = np.array([[np.cos(theta), -np.sin(theta)],[np.sin(theta),
+                np.cos(theta)]])
+            
+            # Convert the given coordinates
+            for i in range(npoints):
+                alpha = np.arctan2(x[i,1], x[i,0])
+                if alpha < 0.:
+                    alpha = 2. * np.pi + alpha
+                if np.abs(theta - alpha) < np.pi / 2.:
+                    # The chosen point is in the downstream direction: a non-zero
+                    # solution for concentration exists
+                    xs = np.matmul(R.transpose(), x[i,0:2])
+                    Lx[i] = xs[0]
+                    Ly[i] = xs[1]
+                else:
+                    # The chosen point is upstream of the concentration field: 
+                    # the concentrations will be zero
+                    Lx[i] = -9999.
+                    Ly[i] = -9999.
+        
+        # Get the initial value of the diffusivity using equation 9-59 in 
+        # Chin (2013)
+        Ka = 0.0103 * (L * 100.)**(1.15)
+        epsilon_0 = Ka / 100.**2
+        beta = 12. * epsilon_0 / (hvel * L)
+
+        # Compute the values for each point
+        Cp = np.zeros((npoints, len(self.composition)))
+        for i in range(npoints):
+                    
+            if np.abs(x[i,2] - z0) > h / 2.:
+                # Above or below intrusion
+                Cp[i,:] = np.zeros(len(self.composition))
+
+            elif Lx[i] == -9999.:
+                # This point is upstream of the intrusion
+                Cp[i,:] = np.zeros(len(self.composition))
+            
+            else:
+                # Get the centerline concentration
+                from scipy.special import erf
+                Cp_m = Cp_0 * erf(np.sqrt(3. / (2. * (1. + 2./3. * beta * 
+                    Lx[i] / L)**3 - 1.)))
+            
+                # Estimate the transverse width of the plume
+                l_y = L * (1. + 2./3. * beta * Lx[i] / L)**(3./2.)
+                sigma_y = l_y / (2. * np.sqrt(3.))
+        
+                # Use a Gaussian to estimate the concentration drop outside
+                # the main intrusion
+                Cp[i,:] = Cp_m * np.exp(-(Ly[i]**2) / (2. * 
+                    sigma_y**2))
+        
         return Cp
     
-    def get_grid_concentrations(self, x, max_C=True, Et=5.0e-4):
+    def get_grid_concentrations(self, x, max_C=True):
         """
         Compute the concentrations in the far-field from all particles
         
@@ -354,11 +532,6 @@ class Model(object):
             release. If they are located upstream of the particle center, the
             concentration will be zero; otherwise, the analytical solution is
             computed and the corresponding concentrations returned.
-        Et : float, default=5.0e-4
-            The horizontal eddy diffusivity of the particle spreading (m^2/s).
-            The default value is from Wang et al. (2020, GRL), which was
-            measured for a bubble stream above the natural seeps at MC 118 in
-            the deep Gulf of Mexico.
         
         Returns
         -------
@@ -388,12 +561,15 @@ class Model(object):
         # Get the concentrations for each particle and use superposition to get
         # the concentration of the whole field
         for i in range(len(self.particles)):
-            Cvals += self.particles[i].grid_concentrations(x, max_C, Et)
+            Cvals += self.particles[i].grid_concentrations(x, max_C)
+        
+        # Add in the concentrations from the intrusion layer
+        Cvals += self.get_intrusion_concentration(x, max_C)
         
         # Return the result
         return Cvals
     
-    def get_planar_concentrations(self, x, y, z, max_C=True, Et=5.0e-4):
+    def get_planar_concentrations(self, x, y, z, max_C=True):
         """
         Compute far-field concentrations on a designated plane
         
@@ -426,11 +602,6 @@ class Model(object):
             release. If they are located upstream of the particle center, the
             concentration will be zero; otherwise, the analytical solution is
             computed and the corresponding concentrations returned.
-        Et : float, default=5.0e-4
-            The horizontal eddy diffusivity of the particle spreading (m^2/s).
-            The default value is from Wang et al. (2020, GRL), which was
-            measured for a bubble stream above the natural seeps at MC 118 in
-            the deep Gulf of Mexico.
         
         Returns
         -------
@@ -468,6 +639,7 @@ class Model(object):
         >>> plt.pcolor(yp, zp, Cp[:,:,0])
         >>> plt.colorbar()
         >>> plt.gca().invert_yaxis()
+        >>> plt.show()
         
         """
         # Make sure all the position data are arrays
@@ -507,7 +679,7 @@ class Model(object):
             x[:,indices[0]] = fixed_pt
             x[:,indices[1]] = plane[0][i,:]
             x[:,indices[2]] = plane[1][i,:]
-            Cvals = self.get_grid_concentrations(x, max_C, Et)
+            Cvals = self.get_grid_concentrations(x, max_C)
             for j in range(len(self.composition)):
                 Cp[i,:,j] = Cvals[:,j]
         print('Done.')
@@ -1132,7 +1304,8 @@ class Model(object):
                     if particle.z >= 50.:
                         # This particle did not surface
                         tp[self.particles.index(particle)] = np.nan
-                        mp[self.particles.index(particle), :] = np.zeros(c_idx)   
+                        mp[self.particles.index(particle), :] = \
+                            np.zeros(len(c_idx))   
                     else:
                         # This particle did surface
                         tp[self.particles.index(particle)] = particle.t
@@ -1156,7 +1329,7 @@ class Model(object):
                         # This particle did not surface
                         tp[self.particles.index(particle)] = np.nan
                         mp[self.particles.index(particle), :] = \
-                            np.zeros(c_idx)
+                            np.zeros(len(c_idx))
                     else:
                         # This particle did surface
                         tp[self.particles.index(particle)] = particle.t + \
@@ -1453,7 +1626,7 @@ class Model(object):
         plt.figure(fig, figsize=(9,6))
         if clear:
             plt.clf()
-        
+
         # Get the composition and indices
         composition = self.particles[0].particle.composition
         c_idx = chem_idx_list(chems, composition)
@@ -1502,7 +1675,8 @@ class Model(object):
         plt.tight_layout()
         plt.show()
     
-    def plot_mass_balance(self, fig, chems=None, fp_type=-1, t_max=-1, clear=True):
+    def plot_mass_balance(self, fig, chems=None, fp_type=-1, t_max=-1, 
+        clear=True):
         """
         Plot the time-history of the mass balance
         
@@ -1552,8 +1726,8 @@ class Model(object):
         mp, mc, tp, tc = self.report_surfacing_fluxes(chems, fp_type)
         
         # Find the maximum surfacing time in the dataset
-        t_max_p = np.max(tp)
-        if t_max_p < tc:
+        t_max_p = np.nanmax(tp)
+        if t_max_p < np.nanmax(tc):
             t_max_p = tc
         
         # Make sure this time is more than a few seconds
@@ -1600,11 +1774,14 @@ class Model(object):
             if not np.isnan(tc):
                 if t[i] >= tc:
                     ms[i] += np.sum(mc) * (t[i] - tc)
-        
+
         # Plot the results
-        plt.plot(t / 3600. / 24., ms / m0 * 100.)
-        plt.plot(t / 3600. / 24., (m0 - ms) / m0 * 100.)
-        plt.plot(t / 3600. / 24., md / m0 * 100.)
+        f_surf = ms / m0 * 100.
+        f_sub = (m0 - ms) / m0 * 100.
+        f_bio = md / m0 * 100.
+        plt.plot(t / 3600. / 24., f_surf)
+        plt.plot(t / 3600. / 24., f_sub)
+        plt.plot(t / 3600. / 24., f_bio)
         plt.legend(('Fraction surfacing', 'Fraction subsea', 
             'Fraction biodegraded'))
         plt.xlabel('Time, (days)')
@@ -1612,6 +1789,11 @@ class Model(object):
         plt.tight_layout()
         plt.grid(True)
         
+        print('\nMass balance statistics')
+        print('---------------------')
+        print('    Fraction surfacing =   %g' % f_surf[-1])
+        print('    Fraction subsea =      %g' % f_sub[-1])
+        print('    Fraction biodegraded = %g' % f_bio[-1])
         plt.show()
 
 
@@ -2064,6 +2246,10 @@ class Particle(dispersed_phases.PlumeParticle):
                     self.particle.composition)
                 md_p[i,:] = A * self.nb0 * beta / us * (Cs[i,:] - Ca)
         
+        # When the atmospheric gases are stripped from the water column, 
+        # the dissolution rate appears negative...it should be zero
+        md_p[md_p < 0.] = 0.
+        
         # Store the dissolution rates in an interpolation function
         self.md_p = interp1d(z, md_p, axis=0)
         self.solubility = interp1d(z, Cs, axis=0)
@@ -2072,7 +2258,7 @@ class Particle(dispersed_phases.PlumeParticle):
         # where this particle exited the plume
         self.sigma_0 = self.b_local / 2.
         
-    def point_concentration(self, x, max_C=True, Et=5.0e-4):
+    def point_concentration(self, x, max_C=True):
         """
         Compute the dissolved concentration at a point downstream of particle
         
@@ -2102,11 +2288,6 @@ class Particle(dispersed_phases.PlumeParticle):
             release. If they are located upstream of the particle center, the
             concentration will be zero; otherwise, the analytical solution is
             computed and the corresponding concentrations returned.
-        Et : float, default=5.0e-4        
-            The horizontal eddy diffusivity of the particle spreading (m^2/s).
-            The default value is from Wang et al. (2020, GRL), which was
-            measured for a bubble stream above the natural seeps at MC 118 in
-            the deep Gulf of Mexico.
         
         Returns
         -------
@@ -2157,18 +2338,26 @@ class Particle(dispersed_phases.PlumeParticle):
         xp = np.matmul(R, self.xh(x[2]))
         Lp = np.sqrt(xp[0]**2 + xp[1]**2)
         
-        # Get the local width of the bubble cloud
-        sigma = np.sqrt(2. * Et * self.age(x[2]) + self.sigma_0**2)
+        # Get the apparent turbulent diffusion coefficient for bubble
+        # spreading from the Okubo diagram using equations (9.56) and (9.57)
+        # in Chen (2013)
+        Et = (0.0108 / 4. * self.age(x[2])**1.34) / 100.**2
+        
+        # Get the local width of the bubble cloud using Equation (9-57) in 
+        # Chen (2013)
+        sigma = np.sqrt(4. * Et * self.age(x[2]) + self.sigma_0**2)
         
         # Get locations for the random particle positions
         sx = Lp + sigma * self.xp
         sy = 0. + sigma * self.yp
         k = len(self.xp)
         
-        # Compute length to advection-dominated region
+        # Compute length to advection-dominated region downstream of a 
+        # Single bubble using the diffusivity measured by Wang et al. (2020)
         alpha = 10.
         Ua = self.currents(x[2])[0]
-        L_D = Et / (alpha * Ua)
+        Et_0 = 5.0e-4
+        L_D = Et_0 / (alpha * Ua)
         
         # Compute the contributions from each random particle position
         md_p = self.md_p(x[2])
@@ -2177,7 +2366,17 @@ class Particle(dispersed_phases.PlumeParticle):
             # Get distance along s from particle to plane of interest
             L = Lx - sx[j]
             H = Ly - sy[j]
-            
+                        
+            # Get travel time to this position...along L
+            if L > 0:
+                # Compute the apparent diffusion coefficient using the Okubo
+                # diagram and the travel time with the currents
+                t = L / self.currents(x[2])[0]
+                Et = (0.0108 / 4. * t**1.34) / 100.**2
+            else:
+                # L is negative...use the diffusivity for a single bubble
+                Et = 5.0e-4
+                t = 0.
             
             # Only include this particle if in advection-dominated region
             if L > L_D:
@@ -2192,7 +2391,7 @@ class Particle(dispersed_phases.PlumeParticle):
         
         return Cp
     
-    def grid_concentrations(self, x, max_C=True, Et=5.0e-4):
+    def grid_concentrations(self, x, max_C=True):
         """
         Compute the dissolved concentrations for points in the far-field
         
@@ -2221,11 +2420,6 @@ class Particle(dispersed_phases.PlumeParticle):
             release. If they are located upstream of the particle center, the
             concentration will be zero; otherwise, the analytical solution is
             computed and the corresponding concentrations returned.
-        Et : float, default=5.0e-4
-            The horizontal eddy diffusivity of the particle spreading (m^2/s).
-            The default value is from Wang et al. (2020, GRL), which was
-            measured for a bubble stream above the natural seeps at MC 118 in
-            the deep Gulf of Mexico.
         
         Returns
         -------
@@ -2240,7 +2434,7 @@ class Particle(dispersed_phases.PlumeParticle):
         
         # Loop through all the points
         for i in range(x.shape[0]):
-            C_vals[i,:] = self.point_concentration(x[i,:], max_C, Et)
+            C_vals[i,:] = self.point_concentration(x[i,:], max_C)
          
         # Return the solution set
         return C_vals

@@ -410,13 +410,13 @@
     </label>
     <ul>
      <li class="toctree-l3">
-      <a class="reference internal" href="bin.spm.lake_part.html">
-       bin.spm.lake_part
+      <a class="reference internal" href="bin.spm.lake_bub.html">
+       bin.spm.lake_bub
       </a>
      </li>
      <li class="toctree-l3">
-      <a class="reference internal" href="bin.spm.lake_bub.html">
-       bin.spm.lake_bub
+      <a class="reference internal" href="bin.spm.lake_part.html">
+       bin.spm.lake_part
       </a>
      </li>
      <li class="toctree-l3">
@@ -2334,7 +2334,7 @@ title="Print to PDF"
 <h1>tamoc.blowout.particles<a class="headerlink" href="#tamoc-blowout-particles" title="Permalink to this headline">#</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="tamoc.blowout.particles">
-<span class="sig-prename descclassname"><span class="pre">tamoc.blowout.</span></span><span class="sig-name descname"><span class="pre">particles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m_tot</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oil</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yk</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Tj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lambda_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lag_time</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/socolofs/tamoc/tree/master/tamoc/blowout.py#L799-L870"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tamoc.blowout.particles" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tamoc.blowout.</span></span><span class="sig-name descname"><span class="pre">particles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m_tot</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oil</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yk</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Tj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lambda_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lag_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_hyd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/socolofs/tamoc/tree/master/tamoc/blowout.py#L799-L873"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tamoc.blowout.particles" title="Permalink to this definition">#</a></dt>
 <dd><p>Create particles to add to a bent plume model simulation</p>
 <p>Creates bent_plume_model.Particle objects for the given particle
 properties so that they can be added to the total list of particles
@@ -2342,7 +2342,7 @@ in the simulation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>m_tot</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Total mass flux of this fluid phase in the simulation (kg/s)</p></li>
+<li><p><strong>m_tot</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Total mass flux of this fluid phase in the simulation (kg/s)</p></li>
 <li><p><strong>d</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">np.array</span></code>) – Array of particle sizes for this fluid phase (m)</p></li>
 <li><p><strong>vf</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">np.array</span></code>) – Array of volume fractions for each particle size for this fluid
 phase (–).  This array should sum to 1.0.</p></li>
@@ -2354,15 +2354,17 @@ dbm.FluidParticle object (–).</p></li>
 <li><p><strong>x0, y0, z0</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">floats</span></code>) – Initial position of the particles in the simulation domain (m).  Note
 that x0 and y0 should be zero for particles starting on the plume
 centerline.</p></li>
-<li><p><strong>Tj</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Initial temperature of the particles in the jet (K)</p></li>
-<li><p><strong>lambda_1</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Value of the dispersed phase spreading parameter of the jet integral
+<li><p><strong>Tj</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Initial temperature of the particles in the jet (K)</p></li>
+<li><p><strong>lambda_1</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Value of the dispersed phase spreading parameter of the jet integral
 model (–).</p></li>
-<li><p><strong>lag_time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – Flag that indicates whether (True) or not (False) to use the
+<li><p><strong>lag_time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – Flag that indicates whether (True) or not (False) to use the
 biodegradation lag times data.</p></li>
+<li><p><strong>t_hyd</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <em>default</em> <code class="docutils literal notranslate"><span class="pre">0</span></code>) – Hydrate formation time (s).  Default value is zero, which indicates
+that particles are dirty or hydrated immediately upon formation.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>disp_phases</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <code class="xref py py-class docutils literal notranslate"><span class="pre">bent_plume_model.Particle</span> <span class="pre">objects</span></code>) – List of <cite>bent_plume_model.Particle</cite> objects to be added to the
+<dd class="field-even"><p><strong>disp_phases</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <code class="xref py py-class docutils literal notranslate"><span class="pre">bent_plume_model.Particle</span> <span class="pre">objects</span></code>) – List of <cite>bent_plume_model.Particle</cite> objects to be added to the
 present bent plume model simulation based on the given input data.</p>
 </dd>
 </dl>

@@ -410,13 +410,13 @@
     </label>
     <ul>
      <li class="toctree-l3">
-      <a class="reference internal" href="bin.spm.lake_part.html">
-       bin.spm.lake_part
+      <a class="reference internal" href="bin.spm.lake_bub.html">
+       bin.spm.lake_bub
       </a>
      </li>
      <li class="toctree-l3">
-      <a class="reference internal" href="bin.spm.lake_bub.html">
-       bin.spm.lake_bub
+      <a class="reference internal" href="bin.spm.lake_part.html">
+       bin.spm.lake_part
       </a>
      </li>
      <li class="toctree-l3">
@@ -2334,7 +2334,7 @@ title="Print to PDF"
 <h1>tamoc.bent_plume_model.width_projection<a class="headerlink" href="#tamoc-bent-plume-model-width-projection" title="Permalink to this headline">#</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="tamoc.bent_plume_model.width_projection">
-<span class="sig-prename descclassname"><span class="pre">tamoc.bent_plume_model.</span></span><span class="sig-name descname"><span class="pre">width_projection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Sx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Sy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/socolofs/tamoc/tree/master/tamoc/bent_plume_model.py#L3007-L3063"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tamoc.bent_plume_model.width_projection" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tamoc.bent_plume_model.</span></span><span class="sig-name descname"><span class="pre">width_projection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Sx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Sy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/socolofs/tamoc/tree/master/tamoc/bent_plume_model.py#L3201-L3257"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tamoc.bent_plume_model.width_projection" title="Permalink to this definition">#</a></dt>
 <dd><p>Find the location of the plume width in x, y, z space</p>
 <p>Converts the width b and plume orientation phi and theta into an
 (x, y, z) location of the plume edge.  This function provides a two-
@@ -2343,19 +2343,19 @@ dimensional result given the unit vector along the plume centerline
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>Sx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Unit vector projection of the plume trajectory on one of the
+<li><p><strong>Sx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Unit vector projection of the plume trajectory on one of the
 coordinate axes in (x, y, z) space.</p></li>
-<li><p><strong>Sy</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Unit vector projection of the plume trajectory on another of the
+<li><p><strong>Sy</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Unit vector projection of the plume trajectory on another of the
 coordinate axes in (x, y, z) space.</p></li>
-<li><p><strong>b</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Local plume width</p></li>
+<li><p><strong>b</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Local plume width</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><strong>x1</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Plume edge for Sx projection to left of plume translation direction</p></li>
-<li><p><strong>y1</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Plume edge for Sy projection to left of plume translation direction</p></li>
-<li><p><strong>x2</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Plume edge for Sx projection to right of plume translation direction</p></li>
-<li><p><strong>y1</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Plume edge for Sy projection to right of plume translation direction</p></li>
+<li><p><strong>x1</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Plume edge for Sx projection to left of plume translation direction</p></li>
+<li><p><strong>y1</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Plume edge for Sy projection to left of plume translation direction</p></li>
+<li><p><strong>x2</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Plume edge for Sx projection to right of plume translation direction</p></li>
+<li><p><strong>y1</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Plume edge for Sy projection to right of plume translation direction</p></li>
 </ul>
 </p>
 </dd>

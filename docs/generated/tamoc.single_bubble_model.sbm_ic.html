@@ -410,13 +410,13 @@
     </label>
     <ul>
      <li class="toctree-l3">
-      <a class="reference internal" href="bin.spm.lake_part.html">
-       bin.spm.lake_part
+      <a class="reference internal" href="bin.spm.lake_bub.html">
+       bin.spm.lake_bub
       </a>
      </li>
      <li class="toctree-l3">
-      <a class="reference internal" href="bin.spm.lake_bub.html">
-       bin.spm.lake_bub
+      <a class="reference internal" href="bin.spm.lake_part.html">
+       bin.spm.lake_part
       </a>
      </li>
      <li class="toctree-l3">
@@ -2344,20 +2344,20 @@ simulation</p>
 <li><p><strong>profile</strong> (<cite>ambient.Profile</cite> object) – Ambient CTD data for the model simulation</p></li>
 <li><p><strong>particle</strong> (<cite>dbm.FluidParticle</cite> or <cite>dbm.InsolubleParticle</cite> object) – Object describing the properties and behavior of the particle.</p></li>
 <li><p><strong>X0</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The release location (x, y, y) in m of the particle in the simulation</p></li>
-<li><p><strong>de</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Initial diameter of the particle (m)</p></li>
+<li><p><strong>de</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Initial diameter of the particle (m)</p></li>
 <li><p><strong>yk</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Initial mole fractions of each component in the particle (–)</p></li>
-<li><p><strong>T0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <em>optional</em>) – Initial temperature (K) of the particle at release if not equal
+<li><p><strong>T0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <em>optional</em>) – Initial temperature (K) of the particle at release if not equal
 to the temperature of the surrounding fluid.  If omitted, the
 model will set T0 to the ambient temperature.</p></li>
-<li><p><strong>K</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Mass transfer reduction factor (–). Pre-multiplies the mass
+<li><p><strong>K</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Mass transfer reduction factor (–). Pre-multiplies the mass
 transfer coefficients providing amplification (&gt;1) or retardation
 (&lt;1) of the dissolution.</p></li>
-<li><p><strong>K_T</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Heat transfer reduction factor (–). Pre-multiplies the heat
+<li><p><strong>K_T</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Heat transfer reduction factor (–). Pre-multiplies the heat
 transfer coefficient providing amplification (&gt;1) or retardation
 (&lt;1) of the heat flux.</p></li>
-<li><p><strong>fdis</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Fraction of the initial total mass (–) remaining when the
+<li><p><strong>fdis</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Fraction of the initial total mass (–) remaining when the
 particle should be considered dissolved.</p></li>
-<li><p><strong>t_hyd</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Hydrate film formation time (s).  Mass transfer is computed by clean
+<li><p><strong>t_hyd</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Hydrate film formation time (s).  Mass transfer is computed by clean
 bubble methods for t less than t_hyd and by dirty bubble methods
 thereafter.  The default behavior is to assume the particle is dirty
 or hydrate covered from the release.</p></li>

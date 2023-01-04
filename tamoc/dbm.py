@@ -56,7 +56,6 @@ try:
 except ImportError:
     from tamoc import dbm_p as dbm_f
 
-
 class FluidMixture(object):
     """
     Class object for a fluid mixture
@@ -276,7 +275,7 @@ class FluidMixture(object):
             if isinstance(delta_groups, np.ndarray):
                 # User provided data as an array
                 
-                if np.sum(np.sum(delta_groups)) > 0.:
+                if np.sum(np.sum(delta_groups)) == 0.:
                     # But, the data are empty
                     self.calc_delta = -1
                     self.delta_groups = np.zeros((self.nc, 15))
@@ -523,7 +522,9 @@ class FluidMixture(object):
         shown to give reasonable results; hence, the same equations are used
         for all mixtures.
         
-        Parameters size (nc)
+        Parameters
+        ----------
+        m : ndarray, size (nc)
             masses of each component in a mixture (kg)
         T : float
             mixture temperature (K)
@@ -864,12 +865,12 @@ class FluidParticle(FluidMixture):
     """
     Class object for a soluble fluid particle
     
-    This object defines the behavior of a soluble fluid particle.  The object
-    inherits the internal variables and methods from the `FluidMixture` 
-    object, but limits the output to a single phase, defined by the internal 
-    variable `fp_type`.  It further extends the `FluidMixture` class to 
-    include the properties inherent to particles (e.g., shape, diameter, slip 
-    velocity, etc.).  
+    This object defines the behavior of a soluble fluid particle. The object
+    inherits the internal variables and methods from the `FluidMixture` object,
+    but limits the output to a single- or mixed-phase particle, defined by the
+    internal variable `fp_type`. It further extends the `FluidMixture` class to
+    include the properties inherent to particles (e.g., shape, diameter, slip
+    velocity, etc.).
     
     Parameters
     ----------
@@ -877,11 +878,11 @@ class FluidParticle(FluidMixture):
         Contains the names of the chemical components in the mixture
         using the same key names as in ./data/ChemData.csv
     fp_type : integer
-        Defines the fluid type (0 = gas, 1 = liquid) that is expected to be 
-        contained in the bubble.  This is needed because the Peng-Robinson
-        equation of state returns values for both phases of a mixture.  This
-        variable allows the class to automatically return the values for the
-        desired phase.
+        Defines the fluid type (0 = gas, 1 = liquid, 2 = mixed-phase) that is
+        expected to be contained in the particle. This is needed because the
+        Peng-Robinson equation of state returns values for both phases of a
+        mixture. This variable allows the class to automatically return the
+        values for the desired phase or mixture.
     delta : ndarray, size (nc, nc)
         Binary interaction coefficients for the Peng-Robinson equation of 
         state.  If not passed at instantiation, Python will assume a 
@@ -914,7 +915,17 @@ class FluidParticle(FluidMixture):
     
     Notes
     -----
-    The attributes are identical to those defined for a `FluidMixture`
+    The attributes are identical to those defined for a `FluidMixture`.
+    
+    For two-phase particles, the mass vector passed as a parameter to most of
+    the methods in this object is considered the mass composition of the whole
+    mixture. To find the composition of the gas and liquid phases, an
+    equilibrium calculation is done. This can take time. For each of the
+    methods returning a single property (e.g., `self.density`), the equilibrium
+    calculation is built into the method. For efficient use in simulations, the
+    method `self.return_all` is recommended, and the equilibrium is conducted
+    once and then used directly with the `dbm_f`-package to compute the mixture
+    properties.
     
     See Also
     --------
@@ -944,6 +955,11 @@ class FluidParticle(FluidMixture):
         
         # Store the input variables
         self.fp_type = int(fp_type)
+        
+        # For two-phase particles, it is helpful to keep track of what recent
+        # equilibrium calculations found for the partition coefficients.  
+        # Initialize a variable with a default value to hold this parameter.
+        self.K = None
     
     def density(self, m, T, P):
         """
@@ -967,10 +983,43 @@ class FluidParticle(FluidMixture):
         Notes
         -----
         Uses the density method in the `FluidMixture` object, but only returns
-        the value for the phase given by `fp_type`.
+        the value for the phase given by `fp_type`. For two-phase particles, we
+        use the approach by Gros et al. (PNAS, 2017): rho_mix = (m_gas + m_liq)
+        / (V_gas + V_liq)
         
         """
-        return FluidMixture.density(self, m, T, P)[self.fp_type, 0]
+        if self.fp_type < 2:
+            # Single-phase gas or liquid
+            rho = FluidMixture.density(self, m, T, P)[self.fp_type, 0]
+
+        elif self.fp_type == 2:
+            # Two-phase particles...start with equilibrium calculation
+            mi, xi, self.K = self.equilibrium(m, T, P, self.K)
+            
+            if np.sum(mi[0,:]) == 0.:
+                # Single-phase liquid
+                rho = FluidMixture.density(self, mi[1,:], T, P)[1, 0]
+            elif np.sum(mi[1,:] == 0):
+                # Single-phase gas
+                rho = FluidMixture.density(self, mi[0,:], T, P)[0, 0]
+            else:
+                # Compute the density of each phase
+                rho_p = np.zeros(2)
+                for i in range(len(rho_p)):
+                    rho_p[i] = FluidMixture.density(self, mi[i,:], T, P)[i, 0]
+            
+                # Compute the mixture density
+                rho = (np.sum(mi[0,:]) + np.sum(mi[1,:])) / (np.sum(mi[0,:]) / 
+                    rho_p[0] + np.sum(mi[1,:]) / rho_p[1])
+
+        else:
+            print('\nWarning!!  This phase fluid particle is not defined:')
+            print('           fp_type = %d.  Assuming gas phase only!!\n' %
+                self.fp_type)
+            self.fp_type = 0
+            rho = FluidMixture.density(self, m, T, P)[self.fp_type, 0]
+            
+        return rho
     
     def fugacity(self, m, T, P):
         """
@@ -993,11 +1042,38 @@ class FluidParticle(FluidMixture):
         
         Notes
         -----
-        Uses the fugacity method in the `FluidMixture` object, but only 
-        returns the values for the phase given by `fp_type`.
+        Uses the fugacity method in the `FluidMixture` object, but only returns
+        the values for the phase given by `fp_type`. For two-phase particles,
+        at equilibrium the gas- and liquid-phase fugacities are equal; hence,
+        this method returns the gas-phase values.
         
         """
-        return FluidMixture.fugacity(self, m, T, P)[self.fp_type, :]
+        if self.fp_type < 2:
+            fk = FluidMixture.fugacity(self, m, T, P)[self.fp_type, :]
+        
+        elif self.fp_type == 2:
+            # Two-phase particles...start with equilibrium calculation
+            mi, xi, self.K = self.equilibrium(m, T, P, self.K)
+        
+            if np.sum(mi[0,:]) == 0.:
+                # Single-phase liquid
+                fk = FluidMixture.fugacity(self, mi[1,:], T, P)[1, :]
+            elif np.sum(mi[1,:] == 0):
+                # Single-phase gas
+                fk = FluidMixture.fugacity(self, mi[0,:], T, P)[0, :]
+            else:
+                # At equilibrium, the gas- and liquid-phase fugacities are equal
+                # Return the gas-phase values
+                fk = FluidMixture.fugacity(self, mi[0,:], T, P)[0, :]        
+        
+        else:
+            print('\nWarning!!  This phase fluid particle is not defined:')
+            print('           fp_type = %d.  Assuming gas phase only!!\n' %
+                self.fp_type)
+            self.fp_type = 0
+            fk = FluidMixture.fugacity(self, m, T, P)[self.fp_type, :]
+        
+        return fk
     
     def viscosity(self, m, T, P):
         """
@@ -1015,16 +1091,50 @@ class FluidParticle(FluidMixture):
         
         Returns
         -------
-        mu_p : float
+        mu : float
             dynamic viscosity (Pa s)
         
         Notes
         -----
-        Uses the density method in the `FluidMixture` object, but only returns
-        the value for the phase given by `fp_type`.
-        
+        Uses the viscosity method in the `FluidMixture` object.  For two-phase
+        particles, this method returns a volume-weighted average of the 
+        viscosities of each individual phase.
+                
         """
-        return FluidMixture.viscosity(self, m, T, P)[self.fp_type, 0]
+        if self.fp_type < 2:
+            mu = FluidMixture.viscosity(self, m, T, P)[self.fp_type, 0]
+        
+        elif self.fp_type == 2:
+            # Two-phase particles...start with equilibrium calculation
+            mi, xi, self.K = self.equilibrium(m, T, P, self.K)
+            
+            if np.sum(mi[0,:]) == 0.:
+                # Single-phase liquid
+                mu = FluidMixture.viscosity(self, mi[1,:], T, P)[1, 0]
+            elif np.sum(mi[1,:] == 0):
+                # Single-phase gas
+                mu = FluidMixture.viscosity(self, mi[0,:], T, P)[1, 0]
+            else:
+                # Compute the viscosity and density of each phase
+                mu_p = np.zeros(2)
+                rho_p = np.zeros(2)
+                for i in range(len(mu_p)):
+                    mu_p[i] = FluidMixture.viscosity(self, mi[i,:], T, P)[i, 0]
+                    rho_p[i] = FluidMixture.density(self, mi[i,:], T, P)[i, 0]
+        
+                # Return a volume-weighted average
+                mu = (mu_p[0] * np.sum(mi[0,:]) / rho_p[0] + mu_p[1] * 
+                    np.sum(mi[1,:]) / rho_p[1]) / (np.sum(mi[0,:]) / rho_p[0] + 
+                    np.sum(mi[1,:]) / rho_p[1])
+            
+        else:
+            print('\nWarning!!  This phase fluid particle is not defined:')
+            print('           fp_type = %d.  Assuming gas phase only!!\n' %
+                self.fp_type)
+            self.fp_type = 0
+            mu = FluidMixture.viscosity(self, m, T, P)[self.fp_type, 0]
+            
+        return mu
     
     def interface_tension(self, m, T, S, P):
         """
@@ -1046,7 +1156,7 @@ class FluidParticle(FluidMixture):
         
         Returns
         -------
-        sigma_p : float
+        sigma : float
             interfacial tension (N/m)
         
         Notes
@@ -1055,7 +1165,50 @@ class FluidParticle(FluidMixture):
         the value for the phase given by `fp_type`.
         
         """
-        return FluidMixture.interface_tension(self, m, T, S, P)[self.fp_type, 0]
+        if self.fp_type < 2:
+            sigma = FluidMixture.interface_tension(
+                self, m, T, S, P)[self.fp_type, 0]
+        
+        elif self.fp_type == 2:
+            # Two-phase particles...start with equilibrium calculation
+            mi, xi, self.K = self.equilibrium(m, T, P, self.K)
+                        
+            if np.sum(mi[0,:]) == 0.:
+                # Single-phase liquid
+                sigma = FluidMixture.interface_tension(
+                    self, mi[1,:], T, S, P)[1, 0]
+            elif np.sum(mi[1,:] == 0):
+                # Single-phase gas
+                sigma = FluidMixture.interface_tension(
+                    self, mi[0,:], T, S, P)[0, 0]
+            else:
+                # Store the interfacial tension of each phase
+                sigma_p = np.zeros(2)
+            
+                # Get the equivalent spherical surface area of each phase
+                rho_p = np.zeros(2)
+                area = np.zeros(2)
+                for i in range(len(area)):
+                    sigma_p[i] = FluidMixture.interface_tension(
+                        self, mi[i,:], T, S, P)[i, 0]
+                    rho_p[i] = FluidMixture.density(self, mi[i,:], T, P)[i, 0]
+                    area[i] = 4. * np.pi * (3. / (4. * np.pi) * 
+                        np.sum(mi[i,:]) / rho_p[i])**(2./3.)
+            
+                # Compute a weighted averaged based on the surface areas of 
+                # each phase
+                sigma = (sigma_p[0] * area[0] + sigma_p[1] * 
+                    area[1]) / np.sum(area)
+            
+        else:
+            print('\nWarning!!  This phase fluid particle is not defined:')
+            print('           fp_type = %d.  Assuming gas phase only!!\n' %
+                self.fp_type)
+            self.fp_type = 0
+            sigma = FluidMixture.interface_tension(
+                self, m, T, S, P)[self.fp_type, 0]
+        
+        return sigma
     
     def solubility(self, m, T, P, Sa):
         """
@@ -1089,7 +1242,33 @@ class FluidParticle(FluidMixture):
         returns the values for the phase given by `fp_type`.
         
         """
-        return FluidMixture.solubility(self, m, T, P, Sa)[self.fp_type, :]
+        if self.fp_type < 2:
+            Cs = FluidMixture.solubility(self, m, T, P, Sa)[self.fp_type, :]
+        
+        elif self.fp_type == 2:
+            # Two-phase particles...start with equilibrium calculation
+            mi, xi, self.K = self.equilibrium(m, T, P, self.K)
+        
+            if np.sum(mi[0,:]) == 0.:
+                # Single-phase liquid
+                Cs = FluidMixture.solubility(self, mi[1,:], T, P, Sa)[1, :]
+            elif np.sum(mi[1,:] == 0):
+                # Single-phase gas
+                Cs = FluidMixture.solubility(self, mi[0,:], T, P, Sa)[0, :]
+            else:
+                # At equilibrium, the gas- and liquid-phase fugacities are 
+                # equal; hence, their solubilities are equal...return the 
+                # gas-phase values
+                Cs = FluidMixture.solubility(self, mi[0], T, P, Sa)[0, :]
+        
+        else:
+            print('\nWarning!!  This phase fluid particle is not defined:')
+            print('           fp_type = %d.  Assuming gas phase only!!\n' %
+                self.fp_type)
+            self.fp_type = 0
+            Cs = FluidMixture.solubility(self, m, T, P, Sa)[self.fp_type, :]
+        
+        return Cs
     
     def masses_by_diameter(self, de, T, P, yk):
         """
@@ -1236,9 +1415,16 @@ class FluidParticle(FluidMixture):
         
         Notes
         -----
-        Uses the Fortran subroutines in ``./src/dbm_phys.f95``.
+        Uses the Fortran subroutines in ``./src/dbm_phys.f95``.  Two-phase
+        particles are always considered dirty per the assumption in 
+        Gros et al. (PNAS 2017); hence, the status flag is ignored if
+        fp_type = 2.
         
         """
+        # Assume two-phase particles are dirty
+        if self.fp_type ==2:
+            status = -1
+        
         # Get the particle properties
         shape, de, rho_p, rho, mu_p, mu, sigma = \
              self.particle_shape(m, T, P, Sa, Ta)
@@ -1325,9 +1511,16 @@ class FluidParticle(FluidMixture):
         -----
         Uses the Fortran subroutines in ``./src/dbm_phys.f95``.  This method
         checks for hydrate stability and returns a reduced mass transfer 
-        coefficient when hydrate shells are predicted to be present.
+        coefficient when hydrate shells are predicted to be present.  Two-phase
+        particles are always considered dirty per the assumption in 
+        Gros et al. (PNAS 2017); hence, the status flag is ignored if
+        fp_type = 2.
         
         """
+        # Assume two-phase particles are dirty
+        if self.fp_type ==2:
+            status = -1
+        
         # Get the particle properties
         shape, de, rho_p, rho, mu_p, mu, sigma = \
              self.particle_shape(m, T, P, Sa, Ta)
@@ -1376,9 +1569,16 @@ class FluidParticle(FluidMixture):
         
         Notes
         -----
-        Uses the Fortran subroutines in ``./src/dbm_eos.f95``.
+        Uses the Fortran subroutines in ``./src/dbm_eos.f95``.  Two-phase
+        particles are always considered dirty per the assumption in 
+        Gros et al. (PNAS 2017); hence, the status flag is ignored if
+        fp_type = 2.
         
         """
+        # Assume two-phase particles are dirty
+        if self.fp_type ==2:
+            status = -1
+        
         # Get the particle properties
         shape, de, rho_p, rho, mu_p, mu, sigma = \
              self.particle_shape(m, T, P, Sa, Ta)
@@ -1455,36 +1655,146 @@ class FluidParticle(FluidMixture):
         -----
         Uses the Fortran subroutines in ``./src/dbm_eos.f95``.  This method
         checks for hydrate stability and returns a reduced mass transfer 
-        coefficient when hydrate shells are predicted to be present.
+        coefficient when hydrate shells are predicted to be present.  Two-phase
+        particles are always considered dirty per the assumption in 
+        Gros et al. (PNAS 2017); hence, the status flag is ignored if
+        fp_type = 2.
         
         """
+        # Assume two-phase particles are dirty
+        if self.fp_type ==2:
+            status = -1
+        
         # Ambient properties of seawater
         rho = seawater.density(Ta, Sa, P)
         mu = seawater.mu(Ta, Sa, P)
-        sigma = self.interface_tension(m, T, Sa, P)
         D = dbm_f.diffusivity(mu, self.Vb)
         k = np.array([seawater.k(Ta, Sa, P) / (rho * seawater.cp())])
-        
-        # Particle density, equivalent diameter and shape
-        rho_p = dbm_f.density(T, P, m, self.M, self.Pc, self.Tc, self.Vc, 
-                              self.omega, self.delta, self.Aij, self.Bij, 
-                              self.delta_groups, 
-                              self.calc_delta)[self.fp_type, 0]
-        de = (6.0 * np.sum(m) / (np.pi * rho_p))**(1.0/3.0)
-        shape = dbm_f.particle_shape(de, rho_p, rho, mu, sigma)
-        
-        # Other particle properties
-        mu_p = self.viscosity(m, T, P)
-                
-        # Solubility
-        f = dbm_f.fugacity(T, P, m, self.M, self.Pc, self.Tc, self.omega, 
-                           self.delta, self.Aij, self.Bij, 
-                           self.delta_groups, self.calc_delta)
         kh = dbm_f.kh_insitu(T, P, Sa, self.kh_0, self.neg_dH_solR, 
-                             self.nu_bar, self.M, self.K_salt)
-        Cs = dbm_f.sw_solubility(f[self.fp_type,:], kh)
+            self.nu_bar, self.M, self.K_salt)
+        
+        # Several particle properties depend on whether the particle is 
+        # single- or two-phase...use the correct approach in each case vv
+        
+        if self.fp_type < 2:            
+            # Particle density
+            rho_p = dbm_f.density(T, P, m, self.M, self.Pc, self.Tc, self.Vc, 
+                                  self.omega, self.delta, self.Aij, self.Bij, 
+                                  self.delta_groups, 
+                                  self.calc_delta)[self.fp_type, 0]
+       
+            # Particle viscosity
+            mu_p = dbm_f.viscosity(T, P, m, self.M, self.Pc, self.Tc, self.Vc, 
+                                   self.omega, self.delta, self.Aij, self.Bij,
+                                   self.delta_groups, 
+                                   self.calc_delta)[self.fp_type, 0]
+                
+            # Particle interface tension
+            sigma = FluidMixture.interface_tension(self, m, T, Sa, 
+                P)[self.fp_type, 0]
+
+            # Particle fugacity
+            f = dbm_f.fugacity(T, P, m, self.M, self.Pc, self.Tc, self.omega, 
+                               self.delta, self.Aij, self.Bij, 
+                               self.delta_groups, 
+                               self.calc_delta)[self.fp_type, :]
+        
+        elif self.fp_type == 2:
+            # Two-phase particles...start with equilibrium calculation
+            mi, xi, self.K = self.equilibrium(m, T, P, self.K)
+            
+            if np.sum(mi[0,:]) == 0.:
+                # Single-phase liquid
+                rho_p = dbm_f.density(T, P, mi[1,:], self.M, self.Pc, self.Tc, 
+                    self.Vc, self.omega, self.delta, self.Aij, self.Bij,
+                    self.delta_groups, self.calc_delta)[1, 0]
+       
+                # Particle viscosity
+                mu_p = dbm_f.viscosity(T, P, mi[1,:], self.M, self.Pc, self.Tc, 
+                    self.Vc, self.omega, self.delta, self.Aij, self.Bij,
+                    self.delta_groups, self.calc_delta)[1, 0]
+                
+                # Particle interface tension
+                sigma = FluidMixture.interface_tension(self, mi[1,:], T, Sa, 
+                    P)[1, 0]
+
+                # Particle fugacity
+                f = dbm_f.fugacity(T, P, mi[1,:], self.M, self.Pc, self.Tc, 
+                    self.omega, self.delta, self.Aij, self.Bij,
+                    self.delta_groups, self.calc_delta)[1, :]
+                                   
+            elif np.sum(mi[1,:]) == 0:
+                # Single-phase gas
+                rho_p = dbm_f.density(T, P, mi[0,:], self.M, self.Pc, self.Tc, 
+                    self.Vc, self.omega, self.delta, self.Aij, self.Bij,
+                    self.delta_groups, self.calc_delta)[0, 0]
+       
+                # Particle viscosity
+                mu_p = dbm_f.viscosity(T, P, mi[0,:], self.M, self.Pc, self.Tc, 
+                    self.Vc, self.omega, self.delta, self.Aij, self.Bij,
+                    self.delta_groups, self.calc_delta)[0, 0]
+                
+                # Particle interface tension
+                sigma = FluidMixture.interface_tension(self, mi[0,:], T, Sa, 
+                    P)[0, 0]
+
+                # Particle fugacity
+                f = dbm_f.fugacity(T, P, mi[0,:], self.M, self.Pc, self.Tc, 
+                    self.omega, self.delta, self.Aij, self.Bij,
+                    self.delta_groups, self.calc_delta)[0, :]
+
+            else:
+                # Compute the particle density
+                rho_pi = np.zeros(2)
+                for i in range(len(rho_pi)):
+                    rho_pi[i] = dbm_f.density(T, P, mi[i,:], self.M, self.Pc, 
+                        self.Tc, self.Vc, self.omega, self.delta, self.Aij, 
+                        self.Bij, self.delta_groups, self.calc_delta)[i, 0]
+                rho_p = (np.sum(mi[0,:]) + np.sum(mi[1,:])) / (np.sum(mi[0,:]) 
+                    / rho_pi[0] + np.sum(mi[1,:]) / rho_pi[1])
+            
+                # Compute the particle viscosity
+                mu_pi = np.zeros(2)
+                for i in range(len(mu_pi)):
+                    mu_pi[i] = dbm_f.viscosity(T, P, mi[i,:], self.M, 
+                        self.Pc, self.Tc, self.Vc, self.omega, self.delta, 
+                        self.Aij, self.Bij, self.delta_groups, 
+                        self.calc_delta)[i, 0]
+                mu_p = (mu_pi[0] * np.sum(mi[0,:]) / rho_pi[0] + mu_pi[1] * 
+                    np.sum(mi[1,:]) / rho_pi[1]) / (np.sum(mi[0,:]) / rho_pi[0] 
+                    + np.sum(mi[1,:]) / rho_pi[1])
+            
+                # Compute the particle interfacial tension
+                sigma_p = np.zeros(2)
+                area = np.zeros(2)
+                for i in range(len(area)):
+                    sigma_p[i] = FluidMixture.interface_tension(
+                        self, mi[i,:], T, Sa, P)[i, 0]
+                    area[i] = 4. * np.pi * (3. / (4. * np.pi) * np.sum(mi[i,:]) 
+                        / rho_pi[i])**(2./3.)
+                sigma = (sigma_p[0] * area[0] + sigma_p[1] * area[1]) / \
+                    np.sum(area)
+
+                # Compute the particle fugacity
+                f = dbm_f.fugacity(T, P, mi[0,:], self.M, self.Pc, self.Tc, 
+                    self.omega, self.delta, self.Aij, self.Bij, 
+                    self.delta_groups, self.calc_delta)[0, :]
+  
+        else:
+            print('\nWarning!!  This phase fluid particle is not defined:')
+            print('           fp_type = %d.  Stopping!!\n' %
+                self.fp_type)
+            return (0)
+        
+        # Compute the solubilities
+        Cs = dbm_f.sw_solubility(f, kh)
         K_hyd = 1.0
         
+        # Compute the derived properties
+        de = (6.0 * np.sum(m) / (np.pi * rho_p))**(1.0/3.0)
+        shape = dbm_f.particle_shape(de, rho_p, rho, mu, sigma)
+
+
         # Shape-specific properties
         if shape == 1:
             us = dbm_f.us_sphere(de, rho_p, rho, mu)
@@ -2204,7 +2514,7 @@ def equil_MM(m, T, P, M, Pc, Tc, omega, delta, Aij, Bij, delta_groups,
         return (DG_RT, tpdx, tpdy, phi_liq, phi_gas)
     
     # Get an initial estimate for the K-factors 
-    if K_0 is None:
+    if isinstance(K_0, type(None)) or isinstance(np.sum(K_0), type(np.nan)):
         # Use equation (26) on page 259 of Michelson and Mollerup (2007)
         K = np.exp(5.37 * (1. + omega) * (1 - Tc / T)) / (P / Pc)
     else:

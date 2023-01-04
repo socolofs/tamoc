@@ -410,13 +410,13 @@
     </label>
     <ul>
      <li class="toctree-l3">
-      <a class="reference internal" href="bin.spm.lake_part.html">
-       bin.spm.lake_part
+      <a class="reference internal" href="bin.spm.lake_bub.html">
+       bin.spm.lake_bub
       </a>
      </li>
      <li class="toctree-l3">
-      <a class="reference internal" href="bin.spm.lake_bub.html">
-       bin.spm.lake_bub
+      <a class="reference internal" href="bin.spm.lake_part.html">
+       bin.spm.lake_part
       </a>
      </li>
      <li class="toctree-l3">
@@ -2334,7 +2334,7 @@ title="Print to PDF"
 <h1>tamoc.ambient.create_nc_db<a class="headerlink" href="#tamoc-ambient-create-nc-db" title="Permalink to this headline">#</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="tamoc.ambient.create_nc_db">
-<span class="sig-prename descclassname"><span class="pre">tamoc.ambient.</span></span><span class="sig-name descname"><span class="pre">create_nc_db</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nc_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">summary</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sea_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_lat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_lon</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_time</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/socolofs/tamoc/tree/master/tamoc/ambient.py#L1751-L1918"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tamoc.ambient.create_nc_db" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tamoc.ambient.</span></span><span class="sig-name descname"><span class="pre">create_nc_db</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nc_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">summary</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sea_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_lat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_lon</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_time</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/socolofs/tamoc/tree/master/tamoc/ambient.py#L1749-L1916"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tamoc.ambient.create_nc_db" title="Permalink to this definition">#</a></dt>
 <dd><p>Create an empty netCDF4-classic dataset to store ambient data</p>
 <p>Creates an netCDF dataset file in netCDF4-classic format for use in
 storing ambient profile data.  This function creates the minimum data
@@ -2354,8 +2354,8 @@ Use this variable to document the original source of the data (e.g.,
 station BM54 recorded by R/V Brooks McCall).</p></li>
 <li><p><strong>sea_name</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">string</span></code>) – String containing the NODC Sea Name.  If unsure, consult the list
 at <a class="reference external" href="http://www.nodc.noaa.gov/General/NODC-Archive/seanamelist.txt">http://www.nodc.noaa.gov/General/NODC-Archive/seanamelist.txt</a></p></li>
-<li><p><strong>p_lat</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Latitude of the CTD profile location in decimal degrees from North</p></li>
-<li><p><strong>p_lon</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Longitude of the CTD profile location in decimal degrees from East</p></li>
+<li><p><strong>p_lat</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Latitude of the CTD profile location in decimal degrees from North</p></li>
+<li><p><strong>p_lon</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Longitude of the CTD profile location in decimal degrees from East</p></li>
 <li><p><strong>p_time</strong> – Time the profile was taken in seconds since 1970-01-01 00:00:00 0:00
 following a julian calendar.  See Examples section for how to create
 this variable using Python’s <cite>datetime</cite> module and the netCDF4 modules

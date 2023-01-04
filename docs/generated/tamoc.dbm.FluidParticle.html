@@ -410,13 +410,13 @@
     </label>
     <ul>
      <li class="toctree-l3">
-      <a class="reference internal" href="bin.spm.lake_part.html">
-       bin.spm.lake_part
+      <a class="reference internal" href="bin.spm.lake_bub.html">
+       bin.spm.lake_bub
       </a>
      </li>
      <li class="toctree-l3">
-      <a class="reference internal" href="bin.spm.lake_bub.html">
-       bin.spm.lake_bub
+      <a class="reference internal" href="bin.spm.lake_part.html">
+       bin.spm.lake_part
       </a>
      </li>
      <li class="toctree-l3">
@@ -2334,12 +2334,12 @@ title="Print to PDF"
 <h1>tamoc.dbm.FluidParticle<a class="headerlink" href="#tamoc-dbm-fluidparticle" title="Permalink to this headline">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="tamoc.dbm.FluidParticle">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tamoc.dbm.</span></span><span class="sig-name descname"><span class="pre">FluidParticle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">composition</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fp_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_groups</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isair</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma_correction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/socolofs/tamoc/tree/master/tamoc/dbm.py#L863-L1511"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tamoc.dbm.FluidParticle" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tamoc.dbm.</span></span><span class="sig-name descname"><span class="pre">FluidParticle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">composition</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fp_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_groups</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isair</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma_correction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/socolofs/tamoc/tree/master/tamoc/dbm.py#L864-L1821"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tamoc.dbm.FluidParticle" title="Permalink to this definition">#</a></dt>
 <dd><p>Class object for a soluble fluid particle</p>
-<p>This object defines the behavior of a soluble fluid particle.  The object
-inherits the internal variables and methods from the <cite>FluidMixture</cite>
-object, but limits the output to a single phase, defined by the internal
-variable <cite>fp_type</cite>.  It further extends the <cite>FluidMixture</cite> class to
+<p>This object defines the behavior of a soluble fluid particle. The object
+inherits the internal variables and methods from the <cite>FluidMixture</cite> object,
+but limits the output to a single- or mixed-phase particle, defined by the
+internal variable <cite>fp_type</cite>. It further extends the <cite>FluidMixture</cite> class to
 include the properties inherent to particles (e.g., shape, diameter, slip
 velocity, etc.).</p>
 <dl class="field-list simple">
@@ -2347,15 +2347,15 @@ velocity, etc.).</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>composition</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">string</span> <span class="pre">list</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">length</span> <span class="pre">nc</span></code>) – Contains the names of the chemical components in the mixture
 using the same key names as in ./data/ChemData.csv</p></li>
-<li><p><strong>fp_type</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">integer</span></code>) – Defines the fluid type (0 = gas, 1 = liquid) that is expected to be
-contained in the bubble.  This is needed because the Peng-Robinson
-equation of state returns values for both phases of a mixture.  This
-variable allows the class to automatically return the values for the
-desired phase.</p></li>
+<li><p><strong>fp_type</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">integer</span></code>) – Defines the fluid type (0 = gas, 1 = liquid, 2 = mixed-phase) that is
+expected to be contained in the particle. This is needed because the
+Peng-Robinson equation of state returns values for both phases of a
+mixture. This variable allows the class to automatically return the
+values for the desired phase or mixture.</p></li>
 <li><p><strong>delta</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">size</span> <span class="pre">(nc</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">nc)</span></code>) – Binary interaction coefficients for the Peng-Robinson equation of
 state.  If not passed at instantiation, Python will assume a
 full matrix of zeros.</p></li>
-<li><p><strong>user_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>) – A dictionary of chemical property data.  If not specified, the data
+<li><p><strong>user_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>) – A dictionary of chemical property data.  If not specified, the data
 loaded from <cite>/tamoc/data/ChemData.csv</cite> by <code class="docutils literal notranslate"><span class="pre">chemical_properties</span></code> will
 be used.  To load a different properties database, use the
 <code class="docutils literal notranslate"><span class="pre">chemical_properties.load_data</span></code> function to load in a custom
@@ -2365,12 +2365,12 @@ component in the mixture for the 15 groups used by the Privat and
 Jaubert (2012) group contribution method for binary interaction
 coefficients.  Default is None, in which case the values in <cite>delta</cite>
 will be used.</p></li>
-<li><p><strong>isair</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – Flag indicating whether or not fluid is air.  The methods for
+<li><p><strong>isair</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – Flag indicating whether or not fluid is air.  The methods for
 viscosity and interfacial tension below use correlations developed
 for hydocarbons.  If <cite>isair</cite> is False (default value), these built
 in methods are used.  If <cite>isair</cite> is True, then these methods are
 replaced with correlations between air and seawater.</p></li>
-<li><p><strong>sigma_correction</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Correction factor to adjust the interfacial tension value supplied by
+<li><p><strong>sigma_correction</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Correction factor to adjust the interfacial tension value supplied by
 the default model to a value measured for the mixture of interest.
 The correction factor should be computed as sigma_measured /
 sigma_model at a single P and T value.  For the FluidParticle class,
@@ -2380,7 +2380,16 @@ fp_type.</p></li>
 </dd>
 </dl>
 <p class="rubric">Notes</p>
-<p>The attributes are identical to those defined for a <cite>FluidMixture</cite></p>
+<p>The attributes are identical to those defined for a <cite>FluidMixture</cite>.</p>
+<p>For two-phase particles, the mass vector passed as a parameter to most of
+the methods in this object is considered the mass composition of the whole
+mixture. To find the composition of the gas and liquid phases, an
+equilibrium calculation is done. This can take time. For each of the
+methods returning a single property (e.g., <cite>self.density</cite>), the equilibrium
+calculation is built into the method. For efficient use in simulations, the
+method <cite>self.return_all</cite> is recommended, and the equilibrium is conducted
+once and then used directly with the <cite>dbm_f</cite>-package to compute the mixture
+properties.</p>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <p><a class="reference internal" href="tamoc.dbm.FluidMixture.html#tamoc.dbm.FluidMixture" title="tamoc.dbm.FluidMixture"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FluidMixture</span></code></a>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">chemical_properties</span></code>, <a class="reference internal" href="tamoc.dbm.InsolubleParticle.html#tamoc.dbm.InsolubleParticle" title="tamoc.dbm.InsolubleParticle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">InsolubleParticle</span></code></a></p>
@@ -2402,7 +2411,7 @@ fp_type.</p></li>
 </div>
 <dl class="py method">
 <dt class="sig sig-object py" id="tamoc.dbm.FluidParticle.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">composition</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fp_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_groups</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isair</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma_correction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/socolofs/tamoc/tree/master/tamoc/dbm.py#L939-L946"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tamoc.dbm.FluidParticle.__init__" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">composition</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fp_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_groups</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isair</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma_correction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/socolofs/tamoc/tree/master/tamoc/dbm.py#L950-L962"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tamoc.dbm.FluidParticle.__init__" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <p class="rubric">Methods</p>

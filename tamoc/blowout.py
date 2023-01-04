@@ -797,7 +797,7 @@ class Blowout(object):
 # --- Helper functions used by the Blowout object ---
 
 def particles(m_tot, d, vf, profile, oil, yk, x0, y0, z0, Tj, lambda_1,
-              lag_time):
+              lag_time, t_hyd=0):
     """
     Create particles to add to a bent plume model simulation
 
@@ -834,6 +834,9 @@ def particles(m_tot, d, vf, profile, oil, yk, x0, y0, z0, Tj, lambda_1,
     lag_time : bool
         Flag that indicates whether (True) or not (False) to use the
         biodegradation lag times data.
+    t_hyd : float, default=0
+        Hydrate formation time (s).  Default value is zero, which indicates 
+        that particles are dirty or hydrated immediately upon formation.
 
     Returns
     -------
@@ -863,7 +866,7 @@ def particles(m_tot, d, vf, profile, oil, yk, x0, y0, z0, Tj, lambda_1,
 
         # Append these particles to the list of particles in the simulation
         disp_phases.append(bent_plume_model.Particle(x0, y0, z0, oil, m0, T0,
-            nb0, lambda_1, P, Sa, Ta, K=1., K_T=1., fdis=1.e-6, t_hyd=0.,
+            nb0, lambda_1, P, Sa, Ta, K=1., K_T=1., fdis=1.e-6, t_hyd=t_hyd,
             lag_time=lag_time))
 
     # Return the list of particles

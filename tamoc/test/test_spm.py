@@ -372,7 +372,7 @@ def test_plume_objs():
     # Create the `InnerPlume` object:
     yi = stratified_plume_model.InnerPlume(z0, y0, profile, particles, p,
                                            chem_names)
-
+    
     # Validate the values in yi
     assert yi.z0 == z0
     assert_array_almost_equal(yi.y0, y0, decimal=6)

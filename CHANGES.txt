@@ -1,3 +1,117 @@
+V2.5.0, January 2023 --
+   . Updated the `dbm` module to include a new mixed-phase fluid particle that 
+     includes gas and liquid phase in a single bubble/droplet.  The algorithm 
+     follows the approach in Gros et al. (2017; 2020).  The new mixed-fluid 
+     phase is invoked using fp_type = 2.  Note that for this particle type, 
+     an equilibrium calculation is conducted for each call to a `dbm` module
+     property method.  Equilibrium calculations can be computationally 
+     expensive.  This is minimized by keeping track of the last set of 
+     partition coefficients and initializing each equilibrium calculation with
+     an initial guess using the previous calculation's partition coefficients.
+   . Updated the multiphase-phase plume initial conditions (`dispersed_phases.
+     zfe_volume_flux`) to that large discharges can be accurately handled.  In
+     some cases, the Wuest et al. (1992) initial condition converges on initial
+     void fractions greater than 1.  This occurs when there is inadequate 
+     entrainment of ambient fluis within the zone of flow establishment to meet
+     the conditions assumed by Wuest et al. (1992), namely, the dilute plume
+     assumption is violated here.  This can happen for very large discharges,
+     as for some spills from subsea CO2 sequestration pipelines.  In this case,
+     the new method computes a new orifice diameter that can meet the criteria
+     of an initial void fraction less than or equal to 1.  The result is 
+     reported to the user so that they know a different orifice diameter was 
+     used than was chosen.  This change did not affect previous simulations of
+     subsea oil well blowouts, which has consistently reported initial void 
+     fractions between 0 and 1.
+   . Added a method to compute far-field intrusion layer concentration for 
+     the bent plume model following solutions for wastewater outfall plumes.  
+     This new method is `get_intrusion_concentration` and solves the analytical
+     solution for a continuous plane source initialized with the data at the
+     end of the plume simulation.  This method allows for non-uniform
+     turbulent diffusivities that are fitted to the Okubo diagram.  See the 
+     documentation for references.  Because this algorithm is adapted from 
+     those used for wastewater outfall plumes, coastal settings are most 
+     appropriate for its use.
+   . Found an error in the `psf.log_normal` method in which the volume fraction
+     within each bin of the size distribution was incorrectly evaluated.  
+     Updated this method so that the error does not occur.  Previous versions 
+     of the model would have returned a size distribution with a lower d50
+     than requested by the function call.
+   . Miscellaneous bug fixes and updates to make model behavior more intuitive:
+     + Updated `dbm` module so that user can provide binary interaction 
+       coefficient data.  Error crept in as the method to read data from the 
+       model ./data/ directory was added in version 2.4.0 in which user data 
+       would always be treated as zeros.
+     + Updated the `dbm` module equilibrium calculation so that initial guesses
+       for the partition coefficient that include np.nan values would be 
+       interpreted as invalid.  This is needed with the new fp_type = 2, mixed-
+       phase fluid particles that remember their previous equilibrium 
+       solutions which sometimes converge on np.nan.
+     + Fixed an error in the Python-only version of the `dbm_p` functions in
+       which the binary interaction coefficients where computed incorrectly 
+       (see line 1185 in which aTk[i] has been revised to aTk[j] to match the
+       Fortran versions of this library).
+     + Added several new options for variables that can be read by the 
+       `chemical_properties.load_data` method.  Because some of these variable
+       names may include characters from other variable names, the unit
+       conversion tests were made more specific, checking for the whole unit
+       name (e.g., deg F) instead of for a single character (e.g., F).  This
+       removed ambiguity as to which unit conversion should be conducted, but
+       also requires the user to select units that are fully included in the
+       conversion database.
+     + Updated the `blowout.particles` method so that the user can specify a 
+       hydrate formation time other than zero (zero remains the default).  This
+       gives the user more flexibility in using this method to initialize 
+       particles for a TAMOC plume simulation.
+     + Updated the `dbm_utilities` method to initialize oils with information
+       from the new NOAA `adios_db` package.  This module retains the ability
+       to interact with the NOAA `oil_library`, but that module is no longer
+       supported by NOAA.  The new `adios_db` library separates data from 
+       derived quantities; hence, changing the API to the property data.
+     + Updated the `dispersed_phases.hydrate_formation_time` method so that a
+       particle above the hydrate stability zone will be automatically 
+       considered dirty (e.g., t_hyd = 0).  The previous version returned 
+       t_hyd = np.inf, but this value is not handled by other TAMOC algorithms.
+       If clean particles are desired, the `hydrate_formation_time` method 
+       should not be used.
+     + Updated the `dispersed_phases.zfe_volume_flux` method to allow more
+       flexible definition of the release depth (including single-value float
+       or array-like vector position data).
+     + In the bent plume model, when particles are tracked outside the plume, 
+       particles that remained in the intrusion layer are tracked differently
+       than particles that exit due to cross-flow or trapping.  These particles
+       did not previously report where they exited the plume.  New code was 
+       inserted in the `simulate` method to record this information as they 
+       exit the intrusion layer.
+     + Updated the method names for some of the new methods to compute far-
+       field concentration in the bent plume model.  The `get_intrusion_
+       initial_condition` replaces the `get_intrusion_concentration` method. 
+       A new `get_intrusion_concentration` method solves for the far-field
+       intrusion layer concentration (see above).  
+     + Added additional information to the set of returned variables for the
+       `get_intrusion_initial_conditions` method, including the depth, width, 
+       and height.  The width and height calculations follow Socolofsky et al. 
+       (2011), which is based on Akar and Jirka (1995).  Sometimes these 
+       empirical equations lead to plumes that are thicker than their width.
+       The method tries to respect geometries that are consistent with the 
+       bent plume model plume simulation.
+     + Removed the parameter `Et` from the far-field concentration algorithms
+       in the bent plume model.  Replaced this parameter with a fit to the
+       Okubo diagram so that turbulent diffusivity of the spreading bubbles
+       or droplets depends on diffusion time and is not strictly constant.
+     + Added warning messages in the `psf` module so that when a particle 
+       size calculation exceeds the maximum stable particle size and the 
+       model adjusts the distribution down following the SINTEF d95 method, 
+       a message is echoed to the screen.  
+     + Also added messages to the `psf` module to report the maximum stable
+       particle size when it is calculated.
+     + Updated the Grace et al. maximum bubble size computation in the `psf`
+       module with a different initial guess of the exponential growth rate
+       so that the algorithm converges properly over a wider range of possible
+       values.
+     + Updated the test files so that they are compatible with the changes to 
+       the particle size models (e.g., the updated log-normal distribution
+       method and the update the Grace et al. search for the maximum stable
+       bubble size).
 V2.4.0, September 2022 --
    . Updated the bent_plume_model with post-processing capability to compute
      dissolved concentrations. These methods follow those used by Socolofsky

@@ -1267,8 +1267,8 @@ def hydrate_formation_time(dbm_obj, z, m, T, profile):
     
     if T_hyd < Ta:
         # The particle is above the hydrate stability zone...assume hydrates
-        # never form.
-        t_hyd = np.inf
+        # never form and the particle is dirty.
+        t_hyd = 0.
     
     else:
         # Follow Wang et al. (2020) GRL
@@ -1310,51 +1310,114 @@ def zfe_volume_flux(profile, particles, p, X0, R):
         Radius of the equivalent circular area of the release (m)
     
     """
-    # The initial condition is valid at the diffuser (e.g., no virtual point
-    # source for the Wuest et al. 1992 initial conditions).  Send back 
-    # exactly what the user supplied
-    X = X0
-    
-    # Get X0 as a three-dimensional vector for generality
+    # Get the release depth
     if not isinstance(X0, np.ndarray):
         if not isinstance(X0, list):
-            X0 = np.array([0., 0., X0])
+            # User specified depth only as float
+            z0 = X0
         else:
-            X0 = np.array(X0)
+            # User provided initial postion as Python list
+            z0 = X0[2]
+    else:
+        if len(X0) == 3:
+            z0 = X0[2]
+        else:
+            z0 = X0[0]
     
-    # Get the ambient conditions at the discharge
-    Ta, Sa, P = profile.get_values(X0[2], ['temperature', 'salinity', 
+    # Get conditions at the orifice
+    Ta, Sa, P = profile.get_values(z0, ['temperature', 'salinity', 
                                    'pressure'])
     rho = seawater.density(Ta, Sa, P)
     
-    # Update the particle objects and pull out the multiphase properties.
-    # Since this is the release, the particle age is zero.
-    lambda_1 = np.zeros(len(particles))
-    us = np.zeros(len(particles))
-    rho_p = np.zeros(len(particles))
-    Q = np.zeros(len(particles))
-    for i in range(len(particles)):
-        particles[i].update(particles[i].m, particles[i].T, P, Sa, Ta, 0.)
-        lambda_1[i] = particles[i].lambda_1
-        us[i] = particles[i].us
-        rho_p[i] = particles[i].rho_p
-        Q[i] = np.sum(particles[i].m) * particles[i].nb0 / rho_p[i]
+    # Get the inputs required to compute the initial condition
+    lambda_1 = []
+    us = []
+    rho_p = []
+    Q = []
+    for particle in particles:
+        particle.update(particle.m, particle.T, P, Sa, Ta, 0.)
+        lambda_1.append(particle.lambda_1)
+        us.append(particle.us)
+        rho_p.append(particle.rho_p)
+        Q += [np.sum(particle.m) * particle.nb0 / particle.rho_p]
+    lambda_1 = np.array(lambda_1)
+    us = np.array(us)
+    rho_p = np.array(rho_p)
+    Q = np.array(Q)
     
-    # Compute the buoyancy flux weighted average of lambda_1
+    # Compute the buoyancy-flux weighted average of lambda_1
     lambda_ave = bf_average(particles, rho, p.g, p.rho_r, lambda_1)
     
     # Calculate the initial velocity of entrained ambient fluid
     u_0 = np.sum(Q) / (np.pi * (lambda_ave * R)**2)
-    u = wuest_ic(u_0, particles, lambda_1, lambda_ave, us, rho_p, rho, Q, R, 
-                 p.g, p.Fr_0)
+    u = wuest_ic(u_0, particles, lambda_1, lambda_ave, us, rho_p, rho, Q, R,
+        p.g, p.Fr_0)
     
-    # The initial plume width is the discharge port width
+    # Check the void fraction
+    xi = void_fraction(u, particles, lambda_1, us, Q, R)
+    print('\nUser-defined d0 = %g (m) gives a void fraction of %g' %
+        (2.*R, np.sum(xi)))
+    if np.sum(xi) >= 1.:
+        # This release is too vigorous to allow a dilute multiphase plume at the
+        # orifice.  Change the initial width and re-calculate the initial 
+        # conditions.
+        dA = 3.
+        while np.sum(xi) >= 1.:
+            R = np.sqrt(dA * np.sum(xi)) * R
+            u_0 = np.sum(Q) / (np.pi * (lambda_ave * R)**2)
+            u = wuest_ic(u_0, particles, lambda_1, lambda_ave, us, rho_p, rho, 
+                Q, R, p.g, p.Fr_0)
+            xi = void_fraction(u, particles, lambda_1, us, Q, R)
+        
+    # Compute the final initial plume area
+    print('Model will use d0 = %g (m) with void fraction %g' % 
+        (2.*R, np.sum(void_fraction(u, particles, lambda_1, us, Q, R))))
     A = np.pi * R**2
     
-    # Calcualte the volume flux
+    # Calculate the volume flux of water entrained into the plume
     Q = A * u
     
-    return (Q, A, X, Ta, Sa, P, rho)
+    # Return the initial conditions
+    return (Q, A, X0, Ta, Sa, P, rho)
+
+
+def void_fraction(u, particles, lambda_1, us, Q, R):
+    """
+    Compute the void fraction for the Wuest et al. (1992) initial condition
+    
+    Computes the total void fraction of a set of fluid particles for a given
+    geometry and estimated volume flux of entrained fluid.
+    
+    Parameters
+    ----------
+    particles : list of `Particle` objects
+        List of `SingleParticle`, `PlumeParticle`, or 
+        `bent_plume_model.Particle` objects describing each dispersed phase 
+        in the simulation
+    lambda_1 : ndarray
+        Spreading rate of the each dispersed phase particle in a plume (--)
+    us : ndarray
+        Slip velocity of each of the dispersed phase particles (m/s)
+    Q : ndarray
+        Total volume flux of particles for each dispersed phase (m^3/s)
+    R : float
+        Radius of the release port (m)
+    
+    Returns
+    -------
+    xi : nd.array
+        Individual void fractions for each particle in the particle list (--)
+     
+    """
+    # Initialize an empty array
+    xi = np.zeros(len(particles))
+    
+    # Get the void fraction of each particle
+    for i in range(len(particles)):
+        xi[i] = Q[i] / (np.pi * lambda_1[i]**2 * R**2 * (us[i] + 
+                2. * u / (1. + lambda_1[i]**2)))
+    
+    return xi
 
 
 def wuest_ic(u_0, particles, lambda_1, lambda_ave, us, rho_p, rho, Q, R, 
@@ -1420,10 +1483,7 @@ def wuest_ic(u_0, particles, lambda_1, lambda_ave, us, rho_p, rho, Q, R,
         """
         # Get the void fraction for the current estimate of the mixture of 
         # dispersed phases and entrained ambient water
-        xi = np.zeros(len(particles))
-        for i in range(len(particles)):
-            xi[i] = Q[i] / (np.pi * lambda_1[i]**2 * R**2 * (us[i] + 
-                    2. * u / (1. + lambda_1[i]**2)))
+        xi = void_fraction(u, particles, lambda_1, us, Q, R)
         
         # Get the mixed-fluid plume density
         rho_m = np.sum(xi * rho_p) + (1. - np.sum(xi)) * rho

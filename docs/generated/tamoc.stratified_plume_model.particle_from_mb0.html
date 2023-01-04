@@ -410,13 +410,13 @@
     </label>
     <ul>
      <li class="toctree-l3">
-      <a class="reference internal" href="bin.spm.lake_part.html">
-       bin.spm.lake_part
+      <a class="reference internal" href="bin.spm.lake_bub.html">
+       bin.spm.lake_bub
       </a>
      </li>
      <li class="toctree-l3">
-      <a class="reference internal" href="bin.spm.lake_bub.html">
-       bin.spm.lake_bub
+      <a class="reference internal" href="bin.spm.lake_part.html">
+       bin.spm.lake_part
       </a>
      </li>
      <li class="toctree-l3">
@@ -2342,22 +2342,22 @@ attributes and the initial total mass flux at the source.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>profile</strong> (<cite>ambient.Profile</cite> object) – The ambient CTD object used by the simulation</p></li>
-<li><p><strong>z0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Depth of the release point (m)</p></li>
+<li><p><strong>z0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Depth of the release point (m)</p></li>
 <li><p><strong>dbm_particle</strong> (<cite>dbm.FluidParticle</cite> or <cite>dbm.InsolubleParticle</cite> object) – Object describing the particle properties and behavior</p></li>
 <li><p><strong>yk</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Vector of mol fractions of each component of the dispersed phase
 particle.  If the particle is a <cite>dbm.InsolubleParticle</cite>, then yk
 should be equal to one.</p></li>
-<li><p><strong>mb0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Mass flux (kg/s) of all particle components together at the release
+<li><p><strong>mb0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Mass flux (kg/s) of all particle components together at the release
 points</p></li>
-<li><p><strong>de</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Initial diameter (m) of the particle</p></li>
-<li><p><strong>lambda_1</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Spreading rate of the dispersed phase in a plume (–)</p></li>
-<li><p><strong>T0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <em>default</em> <code class="xref py py-class docutils literal notranslate"><span class="pre">=</span> <span class="pre">None</span></code>) – Initial temperature of the of <cite>dbm</cite> particle object (K).  If None,
+<li><p><strong>de</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Initial diameter (m) of the particle</p></li>
+<li><p><strong>lambda_1</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Spreading rate of the dispersed phase in a plume (–)</p></li>
+<li><p><strong>T0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <em>default</em> <code class="xref py py-class docutils literal notranslate"><span class="pre">=</span> <span class="pre">None</span></code>) – Initial temperature of the of <cite>dbm</cite> particle object (K).  If None,
 then T0 is set equal to the ambient temperature.</p></li>
-<li><p><strong>K</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <em>default</em> <code class="xref py py-class docutils literal notranslate"><span class="pre">=</span> <span class="pre">1.</span></code>) – Mass transfer reduction factor (–).</p></li>
-<li><p><strong>K_T</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <em>default</em> <code class="xref py py-class docutils literal notranslate"><span class="pre">=</span> <span class="pre">1.</span></code>) – Heat transfer reduction factor (–).</p></li>
-<li><p><strong>fdis</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <em>default</em> <code class="xref py py-class docutils literal notranslate"><span class="pre">=</span> <span class="pre">1.e-6</span></code>) – Fraction of the initial total mass (–) remaining when the particle
+<li><p><strong>K</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <em>default</em> <code class="xref py py-class docutils literal notranslate"><span class="pre">=</span> <span class="pre">1.</span></code>) – Mass transfer reduction factor (–).</p></li>
+<li><p><strong>K_T</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <em>default</em> <code class="xref py py-class docutils literal notranslate"><span class="pre">=</span> <span class="pre">1.</span></code>) – Heat transfer reduction factor (–).</p></li>
+<li><p><strong>fdis</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <em>default</em> <code class="xref py py-class docutils literal notranslate"><span class="pre">=</span> <span class="pre">1.e-6</span></code>) – Fraction of the initial total mass (–) remaining when the particle
 should be considered dissolved.</p></li>
-<li><p><strong>t_hyd</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <em>default</em> <code class="xref py py-class docutils literal notranslate"><span class="pre">=</span> <span class="pre">0.</span></code>) – Hydrate film formation time (s).  Mass transfer is computed by clean
+<li><p><strong>t_hyd</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <em>default</em> <code class="xref py py-class docutils literal notranslate"><span class="pre">=</span> <span class="pre">0.</span></code>) – Hydrate film formation time (s).  Mass transfer is computed by clean
 bubble methods for t less than t_hyd and by dirty bubble methods
 thereafter.  The default behavior is to assume the particle is dirty
 or hydrate covered from the release.</p></li>

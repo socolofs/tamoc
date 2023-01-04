@@ -410,13 +410,13 @@
     </label>
     <ul>
      <li class="toctree-l3">
-      <a class="reference internal" href="bin.spm.lake_part.html">
-       bin.spm.lake_part
+      <a class="reference internal" href="bin.spm.lake_bub.html">
+       bin.spm.lake_bub
       </a>
      </li>
      <li class="toctree-l3">
-      <a class="reference internal" href="bin.spm.lake_bub.html">
-       bin.spm.lake_bub
+      <a class="reference internal" href="bin.spm.lake_part.html">
+       bin.spm.lake_part
       </a>
      </li>
      <li class="toctree-l3">
@@ -2334,7 +2334,7 @@ title="Print to PDF"
 <h1>tamoc.dbm.equil_MM<a class="headerlink" href="#tamoc-dbm-equil-mm" title="Permalink to this headline">#</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="tamoc.dbm.equil_MM">
-<span class="sig-prename descclassname"><span class="pre">tamoc.dbm.</span></span><span class="sig-name descname"><span class="pre">equil_MM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">P</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Pc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Tc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">omega</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Aij</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Bij</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_groups</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calc_delta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">K_0</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/socolofs/tamoc/tree/master/tamoc/dbm.py#L2100-L2283"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tamoc.dbm.equil_MM" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tamoc.dbm.</span></span><span class="sig-name descname"><span class="pre">equil_MM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">P</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Pc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Tc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">omega</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Aij</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Bij</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_groups</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calc_delta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">K_0</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/socolofs/tamoc/tree/master/tamoc/dbm.py#L2410-L2593"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tamoc.dbm.equil_MM" title="Permalink to this definition">#</a></dt>
 <dd><p>Compute the equilibrium composition of a mixture using the P-R EOS</p>
 <p>Computes the mole fraction composition for the gas and liquid phases of a
 mixture using the Peng-Robinson equation of state and the methodology
@@ -2349,8 +2349,8 @@ composition; otherwise, the single phase result is returned.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>m</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">size</span> <span class="pre">(nc)</span></code>) – masses of each component present in the whole mixture (gas plus
 liquid, kg)</p></li>
-<li><p><strong>T</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – temperature (K)</p></li>
-<li><p><strong>P</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – pressure (Pa)</p></li>
+<li><p><strong>T</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – temperature (K)</p></li>
+<li><p><strong>P</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – pressure (Pa)</p></li>
 <li><p><strong>M</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">size</span> <span class="pre">(nc)</span></code>) – Molecular weights (kg/mol)</p></li>
 <li><p><strong>Pc</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">size</span> <span class="pre">(nc)</span></code>) – Critical pressures (Pa)</p></li>
 <li><p><strong>Tc</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">size</span> <span class="pre">(nc)</span></code>) – Critical temperatures (K)</p></li>
@@ -2364,7 +2364,7 @@ delta_ij following Privat and Jaubert (2012)</p></li>
 <li><p><strong>delta_groups</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">(nc</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">15)</span></code>) – Specification of the fractional groups for each component of the
 mixture for the group contribution method of Privat and Jaubert (2012)
 for delta_ij</p></li>
-<li><p><strong>calc_delta</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Flag specifying whether or not to compute delta_ij (1: True, -1:
+<li><p><strong>calc_delta</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Flag specifying whether or not to compute delta_ij (1: True, -1:
 False) using the group contribution method</p></li>
 <li><p><strong>K_0</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">size</span> <span class="pre">(nc)</span></code>) – Initial guess for the partition coefficients.  If K = None, this
 function will use initial estimates from Wilson (see Michelsen and
