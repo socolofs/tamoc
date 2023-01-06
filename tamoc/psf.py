@@ -561,11 +561,11 @@ def find_de(de, rho_d, rho_c, mu_d, mu_c, sigma, nu_d, nu_c, g, dp, K,
     lam_max = np.pi * de / 2.
     
     # Find the wave length that corresponds to the maximum growth rate
-    lam = minimize(grow_time, 1.001 * lam_crit, args=(de, U, nu_c, nu_d,
-                                                      sigma, g, dp, rho_c, 
-                                                      rho_d, K, c_0),
-                   bounds=[(lam_crit, lam_max)]
-                   ).x[0]
+    delta = 2. * np.finfo(np.float).eps
+    lam = minimize(grow_time, lam_crit, args=(de, U, nu_c, nu_d,
+        sigma, g, dp, rho_c, rho_d, K, c_0),
+        bounds=[((1. + delta) * lam_crit, lam_max)]
+    ).x[0]
     
     t_min = grow_time(lam, de, U, nu_c, nu_d,sigma, g, dp, rho_c, rho_d, K, 
                       c_0)
@@ -615,7 +615,6 @@ def grace(rho_c, rho_d, mu_c, mu_d, sigma, fp_type=0):
     (1), 3-8.
     
     """
-    
     # Set the fit parameter
     if fp_type == 0:
         # This is gas
