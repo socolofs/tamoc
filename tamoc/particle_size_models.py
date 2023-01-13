@@ -739,10 +739,10 @@ class PureJet(ModelBase):
 
         """
         if self.fp_type == 0:
-            ModelBase.simulate(self, d0, m, np.array([0.]), model_gas=model,
+            ModelBase.simulate(self, d0, m, 0. * m, model_gas=model,
                                pdf_gas=pdf)
         elif self.fp_type == 1:
-            ModelBase.simulate(self, d0, np.array([0.]), m, model_oil=model,
+            ModelBase.simulate(self, d0, 0. * m, m, model_oil=model,
                                pdf_oil=pdf)
 
     def get_de_max(self, fp_type=None):

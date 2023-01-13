@@ -12,7 +12,7 @@ size distributions from source flow conditions.
 For typical usage, please see the ./bin directory of the source distribution
 for various example scripts.
 
-Version 2.5.0:  Added the capability to have mixed-phase particles of gas and
+Version 3.0.0:  Added the capability to have mixed-phase particles of gas and
                 liquid fused together.  Updated the initial conditions methods
                 for pure multi-phase plumes so that a void fraction between
                 0 and 1 is enforced.  This may result in a different orifice 
