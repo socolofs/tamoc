@@ -261,7 +261,7 @@ def calculate(t0, q0, q0_local, profile, p, particles, derivs, dt_max,
     while r.successful() and not stop:
         
         # Print progress to the screen
-        if np.remainder(np.float(k), psteps) == 0.:
+        if np.remainder(np.float64(k), psteps) == 0.:
             print('    Distance:  %g (m), time:  %g (s), k:  %d' % \
                 (q[-1][10], t[-1], k))
         

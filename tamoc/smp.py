@@ -341,7 +341,7 @@ def calculate(yi, yo, particles, profile, p, neighbor, derivs, z0, y0, zf,
     while r.successful() and not stop:
         
         # Print progress to the screen
-        if np.remainder(np.float(k), psteps) == 0.:
+        if np.remainder(np.float64(k), psteps) == 0.:
             print('    Depth:  %g (m), k: %d' % (z[-1], k))
         
         # Perform one step of the integration
@@ -378,7 +378,7 @@ def calculate(yi, yo, particles, profile, p, neighbor, derivs, z0, y0, zf,
     y = y[rows,:]
     
     # Return the solution
-    if np.remainder(np.float(k), psteps) == 0.:
+    if np.remainder(np.float64(k), psteps) == 0.:
         print('    Depth:  %g (m), k: %d' % (z[-1], k))
     return (z, y)
 

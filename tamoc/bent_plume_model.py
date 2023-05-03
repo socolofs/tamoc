@@ -2380,7 +2380,7 @@ class Particle(dispersed_phases.PlumeParticle):
             
             # Only include this particle if in advection-dominated region
             if L > L_D:
-                Cp += md_p / np.float(k) / np.sqrt(4. * np.pi * L * Ua * Et) * \
+                Cp += md_p / np.float64(k) / np.sqrt(4. * np.pi * L * Ua * Et) * \
                     np.exp(-(Ua * H**2) / (4. * Et * L))
         
         # Concentration cannot be higher than saturation
