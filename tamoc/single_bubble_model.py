@@ -636,7 +636,7 @@ def calculate_path(profile, particle, p, y0, delta_t):
         m0 = np.sum(y[0][3:-1])
         mt = np.sum(y[-1][3:-1])
         f = mt / m0
-        if np.remainder(np.float(k), psteps) == 0.:
+        if np.remainder(np.float64(k), psteps) == 0.:
             print('    Depth:  %g (m), t:  %g (s), k: %d, f: %g (--)' %
                 (r.y[2], t[-1], k, f))
 

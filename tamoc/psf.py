@@ -561,7 +561,7 @@ def find_de(de, rho_d, rho_c, mu_d, mu_c, sigma, nu_d, nu_c, g, dp, K,
     lam_max = np.pi * de / 2.
     
     # Find the wave length that corresponds to the maximum growth rate
-    delta = 2. * np.finfo(np.float).eps
+    delta = 2. * np.finfo(np.float64).eps
     lam = minimize(grow_time, lam_crit, args=(de, U, nu_c, nu_d,
         sigma, g, dp, rho_c, rho_d, K, c_0),
         bounds=[((1. + delta) * lam_crit, lam_max)]
