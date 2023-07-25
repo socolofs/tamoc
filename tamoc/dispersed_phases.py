@@ -1483,14 +1483,16 @@ def wuest_ic(u_0, particles, lambda_1, lambda_ave, us, rho_p, rho, Q, R,
         """
         # Get the void fraction for the current estimate of the mixture of 
         # dispersed phases and entrained ambient water
-        xi = void_fraction(u, particles, lambda_1, us, Q, R)
-        
-        # Get the mixed-fluid plume density
-        rho_m = np.sum(xi * rho_p) + (1. - np.sum(xi)) * rho
-        
-        # Calculate the deviation from the desired Froude number
-        return Fr_0 - u / np.sqrt(2. * lambda_ave * R * g * 
-                                  (rho - rho_m) / rho_m)
+        with np.errstate(invalid='ignore'): #, divide='ignore'):
+
+            xi = void_fraction(u, particles, lambda_1, us, Q, R)
+
+            # Get the mixed-fluid plume density
+            rho_m = np.sum(xi * rho_p) + (1. - np.sum(xi)) * rho
+
+            # Calculate the deviation from the desired Froude number
+            return Fr_0 - u / np.sqrt(2. * lambda_ave * R * g *
+                                      (rho - rho_m) / rho_m)
     
     return fsolve(residual, u_0)[0]
 
