@@ -2858,7 +2858,9 @@ def plot_state_space(t, q, q_local, profile, p, particles, fig):
     ax1.set_xlabel('x (m)')
     ax1.set_ylabel('Depth (m)')
     ax1.invert_yaxis()
-    ax1.grid(b=True, which='major', color='0.65', linestyle='-')
+    #ax1.grid(b=True, which='major', color='0.65', linestyle='-')
+    # b no longer a valid keyword -- what replaced it???
+    ax1.grid(which='major', color='0.65', linestyle='-')
 
     # y-z plane
     ax2 = plt.subplot(222)
@@ -2868,7 +2870,8 @@ def plot_state_space(t, q, q_local, profile, p, particles, fig):
     ax2.set_xlabel('y (m)')
     ax2.set_ylabel('Depth (m)')
     ax2.invert_yaxis()
-    ax2.grid(b=True, which='major', color='0.65', linestyle='-')
+    # b no longer a valid keyword -- what replaced it???
+    ax2.grid(which='major', color='0.65', linestyle='-')
 
     # x-y plane
     ax3 = plt.subplot(223)
@@ -2877,14 +2880,18 @@ def plot_state_space(t, q, q_local, profile, p, particles, fig):
         ax3.plot(xp[:,i*3], xp[:,i*3 + 1], '.--')
     ax3.set_xlabel('x (m)')
     ax3.set_ylabel('y (m)')
-    ax3.grid(b=True, which='major', color='0.65', linestyle='-')
+    # b no longer a valid keyword -- what replaced it???
+
+    ax3.grid(which='major', color='0.65', linestyle='-')
 
     # M-s plane
     ax4 = plt.subplot(224)
     ax4.plot(s, M)
     ax4.set_xlabel('s (m)')
     ax4.set_ylabel('M (kg)')
-    ax4.grid(b=True, which='major', color='0.65', linestyle='-')
+    # b no longer a valid keyword -- what replaced it???
+
+    ax4.grid(which='major', color='0.65', linestyle='-')
 
     plt.draw()
 
@@ -3029,7 +3036,9 @@ def plot_all_variables(t, q, q_local, profile, p, particles,
     ax1.invert_yaxis()
     ax1.set_xlabel('x (m)')
     ax1.set_ylabel('z (m)')
-    ax1.grid(b=True, which='major', color='0.5', linestyle='-')
+    # b no longer a valid keyword -- what replaced it???
+
+    ax1.grid(which='major', color='0.5', linestyle='-')
 
     ax2 = plt.subplot(222)
     ax2.plot(y, z, 'b-')
@@ -3049,7 +3058,9 @@ def plot_all_variables(t, q, q_local, profile, p, particles,
     ax2.invert_yaxis()
     ax2.set_xlabel('y (m)')
     ax2.set_ylabel('z (m)')
-    ax2.grid(b=True, which='major', color='0.5', linestyle='-')
+    # b no longer a valid keyword -- what replaced it???
+
+    ax2.grid(which='major', color='0.5', linestyle='-')
     
     ax3 = plt.subplot(223)
     ax3.plot(x, y, 'b-')
@@ -3068,7 +3079,9 @@ def plot_all_variables(t, q, q_local, profile, p, particles,
                          '.:')
     ax3.set_xlabel('x (m)')
     ax3.set_ylabel('y (m)')
-    ax3.grid(b=True, which='major', color='0.5', linestyle='-')
+    # b no longer a valid keyword -- what replaced it???
+
+    ax3.grid(which='major', color='0.5', linestyle='-')
     
     ax4 = plt.subplot(224)
     ax4.plot(s, np.zeros(s.shape), 'b-')
@@ -3076,7 +3089,9 @@ def plot_all_variables(t, q, q_local, profile, p, particles,
     ax4.plot(s, -b, 'b--')
     ax4.set_xlabel('s (m)')
     ax4.set_ylabel('r (m)')
-    ax4.grid(b=True, which='major', color='0.5', linestyle='-')
+        # b no longer a valid keyword -- what replaced it???
+
+    ax4.grid(which='major', color='0.5', linestyle='-')
     
     plt.tight_layout()
     plt.draw()
@@ -3091,13 +3106,15 @@ def plot_all_variables(t, q, q_local, profile, p, particles,
     ax1.plot(s, h, 'b-')
     ax1.set_xlabel('s (m)')
     ax1.set_ylabel('h (m)')
-    ax1.grid(b=True, which='major', color='0.5', linestyle='-')
+    # b no longer a valid keyword -- what replaced it???
+    ax1.grid(which='major', color='0.5', linestyle='-')
 
     ax2 = plt.subplot(122)
     ax2.plot(s, E, 'b-')
     ax2.set_xlabel('s (m)')
     ax2.set_ylabel('E (kg/s)')
-    ax2.grid(b=True, which='major', color='0.5', linestyle='-')
+    # b no longer a valid keyword -- what replaced it???
+    ax2.grid(which='major', color='0.5', linestyle='-')
 
     plt.draw()
 
@@ -3112,25 +3129,29 @@ def plot_all_variables(t, q, q_local, profile, p, particles,
     ax1.plot(s, ua, 'g--')
     ax1.set_xlabel('s (m)')
     ax1.set_ylabel('u (m/s)')
-    ax1.grid(b=True, which='major', color='0.5', linestyle='-')
+    # b no longer a valid keyword -- what replaced it???
+    ax1.grid(which='major', color='0.5', linestyle='-')
 
     ax2 = plt.subplot(222)
     ax2.plot(s, v, 'b-')
     ax2.set_xlabel('s (m)')
     ax2.set_ylabel('v (m/s)')
-    ax2.grid(b=True, which='major', color='0.5', linestyle='-')
+    # b no longer a valid keyword -- what replaced it???
+    ax2.grid(which='major', color='0.5', linestyle='-')
 
     ax3 = plt.subplot(223)
     ax3.plot(s, w, 'b-')
     ax3.set_xlabel('s (m)')
     ax3.set_ylabel('w (m/s)')
-    ax3.grid(b=True, which='major', color='0.5', linestyle='-')
+    # b no longer a valid keyword -- what replaced it???
+    ax3.grid(which='major', color='0.5', linestyle='-')
 
     ax4 = plt.subplot(224)
     ax4.plot(s, V, 'b-')
     ax4.set_xlabel('s (m)')
     ax4.set_ylabel('V (m/s)')
-    ax4.grid(b=True, which='major', color='0.5', linestyle='-')
+    # b no longer a valid keyword -- what replaced it???
+    ax4.grid(which='major', color='0.5', linestyle='-')
 
     plt.draw()
 
@@ -3149,7 +3170,8 @@ def plot_all_variables(t, q, q_local, profile, p, particles,
         ax1.set_ylim([S[0] - 1, S[0] + 1])
     ax1.set_xlabel('s (m)')
     ax1.set_ylabel('Salinity (psu)')
-    ax1.grid(b=True, which='major', color='0.5', linestyle='-')
+    # b no longer a valid keyword -- what replaced it???
+    ax1.grid(which='major', color='0.5', linestyle='-')
 
     ax2 = plt.subplot(222)
     ax2.yaxis.set_major_formatter(formatter)
@@ -3159,7 +3181,8 @@ def plot_all_variables(t, q, q_local, profile, p, particles,
         ax2.set_ylim([T[0] - 273.15 - 1., T[0] - 273.15 + 1.])
     ax2.set_xlabel('s (m)')
     ax2.set_ylabel('Temperature (deg C)')
-    ax2.grid(b=True, which='major', color='0.5', linestyle='-')
+    # b no longer a valid keyword -- what replaced it???
+    ax2.grid(which='major', color='0.5', linestyle='-')
 
     ax3 = plt.subplot(223)
     ax3.yaxis.set_major_formatter(formatter)
@@ -3169,7 +3192,8 @@ def plot_all_variables(t, q, q_local, profile, p, particles,
         ax3.set_ylim([rho[0] - 1, rho[0] + 1])
     ax3.set_xlabel('s (m)')
     ax3.set_ylabel('Density (kg/m^3)')
-    ax3.grid(b=True, which='major', color='0.5', linestyle='-')
+    # b no longer a valid keyword -- what replaced it???
+    ax3.grid(which='major', color='0.5', linestyle='-')
 
     plt.draw()
 
@@ -3186,14 +3210,15 @@ def plot_all_variables(t, q, q_local, profile, p, particles,
         ax1.plot(s, Mp / 1.e-6, 'b-')
         ax1.set_xlabel('s (m)')
         ax1.set_ylabel('m (mg)')
-        ax1.grid(b=True, which='major', color='0.5', linestyle='-')
+        # b no longer a valid keyword -- what replaced it???
+        ax1.grid(which='major', color='0.5', linestyle='-')
 
         ax2 = plt.subplot(122)
         ax2.yaxis.set_major_formatter(formatter)
         ax2.plot(s, Tp - 273.15, 'b-')
         ax2.set_xlabel('s (m)')
         ax2.set_ylabel('Temperature (deg C)')
-        ax2.grid(b=True, which='major', color='0.5', linestyle='-')
+        ax2.grid(which='major', color='0.5', linestyle='-')
 
         plt.draw()
 

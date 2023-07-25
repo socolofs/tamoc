@@ -87,6 +87,9 @@ from scipy.interpolate import interp1d
 
 import matplotlib.pyplot as plt
 
+import warnings
+
+
 
 class BaseProfile(object):
     """
@@ -767,7 +770,11 @@ class BaseProfile(object):
         self.ds[parm].plot(y=self.ztsp[0])
         if plt.ylim()[0] <= 0:
             plt.gca().invert_yaxis()
-        plt.tight_layout()
+        with warnings.catch_warnings():
+            # tight_layout() is raising an annoying warning
+            # this suppresses it
+            warnings.simplefilter("ignore", UserWarning)
+            plt.tight_layout()
     
     def plot_profiles(self, parameters, fig=1):
         """
@@ -806,8 +813,11 @@ class BaseProfile(object):
         for parm in parameters:
             ax = plt.subplot(nrows, 3, parameters.index(parm)+1)
             self.plot_parameter(parm)
-        
-        plt.tight_layout()
+        with warnings.catch_warnings():
+            # tight_layout() is raising an annoying warning
+            # this suppresses it
+            warnings.simplefilter("ignore", UserWarning)
+            plt.tight_layout()
     
     def plot_physical_profiles(self, fig=2):
         """

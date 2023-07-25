@@ -56,6 +56,13 @@ try:
 except ImportError:
     from tamoc import dbm_p as dbm_f
 
+# supressing warnings from numpy -- there were lots in this module
+# Note that this probably sets it for the whole process
+# you can use the numpy.errstate context manager at each location
+# but that was getting tedious ...
+np.seterr(divide='ignore', invalid='ignore')
+
+
 class FluidMixture(object):
     """
     Class object for a fluid mixture
