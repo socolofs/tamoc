@@ -87,6 +87,9 @@ from scipy.interpolate import interp1d
 
 import matplotlib.pyplot as plt
 
+import warnings
+
+
 
 class BaseProfile(object):
     """
@@ -167,7 +170,8 @@ class BaseProfile(object):
                 self.ds = self.data.isel(time=0)
             else:
                 self.ds = self.data
-        
+        # NOTE: this needs to be done before computing pressure
+        #       so that temp is in K
         # Insert the pressure data if missing by integrating the density
         if self.ztsp[-1] not in self.ds:
             # Extract the depth and temperature data
@@ -178,7 +182,14 @@ class BaseProfile(object):
             if fs_loc > 0:
                 fs_loc = -1
             # Compute the pressure for this density profile
-            Ps = compute_pressure(zs, Ts, Ss, fs_loc)
+            if self.ztsp_units[1] != "K":
+                # Note -- this should be done by xr_convert_units, but
+                # that's expecting pressure to be there already.
+                T_K, units = convert_units(np.array(Ts.reshape((-1, 1))),
+                                           [self.ztsp_units[1]])
+            else:
+                T_K = Ts
+            Ps = compute_pressure(zs, T_K, Ss, fs_loc)
             # Insert the computed pressure into the dataset
             self.ds[self.ztsp[-1]] = ((self.ztsp[0]), Ps)
             self.ds[self.ztsp[-1]].attrs['units'] = 'Pa'
@@ -190,6 +201,7 @@ class BaseProfile(object):
             if name not in keep_names:
                 self.ds = self.ds.drop([name])
         
+        # does it need to be done again??
         # Add the unit labels passed to the initializer if they are not
         # already in the dataset
         xr_check_units(self.ds, self.ztsp, self.ztsp_units)
@@ -758,7 +770,11 @@ class BaseProfile(object):
         self.ds[parm].plot(y=self.ztsp[0])
         if plt.ylim()[0] <= 0:
             plt.gca().invert_yaxis()
-        plt.tight_layout()
+        with warnings.catch_warnings():
+            # tight_layout() is raising an annoying warning
+            # this suppresses it
+            warnings.simplefilter("ignore", UserWarning)
+            plt.tight_layout()
     
     def plot_profiles(self, parameters, fig=1):
         """
@@ -797,8 +813,11 @@ class BaseProfile(object):
         for parm in parameters:
             ax = plt.subplot(nrows, 3, parameters.index(parm)+1)
             self.plot_parameter(parm)
-        
-        plt.tight_layout()
+        with warnings.catch_warnings():
+            # tight_layout() is raising an annoying warning
+            # this suppresses it
+            warnings.simplefilter("ignore", UserWarning)
+            plt.tight_layout()
     
     def plot_physical_profiles(self, fig=2):
         """
@@ -2633,8 +2652,9 @@ def compute_pressure(z, T, S, fs_loc):
     
     # Compute the pressure at the remaining depths
     for i in depth_idxs:
-        P[i] = P[i-z_sign] + seawater.density(T[i-z_sign], S[i-z_sign], 
-               P[i-z_sign]) * g * (z[i] - z[i-z_sign]) * z_sign
+        P[i] = (P[i - z_sign]
+                + seawater.density(T[i - z_sign], S[i - z_sign], P[i - z_sign])
+                * g * (z[i] - z[i - z_sign]) * z_sign)
     
     return P
 
@@ -2655,7 +2675,7 @@ def convert_units(data, units):
         units.
     units : string list
         A list of strings stating the units of the input data array.  The 
-        squence of strings in the list must match the units of each column
+        sequence of strings in the list must match the units of each column
         of data
     
     Returns

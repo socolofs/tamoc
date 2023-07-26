@@ -31,11 +31,11 @@ if __name__ == '__main__':
     # uniform currents
     try:
         # Open the BM54 CTD profile if it exists
-        nc = '../../test/output/test_BM54.nc'
+        nc = '../../tamoc/test/output/test_BM54.nc'
         ctd = ambient.Profile(nc, chem_names='all')
         
         # Insert a constant crossflow velocity
-        z = ctd.nc.variables['z'][:]
+        z = ctd.data.variables['z'][:]
         ua = np.zeros(z.shape) + 0.09
         data = np.vstack((z, ua)).transpose()
         symbols = ['z', 'ua']
