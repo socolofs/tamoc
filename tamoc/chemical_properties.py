@@ -217,6 +217,12 @@ def load_data(fname):
                 data[chemical][variable] = data[chemical][variable] * \
                     1055.06 / 453.59237 / (5./9.)**4
                 units[variable] = '(J/mol/deg C^4)'
+            
+            if read_units[variable].find('(L/mol/deg F)') >= 0.:
+                # Convert to m^3/mol/deg C
+                data[chemical][variable] = data[chemical][variable] * \
+                    1.e-3 * (5./9.)
+                units[variable] = '(m^3/mol/deg C)'
 
     return (data, units)
 

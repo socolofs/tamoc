@@ -814,7 +814,7 @@ def xfer_spherical_cap(de, us, rho, rho_p, mu, D, status):
 # ---------------------------------------------------------
 
 def density(T, P, mass, Mol_wt, Pc, Tc, Vc, omega, delta, Aij, 
-            Bij, delta_groups, calc_delta):
+            Bij, delta_groups, calc_delta, C_pen, C_pen_T):
     """
     
     Computes the liquid and gas density of a mixture from the P-R EOS
@@ -851,6 +851,10 @@ def density(T, P, mass, Mol_wt, Pc, Tc, Vc, omega, delta, Aij,
     calc_groups : ndarray
         Flag indicating whether or not delta_groups has 
         been provided (1 = yes, -1 = no)
+    C_pen : ndarray
+        Peneloux volume translation coefficient (m^3/mol)
+    C_pen_T : ndarray
+        Peneloux parameter temperature correction (m^3/(mol K))
     
     Returns
     -------
@@ -867,7 +871,7 @@ def density(T, P, mass, Mol_wt, Pc, Tc, Vc, omega, delta, Aij,
     yk = mole_fraction(mass, Mol_wt)
     
     # Compute the volume translation coefficient
-    vt = volume_trans(T, P, mass, Mol_wt, Pc, Tc, Vc)
+    vt = volume_trans(T, P, mass, Mol_wt, Pc, Tc, Vc, C_pen, C_pen_T)
     
     # Compute the molar volume
     nu = z * RU * T / P - np.sum(yk * vt)
@@ -939,7 +943,7 @@ def fugacity(T, P, mass, Mol_wt, Pc, Tc, omega, delta, Aij, Bij,
     return fug
 
 
-def volume_trans(T, P, mass, Mol_wt, Pc, Tc, Vc):
+def volume_trans(T, P, mass, Mol_wt, Pc, Tc, Vc, C_pen, C_pen_T):
     """
     Computes the volume translation parameter to correct the density
     
@@ -966,6 +970,10 @@ def volume_trans(T, P, mass, Mol_wt, Pc, Tc, Vc):
         Array of masses for each component in the mixture (kg)
     Mol_wt : ndarray
         Array of molecular weights for each component (kg/mol)
+    C_pen : ndarray
+        Peneloux volume translation coefficient (m^3/mol)
+    C_pen_T : ndarray
+        Peneloux parameter temperature correction (m^3/(mol K))
     
     Returns
     -------
@@ -973,25 +981,32 @@ def volume_trans(T, P, mass, Mol_wt, Pc, Tc, Vc):
         Volume translation parameter (m^3/mol)
     
     """
-    # Compute the compressibility factor (--) for each component of the 
-    # mixture
-    Zc = Pc * Vc / (RU * Tc)
+    # Decide how to get the Peneloux shift parameters
+    if C_pen[0] == 0.:
+        # Compute the compressibility factor (--) for each component of the 
+        # mixture
+        Zc = Pc * Vc / (RU * Tc)
     
-    # Calculate the parameters in the Lin and Duan (2005) paper:  beta is 
-    # from equation (12)
-    beta = -2.8431 * np.exp(-64.2184 * (0.3074 - Zc)) + 0.1735
+        # Calculate the parameters in the Lin and Duan (2005) paper:  beta is 
+        # from equation (12)
+        beta = -2.8431 * np.exp(-64.2184 * (0.3074 - Zc)) + 0.1735
     
-    # and gamma is from Equation (13)
-    gamma = -99.2558 + 301.6201 * Zc
+        # and gamma is from Equation (13)
+        gamma = -99.2558 + 301.6201 * Zc
     
-    # Account for the temperature dependence (equation 10)
-    f_Tr = beta + (1. - beta) * np.exp(gamma * np.abs(1. - T / Tc))
+        # Account for the temperature dependence (equation 10)
+        f_Tr = beta + (1. - beta) * np.exp(gamma * np.abs(1. - T / Tc))
     
-    # Compute the volume translation for the critical point (equation 9)
-    cc = (0.3074 - Zc) * RU * Tc / Pc
+        # Compute the volume translation for the critical point (equation 9)
+        cc = (0.3074 - Zc) * RU * Tc / Pc
     
-    # Finally, the volume translation at the given state is (equation 8)
-    vt = f_Tr * cc
+        # Finally, the volume translation at the given state is (equation 8)
+        vt = f_Tr * cc
+
+    else:
+        # Use the user-defined Peneloux parameters following equation 5.9 in 
+        # Pedersen et al. (2015) Phase Behavior of Petroleum Reservoir Fluids
+        vt = C_pen + C_pen_T * (T - 288.15)
     
     return vt
 
@@ -1239,7 +1254,7 @@ def mole_fraction(mass, Mol_wt):
 # -----------------------------------------------------------
 
 def viscosity(T, P, mass, Mol_wt, Pc, Tc, Vc, omega, delta, Aij,
-              Bij, delta_groups, calc_delta):
+              Bij, delta_groups, calc_delta, C_pen, C_pen_T):
     """
     Computes the viscosity of a petroleum fluid
     
@@ -1285,6 +1300,10 @@ def viscosity(T, P, mass, Mol_wt, Pc, Tc, Vc, omega, delta, Aij,
     calc_groups : ndarray
         Flag indicating whether or not delta_groups has 
         been provided (1 = yes, -1 = no)
+    C_pen : ndarray
+        Peneloux volume translation coefficient (m^3/mol)
+    C_pen_T : ndarray
+        Peneloux parameter temperature correction (m^3/(mol K))
     
     Returns
     -------
@@ -1346,7 +1365,7 @@ def viscosity(T, P, mass, Mol_wt, Pc, Tc, Vc, omega, delta, Aij,
     # Get the density of methane at TTc0/Tc_mix and PPc0/Pc_mix
     rho0 = density(T * Tc0 / Tc_mix, P * Pc0 / Pc_mix, 
         np.array([1.]), M0, Pc0, Tc0, Vc0, omega0, delta0, Aij, Bij,
-        delta_groups0, -1)
+        delta_groups0, -1, C_pen, C_pen_T)
     
     # Compute equation (10.27)
     rho_r = np.zeros((2,1))
@@ -1381,7 +1400,7 @@ def viscosity(T, P, mass, Mol_wt, Pc, Tc, Vc, omega, delta, Aij,
         # Get the density of methane at T0 and P0.  Be sure to use molecular
         # weight in kg/mol
         rho0 = density(T0[i], P0[i], np.array([1.]), M0*1.0e-3, Pc0, Tc0, 
-            Vc0, omega0, delta0, Aij, Bij, delta_groups0, -1)
+            Vc0, omega0, delta0, Aij, Bij, delta_groups0, -1, C_pen, C_pen_T)
         
         # Compute equation (10.10)
         theta[:,0] = (rho0[:,0] - rho_c0) / rho_c0

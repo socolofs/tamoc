@@ -184,6 +184,8 @@ class FluidMixture(object):
         self.K_salt = np.zeros(self.nc)
         self.k_bio = np.zeros(self.nc)
         self.t_bio = np.zeros(self.nc)
+        self.C_pen = np.zeros(self.nc)
+        self.C_pen_T = np.zeros(self.nc)
         
         # Fill the chemical composition variables from the chem database
         for i in range(self.nc):
@@ -253,6 +255,14 @@ class FluidMixture(object):
                 self.t_bio[i] = properties['t_bio']
             else:
                 self.t_bio[i] = 0.
+            if 'C_pen' in properties:
+                self.C_pen[i] = properties['C_pen']
+            else:
+                self.C_pen[i] = 0.
+            if 'C_pen_T' in properties:
+                self.C_pen_T[i] = properties['C_pen_T']
+            else:
+                self.C_pen_T[i] = 0.
         
         # If the user provided a binary interaction coefficients matrix, 
         # use them as a constant; otherwise, initialize an empty matrix
@@ -325,8 +335,10 @@ class FluidMixture(object):
                         self.delta_groups[i,j] = pj_vals[group_names[j]]
                     
                     # Normalize the data
-                    self.delta_groups[i,:] = self.delta_groups[i,:] / \
+                    if np.sum(self.delta_groups[i,:]) != 0.:
+                        self.delta_groups[i,:] = self.delta_groups[i,:] / \
                             np.sum(self.delta_groups[i,:])
+        
         else:
             # Do not use the group contributions method
             self.calc_delta = -1
@@ -480,7 +492,8 @@ class FluidMixture(object):
         """
         return dbm_f.density(T, P, m, self.M, self.Pc, self.Tc, self.Vc, 
                              self.omega, self.delta, self.Aij, self.Bij, 
-                             self.delta_groups, self.calc_delta)
+                             self.delta_groups, self.calc_delta, self.C_pen,
+                             self.C_pen_T)
     
     def fugacity(self, m, T, P):
         """
@@ -539,7 +552,8 @@ class FluidMixture(object):
         """
         return dbm_f.viscosity(T, P, m, self.M, self.Pc, self.Tc, self.Vc, 
                                self.omega, self.delta, self.Aij, self.Bij, 
-                               self.delta_groups, self.calc_delta)
+                               self.delta_groups, self.calc_delta,
+                               self.C_pen, self.C_pen_T)
     
     def interface_tension(self, m, T, S, P):
         """
@@ -1681,13 +1695,15 @@ class FluidParticle(FluidMixture):
             rho_p = dbm_f.density(T, P, m, self.M, self.Pc, self.Tc, self.Vc, 
                                   self.omega, self.delta, self.Aij, self.Bij, 
                                   self.delta_groups, 
-                                  self.calc_delta)[self.fp_type, 0]
+                                  self.calc_delta, self.C_pen, 
+                                  self.C_pen_T)[self.fp_type, 0]
        
             # Particle viscosity
             mu_p = dbm_f.viscosity(T, P, m, self.M, self.Pc, self.Tc, self.Vc, 
                                    self.omega, self.delta, self.Aij, self.Bij,
                                    self.delta_groups, 
-                                   self.calc_delta)[self.fp_type, 0]
+                                   self.calc_delta, self.C_pen, 
+                                   self.C_pen_T)[self.fp_type, 0]
                 
             # Particle interface tension
             sigma = FluidMixture.interface_tension(self, m, T, Sa, 
@@ -1707,12 +1723,14 @@ class FluidParticle(FluidMixture):
                 # Single-phase liquid
                 rho_p = dbm_f.density(T, P, mi[1,:], self.M, self.Pc, self.Tc, 
                     self.Vc, self.omega, self.delta, self.Aij, self.Bij,
-                    self.delta_groups, self.calc_delta)[1, 0]
+                    self.delta_groups, self.calc_delta, self.C_pen, 
+                    self.C_pen_T)[1, 0]
        
                 # Particle viscosity
                 mu_p = dbm_f.viscosity(T, P, mi[1,:], self.M, self.Pc, self.Tc, 
                     self.Vc, self.omega, self.delta, self.Aij, self.Bij,
-                    self.delta_groups, self.calc_delta)[1, 0]
+                    self.delta_groups, self.calc_delta, self.C_pen, 
+                    self.C_pen_T)[1, 0]
                 
                 # Particle interface tension
                 sigma = FluidMixture.interface_tension(self, mi[1,:], T, Sa, 
@@ -1727,12 +1745,14 @@ class FluidParticle(FluidMixture):
                 # Single-phase gas
                 rho_p = dbm_f.density(T, P, mi[0,:], self.M, self.Pc, self.Tc, 
                     self.Vc, self.omega, self.delta, self.Aij, self.Bij,
-                    self.delta_groups, self.calc_delta)[0, 0]
+                    self.delta_groups, self.calc_delta, self.C_pen, 
+                    self.C_pen_T)[0, 0]
        
                 # Particle viscosity
                 mu_p = dbm_f.viscosity(T, P, mi[0,:], self.M, self.Pc, self.Tc, 
                     self.Vc, self.omega, self.delta, self.Aij, self.Bij,
-                    self.delta_groups, self.calc_delta)[0, 0]
+                    self.delta_groups, self.calc_delta, self.C_pen, 
+                    self.C_pen_T)[0, 0]
                 
                 # Particle interface tension
                 sigma = FluidMixture.interface_tension(self, mi[0,:], T, Sa, 
@@ -1749,7 +1769,8 @@ class FluidParticle(FluidMixture):
                 for i in range(len(rho_pi)):
                     rho_pi[i] = dbm_f.density(T, P, mi[i,:], self.M, self.Pc, 
                         self.Tc, self.Vc, self.omega, self.delta, self.Aij, 
-                        self.Bij, self.delta_groups, self.calc_delta)[i, 0]
+                        self.Bij, self.delta_groups, self.calc_delta, 
+                        self.C_pen, self.C_pen_T)[i, 0]
                 rho_p = (np.sum(mi[0,:]) + np.sum(mi[1,:])) / (np.sum(mi[0,:]) 
                     / rho_pi[0] + np.sum(mi[1,:]) / rho_pi[1])
             
@@ -1759,7 +1780,8 @@ class FluidParticle(FluidMixture):
                     mu_pi[i] = dbm_f.viscosity(T, P, mi[i,:], self.M, 
                         self.Pc, self.Tc, self.Vc, self.omega, self.delta, 
                         self.Aij, self.Bij, self.delta_groups, 
-                        self.calc_delta)[i, 0]
+                        self.calc_delta, self.C_pen, 
+                        self.C_pen_T)[i, 0]
                 mu_p = (mu_pi[0] * np.sum(mi[0,:]) / rho_pi[0] + mu_pi[1] * 
                     np.sum(mi[1,:]) / rho_pi[1]) / (np.sum(mi[0,:]) / rho_pi[0] 
                     + np.sum(mi[1,:]) / rho_pi[1])

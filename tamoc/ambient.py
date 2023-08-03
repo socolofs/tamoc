@@ -102,7 +102,8 @@ class BaseProfile(object):
     """
     def __init__(self, data, ztsp=['z', 'temperature', 'salinity',
                  'pressure'], ztsp_units=['m', 'K', 'psu', 'Pa'],
-                 chem_names=None, chem_units=None, err=0.01):
+                 chem_names=None, chem_units=None, err=0.01, 
+                 stabilize_profile=True):
         
         super(BaseProfile, self).__init__()
         
@@ -120,6 +121,7 @@ class BaseProfile(object):
         self.chem_units = chem_units[:]
         self.nchems = len(self.chem_names)
         self.err = err
+        self.stabilize_profile = stabilize_profile
         
         # Build the BaseProfile from the provided xarray Dataset
         self._create_profile_from_xarray()
@@ -168,6 +170,10 @@ class BaseProfile(object):
             else:
                 self.ds = self.data
         
+        # Update all the units in the dataset to match standard units
+        # used in TAMOC
+        xr_convert_units(self.ds, self.ztsp[0])
+                
         # Insert the pressure data if missing by integrating the density
         if self.ztsp[-1] not in self.ds:
             # Extract the depth and temperature data
@@ -175,10 +181,12 @@ class BaseProfile(object):
             Ts = self.ds[self.ztsp[1]].values
             Ss = self.ds[self.ztsp[2]].values
             fs_loc = np.min(np.where(zs == np.min(zs)))
+            
             if fs_loc > 0:
                 fs_loc = -1
             # Compute the pressure for this density profile
             Ps = compute_pressure(zs, Ts, Ss, fs_loc)
+             
             # Insert the computed pressure into the dataset
             self.ds[self.ztsp[-1]] = ((self.ztsp[0]), Ps)
             self.ds[self.ztsp[-1]].attrs['units'] = 'Pa'
@@ -195,10 +203,6 @@ class BaseProfile(object):
         xr_check_units(self.ds, self.ztsp, self.ztsp_units)
         xr_check_units(self.ds, self.chem_names, self.chem_units)
         
-        # Update all the units in the dataset to match standard units
-        # used in TAMOC
-        xr_convert_units(self.ds, self.ztsp[0])
-        
         # Coarsen the data for interpolation
         if self.err > 0.:
             self.interp_ds = xr_coarsen_dataset(self.ds, self.ztsp[0], 
@@ -207,7 +211,7 @@ class BaseProfile(object):
             self.interp_ds = self.ds
         
         # Stablize the interpolation profile
-        if 'pressure' in self.interp_ds:
+        if 'pressure' in self.interp_ds and self.stabilize_profile:
             self.interp_ds = xr_stabilize_dataset(self.interp_ds,
                 self.ztsp[0], self.ztsp)
         
@@ -759,6 +763,8 @@ class BaseProfile(object):
         if plt.ylim()[0] <= 0:
             plt.gca().invert_yaxis()
         plt.tight_layout()
+        
+        plt.show()
     
     def plot_profiles(self, parameters, fig=1):
         """
@@ -799,6 +805,8 @@ class BaseProfile(object):
             self.plot_parameter(parm)
         
         plt.tight_layout()
+        
+        plt.show()
     
     def plot_physical_profiles(self, fig=2):
         """
@@ -914,6 +922,15 @@ class Profile(BaseProfile):
         initializing the ``Profile`` with standard CTD-type data.
     current_units : list of str
         A list of units corresponding to each column of the current array.
+    stabilize_profile : bool, default=True
+        A flag indicating whether the user wants the ambient profile to be 
+        absolutely stable (monotonically increasing water density with depth)
+        or whether the profile data should remain unchanged.  True will adjust
+        the data to be absolutely stable, False will leave the original 
+        temperature and pressure data unchanged.  Especially when using data
+        from a CTD, it is common to capture overturning events.  For the 
+        `TAMOC` simulation models, these should be removed so that the 
+        simulation encounters stable density stratification.
     
     Notes
     -----
@@ -969,7 +986,8 @@ class Profile(BaseProfile):
     def __init__(self, data, ztsp=['z', 'temperature', 'salinity',
                  'pressure'], chem_names=None, err=0.01,
                  ztsp_units=['m', 'K', 'psu', 'Pa'],
-                 chem_units=None, current=None, current_units=None):
+                 chem_units=None, current=None, current_units=None, 
+                 stabilize_profile=True):
         
         # Make sure we use the correct chem_names
         if isinstance(chem_names, str) or isinstance(chem_names, unicode):
@@ -1017,7 +1035,7 @@ class Profile(BaseProfile):
         # Process the xarray.Dataset object through the BaseProfile
         # constructor
         super(Profile, self).__init__(data, ztsp, ztsp_units, chem_names,
-                                      chem_units, err)
+                                      chem_units, err, stabilize_profile)
         
         # Add in the current data
         current_names = ['z', 'ua', 'va', 'wa']
@@ -2627,7 +2645,7 @@ def compute_pressure(z, T, S, fs_loc):
     else:
         depth_idxs = range(1, len(z))
         idx_0 = 0
-    
+        
     # Compute the pressure at the free surface
     P[idx_0] = P0 + seawater.density(T[0], S[0], P0) * g * z_sign * z[idx_0]
     

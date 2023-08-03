@@ -784,3 +784,64 @@ def test_profile_deeper():
     assert_approx_equal(N, 0.0006146292892002274, significant=6)
 
     ctd.close_nc()
+
+def test_profile_temp_in_C():
+    """
+    create a profile "from scratch", using temperature units in C
+    NOTE: this was a issue we found -- the compute_pressure call was assuming K
+    """
+    num_points = 6
+    depth = np.linspace(0, 50, num_points)  # Meters
+    temperatures = (13.0 - np.linspace(
+        0, 5, num_points)) # C -- arbitrary linear profile
+    salinity = 33.5 + np.linspace(0, 0.5, num_points)  # PSU
+
+    # Format data for sending to ambient module Profile class\
+    ctd_data = np.c_[depth, temperatures, salinity]
+
+    ctd_units = ['m', 'deg C', 'psu']
+
+    # Create the profile object
+    profile = ambient.Profile(ctd_data,
+                              ztsp_units=ctd_units,
+                              )
+    # note that units have been convered to K
+    assert profile.get_units(['temperature', 'pressure']) == ['K', 'Pa']
+
+    data = profile.get_values(depth, ['temperature', 'pressure'])
+    temps = data[:, 0]
+    press = data[:, 1]
+
+    assert np.all(temps == temperatures + 273.15)
+
+    # These are NOT checked numbers, but they look "right"
+    # only here to  catch unintentional changes
+    assert np.allclose(press, [
+        101325., 201904.67038744, 302515.35857713, 403156.17149524,
+        503826.19820054, 604524.50876183
+    ])
+
+def test_compute_pressure_pos_down():
+    """
+    test the compute_pressure method by itself
+    this one has depth positive-down, at first index
+    """
+    num_points = 6  # coarse, but for tests ...
+    depth = np.linspace(0, 50, num_points)  # Meters
+
+    temp = (13.0 - np.linspace(
+        0, 5, num_points)) + 273.15  # K -- arbitrary linear profile
+
+    salinity = 33.5 + np.linspace(0, 0.5, num_points)  # PSU
+
+    pressure = ambient.compute_pressure(depth, temp, salinity, 0)
+
+    # pressure should be going up with depth
+    assert np.all(np.diff(pressure) > 0)
+
+    # These are NOT checked numbers, but they look "right"
+    # only here to  catch unintentional changes
+    assert np.allclose(pressure, [
+        101325., 201904.67038744, 302515.35857713, 403156.17149524,
+        503826.19820054, 604524.50876183
+    ])

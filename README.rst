@@ -12,6 +12,19 @@ size distributions from source flow conditions.
 For typical usage, please see the ./bin directory of the source distribution
 for various example scripts.
 
+Version 3.1.0:  Added the ability for the user to provide values of the
+                Peneloux volume shift parameter to the `dbm` module classes.
+                The input parameters are `C_pen` and `C_pen_T`, which relate to
+                the temperature-dependent Peneloux shift model in equation 5.9
+                in Pedersen et al. (2015). Supplying `C_pen` equal to zero uses
+                the original model based on Lin and Duan (2005). The original
+                model is preferred unless the pseudo-component property data
+                have been strongly fitted so that Peneloux shift parameters
+                are outside the expected range of -0.4 to 1.2 are required. 
+                Minor fixes to prevent errors when non-standard units are used 
+                as input to the `ambient` module and several updates to make the
+                code compatible with recent releases of `numpy` and
+                `matplotlib`.
 Version 3.0.0:  Added the capability to have mixed-phase particles of gas and
                 liquid fused together.  Updated the initial conditions methods
                 for pure multi-phase plumes so that a void fraction between

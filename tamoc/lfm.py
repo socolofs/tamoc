@@ -74,6 +74,59 @@ def pipe_derivs(t, y, parcel, p):
     return yp
 
 
+def slot_derivs(t, y, parcel, p):
+    """
+    Coupled equations for the subsurface Lagrangian slot-fracture model
+    
+    Parameters
+    ----------
+    t : float
+        Current time in the simulation (s)
+    y : ndarray
+        Array of present values for the model state space
+    parcel : LagParcel object
+        Object describing the properties and behavior of the Lagrangian 
+        parcel
+    p : `ModelParams`
+        Object containing the fixed model parameters for the model
+    
+    """
+    # Initialize an output variable with stationary forcing
+    yp = np.zeros(y.shape)
+    
+    # Update the Lagrangian parcel with this ambient data
+    parcel.update(t, y)
+    
+    # Extract the state space variables
+    s = parcel.s
+    m = parcel.m
+    T = parcel.T
+    
+    # Compute the advection step
+    yp[0] = parcel.us
+    
+    # Compute the mass transfer and biodegradation
+    md_diss = - parcel.As * parcel.K * parcel.beta * (parcel.Cs - parcel.Ca)
+    md_biodeg = parcel.k_bio * parcel.m
+    yp[1:-1] = md_diss + md_biodeg
+    
+    # Compute the heat transfer
+    if parcel.beta_T == 0.:
+        # Parcel is at thermal equilibrium; hence, heat transfer has ceased
+        yp[-1] = 0.
+    else:
+        # Contribution from conduction and convection
+        dH = - parcel.rho * p.cp * parcel.As * parcel.K_T * parcel.beta_T * \
+            (T - parcel.Ta)
+        yp[-1] = dH
+        
+    # and contribution from mass loss
+    yp[-1] += p.cp * np.sum(md_diss + md_biodeg) * T
+    
+    # Return the derivatives
+    return yp
+
+
 def calculate(t0, y0, parcel, p, delta_t, s_max):
     """
     Simulate the subsurface fracture
@@ -119,6 +172,9 @@ def calculate(t0, y0, parcel, p, delta_t, s_max):
     # Initialize the state space
     r.set_initial_value(y0, t0)
     
+    # Update the parcel at the initial position
+    parcel.update(t0, y0)
+    
     # Set passing variables for derivs method
     r.set_f_params(parcel, p)
     
@@ -133,7 +189,7 @@ def calculate(t0, y0, parcel, p, delta_t, s_max):
     # Integrate to the top of the subsurface region
     k = 0
     k_limit = 300000
-    psteps = 250
+    psteps = 1
     stop = False
     while r.successful() and not stop:
         
@@ -181,7 +237,7 @@ def calculate(t0, y0, parcel, p, delta_t, s_max):
                 stop = True
                 print('\n -> Reached maximum number of iterations...')
             
-            if parcel.zp <= parcel.fracture.H:
+            if parcel.xp[2] <= parcel.fracture.H:
                 # Reached the top of the subsurface layer
                 stop = True
                 print('\n -> Reached the mud line...')
@@ -203,91 +259,77 @@ def calculate(t0, y0, parcel, p, delta_t, s_max):
     return (t, y, derived_vars)
 
 
-def main_ic(z0, fracture, mass_frac, fluid, profile, p):
+def main_ic(s0, T0, fracture, mass_frac, fluid, profile, p):
     """
-    Compute the initial conditions from the given information
+    Create the initial state space vector for a fracture simulation
     
-    Parameters 
+    Parameters
     ----------
-    z0 : float
-        Initial depth of the simulation (m)
-    fracture : `subsurface_fracture_model.Fracture`
-        Object containing the geometry and properties of the fracture pathway
-    mass_frac : np.array
-        Array of mass fractions (--) for each component in the petroleum
-        fluid model
+    s0 : float
+        Initial position along the fracture pathway (m)
+    T0 : float
+        Initial temperature (K) of the fracture fluid.  If set to `None`, then
+        the local temperature at the initial point will be used.
+    fracture : `SlotFracture`
+        A `SlotFracture` object that can report all of the geometric 
+        properties of the fracture pathway
+    mass_frac : ndarray
+        Array of masses fraction specifying the initial composition of the
+        simulated fluid
     fluid : `dbm.FluidMixture`
-        A discrete bubble model (`dbm`) fluid mixture object that
-        provides the thermodynamic properties of the petroleum fluid
+        A discrete bubble model (`dbm`) `FluidMixture` object containing
+        the equations of state of the tracked fluid
     profile : `ambient.Profile`
-        An `ambient.Profile` object that contains ambient property data for
-        the boundary conditions controlling the simulation. This database
-        must at least contain entries for temperature (K), pressure (Pa), and
-        salinity (psu). It may also include data for fracture aperture (m),
-        gas saturation (--), and the concentrations of dissolved compounds in
-        the pore waters.
+        An `ambient.Profile` object that contains the ambient properties
+        of the water surrounding the fracture
     p : `ModelParams`
-        Object containing the fixed model parameters for the model
-  
+        A `ModelParams` object that contains the fixed model parameters
+        of the present simulation
+    
+    Returns
+    -------
+    y0 : ndarray
+        Array of initial state space variables.  The array is organized as 
+        follows:  position along the fracture pathway (m), masses of each
+        component of the simulated fluid (kg) in the initial Lagrangian
+        element, and heat content (J) of the initial Lagrangian element.
+    m0_dot : float
+        Total mass flux (kg/s) of the fluid in the fracture at the initial
+        position.  Note:  this value is taken directly from the UT model
+        data stored in the `ambient.Profile` object.
+    
     """
-    # Get the ambient conditions at this point
-    Ta, Sa, Pa = profile.get_values(z0, ['temperature', 'salinity', 
-        'pressure'])
+    # Get the Cartesian coordinates of the initial position
+    x0 = fracture.get_x(s0)
     
-    # Compute the fluid density
-    mi, xi, ki = fluid.equilibrium(mass_frac, Ta, Pa)
-    rho_g, rho_l, alpha, rho = mixture_density(mi, Ta, Pa, fluid)
+    # Get the properties of the fracture fluid from the UT model
+    w0, u0, rho_0 = profile.get_values(x0[2], ['aperture_filled_by_oil', 
+        'oil_velocity', 'oil_density'])
     
-    # Get an initial mass for this element such that the initial Lagrangian
-    # element is shorter than it is wide
-    d0 = fracture.get_width(0)
-    h0 = d0 / 3.
-    m0 = np.pi * d0**2 / 4. * h0  * rho
-    m = m0 * mass_frac
+    # Compute the initial mass flux
+    m0_dot = rho_0 * (u0 * w0 * fracture.Lx)
     
-    # Set the initial conditions
-    t0 = 0.
-    y0 = np.zeros((2 + len(m)))
-    y0[0] = 0.
+    # Create the initial Lagrangian element
+    if isinstance(T0, type(None)):
+        T0 = profile.get_values(x0[2], 'temperature')
+    
+    # Make the initial Lagrangian element 10 times taller than the 
+    # fracture aperture
+    h0 = 10. * w0
+    V0 = w0 * fracture.Lx * h0
+    
+    # Compute the initial mass in the Lagrangian element
+    m0 = rho_0 * V0
+    
+    # Get the mass composition and heat of this element
+    m = mass_frac * m0
+    h = np.sum(m) * p.cp * T0
+    
+    # Fill the state-space vector
+    y0 = np.zeros(len(m)+2)
+    y0[0] = s0
     y0[1:-1] = m
-    y0[-1] = Ta * np.sum(m) * p.cp
+    y0[-1] = h
     
-    # Return the results
-    return (t0, y0)
-
-def mixture_density(me, T, P, fluid):
-    """
-    docstring for mixture_density
-    
-    """
-    # Get the mass fractions of gas and liquid
-    m = me[0,:] + me[1,:]
-    f_gas = np.sum(me[0,:]) / np.sum(m)
-    f_liq = np.sum(me[1,:]) / np.sum(m)
-    
-    # Compute the densities of gas and liquid and the gas fraction
-    if f_gas <= 0.001:
-        # This is essentially pure liquid
-        rho_gas = 0.
-        rho_liq = fluid.density(me[1,:], T, P)[1]
-        alpha = 0.
-        
-    elif f_liq <= 0.001:
-        # This is essentially pure gas
-        rho_gas = fluid.density(me[0,:], T, P)[0]
-        rho_liq = 0.
-        alpha = 1.
-        
-    else:
-        # This is a gas/liquid mixture
-        rho_gas = fluid.density(me[0,:], T, P)[0]
-        rho_liq = fluid.density(me[1,:], T, P)[1]
-        Vg = np.sum(me[0,:]) / rho_gas
-        Vl = np.sum(me[1,:]) / rho_liq
-        alpha = Vg / (Vg + Vl)
-    
-    # Compute the mixture density
-    rho = rho_gas * alpha + rho_liq * (1. - alpha)
-
-    return (rho_gas, rho_liq, alpha, rho)
-    
+    # Return the state space and the initial mass flux
+    return (y0, m0_dot)

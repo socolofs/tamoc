@@ -337,7 +337,7 @@ def pH(co2, Ta, alk=0.002300, ph_guess=9):
     
     # Use a root-finding algorithm to converge on the correct pH
     from scipy.optimize import fsolve
-    h = fsolve(h_residual, 10**-9)[0]
+    h = fsolve(h_residual, 10**-ph_guess)[0]
     
     # Convert the hydrogen ion concentration to a pH value
     ph = -np.log10(h)

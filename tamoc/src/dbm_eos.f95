@@ -35,7 +35,7 @@ end module EOS_Constants
 ! ----------------------------------------------------------------------------
 
 subroutine density(nc, T, P, mass, Mol_wt, Pc, Tc, Vc, omega, delta, Aij, & 
-    &              Bij, delta_groups, calc_delta, &
+    &              Bij, delta_groups, calc_delta, C_pen, C_pen_T, &
     &              rho)
     
     ! 
@@ -63,6 +63,8 @@ subroutine density(nc, T, P, mass, Mol_wt, Pc, Tc, Vc, omega, delta, Aij, &
     !         component in the mixture (--)
     !     calc_groups = flag indicating whether or not delta_groups has 
     !         been provided (1 = yes, -1 = no)
+	!     C_pen = Peneloux volume translation coefficient (m^3/mol)
+	!     C_pen_T = Peneloux parameter temperature correction (m^3/(mol K))
     ! 
     ! Output variable is:
     !     rho = numpy array of the density [gas, liquid] of the mixture 
@@ -79,7 +81,7 @@ subroutine density(nc, T, P, mass, Mol_wt, Pc, Tc, Vc, omega, delta, Aij, &
     integer, intent(in) :: nc, calc_delta
     real(kind = DP), intent(in) :: T, P
     real(kind = DP), intent(in), dimension(nc) :: mass, Mol_wt, Pc, Tc, Vc, &
-                                                & omega
+                                                & omega, C_pen, C_pen_T
     real(kind = DP), intent(in), dimension(nc, 15) :: delta_groups
     real(kind = DP), intent(in), dimension(15, 15) :: Aij, Bij
     real(kind = DP), intent(in), dimension(nc, nc) :: delta
@@ -99,7 +101,7 @@ subroutine density(nc, T, P, mass, Mol_wt, Pc, Tc, Vc, omega, delta, Aij, &
     call mole_fraction(nc, mass, Mol_wt, yk)
     
     ! Compute the volume translation coefficient
-    call volume_trans(nc, T, P, mass, Mol_wt, Pc, Tc, Vc, vt)
+    call volume_trans(nc, T, P, mass, Mol_wt, Pc, Tc, Vc, C_pen, C_pen_T, vt)
     
     ! Compute the molar volume
     nu = z * Ru * T / P - sum(yk(:) * vt(:))
@@ -182,7 +184,7 @@ subroutine fugacity(nc, T, P, mass, Mol_wt, Pc, Tc, omega, delta, Aij, Bij, &
 end subroutine fugacity
 
 
-subroutine volume_trans(nc, T, P, mass, Mol_wt, Pc, Tc, Vc, &
+subroutine volume_trans(nc, T, P, mass, Mol_wt, Pc, Tc, Vc, C_pen, C_pen_T, &
     &                   vt)
     
     ! 
@@ -204,6 +206,8 @@ subroutine volume_trans(nc, T, P, mass, Mol_wt, Pc, Tc, Vc, &
     !          (m^3/mol)
     !     mass = array of masses for each component in the mixture (kg)
     !     Mol_wt = array of molecular weights for each component (kg/mol)
+	!     C_pen = Peneloux volume translation coefficient (m^3/mol)
+	!     C_pen_T = Peneloux parameter temperature correction (m^3/(mol K))
     ! 
     ! Output variable is:
     !     vt = volume translation parameter (m^3/mol)
@@ -218,32 +222,43 @@ subroutine volume_trans(nc, T, P, mass, Mol_wt, Pc, Tc, Vc, &
     ! Declare the input and output variable types
     integer, intent(in) :: nc
     real(kind = DP), intent(in) :: T, P
-    real(kind = DP), intent(in), dimension(nc) :: mass, Mol_wt, Pc, Tc, Vc
+    real(kind = DP), intent(in), dimension(nc) :: mass, Mol_wt, Pc, Tc, Vc, &
+	                                            & C_pen, C_pen_T
     real(kind = DP), intent(out), dimension(nc) :: vt
     
     ! Declare the variables internal to the function
     real(kind = DP), dimension(nc) :: Zc, beta, gamma, f_Tr, cc
     
-    ! Compute the compressibility factor (--) for each component of the 
-    ! mixture
-    Zc = Pc(:) * Vc(:) / (Ru * Tc(:))
-    
-    ! Calculate the parameters in the Lin and Duan (2005) paper:  beta is 
-    ! from equation (12)
-    beta = -2.8431D0 * exp(-64.2184D0 * (0.3074D0 - Zc(:))) + 0.1735D0
-    
-    ! and gamma is from Equation (13)
-    gamma = -99.2558D0 + 301.6201D0 * Zc(:)
-    
-    ! Account for the temperature dependence (equation 10)
-    f_Tr = beta(:) + (1.0D0 - beta(:)) * exp(gamma(:) * abs(1.0D0-T / Tc(:)))
-    
-    ! Compute the volume translation for the critical point (equation 9)
-    cc = (0.3074D0 - Zc(:)) * Ru * Tc(:) / Pc(:)
-    
-    ! Finally, the volume translation at the given state is (equation 8)
-    vt = f_Tr * cc
-
+	! Decide how to get the Peneloux shift parameters
+	if (C_pen(1) == 0.) then
+		! Compute the compressibility factor (--) for each component of the 
+	    ! mixture
+	    Zc = Pc(:) * Vc(:) / (Ru * Tc(:))
+   
+	    ! Calculate the parameters in the Lin and Duan (2005) paper:  beta is 
+	    ! from equation (12)
+	    beta = -2.8431D0 * exp(-64.2184D0 * (0.3074D0 - Zc(:))) + 0.1735D0
+   
+	    ! and gamma is from Equation (13)
+	    gamma = -99.2558D0 + 301.6201D0 * Zc(:)
+   
+	    ! Account for the temperature dependence (equation 10)
+	    f_Tr = beta(:) + (1.0D0 - beta(:)) * exp(gamma(:) * &
+	&		   abs(1.0D0-T / Tc(:)))
+   
+	    ! Compute the volume translation for the critical point (equation 9)
+	    cc = (0.3074D0 - Zc(:)) * Ru * Tc(:) / Pc(:)
+   
+	    ! Finally, the volume translation at the given state is (equation 8)
+	    vt = f_Tr * cc
+		
+	else
+		! Use the user-defined Peneloux parameters following equation 5.9 in
+		! Pedersen et al. (2015) Phase Behavior of Petroleum Reservoir Fluids
+		vt = C_pen(:) + C_pen_T(:) * (T - 288.15)
+		
+	end if
+	
 end subroutine volume_trans
 
 
@@ -523,7 +538,7 @@ end subroutine mole_fraction
 ! ----------------------------------------------------------------------------
 
 subroutine viscosity(nc, T, P, mass, Mol_wt, Pc, Tc, Vc, omega, delta, Aij, & 
-    &              Bij, delta_groups, calc_delta, &
+    &              Bij, delta_groups, calc_delta, C_pen, C_pen_T, &
     &              mu)
     
     !
@@ -556,6 +571,8 @@ subroutine viscosity(nc, T, P, mass, Mol_wt, Pc, Tc, Vc, omega, delta, Aij, &
     !         component in the mixture (--)
     !     calc_groups = flag indicating whether or not delta_groups has 
     !         been provided (1 = yes, -1 = no)
+	!     C_pen = Peneloux volume translation coefficient (m^3/mol)
+	!     C_pen_T = Peneloux parameter temperature correction (m^3/(mol K))
     ! 
     ! Output variable is:
     !     mu = numpy array of the viscosity [gas, liquid] of the mixture
@@ -572,7 +589,7 @@ subroutine viscosity(nc, T, P, mass, Mol_wt, Pc, Tc, Vc, omega, delta, Aij, &
     integer, intent(in) :: nc, calc_delta
     real(kind = DP), intent(in) :: T, P
     real(kind = DP), intent(in), dimension(nc) :: mass, Mol_wt, Pc, Tc, Vc, &
-                                                & omega
+                                                & omega, C_pen, C_pen_T
     real(kind = DP), intent(in), dimension(nc, 15) :: delta_groups
     real(kind = DP), intent(in), dimension(15, 15) :: Aij, Bij
     real(kind = DP), intent(in), dimension(nc, nc) :: delta
@@ -645,7 +662,7 @@ subroutine viscosity(nc, T, P, mass, Mol_wt, Pc, Tc, Vc, omega, delta, Aij, &
     ! Get the density of methane at TTc0/Tc_mix and PPc0/Pc_mix
     call density(1, T * Tc0(1) / Tc_mix, P * Pc0(1) / Pc_mix, [1.0D0], M0, &
         &        Pc0, Tc0, Vc0, omega0, delta0, Aij, Bij, delta_groups0, &
-        &        -1, rho0)
+        &        -1, C_pen, C_pen_T, rho0)
     
     ! Compute equation (10.27)
     rho_r(:,1) = rho0(:,1) / rho_c0
@@ -673,7 +690,8 @@ subroutine viscosity(nc, T, P, mass, Mol_wt, Pc, Tc, Vc, omega, delta, Aij, &
         ! Get the density of methane at T0 and P0.  Be sure to use molecular
         ! weight in kg/mol
         call density(1, T0(i), P0(i), [1.0D0], M0*1.0D-3, Pc0, Tc0, Vc0, &
-            &        omega0, delta0, Aij, Bij, delta_groups0, -1, rho0)
+            &        omega0, delta0, Aij, Bij, delta_groups0, -1, &
+			&        C_pen, C_pen_T, rho0)
         
         ! Compute equation (10.10)
         theta(:,1) = (rho0(:,1) - rho_c0) / rho_c0

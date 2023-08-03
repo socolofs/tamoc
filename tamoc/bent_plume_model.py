@@ -2139,14 +2139,20 @@ class Particle(dispersed_phases.PlumeParticle):
             t_hyd = 0.
 
         # Run the simulation
-        self.sbm.simulate(self.particle, X0, de, yk, self.T, self.K,
-            self.K_T, self.fdis, t_hyd, self.lag_time, delta_t=1000.)
+        if not np.isnan(de):
+            self.sbm.simulate(self.particle, X0, de, yk, self.T, self.K,
+                self.K_T, self.fdis, t_hyd, self.lag_time, delta_t=1000.)
 
-        # Set flag indicating that far-field solution was computed
-        self.farfield = True
+            # Set flag indicating that far-field solution was computed
+            self.farfield = True
         
-        # Prepare for computing far-field concentrations
-        self._create_concentration_model()
+            # Prepare for computing far-field concentrations
+            self._create_concentration_model()
+        else:
+            print('Particle component masses (d = %g mm):' % (de * 1000.))
+            for i in range(len(self.m)):
+                print('    %s:  %g (kg)' % (self.composition[i], self.m[i]))
+            
     
     def _create_concentration_model(self, k=1000):
         """
@@ -2380,7 +2386,7 @@ class Particle(dispersed_phases.PlumeParticle):
             
             # Only include this particle if in advection-dominated region
             if L > L_D:
-                Cp += md_p / np.float(k) / np.sqrt(4. * np.pi * L * Ua * Et) * \
+                Cp += md_p / np.float64(k) / np.sqrt(4. * np.pi * L * Ua * Et) * \
                     np.exp(-(Ua * H**2) / (4. * Et * L))
         
         # Concentration cannot be higher than saturation
@@ -2541,8 +2547,11 @@ class LagElement(object):
         Current s-position along the centerline of the plume for the
         Lagrangian element (m)
     M_p : dict of ndarrays
-        For integer key: the total mass fluxes (kg/s) of each component in a
-        particle.
+        For integer key: the total mass (kg) of each component in a particle
+        that are in the Lagrangian element.  The mass per particle is 
+        M_p / nbe, where nbe is the number of particles in the Lagrangian 
+        element.  The total mass flux in particles of M_p / nbe * nb0, 
+        where nb0 is the initial number flux of particles.
     H_p : ndarray
         Total heat flux for each particle (J/s)
     t_p : ndarray
@@ -2858,7 +2867,7 @@ def plot_state_space(t, q, q_local, profile, p, particles, fig):
     ax1.set_xlabel('x (m)')
     ax1.set_ylabel('Depth (m)')
     ax1.invert_yaxis()
-    ax1.grid(b=True, which='major', color='0.65', linestyle='-')
+    ax1.grid(which='major', color='0.65', linestyle='-')
 
     # y-z plane
     ax2 = plt.subplot(222)
@@ -2868,7 +2877,7 @@ def plot_state_space(t, q, q_local, profile, p, particles, fig):
     ax2.set_xlabel('y (m)')
     ax2.set_ylabel('Depth (m)')
     ax2.invert_yaxis()
-    ax2.grid(b=True, which='major', color='0.65', linestyle='-')
+    ax2.grid(which='major', color='0.65', linestyle='-')
 
     # x-y plane
     ax3 = plt.subplot(223)
@@ -2877,14 +2886,14 @@ def plot_state_space(t, q, q_local, profile, p, particles, fig):
         ax3.plot(xp[:,i*3], xp[:,i*3 + 1], '.--')
     ax3.set_xlabel('x (m)')
     ax3.set_ylabel('y (m)')
-    ax3.grid(b=True, which='major', color='0.65', linestyle='-')
+    ax3.grid(which='major', color='0.65', linestyle='-')
 
     # M-s plane
     ax4 = plt.subplot(224)
     ax4.plot(s, M)
     ax4.set_xlabel('s (m)')
     ax4.set_ylabel('M (kg)')
-    ax4.grid(b=True, which='major', color='0.65', linestyle='-')
+    ax4.grid(which='major', color='0.65', linestyle='-')
 
     plt.draw()
 
@@ -3019,7 +3028,7 @@ def plot_all_variables(t, q, q_local, profile, p, particles,
     for i in range(len(particles)):
         ax1.plot(particles[i].x, particles[i].z, 'o')
         ax1.plot(xp[:,i*3], xp[:,i*3+2], '.--')
-        if tracked:
+        if particles[i].farfield:
             if particles[i].integrate is False and particles[i].z > 0.:
                 ax1.plot(particles[i].sbm.y[:,0], particles[i].sbm.y[:,2],
                          '.:')
@@ -3029,7 +3038,7 @@ def plot_all_variables(t, q, q_local, profile, p, particles,
     ax1.invert_yaxis()
     ax1.set_xlabel('x (m)')
     ax1.set_ylabel('z (m)')
-    ax1.grid(b=True, which='major', color='0.5', linestyle='-')
+    ax1.grid(which='major', color='0.5', linestyle='-')
 
     ax2 = plt.subplot(222)
     ax2.plot(y, z, 'b-')
@@ -3039,7 +3048,7 @@ def plot_all_variables(t, q, q_local, profile, p, particles,
     for i in range(len(particles)):
         ax2.plot(particles[i].y, particles[i].z, 'o')
         ax2.plot(xp[:,i*3+1], xp[:,i*3+2], '.--')
-        if tracked:
+        if particles[i].farfield:
             if particles[i].integrate is False and particles[i].z > 0.:
                 ax2.plot(particles[i].sbm.y[:,1], particles[i].sbm.y[:,2],
                          '.:')
@@ -3049,7 +3058,7 @@ def plot_all_variables(t, q, q_local, profile, p, particles,
     ax2.invert_yaxis()
     ax2.set_xlabel('y (m)')
     ax2.set_ylabel('z (m)')
-    ax2.grid(b=True, which='major', color='0.5', linestyle='-')
+    ax2.grid(which='major', color='0.5', linestyle='-')
     
     ax3 = plt.subplot(223)
     ax3.plot(x, y, 'b-')
@@ -3059,7 +3068,7 @@ def plot_all_variables(t, q, q_local, profile, p, particles,
     for i in range(len(particles)):
         ax3.plot(particles[i].x, particles[i].y, 'o')
         ax3.plot(xp[:,i*3], xp[:,i*3+1], '.--')
-        if tracked:
+        if particles[i].farfield:
             if particles[i].integrate is False and particles[i].z > 0.:
                 ax3.plot(particles[i].sbm.y[:,0], particles[i].sbm.y[:,1],
                          '.:')
@@ -3068,7 +3077,7 @@ def plot_all_variables(t, q, q_local, profile, p, particles,
                          '.:')
     ax3.set_xlabel('x (m)')
     ax3.set_ylabel('y (m)')
-    ax3.grid(b=True, which='major', color='0.5', linestyle='-')
+    ax3.grid(which='major', color='0.5', linestyle='-')
     
     ax4 = plt.subplot(224)
     ax4.plot(s, np.zeros(s.shape), 'b-')
@@ -3076,7 +3085,7 @@ def plot_all_variables(t, q, q_local, profile, p, particles,
     ax4.plot(s, -b, 'b--')
     ax4.set_xlabel('s (m)')
     ax4.set_ylabel('r (m)')
-    ax4.grid(b=True, which='major', color='0.5', linestyle='-')
+    ax4.grid(which='major', color='0.5', linestyle='-')
     
     plt.tight_layout()
     plt.draw()
@@ -3091,13 +3100,13 @@ def plot_all_variables(t, q, q_local, profile, p, particles,
     ax1.plot(s, h, 'b-')
     ax1.set_xlabel('s (m)')
     ax1.set_ylabel('h (m)')
-    ax1.grid(b=True, which='major', color='0.5', linestyle='-')
+    ax1.grid(which='major', color='0.5', linestyle='-')
 
     ax2 = plt.subplot(122)
     ax2.plot(s, E, 'b-')
     ax2.set_xlabel('s (m)')
     ax2.set_ylabel('E (kg/s)')
-    ax2.grid(b=True, which='major', color='0.5', linestyle='-')
+    ax2.grid(which='major', color='0.5', linestyle='-')
 
     plt.draw()
 
@@ -3112,25 +3121,25 @@ def plot_all_variables(t, q, q_local, profile, p, particles,
     ax1.plot(s, ua, 'g--')
     ax1.set_xlabel('s (m)')
     ax1.set_ylabel('u (m/s)')
-    ax1.grid(b=True, which='major', color='0.5', linestyle='-')
+    ax1.grid(which='major', color='0.5', linestyle='-')
 
     ax2 = plt.subplot(222)
     ax2.plot(s, v, 'b-')
     ax2.set_xlabel('s (m)')
     ax2.set_ylabel('v (m/s)')
-    ax2.grid(b=True, which='major', color='0.5', linestyle='-')
+    ax2.grid(which='major', color='0.5', linestyle='-')
 
     ax3 = plt.subplot(223)
     ax3.plot(s, w, 'b-')
     ax3.set_xlabel('s (m)')
     ax3.set_ylabel('w (m/s)')
-    ax3.grid(b=True, which='major', color='0.5', linestyle='-')
+    ax3.grid(which='major', color='0.5', linestyle='-')
 
     ax4 = plt.subplot(224)
     ax4.plot(s, V, 'b-')
     ax4.set_xlabel('s (m)')
     ax4.set_ylabel('V (m/s)')
-    ax4.grid(b=True, which='major', color='0.5', linestyle='-')
+    ax4.grid(which='major', color='0.5', linestyle='-')
 
     plt.draw()
 
@@ -3149,7 +3158,7 @@ def plot_all_variables(t, q, q_local, profile, p, particles,
         ax1.set_ylim([S[0] - 1, S[0] + 1])
     ax1.set_xlabel('s (m)')
     ax1.set_ylabel('Salinity (psu)')
-    ax1.grid(b=True, which='major', color='0.5', linestyle='-')
+    ax1.grid(which='major', color='0.5', linestyle='-')
 
     ax2 = plt.subplot(222)
     ax2.yaxis.set_major_formatter(formatter)
@@ -3159,7 +3168,7 @@ def plot_all_variables(t, q, q_local, profile, p, particles,
         ax2.set_ylim([T[0] - 273.15 - 1., T[0] - 273.15 + 1.])
     ax2.set_xlabel('s (m)')
     ax2.set_ylabel('Temperature (deg C)')
-    ax2.grid(b=True, which='major', color='0.5', linestyle='-')
+    ax2.grid(which='major', color='0.5', linestyle='-')
 
     ax3 = plt.subplot(223)
     ax3.yaxis.set_major_formatter(formatter)
@@ -3169,7 +3178,7 @@ def plot_all_variables(t, q, q_local, profile, p, particles,
         ax3.set_ylim([rho[0] - 1, rho[0] + 1])
     ax3.set_xlabel('s (m)')
     ax3.set_ylabel('Density (kg/m^3)')
-    ax3.grid(b=True, which='major', color='0.5', linestyle='-')
+    ax3.grid(which='major', color='0.5', linestyle='-')
 
     plt.draw()
 
@@ -3186,14 +3195,14 @@ def plot_all_variables(t, q, q_local, profile, p, particles,
         ax1.plot(s, Mp / 1.e-6, 'b-')
         ax1.set_xlabel('s (m)')
         ax1.set_ylabel('m (mg)')
-        ax1.grid(b=True, which='major', color='0.5', linestyle='-')
+        ax1.grid(which='major', color='0.5', linestyle='-')
 
         ax2 = plt.subplot(122)
         ax2.yaxis.set_major_formatter(formatter)
         ax2.plot(s, Tp - 273.15, 'b-')
         ax2.set_xlabel('s (m)')
         ax2.set_ylabel('Temperature (deg C)')
-        ax2.grid(b=True, which='major', color='0.5', linestyle='-')
+        ax2.grid(which='major', color='0.5', linestyle='-')
 
         plt.draw()
 
