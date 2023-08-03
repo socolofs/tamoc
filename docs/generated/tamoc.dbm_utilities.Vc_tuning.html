@@ -1,0 +1,856 @@
+
+
+<!DOCTYPE html>
+
+
+<html >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+<meta property="og:title" content="tamoc.dbm_utilities.Vc_tuning" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="generated/tamoc.dbm_utilities.Vc_tuning.html" />
+<meta property="og:site_name" content="TAMOC" />
+<meta property="og:image:width" content="1146" />
+<meta property="og:image:height" content="600" />
+<meta property="og:image" content="/None" />
+<meta property="og:image:alt" content="" />
+<meta name="twitter:card" content="summary_large_image" />
+
+    <title>tamoc.dbm_utilities.Vc_tuning</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/tamoc.dbm_utilities.Vc_tuning';</script>
+    <link rel="shortcut icon" href="../_static/tamoc_favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="tamoc.dbm_utilities.print_chemdata" href="tamoc.dbm_utilities.print_chemdata.html" />
+    <link rel="prev" title="tamoc.dbm_utilities.compute_Vb" href="tamoc.dbm_utilities.compute_Vb.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="None"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/tamoc_logo.png" class="logo__image only-light" alt="Logo image"/>
+    <script>document.write(`<img src="../_static/tamoc_logo.png" class="logo__image only-dark" alt="Logo image"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../start.html">Getting Started</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howto.html">How to use this documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../readme.html">ReadMe File</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../license.html">License</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release.html">Release Notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bugs.html">Reporting Bugs</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../guides.html">User's Guide</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../guides/seawater.html">Equations of State for Seawater</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/ambient.html">Tools for Manipulating Ambient Profile Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/dbm.html">Discrete Bubble Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/dbm_p.html">Discrete Bubble Model – Properties Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/disp_phases.html">Dispersed Phases</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/sbm.html">Single Bubble Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/spm.html">Stratified Plume Model User’s Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/bpm.html">Bent Plume Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/params.html">Params Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/blowout.html">Blowout Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/psm.html">Particle Size Models</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../scripts.html">Example Scripts</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../scripts/ambient.html">Ambient Scripts</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="bin.ambient.profile_from_txt.html">bin.ambient.profile_from_txt</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bin.ambient.profile_from_lab.html">bin.ambient.profile_from_lab</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bin.ambient.profile_from_ctd.html">bin.ambient.profile_from_ctd</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bin.ambient.profile_from_world_ocean.html">bin.ambient.profile_from_world_ocean</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bin.ambient.profile_append.html">bin.ambient.profile_append</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bin.ambient.profile_extending.html">bin.ambient.profile_extending</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bin.ambient.nc_profile_from_txt.html">bin.ambient.nc_profile_from_txt</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bin.ambient.nc_profile_from_lab.html">bin.ambient.nc_profile_from_lab</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bin.ambient.nc_profile_from_ctd.html">bin.ambient.nc_profile_from_ctd</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bin.ambient.nc_profile_append.html">bin.ambient.nc_profile_append</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bin.ambient.nc_profile_extending.html">bin.ambient.nc_profile_extending</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bin.ambient.np_profile_from_txt.html">bin.ambient.np_profile_from_txt</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bin.ambient.np_profile_from_lab.html">bin.ambient.np_profile_from_lab</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bin.ambient.np_profile_from_ctd.html">bin.ambient.np_profile_from_ctd</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../scripts/dbm.html">Discrete Particle Model Scripts</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="bin.dbm.air_eos.html">bin.dbm.air_eos</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bin.dbm.co2_eos.html">bin.dbm.co2_eos</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bin.dbm.dead_oil.html">bin.dbm.dead_oil</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bin.dbm.gas_bubbles.html">bin.dbm.gas_bubbles</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bin.dbm.hydrocarbon_drops.html">bin.dbm.hydrocarbon_drops</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bin.dbm.droplet_rise.html">bin.dbm.droplet_rise</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bin.dbm.equilibrium.html">bin.dbm.equilibrium</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../scripts/single_bubble_model.html">Single Bubble Model Scripts</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-6"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="bin.sbm.bubble.html">bin.sbm.bubble</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bin.sbm.drop.html">bin.sbm.drop</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bin.sbm.particle.html">bin.sbm.particle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bin.sbm.sbm_file_io.html">bin.sbm.sbm_file_io</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bin.sbm.seep_bubble.html">bin.sbm.seep_bubble</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bin.sbm.drop_biodeg.html">bin.sbm.drop_biodeg</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bin.sbm.CO2_bubble.html">bin.sbm.CO2_bubble</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../scripts/stratified_plume_model.html">Stratified Plume Model Scripts</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-7"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="bin.spm.lake_bub.html">bin.spm.lake_bub</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bin.spm.lake_part.html">bin.spm.lake_part</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bin.spm.spm_blowout_sim.html">bin.spm.spm_blowout_sim</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bin.spm.spm_file_io.html">bin.spm.spm_file_io</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../scripts/bent_plume_model.html">Bent Plume Model Scripts</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-8"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="bin.bpm.crossflow_plume.html">bin.bpm.crossflow_plume</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bin.bpm.bpm_blowout_sim.html">bin.bpm.bpm_blowout_sim</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bin.bpm.CO2.html">bin.bpm.CO2</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../scripts/particle_size_models.html">Particle Size Model Scripts</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-9"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="bin.psm.oil_jet.html">bin.psm.oil_jet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bin.psm.blowout_jet.html">bin.psm.blowout_jet</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../scripts/blowout.html">Blowout Scripts</a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-10"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="bin.bpm.blowout_obj.html">bin.bpm.blowout_obj</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../scripts/params.html">Non-Dimensional Parameters Scripts</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-11"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="bin.params.scales.html">bin.params.scales</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../api.html">API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-12"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../modules/seawater.html">Seawater Module</a><input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-13"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.seawater.html">tamoc.seawater</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.seawater.density.html">tamoc.seawater.density</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.seawater.mu.html">tamoc.seawater.mu</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.seawater.sigma.html">tamoc.seawater.sigma</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.seawater.k.html">tamoc.seawater.k</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.seawater.cp.html">tamoc.seawater.cp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.seawater.pH.html">tamoc.seawater.pH</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../modules/ambient.html">Ambient Module</a><input class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-14"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.ambient.html">tamoc.ambient</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.ambient.Profile.html">tamoc.ambient.Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.ambient.BaseProfile.html">tamoc.ambient.BaseProfile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.ambient.Profile.get_values.html">tamoc.ambient.Profile.get_values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.ambient.Profile.get_units.html">tamoc.ambient.Profile.get_units</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.ambient.Profile.append.html">tamoc.ambient.Profile.append</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.ambient.Profile.extend_profile_deeper.html">tamoc.ambient.Profile.extend_profile_deeper</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.ambient.Profile.add_computed_gas_concentrations.html">tamoc.ambient.Profile.add_computed_gas_concentrations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.ambient.Profile.buoyancy_frequency.html">tamoc.ambient.Profile.buoyancy_frequency</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.ambient.Profile.insert_density.html">tamoc.ambient.Profile.insert_density</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.ambient.Profile.insert_potential_density.html">tamoc.ambient.Profile.insert_potential_density</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.ambient.Profile.insert_buoyancy_frequency.html">tamoc.ambient.Profile.insert_buoyancy_frequency</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.ambient.Profile.plot_parameter.html">tamoc.ambient.Profile.plot_parameter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.ambient.Profile.plot_profiles.html">tamoc.ambient.Profile.plot_profiles</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.ambient.Profile.plot_physical_profiles.html">tamoc.ambient.Profile.plot_physical_profiles</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.ambient.Profile.plot_chem_profiles.html">tamoc.ambient.Profile.plot_chem_profiles</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.ambient.Profile.close_nc.html">tamoc.ambient.Profile.close_nc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.ambient.xr_check_units.html">tamoc.ambient.xr_check_units</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.ambient.xr_convert_units.html">tamoc.ambient.xr_convert_units</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.ambient.xr_coarsen_dataset.html">tamoc.ambient.xr_coarsen_dataset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.ambient.xr_stabilize_dataset.html">tamoc.ambient.xr_stabilize_dataset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.ambient.xr_dataset_to_array.html">tamoc.ambient.xr_dataset_to_array</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.ambient.xr_array_to_dataset.html">tamoc.ambient.xr_array_to_dataset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.ambient.xr_add_data_from_numpy.html">tamoc.ambient.xr_add_data_from_numpy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.ambient.create_nc_db.html">tamoc.ambient.create_nc_db</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.ambient.fill_nc_db.html">tamoc.ambient.fill_nc_db</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.ambient.fill_nc_db_variable.html">tamoc.ambient.fill_nc_db_variable</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.ambient.get_nc_data.html">tamoc.ambient.get_nc_data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.ambient.get_xarray_data.html">tamoc.ambient.get_xarray_data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.ambient.add_data.html">tamoc.ambient.add_data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.ambient.extract_profile.html">tamoc.ambient.extract_profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.ambient.coarsen.html">tamoc.ambient.coarsen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.ambient.stabilize.html">tamoc.ambient.stabilize</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.ambient.compute_pressure.html">tamoc.ambient.compute_pressure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.ambient.convert_units.html">tamoc.ambient.convert_units</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.ambient.get_world_ocean.html">tamoc.ambient.get_world_ocean</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.ambient.load_raw.html">tamoc.ambient.load_raw</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../modules/dbm.html">Discrete Particle Module</a><input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-15"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm.html">tamoc.dbm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm.FluidMixture.html">tamoc.dbm.FluidMixture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm.FluidParticle.html">tamoc.dbm.FluidParticle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm.InsolubleParticle.html">tamoc.dbm.InsolubleParticle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm.FluidMixture.masses.html">tamoc.dbm.FluidMixture.masses</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm.FluidMixture.mass_frac.html">tamoc.dbm.FluidMixture.mass_frac</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm.FluidMixture.moles.html">tamoc.dbm.FluidMixture.moles</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm.FluidMixture.mol_frac.html">tamoc.dbm.FluidMixture.mol_frac</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm.FluidMixture.partial_pressures.html">tamoc.dbm.FluidMixture.partial_pressures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm.FluidMixture.density.html">tamoc.dbm.FluidMixture.density</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm.FluidMixture.fugacity.html">tamoc.dbm.FluidMixture.fugacity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm.FluidMixture.viscosity.html">tamoc.dbm.FluidMixture.viscosity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm.FluidMixture.interface_tension.html">tamoc.dbm.FluidMixture.interface_tension</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm.FluidMixture.equilibrium.html">tamoc.dbm.FluidMixture.equilibrium</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm.FluidMixture.solubility.html">tamoc.dbm.FluidMixture.solubility</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm.FluidMixture.diffusivity.html">tamoc.dbm.FluidMixture.diffusivity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm.FluidMixture.hydrate_stability.html">tamoc.dbm.FluidMixture.hydrate_stability</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm.FluidMixture.biodegradation_rate.html">tamoc.dbm.FluidMixture.biodegradation_rate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm.FluidParticle.masses.html">tamoc.dbm.FluidParticle.masses</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm.FluidParticle.mass_frac.html">tamoc.dbm.FluidParticle.mass_frac</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm.FluidParticle.moles.html">tamoc.dbm.FluidParticle.moles</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm.FluidParticle.mol_frac.html">tamoc.dbm.FluidParticle.mol_frac</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm.FluidParticle.partial_pressures.html">tamoc.dbm.FluidParticle.partial_pressures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm.FluidParticle.density.html">tamoc.dbm.FluidParticle.density</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm.FluidParticle.fugacity.html">tamoc.dbm.FluidParticle.fugacity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm.FluidParticle.viscosity.html">tamoc.dbm.FluidParticle.viscosity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm.FluidParticle.interface_tension.html">tamoc.dbm.FluidParticle.interface_tension</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm.FluidParticle.equilibrium.html">tamoc.dbm.FluidParticle.equilibrium</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm.FluidParticle.solubility.html">tamoc.dbm.FluidParticle.solubility</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm.FluidParticle.diffusivity.html">tamoc.dbm.FluidParticle.diffusivity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm.FluidParticle.hydrate_stability.html">tamoc.dbm.FluidParticle.hydrate_stability</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm.FluidParticle.biodegradation_rate.html">tamoc.dbm.FluidParticle.biodegradation_rate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm.FluidParticle.masses_by_diameter.html">tamoc.dbm.FluidParticle.masses_by_diameter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm.FluidParticle.diameter.html">tamoc.dbm.FluidParticle.diameter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm.FluidParticle.particle_shape.html">tamoc.dbm.FluidParticle.particle_shape</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm.FluidParticle.slip_velocity.html">tamoc.dbm.FluidParticle.slip_velocity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm.FluidParticle.surface_area.html">tamoc.dbm.FluidParticle.surface_area</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm.FluidParticle.mass_transfer.html">tamoc.dbm.FluidParticle.mass_transfer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm.FluidParticle.heat_transfer.html">tamoc.dbm.FluidParticle.heat_transfer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm.FluidParticle.return_all.html">tamoc.dbm.FluidParticle.return_all</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm.InsolubleParticle.density.html">tamoc.dbm.InsolubleParticle.density</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm.InsolubleParticle.viscosity.html">tamoc.dbm.InsolubleParticle.viscosity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm.InsolubleParticle.interface_tension.html">tamoc.dbm.InsolubleParticle.interface_tension</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm.InsolubleParticle.biodegradation_rate.html">tamoc.dbm.InsolubleParticle.biodegradation_rate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm.InsolubleParticle.mass_by_diameter.html">tamoc.dbm.InsolubleParticle.mass_by_diameter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm.InsolubleParticle.diameter.html">tamoc.dbm.InsolubleParticle.diameter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm.InsolubleParticle.particle_shape.html">tamoc.dbm.InsolubleParticle.particle_shape</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm.InsolubleParticle.slip_velocity.html">tamoc.dbm.InsolubleParticle.slip_velocity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm.InsolubleParticle.surface_area.html">tamoc.dbm.InsolubleParticle.surface_area</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm.InsolubleParticle.heat_transfer.html">tamoc.dbm.InsolubleParticle.heat_transfer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm.InsolubleParticle.return_all.html">tamoc.dbm.InsolubleParticle.return_all</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm.equil_MM.html">tamoc.dbm.equil_MM</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm.stability_analysis.html">tamoc.dbm.stability_analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm.successive_substitution.html">tamoc.dbm.successive_substitution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm.gas_liq_eq.html">tamoc.dbm.gas_liq_eq</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../modules/dbm_p.html">Discrete Particle Module – Properties Functions</a><input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-16"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm_p.html">tamoc.dbm_p</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm_p.cubic_roots.html">tamoc.dbm_p.cubic_roots</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm_p.eotvos.html">tamoc.dbm_p.eotvos</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm_p.morton.html">tamoc.dbm_p.morton</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm_p.reynolds.html">tamoc.dbm_p.reynolds</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm_p.h_parameter.html">tamoc.dbm_p.h_parameter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm_p.particle_shape.html">tamoc.dbm_p.particle_shape</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm_p.theta_w_sc.html">tamoc.dbm_p.theta_w_sc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm_p.surface_area_sc.html">tamoc.dbm_p.surface_area_sc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm_p.surface_area_sphere.html">tamoc.dbm_p.surface_area_sphere</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm_p.us_sphere.html">tamoc.dbm_p.us_sphere</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm_p.us_ellipsoid.html">tamoc.dbm_p.us_ellipsoid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm_p.us_spherical_cap.html">tamoc.dbm_p.us_spherical_cap</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm_p.xfer_kumar_hartland.html">tamoc.dbm_p.xfer_kumar_hartland</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm_p.xfer_johnson.html">tamoc.dbm_p.xfer_johnson</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm_p.xfer_clift.html">tamoc.dbm_p.xfer_clift</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm_p.xfer_sphere.html">tamoc.dbm_p.xfer_sphere</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm_p.xfer_ellipsoid.html">tamoc.dbm_p.xfer_ellipsoid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm_p.xfer_spherical_cap.html">tamoc.dbm_p.xfer_spherical_cap</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm_p.density.html">tamoc.dbm_p.density</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm_p.fugacity.html">tamoc.dbm_p.fugacity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm_p.volume_trans.html">tamoc.dbm_p.volume_trans</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm_p.z_pr.html">tamoc.dbm_p.z_pr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm_p.coefs.html">tamoc.dbm_p.coefs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm_p.mole_fraction.html">tamoc.dbm_p.mole_fraction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm_p.viscosity.html">tamoc.dbm_p.viscosity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm_p.kh_insitu.html">tamoc.dbm_p.kh_insitu</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm_p.sw_solubility.html">tamoc.dbm_p.sw_solubility</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm_p.diffusivity.html">tamoc.dbm_p.diffusivity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm_p.kvsi_hydrate.html">tamoc.dbm_p.kvsi_hydrate</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../modules/dbm_utilities.html">DBM Utilities Module</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-17" name="toctree-checkbox-17" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-17"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm_utilities.html">tamoc.dbm_utilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm_utilities.get_oil.html">tamoc.dbm_utilities.get_oil</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm_utilities.load_tamoc_oil.html">tamoc.dbm_utilities.load_tamoc_oil</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm_utilities.format_dbm_data.html">tamoc.dbm_utilities.format_dbm_data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm_utilities.mix_gas_for_gor.html">tamoc.dbm_utilities.mix_gas_for_gor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm_utilities.natural_gas.html">tamoc.dbm_utilities.natural_gas</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm_utilities.gas_fraction.html">tamoc.dbm_utilities.gas_fraction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm_utilities.set_mass_fluxes.html">tamoc.dbm_utilities.set_mass_fluxes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm_utilities.load_adios_oil.html">tamoc.dbm_utilities.load_adios_oil</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm_utilities.load_simap_oil.html">tamoc.dbm_utilities.load_simap_oil</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm_utilities.sequence_names.html">tamoc.dbm_utilities.sequence_names</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm_utilities.get_solubility.html">tamoc.dbm_utilities.get_solubility</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm_utilities.get_henry_constant.html">tamoc.dbm_utilities.get_henry_constant</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm_utilities.get_preos_params.html">tamoc.dbm_utilities.get_preos_params</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm_utilities.pedersen.html">tamoc.dbm_utilities.pedersen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm_utilities.compute_Vb.html">tamoc.dbm_utilities.compute_Vb</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">tamoc.dbm_utilities.Vc_tuning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm_utilities.print_chemdata.html">tamoc.dbm_utilities.print_chemdata</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm_utilities.print_composition.html">tamoc.dbm_utilities.print_composition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dbm_utilities.print_petroleum_props.html">tamoc.dbm_utilities.print_petroleum_props</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../modules/dispersed_phases.html">Dispersed Phases Module</a><input class="toctree-checkbox" id="toctree-checkbox-18" name="toctree-checkbox-18" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-18"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dispersed_phases.html">tamoc.dispersed_phases</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dispersed_phases.SingleParticle.html">tamoc.dispersed_phases.SingleParticle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dispersed_phases.PlumeParticle.html">tamoc.dispersed_phases.PlumeParticle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dispersed_phases.SingleParticle.properties.html">tamoc.dispersed_phases.SingleParticle.properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dispersed_phases.SingleParticle.diameter.html">tamoc.dispersed_phases.SingleParticle.diameter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dispersed_phases.SingleParticle.biodegradation_rate.html">tamoc.dispersed_phases.SingleParticle.biodegradation_rate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dispersed_phases.PlumeParticle.properties.html">tamoc.dispersed_phases.PlumeParticle.properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dispersed_phases.PlumeParticle.diameter.html">tamoc.dispersed_phases.PlumeParticle.diameter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dispersed_phases.PlumeParticle.biodegradation_rate.html">tamoc.dispersed_phases.PlumeParticle.biodegradation_rate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dispersed_phases.PlumeParticle.update.html">tamoc.dispersed_phases.PlumeParticle.update</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dispersed_phases.initial_conditions.html">tamoc.dispersed_phases.initial_conditions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dispersed_phases.save_particle_to_nc_file.html">tamoc.dispersed_phases.save_particle_to_nc_file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dispersed_phases.load_particle_from_nc_file.html">tamoc.dispersed_phases.load_particle_from_nc_file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dispersed_phases.shear_entrainment.html">tamoc.dispersed_phases.shear_entrainment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dispersed_phases.hydrate_formation_time.html">tamoc.dispersed_phases.hydrate_formation_time</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dispersed_phases.zfe_volume_flux.html">tamoc.dispersed_phases.zfe_volume_flux</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dispersed_phases.wuest_ic.html">tamoc.dispersed_phases.wuest_ic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dispersed_phases.bf_average.html">tamoc.dispersed_phases.bf_average</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dispersed_phases.get_chem_names.html">tamoc.dispersed_phases.get_chem_names</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.dispersed_phases.particles_state_space.html">tamoc.dispersed_phases.particles_state_space</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../modules/single_bubble_model.html">Single Bubble Model Module</a><input class="toctree-checkbox" id="toctree-checkbox-19" name="toctree-checkbox-19" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-19"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.single_bubble_model.html">tamoc.single_bubble_model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.single_bubble_model.Model.html">tamoc.single_bubble_model.Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.single_bubble_model.ModelParams.html">tamoc.single_bubble_model.ModelParams</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.single_bubble_model.Model.simulate.html">tamoc.single_bubble_model.Model.simulate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.single_bubble_model.Model.save_sim.html">tamoc.single_bubble_model.Model.save_sim</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.single_bubble_model.Model.save_txt.html">tamoc.single_bubble_model.Model.save_txt</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.single_bubble_model.Model.load_sim.html">tamoc.single_bubble_model.Model.load_sim</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.single_bubble_model.Model.post_process.html">tamoc.single_bubble_model.Model.post_process</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.single_bubble_model.calculate_path.html">tamoc.single_bubble_model.calculate_path</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.single_bubble_model.derivs.html">tamoc.single_bubble_model.derivs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.single_bubble_model.sbm_ic.html">tamoc.single_bubble_model.sbm_ic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.single_bubble_model.plot_state_space.html">tamoc.single_bubble_model.plot_state_space</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../modules/stratified_plume_model.html">Stratified Plume Model Module</a><input class="toctree-checkbox" id="toctree-checkbox-20" name="toctree-checkbox-20" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-20"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.stratified_plume_model.html">tamoc.stratified_plume_model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.stratified_plume_model.Model.html">tamoc.stratified_plume_model.Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.stratified_plume_model.ModelParams.html">tamoc.stratified_plume_model.ModelParams</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.stratified_plume_model.InnerPlume.html">tamoc.stratified_plume_model.InnerPlume</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.stratified_plume_model.OuterPlume.html">tamoc.stratified_plume_model.OuterPlume</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.stratified_plume_model.Model.simulate.html">tamoc.stratified_plume_model.Model.simulate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.stratified_plume_model.Model.save_sim.html">tamoc.stratified_plume_model.Model.save_sim</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.stratified_plume_model.Model.save_txt.html">tamoc.stratified_plume_model.Model.save_txt</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.stratified_plume_model.Model.load_sim.html">tamoc.stratified_plume_model.Model.load_sim</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.stratified_plume_model.Model.plot_state_space.html">tamoc.stratified_plume_model.Model.plot_state_space</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.stratified_plume_model.Model.plot_all_variables.html">tamoc.stratified_plume_model.Model.plot_all_variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.stratified_plume_model.InnerPlume.update.html">tamoc.stratified_plume_model.InnerPlume.update</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.stratified_plume_model.OuterPlume.update.html">tamoc.stratified_plume_model.OuterPlume.update</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.stratified_plume_model.inner_main.html">tamoc.stratified_plume_model.inner_main</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.stratified_plume_model.outer_main.html">tamoc.stratified_plume_model.outer_main</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.stratified_plume_model.err_check.html">tamoc.stratified_plume_model.err_check</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.stratified_plume_model.particle_from_Q.html">tamoc.stratified_plume_model.particle_from_Q</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.stratified_plume_model.particle_from_mb0.html">tamoc.stratified_plume_model.particle_from_mb0</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.stratified_plume_model.plot_state_space.html">tamoc.stratified_plume_model.plot_state_space</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.stratified_plume_model.plot_all_variables.html">tamoc.stratified_plume_model.plot_all_variables</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../modules/bent_plume_model.html">Bent Plume Model Module</a><input class="toctree-checkbox" id="toctree-checkbox-21" name="toctree-checkbox-21" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-21"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.html">tamoc.bent_plume_model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.Model.html">tamoc.bent_plume_model.Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.ModelParams.html">tamoc.bent_plume_model.ModelParams</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.Particle.html">tamoc.bent_plume_model.Particle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.LagElement.html">tamoc.bent_plume_model.LagElement</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.Model.simulate.html">tamoc.bent_plume_model.Model.simulate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.Model.get_intrusion_concentration.html">tamoc.bent_plume_model.Model.get_intrusion_concentration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.Model.get_grid_concentrations.html">tamoc.bent_plume_model.Model.get_grid_concentrations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.Model.get_planar_concentrations.html">tamoc.bent_plume_model.Model.get_planar_concentrations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.Model.save_sim.html">tamoc.bent_plume_model.Model.save_sim</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.Model.save_txt.html">tamoc.bent_plume_model.Model.save_txt</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.Model.load_sim.html">tamoc.bent_plume_model.Model.load_sim</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.Model.report_mass_fluxes.html">tamoc.bent_plume_model.Model.report_mass_fluxes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.Model.report_surfacing_fluxes.html">tamoc.bent_plume_model.Model.report_surfacing_fluxes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.Model.report_psds.html">tamoc.bent_plume_model.Model.report_psds</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.Model.plot_psds.html">tamoc.bent_plume_model.Model.plot_psds</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.Model.plot_state_space.html">tamoc.bent_plume_model.Model.plot_state_space</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.Model.plot_all_variables.html">tamoc.bent_plume_model.Model.plot_all_variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.Model.plot_fractions_dissolved.html">tamoc.bent_plume_model.Model.plot_fractions_dissolved</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.Model.plot_mass_balance.html">tamoc.bent_plume_model.Model.plot_mass_balance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.Particle.track.html">tamoc.bent_plume_model.Particle.track</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.Particle.outside.html">tamoc.bent_plume_model.Particle.outside</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.Particle.run_sbm.html">tamoc.bent_plume_model.Particle.run_sbm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.Particle.point_concentration.html">tamoc.bent_plume_model.Particle.point_concentration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.Particle.grid_concentrations.html">tamoc.bent_plume_model.Particle.grid_concentrations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.LagElement.update.html">tamoc.bent_plume_model.LagElement.update</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.plot_state_space.html">tamoc.bent_plume_model.plot_state_space</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.plot_all_variables.html">tamoc.bent_plume_model.plot_all_variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.width_projection.html">tamoc.bent_plume_model.width_projection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.chem_idx_list.html">tamoc.bent_plume_model.chem_idx_list</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../modules/particle_size_models.html">Particle Size Model Module</a><input class="toctree-checkbox" id="toctree-checkbox-22" name="toctree-checkbox-22" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-22"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.particle_size_models.html">tamoc.particle_size_models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.particle_size_models.Model.html">tamoc.particle_size_models.Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.particle_size_models.PureJet.html">tamoc.particle_size_models.PureJet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.particle_size_models.ModelBase.html">tamoc.particle_size_models.ModelBase</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.particle_size_models.Model.update_properties.html">tamoc.particle_size_models.Model.update_properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.particle_size_models.Model.update_z0.html">tamoc.particle_size_models.Model.update_z0</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.particle_size_models.Model.update_Tj.html">tamoc.particle_size_models.Model.update_Tj</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.particle_size_models.Model.update_m_mixture.html">tamoc.particle_size_models.Model.update_m_mixture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.particle_size_models.Model.simulate.html">tamoc.particle_size_models.Model.simulate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.particle_size_models.Model.get_de_max.html">tamoc.particle_size_models.Model.get_de_max</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.particle_size_models.Model.get_d50.html">tamoc.particle_size_models.Model.get_d50</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.particle_size_models.Model.get_distributions.html">tamoc.particle_size_models.Model.get_distributions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.particle_size_models.Model.plot_psd.html">tamoc.particle_size_models.Model.plot_psd</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.particle_size_models.PureJet.update_properties.html">tamoc.particle_size_models.PureJet.update_properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.particle_size_models.PureJet.simulate.html">tamoc.particle_size_models.PureJet.simulate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.particle_size_models.PureJet.get_de_max.html">tamoc.particle_size_models.PureJet.get_de_max</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.particle_size_models.PureJet.get_d50.html">tamoc.particle_size_models.PureJet.get_d50</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.particle_size_models.PureJet.get_distributions.html">tamoc.particle_size_models.PureJet.get_distributions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.particle_size_models.PureJet.plot_psd.html">tamoc.particle_size_models.PureJet.plot_psd</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.particle_size_models.ModelBase.update_properties.html">tamoc.particle_size_models.ModelBase.update_properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.particle_size_models.ModelBase.simulate.html">tamoc.particle_size_models.ModelBase.simulate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.particle_size_models.ModelBase.get_de_max.html">tamoc.particle_size_models.ModelBase.get_de_max</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.particle_size_models.ModelBase.get_d50.html">tamoc.particle_size_models.ModelBase.get_d50</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.particle_size_models.ModelBase.get_distributions.html">tamoc.particle_size_models.ModelBase.get_distributions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.particle_size_models.ModelBase.plot_psd.html">tamoc.particle_size_models.ModelBase.plot_psd</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.particle_size_models.plot_phase.html">tamoc.particle_size_models.plot_phase</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../modules/blowout.html">Blowout Module</a><input class="toctree-checkbox" id="toctree-checkbox-23" name="toctree-checkbox-23" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-23"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.blowout.html">tamoc.blowout</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.blowout.Blowout.html">tamoc.blowout.Blowout</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.blowout.Blowout.simulate.html">tamoc.blowout.Blowout.simulate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.blowout.Blowout.save_sim.html">tamoc.blowout.Blowout.save_sim</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.blowout.Blowout.save_txt.html">tamoc.blowout.Blowout.save_txt</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.blowout.Blowout.plot_state_space.html">tamoc.blowout.Blowout.plot_state_space</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.blowout.Blowout.plot_all_variables.html">tamoc.blowout.Blowout.plot_all_variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.blowout.Blowout.update_release_depth.html">tamoc.blowout.Blowout.update_release_depth</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.blowout.Blowout.update_orifice_diameter.html">tamoc.blowout.Blowout.update_orifice_diameter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.blowout.Blowout.update_substance.html">tamoc.blowout.Blowout.update_substance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.blowout.Blowout.update_q_oil.html">tamoc.blowout.Blowout.update_q_oil</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.blowout.Blowout.update_gor.html">tamoc.blowout.Blowout.update_gor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.blowout.Blowout.update_produced_water.html">tamoc.blowout.Blowout.update_produced_water</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.blowout.Blowout.update_vertical_orientation.html">tamoc.blowout.Blowout.update_vertical_orientation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.blowout.Blowout.update_horizontal_orientation.html">tamoc.blowout.Blowout.update_horizontal_orientation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.blowout.Blowout.update_num_gas_elements.html">tamoc.blowout.Blowout.update_num_gas_elements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.blowout.Blowout.update_water_data.html">tamoc.blowout.Blowout.update_water_data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.blowout.Blowout.update_current_data.html">tamoc.blowout.Blowout.update_current_data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.blowout.Blowout.update_track_particles.html">tamoc.blowout.Blowout.update_track_particles</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.blowout.particles.html">tamoc.blowout.particles</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.blowout.get_ambient_profile.html">tamoc.blowout.get_ambient_profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.blowout.get_ctd_from_txt.html">tamoc.blowout.get_ctd_from_txt</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.blowout.create_ambient_profile.html">tamoc.blowout.create_ambient_profile</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../modules/params.html">Non-Dimensional Parameters Module</a><input class="toctree-checkbox" id="toctree-checkbox-24" name="toctree-checkbox-24" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-24"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.params.html">tamoc.params</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.params.Scales.html">tamoc.params.Scales</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.params.Scales.simulate.html">tamoc.params.Scales.simulate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.params.Scales.save_txt.html">tamoc.params.Scales.save_txt</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.params.Scales.get_variables.html">tamoc.params.Scales.get_variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.params.Scales.h_T.html">tamoc.params.Scales.h_T</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.params.Scales.h_P.html">tamoc.params.Scales.h_P</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.params.Scales.h_S.html">tamoc.params.Scales.h_S</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.params.Scales.lambda_1.html">tamoc.params.Scales.lambda_1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.params.Scales.u_inf_crit.html">tamoc.params.Scales.u_inf_crit</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Source Code:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../tests.html">Test Package</a><input class="toctree-checkbox" id="toctree-checkbox-25" name="toctree-checkbox-25" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-25"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="tamoc.test.test_ambient.html">tamoc.test.test_ambient</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tamoc.test.test_blowout.html">tamoc.test.test_blowout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tamoc.test.test_bpm.html">tamoc.test.test_bpm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tamoc.test.test_dbm_f.html">tamoc.test.test_dbm_f</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tamoc.test.test_dbm_objects.html">tamoc.test.test_dbm_objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tamoc.test.test_dbm.html">tamoc.test.test_dbm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tamoc.test.test_params.html">tamoc.test.test_params</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tamoc.test.test_psm.html">tamoc.test.test_psm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tamoc.test.test_sbm.html">tamoc.test.test_sbm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tamoc.test.test_sintef.html">tamoc.test.test_sintef</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tamoc.test.test_spm.html">tamoc.test.test_spm</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/socolofs/tamoc">GitHub repository</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/generated/tamoc.dbm_utilities.Vc_tuning.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script>
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>tamoc.dbm_utilities.Vc_tuning</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="tamoc-dbm-utilities-vc-tuning">
+<h1>tamoc.dbm_utilities.Vc_tuning<a class="headerlink" href="#tamoc-dbm-utilities-vc-tuning" title="Permalink to this headline">#</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="tamoc.dbm_utilities.Vc_tuning">
+<span class="sig-prename descclassname"><span class="pre">tamoc.dbm_utilities.</span></span><span class="sig-name descname"><span class="pre">Vc_tuning</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mass_frac</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">composition</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T_0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho_0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w_0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho_i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_data</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/socolofs/tamoc/tree/master/tamoc/dbm_utilities.py#L1577-L1722"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tamoc.dbm_utilities.Vc_tuning" title="Permalink to this definition">#</a></dt>
+<dd><p>Tune Vc to get better density estimates</p>
+<p>Tune the molar specific volume at the critical point in order to get
+better agreement between the measured and modeled densities.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mass_frac</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">np.array</span></code>) – Array of mass fractions of the dead oil compounds in the mixture.
+All of the numbers in this array also sum to 1.</p></li>
+<li><p><strong>composition</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>) – List of strings containing unique names for each chemical in the
+present oil composition.</p></li>
+<li><p><strong>T_0</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">np.array</span></code>) – Temperatures at which the whole-oil density was evaluated (K)</p></li>
+<li><p><strong>rho_0</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">np.array</span></code>) – Densities reported for the whole-oil (kg/m^3)</p></li>
+<li><p><strong>w_0</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">np.array</span></code>) – Array of weathering states for the density data (–)</p></li>
+<li><p><strong>rho_i</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">np.array</span></code>) – Array of densities of each pseudo-component in the Adios database,
+re-scaled such that density whole oil = (1./np.sum(mass_frac/rho_i))</p></li>
+<li><p><strong>delta</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">np.array</span></code>) – Array of binary interaction coefficients</p></li>
+<li><p><strong>user_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>) – A dictionary of chemical property data in the format expected by
+the tamoc.dbm module objects.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>user_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>) – A dictionary of updated chemical property data in the format expected
+by the tamoc.dbm module objects.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+
+              
+              
+                <footer class="bd-footer-article">
+                  
+<div class="footer-article-items footer-article__inner">
+  
+    <div class="footer-article-item"><!-- Previous / next buttons -->
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="tamoc.dbm_utilities.compute_Vb.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">tamoc.dbm_utilities.compute_Vb</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="tamoc.dbm_utilities.print_chemdata.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">tamoc.dbm_utilities.print_chemdata</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div></div>
+  
+</div>
+
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Scott A. Socolofsky
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  <p class="copyright">
+    
+      © Copyright 2022, Scott A. Socolofsky.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

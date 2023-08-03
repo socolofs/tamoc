@@ -1,4 +1,54 @@
-V2.5.0, January 2023 --
+V3.1.0, August 2023 -- 
+   . Figured out how to suppress the numpy warning that occur due to 1.) 
+     equilibrium flash calculations during the search for roots, 2.) the ODE
+     solvers that are designed to stop when an intrusion forms.  These are now
+     supressed globally in `__init__.py` at the top-level directory of TAMOC.
+     These can be enabled by setting the global variable `DEBUG` to `True`.  
+   . Updated the `BaseProfile` object of the `ambient` module to include 
+     stabilization of the ambient density profile by default.  The user may 
+     turn this off by passing the optional argument `stabilize_profile` as 
+     `False` to the `ambient.Profile` instantiation call.
+   . Moved the call to convert units in the `ambient.BaseProfile` object to 
+     the top of the initialization commands.  Previously, if pressure was not
+     provided, the method would try to compute pressure using the raw input
+     data.  Unless this data was in meters, Kelvin, and psu, this would fail.
+     Now it is possible to have user-supplied units that differ from TAMOC base
+     units and still let the `ambient.BaseProfile` compute the pressure.
+   . Added new tests of for the `ambient` module to make sure it is possible
+     to provide non-standard units of profile data to the `BaseProfile` 
+     object and still compute the correct pressure profile.
+   . Updated the particle tracking using the single bubble model in the 
+     `Particle` class of the bent plume model so that it does not try to track
+     particles that have fully dissolved.  For particles that have dissolved, 
+     the tracking algorithm will print the particle diameter (np.nan) and 
+     the existing composition (which should have mass below the threshold 
+     fraction for track of the initial mass).
+   . Updated how TAMOC converts integers to floats to be compatible with recent
+     numpy releases.  
+   . Updated the `matplotlib` calls to the axis `grid` function to remove the
+     outdated parameter `b`.  This used to be a boolean that would set whether
+     the grid is visible or not.  Now, the grid is automatically visible always
+     when the `grid` method is called.
+   . Updated the bent plume model plot all variables method to correctly 
+     skip far-field particles that are not tracked.
+   . Added unit conversions to the `chemical_properties` module.
+   . Updated the discrete bubble model (`dbm` module) to allow the user to 
+     provide the Peneloux shift parameter through the chemical property 
+     parameters `C_pen` and `C_pen_T`.  See equation 5.9 in Pedersen et al. 
+     (2015).  These parameters are also passed to the `dbm_f` module (both 
+     the Fortran and the pure-Python versions).  `C_pen` set to zero indicates
+     that the original functions based on Lin and Duan (2005) should be used
+     to estimate the Peneloux shift parameters.  This is the preferred method
+     unless the psuedo-component property data have been strongly fitted to 
+     measured data resulting in Peneloux parameters outside the normal expected
+     range (e.g., `C_pen` values from -0.4 to 1.2).
+   . Update the discrete bubble model to prevent dividing by zero when 
+     normalizing the user-provided `delta_groups` parameter.
+   . Updated the `seawater.pH` function so that the user-provided guess for
+     the pH is used in the search for the true value.  The previous code 
+     allowed the user to provide this input but used a hard-coded value of 
+     pH = 9 in the root-finding search.
+V3.0.0, January 2023 --
    . Updated the `dbm` module to include a new mixed-phase fluid particle that 
      includes gas and liquid phase in a single bubble/droplet.  The algorithm 
      follows the approach in Gros et al. (2017; 2020).  The new mixed-fluid 
@@ -15,7 +65,8 @@ V2.5.0, January 2023 --
      entrainment of ambient fluis within the zone of flow establishment to meet
      the conditions assumed by Wuest et al. (1992), namely, the dilute plume
      assumption is violated here.  This can happen for very large discharges,
-     as for some spills from subsea CO2 sequestration pipelines.  In this case,      the new method computes a new orifice diameter that can meet the criteria
+     as for some spills from subsea CO2 sequestration pipelines.  In this case,
+     the new method computes a new orifice diameter that can meet the criteria
      of an initial void fraction less than or equal to 1.  The result is 
      reported to the user so that they know a different orifice diameter was 
      used than was chosen.  This change did not affect previous simulations of
@@ -107,6 +158,10 @@ V2.5.0, January 2023 --
        module with a different initial guess of the exponential growth rate
        so that the algorithm converges properly over a wider range of possible
        values.
+     + Updated the test files so that they are compatible with the changes to 
+       the particle size models (e.g., the updated log-normal distribution
+       method and the update the Grace et al. search for the maximum stable
+       bubble size).
 V2.4.0, September 2022 --
    . Updated the bent_plume_model with post-processing capability to compute
      dissolved concentrations. These methods follow those used by Socolofsky
