@@ -8,8 +8,8 @@ bubble model with reactive (dissolving) particles.
 
 This simulation uses the ambient data stored in the file
 `./tamoc/data/lake.dat`. This module first organizes this data and stores the
-necessary netCDF file in `../test/output`. Please make sure this directory
-exists before running this file.
+necessary netCDF file in `../tamoc/test/output`. Please make sure this
+directory exists before running this file.
 
 """
 # S. Socolofsky, August 2013, Texas A&M University <socolofs@tamu.edu>.
@@ -60,8 +60,8 @@ def get_lake_data():
     t_units = 'seconds since 1970-01-01 00:00:00 0:00'
     calendar = 'julian'
     time = date2num(date, units=t_units, calendar=calendar)
-    nc = ambient.create_nc_db('../../test/output/lake.nc', summary, source, 
-                              sea_name, lat, lon, time)
+    nc = ambient.create_nc_db('../../tamoc/test/output/lake.nc', summary,
+        source, sea_name, lat, lon, time)
     
     # Insert the measured data
     comments = ['digitized from measured data'] * 4
@@ -134,11 +134,12 @@ if __name__ == '__main__':
     spm.simulate(bubbles, z0, R, maxit=50, delta_z = 0.2)
     
     # Save the model results
-    spm.save_sim('../../test/output/spm_gas.nc', '../../test/output/lake.nc', 
+    spm.save_sim('../../tamoc/test/output/spm_gas.nc',
+        '../../test/output/lake.nc', 
         'Lake data from McGinnis et al. (2006) in ./test/output/lake.nc')
     
     # Demonstrate how to read the data back in from the hard drive
-    spm.load_sim('../../test/output/spm_gas.nc')
+    spm.load_sim('../../tamoc/test/output/spm_gas.nc')
     spm.plot_state_space(1)
     
     # Plot the full suite of model variables

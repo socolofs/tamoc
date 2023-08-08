@@ -76,6 +76,8 @@ def base_state():
     calc_delta = -1
     K_salt = np.array([0.0001834, 0.000169, 0.0001694,
                        0.0001323])
+    C_pen = np.array([0., 0., 0., 0.])
+    C_pen_T = np.array([0., 0., 0., 0.])
     
     # Give the properties of seawater at this state
     rho = 999.194667977339
@@ -108,7 +110,7 @@ def base_state():
     return (T, S, P, composition, yk, Mol_wt, Pc, Tc, Vc, Vb, omega, delta,
             kh_0, neg_dH_solR, nu_bar, Aij, Bij, delta_groups, calc_delta, 
             K_salt, rho, mu, rho_p, Cs, sigma, S_S, rho_S, mu_S, rho_p_S, 
-            Cs_S, sigma_S, mu_p, D, D_S)
+            Cs_S, sigma_S, mu_p, D, D_S, C_pen, C_pen_T)
 
 
 def particle_obj_funcs(obj, mass, yk, Mol_wt, fp_type, T, P, Sa, Ta, rho_p, 
@@ -165,15 +167,15 @@ def particle_fortran_funcs(mass, T, P, Sa, Ta, Mol_wt, fp_type, Pc, Tc, Vc,
                            Vb, omega, delta, kh_0, neg_dH_solR, nu_bar, Aij, 
                            Bij, delta_groups, calc_delta, K_salt, rho, mu, 
                            sigma, shape, rho_p, us, A, Cs, beta, beta_T, de, 
-                           mu_p, D):
+                           mu_p, D, C_pen, C_pen_T):
     """
     Test that the methods defined for in dbm_f are consistent with how they
     are used in the FluidParticle objects.
     """
     # Test the items in dbm_eos
     assert_approx_equal(rho_p, dbm_f.density(T, P, mass, Mol_wt, Pc, Tc, Vc, 
-        omega, delta, Aij, Bij, delta_groups, calc_delta)[fp_type, 0], 
-        significant = 6)
+        omega, delta, Aij, Bij, delta_groups, calc_delta, C_pen, 
+        C_pen_T)[fp_type, 0], significant = 6)
     if fp_type == 0:
         m_g = mass
         m_o = np.zeros(len(mass))
@@ -181,8 +183,8 @@ def particle_fortran_funcs(mass, T, P, Sa, Ta, Mol_wt, fp_type, Pc, Tc, Vc,
         m_g = np.zeros(len(mass))
         m_o = mass
     assert_approx_equal(mu_p, dbm_f.viscosity(T, P, mass, Mol_wt, Pc, Tc, Vc, 
-        omega, delta, Aij, Bij, delta_groups, calc_delta)[fp_type,0], 
-        significant = 6)
+        omega, delta, Aij, Bij, delta_groups, calc_delta, C_pen, 
+        C_pen_T)[fp_type,0], significant = 6)
     f = dbm_f.fugacity(T, P, mass, Mol_wt, Pc, Tc, omega, delta, Aij, Bij,
         delta_groups, calc_delta)[fp_type, :]
     kh = dbm_f.kh_insitu(T, P, Sa, kh_0, neg_dH_solR, nu_bar, 
@@ -258,7 +260,7 @@ def test_sphere():
     T, S, P, composition, yk, Mol_wt, Pc, Tc, Vc, Vb, omega, delta, \
         kh_0, neg_dH_solR, nu_bar, Aij, Bij, delta_groups, calc_delta, \
         K_salt, rho, mu, rho_p, Cs, sigma, S_S, rho_S, mu_S, rho_p_S, Cs_S, \
-        sigma_S, mu_p, D, D_S = base_state()
+        sigma_S, mu_p, D, D_S, C_pen, C_pen_T = base_state()
     
     # Give the particle properties that should come back from the dbm_f
     # and dbm object function calls
@@ -288,11 +290,11 @@ def test_sphere():
     particle_fortran_funcs(mass, T, P, S, T, Mol_wt, fp_type, Pc, Tc, Vc, Vb,
         omega, delta, kh_0, neg_dH_solR, nu_bar, Aij, Bij, delta_groups, 
         calc_delta, K_salt, rho, mu, sigma, shape, rho_p, us, A, Cs, beta, 
-        beta_T, de, mu_p, D)
+        beta_T, de, mu_p, D, C_pen, C_pen_T)
     particle_fortran_funcs(mass, T, P, S_S, T, Mol_wt, fp_type, Pc, Tc, Vc, 
         Vb, omega, delta, kh_0, neg_dH_solR, nu_bar, Aij, Bij, delta_groups, 
         calc_delta, K_salt, rho_S, mu_S, sigma_S, shape, rho_p_S, us_S, A_S, 
-        Cs_S, beta_S, beta_T_S, de, mu_p, D_S)
+        Cs_S, beta_S, beta_T_S, de, mu_p, D_S, C_pen, C_pen_T)
 
 
 def test_ellipsoid():
@@ -312,7 +314,7 @@ def test_ellipsoid():
     T, S, P, composition, yk, Mol_wt, Pc, Tc, Vc, Vb, omega, delta, \
         kh_0, neg_dH_solR, nu_bar, Aij, Bij, delta_groups, calc_delta, \
         K_salt, rho, mu, rho_p, Cs, sigma, S_S, rho_S, mu_S, rho_p_S, Cs_S, \
-        sigma_S, mu_p, D, D_S = base_state()
+        sigma_S, mu_p, D, D_S, C_pen, C_pen_T = base_state()
     
     # Give the particle properties that should come back from the dbm_f
     # and dbm object function calls
@@ -344,11 +346,11 @@ def test_ellipsoid():
     particle_fortran_funcs(mass, T, P, S, T, Mol_wt, fp_type, Pc, Tc, Vc, Vb,
         omega, delta, kh_0, neg_dH_solR, nu_bar, Aij, Bij, delta_groups, 
         calc_delta, K_salt, rho, mu, sigma, shape, rho_p, us, A, Cs, beta, 
-        beta_T, de, mu_p, D)
+        beta_T, de, mu_p, D, C_pen, C_pen_T)
     particle_fortran_funcs(mass, T, P, S_S, T, Mol_wt, fp_type, Pc, Tc, Vc, 
         Vb, omega, delta, kh_0, neg_dH_solR, nu_bar, Aij, Bij, delta_groups, 
         calc_delta, K_salt, rho_S, mu_S, sigma_S, shape, rho_p_S, us_S, A_S, 
-        Cs_S, beta_S, beta_T_S, de, mu_p, D_S)
+        Cs_S, beta_S, beta_T_S, de, mu_p, D_S, C_pen, C_pen_T)
 
 
 def test_spherical_cap():
@@ -368,7 +370,7 @@ def test_spherical_cap():
     T, S, P, composition, yk, Mol_wt, Pc, Tc, Vc, Vb, omega, delta, \
         kh_0, neg_dH_solR, nu_bar, Aij, Bij, delta_groups, calc_delta, \
         K_salt, rho, mu, rho_p, Cs, sigma, S_S, rho_S, mu_S, rho_p_S, Cs_S, \
-        sigma_S, mu_p, D, D_S = base_state()
+        sigma_S, mu_p, D, D_S, C_pen, C_pen_T = base_state()
     
     # Give the particle properties that should come back from the dbm_f
     # and dbm object function calls
@@ -398,11 +400,11 @@ def test_spherical_cap():
     particle_fortran_funcs(mass, T, P, S, T, Mol_wt, fp_type, Pc, Tc, Vc, Vb,
         omega, delta, kh_0, neg_dH_solR, nu_bar, Aij, Bij, delta_groups, 
         calc_delta, K_salt, rho, mu, sigma, shape, rho_p, us, A, Cs, beta, 
-        beta_T, de, mu_p, D)
+        beta_T, de, mu_p, D, C_pen, C_pen_T)
     particle_fortran_funcs(mass, T, P, S_S, T, Mol_wt, fp_type, Pc, Tc, Vc, 
         Vb, omega, delta, kh_0, neg_dH_solR, nu_bar, Aij, Bij, delta_groups, 
         calc_delta, K_salt, rho_S, mu_S, sigma_S, shape, rho_p_S, us_S, A_S, 
-        Cs_S, beta_S, beta_T_S, de, mu_p, D_S)
+        Cs_S, beta_S, beta_T_S, de, mu_p, D_S, C_pen, C_pen_T)
 
 
 def test_rigid():

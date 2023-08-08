@@ -147,11 +147,11 @@ method::
 Saving Model Results
 -------------------- 
 
-The simulation results can be saved to a netCDF file, which can be used to
-continue analysis within the TAMOC Python package, or an ascii text file for
-importing to another analysis package, such as Excel or Matlab. To save the
-data, specify a base output name with relative file path, a path to the CTD
-data, and a description of the CTD data::
+The simulation state-space results can be saved to a netCDF file, which can be
+used to continue analysis within the TAMOC Python package, or an ascii text
+file for importing to another analysis package, such as Excel or Matlab. To
+save the data, specify a base output name with relative file path, a path to
+the CTD data, and a description of the CTD data::
 
    >>> f_name = '../test/output/test_blowout'
    >>> ctd_description = 'CTD data from Brooks McCall in file' + \
@@ -159,3 +159,13 @@ data, and a description of the CTD data::
    >>> bpm.save_sim(f_name + '.nc', ctd_file, ctd_description)
    >>> bpm.save_txt(f_name + 'ASCII', ctd_file, ctd_description)
 
+Many derived variables of interest (e.g., the plume width, concentrations, 
+particle mass fluxes) are not included in the state space variables saved by 
+the above methods.  In the simulation, these are computed by the `LagElement`
+class object.  A default list of commonly used derived variables can be 
+extracted using the `get_derived_variables` method and saved through the
+`save_derived_variables` methods::
+
+   >>> data, var_names, num_p, num_c = bpm.get_derived_variables()
+   >>> data, header = bpm.save_derived_variables('../output/my_sim')
+  

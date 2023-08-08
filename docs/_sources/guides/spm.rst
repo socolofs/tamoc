@@ -163,3 +163,14 @@ data, and a description of the CTD data::
    >>> spm.save_sim(f_name + '.nc', ctd_file, ctd_description)
    >>> spm.save_txt(f_name + 'ASCII', ctd_file, ctd_description)
 
+Many derived variables of interest (e.g., the plume width, concentrations,
+particle mass fluxes) are not included in the state space variables saved by
+the above methods. In the simulation, these are computed by the `InnerPlume`
+and `OuterPlume` class objects. A default list of commonly used derived
+variables can be extracted using the `get_derived_variables` method and saved
+through the `save_derived_variables` methods::
+
+   >>> inner_data, inner_names, outer_data, outer_names, num_p, num_c = \ 	  	       spm.get_derived_variables()
+   >>> inner_data, inner_header, outer_data, outer_header = \ 
+   	       spm.save_derived_variables('../output/my_sim')
+ 

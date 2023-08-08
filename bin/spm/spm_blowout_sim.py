@@ -28,7 +28,7 @@ import numpy as np
 if __name__ == '__main__':
 
     # Get the ambient CTD profile data
-    nc = '../../test/output/test_BM54.nc'
+    nc = '../../tamoc/test/output/BM54.nc'
     try:
         # Open the lake dataset as a Profile object if it exists
         ctd = ambient.Profile(nc, chem_names='all')
@@ -81,12 +81,12 @@ if __name__ == '__main__':
     spm.simulate(disp_phases, z0, R, maxit=15, toler=0.2, delta_z = 1.)
     
     # Save the model results
-    spm.save_sim('../../test/output/spm_blowout.nc', 
-        '../../test/output/test_BM54.nc', 
+    spm.save_sim('../../tamoc/test/output/spm_blowout.nc', 
+        '../../test/output/BM54.nc', 
         'CTD data from Brooks McCall in file ./test/output/test_BM54.nc')
     
     # Demonstrate how to read the data back in from the hard drive
-    spm.load_sim('../../test/output/spm_blowout.nc')
+    spm.load_sim('../../tamoc/test/output/spm_blowout.nc')
     spm.plot_state_space(1)
     
     # Plot the full suite of model variables

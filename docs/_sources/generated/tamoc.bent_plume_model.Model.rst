@@ -14,6 +14,7 @@
    .. autosummary::
    
       ~Model.__init__
+      ~Model.get_derived_variables
       ~Model.get_grid_concentrations
       ~Model.get_intrusion_concentration
       ~Model.get_intrusion_initial_condition
@@ -27,6 +28,7 @@
       ~Model.report_mass_fluxes
       ~Model.report_psds
       ~Model.report_surfacing_fluxes
+      ~Model.save_derived_variables
       ~Model.save_sim
       ~Model.save_txt
       ~Model.simulate

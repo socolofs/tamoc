@@ -46,7 +46,7 @@ Particle size distributions are computed from the following sources::
 The maximum stable droplet size of an immiscible liquid in seawater is taken
 from::
 
-* Clift, R., Grace, J., and Weber, M. E. (1978) *Bubbles, Drops, and \ 
+* Clift, R., Grace, J., and Weber, M. E. (1978) *Bubbles, Drops, and 
   Particles*, Dover Publications, Inc., Mineola, New York.
 
 For gas bubbles in water, the maximum stable bubble size is taken from a 

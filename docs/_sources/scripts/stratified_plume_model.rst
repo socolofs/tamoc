@@ -11,8 +11,8 @@ The ``stratified_plume_model`` simulates a multiphase plume in the absence of am
 .. autosummary::
    :toctree: ../generated/
    
-   lake_bub
    lake_part
+   lake_bub
    spm_blowout_sim
    spm_file_io
 

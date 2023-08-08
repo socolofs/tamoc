@@ -85,10 +85,12 @@ def base_state():
     mu_p = 1.8438154276225057e-05
     D = np.array([1.41620605e-09, 1.61034760e-09, 1.56772544e-09,
          1.35720048e-09])
+    C_pen = np.array([0., 0., 0., 0.])
+    C_pen_T = np.array([0., 0., 0., 0.])
     
     return (T, S, P, composition, yk, Mol_wt, Pc, Tc, Vc, Vb, omega, delta,
             kh_0, neg_dH_solR, nu_bar, Aij, Bij, delta_groups, calc_delta, 
-            K_salt, rho, mu, rho_p, Cs, sigma, mu_p, D)
+            K_salt, rho, mu, rho_p, Cs, sigma, mu_p, D, C_pen, C_pen_T)
 
 
 # ----------------------------------------------------------------------------
@@ -117,7 +119,8 @@ def test_eotvos():
     # Load the base thermodynamic state
     T, S, P, composition, yk, Mol_wt, Pc, Tc, Vc, Vb, omega, delta, \
         kh_0, neg_dH_solR, nu_bar, Aij, Bij, delta_groups, calc_delta, \
-        K_salt, rho, mu, rho_p, Cs, sigma, mu_p, D = base_state()
+        K_salt, rho, mu, rho_p, Cs, sigma, mu_p, D, C_pen, C_pen_T = \
+        base_state()
     
     # Compute the Eotvos number and record the solution
     de = 0.005
@@ -134,7 +137,8 @@ def test_morton():
     # Load the base thermodynamic state
     T, S, P, composition, yk, Mol_wt, Pc, Tc, Vc, Vb, omega, delta, \
         kh_0, neg_dH_solR, nu_bar, Aij, Bij, delta_groups, calc_delta, \
-        K_salt, rho, mu, rho_p, Cs, sigma, mu_p, D = base_state()
+        K_salt, rho, mu, rho_p, Cs, sigma, mu_p, D, C_pen, C_pen_T = \
+        base_state()
     
     # Compute the Morton number and record the solution
     Mo = dbm_f.morton(rho_p, rho, mu, sigma)
@@ -150,7 +154,8 @@ def test_reynolds():
     # Load the base thermodynamic state
     T, S, P, composition, yk, Mol_wt, Pc, Tc, Vc, Vb, omega, delta, \
         kh_0, neg_dH_solR, nu_bar, Aij, Bij, delta_groups, calc_delta, \
-        K_salt, rho, mu, rho_p, Cs, sigma, mu_p, D = base_state()
+        K_salt, rho, mu, rho_p, Cs, sigma, mu_p, D, C_pen, C_pen_T = \
+        base_state()
     
     # Compute the Reynolds number and record the solution
     de = 0.005
@@ -169,7 +174,8 @@ def test_h_parameter():
     # Load the base thermodynamic state
     T, S, P, composition, yk, Mol_wt, Pc, Tc, Vc, Vb, omega, delta, \
         kh_0, neg_dH_solR, nu_bar, Aij, Bij, delta_groups, calc_delta, \
-        K_salt, rho, mu, rho_p, Cs, sigma, mu_p, D = base_state()
+        K_salt, rho, mu, rho_p, Cs, sigma, mu_p, D, C_pen, C_pen_T = \
+        base_state()
     
     # Compute the h-parameter and record the solution
     Eo = 5.838848876721049
@@ -187,7 +193,8 @@ def test_particle_shape():
     # Load the base thermodynamic state
     T, S, P, composition, yk, Mol_wt, Pc, Tc, Vc, Vb, omega, delta, \
         kh_0, neg_dH_solR, nu_bar, Aij, Bij, delta_groups, calc_delta, \
-        K_salt, rho, mu, rho_p, Cs, sigma, mu_p, D = base_state()
+        K_salt, rho, mu, rho_p, Cs, sigma, mu_p, D, C_pen, C_pen_T = \
+        base_state()
     
     # Check the particle shape for different bubble sizes
     de = 0.0004
@@ -213,7 +220,8 @@ def test_theta_w_sc():
     # Load the base thermodynamic state
     T, S, P, composition, yk, Mol_wt, Pc, Tc, Vc, Vb, omega, delta, \
         kh_0, neg_dH_solR, nu_bar, Aij, Bij, delta_groups, calc_delta, \
-        K_salt, rho, mu, rho_p, Cs, sigma, mu_p, D = base_state()
+        K_salt, rho, mu, rho_p, Cs, sigma, mu_p, D, C_pen, C_pen_T = \
+        base_state()
     
     # Compute theta_w for a spherical-cap bubble
     de = 0.05
@@ -232,7 +240,8 @@ def test_surface_area_sc():
     # Load the base thermodynamic state
     T, S, P, composition, yk, Mol_wt, Pc, Tc, Vc, Vb, omega, delta, \
         kh_0, neg_dH_solR, nu_bar, Aij, Bij, delta_groups, calc_delta, \
-        K_salt, rho, mu, rho_p, Cs, sigma, mu_p, D = base_state()
+        K_salt, rho, mu, rho_p, Cs, sigma, mu_p, D, C_pen, C_pen_T = \
+        base_state()
     
     # Compute the surface area for a spherical-cap bubble
     de = 0.05
@@ -264,7 +273,8 @@ def test_us_sphere():
     # Load the base thermodynamic state
     T, S, P, composition, yk, Mol_wt, Pc, Tc, Vc, Vb, omega, delta, \
         kh_0, neg_dH_solR, nu_bar, Aij, Bij, delta_groups, calc_delta, \
-        K_salt, rho, mu, rho_p, Cs, sigma, mu_p, D = base_state()
+        K_salt, rho, mu, rho_p, Cs, sigma, mu_p, D, C_pen, C_pen_T = \
+        base_state()
     
     # Compute and the slip velocity for a spherical bubble
     de = 0.0004
@@ -282,7 +292,8 @@ def test_us_ellipsoid():
     # Load the base thermodynamic state
     T, S, P, composition, yk, Mol_wt, Pc, Tc, Vc, Vb, omega, delta, \
         kh_0, neg_dH_solR, nu_bar, Aij, Bij, delta_groups, calc_delta, \
-        K_salt, rho, mu, rho_p, Cs, sigma, mu_p, D = base_state()
+        K_salt, rho, mu, rho_p, Cs, sigma, mu_p, D, C_pen, C_pen_T = \
+        base_state()
     
     # Compute and check the slip velocity for a clean ellipsoidal bubble
     de = 0.001
@@ -304,7 +315,8 @@ def test_us_spherical_cap():
     # Load the base thermodynamic state
     T, S, P, composition, yk, Mol_wt, Pc, Tc, Vc, Vb, omega, delta, \
         kh_0, neg_dH_solR, nu_bar, Aij, Bij, delta_groups, calc_delta, \
-        K_salt, rho, mu, rho_p, Cs, sigma, mu_p, D = base_state()
+        K_salt, rho, mu, rho_p, Cs, sigma, mu_p, D, C_pen, C_pen_T = \
+         base_state()
     
     # Compute and the slip velocity for a spherical bubble
     de = 0.05
@@ -322,7 +334,8 @@ def test_xfer_kumar_hartland():
     # Load the base thermodynamic state
     T, S, P, composition, yk, Mol_wt, Pc, Tc, Vc, Vb, omega, delta, \
         kh_0, neg_dH_solR, nu_bar, Aij, Bij, delta_groups, calc_delta, \
-        K_salt, rho, mu, rho_p, Cs, sigma, mu_p, D = base_state()
+        K_salt, rho, mu, rho_p, Cs, sigma, mu_p, D, C_pen, C_pen_T = \
+        base_state()
     
     # Compute the mass transfer coefficients from Kumar and Hartland
     de = 0.001
@@ -341,7 +354,8 @@ def test_xfer_johnson():
     # Load the base thermodynamic state
     T, S, P, composition, yk, Mol_wt, Pc, Tc, Vc, Vb, omega, delta, \
         kh_0, neg_dH_solR, nu_bar, Aij, Bij, delta_groups, calc_delta, \
-        K_salt, rho, mu, rho_p, Cs, sigma, mu_p, D = base_state()
+        K_salt, rho, mu, rho_p, Cs, sigma, mu_p, D, C_pen, C_pen_T = \
+        base_state()
     
     # Compute and the mass transfer coefficients from Johnson
     de = 0.001
@@ -360,7 +374,8 @@ def test_xfer_clift():
     # Load the base thermodynamic state
     T, S, P, composition, yk, Mol_wt, Pc, Tc, Vc, Vb, omega, delta, \
         kh_0, neg_dH_solR, nu_bar, Aij, Bij, delta_groups, calc_delta, \
-        K_salt, rho, mu, rho_p, Cs, sigma, mu_p, D = base_state()
+        K_salt, rho, mu, rho_p, Cs, sigma, mu_p, D, C_pen, C_pen_T = \
+        base_state()
     
     # Compute and the mass transfer coefficients from Clift et al.
     de = 0.0004
@@ -380,7 +395,8 @@ def test_xfer_sphere():
     # Load the base thermodynamic state
     T, S, P, composition, yk, Mol_wt, Pc, Tc, Vc, Vb, omega, delta, \
         kh_0, neg_dH_solR, nu_bar, Aij, Bij, delta_groups, calc_delta, \
-        K_salt, rho, mu, rho_p, Cs, sigma, mu_p, D = base_state()
+        K_salt, rho, mu, rho_p, Cs, sigma, mu_p, D, C_pen, C_pen_T = \
+        base_state()
     
     # Compute and check the mass transfer coefficients for a clean sphere
     de = 0.0004
@@ -405,7 +421,8 @@ def test_xfer_ellipsoid():
     # Load the base thermodynamic state
     T, S, P, composition, yk, Mol_wt, Pc, Tc, Vc, Vb, omega, delta, \
         kh_0, neg_dH_solR, nu_bar, Aij, Bij, delta_groups, calc_delta, \
-        K_salt, rho, mu, rho_p, Cs, sigma, mu_p, D = base_state()
+        K_salt, rho, mu, rho_p, Cs, sigma, mu_p, D, C_pen, C_pen_T = \
+        base_state()
     
     # Compute and check the mass transfer coefficients for a clean 
     # ellipsoidal bubble
@@ -431,7 +448,8 @@ def test_xfer_spherical_cap():
     # Load the base thermodynamic state
     T, S, P, composition, yk, Mol_wt, Pc, Tc, Vc, Vb, omega, delta, \
         kh_0, neg_dH_solR, nu_bar, Aij, Bij, delta_groups, calc_delta, \
-        K_salt, rho, mu, rho_p, Cs, sigma, mu_p, D = base_state()
+        K_salt, rho, mu, rho_p, Cs, sigma, mu_p, D, C_pen, C_pen_T = \
+        base_state()
     
     # Compute and check the mass transfer coefficientsfor a clean spherial 
     # cap bubble
@@ -456,13 +474,14 @@ def test_density():
     # Load the base thermodynamic state
     T, S, P, composition, yk, Mol_wt, Pc, Tc, Vc, Vb, omega, delta, \
         kh_0, neg_dH_solR, nu_bar, Aij, Bij, delta_groups, calc_delta, \
-        K_salt, rho, mu, rho_p, Cs, sigma, mu_p, D = base_state()
+        K_salt, rho, mu, rho_p, Cs, sigma, mu_p, D, C_pen, C_pen_T = \
+        base_state()
     
     # Compute the density
     mass = np.array([9.54296597e-13, 2.92408701e-13, 1.62778641e-14,
         6.91208976e-16])
     density = dbm_f.density(T, P, mass, Mol_wt, Pc, Tc, Vc, omega, delta,
-        Aij, Bij, delta_groups, calc_delta)
+        Aij, Bij, delta_groups, calc_delta, C_pen, C_pen_T)
     
     # Check the solution
     assert density.shape[0] == 2
@@ -478,7 +497,8 @@ def test_fugacity():
     # Load the base thermodynamic state
     T, S, P, composition, yk, Mol_wt, Pc, Tc, Vc, Vb, omega, delta, \
         kh_0, neg_dH_solR, nu_bar, Aij, Bij, delta_groups, calc_delta, \
-        K_salt, rho, mu, rho_p, Cs, sigma, mu_p, D = base_state()
+        K_salt, rho, mu, rho_p, Cs, sigma, mu_p, D, C_pen, C_pen_T = \
+        base_state()
     
     # Compute the fugacity
     mass = np.array([9.54296597e-13, 2.92408701e-13, 1.62778641e-14,
@@ -507,12 +527,14 @@ def test_volume_trans():
     # Load the base thermodynamic state
     T, S, P, composition, yk, Mol_wt, Pc, Tc, Vc, Vb, omega, delta, \
         kh_0, neg_dH_solR, nu_bar, Aij, Bij, delta_groups, calc_delta, \
-        K_salt, rho, mu, rho_p, Cs, sigma, mu_p, D = base_state()
+        K_salt, rho, mu, rho_p, Cs, sigma, mu_p, D, C_pen, C_pen_T = \
+        base_state()
     
     # Compute the volume translation correction to density
     mass = np.array([9.54296597e-13, 2.92408701e-13, 1.62778641e-14,
         6.91208976e-16])
-    vol_trans = dbm_f.volume_trans(T, P, mass, Mol_wt, Pc, Tc, Vc)
+    vol_trans = dbm_f.volume_trans(T, P, mass, Mol_wt, Pc, Tc, Vc, C_pen,
+        C_pen_T)
     ans = np.array([-4.19831425e-06, -3.18588657e-06, -3.37047932e-06,  
         3.66998629e-06])
     
@@ -527,7 +549,8 @@ def test_z_pr():
     # Load the base thermodynamic state
     T, S, P, composition, yk, Mol_wt, Pc, Tc, Vc, Vb, omega, delta, \
         kh_0, neg_dH_solR, nu_bar, Aij, Bij, delta_groups, calc_delta, \
-        K_salt, rho, mu, rho_p, Cs, sigma, mu_p, D = base_state()
+        K_salt, rho, mu, rho_p, Cs, sigma, mu_p, D, C_pen, C_pen_T = \
+        base_state()
     
     # Compute the z factor
     mass = np.array([9.54296597e-13, 2.92408701e-13, 1.62778641e-14,
@@ -558,7 +581,8 @@ def test_coefs():
     # Load the base thermodynamic state
     T, S, P, composition, yk, Mol_wt, Pc, Tc, Vc, Vb, omega, delta, \
         kh_0, neg_dH_solR, nu_bar, Aij, Bij, delta_groups, calc_delta, \
-        K_salt, rho, mu, rho_p, Cs, sigma, mu_p, D = base_state()
+        K_salt, rho, mu, rho_p, Cs, sigma, mu_p, D, C_pen, C_pen_T = \
+        base_state()
     
     # Compute the coefficients for the Peng-Robinson equation of state
     mass = np.array([9.54296597e-13, 2.92408701e-13, 1.62778641e-14,
@@ -585,7 +609,8 @@ def test_mole_fraction():
     # Load the base thermodynamic state
     T, S, P, composition, yk, Mol_wt, Pc, Tc, Vc, Vb, omega, delta, \
         kh_0, neg_dH_solR, nu_bar, Aij, Bij, delta_groups, calc_delta, \
-        K_salt, rho, mu, rho_p, Cs, sigma, mu_p, D = base_state()
+        K_salt, rho, mu, rho_p, Cs, sigma, mu_p, D, C_pen, C_pen_T = \
+        base_state()
     
     # Compute the mole fractions from mass fraction
     mass = np.array([9.54296597e-13, 2.92408701e-13, 1.62778641e-14,
@@ -602,13 +627,14 @@ def test_viscosity():
     # Load the base thermodynamic state
     T, S, P, composition, yk, Mol_wt, Pc, Tc, Vc, Vb, omega, delta, \
         kh_0, neg_dH_solR, nu_bar, Aij, Bij, delta_groups, calc_delta, \
-        K_salt, rho, mu, rho_p, Cs, sigma, mu_p, D = base_state()
+        K_salt, rho, mu, rho_p, Cs, sigma, mu_p, D, C_pen, C_pen_T = \
+        base_state()
     
     # Compute the viscosity
     mass = np.array([9.54296597e-13, 2.92408701e-13, 1.62778641e-14,
         6.91208976e-16])
     mu = dbm_f.viscosity(T, P, mass, Mol_wt, Pc, Tc, Vc, omega, delta,
-        Aij, Bij, delta_groups, calc_delta)
+        Aij, Bij, delta_groups, calc_delta, C_pen, C_pen_T)
     ans = np.array([[1.84381543e-05], [1.84381543e-05]])
     
     # Check the solution
@@ -624,7 +650,8 @@ def test_kh_insitu():
     # Load the base thermodynamic state
     T, S, P, composition, yk, Mol_wt, Pc, Tc, Vc, Vb, omega, delta, \
         kh_0, neg_dH_solR, nu_bar, Aij, Bij, delta_groups, calc_delta, \
-        K_salt, rho, mu, rho_p, Cs, sigma, mu_p, D = base_state()
+        K_salt, rho, mu, rho_p, Cs, sigma, mu_p, D, C_pen, C_pen_T = \
+        base_state()
     
     # Compute the Henry's coefficients at in situ conditions
     kh = dbm_f.kh_insitu(T, P, S, kh_0, neg_dH_solR, nu_bar, Mol_wt, K_salt)
@@ -642,7 +669,8 @@ def test_sw_solubility():
     # Load the base thermodynamic state
     T, S, P, composition, yk, Mol_wt, Pc, Tc, Vc, Vb, omega, delta, \
         kh_0, neg_dH_solR, nu_bar, Aij, Bij, delta_groups, calc_delta, \
-        K_salt, rho, mu, rho_p, Cs, sigma, mu_p, D = base_state()
+        K_salt, rho, mu, rho_p, Cs, sigma, mu_p, D, C_pen, C_pen_T = \
+        base_state()
     
     # Compute the solubilities at in situ conditions
     f = np.array([1.55545112e+05, 4.16841748e+04, 1.85873462e+03, 
@@ -663,7 +691,8 @@ def test_diffusivity():
     # Load the base thermodynamic state
     T, S, P, composition, yk, Mol_wt, Pc, Tc, Vc, Vb, omega, delta, \
         kh_0, neg_dH_solR, nu_bar, Aij, Bij, delta_groups, calc_delta, \
-        K_salt, rho, mu, rho_p, Cs, sigma, mu_p, D = base_state()
+        K_salt, rho, mu, rho_p, Cs, sigma, mu_p, D, C_pen, C_pen_T = \
+        base_state()
     
     # Compute the diffusivities at in situ conditions
     D_fun = dbm_f.diffusivity(mu, Vb)

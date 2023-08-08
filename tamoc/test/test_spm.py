@@ -70,8 +70,10 @@ def get_profile():
     nc = test_sbm.make_ctd_file()
 
     # Return a profile object with all available chemicals in the CTD data
-    return ambient.Profile(nc, chem_names='all')
-
+    profile = ambient.Profile(nc, chem_names='all')
+    profile.close_nc()
+    
+    return profile
 
 def get_sim_data():
     """
@@ -561,6 +563,10 @@ def test_files():
     base_name = os.path.join(OUTPUT_DIR, 'spm_data')
     spm.save_txt(base_name, profile_path, profile_info)
 
+    # Save the simulation derived variables to to text files
+    base_name = os.path.join(OUTPUT_DIR, 'spm_derived_vars')
+    spm.save_derived_variables(base_name)
+    
     # Load the simulation data from the netCDF file
     spm.load_sim(fname)
     assert spm.sim_stored

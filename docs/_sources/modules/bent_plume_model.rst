@@ -33,11 +33,14 @@ This page is an index and launchpad to explore all of the classes, methods, and 
    :toctree: ../generated/
    
    Model.simulate
+   Model.get_intrusion_initial_condition
    Model.get_intrusion_concentration
    Model.get_grid_concentrations
    Model.get_planar_concentrations
+   Model.get_derived_variables
    Model.save_sim
    Model.save_txt
+   Model.save_derived_variables
    Model.load_sim
    Model.report_mass_fluxes
    Model.report_surfacing_fluxes

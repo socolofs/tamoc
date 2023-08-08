@@ -1,3 +1,23 @@
+V3.2.0, August 2023 -- 
+   . Added new methods to the bent plume model `Model` class and stratified
+     plume model `Model` class to save derived model output. The state space
+     arrays for each of these models do not contain many of the simulation
+     variables of interest (e.g., plume width, velocity, temperature,
+     concentration). During simulation, these are computed by the `LagElement`
+     class in the bent plume model and the `InnerPlume` and `OuterPlume`
+     classes in the stratified plume model. The models previously only had
+     methods to write the state-space data to files. Two new methods were added
+     to each model. The `get_derived_variables` methods compute several derived
+     variables of interest at each output level, organize these results into
+     arrays, and return the data together with lists of strings describing the
+     data in each column of the output arrays. The `save_derived_variables`
+     methods get the data from the `get_derived_variables` and then write
+     files, using the string lists of variables names to create annoted file
+     headers. This would allow model simulation data to be manipulated easily
+     outside of TAMOC or Python.
+   . Updated the test files to be compatible with the `C_pen` and `C_pen_T` 
+     variables that were added to the `dbm` module and the `dbm_f` / `dbm_p`
+     libraries.  
 V3.1.0, August 2023 -- 
    . Figured out how to suppress the numpy warning that occur due to 1.) 
      equilibrium flash calculations during the search for roots, 2.) the ODE

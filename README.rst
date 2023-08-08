@@ -12,6 +12,13 @@ size distributions from source flow conditions.
 For typical usage, please see the ./bin directory of the source distribution
 for various example scripts.
 
+Version 3.2.0:  Added the ability to save derived variables (e.g., plume width,
+                trajectory, concentration, etc.) from the bent plume model and
+                stratified plume model.  Each of these modules have the new 
+                methods `get_derived_variables` and `save_derived_variables`
+                in their `Model` class objects.  Updated the test files to be
+                compatible with the `C_pen` and `C_pen_T` variables added to 
+                the `dbm` module.
 Version 3.1.0:  Added the ability for the user to provide values of the
                 Peneloux volume shift parameter to the `dbm` module classes.
                 The input parameters are `C_pen` and `C_pen_T`, which relate to

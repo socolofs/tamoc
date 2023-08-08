@@ -211,8 +211,8 @@
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../scripts/stratified_plume_model.html">Stratified Plume Model Scripts</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-7"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="../generated/bin.spm.lake_bub.html">bin.spm.lake_bub</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../generated/bin.spm.lake_part.html">bin.spm.lake_part</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../generated/bin.spm.lake_bub.html">bin.spm.lake_bub</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../generated/bin.spm.spm_blowout_sim.html">bin.spm.spm_blowout_sim</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../generated/bin.spm.spm_file_io.html">bin.spm.spm_file_io</a></li>
 </ul>
@@ -448,8 +448,10 @@
 <li class="toctree-l3"><a class="reference internal" href="../generated/tamoc.stratified_plume_model.InnerPlume.html">tamoc.stratified_plume_model.InnerPlume</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../generated/tamoc.stratified_plume_model.OuterPlume.html">tamoc.stratified_plume_model.OuterPlume</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../generated/tamoc.stratified_plume_model.Model.simulate.html">tamoc.stratified_plume_model.Model.simulate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../generated/tamoc.stratified_plume_model.Model.get_derived_variables.html">tamoc.stratified_plume_model.Model.get_derived_variables</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../generated/tamoc.stratified_plume_model.Model.save_sim.html">tamoc.stratified_plume_model.Model.save_sim</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../generated/tamoc.stratified_plume_model.Model.save_txt.html">tamoc.stratified_plume_model.Model.save_txt</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../generated/tamoc.stratified_plume_model.Model.save_derived_variables.html">tamoc.stratified_plume_model.Model.save_derived_variables</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../generated/tamoc.stratified_plume_model.Model.load_sim.html">tamoc.stratified_plume_model.Model.load_sim</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../generated/tamoc.stratified_plume_model.Model.plot_state_space.html">tamoc.stratified_plume_model.Model.plot_state_space</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../generated/tamoc.stratified_plume_model.Model.plot_all_variables.html">tamoc.stratified_plume_model.Model.plot_all_variables</a></li>
@@ -471,11 +473,14 @@
 <li class="toctree-l3"><a class="reference internal" href="../generated/tamoc.bent_plume_model.Particle.html">tamoc.bent_plume_model.Particle</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../generated/tamoc.bent_plume_model.LagElement.html">tamoc.bent_plume_model.LagElement</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../generated/tamoc.bent_plume_model.Model.simulate.html">tamoc.bent_plume_model.Model.simulate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../generated/tamoc.bent_plume_model.Model.get_intrusion_initial_condition.html">tamoc.bent_plume_model.Model.get_intrusion_initial_condition</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../generated/tamoc.bent_plume_model.Model.get_intrusion_concentration.html">tamoc.bent_plume_model.Model.get_intrusion_concentration</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../generated/tamoc.bent_plume_model.Model.get_grid_concentrations.html">tamoc.bent_plume_model.Model.get_grid_concentrations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../generated/tamoc.bent_plume_model.Model.get_planar_concentrations.html">tamoc.bent_plume_model.Model.get_planar_concentrations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../generated/tamoc.bent_plume_model.Model.get_derived_variables.html">tamoc.bent_plume_model.Model.get_derived_variables</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../generated/tamoc.bent_plume_model.Model.save_sim.html">tamoc.bent_plume_model.Model.save_sim</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../generated/tamoc.bent_plume_model.Model.save_txt.html">tamoc.bent_plume_model.Model.save_txt</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../generated/tamoc.bent_plume_model.Model.save_derived_variables.html">tamoc.bent_plume_model.Model.save_derived_variables</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../generated/tamoc.bent_plume_model.Model.load_sim.html">tamoc.bent_plume_model.Model.load_sim</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../generated/tamoc.bent_plume_model.Model.report_mass_fluxes.html">tamoc.bent_plume_model.Model.report_mass_fluxes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../generated/tamoc.bent_plume_model.Model.report_surfacing_fluxes.html">tamoc.bent_plume_model.Model.report_surfacing_fluxes</a></li>
@@ -795,14 +800,20 @@ document.write(`
 <tr class="row-odd"><td><p><a class="reference internal" href="../generated/tamoc.bent_plume_model.Model.simulate.html#tamoc.bent_plume_model.Model.simulate" title="tamoc.bent_plume_model.Model.simulate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Model.simulate</span></code></a>(X, D, Vj, phi_0, theta_0, Sj, ...)</p></td>
 <td><p>Simulate the plume dynamics from given initial conditions</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../generated/tamoc.bent_plume_model.Model.get_intrusion_concentration.html#tamoc.bent_plume_model.Model.get_intrusion_concentration" title="tamoc.bent_plume_model.Model.get_intrusion_concentration"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Model.get_intrusion_concentration</span></code></a>(x[, max_C])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/tamoc.bent_plume_model.Model.get_intrusion_initial_condition.html#tamoc.bent_plume_model.Model.get_intrusion_initial_condition" title="tamoc.bent_plume_model.Model.get_intrusion_initial_condition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Model.get_intrusion_initial_condition</span></code></a>()</p></td>
+<td><p>Extract the concentrations of dissolved compounds entering the intrusion</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/tamoc.bent_plume_model.Model.get_intrusion_concentration.html#tamoc.bent_plume_model.Model.get_intrusion_concentration" title="tamoc.bent_plume_model.Model.get_intrusion_concentration"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Model.get_intrusion_concentration</span></code></a>(x[, max_C])</p></td>
 <td><p>Compute the concentrations of dissolved compounds in the intrusion</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../generated/tamoc.bent_plume_model.Model.get_grid_concentrations.html#tamoc.bent_plume_model.Model.get_grid_concentrations" title="tamoc.bent_plume_model.Model.get_grid_concentrations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Model.get_grid_concentrations</span></code></a>(x[, max_C])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/tamoc.bent_plume_model.Model.get_grid_concentrations.html#tamoc.bent_plume_model.Model.get_grid_concentrations" title="tamoc.bent_plume_model.Model.get_grid_concentrations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Model.get_grid_concentrations</span></code></a>(x[, max_C])</p></td>
 <td><p>Compute the concentrations in the far-field from all particles</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../generated/tamoc.bent_plume_model.Model.get_planar_concentrations.html#tamoc.bent_plume_model.Model.get_planar_concentrations" title="tamoc.bent_plume_model.Model.get_planar_concentrations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Model.get_planar_concentrations</span></code></a>(x, y, z[, max_C])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/tamoc.bent_plume_model.Model.get_planar_concentrations.html#tamoc.bent_plume_model.Model.get_planar_concentrations" title="tamoc.bent_plume_model.Model.get_planar_concentrations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Model.get_planar_concentrations</span></code></a>(x, y, z[, max_C])</p></td>
 <td><p>Compute far-field concentrations on a designated plane</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/tamoc.bent_plume_model.Model.get_derived_variables.html#tamoc.bent_plume_model.Model.get_derived_variables" title="tamoc.bent_plume_model.Model.get_derived_variables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Model.get_derived_variables</span></code></a>([track_chems])</p></td>
+<td><p>Extract an array of derived variables for the present model solution</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="../generated/tamoc.bent_plume_model.Model.save_sim.html#tamoc.bent_plume_model.Model.save_sim" title="tamoc.bent_plume_model.Model.save_sim"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Model.save_sim</span></code></a>(fname, profile_path, profile_info)</p></td>
 <td><p>Save the current simulation results</p></td>
@@ -810,31 +821,34 @@ document.write(`
 <tr class="row-even"><td><p><a class="reference internal" href="../generated/tamoc.bent_plume_model.Model.save_txt.html#tamoc.bent_plume_model.Model.save_txt" title="tamoc.bent_plume_model.Model.save_txt"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Model.save_txt</span></code></a>(base_name, profile_path, ...)</p></td>
 <td><p>Save the state space in ascii text format for exporting</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../generated/tamoc.bent_plume_model.Model.load_sim.html#tamoc.bent_plume_model.Model.load_sim" title="tamoc.bent_plume_model.Model.load_sim"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Model.load_sim</span></code></a>(fname)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/tamoc.bent_plume_model.Model.save_derived_variables.html#tamoc.bent_plume_model.Model.save_derived_variables" title="tamoc.bent_plume_model.Model.save_derived_variables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Model.save_derived_variables</span></code></a>(fname[, ...])</p></td>
+<td><p>Save an ASCII text file of derived simulation results</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/tamoc.bent_plume_model.Model.load_sim.html#tamoc.bent_plume_model.Model.load_sim" title="tamoc.bent_plume_model.Model.load_sim"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Model.load_sim</span></code></a>(fname)</p></td>
 <td><p>Load in a saved simulation result file for post-processing</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../generated/tamoc.bent_plume_model.Model.report_mass_fluxes.html#tamoc.bent_plume_model.Model.report_mass_fluxes" title="tamoc.bent_plume_model.Model.report_mass_fluxes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Model.report_mass_fluxes</span></code></a>(idx[, stage, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/tamoc.bent_plume_model.Model.report_mass_fluxes.html#tamoc.bent_plume_model.Model.report_mass_fluxes" title="tamoc.bent_plume_model.Model.report_mass_fluxes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Model.report_mass_fluxes</span></code></a>(idx[, stage, ...])</p></td>
 <td><p>Report the particulate mass fluxes at a given point</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../generated/tamoc.bent_plume_model.Model.report_surfacing_fluxes.html#tamoc.bent_plume_model.Model.report_surfacing_fluxes" title="tamoc.bent_plume_model.Model.report_surfacing_fluxes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Model.report_surfacing_fluxes</span></code></a>([chems, fp_type])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/tamoc.bent_plume_model.Model.report_surfacing_fluxes.html#tamoc.bent_plume_model.Model.report_surfacing_fluxes" title="tamoc.bent_plume_model.Model.report_surfacing_fluxes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Model.report_surfacing_fluxes</span></code></a>([chems, fp_type])</p></td>
 <td><p>Report the mass fluxes reaching the sea surface</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../generated/tamoc.bent_plume_model.Model.report_psds.html#tamoc.bent_plume_model.Model.report_psds" title="tamoc.bent_plume_model.Model.report_psds"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Model.report_psds</span></code></a>(loc, stage)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/tamoc.bent_plume_model.Model.report_psds.html#tamoc.bent_plume_model.Model.report_psds" title="tamoc.bent_plume_model.Model.report_psds"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Model.report_psds</span></code></a>(loc, stage)</p></td>
 <td><p>Return the gas and liquid particle distributions</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../generated/tamoc.bent_plume_model.Model.plot_psds.html#tamoc.bent_plume_model.Model.plot_psds" title="tamoc.bent_plume_model.Model.plot_psds"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Model.plot_psds</span></code></a>(fig[, loc, stage, clear])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/tamoc.bent_plume_model.Model.plot_psds.html#tamoc.bent_plume_model.Model.plot_psds" title="tamoc.bent_plume_model.Model.plot_psds"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Model.plot_psds</span></code></a>(fig[, loc, stage, clear])</p></td>
 <td><p>Plot bubble and droplet size distributions</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../generated/tamoc.bent_plume_model.Model.plot_state_space.html#tamoc.bent_plume_model.Model.plot_state_space" title="tamoc.bent_plume_model.Model.plot_state_space"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Model.plot_state_space</span></code></a>(fig)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/tamoc.bent_plume_model.Model.plot_state_space.html#tamoc.bent_plume_model.Model.plot_state_space" title="tamoc.bent_plume_model.Model.plot_state_space"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Model.plot_state_space</span></code></a>(fig)</p></td>
 <td><p>Plot the simulation state space</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../generated/tamoc.bent_plume_model.Model.plot_all_variables.html#tamoc.bent_plume_model.Model.plot_all_variables" title="tamoc.bent_plume_model.Model.plot_all_variables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Model.plot_all_variables</span></code></a>(fig)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/tamoc.bent_plume_model.Model.plot_all_variables.html#tamoc.bent_plume_model.Model.plot_all_variables" title="tamoc.bent_plume_model.Model.plot_all_variables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Model.plot_all_variables</span></code></a>(fig)</p></td>
 <td><p>Plot a comprehensive suite of simulation results</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../generated/tamoc.bent_plume_model.Model.plot_fractions_dissolved.html#tamoc.bent_plume_model.Model.plot_fractions_dissolved" title="tamoc.bent_plume_model.Model.plot_fractions_dissolved"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Model.plot_fractions_dissolved</span></code></a>(fig[, chems, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/tamoc.bent_plume_model.Model.plot_fractions_dissolved.html#tamoc.bent_plume_model.Model.plot_fractions_dissolved" title="tamoc.bent_plume_model.Model.plot_fractions_dissolved"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Model.plot_fractions_dissolved</span></code></a>(fig[, chems, ...])</p></td>
 <td><p>Plot the fraction of each chem dissolved subsea</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../generated/tamoc.bent_plume_model.Model.plot_mass_balance.html#tamoc.bent_plume_model.Model.plot_mass_balance" title="tamoc.bent_plume_model.Model.plot_mass_balance"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Model.plot_mass_balance</span></code></a>(fig[, chems, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/tamoc.bent_plume_model.Model.plot_mass_balance.html#tamoc.bent_plume_model.Model.plot_mass_balance" title="tamoc.bent_plume_model.Model.plot_mass_balance"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Model.plot_mass_balance</span></code></a>(fig[, chems, ...])</p></td>
 <td><p>Plot the time-history of the mass balance</p></td>
 </tr>
 </tbody>

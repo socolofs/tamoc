@@ -33,8 +33,10 @@ This page is an index and launchpad to explore all of the classes, methods, and 
    :toctree: ../generated/
    
    Model.simulate
+   Model.get_derived_variables
    Model.save_sim
    Model.save_txt
+   Model.save_derived_variables
    Model.load_sim
    Model.plot_state_space
    Model.plot_all_variables

@@ -209,8 +209,8 @@
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../scripts/stratified_plume_model.html">Stratified Plume Model Scripts</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-7"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="bin.spm.lake_bub.html">bin.spm.lake_bub</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bin.spm.lake_part.html">bin.spm.lake_part</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bin.spm.lake_bub.html">bin.spm.lake_bub</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bin.spm.spm_blowout_sim.html">bin.spm.spm_blowout_sim</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bin.spm.spm_file_io.html">bin.spm.spm_file_io</a></li>
 </ul>
@@ -446,8 +446,10 @@
 <li class="toctree-l3"><a class="reference internal" href="tamoc.stratified_plume_model.InnerPlume.html">tamoc.stratified_plume_model.InnerPlume</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.stratified_plume_model.OuterPlume.html">tamoc.stratified_plume_model.OuterPlume</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.stratified_plume_model.Model.simulate.html">tamoc.stratified_plume_model.Model.simulate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.stratified_plume_model.Model.get_derived_variables.html">tamoc.stratified_plume_model.Model.get_derived_variables</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.stratified_plume_model.Model.save_sim.html">tamoc.stratified_plume_model.Model.save_sim</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.stratified_plume_model.Model.save_txt.html">tamoc.stratified_plume_model.Model.save_txt</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.stratified_plume_model.Model.save_derived_variables.html">tamoc.stratified_plume_model.Model.save_derived_variables</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.stratified_plume_model.Model.load_sim.html">tamoc.stratified_plume_model.Model.load_sim</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.stratified_plume_model.Model.plot_state_space.html">tamoc.stratified_plume_model.Model.plot_state_space</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.stratified_plume_model.Model.plot_all_variables.html">tamoc.stratified_plume_model.Model.plot_all_variables</a></li>
@@ -469,11 +471,14 @@
 <li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.Particle.html">tamoc.bent_plume_model.Particle</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.LagElement.html">tamoc.bent_plume_model.LagElement</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.Model.simulate.html">tamoc.bent_plume_model.Model.simulate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.Model.get_intrusion_initial_condition.html">tamoc.bent_plume_model.Model.get_intrusion_initial_condition</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.Model.get_intrusion_concentration.html">tamoc.bent_plume_model.Model.get_intrusion_concentration</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.Model.get_grid_concentrations.html">tamoc.bent_plume_model.Model.get_grid_concentrations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.Model.get_planar_concentrations.html">tamoc.bent_plume_model.Model.get_planar_concentrations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.Model.get_derived_variables.html">tamoc.bent_plume_model.Model.get_derived_variables</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.Model.save_sim.html">tamoc.bent_plume_model.Model.save_sim</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.Model.save_txt.html">tamoc.bent_plume_model.Model.save_txt</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.Model.save_derived_variables.html">tamoc.bent_plume_model.Model.save_derived_variables</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.Model.load_sim.html">tamoc.bent_plume_model.Model.load_sim</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.Model.report_mass_fluxes.html">tamoc.bent_plume_model.Model.report_mass_fluxes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.Model.report_surfacing_fluxes.html">tamoc.bent_plume_model.Model.report_surfacing_fluxes</a></li>
@@ -735,7 +740,7 @@ document.write(`
 <h1>tamoc.bent_plume_model.ModelParams<a class="headerlink" href="#tamoc-bent-plume-model-modelparams" title="Permalink to this headline">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="tamoc.bent_plume_model.ModelParams">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tamoc.bent_plume_model.</span></span><span class="sig-name descname"><span class="pre">ModelParams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">profile</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/socolofs/tamoc/tree/master/tamoc/bent_plume_model.py#L1804-L1849"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tamoc.bent_plume_model.ModelParams" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tamoc.bent_plume_model.</span></span><span class="sig-name descname"><span class="pre">ModelParams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">profile</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/socolofs/tamoc/tree/master/tamoc/bent_plume_model.py#L2079-L2124"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tamoc.bent_plume_model.ModelParams" title="Permalink to this definition">#</a></dt>
 <dd><p>Fixed model parameters for the bent plume model</p>
 <p>This class stores the set of model parameters that should not be adjusted
 by the user and that are needed by the bent plume model.</p>
@@ -827,7 +832,7 @@ plume initial conditions</p>
 <cite>single_bubble_model.ModelParams</cite> object.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="tamoc.bent_plume_model.ModelParams.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">profile</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/socolofs/tamoc/tree/master/tamoc/bent_plume_model.py#L1840-L1849"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tamoc.bent_plume_model.ModelParams.__init__" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">profile</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/socolofs/tamoc/tree/master/tamoc/bent_plume_model.py#L2115-L2124"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tamoc.bent_plume_model.ModelParams.__init__" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <p class="rubric">Methods</p>

@@ -687,6 +687,206 @@ class Model(object):
         # Return the computed data
         return (plane[0], plane[1], Cp)
 
+    def get_derived_variables(self, track_chems=None):
+        """
+        Extract an array of derived variables for the present model solution
+        
+        The bent plume model state space does not contain many of the derived
+        variables that one may want to analyze (e.g., the plume velocity,
+        width, temperature, concentrations, etc.). This method uses the
+        built-in conversion tools in the bent plume model `LagElement` class to
+        compute many common derived results and stores these in an array. This
+        method also builds a list of strings describing the data in the array.
+        The class method `save_derived_variables`, which obtains its data from
+        this method, should be used to save these data to a file.
+        
+        Parameters
+        ----------
+        track_chems : list, default=None
+            A list of string names for the chemicals to include in the output
+            file.  The default is `None`, which will cause this method to save
+            all tracked chemicals.
+        
+        Returns
+        -------
+        data : ndarray
+            The array of output data written to disk
+        var_names : list
+            A list of string names describing the data returned.  Each
+            element of this list describes a column of the data in `data`
+        num_p : int
+            Number of plume particles in the solution output
+        num_c : int
+            Number of tracked chemicals included in the solution output.  This
+            variable should equal either the length of the given list of 
+            chemicals (`track_chems`) or the total number of chemicals tracked
+            in the simulation (e.g., if `track_chems` is `None`).
+        
+        """
+        # Check if the simulation has been computed
+        if not self.sim_stored:
+            print('\nERROR:  You must run a simulation before computing the')
+            print('        derived output.  Use the method simulate() to ')
+            print('        conduct the required simulation. \n')
+            return (0)
+    
+        # Get the names of each chemical and those we want to track
+        chem_names = self.q_local.chem_names.copy()
+        for particle in self.particles:
+            for chem in particle.composition:
+                if chem not in chem_names:
+                    chem_names.append(chem)
+        if isinstance(track_chems, type(None)):
+            track_chems = chem_names.copy()
+    
+        # Figure out how many particles and how many chemicals are tracked
+        num_p = self.q_local.np
+        num_c = len(track_chems)
+        
+        # Create a blank list to store annotated variable names
+        var_names = []
+        
+        # Compute the number of needed output rows (adapt this line as 
+        # additional outputs are added in the lines below)
+        num_cols = 13 + num_c + num_p * (3 + num_c)
+        
+        # Create a data array to hold this data
+        data = np.zeros((len(self.t), num_cols))    
+    
+        # Loop through each time step, compute the derived variables, and save 
+        # them to the output array in the appropriate locations
+        for i in range(len(self.t)):
+    
+            # Compute the derived variables at the present output time
+            self.q_local.update(self.t[i], self.q[i,:], self.profile, self.p, 
+                self.particles)
+            col = 0            
+        
+            # Compute the coordinates of the plume edge
+            x = self.q_local.x
+            y = self.q_local.y
+            z = self.q_local.z
+            b = self.q_local.b
+            Sz = self.q_local.sin_p
+            Sx = self.q_local.cos_p * self.q_local.cos_t
+            Sy = self.q_local.cos_p * self.q_local.sin_t
+            x1, z1, x2, z2 = width_projection(Sx, Sz, b)
+            x_xz_l = x + x1
+            x_xz_r = x + x2
+            z_xz_l = z + z1
+            z_xz_r = z + z2
+            y1, z1, y2, z2 = width_projection(Sy, Sz, b)
+            y_yz_l = y + y1
+            y_yz_r = y + y2
+            z_yz_l = z + z1
+            z_yz_r = z + z2
+
+            # Store the plume properties geometric properties            
+            if i == 0:
+                var_names.append('Plume centerline x-coordinate (m)')
+            data[i,col] = x
+            col += 1
+            if i == 0:
+                var_names.append('Plume centerline y-coorindate (m)')
+            data[i,col] = y
+            col += 1
+            if i == 0:
+                var_names.append('Plume centerline z-coordinate (m)')
+            data[i,col] = z
+            col += 1
+            if i == 0:
+                var_names.append('Plume left boundary; x in xz-plane (m)')
+            data[i,col] = x_xz_l
+            col += 1
+            if i == 0:
+                var_names.append('Plume left boundary; z in xz-plane (m)')
+            data[i,col] = z_xz_l
+            col += 1
+            if i == 0:
+                var_names.append('Plume right boundary; x in xz-plane (m)')
+            data[i,col] = x_xz_r
+            col += 1
+            if i == 0:
+                var_names.append('Plume right boundary; z in xz-plane (m)')
+            data[i,col] = z_xz_r
+            col += 1
+            if i == 0:
+                var_names.append('Plume left boundary; y in yz-plane (m)')
+            data[i,col] = y_yz_l
+            col += 1
+            if i == 0:
+                var_names.append('Plume left boundary; z in yz-plane (m)')
+            data[i,col] = z_yz_l
+            col += 1
+            if i == 0:
+                var_names.append('Plume right boundary; y in yz-plane (m)')
+            data[i,col] = y_yz_r
+            col += 1
+            if i == 0:
+                var_names.append('Plume right boundary; z in yz-plane (m)')
+            data[i,col] = z_yz_r
+            col += 1
+            if i == 0:
+                var_names.append('Plume velocity along centerline (m/s)')
+            data[i,col] = self.q_local.V
+            col += 1
+            if i == 0:
+                var_names.append('Plume half-width (radius, m)')
+            data[i,col] = b
+            col += 1
+            Q = self.q_local.V * np.pi * b**2
+            
+            # Store the dissolved concentrations of tracked chemicals in the 
+            # plume
+            for chem in track_chems:
+                if chem in self.q_local.chem_names:
+                    md = Q * self.q_local.c_chems[
+                        self.q_local.chem_names.index(chem)]
+                else:
+                    md = 0.
+                if i == 0:
+                    var_names.append('Mass flux of %s in the plume (kg/s)' \
+                        % (chem))
+                data[i,col] = md
+                col += 1
+            
+            # Store the results for each plume particle
+            for j in range(num_p):
+                
+                # Store the position
+                if i == 0:
+                    var_names.append('x-coordinate (m) of particle %3.3d' \
+                        % i)
+                data[i,col] = self.q_local.x_p[j,0]
+                col += 1
+                if i == 0:
+                    var_names.append('y-coordinate (m) of particle %3.3d' \
+                        % i)
+                data[i,col] = self.q_local.x_p[j,1]
+                col += 1
+                if i == 0:
+                    var_names.append('z-coordinate (m) of particle %3.3d' \
+                        % i)
+                data[i,col] = self.q_local.x_p[j,2]
+                col += 1
+                
+                # Store the mass fluxes of tracked chemicals
+                for chem in track_chems:
+                    if chem in self.particles[j].composition:
+                        Mpf = self.q_local.M_p[j][ \
+                            self.particles[j].composition.index(chem)] \
+                            / self.particles[j].nbe * self.particles[j].nb0
+                    else:
+                        Mpf = 0.
+                    if i == 0:
+                        var_names.append('Mass flux of %s (kg/s) in particle' \
+                            ' group %3.3d' % (chem, j))
+                    data[i,col] = Mpf
+                    col += 1
+        
+        # Return the data and header information
+        return (data, var_names, num_p, num_c)
+    
     def save_sim(self, fname, profile_path, profile_info):
         """
         Save the current simulation results
@@ -1002,6 +1202,81 @@ class Model(object):
                 self.particles[i].sbm.save_txt(fname_sbm, profile_path,
                     profile_info)
 
+    def save_derived_variables(self, fname, track_chems=None):
+        """
+        Save an ASCII text file of derived simulation results
+        
+        The bent plume model state space does not contain many of the derived
+        variables that one may want to analyze (e.g., the plume velocity, 
+        width, temperature, concentrations, etc.).  While all of these may be
+        computed from the state space variables saved through either `save_sim`
+        or `save_txt`, new functions would need to be used to compute these
+        derived results.  This method uses the built-in conversion tools in 
+        the bent plume model `LagElement` class to compute many common derived
+        results, stores these in an array, and saves them to a text file.  
+        See the notes below and the file text header for details on which 
+        variables are saved, their meaning and dimensions.
+        
+        Parameters
+        ----------
+        fname : str
+            File name with absolute or relative file path for the ASCII data
+            file to write. Include the full file name up to the `.txt`
+            extension; this method will add the extention. This method uses
+            `np.savetxt` to create the output file.
+        track_chems : list, default=None
+            A list of string names for the chemicals to include in the output
+            file.  The default is `None`, which will cause this method to save
+            all tracked chemicals.
+        
+        Returns
+        -------
+        data : ndarray
+            The array of output data written to disk
+        header : str
+            The string header describing the data written to disk
+        
+        Notes
+        -----
+        The simulation results are stored in the model attributes `self.t` (the
+        vector of simulation times) and `self.q` (the vector of state-space)
+        variables. Although the model computes the solution as a function of
+        time in a Lagrangian reference frame, the data are steady-state, and
+        the output of this method records the data as a function of depth (m).
+        
+        Because the bent plume model may overshoot the level of neutral 
+        buoyancy and come to rest at a location deeper than the maximum height
+        of plume rise, the depth data in the output file may not be 
+        monotonically increasing, and there may be multiple output values at
+        the same heights (once as the plume ascends through a given depth
+        and again as the plume descends to a location of neutral buoyancy).
+        If one chooses to interpolate between data points in this file, care
+        should be used that the right set of output depths are used.
+        
+        """
+        # Get the derived variables
+        data, var_names, num_p, num_c = self.get_derived_variables(track_chems)
+        
+        # Build an output header
+        from datetime import date
+        header = 'Derived output data from the TAMOC Bent Plume Model\n'
+        header += 'Created on: ' + date.today().strftime("%Y-%m-%d %H:%M:%S") \
+            + '\n\n'
+        header += 'Data are stored in the following order:\n'
+        col = 0
+        for name in var_names:
+            header += '    Col %3.3d:  ' % (col) + name + '\n'
+            col += 1
+        header += '\nThere are %3.3d particle groups in this output.\n' % num_p
+        header += 'There are %3.3d chemicals tracked in this output.\n' % \
+            num_c
+        
+        # Write the data to a file
+        np.savetxt(fname + '.txt', data, header=header)
+        
+        # Return the results
+        return (data, header)
+        
     def load_sim(self, fname):
         """
         Load in a saved simulation result file for post-processing

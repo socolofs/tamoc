@@ -196,7 +196,7 @@ class BaseProfile(object):
         keep_names = self.ztsp + self.chem_names
         for name in self.ds.data_vars:
             if name not in keep_names:
-                self.ds = self.ds.drop([name])
+                self.ds = self.ds.drop_vars([name])
         
         # Add the unit labels passed to the initializer if they are not
         # already in the dataset

@@ -248,7 +248,208 @@ class Model(object):
             # Restart heat transfer
             for i in range(len(self.particles)):
                 self.particles[i].K_T = self.K_T0[i]
-
+    
+    def get_derived_variables(self, track_chems=None):
+        """
+        Extract an array of derived variables for the present model solution
+        
+        The stratified plume model state space does not contain many of the
+        derived variables that one may want to analyze (e.g., the plume
+        velocity, width, concentrations, etc.). This method uses the built-in
+        conversion tools in the stratified plume model `InnerPlume` and
+        `OuterPlume` classes to compute many common derived results and stores
+        these in an array. This method also builds a string list describing the
+        data in the array. The class method `save_derived_variables`, which
+        obtains its data from this method, should be used to save these data to
+        a file.
+        
+        Parameters
+        ----------
+        track_chems : list, default=None
+            A list of string names of the chemicals to include in the output
+            array.  The default is `None`, which will cause this method to save
+            all tracked chemicals.
+        
+        Returns
+        -------
+        inner_data : ndarray
+            The array of output data derived for the inner plume
+        inner_names : list
+            A list of string names describing the data stored in `inner_data`
+        outer_data : ndarray
+            The array of output data derived for the outer plume
+        outer_names : list
+            A list of string names describing the data stored in `outer_data`
+        num_p : int
+            Number of plume particles in the solution output
+        num_c : int
+            Number of tracked chemicals included in the solution output.  This
+            variable should equal either the length of the given list of 
+            chemicals (`track_chems`) or the total number of chemicals tracked
+            in the simulation (e.g., if `track_chems` is `None`).
+        
+        """
+        # Check if the simulation has been computed
+        if not self.sim_stored:
+            print('\nERROR:  You must run a simulation before computing the')
+            print('        derived output.  Use the method simulate() to ')
+            print('        conduct the required simulation. \n')
+            return (0)
+        
+        # Get the names of each chemical and those we want to track
+        chem_names = self.yi_local.chem_names.copy()
+        for particle in self.particles:
+            for chem in particle.composition:
+                if chem not in chem_names:
+                    chem_names.append(chem)
+        if isinstance(track_chems, type(None)):
+            track_chems = chem_names.copy()
+        
+        # Figure out how many particles and how many chemicals are tracked
+        num_p = self.yi_local.np
+        num_c = len(track_chems)
+        
+        # Create blank lists to store annotated variable names
+        inner_names = []
+        outer_names = []
+        
+        # Compute the number of needed output rows (adapt as additional 
+        # outputs are added in the lines below)
+        num_cols = 6 + num_c * (1 + num_p)
+        inner_data = np.zeros((len(self.zi), num_cols))
+        num_cols = 6 + num_c 
+        outer_data = np.zeros((len(self.zo), num_cols))
+        
+        # Extract the inner-plume derived variables at each simulated depth
+        for i in range(len(self.zi)):
+            
+            # Compute the derived variables at the present output location
+            self.yi_local.update(self.zi[i], self.yi[i,:], self.particles,
+                self.profile, self.p) 
+            col = 0
+            
+            # Extract the inner plume geometry and flux
+            if i == 0:
+                inner_names.append('Inner plume z-coordinate (m)')
+            inner_data[i,col] = self.zi[i]
+            col += 1
+            if i == 0:
+                inner_names.append('Inner plume left boundary; ' + \
+                    ' x in xz-plane (m)')
+            inner_data[i,col] = -self.yi_local.b 
+            col += 1
+            if i == 0:
+                inner_names.append('Inner plume right boundary; ' + \
+                    ' x in xz-plane (m)')
+            inner_data[i,col] = self.yi_local.b
+            col += 1
+            if i == 0:
+                inner_names.append('Inner plume centerline velocity (m/s)')
+            inner_data[i,col] = self.yi_local.u
+            col += 1
+            if i == 0:
+                inner_names.append('Inner plume half-width (radius, m)')
+            inner_data[i,col] = self.yi_local.b
+            col += 1
+            if i == 0:
+                inner_names.append('Inner plume volume flux (m^3/s)')
+            inner_data[i,col] = self.yi_local.Q
+            col += 1
+            
+            # Store the dissolved concentration of tracked chemicals in the
+            # plume
+            for chem in track_chems:
+                if chem in self.yi_local.chem_names:
+                    C = self.yi_local.C[self.yi_local.chem_names.index(chem)]
+                else:
+                    C = 0.
+                if i == 0:
+                    inner_names.append('Mass flux of %s' % (chem) + \
+                        ' in the inner plume (kg/s)')
+                inner_data[i,col] = C
+                col += 1
+            
+            # Store the results for each plume particle
+            for j in range(num_p):
+                for chem in track_chems:
+                    if chem in self.particles[j].composition: 
+                        Mpf = self.yi_local.M_p[j][
+                            self.particles[j].composition.index(chem)]
+                    else:
+                        Mpf = 0.
+                    if i == 0:
+                        inner_names.append('Mass flux of %s' % (chem) + \
+                            ' (kg/s) in particle %3.3d' % (j))
+                    inner_data[i,col] = Mpf
+                    col += 1
+        
+        # Create an interpolator for the inner plume
+        from scipy.interpolate import interp1d
+        neighbor = interp1d(np.flipud(self.zi), \
+            np.flipud(self.yi).transpose()) 
+        
+        # Extract the outer-plume derived variables
+        for i in range(len(self.zo)):
+            
+            # Compute the derived variables at the present output location
+            try:
+                self.yi_local.update(self.zo[i], neighbor(self.zo[i]), \
+                    self.particles, self.profile, self.p)
+                self.yo_local.update(self.zo[i], self.yo[i,:], self.profile,
+                    self.p, self.yi_local.b)
+            except ValueError:
+                # Above or below an inner plume segement:  set bi = 0
+                self.yo_local.update(self.zo[i], self.yo[i,:], self.profile,
+                    self.p, 0.)
+            col = 0
+            
+            # Extract the outer plume geometry and flux
+            if i == 0:
+                outer_names.append('Outer plume z-coordinate (m)')
+            outer_data[i,col] = self.zo[i]
+            col += 1
+            if i == 0:
+                outer_names.append('Outer plume left boundary; ' + \
+                    ' x in xz-plane (m)')
+            outer_data[i,col] = -self.yo_local.b 
+            col += 1
+            if i == 0:
+                outer_names.append('Outer plume right boundary; ' + \
+                    ' x in xz-plane (m)')
+            outer_data[i,col] = self.yo_local.b
+            col += 1
+            if i == 0:
+                outer_names.append('Outer plume centerline velocity (m/s)')
+            outer_data[i,col] = self.yo_local.u
+            col += 1
+            if i == 0:
+                outer_names.append('Outer plume half-width (radius, m)')
+            outer_data[i,col] = self.yo_local.b
+            col += 1
+            if i == 0:
+                outer_names.append('Outer plume volume flux (m^3/s)')
+            outer_data[i,col] = self.yo_local.Q
+            col += 1 
+            
+            # Store the dissolved concentration of tracked chemicals in the
+            # plume
+            for chem in track_chems:
+                if chem in self.yo_local.chem_names:
+                    C = self.yo_local.C[self.yo_local.chem_names.index(chem)]
+                else:
+                    C = 0.
+                if i == 0:
+                    outer_names.append('Mass flux of %s in the outer' % (chem) \
+                        + ' plume (kg/s)')
+                outer_data[i,col] = C
+                col += 1
+            
+            # There are no particles in the outer plume...we are done
+            # collecting data
+        
+        # Return the data and variable names
+        return (inner_data, inner_names, outer_data, outer_names, num_p, num_c)
+        
     def save_sim(self, fname, profile_path, profile_info):
         """
         Save the current simulation results
@@ -507,6 +708,97 @@ class Model(object):
         with open(base_name + '_outer_header.txt', 'w') as dat_file:
             dat_file.write(header_outer)
 
+    def save_derived_variables(self, fname, track_chems=None):
+        """
+        Save an ASCII text file of derived simulation results
+        
+        The stratified plume model state space does not contain many of the
+        derived variables that one may want to analyze (e.g., the plume
+        velocity, width, concentrations, etc.). While all of these may be
+        computed from the state space variables saved through either `save_sim`
+        or `save_txt`, new functions would need to be used to compute these
+        derived results. This method uses the built-in conversion tools in the
+        stratified plume model `InnerPlume` and `OuterPlume` classes to compute
+        many common derived results, stores these two output arrays (one for
+        the inner plume and another for the outer plume), and saves them to two
+        text files. See the file text headers for details on which variables
+        are saved, their meaning and dimensions.
+        
+        Parameters
+        ----------
+        fname : str
+            Base file name with absolute or relative file path for the ASCII
+            data file to write. This should include the file path and file name
+            up to the dot-extension, but not including the `.txt` extension.
+            This method uses `np.savetxt` to create the output file. Two files
+            will be created: the inner plume data will have the string `_inner`
+            appended to the base file name and the outer plume data will have
+            the string `_outer` appended to the file name.
+        track_chems : list, default=None
+            A list of string names for the chemicals to include in the output
+            file.  The default is `None`, which will cause this method to save
+            all tracked chemicals.
+        
+        Returns
+        -------
+        inner_data : ndarray
+            The array of output data derived for the inner plume
+        inner_header : str
+            The string header describing the data written to disk for the inner
+            plume
+        outer_data : ndarray
+            The array of output data derived for the outer plume
+        outer_names : str
+            The string header describing the data written to disk for the outer
+            plume
+        
+        """
+        # Get the derived variables
+        inner_data, inner_names, outer_data, outer_names, num_p, num_c = \
+            self.get_derived_variables(track_chems)
+        
+        # Import tools to write the current date
+        from datetime import date
+        
+        # Build an output header for both data files
+        def build_header(names_list):
+            """
+            Create a header from list of variable names
+            
+            """
+            header = 'Derived output data from the TAMOC' + \
+                ' Stratified Plume Model\n'
+            header += 'Created on: ' + date.today().strftime(
+                "%Y-%m-%d %H:%M:%S") + '\n\n'
+            header += 'Data are stored in the following order:\n'
+            col = 0
+            for name in names_list:
+                header += '    Col %3.3d:  ' % (col) + name + '\n'
+                col += 1
+            
+            return header
+        
+        # Inner plume data header
+        inner_header = 'Inner plume solution\n'
+        inner_header += build_header(inner_names)
+        inner_header += '\nThere are %3.3d particle groups' % (num_p) + \
+                ' in this output.\n'
+        inner_header += 'There are %3.3d chemicals tracked' % (num_c) + \
+            ' in this output.\n' 
+        
+        # Outer plume data header
+        outer_header = 'Outer plume solution\n'
+        outer_header += build_header(outer_names)
+        outer_header += 'There are no particles in outer plumes\n'
+        outer_header += 'There are %3.3d chemicals tracked' % (num_c) + \
+            ' in this output.\n'
+        
+        # Write the inner plume data
+        np.savetxt(fname + '_inner.txt', inner_data, header=inner_header)
+        np.savetxt(fname + '_outer.txt', outer_data, header=outer_header)
+        
+        return (inner_data, inner_header, outer_data, outer_header)
+    
     def load_sim(self, fname):
         """
         Load in a saved simulation result file for post-processing
@@ -1978,7 +2270,7 @@ def plot_all_variables(zi, yi, zo, yo, yi_local, yo_local, particles,
     plt.clf()
 
     # Determine how many rows and columns of plots to make
-    nsp = np.floor(np.sqrt(nchems))
+    nsp = int(np.floor(np.sqrt(nchems)))
     if np.sqrt(nchems) > nsp:
         nsp += 1
 
@@ -2097,7 +2389,7 @@ def plot_all_variables(zi, yi, zo, yo, yi_local, yo_local, particles,
     plt.clf()
 
     # Determine how many rows and columns of plots to make
-    nsp = np.floor(np.sqrt(nchems))
+    nsp = int(np.floor(np.sqrt(nchems)))
     if np.sqrt(nchems) > nsp:
         nsp += 1
 

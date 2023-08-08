@@ -8,8 +8,8 @@ bubble model with a non-reactive (inert) particle.
 
 This simulation uses the ambient data stored in the file
 `./tamoc/data/lake.dat`. This module first organizes this data and stores the
-necessary netCDF file in `../test/output`. Please make sure this directory
-exists before running this file.
+necessary netCDF file in `../tamoc/test/output`. Please make sure this
+directory exists before running this file.
 
 """
 # S. Socolofsky, August 2013, Texas A&M University <socolofs@tamu.edu>.
@@ -52,12 +52,12 @@ if __name__ == '__main__':
     spm.simulate(particles, z0, R, maxit=5, delta_z = 0.2)
     
     # Save the model results
-    spm.save_sim('../../test/output/spm_sphere.nc', 
+    spm.save_sim('../../tamoc/test/output/spm_sphere.nc', 
         '../../test/output/lake.nc', 
         'Lake data from McGinnis et al. (2006) in ./test/output/lake.nc')
         
     # Demonstrate how to read the data back in from the hard drive
-    spm.load_sim('../../test/output/spm_sphere.nc')
+    spm.load_sim('../../tamoc/test/output/spm_sphere.nc')
     spm.plot_state_space(1)
     
     # Plot the full suite of model variables

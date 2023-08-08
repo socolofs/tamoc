@@ -277,7 +277,7 @@ def check_sim(X0, D, Vj, phi_0, theta_0, Sj, Tj, cj, tracers,
         2.84433399e+01, np.nan, np.nan, np.nan, 1.03485668e-02, 0.00000000e+00,
         0.00000000e+00, 4.24115008e-03])
     for i in range(len(ans)):
-        assert_approx_equal(bpm.q[-1,i], ans[i], significant=6)
+        assert_approx_equal(bpm.q[-1,i], ans[i], significant=5)
 
     # Check the tracking data for the particles that left the plume
     assert bpm.particles[0].farfield == True
@@ -584,10 +584,14 @@ def test_files():
     profile_info = 'Results of test_bpm.py script'
     bpm.save_sim(fname, profile_path, profile_info)
 
-    # Save the simulation to a text file
+    # Save the simulation state-space to a text file
     base_name = os.path.join(OUTPUT_DIR, 'bpm_data')
     bpm.save_txt(base_name, profile_path, profile_info)
 
+    # Save the simulation derived variables to a text file
+    base_name = os.path.join(OUTPUT_DIR, 'bpm_derived_vars')
+    bpm.save_derived_variables(base_name)
+    
     # Load the simulation data from the netCDF file
     bpm.load_sim(fname)
     print('Checking simulation...')
@@ -596,7 +600,7 @@ def test_files():
 
     # Initialize a Model object from the netCDF file
     bpm_load = bent_plume_model.Model(simfile = fname)
-    print('Checking simulatio')
+    print('Checking simulation...')
     check_sim(X0, D, Vj, phi_0, theta_0, Sj, Tj, cj, tracers, particles,
         dt_max, sd_max, bpm)
 
