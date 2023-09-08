@@ -447,6 +447,8 @@
 <li class="toctree-l3"><a class="reference internal" href="tamoc.stratified_plume_model.OuterPlume.html">tamoc.stratified_plume_model.OuterPlume</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.stratified_plume_model.Model.simulate.html">tamoc.stratified_plume_model.Model.simulate</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.stratified_plume_model.Model.get_derived_variables.html">tamoc.stratified_plume_model.Model.get_derived_variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.stratified_plume_model.Model.report_psds.html">tamoc.stratified_plume_model.Model.report_psds</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.stratified_plume_model.Model.report_intrusion_fluxes.html">tamoc.stratified_plume_model.Model.report_intrusion_fluxes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.stratified_plume_model.Model.save_sim.html">tamoc.stratified_plume_model.Model.save_sim</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.stratified_plume_model.Model.save_txt.html">tamoc.stratified_plume_model.Model.save_txt</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.stratified_plume_model.Model.save_derived_variables.html">tamoc.stratified_plume_model.Model.save_derived_variables</a></li>
@@ -482,6 +484,7 @@
 <li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.Model.load_sim.html">tamoc.bent_plume_model.Model.load_sim</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.Model.report_mass_fluxes.html">tamoc.bent_plume_model.Model.report_mass_fluxes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.Model.report_surfacing_fluxes.html">tamoc.bent_plume_model.Model.report_surfacing_fluxes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.Model.report_watercolumn_particle_fluxes.html">tamoc.bent_plume_model.Model.report_watercolumn_particle_fluxes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.Model.report_psds.html">tamoc.bent_plume_model.Model.report_psds</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.Model.plot_psds.html">tamoc.bent_plume_model.Model.plot_psds</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.Model.plot_state_space.html">tamoc.bent_plume_model.Model.plot_state_space</a></li>
@@ -740,7 +743,7 @@ document.write(`
 <h1>tamoc.particle_size_models.Model<a class="headerlink" href="#tamoc-particle-size-models-model" title="Permalink to this headline">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="tamoc.particle_size_models.Model">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tamoc.particle_size_models.</span></span><span class="sig-name descname"><span class="pre">Model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">profile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oil</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Tj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/socolofs/tamoc/tree/master/tamoc/particle_size_models.py#L841-L1159"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tamoc.particle_size_models.Model" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tamoc.particle_size_models.</span></span><span class="sig-name descname"><span class="pre">Model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">profile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oil</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Tj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Pj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/socolofs/tamoc/tree/master/tamoc/particle_size_models.py#L851-L1195"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tamoc.particle_size_models.Model" title="Permalink to this definition">#</a></dt>
 <dd><p>Master lass object for computing bubble and droplet size distributions</p>
 <p>This model class contains handles the interface to the <cite>ModelBase</cite>,
 allowing particle size distributions to be easily computed given a
@@ -1174,7 +1177,7 @@ in the  <cite>de_oil</cite> droplet size distribution (–)</p>
 distributions using the <code class="docutils literal notranslate"><span class="pre">TAMOC</span></code> plume models.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="tamoc.particle_size_models.Model.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">profile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oil</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Tj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/socolofs/tamoc/tree/master/tamoc/particle_size_models.py#L969-L972"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tamoc.particle_size_models.Model.__init__" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">profile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oil</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Tj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Pj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/socolofs/tamoc/tree/master/tamoc/particle_size_models.py#L979-L982"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tamoc.particle_size_models.Model.__init__" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <p class="rubric">Methods</p>
@@ -1184,7 +1187,7 @@ distributions using the <code class="docutils literal notranslate"><span class="
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tamoc.particle_size_models.Model.__init__" title="tamoc.particle_size_models.Model.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(profile, oil, m, z0[, Tj])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tamoc.particle_size_models.Model.__init__" title="tamoc.particle_size_models.Model.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(profile, oil, m, z0[, Tj, Pj])</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="tamoc.particle_size_models.Model.get_d50.html#tamoc.particle_size_models.Model.get_d50" title="tamoc.particle_size_models.Model.get_d50"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_d50</span></code></a>(fp_type)</p></td>
@@ -1202,16 +1205,19 @@ distributions using the <code class="docutils literal notranslate"><span class="
 <tr class="row-even"><td><p><a class="reference internal" href="tamoc.particle_size_models.Model.simulate.html#tamoc.particle_size_models.Model.simulate" title="tamoc.particle_size_models.Model.simulate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">simulate</span></code></a>(d0[, model_gas, pdf_gas, ...])</p></td>
 <td><p>Compute the parameters of the particle size distribution</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="tamoc.particle_size_models.Model.update_Tj.html#tamoc.particle_size_models.Model.update_Tj" title="tamoc.particle_size_models.Model.update_Tj"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_Tj</span></code></a>(Tj)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_Pj</span></code>(Tj)</p></td>
+<td><p>Update the pressure of the released fluids in the jet</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="tamoc.particle_size_models.Model.update_Tj.html#tamoc.particle_size_models.Model.update_Tj" title="tamoc.particle_size_models.Model.update_Tj"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_Tj</span></code></a>(Tj)</p></td>
 <td><p>Update the temperature of the released fluids in the jet</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="tamoc.particle_size_models.Model.update_m_mixture.html#tamoc.particle_size_models.Model.update_m_mixture" title="tamoc.particle_size_models.Model.update_m_mixture"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_m_mixture</span></code></a>(m_mixture)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="tamoc.particle_size_models.Model.update_m_mixture.html#tamoc.particle_size_models.Model.update_m_mixture" title="tamoc.particle_size_models.Model.update_m_mixture"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_m_mixture</span></code></a>(m_mixture)</p></td>
 <td><p>Update the total mass flux of the released fluids in the jet</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="tamoc.particle_size_models.Model.update_properties.html#tamoc.particle_size_models.Model.update_properties" title="tamoc.particle_size_models.Model.update_properties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_properties</span></code></a>(profile, oil_mixture, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="tamoc.particle_size_models.Model.update_properties.html#tamoc.particle_size_models.Model.update_properties" title="tamoc.particle_size_models.Model.update_properties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_properties</span></code></a>(profile, oil_mixture, ...)</p></td>
 <td><p>Set the thermodynamic properties of the released and receiving fluids</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="tamoc.particle_size_models.Model.update_z0.html#tamoc.particle_size_models.Model.update_z0" title="tamoc.particle_size_models.Model.update_z0"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_z0</span></code></a>(z0)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="tamoc.particle_size_models.Model.update_z0.html#tamoc.particle_size_models.Model.update_z0" title="tamoc.particle_size_models.Model.update_z0"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_z0</span></code></a>(z0)</p></td>
 <td><p>Update the release depth of the jet</p></td>
 </tr>
 </tbody>

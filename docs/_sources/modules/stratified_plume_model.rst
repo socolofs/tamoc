@@ -34,6 +34,8 @@ This page is an index and launchpad to explore all of the classes, methods, and 
    
    Model.simulate
    Model.get_derived_variables
+   Model.report_psds
+   Model.report_intrusion_fluxes
    Model.save_sim
    Model.save_txt
    Model.save_derived_variables

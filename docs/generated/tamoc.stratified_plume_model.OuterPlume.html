@@ -447,6 +447,8 @@
 <li class="toctree-l3 current active"><a class="current reference internal" href="#">tamoc.stratified_plume_model.OuterPlume</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.stratified_plume_model.Model.simulate.html">tamoc.stratified_plume_model.Model.simulate</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.stratified_plume_model.Model.get_derived_variables.html">tamoc.stratified_plume_model.Model.get_derived_variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.stratified_plume_model.Model.report_psds.html">tamoc.stratified_plume_model.Model.report_psds</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.stratified_plume_model.Model.report_intrusion_fluxes.html">tamoc.stratified_plume_model.Model.report_intrusion_fluxes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.stratified_plume_model.Model.save_sim.html">tamoc.stratified_plume_model.Model.save_sim</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.stratified_plume_model.Model.save_txt.html">tamoc.stratified_plume_model.Model.save_txt</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.stratified_plume_model.Model.save_derived_variables.html">tamoc.stratified_plume_model.Model.save_derived_variables</a></li>
@@ -482,6 +484,7 @@
 <li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.Model.load_sim.html">tamoc.bent_plume_model.Model.load_sim</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.Model.report_mass_fluxes.html">tamoc.bent_plume_model.Model.report_mass_fluxes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.Model.report_surfacing_fluxes.html">tamoc.bent_plume_model.Model.report_surfacing_fluxes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.Model.report_watercolumn_particle_fluxes.html">tamoc.bent_plume_model.Model.report_watercolumn_particle_fluxes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.Model.report_psds.html">tamoc.bent_plume_model.Model.report_psds</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.Model.plot_psds.html">tamoc.bent_plume_model.Model.plot_psds</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.Model.plot_state_space.html">tamoc.bent_plume_model.Model.plot_state_space</a></li>
@@ -740,7 +743,7 @@ document.write(`
 <h1>tamoc.stratified_plume_model.OuterPlume<a class="headerlink" href="#tamoc-stratified-plume-model-outerplume" title="Permalink to this headline">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="tamoc.stratified_plume_model.OuterPlume">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tamoc.stratified_plume_model.</span></span><span class="sig-name descname"><span class="pre">OuterPlume</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chem_names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bi</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/socolofs/tamoc/tree/master/tamoc/stratified_plume_model.py#L1265-L1408"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tamoc.stratified_plume_model.OuterPlume" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tamoc.stratified_plume_model.</span></span><span class="sig-name descname"><span class="pre">OuterPlume</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chem_names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bi</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/socolofs/tamoc/tree/master/tamoc/stratified_plume_model.py#L1392-L1535"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tamoc.stratified_plume_model.OuterPlume" title="Permalink to this definition">#</a></dt>
 <dd><p>Manages the outer plume state space and derived variables</p>
 <p>Manages storage and calculation of the derived variables for the outer
 plume as a function of the state space.</p>
@@ -859,17 +862,13 @@ plume model.</p></li>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="tamoc.stratified_plume_model.OuterPlume.C">
 <span class="sig-name descname"><span class="pre">C</span></span><a class="headerlink" href="#tamoc.stratified_plume_model.OuterPlume.C" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Mass flux of dissolved species in the outer plume (kg/s)</p>
+<dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
 </dd>
 </dl>
 </dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">Mass</span> <span class="pre">flux</span> <span class="pre">of</span> <span class="pre">dissolved</span> <span class="pre">species</span> <span class="pre">in</span> <span class="pre">the</span> <span class="pre">outer</span> <span class="pre">plume</span> <span class="pre">(kg/s)</span></span></dt>
-<dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="tamoc.stratified_plume_model.OuterPlume.Ta">
@@ -994,7 +993,7 @@ plume model.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tamoc.stratified_plume_model.OuterPlume.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chem_names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bi</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/socolofs/tamoc/tree/master/tamoc/stratified_plume_model.py#L1335-L1346"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tamoc.stratified_plume_model.OuterPlume.__init__" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chem_names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bi</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/socolofs/tamoc/tree/master/tamoc/stratified_plume_model.py#L1462-L1473"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tamoc.stratified_plume_model.OuterPlume.__init__" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <p class="rubric">Methods</p>

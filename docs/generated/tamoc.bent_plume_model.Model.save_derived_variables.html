@@ -447,6 +447,8 @@
 <li class="toctree-l3"><a class="reference internal" href="tamoc.stratified_plume_model.OuterPlume.html">tamoc.stratified_plume_model.OuterPlume</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.stratified_plume_model.Model.simulate.html">tamoc.stratified_plume_model.Model.simulate</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.stratified_plume_model.Model.get_derived_variables.html">tamoc.stratified_plume_model.Model.get_derived_variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.stratified_plume_model.Model.report_psds.html">tamoc.stratified_plume_model.Model.report_psds</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.stratified_plume_model.Model.report_intrusion_fluxes.html">tamoc.stratified_plume_model.Model.report_intrusion_fluxes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.stratified_plume_model.Model.save_sim.html">tamoc.stratified_plume_model.Model.save_sim</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.stratified_plume_model.Model.save_txt.html">tamoc.stratified_plume_model.Model.save_txt</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.stratified_plume_model.Model.save_derived_variables.html">tamoc.stratified_plume_model.Model.save_derived_variables</a></li>
@@ -482,6 +484,7 @@
 <li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.Model.load_sim.html">tamoc.bent_plume_model.Model.load_sim</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.Model.report_mass_fluxes.html">tamoc.bent_plume_model.Model.report_mass_fluxes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.Model.report_surfacing_fluxes.html">tamoc.bent_plume_model.Model.report_surfacing_fluxes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.Model.report_watercolumn_particle_fluxes.html">tamoc.bent_plume_model.Model.report_watercolumn_particle_fluxes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.Model.report_psds.html">tamoc.bent_plume_model.Model.report_psds</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.Model.plot_psds.html">tamoc.bent_plume_model.Model.plot_psds</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.bent_plume_model.Model.plot_state_space.html">tamoc.bent_plume_model.Model.plot_state_space</a></li>
@@ -740,7 +743,7 @@ document.write(`
 <h1>tamoc.bent_plume_model.Model.save_derived_variables<a class="headerlink" href="#tamoc-bent-plume-model-model-save-derived-variables" title="Permalink to this headline">#</a></h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="tamoc.bent_plume_model.Model.save_derived_variables">
-<span class="sig-prename descclassname"><span class="pre">Model.</span></span><span class="sig-name descname"><span class="pre">save_derived_variables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">track_chems</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/socolofs/tamoc/tree/master/tamoc/bent_plume_model.py#L1205-L1278"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tamoc.bent_plume_model.Model.save_derived_variables" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">Model.</span></span><span class="sig-name descname"><span class="pre">save_derived_variables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">track_chems</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/socolofs/tamoc/tree/master/tamoc/bent_plume_model.py#L1210-L1287"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tamoc.bent_plume_model.Model.save_derived_variables" title="Permalink to this definition">#</a></dt>
 <dd><p>Save an ASCII text file of derived simulation results</p>
 <p>The bent plume model state space does not contain many of the derived
 variables that one may want to analyze (e.g., the plume velocity,
@@ -756,8 +759,8 @@ variables are saved, their meaning and dimensions.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>fname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – File name with absolute or relative file path for the ASCII data
-file to write. Include the full file name up to the <cite>.txt</cite>
-extension; this method will add the extention. This method uses
+file to write. Include the full file name including any needed
+relative or absolute file path information.  This method uses
 <cite>np.savetxt</cite> to create the output file.</p></li>
 <li><p><strong>track_chems</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>, <em>default</em> <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>) – A list of string names for the chemicals to include in the output
 file.  The default is <cite>None</cite>, which will cause this method to save

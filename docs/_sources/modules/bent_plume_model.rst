@@ -44,6 +44,7 @@ This page is an index and launchpad to explore all of the classes, methods, and 
    Model.load_sim
    Model.report_mass_fluxes
    Model.report_surfacing_fluxes
+   Model.report_watercolumn_particle_fluxes
    Model.report_psds
    Model.plot_psds
    Model.plot_state_space

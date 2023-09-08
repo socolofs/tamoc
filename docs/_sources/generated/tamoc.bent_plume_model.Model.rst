@@ -28,6 +28,7 @@
       ~Model.report_mass_fluxes
       ~Model.report_psds
       ~Model.report_surfacing_fluxes
+      ~Model.report_watercolumn_particle_fluxes
       ~Model.save_derived_variables
       ~Model.save_sim
       ~Model.save_txt

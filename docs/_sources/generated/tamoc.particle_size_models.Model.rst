@@ -19,6 +19,7 @@
       ~Model.get_distributions
       ~Model.plot_psd
       ~Model.simulate
+      ~Model.update_Pj
       ~Model.update_Tj
       ~Model.update_m_mixture
       ~Model.update_properties

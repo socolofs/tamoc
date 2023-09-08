@@ -18,6 +18,8 @@
       ~Model.load_sim
       ~Model.plot_all_variables
       ~Model.plot_state_space
+      ~Model.report_intrusion_fluxes
+      ~Model.report_psds
       ~Model.save_derived_variables
       ~Model.save_sim
       ~Model.save_txt
