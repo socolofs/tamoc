@@ -12,6 +12,9 @@ size distributions from source flow conditions.
 For typical usage, please see the ./bin directory of the source distribution
 for various example scripts.
 
+Version 3.3.0:  Added a few new post-processing tools to the bent plume and 
+                stratified plume models and updated the particle size model
+                tools so that the user can specify a non-equilibrium pressure.
 Version 3.2.0:  Added the ability to save derived variables (e.g., plume width,
                 trajectory, concentration, etc.) from the bent plume model and
                 stratified plume model.  Each of these modules have the new 
