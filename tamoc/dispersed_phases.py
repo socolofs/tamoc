@@ -226,7 +226,7 @@ class SingleParticle(object):
                         
             # Get the DBM results
             m[m<0] = 0.   # stop oscillations at small mass
-            shape, de, rho_p, us, A, Cs, beta, beta_T = \
+            self.shape, self.de, rho_p, us, A, Cs, beta, beta_T = \
                 self.particle.return_all(m, T, P, Sa, Ta, status)
             
             # Turn off dissolution for "dissolved" components
@@ -246,7 +246,7 @@ class SingleParticle(object):
         
         else:
             # Get the particle properties
-            shape, de, rho_p, us, A, beta_T = \
+            self.shape, self.de, rho_p, us, A, beta_T = \
                 self.particle.return_all(m[0], T, P, Sa, Ta, status)
             beta = np.array([])
             Cs = np.array([])

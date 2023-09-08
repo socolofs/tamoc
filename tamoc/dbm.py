@@ -2611,6 +2611,21 @@ def equil_MM(m, T, P, M, Pc, Tc, omega, delta, Aij, Bij, delta_groups,
                 xi[1,:] = zi
                 K = np.zeros(K.shape) + np.nan
     
+    # If the mixture converged to single-phase in the first step, the while
+    # loop is skipped...ensure the single-phase results are right:
+    if beta == 1:
+        # Pure gas
+        beta = 1.
+        xi[0,:] = zi
+        xi[1,:] = 0.
+        K = np.zeros(K.shape) + np.nan
+    elif beta == 0:
+        # Pure liquid
+        beta = 0.
+        xi[1,:] = zi
+        xi[0,:] = 0.
+        K = np.zeros(K.shape) + np.nan
+    
     # Return the optimized mixture composition
     return (xi, beta, K)
 

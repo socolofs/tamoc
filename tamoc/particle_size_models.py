@@ -216,7 +216,7 @@ class ModelBase(object):
 
     def simulate(self, d0, m_gas, m_oil, model_gas='wang_etal',
                  model_oil='sintef', pdf_gas='lognormal',
-                 pdf_oil='rosin-rammler', Pa=4.e6, Ta=288.15):
+                 pdf_oil='rosin-rammler', Pj=4.e6, Tj=288.15):
         """
         Compute the parameters of the particle size distribution
 
@@ -250,10 +250,10 @@ class ModelBase(object):
         pdf_oil : str, default='rosin-rammler'
             Probability density function to use for the oil droplet size
             distribution.  Choices are 'lognormal' or 'rosin-rammler'.
-        Pa : float, default=4.e6
+        Pj : float, default=4.e6
             Pressure at the release point.  Used to compute the speed of
             sound in gas.
-        Ta : float, default=288.15
+        Tj : float, default=288.15
             Temperature of the released fluids.  Used to compute the
             speed of sound of gas.
 
@@ -284,7 +284,7 @@ class ModelBase(object):
                 psf.wang_etal(
                     self.d0, self.m_gas, self.rho_gas, self.mu_gas,
                     self.sigma_gas, self.rho, self.mu, m_l=self.m_oil,
-                    rho_l=self.rho_oil, P=Pa, T=Ta
+                    rho_l=self.rho_oil, P=Pj, T=Tj
                 )
             if pdf_gas == 'rosin-rammler':
                 # Convert lognormal parameters to Rosin-Rammler
@@ -439,31 +439,41 @@ class ModelBase(object):
 
         """
         if self.sim_stored:
+        
             # Record the input parameters
             self.nbins_gas = nbins_gas
             self.nbins_oil = nbins_oil
 
-            if self.pdf_gas == 'rosin-rammler':
-                # Use Rosin-Rammler directly
-                self.de_gas, self.vf_gas = psf.rosin_rammler(self.nbins_gas,
-                    self.d50_gas, self.k_gas, self.alpha_gas
-                    )
-            elif self.pdf_gas == 'lognormal':
-                # Use the fitted lognormal distribution
-                self.de_gas, self.vf_gas = psf.log_normal(self.nbins_gas,
-                    self.d50_gas, self.sigma_ln_gas
-                    )
-
-            if self.pdf_oil == 'rosin-rammler':
-                # Use Rosin-Rammler directly
-                self.de_oil, self.vf_oil = psf.rosin_rammler(self.nbins_oil,
-                    self.d50_oil, self.k_oil, self.alpha_oil
-                    )
-            elif self.pdf_oil == 'lognormal':
-                # Use the fitted lognormal distribution
-                self.de_oil, self.vf_oil = psf.log_normal(self.nbins_oil,
-                    self.d50_oil, self.sigma_ln_oil
-                    )
+            if self.d50_gas == 0.:
+                # There is no gas in this mixture
+                self.de_gas = np.array([])
+                self.vf_gas = np.array([])
+            else:
+                if self.pdf_gas == 'rosin-rammler':
+                    # Use Rosin-Rammler directly
+                    self.de_gas, self.vf_gas = psf.rosin_rammler(self.nbins_gas,
+                        self.d50_gas, self.k_gas, self.alpha_gas
+                        )
+                elif self.pdf_gas == 'lognormal':
+                    # Use the fitted lognormal distribution
+                    self.de_gas, self.vf_gas = psf.log_normal(self.nbins_gas,
+                        self.d50_gas, self.sigma_ln_gas
+                        )
+            if self.d50_oil == 0.:
+                # There is no liquid in this mixture
+                self.de_oil = np.array([])
+                self.vf_oil = np.array([])
+            else:                
+                if self.pdf_oil == 'rosin-rammler':
+                    # Use Rosin-Rammler directly
+                    self.de_oil, self.vf_oil = psf.rosin_rammler(self.nbins_oil,
+                        self.d50_oil, self.k_oil, self.alpha_oil
+                        )
+                elif self.pdf_oil == 'lognormal':
+                    # Use the fitted lognormal distribution
+                    self.de_oil, self.vf_oil = psf.log_normal(self.nbins_oil,
+                        self.d50_oil, self.sigma_ln_oil
+                        )
 
             # Set the distribution flag to true
             self.distribution_stored = True
@@ -966,12 +976,13 @@ class Model(ModelBase):
     distributions using the ``TAMOC`` plume models.
 
     """
-    def __init__(self, profile, oil, m, z0, Tj=None):
+    def __init__(self, profile, oil, m, z0, Tj=None, Pj=None):
 
         # Compute and store the oil properties
-        self.update_properties(profile, oil, m, z0, Tj)
+        self.update_properties(profile, oil, m, z0, Tj, Pj)
 
-    def update_properties(self, profile, oil_mixture, m_mixture, z0, Tj=None):
+    def update_properties(self, profile, oil_mixture, m_mixture, z0, Tj,
+        Pj):
         """
         Set the thermodynamic properties of the released and receiving fluids
 
@@ -990,8 +1001,15 @@ class Model(ModelBase):
             live-oil mixture.
         z0 : float
             Release point of the jet orifice (m)
-        Tj : float
-            Temperature of the released fluids (K)
+        Tj : float, default=None
+            Temperature of the released fluids (K). The default value of `None`
+            means that the ambient value should be used.
+        Pj : float, default=None
+            Pressure of the released fluids (Pa). If the fluids are undergoing
+            a phase change, they may not be able to adjust immediately to the
+            ambient pressure. This allows the user to control the pressure used
+            to compute properties of the jet fluid. The default value of `None`
+            means that the ambient value should be used.
 
         Notes
         -----
@@ -1009,7 +1027,6 @@ class Model(ModelBase):
         self.oil_mixture = oil_mixture
         self.m_mixture = m_mixture
         self.z0 = z0
-        self.Tj = Tj
 
         # Compute the properties of seawater
         self.T, self.S, self.P = self.profile.get_values(self.z0,
@@ -1018,18 +1035,23 @@ class Model(ModelBase):
         self.rho = seawater.density(self.T, self.S, self.P)
         self.mu = seawater.mu(self.T, self.S, self.P)
 
-        # Set jet temperature either to ambient or input value
+        # Set jet temperature and pressure either to ambient or input value
         if Tj == None:
             # Use ambient temperature
             self.Tj = self.T
         else:
             # Use input temperature
             self.Tj = Tj
+        if Pj == None:
+            # Use ambient pressure
+            self.Pj = self.P
+        else:
+            self.Pj = Pj
 
         # Compute the gas/liquid equilibrium
         m_eq, xi, K = self.oil_mixture.equilibrium(self.m_mixture, self.Tj,
-                                                   self.P)
-        
+                                                   self.Pj)
+                                                   
         # Compute the gas phase properties
         if np.sum(m_eq[0,:]) == 0:
             self.gas = None
@@ -1043,10 +1065,10 @@ class Model(ModelBase):
                                          delta=oil_mixture.delta,
                                          user_data=oil_mixture.user_data)
             self.m_gas = m_eq[0,:]
-            self.rho_gas = self.gas.density(self.m_gas, self.Tj, self.P)
-            self.mu_gas = self.gas.viscosity(self.m_gas, self.Tj, self.P)
+            self.rho_gas = self.gas.density(self.m_gas, self.Tj, self.Pj)
+            self.mu_gas = self.gas.viscosity(self.m_gas, self.Tj, self.Pj)
             self.sigma_gas = self.gas.interface_tension(self.m_gas, self.Tj,
-                                                        self.S, self.P)
+                                                        self.S, self.Pj)
 
         # Compute the liquid phase properties
         if np.sum(m_eq[1,:]) == 0:
@@ -1062,10 +1084,10 @@ class Model(ModelBase):
                                          user_data=oil_mixture.user_data)
 
             self.m_oil = m_eq[1,:]
-            self.rho_oil = self.oil.density(self.m_oil, self.Tj, self.P)
-            self.mu_oil = self.oil.viscosity(self.m_oil, self.Tj, self.P)
+            self.rho_oil = self.oil.density(self.m_oil, self.Tj, self.Pj)
+            self.mu_oil = self.oil.viscosity(self.m_oil, self.Tj, self.Pj)
             self.sigma_oil = self.oil.interface_tension(self.m_oil, self.Tj,
-                                                    self.S, self.P)
+                                                    self.S, self.Pj)
 
     def update_z0(self, z0):
         """
@@ -1079,7 +1101,7 @@ class Model(ModelBase):
         """
         self.z0 = z0
         self.update_properties(self.profile, self.oil_mixture,
-                               self.m_mixture, self.z0, self.Tj)
+                               self.m_mixture, self.z0, self.Tj, self.Pj)
 
     def update_Tj(self, Tj):
         """
@@ -1093,8 +1115,22 @@ class Model(ModelBase):
         """
         self.Tj = Tj
         self.update_properties(self.profile, self.oil_mixture,
-                               self.m_mixture, self.z0, self.Tj)
+                               self.m_mixture, self.z0, self.Tj, self.Pj)
 
+    def update_Pj(self, Tj):
+        """
+        Update the pressure of the released fluids in the jet
+
+        Parameters
+        ----------
+        Pj : float
+            Pressure of the released fluids (Pa)
+
+        """
+        self.Pj = Pj
+        self.update_properties(self.profile, self.oil_mixture,
+                               self.m_mixture, self.z0, self.Tj, self.Pj)
+    
     def update_m_mixture(self, m_mixture):
         """
         Update the total mass flux of the released fluids in the jet
@@ -1108,7 +1144,7 @@ class Model(ModelBase):
         """
         self.m_mixture = m_mixture
         self.update_properties(self.profile, self.oil_mixture,
-                               self.m_mixture, self.z0, self.Tj)
+                               self.m_mixture, self.z0, self.Tj, self.Pj)
 
     def simulate(self, d0, model_gas='wang_etal', pdf_gas='lognormal',
                  model_oil='sintef', pdf_oil='rosin-rammler'):
@@ -1155,8 +1191,8 @@ class Model(ModelBase):
         """
         ModelBase.simulate(self, d0, self.m_gas, self.m_oil,
                            model_gas=model_gas, model_oil=model_oil,
-                           pdf_gas=pdf_gas, pdf_oil=pdf_oil, Pa=self.P,
-                           Ta=self.Tj)
+                           pdf_gas=pdf_gas, pdf_oil=pdf_oil, Pj=self.Pj,
+                           Tj=self.Tj)
 
 
 def plot_phase(nbins, de, vf, color):

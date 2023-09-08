@@ -271,7 +271,7 @@ class Model(object):
         # Store the initial conditions in a Lagrangian element object
         self.q_local = LagElement(t0, q0, D, self.profile, self.p,
                        self.particles, self.tracers, self.chem_names)
-        
+            
         # Compute the buoyant jet trajectory
         print('\n-- TEXAS A&M OIL-SPILL CALCULATOR (TAMOC) --')
         print('-- Bent Plume Model                       --\n')
@@ -281,10 +281,14 @@ class Model(object):
         # Track the particles
         if self.track:
             for i in range(len(self.particles)):
+                # Initialize flag indicating whether the particle was tracked
+                self.particles[i].tracked = False
+                
                 if particles[i].integrate is False and particles[i].z > 0.:
                     print('\nTracking Particle %d of %d:' %
                         (i+1, len(self.particles)))
                     particles[i].run_sbm(self.profile)
+                    particles[i].tracked = True
                 
                 # Code below forces tracking of all particles, including
                 # those trapped in the intrusion layer
@@ -298,6 +302,7 @@ class Model(object):
                     print('\nTracking Plume Particle %d of %d:' %
                         (i+1, len(self.particles)))
                     particles[i].run_sbm(self.profile)
+                    self.particles[i].tracked = True
 
         # Update the status of the solution
         self.sim_stored = True
@@ -856,17 +861,17 @@ class Model(object):
                 # Store the position
                 if i == 0:
                     var_names.append('x-coordinate (m) of particle %3.3d' \
-                        % i)
+                        % j)
                 data[i,col] = self.q_local.x_p[j,0]
                 col += 1
                 if i == 0:
                     var_names.append('y-coordinate (m) of particle %3.3d' \
-                        % i)
+                        % j)
                 data[i,col] = self.q_local.x_p[j,1]
                 col += 1
                 if i == 0:
                     var_names.append('z-coordinate (m) of particle %3.3d' \
-                        % i)
+                        % j)
                 data[i,col] = self.q_local.x_p[j,2]
                 col += 1
                 
@@ -1221,8 +1226,8 @@ class Model(object):
         ----------
         fname : str
             File name with absolute or relative file path for the ASCII data
-            file to write. Include the full file name up to the `.txt`
-            extension; this method will add the extention. This method uses
+            file to write. Include the full file name including any needed
+            relative or absolute file path information.  This method uses
             `np.savetxt` to create the output file.
         track_chems : list, default=None
             A list of string names for the chemicals to include in the output
@@ -1260,7 +1265,8 @@ class Model(object):
         # Build an output header
         from datetime import date
         header = 'Derived output data from the TAMOC Bent Plume Model\n'
-        header += 'Created on: ' + date.today().strftime("%Y-%m-%d %H:%M:%S") \
+        header += 'Created on: ' + \
+            datetime.now().strftime("%Y-%m-%d %H:%M:%S") \
             + '\n\n'
         header += 'Data are stored in the following order:\n'
         col = 0
@@ -1272,7 +1278,10 @@ class Model(object):
             num_c
         
         # Write the data to a file
-        np.savetxt(fname + '.txt', data, header=header)
+        ext = fname.split('.')[-1]
+        if len(ext) != 3:
+            fname += '.txt'
+        np.savetxt(fname, data, header=header)
         
         # Return the results
         return (data, header)
@@ -1405,10 +1414,11 @@ class Model(object):
             transport (stage = 1). The idx value will index the respective
             model simulation vector that matches the chosen stage of the
             solution.
-        chems : list
+        chems : list, default=None
             A list of chemical compounds to track.  This may be a list of 
             chemical names or a list of index-numbers corresponding to 
-            chemicals in the mixture composition.
+            chemicals in the mixture composition. If `None`, then all 
+            compounds in the simulation will be included.
         fp_type : int
             A flag indicating which particles should be included. 0 -- will
             include only particles that were initially gas-phase, 1 -- will
@@ -1476,9 +1486,12 @@ class Model(object):
                     # Get results from the Lagrangian particle-tracking
                     n_dot = particle.nb0
                     if self.track:
-                        m = particle.sbm.y[idx, 3:-1][c_idx]
+                        if particle.tracked:
+                            m = particle.sbm.y[idx, 3:-1][c_idx]
+                        else:
+                            m = particle.m[c_idx]
                     else:
-                        m = np.zeros(len(c_idx))
+                        m = particle.m[c_idx]
                 
                 # Compute the mass flux
                 mp[self.particles.index(particle), :] = n_dot * m
@@ -1536,7 +1549,7 @@ class Model(object):
         if not self.sim_stored:
             print('\nERROR:  Run a simulation before interrogating results.')
             print('    --> Execute Model.simulate() to proceed.\n')
-            return(0, 0)
+            return(0, 0, 0, 0)
         
         # Get the indices to the chems we want to trac
         c_idx = chem_idx_list(chems, self.particles[0].particle.composition)
@@ -1613,6 +1626,73 @@ class Model(object):
         # Return all the results
         return (mp, mc, tp, tc)
 
+    def report_watercolumn_particle_fluxes(self, chems=None, fp_type=-1):
+        """
+        Report the mass fluxes of particles leaving the plume subsurface
+        
+        Compute the mass fluxes of the listed compounds (chems) within
+        particles that leave the plume before surfacing. Set fp_type=-1 to
+        track all particles, fp_type=0 to track only initially gas-phase
+        particles, and fp_type=1 to track only initially liquid-phase
+        particles. The results report both the exiting mass flux and the time
+        at which the particle left the plume. For surfacing plumes, the sea
+        surface is defined as the region within 50 m of the surface.
+        
+        Parameters
+        ----------
+        chems : list
+            A list of chemical compounds to track.  This may be a list of 
+            chemical names or a list of index-numbers corresponding to 
+            chemicals in the mixture composition.
+        fp_type : int
+            A flag indicating which particles should be included. 0 -- will
+            include only particles that were initially gas-phase, 1 -- will
+            include only particles that were initially liquid-phase particles,
+            and -1 -- will include all particles.
+        
+        Returns
+        -------
+        mp : ndarray    
+            Mass flux (kg/s) of compounds for each selected particle at moment
+            it leaves the bent plume. These data are stored with the row-index
+            corresponding to a given particle and the column-index
+            corresponding to a mixture compound in the chems list
+        tp : ndarray
+            Array of exiting times (s) for each particle in the mp array.
+        
+        """
+        # Check whether the simulation data exist
+        if not self.sim_stored:
+            print('\nERROR:  Run a simulation before interrogating results.')
+            print('    --> Execute Model.simulate() to proceed.\n')
+            return(0, 0)
+        
+        # Get the indices to the chems we want to trac
+        c_idx = chem_idx_list(chems, self.particles[0].particle.composition)
+        
+        # Initialize an array to store the particle exiting times
+        tp = np.zeros(len(self.particles))
+        
+        # Get the particle fluxes as they exit the plume
+        mp, md = self.report_mass_fluxes(-1, stage=0, chems=c_idx, 
+            fp_type=fp_type)
+        
+        # Only track particles of the right type and location
+        for particle in self.particles:
+            if fp_type < 0 or particle.particle.fp_type == fp_type:
+                if particle.z >= 50.:
+                    # This particle is considered subsurface
+                    tp[self.particles.index(particle)] = particle.t
+                else:
+                    # This particle is at the surface
+                    mp[self.particles.index(particle)] = np.zeros(len(c_idx))
+            else:
+                # We are not interested in this particle
+                mp[self.particles.index(particle)] = np.zeros(len(c_idx))
+        
+        # Return all the results
+        return (mp, tp)
+    
     def report_psds(self, loc, stage):
         """
         Return the gas and liquid particle distributions
@@ -3031,7 +3111,8 @@ class LagElement(object):
         self.mp = np.zeros(self.np)
         self.fb = np.zeros(self.np)
         self.x_p = np.zeros((self.np, 3))
-
+        self.de = np.zeros(self.np)
+        
         for i in range(self.np):
             # If this is a post-processing call, update the status of the
             # integration flag
@@ -3046,6 +3127,11 @@ class LagElement(object):
             T_p = self.H_p[i] / (np.sum(self.M_p[i]) * particles[i].cp)
             particles[i].update(m_p, T_p, self.Pa, self.S, self.T,
                                 self.t_p[i])
+            
+            # Store the particle diameters (not used by model, but important
+            # diagnostic parameter)
+            self.de[i] = particles[i].diameter(m_p, T_p, self.Pa, self.Sa,
+                self.Ta)
 
             # Store biodegradation rates to use with dissolved phase
             if particles[i].particle.issoluble:

@@ -1,3 +1,29 @@
+V3.3.0, September 2023 --
+   . Created a new method of the bent plume model `Model` class that prints the 
+     mass flux of particles leaving the plume and entering the water column.
+   . Added the ability for particles to save their diameter during plume
+	 simulations. These are saved at the `dispersed_phases.Particle` level as
+	 well as within the bent plume model `LagElement.update` method. This will 
+	 help ensure during post processing that the user knows the actual sizes 
+	 that were used during a simulation.
+   . Added a flag `tracked` to each bent plume model `particle` that records 
+     whether or not a single bubble model simulation was run for that particle.
+   . Added the ability for the user to specify a pressure to the particle 
+     breakup models that differs from the ambient pressure. This may happen
+	 during a phase change where the pressure has to lie on the saturation curve.
+	 Be aware that `tamoc` plume simulations will still use the ambient pressure 
+	 to compute particle sizes. Hence, any particles created with a 
+	 non-equilibriump pressure will need to be adjusted to equilibrium before 
+	 use in a `tamoc` plume simulation. Also added better handling of 
+	 single-phase cases by the particlesize model `Model` object. 
+   . Removed some of the screen printing from the particle size models.  These 
+	 messages used to alert the user when a predicted particle size was larger
+	 than the maximum stable particle size and the distribution was being   
+	 adjusted.  The adjustment still occurs. These statements were left over 
+	 from an older testing session.
+   . Added a method to the stratified plume model `Model` object to report the 
+     particle size distribution at any simulation output level.  Also added a 
+	 method to report the intrusion fluxes at each intrusion layer.
 V3.2.0, August 2023 -- 
    . Added new methods to the bent plume model `Model` class and stratified
      plume model `Model` class to save derived model output. The state space

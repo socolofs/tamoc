@@ -450,6 +450,132 @@ class Model(object):
         # Return the data and variable names
         return (inner_data, inner_names, outer_data, outer_names, num_p, num_c)
         
+    def report_psds(self, idx):
+        """
+        Compute the particle size distribution at the given solution index
+        
+        Compute the particle sizes and volume flux per particle size in both
+        gas and liquid particles at the index `idx` in the solution vector.
+        
+        Parameters
+        ----------
+        idx : int
+            Index to a position in the solution vectors `zi` and `yi`
+        
+        Returns
+        -------
+        d_gas : float
+            Diameters (m) of the gas bubbles
+        v_gas : float
+            Volume fraction (--) corresponding to each gas bubble size
+        d_liq : float
+            Diameters (m) of the liquid droplets
+        v_liq : float
+            Volume fraction (--) corresponding to each liquid droplet size
+        
+        """
+        # Update the inner plume object at the given index
+        self.yi_local.update(self.zi[idx], self.yi[idx,:], self.particles, 
+            self.profile, self.p)
+        
+        # Initialize lists to hold the model results
+        d_gas = []
+        v_gas = []
+        d_liq = []
+        v_liq = []
+        
+        # Record results for each particle in the appropriate list
+        for particle in self.particles:
+            
+            # Get the particle size and volume
+            de = particle.de
+            Vp = 4./3. * np.pi * (de/2.)**3
+            
+            # Compute the volume flux of this particle
+            Vf = Vp * particle.nb0
+            
+            # Store the particle results
+            if particle.particle.fp_type == 0:
+                d_gas.append(de)
+                v_gas.append(Vf)
+            
+            else:
+                d_liq.append(de)
+                v_liq.append(Vf)
+        
+        # Convert lists to arrays
+        d_gas = np.array(d_gas)
+        v_gas = np.array(v_gas)
+        d_liq = np.array(d_liq)
+        v_liq = np.array(v_liq)
+        
+        # Convert volume distributions to volume fraction
+        v_gas = v_gas / np.sum(v_gas)
+        v_liq = v_liq / np.sum(v_liq)
+        
+        # Return the results
+        return (d_gas, v_gas, d_liq, v_liq)
+    
+    def report_intrusion_fluxes(self):
+        """
+        Extract the outer plume solution at the base of each intrusion layer
+        
+        Extract the fluxes of water and dissolved compounds at the end of each
+        outer plume solution. Include the intrusion depth for each layer.
+        
+        Returns
+        -------
+        z_int : ndarray
+            Array of intrusion depths for each outer plume segment
+        h_int : nadarray            
+            Array of outer plume layer thicknesses. This is taken as the
+            thickness from the top to the bottom of each outer plume segment.
+        Q_int : ndarray
+            Array of volume fluxes (absolute value) at the end of each outer 
+            plume segment (m^3/s)
+        C_int : ndarray
+            Array of mass fluxes (absolute value) of each tracked compount at 
+            the end of each outer plume segment (kg/s)
+        
+        """
+        # Initialize lists to hold the results
+        z_int = []
+        h_int = []
+        Q_int = []
+        C_int = []
+        
+        # Look for the base of each outer plume segment...flux goes to zero one step after intrusion
+        intrusion = True
+        zs = self.zo[0]
+        for i in range(len(self.zo)):
+            if intrusion and self.yo[i,0] == 0:
+
+                # This is the base of an intrusion layer...turn intrusion off
+                intrusion = False
+                
+                # Get the intrusion data
+                if i > 0:
+                    j = i-1
+                    z_int.append(self.zo[j])
+                    h_int.append(self.zo[j] - zs)
+                    Q_int.append(np.abs(self.yo[j,0]))
+                    C_int.append(np.abs(self.yo[j,4:]))
+            
+            elif np.abs(self.yo[i,0]) > 0:
+                
+                # This is inside an intrusion 
+                intrusion = True
+                zs = self.zo[0]
+        
+        # Convert output lists to arrays
+        z_int = np.array(z_int)
+        h_int = np.array(h_int)
+        Q_int = np.array(Q_int)
+        C_int = np.array(C_int)
+        
+        # Return the results
+        return (z_int, h_int, Q_int, C_int)
+    
     def save_sim(self, fname, profile_path, profile_info):
         """
         Save the current simulation results
@@ -1262,6 +1388,7 @@ class InnerPlume(object):
         self.alpha_s = dispersed_phases.shear_entrainment(self.u, 0.,
                        self.rho, self.rho_a, self.b, -1., p)
 
+
 class OuterPlume(object):
     """
     Manages the outer plume state space and derived variables
@@ -1306,7 +1433,7 @@ class OuterPlume(object):
     H : float
         Heat flux in the outer plume (J/s)
     C : ndarray
-    Mass flux of dissolved species in the outer plume (kg/s)
+        Mass flux of dissolved species in the outer plume (kg/s)
     Ta : float
         Ambient temperature outside the plume (K)
     Sa : float
@@ -2198,7 +2325,7 @@ def plot_all_variables(zi, yi, zo, yo, yi_local, yo_local, particles,
     co = np.zeros((n_outer, nchems))
     rho_o = np.zeros(n_outer)
 
-    # Get the inner plume solution at each calculation level
+    # Get the outer plume solution at each calculation level
     for i in range(n_outer):
         try:
             yi_local.update(zo[i], neighbor(zo[i]), particles, profile, p)

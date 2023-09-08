@@ -782,10 +782,8 @@ def sintef_model(Uc, d0, q, rho_p, mu_p, sigma, rho, mu, is_gas=False,
             de_max = grace(rho, rho_p, mu, mu_p, sigma, fp_type=0)
         else:
             de_max = de_max_oil(rho_p, sigma, rho)
-        print('Max stable droplet size = %g (m)' % de_max)
         
         # Get the adjusted particle size distribution
-        print('    ---> Predicted median droplet size = %g (m)' % d50)
         d50_from95, k, alpha = rosin_rammler_fit(d50, de_max)
         
         # Return the desired value for d50
@@ -973,10 +971,8 @@ def li_etal_model(Uc, d0, q, rho_p, mu_p, sigma, rho, mu, is_gas=False):
             de_max = grace(rho, rho_p, mu, mu_p, sigma, fp_type=0)
         else:
             de_max = de_max_oil(rho_p, sigma, rho)
-        print('Max stable droplet size = %g (m)' % de_max)
         
         # Get the adjusted particle size distribution
-        print('    ---> Predicted droplet size = %g (m)' % d50)
         d50, k, alpha = rosin_rammler_fit(d50, None)
     
     else:
@@ -1186,10 +1182,8 @@ def wang_etal_model(A, n, Ug, rho_g, mu_g, sigma_g, Ul, rho_l, rho, mu):
         
         # Compute the maximum stable bubble size
         de_max = grace(rho, rho_g, mu, mu_g, sigma_g, fp_type=0)
-        print('\nMax stable bubble size:  %g (m)' % de_max)
         
         # Get the adjusted particle size distribution
-        print('    ---> Predicted median bubble size = %g (m)' % d)
         d50_gas, sigma_ln = log_normal_fit(d, de_max, sigma=0.27)
         
     else:
