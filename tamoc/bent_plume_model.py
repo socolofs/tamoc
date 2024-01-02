@@ -727,6 +727,14 @@ class Model(object):
             chemicals (`track_chems`) or the total number of chemicals tracked
             in the simulation (e.g., if `track_chems` is `None`).
         
+        Notes
+        -----
+        This function only reports results for the Lagrangian plume.  If some of 
+        the plume particles leave the plume and rise through the water column
+        based on a `single_bubble_model` simulation, these results are not 
+        included.  Use the `report_mass_fluxes` or `report_surfacing_fluxes`  
+        with the appropriate `stage` flags to get the single bubble model results.
+        
         """
         # Check if the simulation has been computed
         if not self.sim_stored:
