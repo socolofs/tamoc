@@ -610,7 +610,7 @@ class FluidMixture(object):
         # Return the Interfacial tension
         return sigma
     
-    def equilibrium(self, m, T, P, K=None):
+    def equilibrium(self, m, T, P, K=None, replace_zeros=True):
         """
         Computes the equilibrium composition of a gas/liquid mixture.
         
@@ -631,6 +631,12 @@ class FluidMixture(object):
             array of partition coefficients to use as an initial guess for
             K-factor.  Default is `None`, in which case the standard initial
             guess will be used.
+        replace_zeros : bool, default=False
+            a flag indicating whether to substitute small amounts of mass for 
+            any components with a zero value in the `m` vector.  The original
+            behavior of `tamoc` is to not do this.  For some single-phase 
+            fluids, this may be needed to get the correct final phase 
+            predictions.
         
         Returns
         -------
@@ -651,11 +657,33 @@ class FluidMixture(object):
         (2007) procedure to find a stable solution
         
         """
-        # Get the mole fractions and K-factors at equilibrium
-        xi, beta, K = equil_MM(m, T, P, self.M, self.Pc, self.Tc,
-                               self.omega, self.delta, self.Aij, 
-                               self.Bij, self.delta_groups,
-                               self.calc_delta, K)
+        if replace_zeros:
+            # Find where the mass is non-zero
+            mi = np.where(m>0.)
+        
+            # Get the mole fractions and K-factors at equilibrium
+            if not isinstance(K, type(None)):
+                K = K[mi]
+            xip, beta, Kp = equil_MM(m[mi], T, P, self.M[mi], self.Pc[mi], 
+                self.Tc[mi], self.omega[mi], self.delta[mi,:][:,mi][0],
+                self.Aij, self.Bij, self.delta_groups[mi,:][0],
+                self.calc_delta, K)
+            
+            # Put zero-components back into results
+            xi = np.zeros((2, len(m)))
+            K = np.zeros(len(m))
+            xi[0,mi] = xip[0,:]
+            xi[1,mi] = xip[1,:]
+            if np.isnan(Kp[0]):
+                K[:] = np.nan
+            else:
+                K[mi] = Kp
+            
+        else:
+            # Get the mole fractions and K-factors at equilibrium
+            xi, beta, K = equil_MM(m, T, P, self.M, self.Pc, 
+                self.Tc, self.omega, self.delta, self.Aij, self.Bij,
+                self.delta_groups, self.calc_delta, K)
         
         # Get the total moles of each molecule (both phases together)
         n_tot = self.moles(m)
@@ -2547,7 +2575,7 @@ def equil_MM(m, T, P, M, Pc, Tc, omega, delta, Aij, Bij, delta_groups,
     K, beta, xi, exit_flag, steps = successive_substitution(
                                  m, T, P, 3, M, Pc, Tc, omega, delta, Aij, 
                                  Bij, delta_groups, calc_delta, K)
-    
+                                 
     # Continue iterating if necessary until the solution converges
     while exit_flag <= 0:
         # Test the total Gibbs energy to decide how to proceed.

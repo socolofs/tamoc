@@ -105,11 +105,41 @@ def load_data(fname):
                     readnames = 1
                 
             else:
+                
                 # This is a data line
                 data[entries[0]] = {}
                 for i in range(1, len(entries)):
                     data[entries[0]][header_keys[i]] = np.float64(entries[i])
-            
+    
+    # Convert the input units to the default units in TAMOC
+    data, units = convert_units(data, header_keys, header_units)
+    
+    return (data, units)
+
+def convert_units(data, header_keys, header_units):
+    """
+    Convert units of chemical property data to SI
+    
+    Convert the units used in a chemical properties data file to the default
+    set of SI units used in TAMOC.
+    
+    Parameters
+    ----------
+    data : dict
+        Dictionary of chemical properties data organized with the compound
+        name as the primary key and a nested dictionary of chemical property
+        data as the key value.
+    header_units : list
+        A list of unit names corresponding to each properties in the 
+        database
+    
+    Returns
+    -------
+    units : dict
+        A dictionary of units corresponding to each property in the data
+        dictionary.
+    
+    """
     # Add the units to two different dictionaries
     read_units = {}
     for i in range(len(header_units) - 1):
@@ -122,14 +152,19 @@ def load_data(fname):
     # then you should include a check for it here.
     for chemical in data:
         for variable in read_units:
-            if read_units[variable].find('g/mol') >= 0:
+            if read_units[variable].find('(g/mol)') >= 0:
                 # Convert to kg/mol
                 data[chemical][variable] = data[chemical][variable] / 1000.
                 units[variable] = '(kg/mol)'
             
-            if read_units[variable].find('psia') >= 0:
+            if read_units[variable].find('(psia)') >= 0:
                 # Convert to Pa
                 data[chemical][variable] = data[chemical][variable] * 6894.76
+                units[variable] = '(Pa)'
+            
+            if read_units[variable].find('(kPa)') >= 0:
+                # Convert to Pa
+                data[chemical][variable] = data[chemical][variable] * 1000.
                 units[variable] = '(Pa)'
             
             if read_units[variable].find('(deg F)') >= 0:
@@ -138,29 +173,29 @@ def load_data(fname):
                                            5. / 9. + 273.15
                 units[variable] = '(K)'
             
-            if read_units[variable].find('mol/dm^3 atm') >= 0:
+            if read_units[variable].find('(mol/dm^3 atm)') >= 0:
                 # Convert to kg/(m^3 Pa)
                 data[chemical][variable] = (data[chemical][variable] * \
                                            1000. / 101325. * \
                                            data[chemical]['M'])
                 units[variable] = '(kg/(m^3 Pa))'
             
-            if read_units[variable].find('mm^2/s') >= 0:
+            if read_units[variable].find('(mm^2/sec)') >= 0:
                 # Convert to m^2/s
                 data[chemical][variable] = data[chemical][variable] / 1000.**2
                 units[variable] = '(m^2/s)'
             
-            if read_units[variable].find('cal/mol') >= 0:
+            if read_units[variable].find('(cal/mol)') >= 0:
                 # Convert to J/mol
                 data[chemical][variable] = data[chemical][variable] / 0.238846
                 units[variable] = '(J/mol)'
             
-            if read_units[variable].find('L/mol') >= 0:
+            if read_units[variable].find('(L/mol)') >= 0:
                 # Convert to m^3/mol
                 data[chemical][variable] = data[chemical][variable] / 1000.
                 units[variable] = '(m^3/mol)'
             
-            if read_units[variable].find('1/d') >= 0:
+            if read_units[variable].find('(1/d)') >= 0:
                 # Convert to 1/s
                 data[chemical][variable] = data[chemical][variable] / 86400.
                 units[variable] = '(1/s)'
@@ -223,8 +258,8 @@ def load_data(fname):
                 data[chemical][variable] = data[chemical][variable] * \
                     1.e-3 * (5./9.)
                 units[variable] = '(m^3/mol/deg C)'
-
-    return (data, units)
+    
+    return data, units
 
 def tamoc_data():
     """

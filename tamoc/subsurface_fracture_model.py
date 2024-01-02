@@ -28,10 +28,11 @@ Notes
 # S. Socolofsky, Texas A&M University, October 2022, <socolofs@tamu.edu>
 
 from tamoc import seawater, ambient, dbm, dbm_utilities
-from tamoc import chemical_properties as chem
+from tamoc import chemical_properties
 from tamoc import lfm
 
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 
 
@@ -48,6 +49,9 @@ class Model(object):
     fracture : `SlotFracture`
         A `SlotFracture` object that contains all of the fracture geometric
         information
+    p : `ModelParams`, default=None
+        Object containing the fixed model parameters for the simulation.  If
+        `None`, then the default parameters will be used.
     
     Attributes
     ----------
@@ -67,7 +71,7 @@ class Model(object):
         would be available for post-processing
     
     """
-    def __init__(self, profile, fracture):
+    def __init__(self, profile, fracture, p=None):
         super(Model, self).__init__()
         
         # Store the input variables
@@ -78,7 +82,10 @@ class Model(object):
         self.x0 = fracture.x0
         
         # Get the model parameters object
-        self.p = ModelParams()
+        if isinstance(p, type(None)):
+            self.p = ModelParams()
+        else:
+            self.p = p
         
         # Set the simulation flag to false
         self.sim_stored = False
@@ -154,9 +161,21 @@ class Model(object):
         plot_state_space(self.t, self.y, self.y_local, self.fracture, 
             self.p, fig)
     
-    def plot_component_map(self, comps=None, fig=3):
+    def plot_component_map(self, comps=None, norm_comp=None, fig=3):
         """
-        docstring for plot_component_map
+        Plot the model solution for each component
+        
+        Parameters
+        ----------
+        comps : list, default=None
+            A list of string names of the modeled chemical components and
+            pseudo-components that should be included in each plot.  If `None`,
+            then all modeled components will be plotted.
+        norm_comp : str
+            A component that should be used to normalize the mass losses.  If
+            `None`, then a normalized plot will not be produced.
+        fig : int
+            The figure number to start plotting figures.
         
         """
         # If no composition specified, plot all components
@@ -165,7 +184,7 @@ class Model(object):
         
         # Create the plot
         plot_component_map(self.t, self.y, self.derived_vars, self.y_local, 
-            self.fracture, self.p, comps, fig)
+            self.fracture, self.p, comps, norm_comp, fig)
 
 class ModelParams(object):
     """
@@ -178,9 +197,12 @@ class ModelParams(object):
     
     Attributes
     ----------
+    t_diss : float, default=None
+        Time-scale for the diffusion-limited mass transfer coefficients
+        in days. If `None`, then the default value will be used.
     
     """
-    def __init__(self):
+    def __init__(self, t_diss=None):
         super(ModelParams, self).__init__()
         
         # The maximum vertical distance (m) a fluid parcel may rise before
@@ -195,7 +217,10 @@ class ModelParams(object):
         self.fdis = 1.e-6
         
         # Time-scale for the diffusion-limited mass transfer coefficients
-        self.t_diss = 60. * 60. * 24. * 365.25 * 1./12.
+        if isinstance(t_diss, type(None)):
+            self.t_diss = 60. * 60. * 24. * 14.
+        else:
+            self.t_diss = 60. * 60. * 24. * t_diss
         
         # Mass-transfer reduction factor
         self.K = 1.
@@ -792,13 +817,13 @@ class SlotFracture(object):
         show_network(self.xp, fig, clearFig)
         
     
-# ------------------------------------------------------------------------------
-# ---------- Functions used by subsurface fracture model classes ---------------
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# ---------- Functions used by subsurface fracture model classes --------------
+# -----------------------------------------------------------------------------
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Functions to read in the ambient property data computed by a regional model
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 def load_UT_fracture_data(fname):
     """
@@ -884,9 +909,9 @@ def load_UT_fracture_data(fname):
     return (profile, H, Hs, Lx)
     
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Functions to create a wandering fracture pathway
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 def slot_fracture_network(x0, H, Hs, Du, delta_s):
     """
@@ -941,405 +966,479 @@ def slot_fracture_network(x0, H, Hs, Du, delta_s):
     return (x)
 
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Functions to read an oil composition file and fill in missing properties 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-def get_user_oil(prop_file, comp_file, idx, Ta, Pa, rho, fp_type=1, 
-    delta_file=None):
+def read_pvtsim_data(stout, sol=None, user_data={}, tamoc_names={}):
     """
-    Load in the oil model defined by a user
+    Read in psuedo-component property data exported from PVT Sim
     
-    Load in the oil property and composition data provided by the user
+    Read in the standard output and optional solubility data for pure 
+    substances and psuedo-components exported from PVT sim.  This function
+    uses `pandas` to read the Excel files natively.  
+    
+    This function returns a `tamoc` `dbm` object with the component names
+    matching those in the PVT Sim output data.
     
     Parameters
     ----------
-    prop_file : str
-        String path to the oil property data provided by Shell
-    comp_file : str
-        String path to the composition data provided by Shell
-    idx : int
-        Index to one psuedo-component for which we can adjust the critical
-        point specific volume to match the given density
-    Ta : float
-        Temperature (deg F) at which the density is given
-    Pa : float
-        Pressure at (psia) which the density is given
-    rho : float
-        Known density of the oil model at the given temperature (Ta) and 
-        pressure (g/cm^3)
-    fp_type : int, default=1
-        Flag indicating for which phase of the oil (0:gas, 1:liquid) the 
-        density value `rho` is given
-    delta_file : str, default=None
-        File name to a matrix of binary interaction coefficients
-    
+    stout : str
+        File name for the standard output property data
+    sol : str
+        File name for solubilities predicted by PVT Sim
+    user_data : dict, default={}
+        A dictionary of property data for pure compounds.  The default is an 
+        empty dictionary, which will force this function to replace all missing
+        data with computed values
+    tamoc_names : dict
+        A dictionary of chemical property names used by the `tamoc` default
+        database or used in the `user_data` database.  This dictionary should 
+        have key names matching those in `data` with the stored values matching
+        the names in `tamoc`.  An empty dictionary indicates that none of the
+        present psuedo-components either have name different from those in 
+        `tamoc` or they are not present in `tamoc` databases.
+        
     Returns
     -------
-    oil : `dbm.FluidMixture`
-        A `dbm.FluidMixture` object representing the thermodynamic behavior
-        of the given oil model
+    composition : list
+        A list of string names for each component in the composition matching
+        those names used in PVT Sim.
     mass_frac : ndarray
-        Array of the mass fractions of each component and pseudo-component in
-        the user-defined oil model
+        An array of mass fractions (--) for each component in the mixture
+    dbm_obj : `dbm.FluidMixture`
+        A `dbm.FluidMixture` object containing the equations of state for this
+        fluid in a format used by `tamoc`.
+    data : dict
+        Dictionary of chemical properties data organized with the compound
+        name as the primary key and a nested dictionary of chemical property
+        data as the key value.  The chemical property data is stored using 
+        names used in TAMOC when a given variable is part of the TAMOC Discrete
+        Bubble Model (DBM).
+    units : dict
+        A dictionary of units corresponding to each property in the data
+        dictionary.
+    
+    """
+    # Get the PVT Sim data from the default Excel spreadsheets
+    composition, mol_frac, data, units, delta = extract_pvtsim_data(stout)
+    
+    # If we have solubility data, also read that from PVT Sim
+    data, units = extract_pvtsim_solubilities(composition, data, units, sol)   
+    
+    # Add the missing properties
+    data, units = fill_missing_properties(data, units, user_data, tamoc_names)
+    
+    # Create the `dbm.FluidMixture` object
+    dbm_obj = dbm.FluidMixture(composition, delta=delta, user_data=data)
+    mass_frac = dbm_obj.mass_frac(mol_frac)
+    
+    return (composition, mass_frac, dbm_obj, data, units)
+
+    
+def extract_pvtsim_data(stout):
+    """
+    Extract the chemical property data output from PVT Sim
+    
+    Create a data dictionary and corresponding dictionary of units that contains
+    the data read from a PVT Sim Excel output file.
+    
+    Parameters
+    ----------
+    stout : str
+        A string file name for the Excel spreadsheet in which the standard
+        output data from PVT Sim are stored
+        
+    Returns
+    -------
+    composition : list
+        A list of string names describing the pseudo-components used in the
+        PVT Sim output data
+    mol_frac : ndarray
+        An array of mole fractions for each component in the composition
+    data : dict
+        Dictionary of chemical properties data organized with the compound
+        name as the primary key and a nested dictionary of chemical property
+        data as the key value.  The chemical property data is stored using 
+        names used in TAMOC when a given variable is part of the TAMOC Discrete
+        Bubble Model (DBM).
+    units : dict
+        A dictionary of units corresponding to each property in the data
+        dictionary.
+    delta : ndarray
+        A filled `numpy` array of binary interaction coefficients
     
     Notes
     -----
-    TAMOC uses a particular set of properties for each component and pseudo-
-    component of an oil.  If the user does not provide some of these properties,
-    this function will attempt to fill in the missing data with algorithms
-    developed in Gros et al. (2018) and Gros et al. (2016).  
-    
-    """
-    # Use the function provided in TAMOC to read oil property data
-    prop_data, prop_units = chem.load_data(prop_file)
-    
-    # Read in the composition data
-    composition, mol_frac = read_comp_data(comp_file)
-    
-    # Load in the binary interaction coefficients if they were given
-    if isinstance(delta_file, type(None)):
-        use_delta = False
-    else:
-        delta = np.loadtxt(delta_file, comments='#', delimiter=',')
-        use_delta = True
-    
-    # Also read in the DWH and TAMOC databases of property data
-    dwh_data, dwh_units = chem.load_data('../input/DWH_data.csv')
-    pj_data, pj_units = chem.load_data('../input/GroupsData.csv')
-    tamoc_db, tamoc_units, tamoc_bio_db, tamoc_bio_units, \
-        tamoc_pj_data, tamoc_pj_units = chem.tamoc_data()
-    
-    # Fill in missing properties in the user-defined oil model
-    prop_data, prop_units = fill_missing_data(composition, prop_data,
-        prop_units, dwh_data, dwh_units, tamoc_db)
-    
-    # Create an oil mixture object with these property data
-    if use_delta:
-        oil = dbm.FluidMixture(composition, user_data=prop_data, 
-            delta=delta)
-    else:
-        oil = dbm.FluidMixture(composition, user_data=prop_data, 
-            delta_groups=pj_data)
-    
-    # Convert the mole fraction data to mass fraction
-    mass_frac = oil.mass_frac(mol_frac)
-    
-    # Convert temperature, pressure, and density data to SI units of TAMOC
-    Ta = (Ta - 32.) * 5. / 9. + 273.15
-    Pa = Pa * 6894.76
-    rho = rho * 1000.
-    
-    # Compute the flash equilibrium of the oil mixture at the given 
-    # thermodynamic state
-    mi, xi, K = oil.equilibrium(mass_frac, Ta, Pa)
-    
-    # Tune the Vc-value of the given pseudo-component
-    # if not isinstance(idx, type(None)):
-    #    Vc = Vc_tuning(mi[fp_type,:], oil, idx, Ta, Pa, rho, fp_type)
-    #    print(' -> Tuned value of Vc[%d] = %g (m^3/kg)' % (idx, Vc))
-        
-    # Report performance of oil model after Vc tuning
-    Pa = np.linspace(0.25*Pa, Pa, num=4)
-    print('\nComputed densities for the oil composition / model:')
-    for P in Pa:
-        print('P = %g (psia), T = %g (K)' % (P / 6894.76, Ta))
-        
-        # Update the equilibrium calculation
-        mi, xi, K = oil.equilibrium(mass_frac, Ta, P, K)
-        
-        # Get the new density
-        rho_g = oil.density(mi[0,:], Ta, P)[0]
-        rho_o = oil.density(mi[1,:], Ta, P)[1]
-        print('    rho_gas = %g (kg/m^3)' % rho_g)
-        print('    rho_oil = %g (kg/m^3)' % rho_o)
-    
-    return oil, mass_frac
+    This function uses the `convert_units` function in the `chemical_propertes` 
+    module of `tamoc` to convert the units provided from the PVT Sim software
+    to the standard SI units used in `tamoc`.
 
-def read_comp_data(comp_file):
     """
-    Read in the composition data specified by the user
+    # Each PVT Sim output has two sheets:  Sheet1 contains the pseudo-component
+    # property data, and Sheet2 contains the binary interaction coefficients
+    df = pd.read_excel(stout, sheet_name='Sheet1')
     
-    Read in the composition names and mole fractions of the components and 
-    pseudo-components specified by the user for a given oil model.
+    # Write the column name of the data to extract from the PVT Sim output
+    pvtsim_names = ['Molecular Weight', 'Liquid Density kg/m³',
+        'Critical Temperature K', 'Critical Pressure kPa', 'Acentric Factor', 
+        'Normal Tb K', 'Weight Av. Molecular Weight', 'Critical Volume m³/mol',
+        'Cpen m³/mol', 'CpenT m³/(mol K)', 'Href J/mol']
     
-    Parameters
-    ----------
-    comp_file : str
-        String path to the composition data. The file should contain two
-        columns of data, with the composition names in the first column and
-        the mole fractions of each component in the second column. Entries
-        should be stored as comma separated values.
+    # Give the units of each property listed above using unit names recognized
+    # by TAMOC.  These should be the same as the units in the original PVT Sim
+    # output; these will be converted to standard TAMOC units in the last 
+    # step below.
+    pvtsim_units = ['(g/mol)', '(kg/m3)', '(K)', '(kPa)', '(--)',
+        '(K)', '(g/mol)', '(m3/mol)', '(m3/mol)', '(m3/(mol K))', '(J/mol)']
     
-    Returns
-    -------
-    composition : list of str
-        List of the string-names of each component in the composition
-    mol_frac : ndarray
-        Array of the mole fractions of each component in the composition
+    # Give the TAMOC name (if there is one) for each of the properties included
+    # in the `pvtsim_names` list
+    tamoc_names = ['M', 'rho_p', 'Tc', 'Pc', 'omega', 'Tb', 'M_ave', 'Vc', 
+        'C_pen', 'C_pen_T', 'dH']
     
-    """
-    # Create empty lists to hold the file contents
+    # Find the number of pseudo-components contained in this dataset
+    m = len(df)
+    
+    # Create an empty dictionary to hold the property data
+    data = {}
+    
+    # Create empty lists to contain the composition and mol fraction
     composition = []
     mol_frac = []
     
-    # Read the file
-    with open(comp_file) as comp:
+    # Loop through pseudo-component (row) of the PVT Sim output
+    for i in range(m):
         
-        # Read line-by-line
-        for line in comp:
-            
-            # Parse a line of data
-            entries = line.strip().split(',')
-            
-            # Skip comment rows
-            if '%' not in line:
-                composition.append(entries[0])
-                mol_frac.append(np.float64(entries[1]))
-    
-    # Convert mol_frac list to an array
-    mol_frac = np.array(mol_frac) / 100.
-    mol_frac = mol_frac / np.sum(mol_frac)
-    
-    return (composition, mol_frac)
+        # Create an empty dictionary to hold the data for this component
+        comp_data = {}
 
-def fill_missing_data(composition, prop_data, prop_units, dwh_data, dwh_units, 
-    tamoc_db):
-    """
-    Fill in missing property data from the DWH database or empirical equations
+        # Loop through property (column) of the PVT Sim output that we want
+        # to extract
+        for j in range(len(pvtsim_names)):
+            
+            # Store this property data
+            comp_data[tamoc_names[j]] = df[pvtsim_names[j]][i]
+        
+        # Store this dataset with the component name of the pseudo-component
+        data[df['Component'][i]] = comp_data
+        
+        # Store the composition and mole fraction
+        composition.append(df['Component'][i])
+        mol_frac.append(df['Mol %'][i] / 100.)
     
-    Fill in missing properties for the oil model using values from the
-    Deepwater Horizon database in Gros et al. (2016) or using empirical 
-    equations reported in Gros et al. (2018).
+    # Convert the data to standard TAMOC units
+    data, units = chemical_properties.convert_units(data, tamoc_names,
+        pvtsim_units)
+    
+    # Convert the mol_frac to a numpy array
+    mol_frac = np.array(mol_frac)
+    mol_frac = mol_frac / np.sum(mol_frac)  # Remove round-off error
+    
+    # Read in the binary interaction coefficients
+    delta = extract_pvtsim_delta(stout)
+        
+    return (composition, mol_frac, data, units, delta)
+
+
+def extract_pvtsim_delta(stout):
+    """
+    Get the binary interaction coefficients
+    
+    Extract a `numpy` array of the binary interaction coefficients from the
+    Excel property data file exported from PVT Sim.  
+    
+    Parameters
+    ----------
+    stout : str
+        The string file name of the output file containing the standard 
+        output data from PVT Sim
+    
+    Returns
+    -------
+    delta : ndarray
+        A filled `numpy` array of binary interaction coefficients
+    
+    Notes
+    -----
+    
+    The PVT Sim software package saves the binary interaction coefficients with
+    the psuedo-component name in the first column of the spreadsheet and in the
+    first row. Pandas interprets the first row to be column headers so that the
+    `DataFrame` has `m` rows and `m+1` columns of data, where `m` is the number
+    of pseudo-components (i.e., the row of column headers is not included as
+    data in the data frame, but rather is used to name each column of data in
+    the data frame dictionary). 
+    
+    Also, the data are stored in the spreadsheet with numbers in the lower,
+    triangular matrix and empty cells in the upper, triangular part of the
+    dataset. This function fills the matrix and then extracts the data (numbers
+    only) to return as the binary interaction matrix.
+    
+    """# Each PVT Sim output has two sheets:  Sheet1 contains the pseudo-component
+    # property data, and Sheet2 contains the binary interaction coefficients
+    df = pd.read_excel(stout, sheet_name='Sheet2')
+    
+    # Find the number of components
+    m = len(df)
+    
+    # Fill in blank cells
+    for i in range(m):
+        for j in range(m):
+            if i == j:                
+                # Diagonal values should be zero.  
+                df.iloc[i,j+1] = 0.
+                
+            else:
+                # Off-diagonal values should be transpose
+                df.iloc[i,j+1] = df.iloc[j,i+1]
+    
+    # Export the binary interaction coefficients to numpy
+    delta = df.iloc[:,1:].to_numpy()
+    
+    return delta
+
+ 
+def extract_pvtsim_solubilities(composition, data, units, sol_fname):
+    """
+    Extract the predicted solubilities from PVT Sim
+    
+    Read the predicted solubilities from the PVT Sim solubility output, convert
+    them to units used in `tamoc` (kg/m^3), and store the results in the
+    properties database.
     
     Parameters
     ----------
     composition : list
-        List of string names of the compounds in the composition
-    prop_data : dict    
-        Dictionary of property data for each component and pseudo-component
-        of the oil model
-    prop_units : dict
-        Dictionary of units that correspond to the property data in the
-        `prop_data` database
-    dwh_data : dict
-        Dictionary of property data for the components in the Deepwater
-        Horizon database reported in Gros et al. (2016)
-    dwh_units : dict
-        Dictionary of units that correspond to the property data in the
-        `dwh_data` database
-    tamoc_db : dict
-        Dictionary of property data distributed with the TAMOC model.  These
-        data have the same units at the Deepwater Horizon database.
+        A list of string names describing the pseudo-components used in the
+        PVT Sim output data
+    data : dict
+        Dictionary of chemical properties data organized with the compound
+        name as the primary key and a nested dictionary of chemical property
+        data as the key value.  The chemical property data is stored using 
+        names used in TAMOC when a given variable is part of the TAMOC Discrete
+        Bubble Model (DBM).
+    units : dict
+        A dictionary of units corresponding to each property in the data
+        dictionary.
+    sol_fname : str
+        A string file name were the PVT Sim solubility output data are stored
     
     Returns
     -------
-    prop_data : dict
-        A complete database of property data for each component and
-        psuedo-component of the oil model
-    prop_units : dict
-        A updated dictionary of the units associated with the prop_data 
-    
-    Notes
-    -----
-    The `dwh_data` and `tamoc_db` data are used for pure compounds (e.g.,
-    nitrogen, nC-7, toluene, etc.) when these data are available in these two
-    databases. In these cases, all missing properties are taken from known
-    data.
-    
-    For psuedo-components or for compounds not in our existing databases, some
-    property data must be estimated. Potential missing property data my include
-    the normal boiling point, the Henry's coefficient, and heat of solution,
-    the molar volume at infinite dilution, and the Setchenov salting-out
-    coefficient. These properties are estimated here using the methods reported
-    in Gros et al. (2018) based on correlations to other properties supplied in
-    the oil model (e.g., molecular weight, critical point temperature and
-    pressure, etc.)
+    data : dict
+        The `data` dictionary with 'P_sol' (pressure, Pa, at which the solubility
+        data were calculated), 'T_sol' (temperature, K, at which the solubility
+        data were calculated), and 'solubility' (the solubility data read from
+        the file and converted to kg/m^3) added to the dictionary.
+    units : dict
+        The `units` dictionary with the units for `P_sol`, `T_sol`, and 
+        `solubility` added to the dictionary
     
     """
-    # Create a list of the missing variables (note that B and dE are required,
-    # but no longer used)
+    # Read the PT Conditions used in the flash calculation
+    df_PT = pd.read_excel(sol_fname, sheet_name='Compositions', usecols=[1, 2, 3], 
+        nrows=3)
+    P = df_PT.iloc[1,1] * 1000.    # Pa
+    T = df_PT.iloc[2,1]            # K
+    
+    # Read the mol % results at this PT condition for the aqueous phase
+    df_sol = pd.read_excel(sol_fname, sheet_name='Compositions', header=5,
+        usecols=[1, 2, 3, 4, 5], nrows=len(composition) + 2)
+    
+    # Put the data into a usable dictionary
+    sol_data = {}
+    for i in range(len(composition) + 2):
+
+        # Create an array to store the total, vapor, liquid, aqueous data
+        comp_data = np.zeros(4)
+        
+        # Extract the data
+        for j in range(4):
+            comp_data[j] = df_sol.iloc[i,j+1]
+        
+        # Add the data to the dictionary
+        sol_data[df_sol.iloc[i,0]] = comp_data
+    
+    # Read the bulk properties
+    df_prop = pd.read_excel(sol_fname, sheet_name='Properties',
+        header=11, usecols=[1, 2, 3, 4, 5], nrows=21)
+    Vm = df_prop.iloc[2,4]  # molar volume in m^3/mol
+    
+    # Calculate the solubility of each compound in kg/m^3
+    for comp in composition:
+        data[comp]['solubility'] = 1. / Vm * sol_data[comp][-1] / 100. * \
+            data[comp]['M']
+        data[comp]['P_sol'] = P
+        data[comp]['T_sol'] = T
+    units['solubility'] = '(kg/m^3)'
+    units['P_sol'] = '(Pa)'
+    units['T_sol'] = '(K)'
+    
+    return data, units
+    
+
+def fill_missing_properties(data, units, user_data={}, tamoc_names={}):
+    """
+    Fill missing data used by `tamoc`
+    
+    Some of the data used by the `tamoc` `dbm` module is not available in the
+    PVT Sim output datasets.  Some of that data is no longer relevant (e.g.,
+    `B` and `dE` used in the out-dated methods for diffusivity) or has been 
+    replaced by data from PVT Sim (e.g., `Cpen` and `CpenT` are used instead
+    of `Vb` and `nu_bar`).  However, to maintain compatibility with the current
+    versions of the `tamoc`, we still add these data to the properties 
+    dictionaries before calling the `dbm` `Fluid` classes.
+    
+    This method adds the following properties to the properties data::
+       . `Vb` - specific volume at the boiling point (m^3/kg)
+       . `nu_bar` - specific volume at infinite dilution (m^3/kg)
+       . `K_salt` -  the Setschenow salting out constant (m^3/mol)
+       . `-dH_solR` - enthalpy of solution divided by the ideal gas constant (K)
+       . `kh_0` - Henry's law constant at 298.15 K and atmospheric pressure
+         (kg/(m^3 Pa))
+       . `B` - parameter of the old diffusivity algorithm -- no longer used
+       . `dE` - parameter of the old diffusivity algorithm -- no longer used
+    
+    Parameters
+    ----------
+    data : dict
+        The present dictionary of property data for each pseudo-component
+    units : dict
+        A dictionary of corresponding units for each property
+    user_data : dict, default={}
+        A dictionary of property data for pure compounds.  The default is an 
+        empty dictionary, which will force this function to replace all missing
+        data with computed values
+    tamoc_names : dict
+        A dictionary of chemical property names used by the `tamoc` default
+        database or used in the `user_data` database.  This dictionary should 
+        have key names matching those in `data` with the stored values matching
+        the names in `tamoc`.  An empty dictionary indicates that none of the
+        present psuedo-components either have name different from those in 
+        `tamoc` or they are not present in `tamoc` databases.
+    
+    Returns
+    -------
+    data : dict
+        An updated dictionary of property data for each pseudo-component with 
+        the required data added.
+    units : dict
+        An updated dictionary of units including the units for the new property
+        data
+    
+    """
+    # Get the default property data supplied with `tamoc`
+    default_db, default_units, bio_db, bio_units, pj_data, pj_units = \
+        chemical_properties.tamoc_data()
+    
+    # List the properties that need to be added
     missing_vars = ['Vb', 'kh_0', '-dH_solR', 'nu_bar', 'K_salt', 'B',
         'dE']
+    missing_units = ['(m^3/mol)', '(kg/(m^3 Pa))', '(K)', '(m^3/mol)', 
+        '(m^3/mol)', '(mm^2/sec)', '(J/mol)']
     
-    # Loop through each compound in the composition and add these missing 
-    # variables
-    for component in prop_data:
+    # Fill in missing property data needed by TAMOC
+    for component in data:
         
-        # Check whether this component is in our DWH database
-        if component in dwh_data:
+        # Check for the `tamoc` name of this compound
+        if component in tamoc_names:
+            # Set `db_name` to the `tamoc` name for searching `tamoc` property
+            # data
+            db_name = tamoc_names[component]
             
-            # Get the missing data from the DWH database
-            for var in missing_vars:
-                prop_data[component][var] = dwh_data[component][var]
-        
-        # Also check the default database for TAMOC
-        elif component in tamoc_db:
-            
-            # Get the missing data from the TAMOC database
-            for var in missing_vars:
-                prop_data[component][var] = tamoc_db[component][var]
-        
-        # Otherwise, we have to estimate the data
         else:
-            
-            # Some of these are already estimated by the dbm module...set an
-            # appropriate flag to invoke these estimates
-            prop_data[component]['Vb'] = -9999.
-            prop_data[component]['nu_bar'] = -9999.
-            prop_data[component]['K_salt'] = -9999.
-            prop_data[component]['B'] = -9999.
-            prop_data[component]['dE'] = -9999.
-            
-            # Use correlations from Gros et al. (2018)...-dH_sol/R
-            nu_bar = (-2.203e-5 * prop_data[component]['Pc'] + 518.6 * \
-                prop_data[component]['M'] + 143.4) * 1.e-6
-            prop_data[component]['-dH_solR'] = 2.637 * \
-                prop_data[component]['Tc'] + 22.48e6 * nu_bar
-            prop_data[component]['-dH_solR'] = -9999.
-            
-            # ...and Henry's coefficient
-            Cs = 46.4 * 10. ** (-36.7 * prop_data[component]['M'] * 1000. \
-                 / prop_data[component]['rho_l'])  # mol/L
-            vp_25 = gnome_vapor_pressure(prop_data[component]['Tb'], 298.15)
-            kh_0 = dbm_utilities.get_henry_constant(Cs, vp_25, 
-                prop_data[component]['M'] * 1000.)
-            prop_data[component]['kh_0'] = kh_0
-            prop_data[component]['kh_0'] = -9999.
-            
-    # And record the units for these new variables
-    for var in missing_vars:
-        prop_units[var] = dwh_units[var]
-    
-    # Check whether any compounds in the composition are not in the prop_data
-    # database
-    for comp in composition:
-        if comp not in prop_data:
-            if comp in dwh_data:
-                prop_data[comp] = dwh_data[comp]
-            else:
-                print('ERROR: Do not have base properties for %s' %
-                    comp)
-    
-    # Return the updated data
-    return (prop_data, prop_units)
+            # Assume the component name itself is an appropriate name for 
+            # searching `tamoc` property data
+            db_name = component
+        
+        # Get the missing data from the most reliable source
+        if db_name in user_data:
+            # Use the data provided by the user
+            for var in missing_vars:
+                data[component][var] = user_data[db_name][var]
+        
+        elif db_name in default_db:
+            # Use the database provided with `tamoc`
+            for var in missing_vars:
+                data[component][var] = default_db[db_name][var]
 
-def gnome_vapor_pressure(Tb, Ta):
-    """
-    Compute the vapor pressure of a single pseudo-component
+        else:
+            # Estimate the properties from various algorithms...some should use
+            # algorithms built into the `tamoc` `dbm` module; set a flag to 
+            # invoke those methods.
+            data[component]['Vb'] = -9999.
+            data[component]['nu_bar'] = -9999.
+            data[component]['K_salt'] = -9999.
+            data[component]['B'] = -9999.
+            data[component]['dE'] = -9999.
+        
+            # Estimate the enthalpy of solution
+            data[component]['-dH_solR'] = est_neg_dH_solR(
+                data[component]['M'],
+                data[component]['Tc'], 
+                data[component]['Pc'],
+                data[component]['Tb'])
+            
+            # Estimate the Henry's constant
+            data[component]['kh_0'] = est_kh_0(data)
     
-    This function is copied directly from NOAA PyGnome from the module
-    PyGnome - pygnome - gnome - spill - gnome_oil.py. This method uses the
-    boiling points to estimate vapor pressures.
+    # Add these properties to the units database
+    for i in range(len(missing_vars)):
+        units[missing_vars[i]] = missing_units[i]
+
+    return (data, units)
+
+def est_neg_dH_solR(M, Tc, Pc, Tb):
+    """
+    Estimate the enthalpy of dissolution
+    
+    Use correlation methods to estimate -dh_sol / R.  This function follows an 
+    equation in Gros et al. (2018).
     
     Parameters
     ----------
+    M : float
+        Molecular weight, kg/mol
+    Tc : float
+        Critical point temperature, K
+    Pc : float
+        Critical point pressure, Pa
     Tb : float
-        Normal boiling point (K)
-    Ta : float
-        Temperature (K)
+        Boiling point temperature, K
     
     Returns
     -------
-    vapor_pressure : ndarray
-        Estimate of the vapor pressure (Pa) for a given pseudo-component
-    
-    Notes
-    -----
-    Vapor pressure is used to estimate the Henry's law coefficients to get
-    solubility estimates for pseudo-components that do not have solubility
-    data. This method was used in Gros et al. (2018) to estimate TAMOC oil
-    properties from Adios oil database data.
+    neg_dH_solR : float
+        Negative of the enthalpy of solution divided by the ideal gas constant, K
     
     """
-    # Set some constants
-    D_Zb = 0.97
-    R_cal = 1.987  # calories
+    # Estimate nu_bar using method in the `tamoc` `dbm` module
+    if Tb < 273.15 + 10.:
+        # Assume this is a gas...use Lyckman formula
+        nu_bar = (0.095 + 2.35 * (298.15 * Pc / (2.2973e9 * Tc))) * \
+            8.314510 * Tc / Pc
+    else:
+        # Use empirical equation from Jonas Gros
+        nu_bar = (1.148236984 * M*1000. + 6.789136822) / 100.**3
     
-    # Compute some coefficients
-    D_S = 8.75 + R_cal * np.log(Tb)
-    C_2i = 0.19 * Tb - 18.
+    # Use equation from Gros et al. (2018)
+    neg_dH_solR = 2.637 * Tc + 22.48e6 * nu_bar
     
-    # Compute the vapor pressure
-    var = 1. / (Tb - C_2i) - 1. / (Ta - C_2i)
-    ln_Pi_Po = ((D_S * (Tb - C_2i) ** 2 /
-                (D_Zb * R_cal * Tb)) * var)
-    vapor_pressure = np.exp(ln_Pi_Po) * 101325.
-    
-    return vapor_pressure
+    return neg_dH_solR
 
-def Vc_tuning(m, oil, idx, Ta, Pa, rho, fp_type=1):
+def est_kh_0(data):
     """
-    Adjust the critical volume to match a given density
-    
-    Parameters
-    ----------
-    m : ndarray
-        Masses (kg) is each component in an oil mixture
-    oil : `dbm.FluidMixture`
-        A `dbm.FluidMixture` object for the thermodynamic behavior of a given
-        oil
-    idx : int
-        Index to the pseudo-component that should be adjusted in order to
-        match the given density. This function can only optimize the critical
-        volume estimate for one pseudo-component.
-    Ta : float
-        Ambient temperature (K)
-    Pa : float
-        Ambient pressure (Pa)
-    rho : float
-        Density of a petroleum phase at the given Ta and Pa
-    fp_type : int, default=1
-        Flag indicating for which petroleum phase the density is reported 
-        (0 = gas, 1 = liquid)
-    
-    Returns
-    -------
-    Vc : float
-        Optimized value of the critical specific volume of the
-        pseudo-component adjusted by this function. See also `Notes` below.
-    
-    Notes
-    -----
-    In order for this function to work, it has to update the Vc values
-    stored in the oil object.  Hence, the oil object will be changed by this
-    function so that it stores the final, optimized values of Vc.  This 
-    function also returns the optimized Vc values so that they can be 
-    inspected for appropriateness.
+    Estimate tne Henry's coefficient at standard conditions
     
     """
-    # Get an approporiate initial guess for Vc...makes sure that the 
-    # compressibility factor is within the values used by Lin and Duan (2005)
-    Pc = oil.Pc[idx]
-    Tc = oil.Tc[idx]
-    RU = 8.314510
-    Vc_0 = 0.270 * RU * Tc / Pc
-    print('Original value of Vc[%d] = %g (m^3/kg)' % (idx, oil.Vc[idx]))
-    print(' -> Initial guess for Vc[%d] = %g (m^3/ks)' % (idx, Vc_0))
-    
-    # Create an objective function
-    def res(Vc):
-        """
-        Compute the residual of the density with the current guess for Vc
-        
-        """
-        # Update the Vc values in the oil object
-        oil.Vc[idx] = Vc
-        
-        # Compute a new density difference
-        return (rho - oil.density(m, Ta, Pa)[fp_type])
-    
-    # Find an optimum set of Vc-values
-    from scipy.optimize import fsolve
-    Vc = fsolve(res, Vc_0)
-    
-    # Return the optimize Vc values
-    return Vc
+    # Get the temperature and pressure where we know solubilities
+    return 0
 
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Functions plot data in the module classes
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 def show_network(xp, fig, clearFig):
     """
@@ -1419,7 +1518,8 @@ def plot_state_space(t, y, y_local, fracture, p, fig):
     
     plt.show()
 
-def plot_component_map(t, y, derived_vars, parcel, fracture, p, comps, fig):
+def plot_component_map(t, y, derived_vars, parcel, fracture, p, comps, 
+    norm_comp, fig):
     """
     docstring for plot_component_map
     
@@ -1470,6 +1570,7 @@ def plot_component_map(t, y, derived_vars, parcel, fracture, p, comps, fig):
     figure = plt.figure(fig, figsize=figsize)
     plt.clf()
     
+    # Component masses
     add_bar = True
     for i in range(len(comps)):
         ax = plt.subplot(rows, cols, i+1)
@@ -1495,11 +1596,15 @@ def plot_component_map(t, y, derived_vars, parcel, fracture, p, comps, fig):
                 ax.set_ylabel('Depth, (m)')
             ax.invert_yaxis()
             ax.legend()
+
+    plt.tight_layout()
+    plt.show()
     
     # Plot each component one at a time
     figure = plt.figure(fig+1, figsize=figsize)
     plt.clf()
     
+    # Fraction remaining
     add_bar = True
     for i in range(len(comps)):
         ax = plt.subplot(rows, cols, i+1)
@@ -1554,3 +1659,33 @@ def plot_component_map(t, y, derived_vars, parcel, fracture, p, comps, fig):
     
     plt.tight_layout()
     plt.show()
+    
+    # Normalized fraction remaining
+    if not isinstance(norm_comp, type(None)):
+        
+        # Plot the normalized losses one at a time
+        figure = plt.figure(fig+2, figsize=figsize)
+        plt.clf()
+        
+        # Get the index to the component to use for normalization
+        ic = comps.index(norm_comp)
+        
+        # Compute the fraction lost of each component
+        fl = np.zeros((len(t), len(comps)))
+        for i in range(len(t)):
+            fl[i,:] = 1. - mf[i,:]
+        
+        # Normalize by the selected component and plot
+        for i in range(len(comps)):
+            fl[:,i] = fl[:,i] / fl[:,ic]
+            
+            ax = plt.subplot(rows, cols, i+1)
+            ax.plot(fl[:,i] * 100., x[:,2], label=comps[i])
+            ax.set_xlabel('Normalized loss, (%)')
+            ax.set_ylabel('Depth, (m)')
+            ax.invert_yaxis()
+            ax.legend()
+        
+        plt.tight_layout()
+        plt.show()
+        

@@ -350,10 +350,13 @@ def rosin_rammler_fit(d50, d_max, alpha=1.8):
         # Adjust d50 so that d95 does not exceed d_max
         if d95 > d_max:
             print('\nPredicted size distribution exceeds d50...')
-            print('    ---> Adjusting size distribution down.\n')
+            print('    --> Adjusting size distribution down.')
+            print('        Original d50 = %g (mm)' % (d50 * 1000.))
+            print('        d_max = %g (mm)' % (d_max * 1000.))
             d95 = d_max
             k95 = np.log(0.05)
             d50 = d95 * (np.log(1. - 0.5) / k95)**(1. / alpha)
+            print('        New d50 = %g (mm)\n' % (d50 * 1000.))
     
     # Return the final distribution fit
     return (d50, k, alpha)
@@ -404,8 +407,11 @@ def log_normal_fit(d50, d_max, sigma=0.27):
         # Adjust d_50 so that d_95 does not exceed d_max
         if d95 > d_max:
             print('\nPredicted size distribution exceeds d50...')
-            print('    ---> Adjusting size distribution down.\n')
+            print('    --> Adjusting size distribution down.')
+            print('        Original d50 = %g (mm)' % (d50 * 1000.))
+            print('        d_max = %g (mm)' % (d_max * 1000.))
             d50 = np.exp(np.log(d_max) - 1.6449 * sigma)
+            print('        New d50 = %g (mm)\n' % (d50 * 1000.))
     
     # Return the final distribution fit
     return (d50, sigma)

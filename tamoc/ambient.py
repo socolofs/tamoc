@@ -2385,7 +2385,7 @@ def extract_profile(data, z_col=0, z_start=50, p_col=None, P_atm=101325.):
         Column number of the column containing the pressure data.  If the
         profile is artificially extended to the free surface, the pressure
         must approach atmospheric pressure.
-    P_amt : float, default is 101325
+    P_atm : float, default is 101325
         Value for atmospheric pressure.  This function does not do any unit
         conversion, so if the pressure units passed to this function are not
         Pa or the pressure is different than standard atmospheric pressure, 

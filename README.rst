@@ -12,6 +12,13 @@ size distributions from source flow conditions.
 For typical usage, please see the ./bin directory of the source distribution
 for various example scripts.
 
+Version 3.4.0:  Updated the root-finding method in the Fortran `math_funcs` module
+                so that it always finds the correct roots. Updated the `dbm`
+                module `equilibrium` method so that it returns the correct fluid
+                phase when there are non-zero components in the mixture. Moved the
+                unit conversion in the `chemical_properties` module into a
+                separate function so that they can be used anywhere they are
+                needed.
 Version 3.3.0:  Added a few new post-processing tools to the bent plume and 
                 stratified plume models and updated the particle size model
                 tools so that the user can specify a non-equilibrium pressure.
