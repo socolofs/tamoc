@@ -152,12 +152,14 @@ def convert_units(data, header_keys, header_units):
     # then you should include a check for it here.
     for chemical in data:
         for variable in read_units:
-            if read_units[variable].find('(g/mol)') >= 0:
+            if read_units[variable].find('(g/mol)') >= 0 or
+                read_units[variable] == 'g/mol':
                 # Convert to kg/mol
                 data[chemical][variable] = data[chemical][variable] / 1000.
                 units[variable] = '(kg/mol)'
             
-            if read_units[variable].find('(psia)') >= 0:
+            if read_units[variable].find('(psia)') >= 0 or
+                read_units[variable] == 'psia':
                 # Convert to Pa
                 data[chemical][variable] = data[chemical][variable] * 6894.76
                 units[variable] = '(Pa)'
@@ -173,29 +175,34 @@ def convert_units(data, header_keys, header_units):
                                            5. / 9. + 273.15
                 units[variable] = '(K)'
             
-            if read_units[variable].find('(mol/dm^3 atm)') >= 0:
+            if read_units[variable].find('(mol/dm^3 atm)') >= 0 or
+                read_units[variable] == 'mol/dm^3 atm':
                 # Convert to kg/(m^3 Pa)
                 data[chemical][variable] = (data[chemical][variable] * \
                                            1000. / 101325. * \
                                            data[chemical]['M'])
                 units[variable] = '(kg/(m^3 Pa))'
             
-            if read_units[variable].find('(mm^2/sec)') >= 0:
+            if read_units[variable].find('(mm^2/sec)') >= 0 or
+                read_units[variable] == 'mm^2/sec':
                 # Convert to m^2/s
                 data[chemical][variable] = data[chemical][variable] / 1000.**2
                 units[variable] = '(m^2/s)'
             
-            if read_units[variable].find('(cal/mol)') >= 0:
+            if read_units[variable].find('(cal/mol)') >= 0 or
+                read_units[variable] == 'cal/mol':
                 # Convert to J/mol
                 data[chemical][variable] = data[chemical][variable] / 0.238846
                 units[variable] = '(J/mol)'
             
-            if read_units[variable].find('(L/mol)') >= 0:
+            if read_units[variable].find('(L/mol)') >= 0 or
+                read_units[variable] == 'L/mol':
                 # Convert to m^3/mol
                 data[chemical][variable] = data[chemical][variable] / 1000.
                 units[variable] = '(m^3/mol)'
             
-            if read_units[variable].find('(1/d)') >= 0:
+            if read_units[variable].find('(1/d)') >= 0 or
+                read_units[variable] == '1/d':
                 # Convert to 1/s
                 data[chemical][variable] = data[chemical][variable] / 86400.
                 units[variable] = '(1/s)'
