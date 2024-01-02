@@ -665,7 +665,7 @@ class FluidMixture(object):
             if not isinstance(K, type(None)):
                 K = K[mi]
             xip, beta, Kp = equil_MM(m[mi], T, P, self.M[mi], self.Pc[mi], 
-                self.Tc[mi], self.omega[mi], self.delta[mi,:][:,mi][0],
+                self.Tc[mi], self.omega[mi], self.delta[np.transpose(mi), mi],
                 self.Aij, self.Bij, self.delta_groups[mi,:][0],
                 self.calc_delta, K)
             
