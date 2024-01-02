@@ -763,22 +763,22 @@ step.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Index to the simulation step for which data should be reported.
+<li><p><strong>idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Index to the simulation step for which data should be reported.
 This can be any acceptable numpy index to an array, but not a
 slice. The purpose of this method is to output data at a single
 point in the solution.  Zero will yield the initial condition, -1
 will give the last computed point, and any other integer will
 index that respective point in the output arrays.</p></li>
-<li><p><strong>stage</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <em>default</em> <code class="docutils literal notranslate"><span class="pre">0</span></code>) – Flag indicating whether the user wants data from the near-field
+<li><p><strong>stage</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <em>default</em> <code class="docutils literal notranslate"><span class="pre">0</span></code>) – Flag indicating whether the user wants data from the near-field
 plume (stage = 0) or the Lagrangian particle tracking stage of
 transport (stage = 1). The idx value will index the respective
 model simulation vector that matches the chosen stage of the
 solution.</p></li>
-<li><p><strong>chems</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>, <em>default</em> <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>) – A list of chemical compounds to track.  This may be a list of
+<li><p><strong>chems</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>, <em>default</em> <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>) – A list of chemical compounds to track.  This may be a list of
 chemical names or a list of index-numbers corresponding to
 chemicals in the mixture composition. If <cite>None</cite>, then all
 compounds in the simulation will be included.</p></li>
-<li><p><strong>fp_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – A flag indicating which particles should be included. 0 – will
+<li><p><strong>fp_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – A flag indicating which particles should be included. 0 – will
 include only particles that were initially gas-phase, 1 – will
 include only particles that were initially liquid-phase particles,
 and -1 – will include all particles.</p></li>

@@ -752,19 +752,19 @@ flow rate.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>profile</strong> (<cite>ambient.Profile</cite> object) – The ambient CTD object used by the simulation.</p></li>
-<li><p><strong>z0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Depth of the release point (m)</p></li>
+<li><p><strong>z0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Depth of the release point (m)</p></li>
 <li><p><strong>dbm_particle</strong> (<cite>dbm.FluidParticle</cite> or <cite>dbm.InsolubleParticle</cite> object) – Object describing the particle properties and behavior</p></li>
 <li><p><strong>yk</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Vector of mol fractions of each component of the dispersed phase
 particle.  If the particle is a <cite>dbm.InsolubleParticle</cite>, then yk
 should be equal to one.</p></li>
-<li><p><strong>q</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Flux of the dispersed phase, either as the volume flux (m^3/s) at
+<li><p><strong>q</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Flux of the dispersed phase, either as the volume flux (m^3/s) at
 standard conditions, defined as 0 deg C and 1 bar, or as mass flux
 (kg/s).</p></li>
-<li><p><strong>q_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Determines the type of flux units.  0: we want the mass of a single
+<li><p><strong>q_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Determines the type of flux units.  0: we want the mass of a single
 particle (hence q = None since it is currently unknown), 1: q is
 volume flux, 2: q is mass flux</p></li>
-<li><p><strong>de</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Initial diameter (m) of the particle</p></li>
-<li><p><strong>T0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <em>default</em> <code class="xref py py-class docutils literal notranslate"><span class="pre">=</span> <span class="pre">None</span></code>) – Initial temperature of the of <cite>dbm</cite> particle object (K).  If None,
+<li><p><strong>de</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Initial diameter (m) of the particle</p></li>
+<li><p><strong>T0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <em>default</em> <code class="xref py py-class docutils literal notranslate"><span class="pre">=</span> <span class="pre">None</span></code>) – Initial temperature of the of <cite>dbm</cite> particle object (K).  If None,
 then T0 is set equal to the ambient temperature.</p></li>
 </ul>
 </dd>
@@ -772,11 +772,11 @@ then T0 is set equal to the ambient temperature.</p></li>
 <dd class="field-even"><p><ul class="simple">
 <li><p><strong>m0</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Initial masses of the components of one particle in the <cite>dbm</cite>
 particle object (kg)</p></li>
-<li><p><strong>T0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Initial temperature of the of <cite>dbm</cite> particle object (K)</p></li>
-<li><p><strong>nb0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Initial number flux of particles at the release (–)</p></li>
-<li><p><strong>P</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Local pressure (Pa)</p></li>
-<li><p><strong>Sa</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Local salinity surrounding the particle (psu)</p></li>
-<li><p><strong>Ta</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Local temperature surrounding the particle (K)</p></li>
+<li><p><strong>T0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Initial temperature of the of <cite>dbm</cite> particle object (K)</p></li>
+<li><p><strong>nb0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Initial number flux of particles at the release (–)</p></li>
+<li><p><strong>P</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Local pressure (Pa)</p></li>
+<li><p><strong>Sa</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Local salinity surrounding the particle (psu)</p></li>
+<li><p><strong>Ta</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Local temperature surrounding the particle (K)</p></li>
 </ul>
 </p>
 </dd>

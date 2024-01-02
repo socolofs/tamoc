@@ -759,7 +759,7 @@ columns will be preserved; only the depth column will be used to make
 decisions.</p></li>
 <li><p><strong>z_col</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">integer</span></code>, <em>default</em> <code class="xref py py-class docutils literal notranslate"><span class="pre">is</span> <span class="pre">0</span></code>) – Column number of the column containing the depth data.  The first
 column is numbered zero.</p></li>
-<li><p><strong>z_start</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <em>default</em> <code class="xref py py-class docutils literal notranslate"><span class="pre">is</span> <span class="pre">50</span></code>) – Depth over which reversals are considered to be at the top of the
+<li><p><strong>z_start</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <em>default</em> <code class="xref py py-class docutils literal notranslate"><span class="pre">is</span> <span class="pre">50</span></code>) – Depth over which reversals are considered to be at the top of the
 profile.  If a depth reversal is found below this value, the profile
 will be assumed to end there.  The top of the profile will be either
 the first row of data or the lowest row of data containing a reversal
@@ -767,7 +767,7 @@ for which <cite>z</cite> &lt; <cite>z_start</cite>.</p></li>
 <li><p><strong>p_col</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">integer</span></code>, <em>default</em> <code class="xref py py-class docutils literal notranslate"><span class="pre">is</span> <span class="pre">None</span></code>) – Column number of the column containing the pressure data.  If the
 profile is artificially extended to the free surface, the pressure
 must approach atmospheric pressure.</p></li>
-<li><p><strong>P_amt</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <em>default</em> <code class="xref py py-class docutils literal notranslate"><span class="pre">is</span> <span class="pre">101325</span></code>) – Value for atmospheric pressure.  This function does not do any unit
+<li><p><strong>P_atm</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <em>default</em> <code class="xref py py-class docutils literal notranslate"><span class="pre">is</span> <span class="pre">101325</span></code>) – Value for atmospheric pressure.  This function does not do any unit
 conversion, so if the pressure units passed to this function are not
 Pa or the pressure is different than standard atmospheric pressure,
 then the correct value should be specified.</p></li>

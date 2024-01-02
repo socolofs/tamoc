@@ -1,3 +1,30 @@
+V3.4.0, January 2024 -- 
+   . Updated the Fortran subroutine for solving the cubic roots in
+     math_funcs.f95. For single-phase fluids with one real root, the original
+     function was finding a false root. A new root-finding code is from the
+     Public Domain Aeronautical Software (PDAS) site. The Python version of the
+     equations of state, which used the root module in Scipy did not have the
+     same issue. All of the original test cases still pass with the this
+     function update as it only effects very specific cases close to a phase
+     boundary.
+   . Edited the discrete bubble model `equilibrium` method for cases where the 
+     input masses included some components with zero mass. In that case, the
+     equilibrium does not always converge on the correct single-phase (e.g., a
+     liquid might be returned when a gas is the correct answer).  The new 
+	 method removes the zero-mass components, computes the equilibrium, and then 
+	 puts the zero-mass components back into the mixture with zero mass.  The 
+	 original test cases all also pass with this minor stabilitiy fix.
+   . Moved the unit conversions in the `chemical_properties` module out of the 
+     `load_data` function and into a new `convert_units` function. Also,
+     updated the names of the units to include '()': e.g., 'mm/l' --> '(mm/l)'.
+   . Updated the documentation in the `chemical_properties` module for the
+	 separated `comvert_units` function. Also, adjusted the unit conversion 
+	 search so that all cataloged units have '()' around the main units. This 
+	 allows the unit search to be complete.  Also, added a unit conversion from 
+	 kPa to Pa.
+   . Added some additional printed messages to the `psf` models.  When the 
+     particle size exceeds the maximum stable size, the code alerts the user
+     and reports the original and updated d_50 values.
 V3.3.0, September 2023 --
    . Created a new method of the bent plume model `Model` class that prints the 
      mass flux of particles leaving the plume and entering the water column.
@@ -10,11 +37,11 @@ V3.3.0, September 2023 --
      whether or not a single bubble model simulation was run for that particle.
    . Added the ability for the user to specify a pressure to the particle 
      breakup models that differs from the ambient pressure. This may happen
-	 during a phase change where the pressure has to lie on the saturation curve.
-	 Be aware that `tamoc` plume simulations will still use the ambient pressure 
-	 to compute particle sizes. Hence, any particles created with a 
-	 non-equilibriump pressure will need to be adjusted to equilibrium before 
-	 use in a `tamoc` plume simulation. Also added better handling of 
+	 during a phase change where the pressure has to lie on the saturation 
+     curve.  nBe aware that `tamoc` plume simulations will still use the 
+     ambient pressure to compute particle sizes. Hence, any particles created 
+     with a non-equilibriump pressure will need to be adjusted to equilibrium 
+     before use in a `tamoc` plume simulation. Also added better handling of 
 	 single-phase cases by the particlesize model `Model` object. 
    . Removed some of the screen printing from the particle size models.  These 
 	 messages used to alert the user when a predicted particle size was larger
