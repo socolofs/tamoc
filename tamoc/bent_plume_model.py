@@ -891,10 +891,13 @@ class Model(object):
                             / self.particles[j].nbe * self.particles[j].nb0
                     else:
                         Mpf = 0.
+                    # Mass flux cannot be negative
+                    if Mpf < 0.:
+                        Mpf = 0.
                     if i == 0:
                         var_names.append('Mass flux of %s (kg/s) in particle' \
                             ' group %3.3d' % (chem, j))
-                    data[i,col] = Mpf
+                    data[i,col] = Mpf                       
                     col += 1
         
         # Return the data and header information
