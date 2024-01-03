@@ -96,7 +96,7 @@ if __name__ == '__main__':
     ax1.set_xlabel('Gas bubble diameter (mm)')
     ax1.set_ylabel('Gas mass flux (kg/s)')
     ntics = 10
-    dtics = int(round(nbins/np.float(ntics)))
+    dtics = int(round(nbins/np.float64(ntics)))
     ticnums = []
     ticlocs = []
     for i in range(ntics):
@@ -110,7 +110,7 @@ if __name__ == '__main__':
     ax1.set_xlabel('Oil droplet diameter (mm)')
     ax1.set_ylabel('Oil mass flux (kg/s)')
     ntics = 10
-    dtics = int(round(nbins/np.float(ntics)))
+    dtics = int(round(nbins/np.float64(ntics)))
     ticnums = []
     ticlocs = []
     for i in range(ntics):
