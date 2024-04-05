@@ -52,8 +52,6 @@ from datetime import datetime
 import numpy as np
 from numpy.linalg import inv
 from scipy.optimize import fsolve
-# import matplotlib as mpl
-# import matplotlib.pyplot as plt
 
 # ----------------------------------------------------------------------------
 # Main Model object
@@ -1843,8 +1841,11 @@ class Model(object):
         
         Parameters
         ----------
-        fig : int
-            Figure number to create
+        fig : int or MPL Figure object
+              MPL Figure() on which to plot
+              or
+              Number of the figure window in which to draw the plot
+              (Figure will be created for you with the provided fig number)
         loc : int or float (default=0)
             Position where the size distributions should be computed. This
             parameter is passed to `report_psds`. If `stage` = 0, this is an
@@ -1858,7 +1859,12 @@ class Model(object):
         clear : bool
             Flag indicating whether or not to clear the contents of the
             requested figure number before plotting
-        
+
+        Returns
+        -------
+        fig : MPL Figure
+            The MPL figure of the created plot
+
         """
         import matplotlib.pyplot as plt
         
@@ -1866,12 +1872,21 @@ class Model(object):
         d_gas, vf_gas, d_liq, vf_liq = self.report_psds(loc, stage)
         
         # Prepare the figure for plotting
-        plt.figure(fig, figsize=(8,7))
-        if clear:
-            plt.clf()
+        # Prepare the figure for plotting
+        try:
+            if clear:
+                fig.clear()
+            axes = fig.subplots(2, 1)
+        except AttributeError:  # not a figure object already
+            fig = plt.figure(fig)
+            if clear:
+                fig.clear()
+            fig.set_size_inches(8, 7)
+            axes = fig.subplots(2, 1)
         
         # Plot the gas
-        ax = plt.subplot(211)
+        # ax = plt.subplot(211)
+        ax = axes[0]
         ax.semilogx(d_gas * 1.e6, vf_gas, '.-')
         ax.set_xlabel('Gas bubble diameter, (um)')
         ax.set_ylabel('Volume fraction, (--)')
@@ -1879,15 +1894,18 @@ class Model(object):
         ax.grid(True, which='minor')
     
         # Plot the oil
-        ax = plt.subplot(212)
+        # ax = plt.subplot(212)
+        ax = axes[1]
         ax.semilogx(d_liq * 1.e6, vf_liq, '.-')
         ax.set_xlabel('Liquid droplet diameter, (um)')
         ax.set_ylabel('Volume fraction, (--)')
         ax.grid(True, which='major')
         ax.grid(True, which='minor')
     
-        plt.tight_layout()
-        plt.show()
+        fig.set_tight_layout
+        fig.canvas.draw_idle()
+
+        return fig
     
     def plot_state_space(self, fig):
         """
@@ -1898,17 +1916,23 @@ class Model(object):
 
         Parameters
         ----------
-        fig : int
+        fig : int or MPL Figure object
+            MPL Figure() on which to plot
+            or
             Number of the figure window in which to draw the plot
+            (Figure will be created for you with the provided fig number)
+
+        Returns
+        -------
+        fig : MPL Figure
+            The MPL figure of the created plot
+
 
         See Also
         --------
         plot_all_variables
 
         """
-        import matplotlib as mpl
-        import matplotlib.pyplot as plt
-
         if self.sim_stored is False:
             print('No simulation results available to plot...')
             print('Plotting nothing.\n')
@@ -1916,9 +1940,10 @@ class Model(object):
 
         # Plot the results
         print('Plotting the state space...')
-        plot_state_space(self.t, self.q, self.q_local, self.profile, self.p,
-            self.particles, fig)
+        fig = plot_state_space(self.t, self.q, self.q_local, self.profile, self.p,
+                               self.particles, fig)
         print('Done.\n')
+        return fig
 
     def plot_all_variables(self, fig):
         """
@@ -1938,9 +1963,6 @@ class Model(object):
         plot_state_space
 
         """
-        import matplotlib as mpl
-        import matplotlib.pyplot as plt
-
         if self.sim_stored is False:
             print('No simulation results available to plot...')
             print('Plotting nothing.\n')
@@ -1953,7 +1975,7 @@ class Model(object):
         print('Done.\n')
     
     def plot_fractions_dissolved(self, fig, chems=None, stage=1, fp_type=-1,
-        clear=True):
+                                 clear=True):
         """
         Plot the fraction of each chem dissolved subsea
         
@@ -3200,8 +3222,17 @@ def plot_state_space(t, q, q_local, profile, p, particles, fig):
     particles : list of `Particle` objects
         List of `Particle` objects describing each dispersed phase in the
         simulation
-    fig : int
+    fig : int or MPL Figure object
+        MPL Figure() on which to plot
+        or
         Number of the figure window in which to draw the plot
+        (Figure will be created for you with the provided fig number)
+
+    Returns
+    -------
+    fig : MPL Figure
+        The MPL figure of the created plot
+
 
     Notes
     -----
@@ -3209,7 +3240,6 @@ def plot_state_space(t, q, q_local, profile, p, particles, fig):
     simulated particles, and the Lagrangian element mass.
 
     """
-    import matplotlib as mpl
     import matplotlib.pyplot as plt
 
     # Extract the trajectory variables
@@ -3226,49 +3256,54 @@ def plot_state_space(t, q, q_local, profile, p, particles, fig):
         for j in range(len(particles)):
             xp[i,j*3:j*3+3] = q_local.x_p[j,:]
 
-    # Plot the figure
-    plt.figure(fig)
-    plt.clf()
-    plt.show()
+    # Set up the figure
+    try:
+        # If it's already a Figure object
+        axes = fig.subplots(2, 2)
+    except AttributeError:  # not a figure object already
+        fig = plt.figure(fig)
+        # this fig size works OK with all the axis labels
+        width = 9.5
+        fig.set_size_inches(width, width * 0.75)
+        axes = fig.subplots(2, 2)
+    ax1, ax2, ax3, ax4 = axes.flat
 
+    # Plot the figure
     # x-z plane
-    ax1 = plt.subplot(221)
     ax1.plot(x, z)
     for i in range(len(particles)):
-        ax1.plot(xp[:,i*3], xp[:,i*3 + 2], '.--')
+        ax1.plot(xp[:, i * 3], xp[:, i * 3 + 2], '.--')
     ax1.set_xlabel('x (m)')
     ax1.set_ylabel('Depth (m)')
     ax1.invert_yaxis()
     ax1.grid(which='major', color='0.65', linestyle='-')
 
     # y-z plane
-    ax2 = plt.subplot(222)
     ax2.plot(y, z)
     for i in range(len(particles)):
-        ax2.plot(xp[:,i*3+1], xp[:,i*3 + 2], '.--')
+        ax2.plot(xp[:, i * 3 + 1], xp[:, i * 3 + 2], '.--')
     ax2.set_xlabel('y (m)')
     ax2.set_ylabel('Depth (m)')
     ax2.invert_yaxis()
     ax2.grid(which='major', color='0.65', linestyle='-')
 
     # x-y plane
-    ax3 = plt.subplot(223)
     ax3.plot(x, y)
     for i in range(len(particles)):
-        ax3.plot(xp[:,i*3], xp[:,i*3 + 1], '.--')
+        ax3.plot(xp[:, i * 3], xp[:, i * 3 + 1], '.--')
     ax3.set_xlabel('x (m)')
     ax3.set_ylabel('y (m)')
     ax3.grid(which='major', color='0.65', linestyle='-')
 
     # M-s plane
-    ax4 = plt.subplot(224)
     ax4.plot(s, M)
     ax4.set_xlabel('s (m)')
     ax4.set_ylabel('M (kg)')
     ax4.grid(which='major', color='0.65', linestyle='-')
 
-    plt.draw()
+    fig.canvas.draw_idle()
 
+    return fig
 
 def plot_all_variables(t, q, q_local, profile, p, particles,
                        tracked, fig):
@@ -3300,7 +3335,6 @@ def plot_all_variables(t, q, q_local, profile, p, particles,
         track the particles.
     fig : int
         Number of the figure window in which to draw the plot
-
     """
     # Don't offset any of the axes
     import matplotlib as mpl
