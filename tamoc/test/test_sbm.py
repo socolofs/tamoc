@@ -67,10 +67,11 @@ def make_ctd_file():
 
     """
     # Get the correct netCDF4 dataset
-    __location__ = os.path.realpath(os.path.join(os.getcwd(),
-                                    os.path.dirname(__file__),
-                                    'output'))
-    nc_file = os.path.join(__location__,'test_BM54.nc')
+    # __location__ = os.path.realpath(os.path.join(os.getcwd(),
+    #                                 os.path.dirname(__file__),
+    #                                 'output'))
+    # nc_file = os.path.join(__location__,'test_BM54.nc')
+    nc_file = os.path.join(OUTPUT_DIR,'test_BM54.nc')
 
     # Be sure to start with the original, unedited CTD data
     test_ambient.test_from_ctd()
@@ -99,7 +100,9 @@ def get_profile():
     nc = make_ctd_file()
 
     # Return a profile object with all available chemicals in the CTD data
-    return ambient.Profile(nc, chem_names='all')
+    profile = ambient.Profile(nc, chem_names='all')
+    profile.close_nc()
+    return profile
 
 
 # ----------------------------------------------------------------------------
