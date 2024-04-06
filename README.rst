@@ -223,13 +223,11 @@ Requirements
 
 This package requires:
 
-* Python 2.3 or higher and is now compatible with both Python 2.7 and
-  Python 3.8+.  Python 2 compatibility is will no longer be ensured.  Please 
-  move to Python 3 if you have not already done so.
+* Python 3.9 or higher. It may still run with 2.7, but is no longer being tested with Python 2.
 
-* Numpy version 1.16 or higher
+* Numpy version 1.19 or higher
 
-* Scipy version 1.2.0 or higher
+* Scipy version 1.9 or higher
 
 * The Python netCDF4 package
 
@@ -242,9 +240,9 @@ This package requires:
 * To view plots of the model output, TAMOC uses the matplotlib package
 
 Code development and testing for this package was conducted in the Mac OS X
-environment, Version 10.13.6 through 10.14.6. The Python environments were
-created using miniconda. The Python 3 environment used Python 3.8.2; the
-Python 2 environment used Python 2.7.15. All scripts are tested in iPython
+environment, Version 10.13.6 through 13.6. (it has not yet been tested with M processors on the Mac)
+
+The Python environments were created using miniconda and/or miniforge. The Python 3 environment used Python 3.9.19. All scripts are tested in iPython
 with the --pylab flag.
 
 Fortran files are written in modern Fortran style and are fully compatible
@@ -322,18 +320,34 @@ The following method has been tested for installation on Windows 10 using Minico
 Mac OS X / Unix
 ---------------
 
-The following method has been tested for installation on Mac OS X 10.7.
+The following method has been tested for installation on Mac OS X 13.6
+
+NOTE: TAMOC has not been tested with the new M processors.
 
 * Install a complete Python distribution that includes Python, Numpy, and
-  Scipy with versions compatible with the above list.  Testing has been
-  completed by the author using a 32-bit and 64-bit Python installations.
+  Scipy with versions compatible with the above list.  Testing has been with 64-bit Python installations.
   The Python distribution will have to be compatible with your C/C++ and
   Fortran compiler.
 
-* Install the free XCode app in order to provide C/C++ compiler capability.
-  Be sure to install the command-line tools.
+* NOTE: conda and the conda-forge channel can provide all of these:
 
-* Download and install the gfortran binary. See,
-  http://gcc.gnu.org/wiki/GFortranBinaries
+  - Install miniconda or miniforge (https://docs.conda.io/en/latest/miniconda.html, https://github.com/conda-forge/miniforge)
+
+  - Add the conda forge channel to your conda install (https://conda-forge.org/)::
+    (not required for miniforge)
+      conda config --add channels conda-forge`
+      conda config --set channel_priority strict`
+
+  - Create a conda environment for TAMOC::
+
+      conda create -n tamoc python=3.11 --file conda_requirements.txt
+
+  - Activate the environment::
+
+      conda activate tamoc
+
+* Install the free "XCode command line tools" in order to provide C/C++ compiler capability. Be sure to install the command-line tools.
+
+* conda-forege provides a Fortran compiler. If you are not using conda-forge, Download and install the gfortran binary. See: http://gcc.gnu.org/wiki/GFortranBinaries
 
 * Follow the steps in the Quick Start section above to complete installation.

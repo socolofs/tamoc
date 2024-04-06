@@ -484,14 +484,22 @@ class Blowout(object):
 
         self.bpm.save_txt(base_name, profile_path, profile_info)
 
-    def plot_state_space(self, fignum=1):
+    def plot_state_space(self, fig=1):
         """
         Plot the `bent_plume_model` state space solution
 
         Parameters
         ----------
-        fignum : int
-            Figure number to plot the data
+        fig : int or MPL Figure object
+            MPL Figure() on which to plot
+            or
+            Number of the figure window in which to draw the plot
+            (Figure will be created for you with the provided fig number)
+
+        Returns
+        -------
+        fig : MPL Figure
+            The MPL figure of the created plot
 
         """
         if self.bpm.sim_stored is False:
@@ -499,17 +507,25 @@ class Blowout(object):
             print('Run Blowout.simulate() first.\n')
             return
 
-        self.bpm.plot_state_space(fignum)
+        return self.bpm.plot_state_space(fig)
 
-    def plot_all_variables(self, fignum=2):
+    def plot_all_variables(self, fig=2):
         """
         Plot all variables for the `bent_plume_model` solution
 
         Parameters
         ----------
-        fignum : int
-            Number for the first figure in the set of figures plotting the
-            complete model state space
+        fig : int or MPL Figure object
+            MPL Figure() on which to plot
+            or
+            Number of the figure window in which to draw the plot
+            (Figure will be created for you with the provided fig number)
+
+        Returns
+        -------
+        fig : MPL Figure
+            The MPL figure of the created plot
+
 
         """
         if self.bpm.sim_stored is False:
@@ -517,7 +533,7 @@ class Blowout(object):
             print('Run Blowout.simulate() first.\n')
             return
 
-        self.bpm.plot_all_variables(fignum)
+        return self.bpm.plot_all_variables(fig)
 
     def update_release_depth(self, z0):
         """

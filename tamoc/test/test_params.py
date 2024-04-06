@@ -66,6 +66,7 @@ def get_sim_data():
 
     # Create a profile object with all available chemicals in the CTD data
     profile = ambient.Profile(nc, chem_names='all')
+    profile.close_nc()
 
     # Create the stratified plume model object
     spm = stratified_plume_model.Model(profile)
