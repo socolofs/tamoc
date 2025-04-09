@@ -209,7 +209,6 @@
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../scripts/stratified_plume_model.html">Stratified Plume Model Scripts</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-7"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="bin.spm.lake_part.html">bin.spm.lake_part</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bin.spm.lake_bub.html">bin.spm.lake_bub</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bin.spm.spm_blowout_sim.html">bin.spm.spm_blowout_sim</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bin.spm.spm_file_io.html">bin.spm.spm_file_io</a></li>
@@ -429,8 +428,10 @@
 <li class="toctree-l3"><a class="reference internal" href="tamoc.single_bubble_model.Model.html">tamoc.single_bubble_model.Model</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.single_bubble_model.ModelParams.html">tamoc.single_bubble_model.ModelParams</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.single_bubble_model.Model.simulate.html">tamoc.single_bubble_model.Model.simulate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.single_bubble_model.Model.get_derived_variables.html">tamoc.single_bubble_model.Model.get_derived_variables</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.single_bubble_model.Model.save_sim.html">tamoc.single_bubble_model.Model.save_sim</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.single_bubble_model.Model.save_txt.html">tamoc.single_bubble_model.Model.save_txt</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.single_bubble_model.Model.save_derived_variables.html">tamoc.single_bubble_model.Model.save_derived_variables</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.single_bubble_model.Model.load_sim.html">tamoc.single_bubble_model.Model.load_sim</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.single_bubble_model.Model.post_process.html">tamoc.single_bubble_model.Model.post_process</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.single_bubble_model.calculate_path.html">tamoc.single_bubble_model.calculate_path</a></li>
@@ -756,17 +757,17 @@ changed.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dead_composition</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>) – List of strings containing the names of the oil components in the
+<li><p><strong>dead_composition</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>) – List of strings containing the names of the oil components in the
 dead oil</p></li>
 <li><p><strong>dead_mass_frac</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">np.array</span></code>) – An array of mass fractions for each of the compounds in the dead oil
 composition (kg)</p></li>
-<li><p><strong>user_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>) – A dictionary of chemical property data in the format expected by
+<li><p><strong>user_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>) – A dictionary of chemical property data in the format expected by
 the tamoc.dbm FluidMixture and FluidParticle module objects.</p></li>
 <li><p><strong>delta</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">np.array</span> <span class="pre">(len</span> <span class="pre">M</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">len</span> <span class="pre">M)</span></code>) – Array of binary interaction coefficients</p></li>
-<li><p><strong>delta_groups</strong> (<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a> or <code class="xref py py-class docutils literal notranslate"><span class="pre">np.array</span></code>) – If <cite>delta_groups</cite> is not <cite>None</cite>, then this array contains the group
+<li><p><strong>delta_groups</strong> (<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a> or <code class="xref py py-class docutils literal notranslate"><span class="pre">np.array</span></code>) – If <cite>delta_groups</cite> is not <cite>None</cite>, then this array contains the group
 contributions for the Privat and Jaubert 2012 method for estimating
 the binary interaction coefficients</p></li>
-<li><p><strong>gor</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Gas to oil ratio desired for a given live-oil release.  We add light
+<li><p><strong>gor</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Gas to oil ratio desired for a given live-oil release.  We add light
 gas compounds to the dead oil composition and iterate the gas
 fractions until the GOR at standard conditions is returned.  Here,
 gor has the standard units ft^3 gas per stock barrel of oil at
@@ -776,12 +777,12 @@ function natural_gas().</p></li>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><strong>composition</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>) – List of strings containing the names of all oil components in the
+<li><p><strong>composition</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>) – List of strings containing the names of all oil components in the
 live oil.</p></li>
 <li><p><strong>mass_frac</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">np.array</span></code>) – An array of mass fractions for all compounds in the live oil (kg/kg).</p></li>
 <li><p><strong>delta</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">np.array</span> <span class="pre">(len</span> <span class="pre">M</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">len</span> <span class="pre">M)</span></code>) – An updated array of binary interaction coefficients that includes the
 interactions among all compounds in composition.</p></li>
-<li><p><strong>delta_groups</strong> (<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a> or <code class="xref py py-class docutils literal notranslate"><span class="pre">np.array</span></code>) – If <cite>delta_groups</cite> is not <cite>None</cite>, then this array contains the group
+<li><p><strong>delta_groups</strong> (<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a> or <code class="xref py py-class docutils literal notranslate"><span class="pre">np.array</span></code>) – If <cite>delta_groups</cite> is not <cite>None</cite>, then this array contains the group
 contributions for the Privat and Jaubert 2012 method for estimating
 the binary interaction coefficients</p></li>
 </ul>

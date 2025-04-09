@@ -209,7 +209,6 @@
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../scripts/stratified_plume_model.html">Stratified Plume Model Scripts</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-7"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="bin.spm.lake_part.html">bin.spm.lake_part</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bin.spm.lake_bub.html">bin.spm.lake_bub</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bin.spm.spm_blowout_sim.html">bin.spm.spm_blowout_sim</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bin.spm.spm_file_io.html">bin.spm.spm_file_io</a></li>
@@ -429,8 +428,10 @@
 <li class="toctree-l3"><a class="reference internal" href="tamoc.single_bubble_model.Model.html">tamoc.single_bubble_model.Model</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.single_bubble_model.ModelParams.html">tamoc.single_bubble_model.ModelParams</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.single_bubble_model.Model.simulate.html">tamoc.single_bubble_model.Model.simulate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.single_bubble_model.Model.get_derived_variables.html">tamoc.single_bubble_model.Model.get_derived_variables</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.single_bubble_model.Model.save_sim.html">tamoc.single_bubble_model.Model.save_sim</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.single_bubble_model.Model.save_txt.html">tamoc.single_bubble_model.Model.save_txt</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tamoc.single_bubble_model.Model.save_derived_variables.html">tamoc.single_bubble_model.Model.save_derived_variables</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.single_bubble_model.Model.load_sim.html">tamoc.single_bubble_model.Model.load_sim</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.single_bubble_model.Model.post_process.html">tamoc.single_bubble_model.Model.post_process</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tamoc.single_bubble_model.calculate_path.html">tamoc.single_bubble_model.calculate_path</a></li>
@@ -743,7 +744,7 @@ document.write(`
 <h1>tamoc.dbm.FluidMixture<a class="headerlink" href="#tamoc-dbm-fluidmixture" title="Permalink to this headline">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="tamoc.dbm.FluidMixture">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tamoc.dbm.</span></span><span class="sig-name descname"><span class="pre">FluidMixture</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">composition</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_groups</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isair</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma_correction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([[1.],</span> <span class="pre">[1.]])</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/socolofs/tamoc/tree/master/tamoc/dbm.py#L59-L903"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tamoc.dbm.FluidMixture" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tamoc.dbm.</span></span><span class="sig-name descname"><span class="pre">FluidMixture</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">composition</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_groups</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isair</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma_correction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([[1.],</span> <span class="pre">[1.]])</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/socolofs/tamoc/tree/master/tamoc/dbm.py#L59-L915"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tamoc.dbm.FluidMixture" title="Permalink to this definition">#</a></dt>
 <dd><p>Class object for a fluid mixture</p>
 <p>This object defines the behavior of a fluid mixture defined as a standard
 thermodynamic system.  The mixture may contain just liquid phase, a
@@ -761,7 +762,7 @@ using the same key names as in ./data/ChemData.csv</p></li>
 <li><p><strong>delta</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">size</span> <span class="pre">(nc</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">nc)</span></code>) – Binary interaction coefficients for the Peng-Robinson equation of
 state.  If not passed at instantiation, Python will assume a
 full matrix of zeros.</p></li>
-<li><p><strong>user_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>) – A dictionary of chemical property data.  If not specified, the data
+<li><p><strong>user_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>) – A dictionary of chemical property data.  If not specified, the data
 loaded from <cite>/tamoc/data/ChemData.csv</cite> by <code class="docutils literal notranslate"><span class="pre">chemical_properties</span></code> will
 be used.  To load a different properties database, use the
 <code class="docutils literal notranslate"><span class="pre">chemical_properties.load_data</span></code> function to load in a custom
@@ -771,7 +772,7 @@ component in the mixture for the 15 groups used by the Privat and
 Jaubert (2012) group contribution method for binary interaction
 coefficients.  Default is None, in which case the values in <cite>delta</cite>
 will be used.</p></li>
-<li><p><strong>isair</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – Flag indicating whether or not fluid is air.  The methods for
+<li><p><strong>isair</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – Flag indicating whether or not fluid is air.  The methods for
 viscosity and interfacial tension below use correlations developed
 for hydocarbons.  If <cite>isair</cite> is False (default value), these built
 in methods are used.  If <cite>isair</cite> is True, then these methods are
@@ -802,7 +803,7 @@ second element is for the liquid phase.</p></li>
 <dd><p>Indicates the object contents are soluble</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">logical</span></code>, <a class="reference external" href="https://docs.python.org/3/library/constants.html#True" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code></a></p>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">logical</span></code>, <a class="reference external" href="https://docs.python.org/3/library/constants.html#True" title="(in Python v3.13)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>

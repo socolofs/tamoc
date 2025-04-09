@@ -28,7 +28,7 @@ import numpy as np
 if __name__ == '__main__':
     
     # Open an ambient profile object from the netCDF dataset
-    nc = '../../test/output/test_bm54.nc'
+    nc = '../../tamoc/test/output/test_bm54.nc'
     bm54 = ambient.Profile(nc, chem_names='all')
     bm54.close_nc()
     
@@ -64,6 +64,6 @@ if __name__ == '__main__':
                  'Results of ./seep_bubble.py script')
     
     # Save the data for importing into Matlab
-    sbm.save_txt('./seep_bubble.txt', '../../test/output/test_bm54.nc', 
+    sbm.save_txt('./seep_bubble', '../../test/output/test_bm54.nc', 
                  'Results of ./seep_bubble.py script')
 

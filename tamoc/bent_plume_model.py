@@ -729,11 +729,12 @@ class Model(object):
         
         Notes
         -----
-        This function only reports results for the Lagrangian plume.  If some of 
-        the plume particles leave the plume and rise through the water column
-        based on a `single_bubble_model` simulation, these results are not 
-        included.  Use the `report_mass_fluxes` or `report_surfacing_fluxes`  
-        with the appropriate `stage` flags to get the single bubble model results.
+        This function only reports results for the Lagrangian plume. If some
+        of the plume particles leave the plume and rise through the water
+        column based on a `single_bubble_model` simulation, these results are
+        not included. Use the `report_mass_fluxes` or
+        `report_surfacing_fluxes` with the appropriate `stage` flags to get
+        the single bubble model results.
         
         """
         # Check if the simulation has been computed
@@ -759,7 +760,7 @@ class Model(object):
         # Create a blank list to store annotated variable names
         var_names = []
         
-        # Compute the number of needed output rows (adapt this line as 
+        # Compute the number of needed output columns (adapt this line as 
         # additional outputs are added in the lines below)
         num_cols = 13 + num_c + num_p * (3 + num_c)
         
@@ -1497,7 +1498,7 @@ class Model(object):
                     # Get results from the Lagrangian particle-tracking
                     n_dot = particle.nb0
                     if self.track:
-                        if particle.tracked:
+                        if particle.farfield:
                             m = particle.sbm.y[idx, 3:-1][c_idx]
                         else:
                             m = particle.m[c_idx]
@@ -1624,7 +1625,12 @@ class Model(object):
             for particle in self.particles:
                 # Only track particles of the right type
                 if fp_type < 0 or particle.particle.fp_type == fp_type:
-                    if particle.sbm.y[-1,2] >= 50.:
+                    if not particle.farfield:
+                        # This particle did not leave the plume
+                        tp[self.particles.index(particle)] = np.nan
+                        mp[self.particles.index(particle), :] = \
+                            np.zeros(len(c_idx))
+                    elif particle.sbm.y[-1,2] >= 50.:
                         # This particle did not surface
                         tp[self.particles.index(particle)] = np.nan
                         mp[self.particles.index(particle), :] = \
@@ -1783,38 +1789,64 @@ class Model(object):
                 print('        track = True.')
                 return (-1, -1, -1, -1)
             for particle in self.particles:
-                # Interpolate the SBM output to the requested vertical level
-                z = particle.sbm.y[:,2]
-                i0 = np.max(np.where(z>=loc))
-                if i0 + 1 == len(z):
-                    i1 = i0 - 1
+                if particle.farfield:
+                    # Interpolate the SBM output to the requested vertical level
+                    z = particle.sbm.y[:,2]
+                    if loc < np.max(z):
+                        # This particle did not make it to the position
+                        # requested in `loc`
+                        if particle.particle.fp_type == 0:
+                            d_gas.append(np.nan)
+                            v_gas.append(np.nan)
+                        else:
+                            d_liq.append(np.nan)
+                            v_liq.append(np.nan)
+                            
+                    else:
+                        # This particle is within the range desired...
+                        # Find an index to the closest point in the solution
+                        i0 = np.max(np.where(z>=loc))
+                        if i0 + 1 == len(z):
+                            i1 = i0 - 1
+                        else:
+                            i1 = i0 + 1                            
+                            
+                        # Interpolate to the desired `loc` position
+                        z0 = z[i0]
+                        z1 = z[i1]
+                        y0 = particle.sbm.y[i0,:]
+                        y1 = particle.sbm.y[i1,:]
+                        y = (y1 - y0) / (z1  - z0) * (loc - z0) + y0
+                        
+                        # Extract the particle properties
+                        zp = loc
+                        mp = y[3:-1]
+                        Tp = y[-1] / (np.sum(mp) * particle.cp)
+                
+                        # Get the ambient data
+                        Ta, Sa, Pa = self.profile.get_values(zp, ['temperature',
+                            'salinity', 'pressure'])
+                
+                        # Get the diameter
+                        de = particle.diameter(mp, Tp, Pa, Sa, Ta)
+                        Vp = 4./3. * np.pi * (de/2.)**3
+                        Vf = Vp * particle.nb0
+                        if particle.particle.fp_type == 0:
+                            d_gas.append(de)
+                            v_gas.append(Vf)
+                        else:
+                            d_liq.append(de)
+                            v_liq.append(Vf)
+            
                 else:
-                    i1 = i0 + 1
-                z0 = z[i0]
-                z1 = z[i1]
-                y0 = particle.sbm.y[i0,:]
-                y1 = particle.sbm.y[i1,:]
-                y = (y1 - y0) / (z1  - z0) * (loc - z0) + y0
-                
-                # Extract the particle properties
-                zp = loc
-                mp = y[3:-1]
-                Tp = y[-1] / (np.sum(mp) * particle.cp)
-                
-                # Get the ambient data
-                Ta, Sa, Pa = self.profile.get_values(zp, ['temperature',
-                    'salinity', 'pressure'])
-                
-                # Get the diameter
-                de = particle.diameter(mp, Tp, Pa, Sa, Ta)
-                Vp = 4./3. * np.pi * (de/2.)**3
-                Vf = Vp * particle.nb0
-                if particle.particle.fp_type == 0:
-                    d_gas.append(de)
-                    v_gas.append(Vf)
-                else:
-                    d_liq.append(de)
-                    v_liq.append(Vf)
+                    # This particle did not leave the plume; hence, it was 
+                    # not tracked in the far field.
+                    if particle.particle.fp_type == 0:
+                        d_gas.append(np.nan)
+                        v_gas.append(np.nan)
+                    else:
+                        d_liq.append(np.nan)
+                        v_liq.append(np.nan)
         
         else:
             print('\nERROR:  Requested simulation data unknown.')
@@ -2609,14 +2641,17 @@ class Particle(dispersed_phases.PlumeParticle):
         if not isinstance(self.sbm.particle.particle, dbm.InsolubleParticle):
             for i in range(len(self.sbm.t)):
                 m = self.sbm.y[i,3:-1]
-                T = self.sbm.y[i,-1] / (np.sum(m) * self.sbm.particle.cp)
-                Ta, Sa, Pa = self.sbm.profile.get_values(z[i], ['temperature',
-                    'salinity', 'pressure'])
-                (us, rho_p, A, Cs[i,:], beta, beta_t, T) = \
-                    self.sbm.particle.properties(m, T, Pa, Sa, Ta, t[i])
-                Ca = self.sbm.profile.get_values(z[i], 
-                    self.particle.composition)
-                md_p[i,:] = A * self.nb0 * beta / us * (Cs[i,:] - Ca)
+                if np.sum(m) <= 0.:
+                    md_p[i,:] = 0.
+                else:
+                    T = self.sbm.y[i,-1] / (np.sum(m) * self.sbm.particle.cp)
+                    Ta, Sa, Pa = self.sbm.profile.get_values(z[i], ['temperature',
+                        'salinity', 'pressure'])
+                    (us, rho_p, A, Cs[i,:], beta, beta_t, T) = \
+                        self.sbm.particle.properties(m, T, Pa, Sa, Ta, t[i])
+                    Ca = self.sbm.profile.get_values(z[i], 
+                        self.particle.composition)
+                    md_p[i,:] = A * self.nb0 * beta / us * (Cs[i,:] - Ca)
         
         # When the atmospheric gases are stripped from the water column, 
         # the dissolution rate appears negative...it should be zero

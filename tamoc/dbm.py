@@ -664,20 +664,32 @@ class FluidMixture(object):
             # Get the mole fractions and K-factors at equilibrium
             if not isinstance(K, type(None)):
                 K = K[mi]
-            xip, beta, Kp = equil_MM(m[mi], T, P, self.M[mi], self.Pc[mi], 
-                self.Tc[mi], self.omega[mi], self.delta[np.transpose(mi), mi],
-                self.Aij, self.Bij, self.delta_groups[mi,:][0],
-                self.calc_delta, K)
+
+            # Perform the equilibrium calculation
+            if len(mi[0]) > 0:
+                # There are non-zero components...get the correct equilibrium
+                xip, beta, Kp = equil_MM(m[mi], T, P, self.M[mi], self.Pc[mi], 
+                    self.Tc[mi], self.omega[mi], self.delta[np.transpose(mi), 
+                    mi], self.Aij, self.Bij, self.delta_groups[mi,:][0],
+                    self.calc_delta, K)
             
-            # Put zero-components back into results
-            xi = np.zeros((2, len(m)))
-            K = np.zeros(len(m))
-            xi[0,mi] = xip[0,:]
-            xi[1,mi] = xip[1,:]
-            if np.isnan(Kp[0]):
-                K[:] = np.nan
+                # Put zero-components back into results
+                xi = np.zeros((2, len(m)))
+                K = np.zeros(len(m))
+                xi[0,mi] = xip[0,:]
+                xi[1,mi] = xip[1,:]
+                if np.isnan(Kp[0]):
+                    K[:] = np.nan
+                else:
+                    K[mi] = Kp
+
             else:
-                K[mi] = Kp
+                # None of the components are non-zero (i.e., they are all
+                # zero or negative)...let the equil_MM() return a bogus 
+                # result using all the data.
+                xi, beta, K = equil_MM(m, T, P, self.M, self.Pc, 
+                    self.Tc, self.omega, self.delta, self.Aij, self.Bij,
+                    self.delta_groups, self.calc_delta, K)
             
         else:
             # Get the mole fractions and K-factors at equilibrium
@@ -692,7 +704,7 @@ class FluidMixture(object):
         # non-zero component in the mixture (note that this is independent of 
         # which component you pick):
         idx = 0
-        while m[idx] <= 0.:
+        while idx < (len(m) - 1) and m[idx] <= 0.:
             idx += 1
         ng = np.abs((n_tot[idx] - (xi[1,idx] * np.sum(n_tot))) / 
             (xi[0,idx]-xi[1,idx]))
@@ -2612,8 +2624,9 @@ def equil_MM(m, T, P, M, Pc, Tc, omega, delta, Aij, Bij, delta_groups,
                                            calc_delta, K, zi, di)
             
             # Keep the K-values with the lowest Gibbs energy
+            # SAS 3/7/24:  I think the input should be K_st.  Changing K-> K_st
             Delta_G_RT_st, tpdx_st, tpdy_st, phi_liq_st, phi_gas_st = \
-                gibbs_energy(K)
+                gibbs_energy(K_st)
             if Delta_G_RT_st < Delta_G_RT:
                 K = K_st
             
@@ -2653,7 +2666,7 @@ def equil_MM(m, T, P, M, Pc, Tc, omega, delta, Aij, Bij, delta_groups,
         xi[1,:] = zi
         xi[0,:] = 0.
         K = np.zeros(K.shape) + np.nan
-    
+        
     # Return the optimized mixture composition
     return (xi, beta, K)
 
@@ -2861,11 +2874,11 @@ def stability_analysis(m, T, P, M, Pc, Tc, omega, delta, Aij, Bij,
             K = K_liq
             phases = 2
     elif phases_gas > 1:
-        # This is proably a gas-like mixture
+        # This is potentially a mixture containing a little gas
         K = K_gas
         phases = 2
     elif phases_liq > 1:
-        # This is probably a liquid-like mixture
+        # This is potentially a mixture containing a little liquid
         K = K_liq
         phases = 2
     else:

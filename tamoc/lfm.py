@@ -103,7 +103,7 @@ def slot_derivs(t, y, parcel, p):
     T = parcel.T
     
     # Compute the advection step
-    yp[0] = parcel.us
+    yp[0] = parcel.us / parcel.tortuosity
     
     # Compute the mass transfer and biodegradation
     md_diss = - parcel.As * parcel.K * parcel.beta * (parcel.Cs - parcel.Ca)
@@ -127,7 +127,7 @@ def slot_derivs(t, y, parcel, p):
     return yp
 
 
-def calculate(t0, y0, parcel, p, delta_t, s_max):
+def calculate(t0, y0, parcel, p, delta_t, s_max, full_echo):
     """
     Simulate the subsurface fracture
     
@@ -146,7 +146,10 @@ def calculate(t0, y0, parcel, p, delta_t, s_max):
         Maximum step size to use in the adaptive-step-size ODE solver (s)
     s_max : float
         Maximum along-path distance (m) to compute
-    
+    full_echo : bool
+        Flag indicating whether to print the full progress to the screen
+        or to minimize the printed output during the simulation.
+        
     Returns
     -------
     t : ndarray
@@ -194,7 +197,7 @@ def calculate(t0, y0, parcel, p, delta_t, s_max):
     while r.successful() and not stop:
         
         # Print progress to the screen
-        if k % psteps == 0:
+        if k % psteps == 0 and full_echo:
             print('   Distance: %g (m), t: %g (hr), k: %d, m: %g' %
                 (r.y[0], r.t/60./60., k, np.sum(r.y[1:-1])))
         
@@ -220,30 +223,30 @@ def calculate(t0, y0, parcel, p, delta_t, s_max):
             if r.y[0] >= s_max:
                 # We integrated up to the maximum allowable distance
                 stop = True
-                print('\n -> Reached maximum downstream distance...')
+                print('   ->Reached maximum downstream distance...')
             
             if np.sum(parcel.beta) == 0:
                 # Mass transfer coefficients are all zero...stop integration
                 stop = True
-                print('\n -> All petroleum components dissolved...')
+                print('   ->All petroleum components dissolved...')
             
             if np.sum(np.where(np.isnan(r.y))) > 0:
                 # The solution is no longer valid...stop integration
                 stop = True
-                print('\n -> State space contains NaN values...')
+                print('   ->State space contains NaN values...')
             
             if k > k_limit:
                 # Reached iteration limit
                 stop = True
-                print('\n -> Reached maximum number of iterations...')
+                print('    ->Reached maximum number of iterations...')
             
             if parcel.xp[2] <= parcel.fracture.H:
                 # Reached the top of the subsurface layer
                 stop = True
-                print('\n -> Reached the mud line...')
+                print('   ->Reached the mud line...')
         
         else:
-            print('\n -> ODE Solver stopped automatically...')
+            print('   ->ODE Solver stopped automatically...')
     
     # Convert the solution vectors to numpy arrays
     t = np.array(t)
@@ -251,15 +254,16 @@ def calculate(t0, y0, parcel, p, delta_t, s_max):
     derived_vars = np.array(derived_vars)
     
     # Print the final position to the screen
-    print('   Done.  \n\nFinal position:')
-    print('   Distance: %g (m), t: %g (hr), k: %d, m: %g' %
-        (r.y[0], r.t/60./60., k, np.sum(r.y[1:-1])))
+    if full_echo:
+        print('   Done.  \n\nFinal position:')
+        print('   Distance: %g (m), t: %g (hr), k: %d, m: %g' %
+            (r.y[0], r.t/60./60., k, np.sum(r.y[1:-1])))
     
     # Return the results
     return (t, y, derived_vars)
 
 
-def main_ic(s0, T0, fracture, mass_frac, fluid, profile, p):
+def main_ic(s0, d_mdot, T0, fracture, mass_frac, fluid, profile, p):
     """
     Create the initial state space vector for a fracture simulation
     
@@ -267,6 +271,9 @@ def main_ic(s0, T0, fracture, mass_frac, fluid, profile, p):
     ----------
     s0 : float
         Initial position along the fracture pathway (m)
+    d_mdot : float
+        Value to increase the mass flux by at the base of the solution
+        compared to the value coming from the UT Fracture Model, (kg/s)
     T0 : float
         Initial temperature (K) of the fracture fluid.  If set to `None`, then
         the local temperature at the initial point will be used.
@@ -307,11 +314,12 @@ def main_ic(s0, T0, fracture, mass_frac, fluid, profile, p):
         'oil_velocity', 'oil_density'])
     
     # Compute the initial mass flux
-    m0_dot = rho_0 * (u0 * w0 * fracture.Lx)
+    m0_dot = rho_0 * (u0 * w0 * fracture.Lx) + d_mdot
     
-    # Create the initial Lagrangian element
+    # Get the initial temperature and water and petroleum pressure
     if isinstance(T0, type(None)):
-        T0 = profile.get_values(x0[2], 'temperature')
+        T0, Pw, Pp = profile.get_values(x0[2], ['temperature', 
+            'pore_water_pressure', 'pore_petroleum_pressure'])
     
     # Make the initial Lagrangian element 10 times taller than the 
     # fracture aperture

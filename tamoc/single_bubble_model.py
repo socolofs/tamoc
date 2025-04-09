@@ -300,6 +300,145 @@ class Model(object):
         # Restart heat transfer
         self.particle.K_T = self.K_T0
 
+    def get_derived_variables(self, track_chems=None):
+        """
+        Extract an array of derived variables for the present model solution
+        
+        The single bubble model state space does not include several fluid
+        particle properties that may also be of interest for interrogating the
+        model results, including diameter, rise velocity, and mass transfer
+        coefficient.  This method computes these quantities at every model
+        time step and assembles the data, together with much of the state
+        space data, into a single array.  The variable names of each column
+        in the array are contained in the output parameter `var_names`.  
+        
+        Parameters
+        ----------
+        track_chems : list, default=None
+            A list of string names for the chemicals to include in the output
+            file.  The default is `None`, which will cause this method to save
+            all tracked chemicals.
+        
+        Returns
+        -------
+        data : ndarray
+            The array of output data written to disk
+        var_names : list
+            A list of string names describing the data returned.  Each
+            element of this list describes a column of the data in `data`
+                 
+        """
+        # Create a template to save each variable
+        def store_val(data, val, i, col, var_names, var_name):
+            """
+            Insert a value into the data array
+            
+            Insert the value `val` into position data[i,col].  If these
+            `var_name` is not in the `var_names` list, append it to the
+            list.  Return the index to the next column.  `data` and 
+            `var_names` are automatically updated because they are mutable
+            and passed by reference.
+            
+            """
+            if i == 0:
+                var_names.append(var_name)
+            data[i,col] = val
+            return (col + 1)
+        
+        # Check if the simulation has been computed
+        if not self.sim_stored:
+            print('\nERROR:  You must run a simulation before computing the')
+            print('        derived output.  Use the method simulate() to ')
+            print('        conduct the required simulation. \n')
+            return (np.array([0]), '')
+        
+        # Get the names of each chemical and those we want to track
+        chem_names = self.particle.composition.copy()
+        if isinstance(track_chems, type(None)):
+            track_chems = chem_names.copy()
+        
+        # Figure out how many chemicals are tracked
+        num_c = len(track_chems)
+        
+        # Create a blank list to store annotated variable names
+        var_names = []
+        
+        # Compute the number of needed output columns (adapt this line as 
+        # additional outputs are added in the lines below)
+        num_cols = 4 + 2 * num_c + 6
+        
+        # Create a data array to hold this data
+        data = np.zeros((len(self.t), num_cols))   
+        
+        # Loop through each time step, compute the derived variables, and save 
+        # them to the output array in the appropriate locations
+        for i in range(len(self.t)):
+            
+            # Get the desired output from the solution state space
+            t = self.t[i]
+            x, y, z = self.y[i,:3]
+            m = self.y[i,3:-1]
+            Tp = self.y[i,-1] / (np.sum(m) * self.particle.cp)
+            
+            # Get the ambient profile data
+            Ta, Sa, Pa = self.profile.get_values(z, ['temperature',
+                'salinity', 'pressure'])
+
+            # Get the derived particle properties
+            (us, rho_p, Ap, Cs, beta, beta_T, Tp) = \
+                self.particle.properties(m, Tp, Pa, Sa, Ta, t)
+            
+            # Get the particle diameter
+            de = self.particle.diameter(m, Tp, Pa, Sa, Ta)
+            
+            # Initialize the column counter
+            col = 0
+            
+            # Store the particle trajectory
+            col = store_val(data, t, i, col, var_names, 
+                'Simulation time (s)')
+            col = store_val(data, x, i, col, var_names,
+                'Particle x-coordinate (m)')
+            col = store_val(data, y, i, col, var_names,
+                'Particle y-coordinate (m)')
+            col = store_val(data, z, i, col, var_names,
+                'Particle z-coordinate (m)')
+            
+            # Store the masses of the tracked chemicals in the particle
+            for chem in track_chems:
+                if chem in self.particle.composition:
+                    mi = m[self.particle.composition.index(chem)]
+                else:
+                    mi = 0.
+                col = store_val(data, mi, i, col, var_names,
+                    'Mass of %s in particle (kg)' % (chem))
+            
+            # Store the temperature of the particle
+            col = store_val(data, Tp, i, col, var_names,
+                'Particle temperature (K)')
+            
+            # Store the useful derived variables
+            col = store_val(data, us, i, col, var_names,
+                'Slip velocity (m/s)')
+            col = store_val(data, rho_p, i, col, var_names,
+                'Particle density (kg/m^3)')
+            col = store_val(data, de, i, col, var_names,
+                'Particle diameter (m)')
+            col = store_val(data, np.sum(m), i, col, var_names,
+                'Total mass of all compounds in particle (kg)')
+            for chem in track_chems:
+                if chem in self.particle.composition:
+                    beta_i = beta[self.particle.composition.index(chem)]
+                else:
+                    beta_i = 0.
+                col = store_val(data, beta_i, i, col, var_names,
+                    'Mass transfer coefficient of %s (m/s)' % (chem))
+            col = store_val(data, beta_T, i, col, var_names,
+                'Heat transfer coefficient (m/s)')
+            
+        # Return the data and header information
+        return (data, var_names, num_c)
+    
     def save_sim(self, fname, profile_path, profile_info):
         """
         Save the current simulation results
@@ -337,7 +476,8 @@ class Model(object):
 
         # Create the netCDF dataset object
         title = 'Simulation results for the TAMOC Single Bubble Model'
-        nc = model_share.tamoc_nc_file(fname, title, profile_path, profile_info)
+        nc = model_share.tamoc_nc_file(fname, title, profile_path, 
+            profile_info)
 
         # Create variables for the dimensions
         z = nc.createDimension('z', None)
@@ -451,6 +591,67 @@ class Model(object):
         with open(base_name + '_header.txt', 'w') as txt_file:
             txt_file.write(header)
 
+    def save_derived_variables(self, fname, track_chems=None):
+        """
+        Save an ASCII text file of derived simulation results
+        
+        The single bubble model state space output, which may be obtained
+        from the `save_txt` method, does not include some of the valuable 
+        properties of the fluid particles, such as their diameter, rise
+        velocity, and mass transfer coefficients.  This function computes
+        these derived variables at each simulation time step and saves these
+        along the trajectory with the other model data, including position,
+        masses of selected compounds, and temperature. 
+        
+        Parameters
+        ----------
+        fname : str
+            File name with absolute or relative file path for the ASCII data
+            file to write. Include the full file name including any needed
+            relative or absolute file path information.  This method uses
+            `np.savetxt` to create the output file.
+        track_chems : list, default=None
+            A list of string names for the chemicals to include in the output
+            file.  The default is `None`, which will cause this method to save
+            all tracked chemicals.
+        
+        Returns
+        -------
+        data : ndarray
+            The array of output data written to disk
+        header : str
+            The string header describing the data written to disk
+                
+        """
+        # Get the derived variables
+        data, var_names, num_c = self.get_derived_variables(track_chems)
+
+        # If the data exist, prepare and right the file.
+        if data.shape[0] > 1:
+            # Build an output header
+            header = 'Derived output data from the TAMOC ' + \
+                'Single Bubble Model\n'
+            header += 'Created on:  ' + \
+                datetime.now().strftime("%Y-%m-%d %H:%M:%S") + '\n\n'
+            header += 'Data are stored in the following order:\n'
+            col = 0
+            for name in var_names:
+                header += '    Col %3.3d:  ' % (col) + name + '\n'
+                col += 1
+            header += '\nThere are %3.3d chemicals ' % (num_c) + \
+                'tracked in this output.\n'
+        
+        # Determine what file name to use
+        ext = fname.split('.')[-1]
+        if len(ext) != 3:
+            fname += '.txt'
+        
+        # Write the data to a file
+        np.savetxt(fname, data, header=header)
+        
+        # Return the data sets    
+        return (data, header)
+    
     def load_sim(self, fname):
         """
         Load in a saved simulation result file for post-processing
@@ -642,7 +843,6 @@ def calculate_path(profile, particle, p, y0, delta_t):
 
         # Perform one step of the integration
         r.integrate(t[-1] + delta_t, step=True)
-
         # Store the results
         if particle.K_T == 0:
             # Make the state-space heat correct

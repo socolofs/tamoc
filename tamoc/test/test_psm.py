@@ -575,18 +575,17 @@ def test_psm_Model():
     # Try a case with no gas -------------------------------------------------
     spill.update_z0(1000.)
     spill.simulate(d0, model_gas='wang_etal', model_oil='sintef')
+
     # Create the particle size distributions
     nbins_gas = 10
     nbins_oil = 15
     de_gas_model, vf_gas_model, de_oil_model, vf_oil_model = \
         spill.get_distributions(nbins_gas, nbins_oil)
-
     de_max_oil = 0.017327034580027646
     d50_gas = 0.0
     d50_oil = 0.007683693892124441
-    de_gas = np.array([np.nan, np.nan, np.nan, np.nan, np.nan, np.nan,
-        np.nan, np.nan, np.nan, np.nan])
-    vf_gas = np.array([0., 0., 0., 0., 0., 0., 0., 0., 0., 0.])
+    de_gas = np.array([])
+    vf_gas = np.array([])
     de_oil = np.array([0.00082131, 0.00103591, 0.00130657, 0.00164796,
         0.00207855, 0.00262164, 0.00330664, 0.00417061, 0.00526033,
         0.00663478, 0.00836835, 0.01055487, 0.0133127 , 0.01679111,

@@ -1,3 +1,38 @@
+V3.4.1, April 2025 --
+   . Updated the bent plume model `Model` class method for `report_psds` so 
+     that it will output results whether or not particles reached the 
+	 required output depth.  If particles did not reach this depth, their
+	 output values are set to not a number.  
+   . Updated the bent plume model `Model` class methods `report_mass_fluxes`, 
+     `report_surfacing_fluxes`, and `report_psds` so that they do not fail when 
+     particles are tracked in the far field, but some particles fully dissolve 
+     within the plume so that their far-field results do not exist.  
+   . Updated the bent plume model `Particle` class method for
+     `_create_concentration_model` so that it catches fully-dissolved 
+     particles and does not count them in the mass balance calculations.
+   . Updated the discrete bubble model `FluidMixture` class `equilibrium` 
+     method so that equilibrium is only calculated over the set of non-zero
+     components of the mixture.  The matters, for example, when a mixture is
+     initialized with atmospheric gas compounds but having zero mass.  These
+     zero-mass components effect the fugacity coefficients slightly.  The
+     revised function only allows calculations with non-zero components
+     included.  
+   . Updated line 2629 in dbm.py to have K_st as the argument to the 
+     `gibbs_energy` function instead of K.  This makes logical sense, but it
+     did not have any affect of the results.
+   . Made various updates and changes the the subsurface fracture model and 
+     its associated lfm.py module.  This is a beta model for subsurface 
+     modeling (below seabed fracture seepage).  This model has been moved to
+     another package and will be updated when it can be released in its 
+     1.0.0 version.   
+   . Added a method `get_derived_variables` and `save_derived_variables` to 
+     the `single_bubble_model` to save a text file that includes the state
+	 space data together with bubble size, density, slip velocity, and 
+	 heat and mass transfer coefficients.  These methods are similar to the
+	 same methods already present in the `bent_plume_model` and 
+	 `stratified_plume_model`. 
+   . Updated the documentation to reflect all changes.
+   . Updated the tests to ensure they all pass.
 V3.4.0, January 2024 -- 
    . Updated the Fortran subroutine for solving the cubic roots in
      math_funcs.f95. For single-phase fluids with one real root, the original

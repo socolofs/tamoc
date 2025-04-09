@@ -276,7 +276,7 @@ class ModelBase(object):
         self.model_oil = model_oil
         self.pdf_gas = pdf_gas
         self.pdf_oil = pdf_oil
-
+        
         # Get the gas bubble size distribution
         if model_gas == 'wang_etal':
             # Get the parameters of the distribution
@@ -976,13 +976,17 @@ class Model(ModelBase):
     distributions using the ``TAMOC`` plume models.
 
     """
-    def __init__(self, profile, oil, m, z0, Tj=None, Pj=None):
+    def __init__(self, profile, oil, m, z0, Tj_user=None, Pj_user=None):
 
+        # Record the initial user input for Tj and Pj
+        self.Tj_user = Tj_user
+        self.Pj_user = Pj_user
+        
         # Compute and store the oil properties
-        self.update_properties(profile, oil, m, z0, Tj, Pj)
+        self.update_properties(profile, oil, m, z0, Tj_user, Pj_user)
 
-    def update_properties(self, profile, oil_mixture, m_mixture, z0, Tj,
-        Pj):
+    def update_properties(self, profile, oil_mixture, m_mixture, z0, Tj_user,
+        Pj_user):
         """
         Set the thermodynamic properties of the released and receiving fluids
 
@@ -1001,10 +1005,10 @@ class Model(ModelBase):
             live-oil mixture.
         z0 : float
             Release point of the jet orifice (m)
-        Tj : float, default=None
+        Tj_user : float, default=None
             Temperature of the released fluids (K). The default value of `None`
             means that the ambient value should be used.
-        Pj : float, default=None
+        Pj_user : float, default=None
             Pressure of the released fluids (Pa). If the fluids are undergoing
             a phase change, they may not be able to adjust immediately to the
             ambient pressure. This allows the user to control the pressure used
@@ -1036,22 +1040,22 @@ class Model(ModelBase):
         self.mu = seawater.mu(self.T, self.S, self.P)
 
         # Set jet temperature and pressure either to ambient or input value
-        if Tj == None:
+        if Tj_user == None:
             # Use ambient temperature
             self.Tj = self.T
         else:
             # Use input temperature
-            self.Tj = Tj
-        if Pj == None:
+            self.Tj = Tj_user
+        if Pj_user == None:
             # Use ambient pressure
             self.Pj = self.P
         else:
-            self.Pj = Pj
+            self.Pj = Pj_user
         
         # Perform the equilibrium calculation
         m_eq, xi, K = self.oil_mixture.equilibrium(self.m_mixture, self.Tj,
             self.Pj)
-                            
+                  
         # Compute the gas phase properties
         if np.sum(m_eq[0,:]) == 0:
             self.gas = None
@@ -1101,7 +1105,8 @@ class Model(ModelBase):
         """
         self.z0 = z0
         self.update_properties(self.profile, self.oil_mixture,
-                               self.m_mixture, self.z0, self.Tj, self.Pj)
+                               self.m_mixture, self.z0, self.Tj_user, 
+                               self.Pj_user)
 
     def update_Tj(self, Tj):
         """
@@ -1113,11 +1118,12 @@ class Model(ModelBase):
             Temperature of the released fluids (K)
 
         """
-        self.Tj = Tj
+        self.Tj_user = Tj
         self.update_properties(self.profile, self.oil_mixture,
-                               self.m_mixture, self.z0, self.Tj, self.Pj)
+                               self.m_mixture, self.z0, self.Tj_user, 
+                               self.Pj_user)
 
-    def update_Pj(self, Tj):
+    def update_Pj(self, Pj):
         """
         Update the pressure of the released fluids in the jet
 
@@ -1127,9 +1133,10 @@ class Model(ModelBase):
             Pressure of the released fluids (Pa)
 
         """
-        self.Pj = Pj
+        self.Pj_user = Pj
         self.update_properties(self.profile, self.oil_mixture,
-                               self.m_mixture, self.z0, self.Tj, self.Pj)
+                               self.m_mixture, self.z0, self.Tj_user, 
+                               self.Pj_user)
     
     def update_m_mixture(self, m_mixture):
         """
@@ -1144,7 +1151,8 @@ class Model(ModelBase):
         """
         self.m_mixture = m_mixture
         self.update_properties(self.profile, self.oil_mixture,
-                               self.m_mixture, self.z0, self.Tj, self.Pj)
+                               self.m_mixture, self.z0, self.Tj_user, 
+                               self.Pj_user)
 
     def simulate(self, d0, model_gas='wang_etal', pdf_gas='lognormal',
                  model_oil='sintef', pdf_oil='rosin-rammler'):

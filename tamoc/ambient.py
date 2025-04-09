@@ -2566,7 +2566,7 @@ def stabilize(raw):
     
     # Build an interpolator that contains the stable rows
     f = interp1d(raw[rows,0], raw[rows,1:].transpose())
-    
+
     # Fill the T, S, and P variables of raw with the stabilized data while 
     # keeping the variability of all the other data on the original grid
     for i in range(len(raw[:,0])):

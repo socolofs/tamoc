@@ -35,6 +35,10 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
+try:
+    from tamoc import dbm_f
+except ImportError:
+    from tamoc import dbm_p as dbm_f
 
 class Model(object):
     """
@@ -90,7 +94,8 @@ class Model(object):
         # Set the simulation flag to false
         self.sim_stored = False
         
-    def simulate(self, t0, s0, mass_frac, T0, fluid, dt_max, s_max):
+    def simulate(self, t0, s0, mass_frac, d_mdot, T0, fluid, dt_max, s_max,
+        full_echo):
         """
         Simulate the petroleum fluid migration along the fracture network
         
@@ -103,6 +108,9 @@ class Model(object):
         mass_frac : ndarray
             Array of mass fractions (--) for each component in the petroleum
             fluid model
+        d_mdot : float
+            Value to increase the mass flux by at the base of the solution
+            compared to the value coming from the UT Fracture Model, (kg/s)
         T0 : float
             Initial temperature of the released oil (K).  Set to `None` if 
             the ambient temperature at the initial point should be used.
@@ -117,41 +125,143 @@ class Model(object):
             Maximum distance along the fracture to compute (m). If `None`, then
             the simulation will proceed to the seafloor or the end of the given
             fracture network
+        full_echo : bool
+            Flag indicating whether to print the full progress to the screen
+            or to minimize the printed output during the simulation.
         
         """
         # Store the input data for this simulation
         self.t0 = t0
         self.s0 = s0
         self.mass_frac = mass_frac
+        self.d_mdot = d_mdot
         self.T0 = T0
         self.fluid = fluid
         self.dt_max = dt_max
         self.s_max = s_max
+        self.full_echo = full_echo
         
         # If the user set s_max = None, use the full fracture pathway
         if isinstance(self.s_max, type(None)):
             self.s_max = self.fracture.s_max
         
         # Create an initial state-space vector from the given input variables
-        self.y0, self.m0_dot = lfm.main_ic(self.s0, self.T0, self.fracture, 
-            self.mass_frac, self.fluid, self.profile, self.p)
+        self.y0, self.m0_dot = lfm.main_ic(self.s0, self.d_mdot, self.T0, 
+            self.fracture, self.mass_frac, self.fluid, self.profile, self.p)
         
         # Create a local LagParcel object to translate the state space
         self.y_local = LagParcel(self.t0, self.y0, self.m0_dot, self.fracture, 
             self.fluid, self.profile, self.p)
         
         # Compute the evolution along this flow path
-        print('\n-- TEXAS A&M OIL-SPILL CALCULATOR (TAMOC) --')
-        print('-- Subsurface Fracture Model              --\n')
-        print('\nMaximum path length to compute: %g (m)\n' % self.s_max)
+        if self.full_echo:
+            print('\n-- TEXAS A&M OIL-SPILL CALCULATOR (TAMOC) --')
+            print('-- Subsurface Fracture Model              --\n')
+            print('\nMaximum path length to compute: %g (m)\n' % self.s_max)
+        else:
+            print('\n  . Running Fracture Fates Model...')
         self.t, self.y, self.derived_vars = lfm.calculate(
                 self.t0, self.y0, self.y_local, self.p, self.dt_max, 
-                self.s_max
+                self.s_max, self.full_echo
             )
+        print('    Simulation Complete.')
         
         # Set the simulation flag to true
         self.fracture.sim_stored = True
         self.sim_stored = True
+
+    def project_on_hydraulic_grid(self, s_hyd, qp0=None):
+        """
+        Compute the model output on the grid of the hydraulic model
+        
+        Parameters
+        ----------
+        s_hyd : ndarray
+            Array of positions for the grid cells in the hydraulic model, m
+        qp0 : ndarray, default=None
+            Boundary condition for volume flux of petroleum at the seabed, 
+            m^3 / m^2 / s.  If `None`, then assume the computed volume flux
+            matches the desired boundary condition at the seabed.
+        
+        Returns
+        -------
+        mp : ndarray
+            Array of petroleum mass flux with one value at each depth (kg/s)
+        comp_masses : ndarray
+            Array of the mass fluxes of each component of the petroleum 
+            mixture with a row of values computed for each depth (kg/s)
+        dm_needed : float
+            Value of the mass-flux offset needed to adjust the present 
+            model solution to match the given `qp_0` petroleum mass flux
+            at the seabed (kg/s)
+        
+        """
+        # Make sure there are output data
+        if not self.sim_stored:
+            print('You must run the simulate() method first.')
+            print('Stopping...')
+            return (0)
+            
+        # Get the model solution in a coordinate system of increasing depth
+        m, n = self.y.shape
+        z_fates = np.zeros(m)
+        y_fates = np.zeros((m, n+1))
+        j = 0
+        for i in range(m-1, -1, -1): 
+            # Update the Lagranian element with this output
+            self.y_local.update(self.t[i], self.y[i,:])
+            
+            # Extract the depth
+            z_fates[j] = self.y_local.xp[2]
+            
+            # Extract the state space
+            y_fates[j,0] = self.t[i]
+            y_fates[j,1:] = self.y[i,:]
+            
+            # Update the output index counter
+            j += 1
+        
+        # Create an interpolator with these data
+        from scipy.interpolate import make_interp_spline
+        yz = make_interp_spline(z_fates, y_fates, k=1)
+                
+        # Get the total mass flux and mass fluxes of each component at each
+        # height
+        mp = np.zeros(len(s_hyd))
+        comp_masses = np.zeros((len(s_hyd), len(self.y[0,1:-1])))
+        for i in range(len(s_hyd)):
+            
+            # Get the full model solution at this height
+            spi = yz(s_hyd[i])
+            
+            # Extract the s-coordinate and y-vector
+            ti = spi[0]
+            yi = spi[1:]
+            
+            # Update the Lagrangian elemetn
+            self.y_local.update(ti, yi)
+            
+            # Get the component masses 
+            comp_masses[i,:] = self.y_local.mc_dot
+            
+            # Sum all the mass (do not add the offset twice)
+            mp[i] = np.sum(comp_masses[i,:])
+        
+        # Compute the mass-flux offset to match this fates solution to the 
+        # desired petroleum volume flux at the seafloor
+        y0 = yz(s_hyd[0]) 
+        self.y_local.update(y0[0], y0[1:])
+        qp0_m = self.y_local.m_dot / (self.y_local.rho * self.y_local.Ax)
+        if not isinstance(qp0, type(None)):
+            print('Desired and modeled qp0:  ', qp0, qp0_m)
+            dq = qp0 - qp0_m
+        else:
+            print('Simulated seafloor volume flux:  ', qp0_m)
+            dq = 0.
+        dm_needed = dq * self.y_local.rho * self.y_local.Ax
+        
+        # Return the total mass and component mass vectors
+        return (mp, comp_masses, dm_needed, dq)
     
     def plot_state_space(self, fig=2):
         """
@@ -185,6 +295,134 @@ class Model(object):
         # Create the plot
         plot_component_map(self.t, self.y, self.derived_vars, self.y_local, 
             self.fracture, self.p, comps, norm_comp, fig)
+    
+    def prepare_model_output(self, s_out=None, qp0=None):
+        """
+        Create a table of simulation results
+        
+        Create a table of the key simulation results. These data also include
+        all data required to run a hydraulic model simulation coupled to these
+        output results.
+        
+        Parameters
+        ----------
+        s_out : ndarray, default=None
+            Array of positions where the output should be reported.  These
+            may conform to the grid points, for example, in the corresponding
+            hydraulic model simulation.  If `None`, then the numerical grid 
+            of the fates model will be used.
+        qp0 : float, default=None
+            The volume flux of total petroleum at the seabed; this is the 
+            boundary condition used in the hydraulic model.  If `None`, then
+            the simulated volume flux will be used.
+        
+        Returns
+        -------
+        header : str
+            A string describing all of the data in the output table
+        data : ndarray
+            A numpy array of output variables computed at each water depth in
+            the first column of output data
+        
+        """
+        # Get a relevant value for the output grid
+        if isinstance(s_out, type(None)):
+            s_out = self.y[0]
+            
+        # Write the file description
+        header = 'Steady-state Fracture Model Output from the PyFrac\n'
+        header += 'Subsurface Fracture Model (Fates Model)\n\n'
+        
+        # Get the data in tabular format
+        mp, comp_masses, dm_needed, dq = self.project_on_hydraulic_grid(
+            s_out, qp0)
+        
+        # Create an empty matrix to hold the results
+        ns = len(s_out)
+        m,n = comp_masses.shape
+        data = np.zeros((ns, n+5))
+        
+        # Write the header to the table of data and fill the dataset
+        header += 'Each column of data is as follows:\n\n'
+        k = 0
+        
+        # Write each output value with a corresponding header tag
+        header += 'Col %2.2d: Position along fracture (m)\n' % k
+        data[:,k] = s_out
+        k += 1
+        
+        # Get the (x,y,z)-coordinates of each position
+        x = np.zeros((ns, 3))
+        for i in range(ns):
+            x[i,:] = self.fracture.get_x(s_out[i])
+        
+        header += 'Col %2.2d: x-coodinate of fracture (m)\n' % k
+        data[:,k] = x[:,0]
+        k += 1
+        header += 'Col %2.2d: y-coodinate of fracture (m)\n' % k
+        data[:,k] = x[:,1]
+        k += 1
+        header += 'Col %2.2d: z-coordinate of fracture (m)\n' % k
+        data[:,k] = x[:,2]
+        k += 1
+        
+        # Continue with remaining variables 
+        header += 'Col %2.2d: Total petroleum mass flux (kg/s)\n' % k
+        data[:,k] = mp
+        
+        for i in range(len(self.fluid.composition)):
+            header += 'Col %2.2d:  Mass flux of %s (kg/s)\n' % (k, 
+                self.fluid.composition[i])
+            data[:,k] = comp_masses[:,i]
+            k += 1
+        
+        # Return the results
+        return (header, data)
+
+    def write_results(self, fname, s_out=None, qp0=None):
+        """
+        Write a summary data file of the simulation results
+        
+        Write a file containing the results of a fates model simulation.  
+        These results also contain all inputs required to runa coupled
+        simulation using the hydraulic model.  If `s_out` is provided, the 
+        output data are reported at each position `s_out` along the fracture;
+        otherwise, the numerical grid of the present fates model is used.
+        
+        Parameters 
+        ----------
+        fname : str
+            File name to save the data file
+        s_out : ndarray, default=None
+            Array of positions where the output should be reported.  These
+            may conform to the grid points, for example, in the corresponding
+            hydraulic model simulation.  If `None`, then the numerical grid 
+            of the fates model will be used.
+        qp0 : float, default=None
+            The volume flux of total petroleum at the seabed; this is the 
+            boundary condition used in the hydraulic model.  If `None`, then
+            the simulated volume flux will be used.
+        
+        Returns
+        -------
+        header : list
+            A list of strings with each entry being a separate line of the
+            file header.
+        data : ndarray
+            An array of data with each row corresponding to an output position
+            along the fracture and each column described by the `Col` strings
+            in the `header`.
+        
+        """
+        # Get the derived output data
+        header, data = self.prepare_model_output(s_out, qp0)
+        
+        # Save the data to the given file
+        np.savetxt(fname, data, header=header)
+        
+        # Return the data
+        return (header.strip().split('\n'), data)
+
 
 class ModelParams(object):
     """
@@ -202,7 +440,7 @@ class ModelParams(object):
         in days. If `None`, then the default value will be used.
     
     """
-    def __init__(self, t_diss=None):
+    def __init__(self, t_diss=None, tortuosity=None):
         super(ModelParams, self).__init__()
         
         # The maximum vertical distance (m) a fluid parcel may rise before
@@ -230,6 +468,12 @@ class ModelParams(object):
         
         # Set a boolean flag stating whether or not to include biodegradation
         self.no_bio = True
+        
+        # Set a default value for the tortuosity
+        if isinstance(tortuosity, type(None)):
+            self.tortuosity = 4.6
+        else:
+            self.tortuosity = tortuosity
     
                 
 class LagParcel(object):
@@ -269,6 +513,11 @@ class LagParcel(object):
     the masses of each pseudo-component of the oil model in the present
     Lagrangian parcle, and the heat of the Lagrangian parcel.
     
+    The tortuosity used in the simulation is the value stored by this object;
+    the parameters object `p` only stores the default value to use when the
+    network pathway is straight.  This object uses a non-unity tortuosity if the
+    `random_walk` attribute of the `fracture` object is `False`.
+    
     """
     def __init__(self, t0, y0, m0_dot, fracture, fluid, profile, p):
         super(LagParcel, self).__init__()
@@ -292,6 +541,12 @@ class LagParcel(object):
         # Store the initial mass and heat transfer reduction factors
         self.K = self.p.K
         self.K_T = self.p.K_T
+        
+        # Set the tortuosity
+        if self.fracture.random_walk:
+            self.tortuosity = 1.
+        else:
+            self.tortuosity = self.p.tortuosity
         
         # Store variables to track the equilibrium calculations
         self.flash = False
@@ -325,10 +580,11 @@ class LagParcel(object):
         self.xp = self.fracture.get_x(self.s) 
 
         # Get the local ambient conditions
-        self.Ta, self.Sa, self.Pa = self.profile.get_values(self.xp[2], 
-            ['temperature', 'salinity', 'pressure'])
+        self.Ta, self.Sa, self.Pw, self.Pp = self.profile.get_values(
+            self.xp[2], ['temperature', 'salinity', 'pore_water_pressure',
+            'pore_petroleum_pressure'])
         self.Ca = self.profile.get_values(self.xp[2], self.composition)
-        self.rho_a = seawater.density(self.Ta, self.Sa, self.Pa)
+        self.rho_a = seawater.density(self.Ta, self.Sa, self.Pw)
 
         # Get the temperature of the Lagrangian element
         if np.sum(self.m) == 0:
@@ -347,10 +603,10 @@ class LagParcel(object):
         
         # Update the system densities
         self.rho_gas, self.rho_liq, self.alpha, self.rho = \
-            self.density(self.T, self.Pa)
+            self.density(self.T, self.Pp)
         
         # Compute the solubilities at the current conditions
-        self.Cs = self.solubility(self.T, self.Pa, self.Sa)
+        self.Cs = self.solubility(self.T, self.Pw, self.Sa)
         
         # Get the geometric properties of the fracture at the current location
         self.V = np.sum(self.m) / self.rho
@@ -358,7 +614,8 @@ class LagParcel(object):
             self.V)
         
         # Compute the updated mass flow rate
-        self.m_dot = self.m0_dot * np.sum(self.m) / np.sum(self.m0)
+        self.mc_dot = self.m0_dot * self.m / np.sum(self.m0)
+        self.m_dot = np.sum(self.mc_dot)
         
         # Get the advection speed along the fracture
         if self.rho > 0.:
@@ -367,10 +624,10 @@ class LagParcel(object):
             self.us = 0.
         
         # Compute the correlations for mass transfer coefficient
-        self.D = self.fluid.diffusivity(self.T, self.Sa, self.Pa)
-        self.mu = self.viscosity(self.T, self.Pa)
-        self.kh = seawater.k(self.Ta, self.Sa, self.Pa) / \
-            (seawater.density(self.Ta, self.Sa, self.Pa) * seawater.cp())
+        self.D = self.fluid.diffusivity(self.T, self.Sa, self.Pw)
+        self.mu = self.viscosity(self.T, self.Pp)
+        self.kh = seawater.k(self.Ta, self.Sa, self.Pw) / \
+            (seawater.density(self.Ta, self.Sa, self.Pw) * seawater.cp())
         Re = self.rho * self.ws * self.us / self.mu
         Sc = self.mu / (self.rho * self.D)
         Pr = self.mu / (self.rho * self.kh) 
@@ -445,7 +702,7 @@ class LagParcel(object):
             self.xe, self.ye, self.ze = x[:]
             self.Te = T
             self.Se, self.Pe = self.profile.get_values(self.ze, ['salinity',
-                'pressure'])
+                'pore_petroleum_pressure'])
             if not self.flash:
                 self.me, xe, self.Ke = self.fluid.equilibrium(m,
                     self.Te, self.Pe)
@@ -564,7 +821,7 @@ class LagParcel(object):
     
 class SlotFracture(object):
     """
-    Master class controlling generation and behavior a pipe fracture network
+    Master class controlling generation and behavior a slot fracture network
     
     Parameters
     ----------
@@ -594,9 +851,18 @@ class SlotFracture(object):
         Step-size to use when building the network. This scale should
         normally be larger than the in situ bedrock scale. The model
         constructs a network that matches this scale.
+    random_walk : float
+        A flag indicating whether or not to create a fracture path that has a
+        random walk trajectory. `True` will create the random-walk network.
+        `False` will create a straight-path network that matches the UT
+        Fracture Model geometry.
+    full_echo : bool
+            Flag indicating whether to print the full progress to the screen
+            or to minimize the printed output during the simulation.
     
     """
-    def __init__(self, profile, x0, H, Hs, Lx, lc, Cv, delta_s):
+    def __init__(self, profile, x0, H, Hs, Lx, lc, Cv, delta_s, 
+        random_walk=False, full_echo=True):
     
         super(SlotFracture, self).__init__()
         
@@ -609,6 +875,8 @@ class SlotFracture(object):
         self.lc = lc
         self.Cv = Cv
         self.delta_s = delta_s
+        self.random_walk = random_walk
+        self.full_echo = full_echo
         
         # Specify the model equations that can simulate this fracture
         self.derivs = lfm.slot_derivs
@@ -652,27 +920,29 @@ class SlotFracture(object):
         
         """
         # Echo the progress to the screen
-        print('\n-- Generating Fracture Pathway for a Slot Fracture --')
-        print('\nGenerating slot path from %g (m) to %g (m)' % 
-            ((self.Hs + self.H, self.H)))
-        
+        if self.full_echo:
+            print('\n-- Generating Fracture Pathway for a Slot Fracture --')
+            print('\nGenerating slot path from %g (m) to %g (m)' % 
+                ((self.Hs + self.H, self.H)))
+                
         # Compute the psuedo-diffusivity D/u
         self.Du = 340 * self.lc * self.Cv**2 + 0.65
-        
-        # Create a random-walk network of line segments
+    
+        # Create a network of line segments along the centerline of the fracure
         self.xp = slot_fracture_network(self.x0, self.H, self.Hs, self.Du,
-            self.delta_s)
-        
+            self.delta_s, self.random_walk, self.full_echo)
+            
         # Generate a path-length coorinate system and aperture size
         sp = np.zeros(self.xp.shape[0])
         ap = np.zeros(self.xp.shape[0])
-        
+
         # Fill the first point with s = 0 and a = aperature in database
         ap[0] = self.profile.get_values(self.xp[0,2],
             ['aperture_filled_by_oil'])
         
-        print('\nFilling in properties of the fracture pathway:')
-        psteps = 1000
+        if self.full_echo:
+            print('\nFilling in properties of the fracture pathway:')
+        psteps = 10
         for i in range(len(sp) - 1):
             
             # Set the base of this segment at the end of the previous segment
@@ -686,7 +956,7 @@ class SlotFracture(object):
                 ['aperture_filled_by_oil'])
                         
             # Echo progress to the screen
-            if i % psteps == 0.:
+            if i % psteps == 0. and self.full_echo:
                 print('    Depth : %g (m), Node:  %d of %d, a: %g (mm)' 
                     % (self.xp[i+1,2], i, len(sp) - 1, 1000 * ap[i+1]))
         
@@ -862,6 +1132,41 @@ def load_UT_fracture_data(fname):
     # Load the dataset
     ut_model = np.loadtxt(fname)
     
+    # Get the desired data from the header and dataset
+    profile, H, Hs, Lx = get_UT_fracture_data(header, ut_model)
+    
+    # Return the data
+    return (profile, H, Hs, Lx)
+
+def get_UT_fracture_data(header, ut_model):
+    """
+    Create fates-model input from hydraulic model output
+    
+    Parse the header and footer of the UT Fracture Model output to get the
+    the output data in a format that can be used by the fates model.
+    
+    Parameters
+    ----------
+    header : str
+        Header of the output file
+    ut_model : ndarray
+        Array of output data saved by the `write_tamoc_input` method of the
+        UT fracture model
+    
+    Returns
+    -------
+    profile : `ambient.Profile`
+        An `ambient.Profile` object that contains the vertical profile data
+        (temperature, salinity, pressure, aperture, etc.) loaded from the UT 
+        model output
+    H : float
+        The water depth (m) at the seafloor
+    Hs : float
+        The thickness (m) for the subsurface layer
+    Lx : float
+        The length of the UT model domain (m)
+    
+    """
     # Parse the simulation parameters from the header block
     for line in header:
         if 'Seafloor' in line:
@@ -899,9 +1204,14 @@ def load_UT_fracture_data(fname):
             Hs = ut_model[-1, ut_vars.index(var)]
             ut_model[:, ut_vars.index(var)] += H
             ut_vars[ut_vars.index(var)] = 'z'
+        elif var == 'depth':
+            Hs = ut_model[-1, ut_vars.index(var)] - \
+                ut_model[0, ut_vars.index(var)]
+            ut_vars[ut_vars.index(var)] = 'z'
     
-    # Create the ambient Profile object using this data
-    profile = ambient.Profile(ut_model, ztsp_units=ut_units[0:4],
+    # Create the ambient Profile object using this data\
+    profile = ambient.Profile(ut_model, ztsp=['z', 'temperature', 'salinity', 
+        'pore_water_pressure'], ztsp_units=ut_units[0:4],
         chem_names=ut_vars[4:], chem_units=ut_units[4:], err=0., 
         stabilize_profile=False)
     
@@ -913,7 +1223,7 @@ def load_UT_fracture_data(fname):
 # Functions to create a wandering fracture pathway
 # -----------------------------------------------------------------------------
 
-def slot_fracture_network(x0, H, Hs, Du, delta_s):
+def slot_fracture_network(x0, H, Hs, Du, delta_s, random_walk, full_echo):
     """
     docstring for slot_fracture_network
     
@@ -930,26 +1240,42 @@ def slot_fracture_network(x0, H, Hs, Du, delta_s):
     mu = 0.
     sigma = 1.
     
+    # Tell the user the type of network that will be created
+    if full_echo:
+        if random_walk:
+            print('Creating a random-walk network...')
+        else:
+            print('Creating a straight-line network...')
+    
     # Find points along the fracture network until we reach the seabed
     psteps = 1000
     k = 0
     while x[-1][2] > H:
         
-        # Generate the next point along the trajectory...first, the random
-        # step
-        x_new = np.zeros(3)
-        r = norm.rvs(mu, scale=sigma, size=3)
-        x_new[:2] = x[-1][:2] + r[:2] * np.sqrt(Du * delta_s)
+        # Generate the next point along the trajectory
+        if random_walk:
+            # First, the random step
+            x_new = np.zeros(3)
+            r = norm.rvs(mu, scale=sigma, size=3)
+            x_new[:2] = x[-1][:2] + r[:2] * np.sqrt(Du * delta_s)
         
-        # ...then, the deterministic, pseudo-advection step
-        x_new[2] = x[-1][2] - delta_s
+            # Then, the deterministic, pseudo-advection step
+            x_new[2] = x[-1][2] - delta_s
+        
+        else:
+            # First the x and y coordinates
+            x_new = np.zeros(3)
+            x_new[:2] = x[-1][:2]
+            
+            # And the vertical coorindate
+            x_new[2] = x[-1][2] - delta_s
         
         # Append this point to the network
         x.append(x_new)
         k += 1
         
         # Print the progress to screen
-        if k % psteps == 0:
+        if k % psteps == 0 and full_echo:
             print('    -> Adding step %d at depth %g (m)' % (k, x[-1][2]))
     
     # Convert to a numpy array
@@ -961,7 +1287,8 @@ def slot_fracture_network(x0, H, Hs, Du, delta_s):
         x[-1,:] = dl * (x[-1,:] - x[-2,:]) + x[-2,:]
     
     # Echo progress to screen
-    print('    = Created network with %d nodes' % k)
+    if full_echo:
+        print('    Created network with %d nodes' % k)
     
     return (x)
 
@@ -1033,6 +1360,10 @@ def read_pvtsim_data(stout, sol=None, user_data={}, tamoc_names={}):
     dbm_obj = dbm.FluidMixture(composition, delta=delta, user_data=data)
     mass_frac = dbm_obj.mass_frac(mol_frac)
     
+    # Match the solubilities if solubility data is available
+    if not isinstance(sol, type(None)):
+        dbm_obj = match_kh_0(dbm_obj, mass_frac, data)
+
     return (composition, mass_frac, dbm_obj, data, units)
 
     
@@ -1242,28 +1573,62 @@ def extract_pvtsim_solubilities(composition, data, units, sol_fname):
     P = df_PT.iloc[1,1] * 1000.    # Pa
     T = df_PT.iloc[2,1]            # K
     
-    # Read the mol % results at this PT condition for the aqueous phase
-    df_sol = pd.read_excel(sol_fname, sheet_name='Compositions', header=5,
-        usecols=[1, 2, 3, 4, 5], nrows=len(composition) + 2)
+    # Figure out which phases are present in the flash calculation
+    df = pd.read_excel(sol_fname, sheet_name='Compositions')
+    phase_list = df.iloc[4,2:].to_list()
+    n_phases = len(phase_list)
     
+    # Read the mol % results at this PT condition for the aqueous phase
+    if n_phases == 3:
+        # Should contain Total, Vapor or Liquid, and Aqueous
+        df_sol = pd.read_excel(sol_fname, sheet_name='Compositions', header=5,
+            usecols=[1, 2, 3, 4], nrows=len(composition) + 2)
+            
+    elif n_phases == 4:
+        # Should contain Total, Vapor, Liquid, Aqueous
+        df_sol = pd.read_excel(sol_fname, sheet_name='Compositions', header=5,
+            usecols=[1, 2, 3, 4, 5], nrows=len(composition) + 2)
+    
+    
+    # Figure out which column might be zero
+    zero_col = -1
+    if 'Vapor' not in phase_list:
+        zero_col = 1
+    elif 'Liquid' not in phase_list:
+        zero_col = 2
+
     # Put the data into a usable dictionary
     sol_data = {}
     for i in range(len(composition) + 2):
 
         # Create an array to store the total, vapor, liquid, aqueous data
         comp_data = np.zeros(4)
-        
+
         # Extract the data
+        k = 1
         for j in range(4):
-            comp_data[j] = df_sol.iloc[i,j+1]
-        
+            
+            if j == zero_col:
+                comp_data[j] = 0.0
+            else:
+                comp_data[j] = df_sol.iloc[i,k]
+                k += 1
+    
         # Add the data to the dictionary
         sol_data[df_sol.iloc[i,0]] = comp_data
     
     # Read the bulk properties
-    df_prop = pd.read_excel(sol_fname, sheet_name='Properties',
-        header=11, usecols=[1, 2, 3, 4, 5], nrows=21)
-    Vm = df_prop.iloc[2,4]  # molar volume in m^3/mol
+    if n_phases == 3:
+        # Should contain Total, Vapor or Liquid, and Aqueous
+        df_prop = pd.read_excel(sol_fname, sheet_name='Properties', 
+            header=11, usecols=[1, 2, 3, 4], nrows=21)
+        Vm = df_prop.iloc[2,3]
+        
+    elif n_phases == 4:
+        # Should contain Total, Vapor, Liquid, Aqueous
+        df_prop = pd.read_excel(sol_fname, sheet_name='Properties',
+            header=11, usecols=[1, 2, 3, 4, 5], nrows=21)
+        Vm = df_prop.iloc[2,4]  # molar volume in m^3/mol
     
     # Calculate the solubility of each compound in kg/m^3
     for comp in composition:
@@ -1435,7 +1800,80 @@ def est_kh_0(data):
     # Get the temperature and pressure where we know solubilities
     return 0
 
-
+def match_kh_0(dbm_obj, mass_frac, data):
+    """
+    Match the solubility predicted by PVT Sim
+    
+    If solubility data are available from PVT Sim, this function will find
+    the Henry's coefficient that gives the same solubility as the measured
+    values for the requested component.
+    
+    Parameters
+    ----------
+    dbm_obj : `dbm.FluidMixture`
+        A `tamoc` discrete bubble model `FluidMixture` object that contains
+        the model we want to fit to the measured data
+    mass_frac : ndarray
+        Array of mass fractions for each pseudo-component in the mixture.
+    data : dict
+        The present dictionary of property data for each pseudo-component.
+        This dictionary must include a `solubitilty` key with the measured
+        solubility as well as `P_sol` and `T_sol`, the pressure (Pa) and 
+        temperature (K) that correspond to the solubility measurement.
+    
+    Returns
+    -------
+    dbm_obj : `dbm.FluidMixture`
+        A `tamoc` discrete bubble model `FluidMixture` object that contains
+        the model with the fitted Henry's coefficients
+    
+    """
+    # Get the temperature and pressure where we know solubilities
+    P = data[dbm_obj.composition[0]]['P_sol']
+    T = data[dbm_obj.composition[0]]['T_sol']
+    S = 34.5
+    
+    # Find the non-ideal fluid adjustment to the Henry's coefficient
+    dH_solR = dbm_obj.neg_dH_solR
+    nu_bar = dbm_obj.nu_bar
+    Mol_wt = dbm_obj.M
+    K_salt = dbm_obj.K_salt
+    kh_0 = np.ones(len(dbm_obj.composition))
+    
+    # Make sure the mass_frac data are a mass fraction
+    mass_frac = mass_frac / np.sum(mass_frac)
+    
+    # Perform an equilibrium calculation at this thermodynamic state
+    m, xi, K = dbm_obj.equilibrium(mass_frac, T, P)
+    
+    # Get the fugacity of each component at the given thermodynamic
+    # state.  Recall that the gas and liquid fugacities are equal at
+    # equilibrium, but make sure we select a phase that has mass.
+    if np.sum(m[0,:]) > 0.1:
+        # Use the gas phase
+        f = dbm_obj.fugacity(m[0,:], T, P)[0,:]
+    else:
+        # Use the liquid phase
+        f = dbm_obj.fugacity(m[1,:], T, P)[1,:]
+    
+    # Get the real-fluid adjustment to the Henry's coefficient
+    dk = dbm_f.kh_insitu(T, P, S, kh_0, dH_solR, nu_bar, Mol_wt, K_salt)
+    
+    # Get an array of solubility data
+    Cs = np.zeros(f.shape)
+    for i in range(len(f)):
+        Cs[i] = data[dbm_obj.composition[i]]['solubility']
+    
+    # Compute the Henry's coefficient that will give the measured solubility
+    kh_0 = Cs / (f * dk)
+    
+    # Store these Henry's coefficients in the dbm_obj
+    dbm_obj.kh_0 = kh_0
+    
+    # Return the adjusted object
+    return dbm_obj
+    
+    
 # -----------------------------------------------------------------------------
 # Functions plot data in the module classes
 # -----------------------------------------------------------------------------
