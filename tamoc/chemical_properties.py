@@ -266,6 +266,12 @@ def convert_units(data, header_keys, header_units):
                     1.e-3 * (5./9.)
                 units[variable] = '(m^3/mol/deg C)'
     
+            if read_units[variable].find('(ppt)') >= 0.:
+                # This should be a salinity unit...convert to psu
+                data[chemical][variable] = data[chemical][variable] * \
+                    1.e3 
+                units[variable] = '(psu)'
+                
     return data, units
 
 def tamoc_data():

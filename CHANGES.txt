@@ -1,3 +1,11 @@
+V3.4.3, April 2025 --
+   . Updated the bent plume model `report_psd` method so that it does not
+   	 break if particles tracked outside the plume originate above the 
+	 reporting depth.  This is a post-processing algorithm and does not 
+	 affect the plume simulation.
+   . Updated the ambient and chemical properties modules to be able to 
+   	 convert salinity units between ppt and psu assuming a simple conversion
+	 that 0.001 ppt is equal to 1 psu.  
 V3.4.2, April 2025 --
    . Updated the bent plume model `Model` class method for `report_psds` so 
      that it will output results whether or not particles reached the 

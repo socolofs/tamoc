@@ -1745,6 +1745,23 @@ class Model(object):
             Volume fraction (--) corresponding to each liquid droplet size
         
         """
+        # Create a function to compute particle diameter
+        def particle_size(zp, mp, Tp, particle):
+            """
+            Compute the diameter and volume fraction of this particle
+            
+            """
+            # Get the ambient data
+            Ta, Sa, Pa = self.profile.get_values(zp, 
+                ['temperature', 'salinity', 'pressure'])
+
+            # Get the diameter
+            de = particle.diameter(mp, Tp, Pa, Sa, Ta)
+            Vp = 4./3. * np.pi * (de/2.)**3
+            Vf = Vp * particle.nb0
+            
+            return (de, Vf)
+        
         # Check whether the simulation data exist
         if not self.sim_stored:
             print('\nERROR:  Run a simulation before interrogating results.')
@@ -1789,65 +1806,85 @@ class Model(object):
                 print('        track = True.')
                 return (-1, -1, -1, -1)
             for particle in self.particles:
+                print(self.particles.index(particle), particle.farfield)
+                if particle.farfield:
+                    z = particle.sbm.y[-1,2]
+                    m = particle.sbm.y[-1,3:-1]
+                    T = particle.sbm.y[-1,-1] / (np.sum(m) * particle.cp)
+                    print(particle_size(z, m, T, particle))
+                    
                 if particle.farfield:
                     # Interpolate the SBM output to the requested vertical level
                     z = particle.sbm.y[:,2]
                     if loc < np.max(z):
-                        # This particle did not make it to the position
-                        # requested in `loc`
-                        if particle.particle.fp_type == 0:
-                            d_gas.append(np.nan)
-                            v_gas.append(np.nan)
-                        else:
-                            d_liq.append(np.nan)
-                            v_liq.append(np.nan)
-                            
+                        # The complete particle trajectory is in a region
+                        # deeper than z = loc; hence, report no result
+                        de = np.nan
+                        Vf = np.nan
+                          
                     else:
-                        # This particle is within the range desired...
-                        # Find an index to the closest point in the solution
-                        i0 = np.max(np.where(z>=loc))
-                        if i0 + 1 == len(z):
-                            i1 = i0 - 1
-                        else:
-                            i1 = i0 + 1                            
-                            
-                        # Interpolate to the desired `loc` position
-                        z0 = z[i0]
-                        z1 = z[i1]
-                        y0 = particle.sbm.y[i0,:]
-                        y1 = particle.sbm.y[i1,:]
-                        y = (y1 - y0) / (z1  - z0) * (loc - z0) + y0
+                        if np.min(z) < loc:
+                            # The complete particle trajectory is in a region
+                            # shallower than z = loc                            
+                            if z[0] + 1. > loc:
+                                # The start of this particle's trajectory is
+                                # within 1 m of loc, report the closest 
+                                # value for this particle
+                                zp = z[0]
+                                mp = particle.sbm.y[0,3:-1]
+                                Tp = particle.sbm.y[0,-1] / (np.sum(mp) * 
+                                    particle.cp)
+                                
+                                # Get this particle's role in the distribution
+                                de, Vf = particle_size(zp, mp, Tp, particle)
+                                
+                            else:
+                                # Consider this particle too far away from
+                                # z = loc to report.
+                                de = np.nan
+                                Vf = np.nan
                         
-                        # Extract the particle properties
-                        zp = loc
-                        mp = y[3:-1]
-                        Tp = y[-1] / (np.sum(mp) * particle.cp)
-                
-                        # Get the ambient data
-                        Ta, Sa, Pa = self.profile.get_values(zp, ['temperature',
-                            'salinity', 'pressure'])
-                
-                        # Get the diameter
-                        de = particle.diameter(mp, Tp, Pa, Sa, Ta)
-                        Vp = 4./3. * np.pi * (de/2.)**3
-                        Vf = Vp * particle.nb0
-                        if particle.particle.fp_type == 0:
-                            d_gas.append(de)
-                            v_gas.append(Vf)
                         else:
-                            d_liq.append(de)
-                            v_liq.append(Vf)
-            
+                            # The particle trajectory crosses z = loc; 
+                            # interpolate properties to z = loc...
+                            
+                            # Find an index to the nearest point
+                            i0 = np.max(np.where(z>=loc))
+                            if i0 + 1 == len(z):
+                                i1 = i0 - 1
+                            else:
+                                i1 = i0 + 1                            
+                            
+                            # Interpolate to the desired `loc` position
+                            z0 = z[i0]
+                            z1 = z[i1]
+                            y0 = particle.sbm.y[i0,:]
+                            y1 = particle.sbm.y[i1,:]
+                            y = (y1 - y0) / (z1  - z0) * (loc - z0) + y0
+                        
+                            # Extract the particle properties
+                            zp = loc
+                            mp = y[3:-1]
+                            Tp = y[-1] / (np.sum(mp) * particle.cp)
+                            
+                            # Get this particle's role in the distribution
+                            de, Vf = particle_size(zp, mp, Tp, particle)
+                            
                 else:
                     # This particle did not leave the plume; hence, it was 
                     # not tracked in the far field.
-                    if particle.particle.fp_type == 0:
-                        d_gas.append(np.nan)
-                        v_gas.append(np.nan)
-                    else:
-                        d_liq.append(np.nan)
-                        v_liq.append(np.nan)
-        
+                    de = np.nan
+                    Vf = np.nan
+                
+                if particle.particle.fp_type == 0:
+                    # These results are for a gas bubble
+                    d_gas.append(de)
+                    v_gas.append(Vf)
+                else:
+                    # These results are for a liquid droplet
+                    d_liq.append(de)
+                    v_liq.append(Vf)
+    
         else:
             print('\nERROR:  Requested simulation data unknown.')
             print('    --> Choose a simulation stage = 0 (nearfield plume)')
@@ -1859,11 +1896,11 @@ class Model(object):
         v_gas = np.array(v_gas)
         d_liq = np.array(d_liq)
         v_liq = np.array(v_liq)
-    
+
         # Convert the volume distributions to volume fraction
-        v_gas = v_gas / np.sum(v_gas)
-        v_liq = v_liq / np.sum(v_liq)
-    
+        v_gas = v_gas / np.nansum(v_gas)
+        v_liq = v_liq / np.nansum(v_liq)
+
         # Return the results
         return (d_gas, v_gas, d_liq, v_liq)
     

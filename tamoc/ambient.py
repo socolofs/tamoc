@@ -2746,7 +2746,8 @@ def convert_units(data, units):
                'wt.%' : [10., 0., 'psu'],
                '10^-15 m^2' : [1.e-15, 0., 'm^2'],
                'm^2' : [1., 0., 'm^2'],
-               'kg/m^2/year' : [3.168808781402895e-08, 0., 'kg/m^2/s']  
+               'kg/m^2/year' : [3.168808781402895e-08, 0., 'kg/m^2/s'],
+               'ppt' : [1.e3, 0., 'psu']  
            } 
     
     # Make sure the data are a numpy array and the units are a list
