@@ -1,0 +1,364 @@
+!    -*- f90 -*-
+! Note: the context of this file is case sensitive.
+
+python module dbm_f ! in 
+    interface  ! in :dbm_f
+        module phys_constants ! in :dbm_f:./src/dbm_phys.f95
+            integer, parameter,optional :: dp=8
+            real(kind=8), parameter,optional :: g=9.81d0
+            real(kind=8), parameter,optional :: pi=3.141592653589793d0
+        end module phys_constants
+        subroutine eotvos(de,rho_p,rho,sigma,eo) ! in :dbm_f:./src/dbm_phys.f95
+            use phys_constants
+            real(kind=8) intent(in) :: de
+            real(kind=8) intent(in) :: rho_p
+            real(kind=8) intent(in) :: rho
+            real(kind=8) intent(in) :: sigma
+            real(kind=8) intent(out) :: eo
+        end subroutine eotvos
+        subroutine morton(rho_p,rho,mu,sigma,m) ! in :dbm_f:./src/dbm_phys.f95
+            use phys_constants
+            real(kind=8) intent(in) :: rho_p
+            real(kind=8) intent(in) :: rho
+            real(kind=8) intent(in) :: mu
+            real(kind=8) intent(in) :: sigma
+            real(kind=8) intent(out) :: m
+        end subroutine morton
+        subroutine reynolds(de,us,rho,mu,re) ! in :dbm_f:./src/dbm_phys.f95
+            use phys_constants
+            real(kind=8) intent(in) :: de
+            real(kind=8) intent(in) :: us
+            real(kind=8) intent(in) :: rho
+            real(kind=8) intent(in) :: mu
+            real(kind=8) intent(out) :: re
+        end subroutine reynolds
+        subroutine h_parameter(eo,m,mu,h) ! in :dbm_f:./src/dbm_phys.f95
+            use phys_constants
+            real(kind=8) intent(in) :: eo
+            real(kind=8) intent(in) :: m
+            real(kind=8) intent(in) :: mu
+            real(kind=8) intent(out) :: h
+        end subroutine h_parameter
+        subroutine particle_shape(de,rho_p,rho,mu,sigma,shape_p) ! in :dbm_f:./src/dbm_phys.f95
+            use phys_constants
+            real(kind=8) intent(in) :: de
+            real(kind=8) intent(in) :: rho_p
+            real(kind=8) intent(in) :: rho
+            real(kind=8) intent(in) :: mu
+            real(kind=8) intent(in) :: sigma
+            integer intent(out) :: shape_p
+        end subroutine particle_shape
+        subroutine theta_w_sc(de,us,rho,mu,theta_w) ! in :dbm_f:./src/dbm_phys.f95
+            use phys_constants
+            real(kind=8) intent(in) :: de
+            real(kind=8) intent(in) :: us
+            real(kind=8) intent(in) :: rho
+            real(kind=8) intent(in) :: mu
+            real(kind=8) intent(out) :: theta_w
+        end subroutine theta_w_sc
+        subroutine surface_area_sc(de,theta_w,area) ! in :dbm_f:./src/dbm_phys.f95
+            use phys_constants
+            real(kind=8) intent(in) :: de
+            real(kind=8) intent(in) :: theta_w
+            real(kind=8) intent(out) :: area
+        end subroutine surface_area_sc
+        subroutine surface_area_sphere(de,area) ! in :dbm_f:./src/dbm_phys.f95
+            use phys_constants
+            real(kind=8) intent(in) :: de
+            real(kind=8) intent(out) :: area
+        end subroutine surface_area_sphere
+        subroutine us_sphere(de,rho_p,rho,mu,u_slip) ! in :dbm_f:./src/dbm_phys.f95
+            use phys_constants
+            real(kind=8) intent(in) :: de
+            real(kind=8) intent(in) :: rho_p
+            real(kind=8) intent(in) :: rho
+            real(kind=8) intent(in) :: mu
+            real(kind=8) intent(out) :: u_slip
+        end subroutine us_sphere
+        subroutine us_ellipsoid(de,rho_p,rho,mu_p,mu,sigma,status,u_slip) ! in :dbm_f:./src/dbm_phys.f95
+            use phys_constants
+            real(kind=8) intent(in) :: de
+            real(kind=8) intent(in) :: rho_p
+            real(kind=8) intent(in) :: rho
+            real(kind=8) intent(in) :: mu_p
+            real(kind=8) intent(in) :: mu
+            real(kind=8) intent(in) :: sigma
+            integer intent(in) :: status
+            real(kind=8) intent(out) :: u_slip
+        end subroutine us_ellipsoid
+        subroutine us_spherical_cap(de,rho_p,rho,u_slip) ! in :dbm_f:./src/dbm_phys.f95
+            use phys_constants
+            real(kind=8) intent(in) :: de
+            real(kind=8) intent(in) :: rho_p
+            real(kind=8) intent(in) :: rho
+            real(kind=8) intent(out) :: u_slip
+        end subroutine us_spherical_cap
+        subroutine xfer_kumar_hartland(de,us,rho,mu,d,sigma,mu_p,nc,beta) ! in :dbm_f:./src/dbm_phys.f95
+            use phys_constants
+            real(kind=8) intent(in) :: de
+            real(kind=8) intent(in) :: us
+            real(kind=8) intent(in) :: rho
+            real(kind=8) intent(in) :: mu
+            real(kind=8) dimension(nc),intent(in) :: d
+            real(kind=8) intent(in) :: sigma
+            real(kind=8) intent(in) :: mu_p
+            integer, optional,intent(in),check(shape(d, 0) == nc),depend(d) :: nc=shape(d, 0)
+            real(kind=8) dimension(nc),intent(out),depend(nc) :: beta
+        end subroutine xfer_kumar_hartland
+        subroutine xfer_johnson(de,us,d,nc,beta) ! in :dbm_f:./src/dbm_phys.f95
+            use phys_constants
+            real(kind=8) intent(in) :: de
+            real(kind=8) intent(in) :: us
+            real(kind=8) dimension(nc),intent(in) :: d
+            integer, optional,intent(in),check(shape(d, 0) == nc),depend(d) :: nc=shape(d, 0)
+            real(kind=8) dimension(nc),intent(out),depend(nc) :: beta
+        end subroutine xfer_johnson
+        subroutine xfer_clift(de,us,rho,mu,d,nc,beta) ! in :dbm_f:./src/dbm_phys.f95
+            use phys_constants
+            real(kind=8) intent(in) :: de
+            real(kind=8) intent(in) :: us
+            real(kind=8) intent(in) :: rho
+            real(kind=8) intent(in) :: mu
+            real(kind=8) dimension(nc),intent(in) :: d
+            integer, optional,intent(in),check(shape(d, 0) == nc),depend(d) :: nc=shape(d, 0)
+            real(kind=8) dimension(nc),intent(out),depend(nc) :: beta
+        end subroutine xfer_clift
+        subroutine xfer_sphere(de,us,rho,mu,d,sigma,mu_p,fp_type,status,nc,beta) ! in :dbm_f:./src/dbm_phys.f95
+            use phys_constants
+            real(kind=8) intent(in) :: de
+            real(kind=8) intent(in) :: us
+            real(kind=8) intent(in) :: rho
+            real(kind=8) intent(in) :: mu
+            real(kind=8) dimension(nc),intent(in) :: d
+            real(kind=8) intent(in) :: sigma
+            real(kind=8) intent(in) :: mu_p
+            integer intent(in) :: fp_type
+            integer intent(in) :: status
+            integer, optional,intent(in),check(shape(d, 0) == nc),depend(d) :: nc=shape(d, 0)
+            real(kind=8) dimension(nc),intent(out),depend(nc) :: beta
+        end subroutine xfer_sphere
+        subroutine xfer_ellipsoid(de,us,rho,mu,d,sigma,mu_p,fp_type,status,nc,beta) ! in :dbm_f:./src/dbm_phys.f95
+            use phys_constants
+            real(kind=8) intent(in) :: de
+            real(kind=8) intent(in) :: us
+            real(kind=8) intent(in) :: rho
+            real(kind=8) intent(in) :: mu
+            real(kind=8) dimension(nc),intent(in) :: d
+            real(kind=8) intent(in) :: sigma
+            real(kind=8) intent(in) :: mu_p
+            integer intent(in) :: fp_type
+            integer intent(in) :: status
+            integer, optional,intent(in),check(shape(d, 0) == nc),depend(d) :: nc=shape(d, 0)
+            real(kind=8) dimension(nc),intent(out),depend(nc) :: beta
+        end subroutine xfer_ellipsoid
+        subroutine xfer_spherical_cap(de,us,rho,rho_p,mu,d,status,nc,beta) ! in :dbm_f:./src/dbm_phys.f95
+            use phys_constants
+            real(kind=8) intent(in) :: de
+            real(kind=8) intent(in) :: us
+            real(kind=8) intent(in) :: rho
+            real(kind=8) intent(in) :: rho_p
+            real(kind=8) intent(in) :: mu
+            real(kind=8) dimension(nc),intent(in) :: d
+            integer intent(in) :: status
+            integer, optional,intent(in),check(shape(d, 0) == nc),depend(d) :: nc=shape(d, 0)
+            real(kind=8) dimension(nc),intent(out),depend(nc) :: beta
+        end subroutine xfer_spherical_cap
+        module eos_constants ! in :dbm_f:./src/dbm_eos.f95
+            integer, parameter,optional :: dp=8
+            real(kind=8), parameter,optional :: ru=8.314510d0
+        end module eos_constants
+        subroutine density(nc,t,p,mass,mol_wt,pc,tc,vc,omega,delta,aij,bij,delta_groups,calc_delta,c_pen,c_pen_t,rho) ! in :dbm_f:./src/dbm_eos.f95
+            use eos_constants
+            integer, optional,intent(in),check(shape(mass, 0) == nc),depend(mass) :: nc=shape(mass, 0)
+            real(kind=8) intent(in) :: t
+            real(kind=8) intent(in) :: p
+            real(kind=8) dimension(nc),intent(in) :: mass
+            real(kind=8) dimension(nc),intent(in),depend(nc) :: mol_wt
+            real(kind=8) dimension(nc),intent(in),depend(nc) :: pc
+            real(kind=8) dimension(nc),intent(in),depend(nc) :: tc
+            real(kind=8) dimension(nc),intent(in),depend(nc) :: vc
+            real(kind=8) dimension(nc),intent(in),depend(nc) :: omega
+            real(kind=8) dimension(nc,nc),intent(in),depend(nc) :: delta
+            real(kind=8) dimension(15,15),intent(in) :: aij
+            real(kind=8) dimension(15,15),intent(in) :: bij
+            real(kind=8) dimension(nc,15),intent(in),depend(nc) :: delta_groups
+            integer intent(in) :: calc_delta
+            real(kind=8) dimension(nc),intent(in),depend(nc) :: c_pen
+            real(kind=8) dimension(nc),intent(in),depend(nc) :: c_pen_t
+            real(kind=8) dimension(2,1),intent(out) :: rho
+        end subroutine density
+        subroutine fugacity(nc,t,p,mass,mol_wt,pc,tc,omega,delta,aij,bij,delta_groups,calc_delta,fug) ! in :dbm_f:./src/dbm_eos.f95
+            use eos_constants
+            integer, optional,intent(in),check(shape(mass, 0) == nc),depend(mass) :: nc=shape(mass, 0)
+            real(kind=8) intent(in) :: t
+            real(kind=8) intent(in) :: p
+            real(kind=8) dimension(nc),intent(in) :: mass
+            real(kind=8) dimension(nc),intent(in),depend(nc) :: mol_wt
+            real(kind=8) dimension(nc),intent(in),depend(nc) :: pc
+            real(kind=8) dimension(nc),intent(in),depend(nc) :: tc
+            real(kind=8) dimension(nc),intent(in),depend(nc) :: omega
+            real(kind=8) dimension(nc,nc),intent(in),depend(nc) :: delta
+            real(kind=8) dimension(15,15),intent(in) :: aij
+            real(kind=8) dimension(15,15),intent(in) :: bij
+            real(kind=8) dimension(nc,15),intent(in),depend(nc) :: delta_groups
+            integer intent(in) :: calc_delta
+            real(kind=8) dimension(2,nc),intent(out),depend(nc) :: fug
+        end subroutine fugacity
+        subroutine volume_trans(nc,t,p,mass,mol_wt,pc,tc,vc,c_pen,c_pen_t,vt) ! in :dbm_f:./src/dbm_eos.f95
+            use eos_constants
+            integer, optional,intent(in),check(shape(mass, 0) == nc),depend(mass) :: nc=shape(mass, 0)
+            real(kind=8) intent(in) :: t
+            real(kind=8) intent(in) :: p
+            real(kind=8) dimension(nc),intent(in) :: mass
+            real(kind=8) dimension(nc),intent(in),depend(nc) :: mol_wt
+            real(kind=8) dimension(nc),intent(in),depend(nc) :: pc
+            real(kind=8) dimension(nc),intent(in),depend(nc) :: tc
+            real(kind=8) dimension(nc),intent(in),depend(nc) :: vc
+            real(kind=8) dimension(nc),intent(in),depend(nc) :: c_pen
+            real(kind=8) dimension(nc),intent(in),depend(nc) :: c_pen_t
+            real(kind=8) dimension(nc),intent(out),depend(nc) :: vt
+        end subroutine volume_trans
+        subroutine z_pr(nc,t,p,mass,mol_wt,pc,tc,omega,delta,aij,bij,delta_groups,calc_delta,z,a,b,ap,bp,yk) ! in :dbm_f:./src/dbm_eos.f95
+            use eos_constants
+            integer, optional,intent(in),check(shape(mass, 0) == nc),depend(mass) :: nc=shape(mass, 0)
+            real(kind=8) intent(in) :: t
+            real(kind=8) intent(in) :: p
+            real(kind=8) dimension(nc),intent(in) :: mass
+            real(kind=8) dimension(nc),intent(in),depend(nc) :: mol_wt
+            real(kind=8) dimension(nc),intent(in),depend(nc) :: pc
+            real(kind=8) dimension(nc),intent(in),depend(nc) :: tc
+            real(kind=8) dimension(nc),intent(in),depend(nc) :: omega
+            real(kind=8) dimension(nc,nc),intent(in),depend(nc) :: delta
+            real(kind=8) dimension(15,15),intent(in) :: aij
+            real(kind=8) dimension(15,15),intent(in) :: bij
+            real(kind=8) dimension(nc,15),intent(in),depend(nc) :: delta_groups
+            integer intent(in) :: calc_delta
+            real(kind=8) dimension(2,1),intent(out) :: z
+            real(kind=8) intent(out) :: a
+            real(kind=8) intent(out) :: b
+            real(kind=8) dimension(nc),intent(out),depend(nc) :: ap
+            real(kind=8) dimension(nc),intent(out),depend(nc) :: bp
+            real(kind=8) dimension(nc),intent(out),depend(nc) :: yk
+        end subroutine z_pr
+        subroutine coefs(nc,t,p,mass,mol_wt,pc,tc,omega,delta_in,aij,bij,delta_groups,calc_delta,a,b,ap,bp,yk) ! in :dbm_f:./src/dbm_eos.f95
+            use eos_constants
+            use ieee_arithmetic
+            integer, optional,intent(in),check(shape(mass, 0) == nc),depend(mass) :: nc=shape(mass, 0)
+            real(kind=8) intent(in) :: t
+            real(kind=8) intent(in) :: p
+            real(kind=8) dimension(nc),intent(in) :: mass
+            real(kind=8) dimension(nc),intent(in),depend(nc) :: mol_wt
+            real(kind=8) dimension(nc),intent(in),depend(nc) :: pc
+            real(kind=8) dimension(nc),intent(in),depend(nc) :: tc
+            real(kind=8) dimension(nc),intent(in),depend(nc) :: omega
+            real(kind=8) dimension(nc,nc),intent(in),depend(nc) :: delta_in
+            real(kind=8) dimension(15,15),intent(in) :: aij
+            real(kind=8) dimension(15,15),intent(in) :: bij
+            real(kind=8) dimension(nc,15),intent(in),depend(nc) :: delta_groups
+            integer intent(in) :: calc_delta
+            real(kind=8) intent(out) :: a
+            real(kind=8) intent(out) :: b
+            real(kind=8) dimension(nc),intent(out),depend(nc) :: ap
+            real(kind=8) dimension(nc),intent(out),depend(nc) :: bp
+            real(kind=8) dimension(nc),intent(out),depend(nc) :: yk
+        end subroutine coefs
+        subroutine mole_fraction(nc,mass,mol_wt,yk) ! in :dbm_f:./src/dbm_eos.f95
+            use eos_constants
+            integer, optional,intent(in),check(shape(mass, 0) == nc),depend(mass) :: nc=shape(mass, 0)
+            real(kind=8) dimension(nc),intent(in) :: mass
+            real(kind=8) dimension(nc),intent(in),depend(nc) :: mol_wt
+            real(kind=8) dimension(nc),intent(out),depend(nc) :: yk
+        end subroutine mole_fraction
+        subroutine viscosity(nc,t,p,mass,mol_wt,pc,tc,vc,omega,delta,aij,bij,delta_groups,calc_delta,c_pen,c_pen_t,mu) ! in :dbm_f:./src/dbm_eos.f95
+            use eos_constants
+            integer, optional,intent(in),check(shape(mass, 0) == nc),depend(mass) :: nc=shape(mass, 0)
+            real(kind=8) intent(in) :: t
+            real(kind=8) intent(in) :: p
+            real(kind=8) dimension(nc),intent(in) :: mass
+            real(kind=8) dimension(nc),intent(in),depend(nc) :: mol_wt
+            real(kind=8) dimension(nc),intent(in),depend(nc) :: pc
+            real(kind=8) dimension(nc),intent(in),depend(nc) :: tc
+            real(kind=8) dimension(nc),intent(in),depend(nc) :: vc
+            real(kind=8) dimension(nc),intent(in),depend(nc) :: omega
+            real(kind=8) dimension(nc,nc),intent(in),depend(nc) :: delta
+            real(kind=8) dimension(15,15),intent(in) :: aij
+            real(kind=8) dimension(15,15),intent(in) :: bij
+            real(kind=8) dimension(nc,15),intent(in),depend(nc) :: delta_groups
+            integer intent(in) :: calc_delta
+            real(kind=8) dimension(nc),intent(in),depend(nc) :: c_pen
+            real(kind=8) dimension(nc),intent(in),depend(nc) :: c_pen_t
+            real(kind=8) dimension(2,1),intent(out) :: mu
+        end subroutine viscosity
+        subroutine kh_insitu(t,p,s,kh_0,dh_solr,nu_bar,mol_wt,k_salt,nc,kh) ! in :dbm_f:./src/dbm_eos.f95
+            use eos_constants
+            real(kind=8) intent(in) :: t
+            real(kind=8) intent(in) :: p
+            real(kind=8) intent(in) :: s
+            real(kind=8) dimension(nc),intent(in) :: kh_0
+            real(kind=8) dimension(nc),intent(in),depend(nc) :: dh_solr
+            real(kind=8) dimension(nc),intent(in),depend(nc) :: nu_bar
+            real(kind=8) dimension(nc),intent(in),depend(nc) :: mol_wt
+            real(kind=8) dimension(nc),intent(in),depend(nc) :: k_salt
+            integer, optional,intent(in),check(shape(kh_0, 0) == nc),depend(kh_0) :: nc=shape(kh_0, 0)
+            real(kind=8) dimension(nc),intent(out),depend(nc) :: kh
+        end subroutine kh_insitu
+        subroutine sw_solubility(f,kh,nc,cs) ! in :dbm_f:./src/dbm_eos.f95
+            use eos_constants
+            real(kind=8) dimension(nc),intent(in) :: f
+            real(kind=8) dimension(nc),intent(in),depend(nc) :: kh
+            integer, optional,intent(in),check(shape(f, 0) == nc),depend(f) :: nc=shape(f, 0)
+            real(kind=8) dimension(nc),intent(out),depend(nc) :: cs
+        end subroutine sw_solubility
+        subroutine diffusivity(mu,vb,nc,d) ! in :dbm_f:./src/dbm_eos.f95
+            use eos_constants
+            real(kind=8) intent(in) :: mu
+            real(kind=8) dimension(nc),intent(in) :: vb
+            integer, optional,intent(in),check(shape(vb, 0) == nc),depend(vb) :: nc=shape(vb, 0)
+            real(kind=8) dimension(nc),intent(out),depend(nc) :: d
+        end subroutine diffusivity
+        subroutine kvsi_hydrate(t_in,p_in,mass,k_vsi,yk) ! in :dbm_f:./src/dbm_eos.f95
+            use eos_constants
+            real(kind=8) intent(in) :: t_in
+            real(kind=8) intent(in) :: p_in
+            real(kind=8) dimension(8),intent(in) :: mass
+            real(kind=8) dimension(8),intent(out) :: k_vsi
+            real(kind=8) dimension(8),intent(out) :: yk
+        end subroutine kvsi_hydrate
+        module math_constants ! in :dbm_f:./src/math_funcs.f95
+            integer, parameter,optional :: dp=8
+            complex(kind=8), parameter,optional :: czero=(0.d0, 0.d0)
+            real(kind=8), parameter,optional :: zero=0.d0
+            real(kind=8), parameter,optional :: fourth=0.25d0
+            real(kind=8), parameter,optional :: half=0.5d0
+            real(kind=8), parameter,optional :: one=1.d0
+            real(kind=8), parameter,optional :: two=2.d0
+            real(kind=8), parameter,optional :: three=3.d0
+            real(kind=8), parameter,optional :: four=4.d0
+            real(kind=8), parameter,optional,depend(one) :: eps=epsilon(one)
+        end module math_constants
+        subroutine swap(a,b) ! in :dbm_f:./src/math_funcs.f95
+            use math_constants
+            real(kind=8) intent(inout) :: a
+            real(kind=8) intent(inout) :: b
+        end subroutine swap
+        subroutine cube_root(x,f) ! in :dbm_f:./src/math_funcs.f95
+            use math_constants
+            real(kind=8) intent(in) :: x
+            real(kind=8) intent(out) :: f
+        end subroutine cube_root
+        subroutine quadratic_roots(a,z) ! in :dbm_f:./src/math_funcs.f95
+            use math_constants
+            real(kind=8) dimension(3),intent(in) :: a
+            complex(kind=8) dimension(2),intent(out) :: z
+        end subroutine quadratic_roots
+        subroutine cubic_roots(a_t,z) ! in :dbm_f:./src/math_funcs.f95
+            use math_constants
+            real(kind=8) dimension(4),intent(in) :: a_t
+            complex(kind=8) dimension(3),intent(out) :: z
+        end subroutine cubic_roots
+    end interface 
+end python module dbm_f
+
+! This file was auto-generated with f2py (version:2.2.5).
+! See:
+! https://web.archive.org/web/20140822061353/http://cens.ioc.ee/projects/f2py2e

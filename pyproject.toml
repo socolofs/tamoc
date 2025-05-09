@@ -1,0 +1,72 @@
+# This TOML File is created based on the example for Scipy and Numpy.
+#
+# Scipy is using Meson through meson-python, which is the build backend
+# selected for TAMOC to compile the Fortran code using f2py.
+#
+# This file is a work in progress.  Once it is fully functional, it will
+# become the template for TAMOC's packaging.
+
+# S. Socolofsky, Texas A&M University, April 25, 2025, <socolofs@tamu.edu>
+
+[build-system]
+build-backend = "mesonpy"
+requires = [
+    "meson>=1.5.0",           # Suggested by ChatGPT for editable installs
+    "meson-python>=0.15.0",
+    "ninja",                  # Required for editable installs
+	"numpy>=0.14.0",	
+]
+
+[project]
+name = "tamoc"
+version = "4.0.0"
+license = { file = "LICENSE.txt" }
+description = "Texas A&M Oil spill / outfall Calculator (TAMOC)"
+authors = [{ name = "Scott A. Socolofsky" }]
+maintainers = [
+    { name = "Scott A. Socolofsky", email="socolofs@tamu.edu" },
+]
+requires-python = ">=3.11"
+dependencies = [
+    "numpy>=1.25.2",
+    "scipy>=1.13.0",
+]
+readme = "README.rst"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Fortran",
+    "Programming Language :: Python",
+    "Programming Language :: Python 3",
+    "Programming Language :: Python 3.11",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Scientific/Engineering",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: MacOS",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+]
+doc = [
+    "sphinx>=8.1.3",
+    "intersphinx_registry",
+    "sphinx-aotosummary-accessors>=2025.3.1",
+    "sphinx-book-theme>1.1.4",
+    "sphinx-copybutton",
+    "sphinx-panels>=0.6.0",
+    "sphinxcontrib-applehelp>=2.0.0",
+    "sphinxcontrib-devhelp>=2.0.0",
+    "sphinxcontrib-htmlhelp>=2.1.0",
+    "sphinxcontrib-jsmath>=1.0.1",
+    "sphinxcontrib-qthelp>=2.0.0",
+    "sphinxcontrib-serializinghtml>=1.1.10",
+    "sphinxext-opengraph>=0.9.1",
+    "sphinxext-rediraffe>=0.2.7",
+]
+
+[project.urls]
+source = "https://github.com/socolofs/tamoc"

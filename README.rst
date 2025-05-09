@@ -12,6 +12,26 @@ size distributions from source flow conditions.
 For typical usage, please see the ./bin directory of the source distribution
 for various example scripts.
 
+Version 4.0.0-beta:  Updated the TAMOC package to use pyproject.toml and 
+                meson.build to install.  Newer versions of Python have
+                depricated the setuptools distutils packages that NumPy
+                f2py was using to create the dbm_f extension module.  This
+                update allows the dbm_f module to be build using the latest
+                versions of Python (tested with python 3.13, numpy 2.2.5, and
+                scipy 1.15.2).  This is listed as a beta release as this is
+                the first release using this new build platform and the 
+                documentation has not yet been updated to explain how to 
+                install using meson.build and pip.  The first 4.0.0 stable
+                release will have fully updated documentation.  The original
+                setup.py files remains part of the package repository and will
+                continue to work with older versions of Python, NumPy, and 
+                setuptools that support the numpy.distutils package.  This
+                new version also includes a C extension module preos_c to
+                replace part of the Fortran extension module dbm_f.  The 
+                speed trade-offs are now only a difference of about 40% due
+                to the fact that only the slowest python functions were 
+                ported from dbm_p to preos_c.  See changes.txt for more 
+                details.  
 Version 3.4.2:  Added a method to get and save derived output (particle
 			    diameter, density, slip velocity, and mass transfer 
 				coefficient) from the single bubble model.  Updated the
@@ -233,7 +253,7 @@ Requirements
 This package requires:
 
 * Python 2.3 or higher and is now compatible with both Python 2.7 and
-  Python 3.8+.  Python 2 compatibility is will no longer be ensured.  Please 
+  Python 3.8+.  Python 2 compatibility will no longer be ensured.  Please 
   move to Python 3 if you have not already done so.
 
 * Numpy version 1.16 or higher
@@ -251,17 +271,206 @@ This package requires:
 * To view plots of the model output, TAMOC uses the matplotlib package
 
 Code development and testing for this package was conducted in the Mac OS X
-environment, Version 10.13.6 through 10.14.6. The Python environments were
-created using miniconda. The Python 3 environment used Python 3.8.2; the
-Python 2 environment used Python 2.7.15. All scripts are tested in iPython
-with the --pylab flag.
+environment, Version 10.13.6 through 15.4.1. The Python environments were
+created using miniconda. The lastest Python 3 environment used Python 3.13; the
+latest tested Python 2 environment used Python 2.7.15. All scripts are tested 
+in iPython with the --pylab flag.
 
 Fortran files are written in modern Fortran style and are fully compatible
 with gfortran 4.6.2 20111019 (prerelease). They have been compiled and tested
-by the author using f2py Version 2.
+by the author using f2py Version 2 and higher.  The latest release can be 
+compiled using meson.build with NumPy version 2.2.5.
 
-Quick Start
-===========
+Installation Overview
+=====================
+
+This package has been updated to be compatible with the new installation
+approach of Python that uses `pip` and  `pyproject.toml` and uses the 
+`meson.build` backend.  This was accomplished by closely following the 
+approach of the Scipy package.  If any issues or questions arise, please
+also consult the Scipy documentation.
+
+TAMOC can be installed in two different ways, depending on the version of
+Python, NumPy, and setuptools that you are using.  
+
+For older versions of Python (<=3.10.14), the original approach using setup.py
+is still supported. Please see the Legacy Installation instructions below if
+you are installing using these older Python versions.
+
+For the current stable Python release (>=3.13), the numpy.distutils package in
+setup.py is deprecated. These installs will use pyproject.toml with the Meson
+backend. TAMOC 4.0.0-beta is the first release compatible with these tools.
+The following installation instructions follow this new approach.
+
+Initial Steps
+=============
+
+The following installation instructions assume you will be installing TMAOC
+in a virtual Python environment using conda or mamba.  Also, some of the
+install tools are only compatible with conda-forge versions of the Python 
+packages (e.g., NumPy, Scipy, etc).  Please ensure the following before
+continuing to the install instructions.
+
+Install a Conda Environment Package
+-----------------------------------
+
+Install miniconda or mamba.  If you already have one of these installed, 
+make sure conda-forge is in your channels:
+
+   >>> conda config --show channels
+   >>> conda config --add channels conda-forge
+   
+Otherwise, it is recommended to install miniforge.  A Windows install binary
+is available here:
+
+   https://conda-forge.org/miniforge/
+   
+After installation, you should be able to open a miniforge command window
+(search for the Miniforge application).  With miniforge, conda-forge is the
+default channel, so you can continue with the instructions below.
+
+Install Compilers
+-----------------
+
+If you want to compile the Fortran and/or C extension modules, you have to
+install compilers.
+
+Windows
+-------
+
+On Windows, this guide follows the instructions from the Scipy installation
+documentation for a developement installation of Scipy.  
+
+1. Install MS Visual Studio Community 2019 or later.  You only need to install
+   the C++ Build Tools.  This is a likely a two-step process.  First, install
+   MS Visual Studio.  Then launch MS Visual Studio.  In the main screen, there
+   should be several options of tools / packages to install.  Select at a 
+   minimum the C++ Build Tools.  All later steps below were conducted by
+   accepting the default list of install items after choosing C++ Build Tools.
+   This required about 10 GB of hard disk space.
+
+2. If you want to use only the C extension module, step 1. above should 
+   suffice.  For the Fortran extension module, you need to also install a 
+   Fortran compiler.  Scipy recommends using the compilers from MinGW-w64.
+   Follow these steps (adapted from the Scipy install instructions):
+   
+   A. Install chocolatey following the instructions here:
+      https://chocolatey.org/install
+   
+   B. Open a miniconda or miniforge command window.  Then, execute the 
+      command:
+      
+      >>> choco install rtools -y --no-progress --force --version=4.0.0.20220206
+      
+   C. Add the MinGW Compilers to the PATH variable.  Open Finder and search
+      for System Environment Variables for your account.  Choose to Edit the
+      Path.  Click New to create a new Path.  Paste the directory to your
+      rtools instalation above.  Most likely this will be:
+      
+      C:\rtools\mingw64\bin
+      
+   D. For the most reliable situation, reboot now.
+   
+   E. Open the miniconda or miniforge command window and check whether 
+      compilers are available using these commands:
+      
+      >>> gcc --version
+      >>> gfortran --version
+      
+MacOS
+-----
+
+On a Mac computer, you need to have the xtools build tools installed.  Open 
+a terminal where miniconda, mamba, or miniforge is running, and execute:
+
+   >>> sudo xcode-select --install
+   
+You have to run this command as administrator (thus, the sudo prefix), so you 
+will be prompted to enter an administror password.  This should launch a 
+window that may require you to accept the license and other things.  Follow
+on-screen instructions.
+
+Install TAMOC
+-------------
+
+After the above steps, the remaining steps are almost the same on Windows and
+MacOS.  The only difference is on Windows.  For Windows, find the 
+environment.yml file in the TAMOC repository, open the file, and remove the
+line that reads:
+
+   - compilers  # Currently unavailable for Windows.
+  
+otherwise, this will mess up the compilers configured above.
+
+The steps below will install TAMOC in a virtual environment called tamoc4. If
+you want to name the environment something else, edit the environment.yml file
+in the TAMOC repository before continuing. Using a virtual environment is the
+recommended approach to installing TAMOC.
+
+
+Next, open a command terminal (miniforge command prompt in Windows, Terminal on
+MacOS). Change directory to the location that contains the root directory of
+TAMOC. This is where pyproject.toml and meson.build are located in the TAMOC
+repository. Create the virtual environment with:
+
+   >>> conda env create -f environment.yml
+
+Accept the on-screen prompts.  
+
+Activate the new virtual environment with:
+
+   >>> conda activate tamoc4
+
+Install TAMOC with:
+
+   >>> pip install --no-build-isolation --editable .
+
+This command will follow the default settings in meson_options.txt regarding
+whether or not to compile the Fortran and / or C extension modules.  If you
+have trouble with either of these compilations, either edit the boolean 
+flags in meson_options.txt and try the install again or send the desired 
+flags directly at the pip command using, e.g.:
+
+   >>> pip install --no-build-isolation --editable \
+          --config-settings=setup-args=-Dwith-c=true \
+          --config-settings=setup-args=-Dwith-fortran=false \
+          --config-settings=setup-args=-Dpython-only=false
+
+Chose true/false as needed for your own installation.  If you want to use 
+Spyder, this is not installed by default from environment.yml.  Install 
+using:
+
+   >>> conda install spyder
+   
+Inside Spyder, make sure you set your console to exectue in the tamoc4 
+virtual environment.  
+
+To run the tests, change directory to ./tamoc/test and run the command:
+
+   >>> pytest -v
+   
+A few of the tests will probably fail (these are unfortunately compiler
+dependent and need to be updated---on the TODO list).  As long as most of 
+the tests pass, the installation is ready to go.
+
+Next Steps
+----------
+
+After installing TAMOC, have a look in the ./examples/ folder for examples.
+The Documentation in the ./docs/ folder is also mostly up-to-date.  
+
+
+
+Legacy Installation
+===================
+
+TAMOC <4.0.0 used setup.py only to install TAMOC. This install method is still
+supported, but requires older versions of Python, NumPy, and setuptools. With
+Python <= 3.10.14, NumPy <= 1.26.4, and setuptools <= 69.5.1, the following
+instruction should work. It is possible that there are a few other restrictions
+of version numbers. Please note, however, that setup.py has not yet been
+updated to build the preos_c extension module (not needed if you are compiling
+the Fortran dbm_f extension module or just using a pure Python install).
 
 For the best and most complete information, please see the documentation web pages in the `./doc/` directory of the TAMOC repository.  A step-by-step installation guide is included in the Getting Started rubric of the documentation.  A brief summary that may still work is provided below.
 

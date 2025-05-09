@@ -21,13 +21,15 @@ from scipy.interpolate import interp1d
 from datetime import datetime
 from netCDF4 import Dataset, date2num, num2date
 
+# Get a platform-independent path to the datafile
+DATA_DIR = os.path.realpath(os.path.join(
+    os.path.dirname(__file__),'../data'))
+OUTPUT_DIR = os.path.realpath(os.path.join(os.path.dirname(__file__),'output'))
+
 # ----------------------------------------------------------------------------
 # Functions used by unit tests
 # ----------------------------------------------------------------------------
 
-# Get a platform-independent path to the datafile
-DATA_DIR = os.path.realpath(os.path.join(os.path.dirname(tamoc.__file__),'data'))
-OUTPUT_DIR = os.path.realpath(os.path.join(os.path.dirname(__file__),'output'))
 
 if not os.path.exists(OUTPUT_DIR):
     os.mkdir(OUTPUT_DIR)

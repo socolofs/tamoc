@@ -4,7 +4,11 @@ dbm_p.py
 
 Recreate all of the functions in the Fortran files using Python
 
-This module recreates all of the functions in the Fortran files dbm_eos.f95, dbm_phys.f95, and math_funcs.f95 using regular Python code.  This will not be as fast as the compiled Fortran code, but will make installing TAMOC easier in environments where a modern Fortran compiler is not available or not compatible with the f2py modules used in the setup.py module of TAMOC.
+This module recreates all of the functions in the Fortran files dbm_eos.f95,
+dbm_phys.f95, and math_funcs.f95 using regular Python code.  This will not be
+as fast as the compiled Fortran code, but will make installing TAMOC easier in
+environments where a modern Fortran compiler is not available or not
+compatible with the f2py modules used in the setup.py module of TAMOC.
 
 """
 # S. Socolofsky, April 2022, Texas A&M University <socolofs@tamu.edu>
@@ -12,6 +16,13 @@ This module recreates all of the functions in the Fortran files dbm_eos.f95, dbm
 from __future__ import (absolute_import, division, print_function)
 
 import numpy as np
+
+# Check whether the C extension module preos_c is available
+try:
+    from tamoc import preos_c
+    use_preos = True
+except ImportError:
+    use_preos = False
 
 # Declare some global variables
 G = 9.81
@@ -863,6 +874,10 @@ def density(T, P, mass, Mol_wt, Pc, Tc, Vc, omega, delta, Aij,
         (kg/m^3)
     
     """
+    if use_preos:
+        return preos_c.density(T, P, mass, Mol_wt, Pc, Tc, Vc, omega, delta,
+            Aij, Bij, delta_groups, calc_delta, C_pen, C_pen_T)
+
     # Get the z-factor using the Peng-Robinson equation of state
     z, A, B, Ap, Bp, yk = z_pr(T, P, mass, Mol_wt, Pc, Tc, omega, delta, 
         Aij, Bij, delta_groups, calc_delta)
@@ -929,6 +944,10 @@ def fugacity(T, P, mass, Mol_wt, Pc, Tc, omega, delta, Aij, Bij,
         second row of f are the liquid component fugacities
     
     """
+    if use_preos:
+        return preos_c.fugacity(T, P, mass, Mol_wt, Pc, Tc, omega, delta, Aij, 
+            Bij, delta_groups, calc_delta)
+
     # Get the z-factor using the Peng-Robinson equation of state
     z, A, B, Ap, Bp, yk =  z_pr(T, P, mass, Mol_wt, Pc, Tc, omega, delta, 
         Aij, Bij, delta_groups, calc_delta)
@@ -1312,6 +1331,10 @@ def viscosity(T, P, mass, Mol_wt, Pc, Tc, Vc, omega, delta, Aij,
         (Pa s)    
     
     """
+    if use_preos:
+        return preos_c.viscosity(T, P, mass, Mol_wt, Pc, Tc, Vc, omega, delta, 
+            Aij, Bij, delta_groups, calc_delta, C_pen, C_pen_T)
+
     # Count the number of chemical components
     nc = len(mass)
     

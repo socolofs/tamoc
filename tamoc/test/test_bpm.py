@@ -40,11 +40,13 @@ import numpy as np
 from numpy.testing import assert_array_almost_equal
 from numpy.testing import assert_approx_equal
 
+DATA_DIR = os.path.realpath(os.path.join(
+    os.path.dirname(__file__),'../data'))
+OUTPUT_DIR = os.path.realpath(os.path.join(os.path.dirname(__file__),'output'))
+
 # ----------------------------------------------------------------------------
 # Helper Functions
 # ----------------------------------------------------------------------------
-
-OUTPUT_DIR = os.path.realpath(os.path.join(os.path.dirname(__file__),'output'))
 
 if not os.path.exists(OUTPUT_DIR):
     os.mkdir(OUTPUT_DIR)
