@@ -235,7 +235,7 @@ def inert_obj_funcs(oil, T, P, Sa, Ta, rho_p, de, m, shape, us, A, beta_T):
         significant = 5)
     assert_approx_equal(oil.surface_area(m, T, P, Sa, Ta), A, 
         significant = 5)
-    assert_approx_equal(oil.heat_transfer(m, T, P, Sa, Ta), beta_T, 
+    assert_approx_equal(oil.heat_transfer(m, T, P, Sa, Ta)[0], beta_T, 
         significant = 5)
 
 
@@ -488,7 +488,7 @@ def test_cubic_solver():
     
     r_calc = np.sort(dbm_f.cubic_roots(p))
     for i in range(3):
-        assert_approx_equal(r_calc[i], r[i], significant = 6)
+        assert_approx_equal(r_calc[i].real, r[i], significant = 6)
 
 
 def test_equilibrium():

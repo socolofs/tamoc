@@ -1928,6 +1928,12 @@ class Model(object):
             Flag indicating whether or not to clear the contents of the
             requested figure number before plotting
         
+        Returns
+        -------
+        f : plt.figure
+            Returns a handle to the figure that could be used for saving the
+            figure
+        
         """
         import matplotlib.pyplot as plt
         
@@ -1935,7 +1941,7 @@ class Model(object):
         d_gas, vf_gas, d_liq, vf_liq = self.report_psds(loc, stage)
         
         # Prepare the figure for plotting
-        plt.figure(fig, figsize=(8,7))
+        f = plt.figure(fig, figsize=(8,7))
         if clear:
             plt.clf()
         
@@ -1957,8 +1963,10 @@ class Model(object):
     
         plt.tight_layout()
         plt.show()
+        
+        return f
     
-    def plot_state_space(self, fig):
+    def plot_state_space(self, fig, clear_fig=True):
         """
         Plot the simulation state space
 
@@ -1969,7 +1977,14 @@ class Model(object):
         ----------
         fig : int
             Number of the figure window in which to draw the plot
+        clear_fig : bool, default=True
+            Boolean flag stating whether to clear the figure before plotting
 
+        Returns
+        -------
+        fig : plt.figure
+            A figure handle to the created figure
+        
         See Also
         --------
         plot_all_variables
@@ -1985,11 +2000,13 @@ class Model(object):
 
         # Plot the results
         print('Plotting the state space...')
-        plot_state_space(self.t, self.q, self.q_local, self.profile, self.p,
-            self.particles, fig)
+        f = plot_state_space(self.t, self.q, self.q_local, self.profile, 
+            self.p, self.particles, fig, clear_fig)
         print('Done.\n')
+        
+        return f
 
-    def plot_all_variables(self, fig):
+    def plot_all_variables(self, fig, clear_fig=True):
         """
         Plot a comprehensive suite of simulation results
 
@@ -2001,7 +2018,15 @@ class Model(object):
         ----------
         fig : int
             Number of the figure window in which to draw the plot
-
+        clear_fig : bool, default=True
+            Boolean flag stating whether to clear the figure before plotting
+        
+        Returns
+        -------
+        fig : list
+            Returns a of figure handles that could be used for saving 
+            the figures
+        
         See Also
         --------
         plot_state_space
@@ -2017,10 +2042,12 @@ class Model(object):
 
         # Plot the results
         print('Plotting the full variable suite...')
-        plot_all_variables(self.t, self.q, self.q_local, self.profile,
-            self.p, self.particles, self.track, fig)
+        figs = plot_all_variables(self.t, self.q, self.q_local, self.profile,
+            self.p, self.particles, self.track, fig, clear_fig)
         print('Done.\n')
-    
+        
+        return figs
+        
     def plot_fractions_dissolved(self, fig, chems=None, stage=1, fp_type=-1,
         clear=True):
         """
@@ -2054,11 +2081,17 @@ class Model(object):
             Flag indicating whether the figure should be cleared before 
             plotting
         
+        Return
+        ------
+        fig_handle : plt.figure
+            Returns a handle to the figure that could be used for saving 
+            the figure
+        
         """
         import matplotlib.pyplot as plt
         
         # Prepare the figure for plotting
-        plt.figure(fig, figsize=(9,6))
+        fig_handle = plt.figure(fig, figsize=(9,6))
         if clear:
             plt.clf()
 
@@ -2109,6 +2142,8 @@ class Model(object):
         ax.set_ylabel('Fraction dissolved, (%)')
         plt.tight_layout()
         plt.show()
+        
+        return fig_handle
     
     def plot_mass_balance(self, fig, chems=None, fp_type=-1, t_max=-1, 
         clear=True):
@@ -2145,11 +2180,16 @@ class Model(object):
             Flag indicating whether the figure should be cleared before 
             plotting
         
+        Returns
+        -------
+        f : plt.figure
+            A handle to the figure created
+        
         """
         import matplotlib.pyplot as plt
         
         # Prepare the figure for plotting
-        plt.figure(fig, figsize=(8,5))
+        f = plt.figure(fig, figsize=(8,5))
         if clear:
             plt.clf()
         
@@ -2230,6 +2270,8 @@ class Model(object):
         print('    Fraction subsea =      %g' % f_sub[-1])
         print('    Fraction biodegraded = %g' % f_bio[-1])
         plt.show()
+    
+        return f
 
 
 # ----------------------------------------------------------------------------
@@ -2576,7 +2618,7 @@ class Particle(dispersed_phases.PlumeParticle):
         # Run the simulation
         if not np.isnan(de):
             self.sbm.simulate(self.particle, X0, de, yk, self.T, self.K,
-                self.K_T, self.fdis, t_hyd, self.lag_time, delta_t=1000.)
+                self.K_T, self.fdis, t_hyd, self.lag_time, delta_t=86400.)
 
             # Set flag indicating that far-field solution was computed
             self.farfield = True
@@ -3249,7 +3291,7 @@ class LagElement(object):
 # Functions to plot output from the simulations
 # ----------------------------------------------------------------------------
 
-def plot_state_space(t, q, q_local, profile, p, particles, fig):
+def plot_state_space(t, q, q_local, profile, p, particles, fig, clear_fig):
     """
     Plot the Lagrangian model state space
 
@@ -3274,7 +3316,15 @@ def plot_state_space(t, q, q_local, profile, p, particles, fig):
         simulation
     fig : int
         Number of the figure window in which to draw the plot
-
+    clear_fig : bool, default=True
+        Boolean flag stating whether to clear the figure before plotting
+    
+    Returns
+    -------
+    fig : plt.figure
+        Returns a handle to the figure that could be used for saving 
+        the figure
+    
     Notes
     -----
     Plots the trajectory of the jet centerline, the trajectory of the
@@ -3299,8 +3349,9 @@ def plot_state_space(t, q, q_local, profile, p, particles, fig):
             xp[i,j*3:j*3+3] = q_local.x_p[j,:]
 
     # Plot the figure
-    plt.figure(fig)
-    plt.clf()
+    f = plt.figure(fig)
+    if clear_fig:
+        plt.clf()
     plt.show()
 
     # x-z plane
@@ -3340,10 +3391,12 @@ def plot_state_space(t, q, q_local, profile, p, particles, fig):
     ax4.grid(which='major', color='0.65', linestyle='-')
 
     plt.draw()
+    
+    return f
 
 
 def plot_all_variables(t, q, q_local, profile, p, particles,
-                       tracked, fig):
+                       tracked, fig, clear_fig=True):
     """
     Plot a comprehensive suite of simulation results
 
@@ -3372,11 +3425,22 @@ def plot_all_variables(t, q, q_local, profile, p, particles,
         track the particles.
     fig : int
         Number of the figure window in which to draw the plot
-
+    clear_fig : bool, default=True
+        Boolean flag stating whether to clear the figure before plotting
+    
+    Returns
+    -------
+    figs : list
+        Returns a handle to the figures that could be used for saving 
+        the figure
+    
     """
     # Don't offset any of the axes
     import matplotlib as mpl
     import matplotlib.pyplot as plt
+    
+    # Set up a list to hold the figure handles
+    figs = []
 
     formatter = mpl.ticker.ScalarFormatter(useOffset=False)
 
@@ -3459,8 +3523,11 @@ def plot_all_variables(t, q, q_local, profile, p, particles,
     Sy = cos_p * sin_t
 
     # Plot cross-sections through the plume
-    plt.figure(fig)
-    plt.clf()
+    f = plt.figure(fig)
+    if clear_fig:
+        plt.clf()
+    figs.append(f)
+    
     plt.show()
     fig += 1
 
@@ -3535,8 +3602,11 @@ def plot_all_variables(t, q, q_local, profile, p, particles,
     plt.draw()
 
     # Plot the Lagrangian element height and entrainment rate
-    plt.figure(fig)
-    plt.clf()
+    f = plt.figure(fig)
+    if clear_fig:
+        plt.clf()
+    figs.append(f)
+    
     plt.show()
     fig += 1
 
@@ -3555,8 +3625,11 @@ def plot_all_variables(t, q, q_local, profile, p, particles,
     plt.draw()
 
     # Plot the velocities along the plume centerline
-    plt.figure(fig)
-    plt.clf()
+    f = plt.figure(fig)
+    if clear_fig:
+        plt.clf()
+    figs.append(f)
+    
     plt.show()
     fig += 1
 
@@ -3588,8 +3661,11 @@ def plot_all_variables(t, q, q_local, profile, p, particles,
     plt.draw()
 
     # Plot the salinity, temperature, and density in the plume
-    plt.figure(fig)
-    plt.clf()
+    f = plt.figure(fig)
+    if clear_fig:
+        plt.clf()
+    figs.append(f)
+    
     plt.ticklabel_format(useOffset=False, axis='y')
     plt.show()
     fig += 1
@@ -3628,8 +3704,11 @@ def plot_all_variables(t, q, q_local, profile, p, particles,
 
     # Plot the particle mass and temperature
     if n_part > 0:
-        plt.figure(fig)
-        plt.clf()
+        f = plt.figure(fig)
+        if clear_fig:
+            plt.clf()
+        figs.append(f)
+        
         plt.ticklabel_format(useOffset=False, axis='y')
         plt.show()
         fig += 1
@@ -3649,6 +3728,8 @@ def plot_all_variables(t, q, q_local, profile, p, particles,
         ax2.grid(which='major', color='0.5', linestyle='-')
 
         plt.draw()
+    
+    return figs
 
 
 def width_projection(Sx, Sy, b):

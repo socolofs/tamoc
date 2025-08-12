@@ -53,8 +53,8 @@ if not get_option('python-only')
   cc = meson.get_compiler('c')
 
   if cc.get_id() == 'gcc'
-    if not cc.version().version_compare('>=9.1')
-      error('Tamoc requires GCC >= 9.1')
+    if not cc.version().version_compare('>=8.3.0')
+      error('Tamoc requires GCC >= 8.3.0')
     endif
   elif cc.get_id() == 'clang' or cc.get_id() == 'clang-cl'
     if not cc.version().version_compare('>=15.0')
@@ -113,7 +113,8 @@ if not get_option('python-only')
   is_mingw = is_windows and cc.get_id() == 'gcc'
   if is_mingw
     # For mingw-w64, link statically against the UCRT.
-    gcc_link_args = ['-lucrt', '-static']
+    #gcc_link_args = ['-lucrt', '-static']
+    gcc_link_args = []
     add_project_link_arguments(gcc_link_args, language: ['c'])
     # Force gcc to float64 long doubles for compatibility with MSVC
     # builds, for C only.

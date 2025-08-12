@@ -601,6 +601,69 @@ def test_coefs():
     assert_array_almost_equal(Bp, Bp_ans, decimal=6)
     assert_array_almost_equal(z_yk, yk, decimal=6)
 
+def test_delta():
+    """
+    Test the binary interaction coefficients by testing coefs with a non-zero
+    set of binary interaction coefficients.  If coefs passes, then the 
+    implementation of delta and calc-delta must be correct.
+    
+    """
+    # Consider some binary interaction coefficients taken from Atilhan,
+    # Aparicio, and Hall (2012), Ind. Eng. Chem. Res, 51: 9687-9699.  
+    mixture = ['methane', 'ethane', 'propane', 'carbon_dioxide', 
+        'nitrogen']
+    delta = np.array([[0., 0.008, 0.012, 0.113, 0.04],
+                      [0.008, 0., 0., 0.125, 0.051],
+                      [0.012, 0., 0., 0.135, 0.085],
+                      [0.113, 0.125, 0.135, 0., 0.],
+                      [0.04, 0.051, 0.085, 0., 0.]])
+    
+    mass = np.array([0.7, 0.15, 0.05, 0.07, 0.03])
+    
+    # Create a FluidParticle object to extract all the relevant property
+    # data
+    from tamoc import dbm
+    gas = dbm.FluidParticle(mixture, fp_type=0, delta=delta)
+    
+    # Get the inputs to the coefs function
+    Mol_wt = gas.M
+    Pc = gas.Pc
+    Tc = gas.Tc
+    omega = gas.omega
+    Aij = gas.Aij
+    Bij = gas.Bij
+    delta_groups = gas.delta_groups
+    calc_delta = gas.calc_delta
+    
+    # Set a thermodynamic state
+    T = 273.15 + 10.
+    P = 101325. + 1027. * 9.81 * 100.
+    
+    # Call coefs
+    A, B, Ap, Bp, z_yk = dbm_f.coefs(T, P, mass, Mol_wt, Pc, Tc, omega, 
+        delta, Aij, Bij, delta_groups, calc_delta)
+    
+    # Record the expected answer.  Note:  this answer comes from the coefs
+    # function in Fortran, which has been validated to numerous different
+    # datasets with non-zero binary interaction coefficients.  This answer
+    # is not an external result from the above-referenced paper.
+    A_ans = 0.05037272460017277
+    B_ans = 0.013511459093012193
+    Ap_ans = np.array([1.81954861, 3.14274823, 4.28392396, 2.3030203 , 
+        1.16101778])
+    Bp_ans = np.array([0.93430147, 1.41307975, 1.96307245, 0.92995203, 
+        0.83699699])
+    z_yk_ans = np.array([0.83242489, 0.09516789, 0.02163184, 0.03034445, 
+        0.02043093])
+    
+    # Check that the current results match the expected results
+    assert_approx_equal(A, A_ans, significant=6)
+    assert_approx_equal(B, B_ans, significant=6)
+    for i in range(len(mixture)):
+        assert_approx_equal(Ap[i], Ap_ans[i], significant=6)
+        assert_approx_equal(Bp[i], Bp_ans[i], significant=6)
+        assert_approx_equal(z_yk[i], z_yk_ans[i], significant=6)
+ 
 def test_mole_fraction():
     """
     Convert mass fraction to mole fraction using the function in the 

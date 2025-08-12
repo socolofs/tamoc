@@ -25,7 +25,7 @@ python_sources = [
 ]
 
 test_sources = [
-  '__init__.py',
+  'test/__init__.py',
   'test/test_ambient.py',
   'test/test_blowout.py',
   'test/test_bpm.py',
@@ -37,6 +37,20 @@ test_sources = [
   'test/test_sbm.py',
   'test/test_sintef.py',
   'test/test_spm.py'
+]
+
+data_sources = [
+  'data/Aij.csv',
+  'data/Bij.csv',
+  'data/BioData.csv',
+  'data/C.dat',
+  'data/ChemData.csv',
+  'data/ctd_BM54.cnv',
+  'data/CTD_data.dat',
+  'data/lake.dat',
+  'data/PJData.csv',
+  'data/T.dat',
+  'data/world_ocean_ave_ctd.dat'
 ]
 
 # Install the Python source files
@@ -52,6 +66,12 @@ py3.install_sources(
   install_tag: 'tests'
 ) 
 
+# Install the data files used within the package
+py3.install_sources(
+  data_sources,
+  subdir: 'tamoc/data',
+  install_tag: 'data'
+)
 
 # Create the C extension module if requested
 if get_option('with-c')
@@ -117,6 +137,4 @@ if get_option('with-fortran')
 
 endif
 
-
-
-
+subdir('tools')

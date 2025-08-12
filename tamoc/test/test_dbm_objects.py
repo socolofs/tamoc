@@ -153,18 +153,18 @@ def test_objects():
     chem_properties(o2, delta, M, Pc, Tc, omega, kh_0, neg_dH_solR, nu_bar, 
                     B, dE, K_salt)
     
-    bub = dbm.FluidParticle(comp, delta)
+    bub = dbm.FluidParticle(comp, delta = delta)
     mixture_attributes(bub, [comp], 1)
     chem_properties(bub, delta, M, Pc, Tc, omega, kh_0, neg_dH_solR, nu_bar, 
                     B, dE, K_salt)
     
     # Initiate a single-componet mixture from a string with scalar delta
-    o2 = dbm.FluidMixture(comp, 0.)
+    o2 = dbm.FluidMixture(comp, delta = 0.)
     mixture_attributes(o2, [comp], 1)
     chem_properties(o2, delta, M, Pc, Tc, omega, kh_0, neg_dH_solR, nu_bar, 
                     B, dE, K_salt)
     
-    bub = dbm.FluidParticle(comp, 0.)
+    bub = dbm.FluidParticle(comp, delta = 0.)
     mixture_attributes(bub, [comp], 1)
     chem_properties(bub, delta, M, Pc, Tc, omega, kh_0, neg_dH_solR, nu_bar, 
                     B, dE, K_salt)

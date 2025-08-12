@@ -1228,7 +1228,7 @@ class Profile(BaseProfile):
             if current.shape[1] == 3:
                 # Add a zero vertical velocity to current data
                 wa = np.zeros((current.shape[0], 1))
-                current = np.hstack(current, np.atleast_2d(wa))
+                current = np.hstack((current, np.atleast_2d(wa)))
         
         # Insert the currents
         if np.atleast_2d(current).shape[0] == 1:
@@ -2731,6 +2731,7 @@ def convert_units(data, units):
                'psu': [1.0, 0., 'psu'], 
                'salinity': [1.0, 0., 'psu'], 
                'kg/m^3': [1.0, 0., 'kg/m^3'], 
+               'g/m^3' : [1.e-3, 0., 'kg/m^3'],
                'kilogram meter-3': [1.0, 0., 'kg/m^3'], 
                'm/s': [1.0, 0., 'm/s'], 
                'mg/l': [1.e-3, 0., 'kg/m^3'],
@@ -2747,7 +2748,9 @@ def convert_units(data, units):
                '10^-15 m^2' : [1.e-15, 0., 'm^2'],
                'm^2' : [1., 0., 'm^2'],
                'kg/m^2/year' : [3.168808781402895e-08, 0., 'kg/m^2/s'],
-               'ppt' : [1.e3, 0., 'psu']  
+               'ppt' : [1.e3, 0., 'psu'],
+               'Pa^(-1)' : [1.0, 0., 'Pa^(-1)'],
+               'kg/kg' : [1.0, 0., 'kg/kg']  
            } 
     
     # Make sure the data are a numpy array and the units are a list
