@@ -349,14 +349,17 @@ def rosin_rammler_fit(d50, d_max, alpha=1.8):
         
         # Adjust d50 so that d95 does not exceed d_max
         if d95 > d_max:
-            print('\nPredicted size distribution exceeds d50...')
+            print('    Predicted size distribution exceeds d50...')
             print('    --> Adjusting size distribution down.')
             print('        Original d50 = %g (mm)' % (d50 * 1000.))
             print('        d_max = %g (mm)' % (d_max * 1000.))
             d95 = d_max
             k95 = np.log(0.05)
             d50 = d95 * (np.log(1. - 0.5) / k95)**(1. / alpha)
-            print('        New d50 = %g (mm)\n' % (d50 * 1000.))
+            print('        New d50 = %g (mm)' % (d50 * 1000.))
+    
+    # Report final size distribution
+    print(f'    --> Using d50 = {d50*1000:.2f} mm')
     
     # Return the final distribution fit
     return (d50, k, alpha)
@@ -406,12 +409,15 @@ def log_normal_fit(d50, d_max, sigma=0.27):
         
         # Adjust d_50 so that d_95 does not exceed d_max
         if d95 > d_max:
-            print('\nPredicted size distribution exceeds d50...')
+            print('    Predicted size distribution exceeds d50...')
             print('    --> Adjusting size distribution down.')
             print('        Original d50 = %g (mm)' % (d50 * 1000.))
             print('        d_max = %g (mm)' % (d_max * 1000.))
             d50 = np.exp(np.log(d_max) - 1.6449 * sigma)
-            print('        New d50 = %g (mm)\n' % (d50 * 1000.))
+            print('        New d50 = %g (mm)' % (d50 * 1000.))
+    
+    # Report final size distribution
+    print(f'    --> Using d50 = {d50*1000:.2f} mm')
     
     # Return the final distribution fit
     return (d50, sigma)
@@ -778,6 +784,7 @@ def sintef_model(Uc, d0, q, rho_p, mu_p, sigma, rho, mu, is_gas=False,
     called directly.
     
     """
+    print('\nComputing size distribution from SINTEF model...')
     if q > 0.:
         
         # Compute d_50 from the We model
@@ -918,6 +925,8 @@ def li_etal(d0, m_gas, rho_gas, m_oil, rho_oil, mu_p, sigma, rho, mu,
         Shape parameter for the Rosin-Rammler size distribution (--)
     
     """
+    print('\nComputing size distribution from Li et al. model...')
+    
     # Convert mass-flux to volume flux
     q_gas = mass2vol(m_gas, rho_gas)
     q_oil = mass2vol(m_oil, rho_oil)
@@ -1092,6 +1101,8 @@ def wang_etal(d0, m_g, rho_g, mu_g, sigma_g, rho, mu,
         units.
     
     """
+    print('\nComputing size distribution from Wang et al. model...')
+    
     # Convert mass-flux to volume flux
     Qg = mass2vol(m_g, rho_g)
     if np.sum(m_l) == 0.:
@@ -1127,6 +1138,10 @@ def wang_etal(d0, m_g, rho_g, mu_g, sigma_g, rho, mu,
                   ((kappa - 1.) * Ma)
         else:
             U_E = a * np.sqrt(2. / (kappa + 1.))
+        
+        # Report choking flow
+        print('    Found choked flow.')
+        print(f'    --> Reducing U_exit from {Ug:.1f} m/s to {U_E:.1f} m/s.')
     
     # Update the gas and oil exit velocities
     if Qg > 0:

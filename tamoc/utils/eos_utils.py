@@ -8,11 +8,68 @@ perform equations-of-state tasks for other simulation modules.
 """
 # S. Socolofsky, Texas A&M University, August 2025, <socolofs@tamu.edu>
 
-from tamoc import dbm_utilities
+from tamoc import dbm_utilities, dbm
 
 import numpy as np
 from scipy.optimize import fsolve
 
+
+def add_air_comps_to_oil(dbm_mixture, mass_frac):
+    """
+    Add air components to a fluid mixture
+    
+    Parameters
+    ----------
+    dbm_mixture : dbm.FluidMixture
+        A discrete bubble model `FluidMixture` object that contains the 
+        chemical components and thermodynamic properties of the original
+        fluid mixture.
+    mass_frac : ndarray
+        Array of mass fractions for each chemical component in the mixture
+        for the initial composition.  
+    
+    """
+    # List the air components 
+    air_comps = ['nitrogen', 'oxygen', 'argon', 'carbon_dioxide']
+    
+    # Check which components are missing from the oil 
+    add_comps = []
+    for gas in air_comps:
+        if gas not in dbm_mixture.composition:
+            add_comps.append(gas)
+    
+    # Only add air if some air components are missing
+    if len(add_comps) > 0:
+        # Extract the dbm_mixture parameters
+        orig_composition = dbm_mixture.composition
+        user_data = dbm_mixture.user_data
+        delta = dbm_mixture.delta
+        delta_groups = dbm_mixture.delta_groups
+    
+        # Add gas to the composition
+        composition = orig_composition + add_comps
+        
+        # Build the new FluidMixture object
+        if np.sum(delta_groups) == 0.:
+            dbm_mixture = dbm.FluidMixture(composition, user_data=user_data)
+            delta = dbm_utilities.pedersen(dbm_mixture.M, composition)
+        else:
+            air_groups = np.zeros((len(add_comps),15))
+            for i in range(len(add_comps)):
+                if add_comps[i] == 'nitrogen':
+                    air_groups[i,12] = 1.
+                if add_comps[i] == 'carbon_dioxide':
+                    air_groups[i,11] = 1.
+            delta_groups = np.vstack((delta_group, air_groups))
+    
+        # Create a new fluid mixture object with air added
+        dbm_mixture = dbm.FluidMixture(composition, delta=delta,
+            delta_groups=delta_groups, user_data=user_data)
+        
+        # Update the mass fractions with zeros for the added air
+        mass_frac = np.hstack((mass_frac, np.zeros(len(add_comps))))
+    
+    return dbm_mixture, mass_frac
 
 def adjust_mass_frac_for_gor(dbm_mixture, mass_frac, gor):
     """
@@ -62,18 +119,23 @@ def adjust_mass_frac_for_gor(dbm_mixture, mass_frac, gor):
     
     """
     # Get a general natural gas composition from TAMOC
-    gas_components, gas_mass_frac, gas_delta_groups = \
+    ng_components, ng_mass_frac, ng_delta_groups = \
         dbm_utilities.natural_gas()
     
-    # Check whether the present mixture contains gas
-    add_gas = True
-    for gas in gas_components:
-        if gas in dbm_mixture.composition:
-            # The given mixture contains gas components...do not add gas
-            add_gas = False
+    # Get a list of only those gases not in the current mixture
+    gas_components = []
+    gas_mass_frac = []
+    gas_delta_groups = []
+    for i in range(len(ng_components)):
+        if ng_components[i] not in dbm_mixture.composition:
+            gas_components.append(ng_components[i])
+            gas_mass_frac.append(ng_mass_frac[i])
+            gas_delta_groups.append(ng_delta_groups[i])
+    gas_mass_frac = np.array(gas_mass_frac)
+    gas_delta_groups = np.array(gas_delta_groups)
     
     # If we need to add gas, create a new dbm_mixture
-    if add_gas:
+    if len(gas_components) > 0:
         # Extract the dead-oil composition
         dead_composition = dbm_mixture.composition
         user_data = dbm_mixture.user_data
@@ -82,8 +144,14 @@ def adjust_mass_frac_for_gor(dbm_mixture, mass_frac, gor):
     
         # Add gas to the composition
         composition = gas_components + dead_composition
-        delta_groups = np.vstack((gas_groups, delta_groups))
         
+        # Build the new FluidMixture object
+        if np.sum(delta_groups) == 0.:
+            dbm_mixture = dbm.FluidMixture(composition, user_data=user_data)
+            delta = dbm_utilities.pedersen(dbm_mixture.M, composition)
+        else:
+            delta_groups = np.vstack((gas_delta_groups, delta_groups))
+    
         # Create a new fluid mixture object with gas added
         dbm_mixture = dbm.FluidMixture(composition, delta=delta,
             delta_groups=delta_groups, user_data=user_data)
@@ -92,12 +160,12 @@ def adjust_mass_frac_for_gor(dbm_mixture, mass_frac, gor):
     T_std, P_std = pete_stp()
     
     # Get an initial composition of gas- and liquid-phase petroleum
-    if add_gas:
+    if len(gas_components) > 0:
         # We had to add gas to a dead oil...assume all gas is in gas
         mf_gas = np.zeros(len(dbm_mixture.composition))
         mf_liq = np.zeros(len(dbm_mixture.composition))
-        mf_gas[0:len(gas_fractions)] = gas_mass_frac
-        mf_liq[len(gas_fractions):] = mass_frac
+        mf_gas[0:len(gas_mass_frac)] = gas_mass_frac
+        mf_liq[len(gas_mass_frac):] = mass_frac
     else:
         # Do an initial equilibrium calculation
         m, xi, K = dbm_mixture.equilibrium(mass_frac, T_std, P_std)
@@ -123,7 +191,7 @@ def adjust_mass_frac_for_gor(dbm_mixture, mass_frac, gor):
     # Return the results
     return (dbm_mixture, mass_frac)
 
-def mass_flowratefrom_volume_flowrate(dbm_mixture, mass_frac, q0):
+def mass_flowrate_from_volume_flowrate(dbm_mixture, mass_frac, q0):
     """
     Commpute the mass flux from a dead-oil volume flux
     

@@ -336,13 +336,16 @@ class Blowout(object):
                                                              self.ca,
                                                              self.q_type)
             self.new_oil = False
-
+        
         # Find the ocean conditions at the release
         self.T0, self.S0, self.P0 = self.profile.get_values(self.z0,
                                        ['temperature',
                                         'salinity',
                                         'pressure'])
-
+        # Report conditions
+        print('\nSetting initial condittions with:')
+        print(f'   Ta = {self.T0:g}, Pa = {self.P0:g}')
+        
         # Define some of the constant initial conditions
         self.Sj = 0.
         self.Tj = self.T0
@@ -390,14 +393,14 @@ class Blowout(object):
                                       0.98, False)
 
         # Set some of the hidden model parameters
-        self.dt_max = 5. * 3600.
-        self.sd_max = 300. * self.z0 / self.d0
+        self.dt_max = 1000.
+        self.sd_max = 5. * self.z0 / self.d0
 
         # Create the initialized `bent_plume_model` object
         self.bpm = bent_plume_model.Model(self.profile)
 
         # Set the flag to indicate the model is ready to run
-        self.update = True
+        self.update = True 
 
     def simulate(self):
         """
@@ -970,7 +973,7 @@ def get_ambient_profile(water, current, **kwargs):
     if isinstance(water, NoneType):
 
         # Use the world-ocean average T(z) and S(z)
-        data = None
+        water = None
 
     if isinstance(water, dict):
 
@@ -979,7 +982,7 @@ def get_ambient_profile(water, current, **kwargs):
         Ss = water['salinity']
 
         # Create a data array of depth, temperature, and salinity
-        data = np.array([0., Ts, Ss])
+        water = np.array([0., Ts, Ss])
 
     if isinstance(water, Dataset):
 
@@ -1046,7 +1049,7 @@ def get_ambient_profile(water, current, **kwargs):
 
     # Create the `ambient.Profile` object
     if not done:
-        profile = ambient.Profile(data, current=current, current_units='m/s')
+        profile = ambient.Profile(water, current=current, current_units='m/s')
 
     # Returen the profile
     return profile

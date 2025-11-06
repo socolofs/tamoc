@@ -271,7 +271,7 @@ class Model(object):
         # Store the initial conditions in a Lagrangian element object
         self.q_local = LagElement(t0, q0, D, self.profile, self.p,
                        self.particles, self.tracers, self.chem_names)
-            
+                   
         # Compute the buoyant jet trajectory
         print('\n-- TEXAS A&M OIL-SPILL CALCULATOR (TAMOC) --')
         print('-- Bent Plume Model                       --\n')
@@ -1793,9 +1793,19 @@ class Model(object):
                 if particle.particle.fp_type == 0:
                     d_gas.append(de)
                     v_gas.append(Vf)
-                else:
+                elif particle.particle.fp_type == 1:
                     d_liq.append(de)
                     v_liq.append(Vf)
+                else:
+                    # These are two-phase particles...choose a phase 
+                    # designation based on density
+                    rho_p = particle.particle.density(mp, Tp, Pa)
+                    if rho_p < 300.:
+                        d_gas.append(de)
+                        v_gas.append(Vf)
+                    else:
+                        d_liq.append(de)
+                        v_liq.append(Vf)
         
         elif stage == 1:
             # Get results from the far-field Lagrantian particle tracking...
@@ -1884,7 +1894,7 @@ class Model(object):
                     # These results are for a liquid droplet
                     d_liq.append(de)
                     v_liq.append(Vf)
-    
+        
         else:
             print('\nERROR:  Requested simulation data unknown.')
             print('    --> Choose a simulation stage = 0 (nearfield plume)')
@@ -1941,7 +1951,10 @@ class Model(object):
         d_gas, vf_gas, d_liq, vf_liq = self.report_psds(loc, stage)
         
         # Prepare the figure for plotting
-        f = plt.figure(fig, figsize=(8,7))
+        if fig in plt.get_fignums():
+            f = plt.figure(fig)
+        else:
+            f = plt.figure(fig, figsize=(8,7))
         if clear:
             plt.clf()
         
@@ -2049,7 +2062,7 @@ class Model(object):
         return figs
         
     def plot_fractions_dissolved(self, fig, chems=None, stage=1, fp_type=-1,
-        clear=True):
+        clear=True, title=''):
         """
         Plot the fraction of each chem dissolved subsea
         
@@ -2091,7 +2104,10 @@ class Model(object):
         import matplotlib.pyplot as plt
         
         # Prepare the figure for plotting
-        fig_handle = plt.figure(fig, figsize=(9,6))
+        if fig in plt.get_fignums():
+            fig_handle = plt.figure(fig)
+        else:
+            fig_handle = plt.figure(fig, figsize=(7,4))
         if clear:
             plt.clf()
 
@@ -2140,6 +2156,8 @@ class Model(object):
         ax.set_xticks(range(ncomp))
         ax.set_xticklabels(compounds, rotation=90)
         ax.set_ylabel('Fraction dissolved, (%)')
+        ax.grid(which='major', color='0.65', linestyle='-')
+        ax.set_title(title)
         plt.tight_layout()
         plt.show()
         
@@ -2189,7 +2207,10 @@ class Model(object):
         import matplotlib.pyplot as plt
         
         # Prepare the figure for plotting
-        f = plt.figure(fig, figsize=(8,5))
+        if fig in plt.get_fignums():
+            f = plt.figure(fig)
+        else:
+            f = plt.figure(fig, figsize=(8,5))
         if clear:
             plt.clf()
         
@@ -2202,13 +2223,18 @@ class Model(object):
         
         # Find the maximum surfacing time in the dataset
         t_max_p = np.nanmax(tp)
-        if t_max_p < np.nanmax(tc):
+        if np.isnan(tc).all():
+            # Nearfield plume never surfaces
+            pass
+        elif t_max_p < np.nanmax(tc):
+            # Nearfield plume surfaces after last particle...set t_max_p 
+            # to the nearfield plume
             t_max_p = tc
-        
+            
         # Make sure this time is more than a few seconds
         if t_max_p < 12.*3600.:
             t_max_p = 12.*3600.
-        
+ 
         # Create a time series with 500 points within this range
         if t_max < 0:
             t = np.linspace(1., t_max_p, num=500)
@@ -2618,7 +2644,7 @@ class Particle(dispersed_phases.PlumeParticle):
         # Run the simulation
         if not np.isnan(de):
             self.sbm.simulate(self.particle, X0, de, yk, self.T, self.K,
-                self.K_T, self.fdis, t_hyd, self.lag_time, delta_t=86400.)
+                self.K_T, self.fdis, t_hyd, self.lag_time, delta_t=1000.)
 
             # Set flag indicating that far-field solution was computed
             self.farfield = True
@@ -3390,6 +3416,7 @@ def plot_state_space(t, q, q_local, profile, p, particles, fig, clear_fig):
     ax4.set_ylabel('M (kg)')
     ax4.grid(which='major', color='0.65', linestyle='-')
 
+    plt.tight_layout()
     plt.draw()
     
     return f
@@ -3527,8 +3554,6 @@ def plot_all_variables(t, q, q_local, profile, p, particles,
     if clear_fig:
         plt.clf()
     figs.append(f)
-    
-    plt.show()
     fig += 1
 
     ax1 = plt.subplot(221)
@@ -3599,15 +3624,13 @@ def plot_all_variables(t, q, q_local, profile, p, particles,
     ax4.grid(which='major', color='0.5', linestyle='-')
     
     plt.tight_layout()
-    plt.draw()
+    plt.show()
 
     # Plot the Lagrangian element height and entrainment rate
     f = plt.figure(fig)
     if clear_fig:
         plt.clf()
     figs.append(f)
-    
-    plt.show()
     fig += 1
 
     ax1 = plt.subplot(121)
@@ -3622,15 +3645,14 @@ def plot_all_variables(t, q, q_local, profile, p, particles,
     ax2.set_ylabel('E (kg/s)')
     ax2.grid(which='major', color='0.5', linestyle='-')
 
-    plt.draw()
+    plt.tight_layout()
+    plt.show()
 
     # Plot the velocities along the plume centerline
     f = plt.figure(fig)
     if clear_fig:
         plt.clf()
     figs.append(f)
-    
-    plt.show()
     fig += 1
 
     ax1 = plt.subplot(221)
@@ -3657,21 +3679,18 @@ def plot_all_variables(t, q, q_local, profile, p, particles,
     ax4.set_xlabel('s (m)')
     ax4.set_ylabel('V (m/s)')
     ax4.grid(which='major', color='0.5', linestyle='-')
-
-    plt.draw()
+    
+    plt.tight_layout()
+    plt.show()
 
     # Plot the salinity, temperature, and density in the plume
     f = plt.figure(fig)
     if clear_fig:
         plt.clf()
     figs.append(f)
-    
-    plt.ticklabel_format(useOffset=False, axis='y')
-    plt.show()
     fig += 1
 
     ax1 = plt.subplot(221)
-    ax1.yaxis.set_major_formatter(formatter)
     ax1.plot(s, S, 'b-')
     ax1.plot(s, Sa, 'g--')
     if np.max(S) - np.min(S) < 1.e-6:
@@ -3681,7 +3700,6 @@ def plot_all_variables(t, q, q_local, profile, p, particles,
     ax1.grid(which='major', color='0.5', linestyle='-')
 
     ax2 = plt.subplot(222)
-    ax2.yaxis.set_major_formatter(formatter)
     ax2.plot(s, T - 273.15, 'b-')
     ax2.plot(s, Ta - 273.15, 'g--')
     if np.max(T) - np.min(T) < 1.e-6:
@@ -3691,7 +3709,6 @@ def plot_all_variables(t, q, q_local, profile, p, particles,
     ax2.grid(which='major', color='0.5', linestyle='-')
 
     ax3 = plt.subplot(223)
-    ax3.yaxis.set_major_formatter(formatter)
     ax3.plot(s, rho, 'b-')
     ax3.plot(s, rho_a, 'g--')
     if np.max(rho) - np.min(rho) < 1.e-6:
@@ -3700,7 +3717,8 @@ def plot_all_variables(t, q, q_local, profile, p, particles,
     ax3.set_ylabel('Density (kg/m^3)')
     ax3.grid(which='major', color='0.5', linestyle='-')
 
-    plt.draw()
+    plt.tight_layout()
+    plt.show()
 
     # Plot the particle mass and temperature
     if n_part > 0:
@@ -3708,26 +3726,22 @@ def plot_all_variables(t, q, q_local, profile, p, particles,
         if clear_fig:
             plt.clf()
         figs.append(f)
-        
-        plt.ticklabel_format(useOffset=False, axis='y')
-        plt.show()
         fig += 1
 
         ax1 = plt.subplot(121)
-        ax1.yaxis.set_major_formatter(formatter)
         ax1.plot(s, Mp / 1.e-6, 'b-')
         ax1.set_xlabel('s (m)')
         ax1.set_ylabel('m (mg)')
         ax1.grid(which='major', color='0.5', linestyle='-')
 
         ax2 = plt.subplot(122)
-        ax2.yaxis.set_major_formatter(formatter)
         ax2.plot(s, Tp - 273.15, 'b-')
         ax2.set_xlabel('s (m)')
         ax2.set_ylabel('Temperature (deg C)')
         ax2.grid(which='major', color='0.5', linestyle='-')
-
-        plt.draw()
+        
+        plt.tight_layout()
+        plt.show()
     
     return figs
 

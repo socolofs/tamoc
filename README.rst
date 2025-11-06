@@ -12,18 +12,26 @@ size distributions from source flow conditions.
 For typical usage, please see the ./bin directory of the source distribution
 for various example scripts.
 
+Version 4.0.0:  Non-beta version of the TAMOC package compatible with Meson
+                build tools.  Minor adjustments to the plotting routines, 
+                a few added diagnostic print statement.  The maximum allowable
+                time-step for particle tracking outside the plume in the 
+                bent plume model was reverted back to the value in Version 
+                3.4.2 and earlier (1000 s insteady of 86400 s).  A new `utils`
+                subpackage has been added to group together the utilities 
+                that help build and manage TAMOC objects.
 Version 4.0.0-beta:  Updated the TAMOC package to use pyproject.toml and 
                 meson.build to install.  Newer versions of Python have
                 depricated the setuptools distutils packages that NumPy
                 f2py was using to create the dbm_f extension module.  This
-                update allows the dbm_f module to be build using the latest
+                update allows the dbm_f module to be built using the latest
                 versions of Python (tested with python 3.13, numpy 2.2.5, and
                 scipy 1.15.2).  This is listed as a beta release as this is
                 the first release using this new build platform and the 
                 documentation has not yet been updated to explain how to 
                 install using meson.build and pip.  The first 4.0.0 stable
                 release will have fully updated documentation.  The original
-                setup.py files remains part of the package repository and will
+                setup.py file remains part of the package repository and will
                 continue to work with older versions of Python, NumPy, and 
                 setuptools that support the numpy.distutils package.  This
                 new version also includes a C extension module preos_c to
@@ -431,10 +439,11 @@ have trouble with either of these compilations, either edit the boolean
 flags in meson_options.txt and try the install again or send the desired 
 flags directly at the pip command using, e.g.:
 
-   >>> pip install --no-build-isolation --editable \
+   >>> pip install --no-build-isolation \
           --config-settings=setup-args=-Dwith-c=true \
           --config-settings=setup-args=-Dwith-fortran=false \
-          --config-settings=setup-args=-Dpython-only=false
+          --config-settings=setup-args=-Dpython-only=false \
+          --config-settings=builddir=<mydir> --editable .
 
 Chose true/false as needed for your own installation.  If you want to use 
 Spyder, this is not installed by default from environment.yml.  Install 

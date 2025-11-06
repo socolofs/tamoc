@@ -766,7 +766,7 @@ class BaseProfile(object):
         
         plt.show()
     
-    def plot_profiles(self, parameters, fig=1):
+    def plot_profiles(self, parameters, fig=1, clf=True):
         """
         Plot depth profiles for the given list of parameters
         
@@ -782,6 +782,8 @@ class BaseProfile(object):
             added to its own subplot.
         fig : int, default=1
             Figure number in which to create the plot
+        clf : bool, default=True
+            Flag indicating whether to clear the figures before plotting
         
         """
         # Make sure the parameters are a list
@@ -796,8 +798,13 @@ class BaseProfile(object):
         # Initialize a figure for plotting
         width = 8
         height = 4 * nrows
-        plt.figure(fig, figsize=(width, height))
-        plt.clf()
+        
+        if fig not in plt.get_fignums():
+            plt.figure(fig, figsize=(width, height))
+        else:
+            plt.figure(fig)
+        if clf:
+            plt.clf()
         
         # Plot each parameter
         for parm in parameters:
@@ -808,7 +815,7 @@ class BaseProfile(object):
         
         plt.show()
     
-    def plot_physical_profiles(self, fig=2):
+    def plot_physical_profiles(self, fig=2, clf=True):
         """
         Create a plot of temperature, salinity, potential density, and
         buoyancy frequency.
@@ -817,15 +824,21 @@ class BaseProfile(object):
         ----------
         fig : int, default=2
             Figure number in which to create the plot
+        clf : bool, default=True
+            Flag indicating whether to clear the figures before plotting
         
         """
         # Select the physical parameters
         phys_parms = ['temperature', 'salinity', 'theta', 'N']
+        vel_components = ['ua', 'va', 'wa']
+        for comp in vel_components:
+            if comp in self.chem_names:
+                phys_parms.append(comp)
         
         # Plot these parameters
-        self.plot_profiles(phys_parms, fig)
+        self.plot_profiles(phys_parms, fig, clf)
     
-    def plot_chem_profiles(self, fig=3):
+    def plot_chem_profiles(self, fig=3, clf=True):
         """
         Create a plot of all of the parameters in the chem_names list.
         
@@ -833,13 +846,15 @@ class BaseProfile(object):
         ----------
         fig : int, default=3
             Figure number in which to create the plot
+        clf : bool, default=True
+            Flag indicating whether to clear the figures before plotting
         
         """
         # Select the physical parameters
         chem_parms = self.chem_names
         
         # Plot these parameters
-        self.plot_profiles(chem_parms, fig)
+        self.plot_profiles(chem_parms, fig, clf)
         
     def update_xr_time(self, time):
         """
@@ -2721,7 +2736,10 @@ def convert_units(data, units):
     convert = {'m' : [1.0, 0., 'm'], 
                'meter' : [1.0, 0., 'm'], 
                'deg C' : [1.0, 273.15, 'K'], 
-               'Celsius' : [1.0, 273.15, 'K'], 
+               'deg c' : [1.0, 273.15, 'K'],
+               'Celsius' : [1.0, 273.15, 'K'],
+               'degrees_C' : [1.0, 273.15, 'K'],
+               'degC' : [1.0, 273.15, 'K'],
                'K' : [1.0, 0., 'K'],
                'db' : [1.e4, 101325., 'Pa'], 
                'Pa' : [1.0, 0., 'Pa'],
@@ -2733,7 +2751,8 @@ def convert_units(data, units):
                'kg/m^3': [1.0, 0., 'kg/m^3'], 
                'g/m^3' : [1.e-3, 0., 'kg/m^3'],
                'kilogram meter-3': [1.0, 0., 'kg/m^3'], 
-               'm/s': [1.0, 0., 'm/s'], 
+               'm/s' : [1.0, 0., 'm/s'], 
+               'm s-1' : [1.0, 0., 'm/s'],
                'mg/l': [1.e-3, 0., 'kg/m^3'],
                'meter second-1' : [1.0, 0., 'm/s'],
                'm.s-1' : [1.0, 0., 'm/s'],
@@ -2750,7 +2769,12 @@ def convert_units(data, units):
                'kg/m^2/year' : [3.168808781402895e-08, 0., 'kg/m^2/s'],
                'ppt' : [1.e3, 0., 'psu'],
                'Pa^(-1)' : [1.0, 0., 'Pa^(-1)'],
-               'kg/kg' : [1.0, 0., 'kg/kg']  
+               'kg/kg' : [1.0, 0., 'kg/kg'],
+               'psia' : [6894.76, 0., 'Pa'],
+               'ft³/lb-mol' : [(12. * 2.54 / 100.)**3 / 453.59237, 0.,
+                   'm^3/mol'],
+               'kPa' : [1.e3, 0., 'Pa'],
+               'm³/mol' : [1., 1., 'm^3/mol']
            } 
     
     # Make sure the data are a numpy array and the units are a list

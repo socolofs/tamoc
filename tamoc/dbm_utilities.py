@@ -486,7 +486,7 @@ def mix_gas_for_gor(dead_composition, dead_mass_frac, user_data, delta,
     
     # Get an estimate for the gas fraction from the GOR
     v_gas = gor * 0.0283168465924  # converts ft^3 = m^3
-    v_oil = 0.158987         # converts bbl to m^3
+    v_oil = 0.1589872949288        # converts bbl to m^3
     m_gas = p_gas * v_gas
     m_oil = p_oil * v_oil
     beta = m_gas / (m_gas + m_oil)
@@ -646,7 +646,7 @@ def set_mass_fluxes(composition, mass_frac, user_data, delta, delta_groups,
     # total petroleum fluid flow rate of 1 kg/s (e.g., using mass_flux equal
     # to mass_frac)
     p_oil = oil.density(m0[fp_type,:], T0, P0)[fp_type,0]
-    v_oil = np.sum(m0[fp_type,:]) / p_oil / 0.158987 # bbl
+    v_oil = np.sum(m0[fp_type,:]) / p_oil / 0.1589872949288 # bbl
     
     # Adjust the masses to yield the desired flow rate of oil in bbl/d
     k_fac = (q_oil / 86400.) / v_oil

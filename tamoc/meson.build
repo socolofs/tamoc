@@ -137,4 +137,4 @@ if get_option('with-fortran')
 
 endif
 
-subdir('tools')
+subdir('utils')

@@ -484,8 +484,8 @@ def initial_conditions(profile, z0, dbm_particle, yk, q, q_type, de,
     Define standard initial conditions for a PlumeParticle from flow rate
     
     Returns the standard variables describing a particle as needed to 
-    initializae a PlumeParticle object from specification of the dispersed phase
-    flow rate.  
+    initializae a PlumeParticle object from specification of the dispersed 
+    phase flow rate.  
     
     Parameters
     ----------
@@ -529,18 +529,23 @@ def initial_conditions(profile, z0, dbm_particle, yk, q, q_type, de,
     Ta : float
         Local temperature surrounding the particle (K)
     
+    Notes
+    -----
+    In this function, we define standard conditions by T = 15 deg C and 
+    P = 101325 Pa when the user provides a volume flux at standard conditions
+    that must be converted to a mass flux.
+                       
     """
     # Make sure yk is an array
-    if not isinstance(yk, np.ndarray):
-        if not isinstance(yk, list):
-            yk = np.array([yk])
-        else:
-            yk = np.array(yk)
+    if isinstance(yk, float):
+        yk = np.array([yk])
+    elif isinstance(yk, list):
+        yk = np.arry(yk)
     
     # Get the ambient conditions at the release
     Ta, Sa, P = profile.get_values(z0, ['temperature', 'salinity', 
                                         'pressure'])
-    
+
     # Get the particle temperature
     if T0 is None:
         T0 = copy(Ta)
@@ -548,11 +553,12 @@ def initial_conditions(profile, z0, dbm_particle, yk, q, q_type, de,
     # Compute the density at standard and in situ conditions
     if dbm_particle.issoluble:
         mf = dbm_particle.mass_frac(yk)
-        rho_N = dbm_particle.density(mf, 273.15, 1.e5)
+        rho_N = dbm_particle.density(mf, 273.15 + 15., 101325.)
         rho_p = dbm_particle.density(mf, T0, P)
+        
     else:
         mf = 1.
-        rho_N = dbm_particle.density(273.15, 1.e5, 0., 273.15)
+        rho_N = dbm_particle.density(273.15 + 15, 101315., 0., 273.15 + 15.)
         rho_p = dbm_particle.density(T0, P, Sa, Ta)
     
     # Get the mass and number flux of particles

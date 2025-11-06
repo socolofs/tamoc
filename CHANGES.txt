@@ -1,3 +1,62 @@
+V4.0.0, November 2025 --
+   . Version 4.0.0 has been tested in multiple ways, and the new installation
+     methods using Meson seem to work.  There can be some issues remaining
+     with versions of mesonpy and ninja.  These are outside the TAMOC 
+     repository and do not warrant maintaining the beta version of the code.
+   . Updated a few files for compatibility with newer versions of numpy.
+     For example, np.float() replaced with np.float64().
+   . Updated the ambient module plotting to allow the user to chose whether to
+     clear figures before plotting and to return a handle to the figure. 
+     Also, added the velocity profile to the plot_physical_profiles() method.
+     Added a few more units to the unit conversion function, mainly to do with
+     different spellings of existinng unit conversions.
+   . Updated plotting in the bent_plume_model to use tight_layout() and 
+     plt.show() instead of plt.draw()
+   . Changed the maximum time-step for single_bubble_model simulations 
+     launched by the Particle class in the bent_plume_model.  Version 
+     4.0.0-beta allowed up to one day as the time-step.  A time-step of 
+     1000 s actually runs faster (the automated time-step solver does less
+     work) and is slightly more accurate.
+   . Changed the plotting functions in the bent_plume_model to check if the
+     figure exists before trying to create a new figure.
+   . Updated the report_psds() method of the bent_plume_model so that if 
+     particles are multiphase (fp_type = 2), they get assigned for gas or 
+     liquid based on their density for the purposes of drawing gas and liquid
+     size distributions.  This has no effect on the model simulation.
+   . Updated the blowout module with some print statements to report progress,
+     and to adjust the maximum time step (1000 s) and the maximum distance
+     to compute along the plume (up to 5 times the water depth instead of
+     300 times).  Updated get_ambient_profile to create a profile if a numpy
+     array is passed in as the `water` parameter.
+   . Added some significant figures to the conversion of bbl to m^3 in the
+     dbm_utilities module.
+   . Updated the temperature and pressure of standard conditions in the 
+     dipsersed_phases.initial_conditions() method to be 15 deg C and 101325 Pa
+     instead of 0 deg C and 1 bar.
+   . Added a subpackage called `utils`.  A few commits called this subpackage
+     `tools` during testing.  The final version included in version 4.0.0 
+     is the `utils` subpackage.
+   . Added print statements in the particle_size_models module to give more
+     information to the user about the results of the calculations.
+   . Created the new subpackage `utils`.  This package orgnanizes several
+     helper functions that were scattered through the example scripts and 
+     modules into a central, thematically organized location.
+   . utils.ambient_utils:  helps to create ambient profiles from Excel files,
+     text files, numpy arrays, and compute the pressure.
+   . utils.bpm_utils:  create a bent plumem model simulation object that can
+     be initialized with a keyword dictionary of model settings.  This method
+     facilitates creating models from text files and largely replaces the
+     existing `blowout` module by a module with fewer built-in choices, 
+     giving the user access to all model settings of the bent plume model.
+   . utils.eos_tools: reorganizes some of the functions in the `dbm_utilities`
+     module to make them accessible to all `dbm` objects.  Includes methods
+     to add air components to a `dbm` object, add natural gas to achieve a
+     desired GOR, compute a mass flow rate from a volume flow rate at 
+     standard conditions, define standard conditions, and compute a volume 
+     flow rate and GOR from a mass flow rate., 
+   . Note that the documentation is not yet up-to-date with the new `utils`
+     subpackage and the test cases have not yet been created to support test
+     those modules.
 V4.0.0-beta, April 2025 --
    . Newer versions of Python do not include the setuptools distutils package
      that was used by NumPy and f2py to create the fortran extension module

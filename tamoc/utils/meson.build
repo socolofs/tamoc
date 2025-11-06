@@ -2,16 +2,16 @@
 # files and extension modules
 
 # List all Python source files to include
-tool_sources = [
+util_sources = [
   '__init__.py',
-  'bpm_tools.py',
-  'ambient_tools.py',
-  'eos_tools.py'
+  'bpm_utils.py',
+  'ambient_utils.py',
+  'eos_utils.py'
 ]
 
 
 # Install the Python source files
 py3.install_sources(
-  tool_sources,
-  subdir: 'tamoc/tools',
+  util_sources,
+  subdir: 'tamoc/utils',
 )
