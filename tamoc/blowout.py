@@ -775,10 +775,10 @@ class Blowout(object):
             first column of data.
 
         """
+        print('Updating current data...')
         self.current = current
         self.update = False
         self.bpm.sim_stored = False
-
 
     def update_track_particles(self, track):
         """

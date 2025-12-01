@@ -1,3 +1,39 @@
+V4.1.0, December 2025 --
+   . In the `particle_size_models` module, updated how the gas- and liquid-
+     phase `FluidParticle` objects are created from a `FluidMixture` to 
+     ensure that all property data and settings are identical between the 
+     `FluidMixture` and `FluidParticle` objects.  In particular, explicitly
+     pass `delta_groups`, `isair`, and `sigma_correction`.  
+   . Added a new object to the `ambient` module to get profile data from a 
+     three-dimensional space plus time interpolated dataset, the `Profile3DT`
+     object.  This object utilizes environment objects in the General NOAA
+     Operational Modeling Environment (Gnome) to interpolate temperature, 
+     salinity, and current data from data in appropriately stored `netCDF` 
+     datasets.  Hence, this new method is contingent on a working installation
+     of `gnome`.  This new profile object provided interpolated data through
+     an overloaded `get_values` method.  It can also export a static profile
+     at a given point and time through the new `profile_at_point` method.
+     Because this object requires both space and time data to locate a point,
+     the `get_values` method takes a tuple as the initial input parameter 
+     if interpolated data are desired in which the first element contains the
+     location in an array of longitude, latitude, and depth and the second 
+     element contains the time as a `datetime.datetime` object.
+   . Updated the bent plume model, dispersed phases module, and the single
+     bubble model to be able to utilize the new `Profile3DT` object or the
+     original `Profile` object.  These updates involve handling the base
+     point to convert between Cartesian and global coordinate and building
+     the location and time tuple as needed when calling `get_values`.  
+   . Updated some of the standard output plots so that the y-axis is only 
+     inverted if needed (e.g., when plotting on top of existing plots, this
+     is unnecessary) and to move some of the legends outside the plotted 
+     area to make them more readable.
+   . Added a few more output messages to ensure the user knows exactly what
+     decisions and values the model is computing.
+   . Updated the `bpm_utils` module to handle the new `Profile3DT` object,
+     including the ability to turn interpolation on or off in thne simulation.
+     When turned off, the `profile_at_point` method of the `Profile3DT` object
+     is used to get a static profile at the simulation base point and start
+     time.
 V4.0.0, November 2025 --
    . Version 4.0.0 has been tested in multiple ways, and the new installation
      methods using Meson seem to work.  There can be some issues remaining

@@ -123,6 +123,9 @@ class BaseProfile(object):
         self.err = err
         self.stabilize_profile = stabilize_profile
         
+        # Count how many times get_values is called
+        self.get_val_count = 0
+        
         # Build the BaseProfile from the provided xarray Dataset
         self._create_profile_from_xarray()
     
@@ -485,6 +488,8 @@ class BaseProfile(object):
             as the parameter names in the ``names`` input parameter.
         
         """
+        self.get_val_count += 1
+        
         # Make sure names is a list
         if isinstance(names, str) or isinstance(names, unicode):
             names = [names]
@@ -1056,6 +1061,10 @@ class Profile(BaseProfile):
         current_names = ['z', 'ua', 'va', 'wa']
         if not isinstance(current, type(None)):
             self._append_current(current, current_names, current_units)
+        
+        # This profile object uses constant data in space and time; thus, 
+        # it is not gridded.
+        self.gridded = False
     
     def _from_netCDF_Dataset(self, nc, ztsp, chem_names):
         """
@@ -1446,6 +1455,499 @@ class Profile(BaseProfile):
         self.nc_open = False
         self.nc = None
 
+class Profile3DT(Profile):
+    """
+    
+    Parameters
+    ----------
+    base_location : tuple
+        A `tuple` containing an ndarray of the point (longitude, latitude,
+        depth) and a `datetime.datetime` object of the time where and when
+        the base version of this profile object should be created.
+    z0 : ndarray
+        An array of depth coordinates along which the base profile for this
+        object should be built, m.
+    temperature : ndarray or gnome.environment object
+        If the user provides a `ndarray`, then one profile of temperature will
+        be used throughout a simulation, and each items is assumed to
+        correspond to a value in `z0`. If a Gnome `GridTemperature` object is
+        provided, then temperature that varies in space and time will be used.
+    salinity : ndarray or gnome.environment object
+        If the user provides a `ndarray`, then one profile of salinity will
+        be used throughout a simulation, and each items is assumed to
+        correspond to a value in `z0`. If a Gnome `GridSalinity` object
+        is provided, then salinity that varies in space and time will be
+        used.
+    current : ndarray or gnome.environment object
+        If the user provides a `ndarray`, then one profile of ambient currents
+        will be used throughout a simulation, and each items is assumed to
+        correspond to a value in `z0`. If a Gnome `GridCurrent` object
+        is provided, then ambient currents that vary in space and time will be
+        used.
+    chems : ndarray, default=None
+        Optional array of chemical concentration data in the ambient water
+        column, kg/m^3.  These data are static and will not vary with space 
+        or time.
+    chem_names : list, default=None
+        Optional list of chemical names corresponding to the data in `chems`
+    err : float, default=0.01
+        A parameter specifying the allowable relative error to use when
+        thinning the profile data to reduce the amount of data that must be
+        searched when the profile data are queried.
+    stabilize_profile : bool, default=True
+        A flag indicating whether the user wants the ambient profile to be 
+        absolutely stable (monotonically increasing water density with depth)
+        or whether the profile data should remain unchanged.  True will adjust
+        the data to be absolutely stable, False will leave the original 
+        temperature and pressure data unchanged.  Especially when using data
+        from a CTD, it is common to capture overturning events.  For the 
+        `TAMOC` simulation models, these should be removed so that the 
+        simulation encounters stable density stratification.
+    
+    Notes
+    -----
+    The gridded objects used by this function should come from `PyGnome` using
+    the following imports::
+    
+        from gnome.environment.environment_objects import (
+            GridTemperature, GridSalinity, GridCurrent
+        )
+    
+    Because these objects are passed in as parameters when creating this 
+    profile, these are not imported here, and no direct `PyGnome` dependencies
+    are included.  These objects return their values in regular, TAMOC units
+    from the methods::
+    
+        Ta = GridTemperature.at(point, time)
+        Sa = GridSalinity.at(point, time)
+        Ua = GridCurrent.at(point, time)
+    
+    where `point` is an ndarray of longitude (decimal deg), latitude (decimal 
+    deg), and depth (m) and `time` is a `cftime` or `datetime.datetime` 
+    object.
+    
+    """
+    def __init__(self, base_location, z0, temperature, salinity, current, 
+        chems=None, chem_names=None, err=0.01, stabilize_profile=True):
+        
+        # Record the input variables that will not be stored when inheriting
+        # the Profile object
+        self.base_location = base_location
+        self.z0 = z0
+        self.temperature = temperature
+        self.salinity = salinity
+        self.current = current
+        
+        # Decide what kinds of temperature, salinity, and current were
+        # provided
+        self.grid_temperature = True
+        self.grid_salinity = True
+        self.grid_current = True
+        if isinstance(self.temperature, np.ndarray):
+            self.grid_temperature = False
+        if isinstance(self.salinity, np.ndarray):
+            self.grid_salinity = False
+        if isinstance(self.current, np.ndarray):
+            self.grid_current = False
+        
+        # Define an array of base points corresponding to z0
+        self.base_point = np.atleast_2d(base_location[0])
+        self.base_time = base_location[1]
+        base_points = np.zeros((len(z0), 3))
+        for i in range(2):
+            base_points[:,i] = self.base_point[0,i]
+        base_points[:,2] = self.z0
+        
+        # Prepare to build the base profile
+        if not isinstance(chems, type(None)):
+            nc = len(chem_names)
+            chem_units = nc * ['kg/m^3']
+        else:
+            nc = 0
+            chem_units = None
+        data = np.zeros((len(z0), 6 + nc))
+        
+        # Populate the data set for building the base profile
+        data[:,0] = self.z0
+        
+        # Load the temperature data along z0
+        if self.grid_temperature:
+            data[:,1] = self.temperature.at(
+                base_points, self.base_time)[:,0]
+        else:
+            data[:,1] = self.temperature
+        
+        # Load the salinity data along z0
+        if self.grid_salinity:
+            data[:,2] = self.salinity.at(
+                base_points, self.base_time)[:,0]
+        else:
+            data[:,2] = self.salinity
+        
+        # Compute and load the pressure data along z0
+        pressure = compute_pressure(data[:,0], data[:,1], 
+            data[:,2], 0)
+        data[:,3] = pressure
+        
+        # Load any chemical data
+        if nc > 0:
+            m, n = self.chems.shape
+            if m == 1:
+                self.chems = np.atleast_2d(self.chems).transpose()
+            for i in range(nc):
+                data[:,4+i] = self.chems[:,i]
+        
+        # Load the current data
+        if self.grid_current:
+            Ua = self.current.at(base_points, self.base_time).data
+            Ua = np.hstack((np.atleast_2d(z0).transpose(), Ua))
+        else:
+            Ua = np.copy(self.current)
+        Ua_units = 3 * ['m/s']
+            
+        # Inhert the ambient.Profile class
+        super(Profile3DT, self).__init__(data, chem_names=chem_names, 
+            err=err, chem_units=chem_units, current=Ua, 
+            current_units=Ua_units, stabilize_profile=stabilize_profile)
+        
+        # Set whether this object has any gridded data
+        if self.grid_temperature or self.grid_salinity or self.grid_current:
+            self.gridded = True
+        else:
+            self.gridded = False
+    
+    def _parse_location(self, location):
+        """
+        Write the location passed by the user to consistent objects
+        
+        Parse the `location` variable passed by the user and create a position
+        array `X0` and `datetime.datetime` object `time` that can be used
+        by the rest of the methods in this object.  
+        
+        Parameters
+        ----------
+        location : float, ndarray, or tuple
+            Location specifies where the ambient data should be interpolated.
+            If `location` is a float, this is interpreted as a depth, and 
+            the latitude and longitude are taken from the `base_point` of the
+            `Profile3DT` object.  Likewise, if `location` is a one-dimensional
+            vector of points, these are interpreted as depth, and the 
+            horizontal position is taken from the `base_point`.  If `location`
+            is a `tuple`, then the first element is the position and the 
+            second element should be the time.  The position is interpreted
+            the same way as a `float` or `ndarray` `location`.  If the 
+            `location` is a two-dimensional array, it should be arranged with
+            longitude, latitude, and depth as the columns.
+        
+        Returns 
+        -------
+        x0 : ndarray
+            A 2-dimensional `ndarray` object of x-, y-, and z-coordinate (m)
+            data for the position to be handled
+        time : datetime.datetime
+            A `datetime.datetime` object either equal to the time passed
+            in by the user or the `base_time` of this profile.
+        
+        """
+        # Parse the location input
+        if not isinstance(location, tuple):
+            # Time was not provided
+            x0 = location
+            time = self.base_time
+        else:
+            x0, time = location
+    
+        # Make sure point is an array
+        if not isinstance(x0, np.ndarray):
+            if not isinstance(x0, list):
+                # Point should be a float
+                x0 = np.array([x0])
+            else:
+                # Point is a list
+                x0 = np.array(x0)
+        x0 = np.atleast_2d(x0)
+        
+        # Interpret the depth data
+        m, n = x0.shape
+        if (m == 3 and n == 1) or (m == 1 and n == 3):
+            # Most likely one lon, lat, depth location was given
+            if m == 3:
+                z0 = x0[2,0]
+                points = np.atleast_2d(x0).transpose()
+            else:
+                z0 = x0[0,2]
+                points = x0
+        elif m == 1 and n == 1:
+            # One depth value was given
+            z0 = x0[0,0]
+            points = np.array([[self.base_point[0,0], self.base_point[0,1], 
+                x0[0,0]]])
+        elif (m > 3 and n == 1) or (n > 3 and m == 1):
+            # Most likely a long array of depths
+            z0 = x0.flatten()
+            points = np.zeros((len(z0), 3))
+            points[:,0] = self.base_point[0,0]
+            points[:,1] = self.base_point[0,1]
+            points[:,2] = x0.flatten()
+        elif m > 1 and n == 3:
+            # Multiple points, with each row as a point
+            z0 = x0[:,2]
+            points = x0
+        elif m == 3 and n > 1:
+            # Multiple points, with each column as a point
+            z0 = x0[2,:]
+            points = x0.transpose()
+        else:
+            # We don't know how to parse this data
+            print('ERROR:  Location data with points defined by an')
+            print(f'       {m:d} x {n:d} grid of points is ambiguous.')
+        
+        return z0, points, time
+    
+    def get_values(self, location, names):
+        """
+        Overload the `get_values` methods of `ambient.BaseProfile`
+        
+        Parameters
+        ----------
+        location : float, ndarray, or tuple
+            Location specifies where the ambient data should be interpolated.
+            If `location` is a float, this is interpreted as a depth, and 
+            the latitude and longitude are taken from the `base_point` of the
+            `Profile3DT` object.  Likewise, if `location` is a one-dimensional
+            vector of points, these are interpreted as depth, and the 
+            horizontal position is taken from the `base_point`.  If `location`
+            is a `tuple`, then the first element is the position and the 
+            second element should be the time.  The position is interpreted
+            the same way as a `float` or `ndarray` `location`.  If the 
+            `location` is a two-dimensional array, it should be arranged with
+            longitude, latitude, and depth as the columns.
+        
+        """
+        # Make sure names is a list
+        if isinstance(names, str) or isinstance(names, type(u' ')):
+            names = [names]
+        
+        # Parse the location data
+        z0, points, time = self._parse_location(location)
+        
+        # Use the base object to get values for all depths using the base
+        # profile.  This will pull all chemical concentration data and format
+        # the output vector.  We will overwrite this with gridded data if 
+        # needed
+        ans = super().get_values(z0, names)
+        
+        grid_ans = []
+        grid_names = []
+        
+        # Get grid temperature if needed
+        if 'temperature' in names and self.grid_temperature:
+            # User wants temperature and there are gridded data in the 
+            # database
+            grid_ans.append(self.temperature.at(points, time))
+            grid_names.append('temperature')
+        
+        # Get grid salinity if needed
+        if 'salinity' in names and self.grid_salinity:
+            # User wants salinity and there are gridded data in the 
+            # database
+            grid_ans.append(self.salinity.at(points, time))
+            grid_names.append('salinity')
+        
+        # Get grid currents if at least one velocity component is needed
+        if (('ua' in names) or ('va' in names) or ('wa' in names)) and \
+            self.grid_current:
+            # User wants salinity and there are gridded data in the 
+            # database
+            grid_ans.append(self.current.at(points, time))
+            grid_names += ['ua', 'va', 'wa']
+                
+        # Insert gridded answers into `ans` if needed
+        if len(grid_ans) == 0:
+            return ans
+        else:
+            # Create an array of results
+            grid_ans = np.hstack(tuple(grid_ans))
+            
+            # Figure out where to insert each gridded variable
+            ans_cols = [names.index(name) 
+                        for name in grid_names if name in names]
+            i_cols = [grid_names.index(name)
+                      for name in grid_names if name in names]
+            m, n = np.atleast_2d(ans).shape
+            if m == 1:
+                ans[ans_cols] = grid_ans.flatten()[i_cols]
+            else:
+                ans[:,ans_cols] = grid_ans[:,i_cols]
+            return ans
+            
+    def profile_at_point(self, location, num=30):
+        """
+        Create a regular, non-gridded profile at the provided location
+        
+        Extract all data from the present 3D Gridded Profile at the given
+        location using the array data provided in `location` or interpoloting
+        `num` points evenly spaced along the profile if location is a single
+        point.
+        
+        In order to make sure this profile behaves exactly like the 3D 
+        Gridded Profile, this method uses `stabilize_profile` as `False` when
+        creating the non-gridded profile
+        
+        Parameters
+        ----------
+        location : float, ndarray, or tuple
+            Location specifies where the ambient data should be interpolated.
+            If `location` is a float, this is interpreted as a depth, and 
+            the latitude and longitude are taken from the `base_point` of the
+            `Profile3DT` object.  Likewise, if `location` is a one-dimensional
+            vector of points, these are interpreted as depth, and the 
+            horizontal position is taken from the `base_point`.  If `location`
+            is a `tuple`, then the first element is the position and the 
+            second element should be the time.  The position is interpreted
+            the same way as a `float` or `ndarray` `location`.  If the 
+            `location` is a two-dimensional array, it should be arranged with
+            longitude, latitude, and depth as the columns.
+        num : int
+            Number of points to interpolate along the gridded data to create
+            the profile at this point if location is a single point.
+        
+        Returns
+        -------
+        profile : ambient.Profile
+            A regular ambient.Profile object with the data extracted for 
+            the requested point.
+        
+        """
+        # Parse the location data
+        z0, points_0, time = self._parse_location(location)
+        
+        # Create a profile of points if one was not provided
+        m, n = points_0.shape
+        if m == 1:
+            # Create an even number of points
+            if z0 == 0.:
+                # Use the whole profile depth
+                z0 = self.z_max
+            points = np.zeros((num, 3))
+            points[:,0] = points_0[0,0]
+            points[:,1] = points_0[0,1]
+            points[:,2] = np.linspace(0., z0, num=num)
+        else:
+            points = np.copy(points_0)
+            num = m
+        
+        # Define the data that will be extracted...take all available data
+        ztsp = ['z'] + self.f_names[:3]
+        ztsp_units = ['m'] + self.f_units[:3]
+        chem_names = self.f_names[3:]
+        chem_units = self.f_units[3:]
+        
+        # Create a data arrayu to hold the profile data at this point
+        data = np.zeros((num, len(self.f_names) + 1))
+
+        # Populate the data using get_values
+        for i in range(num):
+            data[i,0] = points[i,2]
+            data[i,1:] = self.get_values((points[i,:], time), self.f_names)
+        
+        # Create the profile
+        self.profile = Profile(data, ztsp=ztsp, chem_names=chem_names, 
+            err=0., ztsp_units=ztsp_units, chem_units=chem_units, 
+            current=None, current_units=None, stabilize_profile=False)
+        
+        # Record the location where we have this profile
+        self.profile_point = points_0[0,:]
+        self.profile_point[2] = 0.
+        self.profile_time = time
+        
+        # Return the profile
+        return self.profile
+    
+    def buoyancy_frequency(self, location, h=0.01):
+        """
+        Replace the `buoyancy_frequency` of `ambient.BaseProfile`
+        
+        Compute the buoyancy frequence at the points defined in `location` 
+        using the `Profile3DT` data.
+
+        Parameters
+        ----------
+        location : float, ndarray, or tuple
+            Location specifies where the ambient data should be interpolated.
+            If `location` is a float, this is interpreted as a depth, and 
+            the latitude and longitude are taken from the `base_point` of the
+            `Profile3DT` object.  Likewise, if `location` is a one-dimensional
+            vector of points, these are interpreted as depth, and the 
+            horizontal position is taken from the `base_point`.  If `location`
+            is a `tuple`, then the first element is the position and the 
+            second element should be the time.  The position is interpreted
+            the same way as a `float` or `ndarray` `location`.  If the 
+            `location` is a two-dimensional array, it should be arranged with
+            longitude, latitude, and depth as the columns.
+        h : float, default value is 0.01
+            Fraction of the water depth (--) to use as the length-scale in a 
+            finite-difference approximation to the density gradient.
+        
+        Returns
+        -------
+        N : float
+            The buoyancy frequency (1/s)
+        
+        """
+        # Parse the location data passed in by the user
+        z, points, time = self._parse_location(location)
+
+        # Check validity of the input z values
+        if np.max(z) > self.z_max or np.min(z) < self.z_min:
+            raise ValueError('Selected depths outside range of ' + \
+                             'CTD data:  %g to %g m' % (self.z_min, 
+                             self.z_max))
+        if h > 1.0 or h < 0.0:
+            raise ValueError('Input parameter h must be between 0.0 ' + \
+                             'and 1.0.')
+        
+        # Prepare space to store the solution
+        if not isinstance(z, np.ndarray):
+            N = np.zeros(1)
+            z = np.array([z])
+            elements = 0
+        else:
+            N = np.zeros(z.shape)
+            elements = range(len(N))
+        
+        # Compute the length-scale for the finite difference method
+        dz = (self.z_max - self.z_min) * h
+        
+        # Fill the solution matrix
+        for i in range(len(N)):
+        # Get the end-points of z for the finite difference formula
+            if z[i] + dz > self.z_max:
+                z1 = self.z_max
+                z0 = z1 - 2 * dz
+            elif z[i] - dz < self.z_min:
+                z0 = self.z_min
+                z1 = z0 + 2 * dz
+            else:
+                z0 = z[i] - dz
+                z1 = z[i] + dz
+            xp_0 = np.array([points[i,0], points[i,1], z0])
+            xp_1 = np.array([points[i,0], points[i,1], z1])
+            
+            # Get the density at z0 and z1.  Use atmospheric pressure to 
+            # compute the potential density and remove the effect of 
+            # compressibility
+            T0, S0 = self.get_values((xp_0, time), self.ztsp[1:3])
+            T1, S1 = self.get_values((xp_1, time), self.ztsp[1:3])
+            Pa = 101325.
+            rho_0 = seawater.density(T0, S0, Pa)
+            rho_1 = seawater.density(T1, S1, Pa)
+            N[i] = np.sqrt(9.81 / rho_0 * (rho_1 - rho_0) / (z1 - z0))
+        
+        # Return a float if location is a single point; otherwise, return
+        # an array
+        return N[elements]
+        
 
 # - Functions for manipulating xarray.Dataset objects ------------------------
 
@@ -2897,6 +3399,46 @@ def get_world_ocean(Ts=290.41, Ss=34.89):
     chem_units = ['kg/m^3', 'kg/m^3']
     
     return (data, ztsp, ztsp_units, chem_names, chem_units)
+
+# - Functions to convert between (latitude, longitude) and Cartesian (x, y) --
+
+def globe_positions(x, y, z, ref_pt):
+     """
+     Compute positions in the latitude/longitude coordinate system
+    
+     Convert the `tamoc` (x, y, z) coordinate system to the GNOME (longitude,
+     latitude, depth) coordinate system using a GNOME flat-Earth projection
+     tool.
+    
+     Parameters
+     ----------
+     x : float
+         Position along the x-axis (East) in m
+     y : float
+         Position along the y-axis (North) in m
+     z : float
+         Depth (m)
+     projection : FlatEarthProjection object
+         Tool from gnome.utilities.projections that implements a flat-Earth
+         (e.g., local Cartesian) coordinate system.
+     ref_pt : ndarray
+         Reference point in longitude (deg), latitude (deg), and depth (m) for 
+         the flat-Earth projection.
+    
+     Returns
+     -------
+     list of positions
+         Returns a list of positions in longitude (deg), latitude (deg) and 
+         depth (m)
+    
+     """
+     from gnome.utilities import projections
+     
+     # Use the gnome projections tool
+     x0, y0, z0 = projections.FlatEarthProjection().meters_to_lonlat(
+         np.array([x, y, z]), ref_pt)[0] + ref_pt
+    
+     return([x0, y0, z0])
 
 
 # - Functions required to complete backward compatibility -------------------- 

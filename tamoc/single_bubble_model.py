@@ -87,7 +87,7 @@ from tamoc import dbm
 from tamoc import dispersed_phases
 
 from netCDF4 import Dataset
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import numpy as np
 # mpl imports moved to plotting functions
@@ -194,7 +194,8 @@ class Model(object):
             self.sim_stored = False
 
     def simulate(self, particle, X0, de, yk, T0=None, K=1., K_T=1.,
-                 fdis=1.e-6, t_hyd=0., lag_time=True, delta_t=0.1):
+                 fdis=1.e-6, t_hyd=0., lag_time=True, delta_t=0.1,
+                 base_location=None):
         """
         Simulate the trajectory of a particle from given initial conditions
 
@@ -230,10 +231,10 @@ class Model(object):
             component in the particle when the particle should be considered
             dissolved.
         t_hyd : float, default = 0.
-            Hydrate film formation time (s).  Mass transfer is computed by clean
-            bubble methods for t less than t_hyd and by dirty bubble methods
-            thereafter.  The default behavior is to assume the particle is dirty
-            or hydrate covered from the release.
+            Hydrate film formation time (s). Mass transfer is computed by
+            clean bubble methods for t less than t_hyd and by dirty bubble
+            methods thereafter. The default behavior is to assume the particle
+            is dirty or hydrate covered from the release.
         lag_time : bool, default = True
             flag indicating whether the biodegradation rates should include
             a lag time (True) or not (False).  Default value is True.
@@ -242,6 +243,10 @@ class Model(object):
             in `calculate_path` is set up with adaptive step size integration,
             so in theory this value determines the largest step size in the
             output data, but not the numerical stability of the calculation.
+        base_location : ndarray
+            A `tuple` containing an `ndarray` of the coordinates (longitude,
+            latitude, depth) that corresponds to the release point `X0` and 
+            a `datetime.datetime` object specifying the release time.
 
         See Also
         --------
@@ -269,6 +274,19 @@ class Model(object):
             else:
                 yk = np.array(yk)
 
+        # Determine whether a base location was provided
+        self.base_location = base_location
+        if not isinstance(self.base_location, type(None)):
+            lon_0, lat_0, z0 = np.atleast_2d(self.base_location[0])[0]
+            t0 = self.base_location[1]
+            # The base point of the flat-earth projections should be on the 
+            # sea surface
+            self.base_point = np.array([lon_0, lat_0, 0.])
+            self.base_time = t0
+        else:
+            self.base_point = None
+            self.base_time = None
+        
         # Check if the right number of elements are in yk
         if len(yk) != len(particle.composition):
             print('Wrong number of mole fractions:')
@@ -281,19 +299,36 @@ class Model(object):
         # object
         self.K_T0 = K_T
         self.delta_t = delta_t
-
-        # Get the initial conditions for the simulation run
-        (self.particle, y0) = sbm_ic(self.profile, particle, X0, de, yk, T0,
-                                     K, K_T, fdis, t_hyd, lag_time)
-
+        
         # Open the simulation module
         print('\n-- TEXAS A&M OIL-SPILL CALCULATOR (TAMOC) --')
         print('-- Single Bubble Model                    --\n')
 
+        # Print the initial conditions of the ambient profile
+        print(f'The conditions at the release point are:')
+        if self.profile.gridded:
+            point = ambient.globe_positions(X0[0], X0[1], X0[2], 
+                self.base_point)
+            location = (point, self.base_time)
+            print(f'    ({point[1]:.3f} deg N, {point[0]:.3f} deg W, ' + 
+                f' {point[2]:.3f} m)')
+        else:
+            location = X0[2]
+            print(f'    ({X0[0]:.1f} m, {X0[1]:.1f} m, {X0[2]:.1f} m)')
+        Ta, Sa, Pa, ua, va = self.profile.get_values(location,
+            ['temperature', 'salinity', 'pressure', 'ua', 'va'])
+        print(f'    Ta = {Ta:.2f} K, Sa = {Sa:.1f} psu')
+        print(f'    ua = {ua:.2f} m/s, va = {va:.2f} m/s\n')
+
+        # Get the initial conditions for the simulation run
+        (self.particle, y0) = sbm_ic(self.profile, particle, X0, de, yk, T0,
+            K, K_T, fdis, t_hyd, lag_time, self.base_point, self.base_time)
+
         # Calculate the trajectory
         print('Calculate the trajectory...')
+        
         self.t, self.y = calculate_path(self.profile, self.particle, self.p,
-                                        y0, delta_t)
+            y0, delta_t, self.base_point, self.base_time)
         print('Simulation complete.\n ')
         self.sim_stored = True
 
@@ -381,7 +416,14 @@ class Model(object):
             Tp = self.y[i,-1] / (np.sum(m) * self.particle.cp)
             
             # Get the ambient profile data
-            Ta, Sa, Pa = self.profile.get_values(z, ['temperature',
+            if self.profile.gridded:
+                location = (
+                    ambient.globe_positions(x, y, z, self.base_point), 
+                    self.base_time + timedelta(seconds=t)
+                )
+            else:
+                location = z
+            Ta, Sa, Pa = self.profile.get_values(location, ['temperature',
                 'salinity', 'pressure'])
 
             # Get the derived particle properties
@@ -702,7 +744,7 @@ class Model(object):
         nc.close()
         self.sim_stored = True
 
-    def post_process(self, fig=1):
+    def post_process(self, fig=1, clf=True):
         """
         Plot the simulation state space and key interrogation parameters
 
@@ -713,6 +755,9 @@ class Model(object):
         ----------
         fig : int
             Figure number to pass to the plotting methods
+        clf : bool
+            Flag indicating whether to clear the figure before plotting the 
+            present data
 
         See Also
         --------
@@ -727,7 +772,7 @@ class Model(object):
         # Plot the results
         print('Plotting the results...')
         plot_state_space(self.profile, self.particle, self.p, self.t,
-                         self.y, fig)
+                         self.y, fig, clf, self.base_point, self.base_time)
         print('Done.\n')
 
 
@@ -758,6 +803,9 @@ class ModelParams(object):
 
         # Store a reference density for the water column
         z_ave = profile.z_max - (profile.z_max - profile.z_min) / 2.
+        
+        # Whether gridded or regular, compute the reference density from 
+        # the reference profile
         T, S, P = profile.get_values(z_ave, ['temperature', 'salinity',
                                      'pressure'])
         self.rho_r = seawater.density(T, S, P)
@@ -771,7 +819,8 @@ class ModelParams(object):
 # Functions to compute the trajectory
 # ----------------------------------------------------------------------------
 
-def calculate_path(profile, particle, p, y0, delta_t):
+def calculate_path(profile, particle, p, y0, delta_t, base_point=None, 
+    base_time=None):
     """
     Calculate the trajectory of a particle
 
@@ -791,6 +840,12 @@ def calculate_path(profile, particle, p, y0, delta_t):
         content in J of the particle) at the release point
     delta_t : float
         Maximum step size (s) to take in the integration
+    base_point : ndarray, default=None
+        The global coordinate (longitude, latitude, 0.) of the release point.
+        Only used if the `profile` object includes gridded data.
+    base_time : datetime.datime, default=None
+        The start time of the simulation as a `datetime.datetime` object.
+        Only used if the `profile` object includes gridded data.
 
     Notes
     -----
@@ -821,7 +876,7 @@ def calculate_path(profile, particle, p, y0, delta_t):
     r.set_initial_value(y0, t0)
 
     # Set passing variables for derivs method
-    r.set_f_params(profile, particle, p)
+    r.set_f_params(profile, particle, p, base_point, base_time)
 
     # Create vectors (using the list data type) to store the solution
     t = [t0]
@@ -846,7 +901,15 @@ def calculate_path(profile, particle, p, y0, delta_t):
         # Store the results
         if particle.K_T == 0:
             # Make the state-space heat correct
-            Ta = profile.get_values(r.y[2], 'temperature')
+            if profile.gridded:
+                location = (
+                    ambient.globe_positions(r.y[0], r.y[1], r.y[2], 
+                        base_point), 
+                    base_time + timedelta(seconds=r.t)
+                )
+            else:
+                location = r.y[2]
+            Ta = profile.get_values(location, 'temperature')
             r.y[-1] = np.sum(r.y[3:-1]) * particle.cp * Ta
         for i in range(len(r.y[3:-1])):
             if r.y[i+3] < 0.:
@@ -868,7 +931,7 @@ def calculate_path(profile, particle, p, y0, delta_t):
             if t[-1] > 1209600:
                 # Particle has reached 14 days of simulation
                 stop = True
-
+            
     # Remove any negative depths due to overshooting the free surface
     t = np.array(t)
     y = np.array(y)
@@ -882,7 +945,7 @@ def calculate_path(profile, particle, p, y0, delta_t):
     return (t, y)
 
 
-def derivs(t, y, profile, particle, p):
+def derivs(t, y, profile, particle, p, base_point=None, base_time=None):
     """
     Compute the RHS of the ODE for the trajectory of a single particle
 
@@ -904,6 +967,12 @@ def derivs(t, y, profile, particle, p):
         Object describing the properties and behavior of the particle.
     p : `ModelParams` object
         Object containing the model parameters
+    base_point : ndarray, default=None
+        The global coordinate (longitude, latitude, 0.) of the release point.
+        Only used if the `profile` object includes gridded data.
+    base_time : datetime.datime, default=None
+        The start time of the simulation as a `datetime.datetime` object.
+        Only used if the `profile` object includes gridded data.
 
     Notes
     -----
@@ -915,14 +984,22 @@ def derivs(t, y, profile, particle, p):
     yp = np.zeros(y.shape)
 
     # Extract the state space variables for speed and ease of reading code
-    z = y[2]
+    xi, yi, zi = y[:3]
     m = y[3:-1]
     T = y[-1] / (np.sum(m) * particle.cp)
 
     # Get the ambient profile data
-    Ta, Sa, P = profile.get_values(z, ['temperature', 'salinity', 'pressure'])
-    ua, va, wa = profile.get_values(z, ['ua', 'va', 'wa'])
-    C = profile.get_values(z, particle.composition)
+    if profile.gridded:
+        location = (
+            ambient.globe_positions(xi, yi, zi, base_point), 
+            base_time + timedelta(seconds=t)
+        )
+    else:
+        location = zi
+    Ta, Sa, P = profile.get_values(location, ['temperature', 'salinity', 
+        'pressure'])
+    ua, va, wa = profile.get_values(location, ['ua', 'va', 'wa'])
+    C = profile.get_values(location, particle.composition)
 
     # Get the physical particle properties
     (us, rho_p, A, Cs, beta, beta_T, T) = particle.properties(m, T, P, Sa,
@@ -957,7 +1034,8 @@ def derivs(t, y, profile, particle, p):
     return yp
 
 
-def sbm_ic(profile, particle, X0, de, yk, T0, K, K_T, fdis, t_hyd, lag_time):
+def sbm_ic(profile, particle, X0, de, yk, T0, K, K_T, fdis, t_hyd, lag_time,
+    base_point=None, base_time=None):
     """
     Set the initial conditions for a single bubble model simulation
 
@@ -996,6 +1074,12 @@ def sbm_ic(profile, particle, X0, de, yk, T0, K, K_T, fdis, t_hyd, lag_time):
         bubble methods for t less than t_hyd and by dirty bubble methods
         thereafter.  The default behavior is to assume the particle is dirty
         or hydrate covered from the release.
+    base_point : ndarray, default=None
+        The global coordinate (longitude, latitude, 0.) of the release point.
+        Only used if the `profile` object includes gridded data.
+    base_time : datetime.datime, default=None
+        The start time of the simulation as a `datetime.datetime` object.
+        Only used if the `profile` object includes gridded data.
 
     Returns
     -------
@@ -1023,9 +1107,20 @@ def sbm_ic(profile, particle, X0, de, yk, T0, K, K_T, fdis, t_hyd, lag_time):
     passed to this function.
 
     """
+    # The dispersed phases initial condition only takes depth as initial 
+    # coordinate.  Make sure the base point is exactly at the release 
+    # condition
+    if profile.gridded:
+        # Get the exact release point
+        release_pt = ambient.globe_positions(X0[0], X0[1], X0[2], base_point)
+        # The base-point for the transform should be at z = 0
+        release_pt[2] = 0.
+    else:
+        release_pt = None
+    
     # Get the particle initial conditions from the dispersed_phases module
     m0, T0, nb0, P, Sa, Ta = dispersed_phases.initial_conditions(profile,
-        X0[2], particle, yk, None, 0, de, T0)
+        X0[2], particle, yk, None, 0, de, T0, release_pt, base_time)
 
     # Initialize a LagrangianParticle object
     particle = dispersed_phases.SingleParticle(particle, m0, T0, K, K_T,
@@ -1042,7 +1137,17 @@ def sbm_ic(profile, particle, X0, de, yk, T0, K, K_T, fdis, t_hyd, lag_time):
 # Functions to post process the simulation solution
 # ----------------------------------------------------------------------------
 
-def plot_state_space(profile, particle, p, t, y, fig):
+def invert_yaxis(ax):
+    """
+    Decide whether the passed axis `ax` needs to have the y-axis inverted
+    
+    """
+    y0, y1 = ax.get_ylim()
+    if y0 < y1:
+        ax.invert_yaxis()
+
+def plot_state_space(profile, particle, p, t, y, fig, clf=True, 
+    base_point=None, base_time=None):
     """
     Create the basic plots to interrogate the solution for the particle path
 
@@ -1067,7 +1172,15 @@ def plot_state_space(profile, particle, p, t, y, fig):
         separate column of `y`.
     fig : int
         Figure number to place the first of the plots.
-
+    clf : bool
+        Boolean stating whether to clear existing figures before plotting
+    base_point : ndarray, default=None
+        The global coordinate (longitude, latitude, 0.) of the release point.
+        Only used if the `profile` object includes gridded data.
+    base_time : datetime.datime, default=None
+        The start time of the simulation as a `datetime.datetime` object.
+        Only used if the `profile` object includes gridded data.
+    
     Notes
     -----
     Creates three figure windows:
@@ -1104,7 +1217,14 @@ def plot_state_space(profile, particle, p, t, y, fig):
     N = np.zeros(t.shape)
     T_fun = np.zeros(t.shape)
     for i in range(len(t)):
-        Ta[i], Sa[i], P[i] = profile.get_values(zi[i], ['temperature',
+        if profile.gridded:
+            location = (
+                ambient.globe_positions(xi[i], yi[i], zi[i], base_point), 
+                base_time + timedelta(seconds=t[i])
+            )
+        else:
+            location = zi[i]
+        Ta[i], Sa[i], P[i] = profile.get_values(location, ['temperature',
                              'salinity', 'pressure'])
         N[i] = profile.buoyancy_frequency(zi[i], h=0.005)
         (us[i], rho_p[i], A[i], Cs_local, beta_local, beta_T, T_fun[i]) = \
@@ -1116,12 +1236,16 @@ def plot_state_space(profile, particle, p, t, y, fig):
                    Sa[i], Ta[i])[0]
         de[i] = particle.diameter(m[i,:], T[i], P[i], Sa[i], Ta[i])
 
-    # Start by plotting the raw state space versus t
-    plt.figure(fig)
-    plt.clf()
-    plt.show()
+    # Start by plotting the raw state space versus t -------------------------
+    if fig in plt.get_fignums():
+        f = plt.figure(fig)
+        if clf:
+            plt.clf()
+    else:
+        f = plt.figure(fig, figsize=(7.7, 4.8))
+    fig += 1
 
-    # Depth
+    # Depth versus time
     ax1 = plt.subplot(221)
     ax1.plot(zi, t)
     ax1.set_xlabel('Depth (m)')
@@ -1138,11 +1262,12 @@ def plot_state_space(profile, particle, p, t, y, fig):
 
     # Masses
     ax3 = plt.subplot(223)
-    ax3.semilogx(m, t)
+    lines = []
+    for i in range(len(particle.composition)):
+        line, = ax3.semilogx(m[:,i], t)
+        lines.append(line)
     ax3.set_xlabel('Component masses (kg)')
     ax3.locator_params(axis='y', tight=True, nbins=6)
-    #ax3.xaxis.set_major_locator(mpl.ticker.LogLocator(base=1e2))
-    ax3.legend(tuple(particle.composition))
     ax3.grid(True)
 
     # Heat
@@ -1150,15 +1275,60 @@ def plot_state_space(profile, particle, p, t, y, fig):
     ax4.semilogx(y[:,-1], t)
     ax4.set_xlabel('Heat (J)')
     ax4.locator_params(axis='y', tight=True, nbins=6)
-    #ax4.xaxis.set_major_locator(mpl.ticker.LogLocator(base=1e2))
     ax4.grid(True)
 
-    plt.draw()
-
-    # Plot derived variables related to diameter
-    plt.figure(fig+1)
-    plt.clf()
+    # Create a legend for the composition and place to right
+    f.legend(lines, tuple(particle.composition), loc='center right', 
+        bbox_to_anchor=(1.,0.5))
+    
+    # Clean up figure and allow legend to show
+    plt.tight_layout(rect=[0, 0, 0.85, 1])
     plt.show()
+    
+    # Plot trajectory ---------------------------------------------------------
+    if fig in plt.get_fignums():
+        f = plt.figure(fig)
+        if clf:
+            plt.clf()
+    else:
+        f = plt.figure(fig)
+    fig += 1
+    
+    # xz-plane
+    ax1 = plt.subplot(221)
+    ax1.plot(xi, zi, '.-', markersize=3, linewidth=0.75)
+    ax1.set_xlabel('x-coordinate (m)')
+    ax1.set_ylabel('Depth (m)')
+    invert_yaxis(ax1)
+    ax1.grid(True)
+    
+    # yz-plane
+    ax2 = plt.subplot(222)
+    ax2.plot(yi, zi, '.-', markersize=3, linewidth=0.75)
+    ax2.set_xlabel('y-coordinate (m)')
+    ax2.set_ylabel('Depth (m)')
+    invert_yaxis(ax2)
+    ax2.grid(True)    
+    
+    # xy-plane
+    ax3 = plt.subplot(223)
+    ax3.plot(xi, yi, '.-', markersize=3, linewidth=0.75)
+    ax3.set_xlabel('x-coordinate (m)')
+    ax3.set_ylabel('y-coordinate (m)')
+    invert_yaxis(ax3)
+    ax3.grid(True)
+    
+    plt.tight_layout()
+    plt.show()
+    
+    # Plot derived variables related to diameter ------------------------------
+    if fig in plt.get_fignums():
+        f = plt.figure(fig)
+        if clf:
+            plt.clf()
+    else:
+        plt.figure(fig)
+    fig += 1
 
     # Diameter
     ax1 = plt.subplot(221)
@@ -1166,8 +1336,7 @@ def plot_state_space(profile, particle, p, t, y, fig):
     ax1.set_xlabel('Diameter (mm)')
     ax1.set_ylabel('Depth (m)')
     ax1.locator_params(axis='y', tight=True, nbins=6)
-    #ax1.xaxis.set_major_locator(mpl.ticker.LogLocator(base=1e2))
-    ax1.invert_yaxis()
+    invert_yaxis(ax1)
     ax1.grid(True)
 
     # Shape
@@ -1175,7 +1344,7 @@ def plot_state_space(profile, particle, p, t, y, fig):
     ax2.plot(shape, zi)
     ax2.set_xlabel('Shape (--)')
     ax2.set_xlim((0, 4))
-    ax2.invert_yaxis()
+    invert_yaxis(ax2)
     ax2.grid(which='major', axis='x')
     ax2.locator_params(tight=True, nbins=4)
     ax2.grid(True)
@@ -1185,7 +1354,7 @@ def plot_state_space(profile, particle, p, t, y, fig):
     ax3.plot(rho_p, zi)
     ax3.set_xlabel('Density (kg)')
     ax3.set_ylabel('Depth (m)')
-    ax3.invert_yaxis()
+    invert_yaxis(ax3)
     ax3.locator_params(tight=True, nbins=6)
     ax3.grid(True)
 
@@ -1195,15 +1364,21 @@ def plot_state_space(profile, particle, p, t, y, fig):
     ax4.plot(T_fun, zi)
     ax4.plot(Ta, zi)
     ax4.set_xlabel('Temperature (K)')
-    ax4.invert_yaxis()
+    invert_yaxis(ax4)
     ax4.locator_params(tight=True, nbins=6)
     ax4.grid(True)
-    plt.draw()
-
-    # Plot dissolution data
-    plt.figure(fig+2)
-    plt.clf()
+    
+    plt.tight_layout()
     plt.show()
+
+    # Plot dissolution data --------------------------------------------------
+    if fig in plt.get_fignums():
+        f = plt.figure(fig)
+        if clf:
+            plt.clf()
+    else:
+        f = plt.figure(fig, figsize=(7.7, 4.8))
+    fig += 1
 
     # Masses
     ax1 = plt.subplot(221)
@@ -1211,24 +1386,22 @@ def plot_state_space(profile, particle, p, t, y, fig):
     ax1.set_xlabel('Component masses (kg)')
     ax1.set_ylabel('Depth (m)')
     ax1.locator_params(axis='y', tight=True, nbins=6)
-    #ax1.xaxis.set_major_locator(mpl.ticker.LogLocator(base=1e2))
-    ax1.invert_yaxis()
+    invert_yaxis(ax1)
     ax1.grid(True)
-    ax1.legend(tuple(particle.composition))
 
     # Solubility
     ax2 = plt.subplot(222)
     ax2.plot(Cs, zi)
     ax2.set_xlabel('Solubility (kg/m^3)')
     ax2.locator_params(tight=True, nbins=6)
-    ax2.invert_yaxis()
+    invert_yaxis(ax2)
     ax2.grid(True)
 
     # Mass transfer coefficient
     ax3 = plt.subplot(223)
     ax3.plot(beta, zi)
     ax3.set_xlabel('Mass transfer (m/s)')
-    ax3.invert_yaxis()
+    invert_yaxis(ax3)
     ax3.locator_params(tight=True, nbins=6)
     ax3.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
     ax3.grid(True)
@@ -1238,47 +1411,57 @@ def plot_state_space(profile, particle, p, t, y, fig):
     ax4.semilogx(A, zi)
     ax4.set_xlabel('Surface area (m^2)')
     ax4.locator_params(axis='y', tight=True, nbins=6)
-    #ax4.xaxis.set_major_locator(mpl.ticker.LogLocator(base=1e2))
-    ax4.invert_yaxis()
+    invert_yaxis(ax4)
     ax4.grid(True)
 
-    plt.draw()
-
-    # Plot dissolution data
-    plt.figure(fig+3)
-    plt.clf()
+    # Create a legend for the composition and place to right
+    f.legend(lines, tuple(particle.composition), loc='center right', 
+        bbox_to_anchor=(1.,0.5))
+    
+    # Clean up figure and allow legend to show
+    plt.tight_layout(rect=[0, 0, 0.85, 1])
     plt.show()
+
+    # Plot ambient profile data ----------------------------------------------
+    if fig in plt.get_fignums():
+        f = plt.figure(fig)
+        if clf:
+            plt.clf()
+    else:
+        plt.figure(fig)
+    fig += 1
 
     # CTD Temperature
     ax1 = plt.subplot(221)
-    ax1.plot(Ta - 273.15, zi)
+    ax1.plot(Ta - 273.15, zi, '.-', markersize=3, linewidth=0.75)
     ax1.set_xlabel('Temperature (deg C)')
     ax1.set_ylabel('Depth (m)')
     ax1.locator_params(tight=True, nbins=6)
-    ax1.invert_yaxis()
+    invert_yaxis(ax1)
     ax1.grid(True)
 
     ax2 = plt.subplot(222)
-    ax2.plot(Sa, zi)
+    ax2.plot(Sa, zi, '.-', markersize=3, linewidth=0.75)
     ax2.set_xlabel('Salinity (psu)')
     ax2.locator_params(tight=True, nbins=6)
-    ax2.invert_yaxis()
+    invert_yaxis(ax2)
     ax2.grid(True)
 
     ax3 = plt.subplot(223)
-    ax3.plot(P, zi)
+    ax3.plot(P, zi, '.-', markersize=3, linewidth=0.75)
     ax3.set_xlabel('Pressure (Pa)')
     ax3.set_ylabel('Depth (m)')
     ax3.locator_params(tight=True, nbins=6)
-    ax3.invert_yaxis()
+    invert_yaxis(ax3)
     ax3.grid(True)
 
     ax4= plt.subplot(224)
-    ax4.plot(N, zi)
+    ax4.plot(N, zi, '.-', markersize=3, linewidth=0.75)
     ax4.set_xlabel('Buoyancy Frequency (1/s)')
     ax4.locator_params(tight=True, nbins=6)
-    ax4.invert_yaxis()
+    invert_yaxis(ax4)
     ax4.grid(True)
 
-    plt.draw()
+    plt.tight_layout()
+    plt.show()
 

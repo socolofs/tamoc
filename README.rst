@@ -12,6 +12,17 @@ size distributions from source flow conditions.
 For typical usage, please see the ./bin directory of the source distribution
 for various example scripts.
 
+Version 4.1.0:  Adds a new `Profile3DT` object to the `ambient` module that
+                allows ambient profile data to be obtained from 
+                three-dimensional space plus time `netCDF` datasets through
+                environment objects defined in the General NOAA Operational
+                Modeling Environment.  Hence, this new capability is 
+                contingent on a working installation of `gnome`.  Updated
+                calls to `get_values` throughout the bent plume model, 
+                dispersed phases, and single bubble model modules to allow
+                for use of the new `Profile3DT` object, which requires both
+                space and time to define the point for interpolation.  Updated 
+                some of the standard plots for more readable legends.
 Version 4.0.0:  Non-beta version of the TAMOC package compatible with Meson
                 build tools.  Minor adjustments to the plotting routines, 
                 a few added diagnostic print statement.  The maximum allowable

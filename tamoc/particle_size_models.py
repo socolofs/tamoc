@@ -1064,10 +1064,15 @@ class Model(ModelBase):
             self.mu_gas = None
             self.sigma_gas = None
         else:
+            # Copy the fluid mixture to a gas particle
             self.gas = dbm.FluidParticle(self.oil_mixture.composition,
-                                         fp_type=0,
-                                         delta=oil_mixture.delta,
-                                         user_data=oil_mixture.user_data)
+                fp_type=0,
+                delta=oil_mixture.delta,
+                user_data=oil_mixture.user_data,
+                delta_groups=oil_mixture.delta_groups,
+                isair = oil_mixture.isair,
+                sigma_correction = oil_mixture.sigma_correction)
+            self.gas.calc_delta = oil_mixture.calc_delta
             self.m_gas = m_eq[0,:]
             self.rho_gas = self.gas.density(self.m_gas, self.Tj, self.Pj)
             self.mu_gas = self.gas.viscosity(self.m_gas, self.Tj, self.Pj)
@@ -1082,11 +1087,15 @@ class Model(ModelBase):
             self.mu_oil = None
             self.sigma_oil = None
         else:
+            # Copy the fluid mixture to a liquid particle
             self.oil = dbm.FluidParticle(self.oil_mixture.composition,
-                                         fp_type=1,
-                                         delta=oil_mixture.delta,
-                                         user_data=oil_mixture.user_data)
-
+                fp_type=1,
+                delta=oil_mixture.delta,
+                user_data=oil_mixture.user_data,
+                delta_groups=oil_mixture.delta_groups,
+                isair=oil_mixture.isair,
+                sigma_correction=oil_mixture.sigma_correction)
+            self.oil.calc_delta = oil_mixture.calc_delta
             self.m_oil = m_eq[1,:]
             self.rho_oil = self.oil.density(self.m_oil, self.Tj, self.Pj)
             self.mu_oil = self.oil.viscosity(self.m_oil, self.Tj, self.Pj)

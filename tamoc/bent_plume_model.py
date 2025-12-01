@@ -47,7 +47,7 @@ from tamoc import dispersed_phases
 from tamoc import lmp
 
 from netCDF4 import Dataset
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import numpy as np
 from numpy.linalg import inv
@@ -160,18 +160,28 @@ class Model(object):
 
         else:
             # Create a new Model object
-            self.profile = profile
+            if profile.gridded:
+                self.profile_3dt = profile
+                self.grid_profile = True
+            else:
+                self.profile = profile
+                self.grid_profile = False
+
             self.got_profile = True
             profile.close_nc()
 
             # Set the model parameters that the user cannot adjust
-            self.p = ModelParams(self.profile)
+            if self.grid_profile:
+                self.p = ModelParams(self.profile_3dt)
+            else:
+                self.p = ModelParams(self.profile)
 
             # Indicate that the simulation has not yet been conducted
             self.sim_stored = False
 
     def simulate(self, X, D, Vj, phi_0, theta_0, Sj, Tj, cj, tracers,
-                 particles=[], track=False, dt_max=60., sd_max=350.):
+            particles=[], track=False, dt_max=60., sd_max=350., 
+            base_location=None, use_profile_3dt=False):
         """
         Simulate the plume dynamics from given initial conditions
 
@@ -183,7 +193,10 @@ class Model(object):
         Parameters
         ----------
         X : ndarray
-            Release location (x, y, z) in (m)
+            Release location (x, y, z) in (m) as an `ndarray`, `list`, or 
+            `float`, in which case the value is taken as the `z` coordinate.
+            This point should be relative in Cartesian coordinates to any
+            `base_location` that is provided for the simulation.
         D : float
             Diameter for the equivalent circular cross-section of the release
             (m)
@@ -223,7 +236,16 @@ class Model(object):
         sd_max : float
             Maximum number of orifice diameters to compute the solution along
             the plume centerline (m/m)
-
+        base_location : tuple, default=None
+            A `tuple` containing an `ndarray` of the coordinates (longitude,
+            latitude, depth) that corresponds to the release point `X0` and 
+            a `datetime.datetime` object specifying the release time.
+        use_profile_3dt : bool, default=False
+            If the `profile` object is a gridded profile, this flag sets 
+            whether to use the 3D grid and time interpolation for the 
+            particle tracking outside the plume (`True`) or to use a constant
+            profile extracted from the `base_location` (`False`)
+            
         """
         # Make sure the position is an array
         if not isinstance(X, np.ndarray):
@@ -263,6 +285,30 @@ class Model(object):
         else:
             self.composition = []
 
+        # Determine whether a base location was provided
+        self.base_location = base_location
+        if not isinstance(self.base_location, type(None)):
+            lon_0, lat_0, z0 = np.atleast_2d(self.base_location[0])[0]
+            t0 = self.base_location[1]
+            # The base point of the flat-earth projections should be on the 
+            # sea surface
+            self.base_point = np.array([lon_0, lat_0, 0.])
+            self.base_time = t0
+        else:
+            self.base_point = None
+            self.base_time = None
+        self.use_profile_3dt = use_profile_3dt
+            
+        # Determine whether the profile is gridded, in which case the bent
+        # plume model needs to use a constant profile to save time
+        if self.grid_profile:
+            # Create a constant profile from the base location with a grid
+            # spacing of no greater than 15 m and a number of points no less
+            # than 30 points
+            num = int(np.max(np.array([30, self.X[2] / 15.])))
+            self.profile = self.profile_3dt.profile_at_point(
+                self.base_location, num=num)
+
         # Create the initial state space from the given input variables
         t0, q0, self.chem_names = lmp.main_ic(self.profile,
             self.particles, self.X, self.D, self.Vj, self.phi_0,
@@ -277,9 +323,32 @@ class Model(object):
         print('-- Bent Plume Model                       --\n')
         self.t, self.q, = lmp.calculate(t0, q0, self.q_local, self.profile,
             self.p, self.particles, lmp.derivs, self.dt_max, self.sd_max)
-
+        print('Simulation complete.')
+        
         # Track the particles
+        print('\nParticle tracking is set to: ', self.track)
         if self.track:
+            
+            # Set the profile object for particle tracking
+            if self.use_profile_3dt and self.grid_profile:
+                print('\nUsing 3D space and time gridded profile for ')
+                print('particle tracking.')
+                print('    Base location:  ', self.base_location)
+                track_profile = self.profile_3dt
+            
+            elif self.use_profile_3dt and not self.grid_profile:
+                print('\nWARNING:  3D space and time gridded profile ')
+                print('          requested for particle tracking, but ')
+                print('          regular, constant profile provided.  ')
+                print('       -> Using constant profile.')
+                track_profile = self.profile
+            
+            else:
+                print('\nUsing constant profile for particle tracking.')
+                print(f'    z_max = {self.profile.z_max:.1f} m ' + 
+                    f'z_min = {self.profile.z_min:.1f} m')
+                track_profile = self.profile
+            
             for i in range(len(self.particles)):
                 # Initialize flag indicating whether the particle was tracked
                 self.particles[i].tracked = False
@@ -287,7 +356,7 @@ class Model(object):
                 if particles[i].integrate is False and particles[i].z > 0.:
                     print('\nTracking Particle %d of %d:' %
                         (i+1, len(self.particles)))
-                    particles[i].run_sbm(self.profile)
+                    particles[i].run_sbm(track_profile, self.base_location)
                     particles[i].tracked = True
                 
                 # Code below forces tracking of all particles, including
@@ -301,7 +370,7 @@ class Model(object):
                     # Track the particles
                     print('\nTracking Plume Particle %d of %d:' %
                         (i+1, len(self.particles)))
-                    particles[i].run_sbm(self.profile)
+                    particles[i].run_sbm(track_profile, self.base_location)
                     self.particles[i].tracked = True
 
         # Update the status of the solution
@@ -2237,9 +2306,9 @@ class Model(object):
  
         # Create a time series with 500 points within this range
         if t_max < 0:
-            t = np.linspace(1., t_max_p, num=500)
+            t = np.linspace(0., t_max_p, num=500)
         else:
-            t = np.linspace(1., t_max, num=500)
+            t = np.linspace(0., t_max, num=500)
         
         # Track the masses released and surfaced
         m0 = np.zeros(t.shape)
@@ -2259,6 +2328,8 @@ class Model(object):
                 
                 # ...and the total amount of biodegradation
                 particle = self.particles[j]
+                # TODO:  You need to index the composition to get the right
+                # components is the user wants less than the full composition!
                 for k in range(ncomp):
                     if particle.lag_time:
                         t_bio = particle.particle.t_bio[k]
@@ -2606,7 +2677,7 @@ class Particle(dispersed_phases.PlumeParticle):
         self.beta_T = 0.
         self.T = Ta
 
-    def run_sbm(self, profile):
+    def run_sbm(self, profile, location):
         """
         Run the `single_bubble_model` to track particles outside the plume
 
@@ -2619,6 +2690,11 @@ class Particle(dispersed_phases.PlumeParticle):
         ----------
         profile : `ambient.Profile` object
             Ambient CTD data for the model simulation
+        location : : tuple, default=None
+            A `tuple` containing an `ndarray` of the coordinates (longitude,
+            latitude, depth) that corresponds to the release point `X0` of
+            the integral model plume and a `datetime.datetime` object
+            specifying the release time of this particle.
 
         """
         # Create the simulation object
@@ -2640,17 +2716,26 @@ class Particle(dispersed_phases.PlumeParticle):
                 t_hyd = self.t_hyd - self.t
         else:
             t_hyd = 0.
-
+            
+        # Update the location and release time as needed
+        if not isinstance(location, type(None)):
+            base_point, release_time = location
+            release_time += timedelta(seconds=self.t)
+            location = (base_point, release_time)
+            
         # Run the simulation
         if not np.isnan(de):
             self.sbm.simulate(self.particle, X0, de, yk, self.T, self.K,
-                self.K_T, self.fdis, t_hyd, self.lag_time, delta_t=1000.)
+                self.K_T, self.fdis, t_hyd, self.lag_time, delta_t=1000.,
+                base_location=location)
 
             # Set flag indicating that far-field solution was computed
             self.farfield = True
         
             # Prepare for computing far-field concentrations
-            self._create_concentration_model()
+            if not profile.gridded:
+                self._create_concentration_model()
+                
         else:
             print('Particle component masses (d = %g mm):' % (de * 1000.))
             for i in range(len(self.m)):
@@ -2720,14 +2805,26 @@ class Particle(dispersed_phases.PlumeParticle):
         
         # Store the particle trajectory and ambient currents
         t = np.zeros(len(self.sbm.t))
+        x = np.zeros(len(self.sbm.t))
+        y = np.zeros(len(self.sbm.t))
         z = np.zeros(len(self.sbm.t))
         xh = np.zeros((len(self.sbm.t), 2))
         currents = np.zeros((len(self.sbm.t), 2))
         for i in range(len(self.sbm.t)):
             t[i] = self.sbm.t[i]
+            x[i] = self.sbm.y[i,0]
+            y[i] = self.sbm.y[i,1]
             z[i] = self.sbm.y[i,2]
             xh[i,0:2] = self.sbm.y[i,0:2]
-            ua, va = self.sbm.profile.get_values(z[i], ['ua', 'va'])
+            if self.sbm.profile.gridded:
+                location = (
+                    ambient.globe_positions(x[i], y[i], z[i],
+                        self.sbm.base_point), 
+                    self.sbm.base_time + timedelta(seconds=t[i])
+                )
+            else:
+                location = z[i]
+            ua, va = self.sbm.profile.get_values(location, ['ua', 'va'])
             currents[i,0] = np.sqrt(ua**2 + va**2)
             currents[i,1] = np.arctan2(va, ua)
         
@@ -2750,11 +2847,19 @@ class Particle(dispersed_phases.PlumeParticle):
                     md_p[i,:] = 0.
                 else:
                     T = self.sbm.y[i,-1] / (np.sum(m) * self.sbm.particle.cp)
-                    Ta, Sa, Pa = self.sbm.profile.get_values(z[i], ['temperature',
-                        'salinity', 'pressure'])
+                    if self.sbm.profile.gridded:
+                        location = (
+                            ambient.globe_positions(x[i], y[i], z[i],
+                                self.sbm.base_point), 
+                            self.sbm.base_time + timedelta(seconds=t[i])
+                        )
+                    else:
+                        location = z[i]
+                    Ta, Sa, Pa = self.sbm.profile.get_values(location, 
+                        ['temperature', 'salinity', 'pressure'])
                     (us, rho_p, A, Cs[i,:], beta, beta_t, T) = \
                         self.sbm.particle.properties(m, T, Pa, Sa, Ta, t[i])
-                    Ca = self.sbm.profile.get_values(z[i], 
+                    Ca = self.sbm.profile.get_values(location, 
                         self.particle.composition)
                     md_p[i,:] = A * self.nb0 * beta / us * (Cs[i,:] - Ca)
         
@@ -3317,6 +3422,15 @@ class LagElement(object):
 # Functions to plot output from the simulations
 # ----------------------------------------------------------------------------
 
+def invert_yaxis(ax):
+    """
+    Decide whether the passed axis `ax` needs to have the y-axis inverted
+    
+    """
+    y0, y1 = ax.get_ylim()
+    if y0 < y1:
+        ax.invert_yaxis()
+
 def plot_state_space(t, q, q_local, profile, p, particles, fig, clear_fig):
     """
     Plot the Lagrangian model state space
@@ -3387,7 +3501,7 @@ def plot_state_space(t, q, q_local, profile, p, particles, fig, clear_fig):
         ax1.plot(xp[:,i*3], xp[:,i*3 + 2], '.--')
     ax1.set_xlabel('x (m)')
     ax1.set_ylabel('Depth (m)')
-    ax1.invert_yaxis()
+    invert_yaxis(ax1)
     ax1.grid(which='major', color='0.65', linestyle='-')
 
     # y-z plane
@@ -3397,7 +3511,7 @@ def plot_state_space(t, q, q_local, profile, p, particles, fig, clear_fig):
         ax2.plot(xp[:,i*3+1], xp[:,i*3 + 2], '.--')
     ax2.set_xlabel('y (m)')
     ax2.set_ylabel('Depth (m)')
-    ax2.invert_yaxis()
+    invert_yaxis(ax2)
     ax2.grid(which='major', color='0.65', linestyle='-')
 
     # x-y plane
@@ -3571,7 +3685,7 @@ def plot_all_variables(t, q, q_local, profile, p, particles,
             elif particles[i].z > 0:
                 ax1.plot(particles[i].sbm.y[:,0], particles[i].sbm.y[:,2],
                          '.:')
-    ax1.invert_yaxis()
+    invert_yaxis(ax1)
     ax1.set_xlabel('x (m)')
     ax1.set_ylabel('z (m)')
     ax1.grid(which='major', color='0.5', linestyle='-')
@@ -3591,7 +3705,7 @@ def plot_all_variables(t, q, q_local, profile, p, particles,
             elif particles[i].z > 0.:
                 ax2.plot(particles[i].sbm.y[:,1], particles[i].sbm.y[:,2],
                         '.:')
-    ax2.invert_yaxis()
+    invert_yaxis(ax2)
     ax2.set_xlabel('y (m)')
     ax2.set_ylabel('z (m)')
     ax2.grid(which='major', color='0.5', linestyle='-')

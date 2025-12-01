@@ -28,8 +28,10 @@ single_bubble_model, stratified_plume_model, bent_plume_model
 
 from __future__ import (absolute_import, division, print_function)
 
-from tamoc import seawater
+from tamoc import seawater, ambient
 from tamoc import dbm
+
+from datetime import timedelta
 
 import numpy as np
 from scipy.optimize import fsolve
@@ -479,7 +481,7 @@ class PlumeParticle(SingleParticle):
 # ----------------------------------------------------------------------------
 
 def initial_conditions(profile, z0, dbm_particle, yk, q, q_type, de, 
-                       T0=None):
+    T0=None, release_pt=None, base_time=None):
     """
     Define standard initial conditions for a PlumeParticle from flow rate
     
@@ -512,6 +514,12 @@ def initial_conditions(profile, z0, dbm_particle, yk, q, q_type, de,
     T0 : float, default = None
         Initial temperature of the of `dbm` particle object (K).  If None, 
         then T0 is set equal to the ambient temperature.
+    release_pt : ndarray, default=None
+        The global coordinate (longitude, latitude, 0.) of the release point.
+        Only used if the `profile` object includes gridded data.
+    base_time : datetime.datime, default=None
+        The start time of the simulation as a `datetime.datetime` object.
+        Only used if the `profile` object includes gridded data.
     
     Returns
     -------
@@ -543,7 +551,14 @@ def initial_conditions(profile, z0, dbm_particle, yk, q, q_type, de,
         yk = np.arry(yk)
     
     # Get the ambient conditions at the release
-    Ta, Sa, P = profile.get_values(z0, ['temperature', 'salinity', 
+    if profile.gridded:
+        location = (
+            ambient.globe_positions(0., 0., z0, release_pt), 
+            base_time
+        )
+    else:
+        location = z0
+    Ta, Sa, P = profile.get_values(location, ['temperature', 'salinity', 
                                         'pressure'])
 
     # Get the particle temperature

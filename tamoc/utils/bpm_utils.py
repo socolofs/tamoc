@@ -57,9 +57,16 @@ class BPM_Sim(object):
             petroleum at a deep release may form some liquid-phase attached
             matter before surfacing in some simulations.  Set this parameter
             to `False` to allow mixed-phase particle formation.
+        X0_global : ndarray
+            Array of longitude (decimal degrees 0, 360), latitude (decimal
+            degrees -90, 90), and depth (m) of the real-world coordinates
+            of the release
+        start_time : datetime.datetime
+            A `datetime.datetime` object for the release time.
         X0 : ndarray
-            Array of coordinates for the release point in east, north, and
-            depth, (m)
+            Array of Cartesian coordinates for the release point in east, 
+            north, and depth, (m).  These distances should be measured 
+            relative to the latitude and longitude of the `X0_global` point.
         D : float
             Diameter of the release orifice, m
         phi_0 : float
@@ -234,11 +241,12 @@ class BPM_Sim(object):
         # Extract all default values but overwrite with values in kwargs
         # if they were passed
         for key, default_value in defaults.items():
-            setattr(self, key, kwargs.get(key, default_value))
+            if not hasattr(self, key):
+                setattr(self, key, kwargs.get(key, default_value))
         
         # Extract remaining kwargs not in default values
         for key in kwargs:
-            if key not in defaults:
+            if (key not in defaults) and (not hasattr(self, key)):
                 setattr(self, key, kwargs[key])
         
         # Prepare to update the model parameters
@@ -386,6 +394,18 @@ class BPM_Sim(object):
         # Determine the produced water discharge velocity
         self.Vj = self.Qp / (np.pi * self.d0**2 / 4.)
         
+        # Determine whether the global release location is known
+        if hasattr(self, 'X0_global') and hasattr(self, 'start_time'):
+            lon_0, lat_0, z0 = np.atleast_2d(self.X0_global)[0]
+            self.base_point = np.array([lon_0, lat_0, 0.])
+            self.base_time = self.start_time
+            self.base_location = (self.X0_global, self.start_time)
+    
+        else:
+            self.base_point = None
+            self.base_time = None
+            self.base_location = None
+        
         # Create the particle size model
         self.Pj = self.profile.get_values(self.X0[2], 'pressure')[0] 
         self.psm = particle_size_models.Model(self.profile, self.dbm_mixture,
@@ -425,25 +445,26 @@ class BPM_Sim(object):
         else:
             fp_gas = 2
             fp_liq = 2
-        sigma_correction = self.dbm_mixture.sigma_correction[0]
         isair = self.dbm_mixture.isair
         self.gas = dbm.FluidParticle(self.dbm_mixture.composition, 
             fp_type=fp_gas, delta=delta, delta_groups=delta_groups, 
             user_data=user_data, isair=isair, 
-            sigma_correction=sigma_correction)
+            sigma_correction=self.dbm_mixture.sigma_correction[0])
         self.liq = dbm.FluidParticle(self.dbm_mixture.composition,
             fp_type=fp_liq, delta=delta, delta_groups=delta_groups, 
             user_data=user_data, isair=isair, 
-            sigma_correction=sigma_correction)
+            sigma_correction=self.dbm_mixture.sigma_correction[1])
         
         # Create a single list of gas and liquid particles
         self.particles = []
         get_plume_particles(self.particles, self.profile, self.X0,
             self.gas, self.yk0_gas, self.mf_gas, self.de_gas, self.Tj, 
-            0.9, self.K, self.K_T, self.fdis, self.t_hyd, self.lag_time)
+            0.9, self.K, self.K_T, self.fdis, self.t_hyd, self.lag_time,
+            self.base_point, self.base_time)
         get_plume_particles(self.particles, self.profile, self.X0,
             self.liq, self.yk0_liq, self.mf_liq, self.de_liq, self.Tj,
-            0.98, self.K, self.K_T, self.fdis, self.t_hyd, self.lag_time)
+            0.98, self.K, self.K_T, self.fdis, self.t_hyd, self.lag_time,
+            self.base_point, self.base_time)
         
         # Create the bent plume model 
         self.bpm = bent_plume_model.Model(self.profile)
@@ -643,7 +664,8 @@ class BPM_Sim(object):
         self.bpm.simulate(self.X0, self.d0, self.Vj, self.phi_0, self.theta_0,
             self.Sp, self.Tj, self.cj, self.tracers, 
             particles=self.particles, track=self.track, dt_max=self.dt_max, 
-            sd_max=sd_max)
+            sd_max=sd_max, base_location=self.base_location, 
+            use_profile_3dt=self.use_profile_3dt)
         
         # Set the flag to indicate that the model has run and needs to be
         # updated before it is run again
@@ -744,6 +766,21 @@ class BPM_Sim(object):
         self.bpm.sim_stored = False
         self.update = False
         
+    def update_simulation_time(self, start_time):
+        """
+        Change the start-time of the next simulation
+        
+        Parameters
+        ----------
+        start_time : datetime
+            The time step of the Gnome model for the next Bent Plume Model
+            simulation that will be run
+        
+        """
+        self.start_time = start_time
+        self.update = False
+        self.bpm.sim_stored = False
+    
     def _report_run_bpm(self):
         """
         Print an error message requesting user to run the `simulate` method
@@ -773,7 +810,7 @@ class BPM_Sim(object):
             the figure
         
         """
-        print('Plotting the ambient profile data...')
+        print('\nPlotting the ambient profile data...')
         # Plot the variables affecting the physics of the simulation
         self.profile.plot_physical_profiles(fig, clear_fig)
         
@@ -949,7 +986,8 @@ class BPM_Sim(object):
         
 
 def get_plume_particles(particles, profile, X0, dbm_fluid, yk, mf, de, 
-    Tj, lambda_1, K, K_T, fdis, t_hyd, lag_time):
+    Tj, lambda_1, K, K_T, fdis, t_hyd, lag_time, release_pt=None, 
+    base_time=None):
     """
     Create plume particles for use in the bent and stratified plume models
     
@@ -1002,6 +1040,12 @@ def get_plume_particles(particles, profile, X0, dbm_fluid, yk, mf, de,
     lag_time : bool
         Flag that indicates whether (True) or not (False) to use the
         biodegradation lag times data.
+    release_pt : ndarray, default=None
+        The global coordinate (longitude, latitude, 0.) of the release point.
+        Only used if the `profile` object includes gridded data.
+    base_time : datetime.datime, default=None
+        The start time of the simulation as a `datetime.datetime` object.
+        Only used if the `profile` object includes gridded data.
     
     Notes
     -----
@@ -1029,7 +1073,8 @@ def get_plume_particles(particles, profile, X0, dbm_fluid, yk, mf, de,
         
         # Get the initial conditions for this particle size class
         m0, T0, nb0, Pa, Sa, Ta = dispersed_phases.initial_conditions(
-            profile, X0[2], dbm_fluid, yk, mf[i], 2, de[i], Tj
+            profile, X0[2], dbm_fluid, yk, mf[i], 2, de[i], Tj, release_pt,
+            base_time
         )
         
         # Use these initial conditions to create the particle object and 
