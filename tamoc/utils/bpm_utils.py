@@ -419,6 +419,8 @@ class BPM_Sim(object):
         m, xi, K = self.dbm_mixture.equilibrium(self.m0, Ta, Pa)
         self.m0_gas = m[0,:]
         self.m0_liq = m[1,:]
+        print(f'    m0_gas = {np.sum(self.m0_gas):.3f} kg/s; ' + \
+            f'm0_liq = {np.sum(self.m0_liq):.3f} kg/s')
         self.yk0_gas = self.dbm_mixture.mol_frac(self.m0_gas)
         self.yk0_liq = self.dbm_mixture.mol_frac(self.m0_liq)        
         
@@ -1071,16 +1073,19 @@ def get_plume_particles(particles, profile, X0, dbm_fluid, yk, mf, de,
     # Create each particle separately
     for i in range(len(de)):
         
-        # Get the initial conditions for this particle size class
-        m0, T0, nb0, Pa, Sa, Ta = dispersed_phases.initial_conditions(
-            profile, X0[2], dbm_fluid, yk, mf[i], 2, de[i], Tj, release_pt,
-            base_time
-        )
+        # Make sure there is mass in this particle size class
+        if mf[i] > 0.:
         
-        # Use these initial conditions to create the particle object and 
-        # add it to the list
-        particles.append(bent_plume_model.Particle(
-            X0[0], X0[1], X0[2], dbm_fluid, m0, Tj, nb0, lambda_1, Pa, Sa, 
-            Ta, K=K, K_T=K_T, fdis=fdis, t_hyd=t_hyd, lag_time=lag_time
-        )) 
+            # Get the initial conditions for this particle size class
+            m0, T0, nb0, Pa, Sa, Ta = dispersed_phases.initial_conditions(
+                profile, X0[2], dbm_fluid, yk, mf[i], 2, de[i], Tj, release_pt,
+                base_time
+            )
+        
+            # Use these initial conditions to create the particle object and 
+            # add it to the list
+            particles.append(bent_plume_model.Particle(
+                X0[0], X0[1], X0[2], dbm_fluid, m0, Tj, nb0, lambda_1, Pa, Sa, 
+                Ta, K=K, K_T=K_T, fdis=fdis, t_hyd=t_hyd, lag_time=lag_time
+            )) 
        
