@@ -805,9 +805,9 @@ class BaseProfile(object):
         height = 4 * nrows
         
         if fig not in plt.get_fignums():
-            plt.figure(fig, figsize=(width, height))
+            f = plt.figure(fig, figsize=(width, height))
         else:
-            plt.figure(fig)
+            f = plt.figure(fig)
         if clf:
             plt.clf()
         
@@ -819,6 +819,8 @@ class BaseProfile(object):
         plt.tight_layout()
         
         plt.show()
+        
+        return f
     
     def plot_physical_profiles(self, fig=2, clf=True):
         """
@@ -841,7 +843,9 @@ class BaseProfile(object):
                 phys_parms.append(comp)
         
         # Plot these parameters
-        self.plot_profiles(phys_parms, fig, clf)
+        f = self.plot_profiles(phys_parms, fig, clf)
+        
+        return f
     
     def plot_chem_profiles(self, fig=3, clf=True):
         """
@@ -859,7 +863,9 @@ class BaseProfile(object):
         chem_parms = self.chem_names
         
         # Plot these parameters
-        self.plot_profiles(chem_parms, fig, clf)
+        f = self.plot_profiles(chem_parms, fig, clf)
+        
+        return f
         
     def update_xr_time(self, time):
         """
@@ -3403,42 +3409,49 @@ def get_world_ocean(Ts=290.41, Ss=34.89):
 # - Functions to convert between (latitude, longitude) and Cartesian (x, y) --
 
 def globe_positions(x, y, z, ref_pt):
-     """
-     Compute positions in the latitude/longitude coordinate system
+    """
+    Compute positions in the latitude/longitude coordinate system
+
+    Convert the `tamoc` (x, y, z) coordinate system to the GNOME (longitude,
+    latitude, depth) coordinate system using a GNOME flat-Earth projection
+    tool.
+
+    Parameters
+    ----------
+    x : float
+     Position along the x-axis (East) in m
+    y : float
+     Position along the y-axis (North) in m
+    z : float
+     Depth (m)
+    projection : FlatEarthProjection object
+     Tool from gnome.utilities.projections that implements a flat-Earth
+     (e.g., local Cartesian) coordinate system.
+    ref_pt : ndarray
+     Reference point in longitude (deg), latitude (deg), and depth (m) for 
+     the flat-Earth projection.
+
+    Returns
+    -------
+    list of positions
+     Returns a list of positions in longitude (deg), latitude (deg) and 
+     depth (m)
+
+    """
+    from gnome.utilities import projections
     
-     Convert the `tamoc` (x, y, z) coordinate system to the GNOME (longitude,
-     latitude, depth) coordinate system using a GNOME flat-Earth projection
-     tool.
-    
-     Parameters
-     ----------
-     x : float
-         Position along the x-axis (East) in m
-     y : float
-         Position along the y-axis (North) in m
-     z : float
-         Depth (m)
-     projection : FlatEarthProjection object
-         Tool from gnome.utilities.projections that implements a flat-Earth
-         (e.g., local Cartesian) coordinate system.
-     ref_pt : ndarray
-         Reference point in longitude (deg), latitude (deg), and depth (m) for 
-         the flat-Earth projection.
-    
-     Returns
-     -------
-     list of positions
-         Returns a list of positions in longitude (deg), latitude (deg) and 
-         depth (m)
-    
-     """
-     from gnome.utilities import projections
-     
-     # Use the gnome projections tool
-     x0, y0, z0 = projections.FlatEarthProjection().meters_to_lonlat(
-         np.array([x, y, z]), ref_pt)[0] + ref_pt
-    
-     return([x0, y0, z0])
+    # Use the gnome projections tool
+    if isinstance(x, float):
+        # The x, y, z data are floats...return floats
+        x0, y0, z0 = projections.FlatEarthProjection().meters_to_lonlat(    
+            np.array([x, y, z]), ref_pt)[0] + ref_pt
+        
+    else:
+        # The x, y, z data are arrays...return arrays
+        x0, y0, z0 = (projections.FlatEarthProjection().meters_to_lonlat(
+            np.stack([x, y, z], axis=1), ref_pt) + ref_pt).T
+
+    return ([x0, y0, z0])
 
 
 # - Functions required to complete backward compatibility -------------------- 

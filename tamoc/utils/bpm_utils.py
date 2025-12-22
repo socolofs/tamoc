@@ -814,11 +814,13 @@ class BPM_Sim(object):
         """
         print('\nPlotting the ambient profile data...')
         # Plot the variables affecting the physics of the simulation
-        self.profile.plot_physical_profiles(fig, clear_fig)
+        f1 = self.profile.plot_physical_profiles(fig, clear_fig)
         
         # Plot all other variables
-        self.profile.plot_chem_profiles(fig+1, clear_fig)
+        f2 = self.profile.plot_chem_profiles(fig+1, clear_fig)
         print('Done.')
+        
+        return (f1, f2)
     
     def plot_initial_psds(self, fig=3, clear_fig=True):
         """

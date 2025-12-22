@@ -2733,8 +2733,8 @@ class Particle(dispersed_phases.PlumeParticle):
             self.farfield = True
         
             # Prepare for computing far-field concentrations
-            if not profile.gridded:
-                self._create_concentration_model()
+            #if not profile.gridded:
+            self._create_concentration_model()
                 
         else:
             print('Particle component masses (d = %g mm):' % (de * 1000.))
