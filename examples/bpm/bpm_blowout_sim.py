@@ -39,7 +39,7 @@ if __name__ == '__main__':
         print('CTD data not available; run test cases in ./test first.')
     
     # Insert a constant crossflow velocity
-    z = ctd.nc.variables['z'][:]
+    z = ctd.interp_data[:,0]#ctd.nc.variables['z'][:]
     ua = np.zeros(z.shape) + 0.09
     data = np.vstack((z, ua)).transpose()
     symbols = ['z', 'ua']

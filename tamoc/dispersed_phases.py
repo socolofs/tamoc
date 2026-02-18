@@ -1432,9 +1432,11 @@ def void_fraction(u, particles, lambda_1, us, Q, R):
     """
     # Initialize an empty array
     xi = np.zeros(len(particles))
-    
+
     # Get the void fraction of each particle
     for i in range(len(particles)):
+        if isinstance(u, np.ndarray):
+            u = u[i]
         xi[i] = Q[i] / (np.pi * lambda_1[i]**2 * R**2 * (us[i] + 
                 2. * u / (1. + lambda_1[i]**2)))
     

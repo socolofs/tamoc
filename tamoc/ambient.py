@@ -376,7 +376,7 @@ class BaseProfile(object):
         
         # Create several points along the profile so that the pressure
         # integration will be accurate
-        z_new = np.linspace(z_0, z_1, num=50)
+        z_new = np.linspace(z_0, z_1, num=5)
         y_new = np.zeros((z_new.shape[0], len(y_0)))
         y_new[:,:] = y_0
         
@@ -504,8 +504,8 @@ class BaseProfile(object):
         # Catch the out-of-range error.  This should only occur when an ODE
         # solver gets close to the boundary; thus, it is acceptable to revert
         # to the solution at the boundary
-        z[np.where(z < self.z_min)] = self.z_min
-        z[np.where(z > self.z_max)] = self.z_max
+        z = np.clip(z, self.z_min, self.z_max)  # New command compatible with
+                                                # write-only view of z
         
         # Determine which parameters are in the database and where they go
         # in the output vector
