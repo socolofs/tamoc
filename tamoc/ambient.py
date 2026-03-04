@@ -1621,6 +1621,53 @@ class Profile3DT(Profile):
             self.gridded = True
         else:
             self.gridded = False
+        
+        # Get the time range of the data if gridded
+        if self.gridded:
+            
+            # Initialize a start and stop time variable to None
+            start = None
+            stop = None
+            
+            # Initialize an array of flags and objects
+            is_gridded = [self.grid_temperature, self.grid_salinity, 
+                self.grid_current]
+            g_data = [self.temperature, self.salinity, self.current]
+                        
+            # Check each potentially gridded data and get the minimum
+            # date range the overlaps all
+            
+            for i in range(len(is_gridded)):
+                if is_gridded[i]:
+                    # This data is gridded...get its dates
+                    g_start = g_data[i].data_start
+                    g_stop = g_data[i].data_stop
+                    
+                    # Find the latest start
+                    if isinstance(start, type(None)):
+                        # We don't have any times yet...take these times
+                        start = g_start 
+                    elif g_start > start:
+                        # This start time is later, use it
+                        start = g_start
+                    
+                    # ...and the earliest stop
+                    if isinstance(stop, type(None)):
+                        # We don't have any times yet...take these times
+                        stop = g_stop
+                    elif g_stop < stop:
+                        # This stop time is earlier, use it
+                        stop = g_stop
+            
+            # Add the final answers to the object attributed
+            self.time_start = start
+            self.time_stop = stop    
+                
+        else:
+            # Time is irrelevant
+            self.time_start = None
+            self.time_stop = None
+            
     
     def _parse_location(self, location):
         """
@@ -1707,6 +1754,14 @@ class Profile3DT(Profile):
             # We don't know how to parse this data
             print('ERROR:  Location data with points defined by an')
             print(f'       {m:d} x {n:d} grid of points is ambiguous.')
+        
+        # Ensure time is in range
+        if time > self.time_stop:
+            # Set time to the latest time in the dataset
+            time = self.time_stop
+        elif time < self.time_start:
+            # Set time to the base time
+            time = self.base_time
         
         return z0, points, time
     

@@ -1284,7 +1284,7 @@ class Model(object):
         # Save the tracked particles if they exist
         for i in range(len(self.particles)):
             if self.particles[i].farfield:
-                fname_sbm = base_name + '%3.3d' % i
+                fname_sbm = base_name + '_particle_%3.3d' % i
                 self.particles[i].sbm.save_txt(fname_sbm, profile_path,
                     profile_info)
 

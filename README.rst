@@ -12,6 +12,17 @@ size distributions from source flow conditions.
 For typical usage, please see the ./bin directory of the source distribution
 for various example scripts.
 
+Version 4.1.1:  Updated the `ambient` module `Profile3DT` object so that
+                out-of-range errors are avoided when trying to get data for
+                times outside the data range.  Single bubble particle 
+                tracking for small particles can take very long times, and
+                the default tracking time is up to two weeks.  If this 
+                particle age exceeds the available times in a set of gridded
+                ambient data, the last available time will be used for out-
+                of-range queries.  Also noted that `tamoc` is not compatible
+                with the latest `Numpy` version; it is limited to 2.3.2.  
+                The environment.yml file has been updated to reflect this.
+                A fix will be coming in a later version of the model.
 Version 4.1.0:  Adds a new `Profile3DT` object to the `ambient` module that
                 allows ambient profile data to be obtained from 
                 three-dimensional space plus time `netCDF` datasets through

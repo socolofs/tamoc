@@ -1,3 +1,22 @@
+V4.1.1, March 2026 --
+   . Identified an incompatibility with Numpy 2.4.  For now, the 
+     environment.yml file specifies earlier versions only.
+   . Changed the output file name for the particle text files when using 
+     the `save_txt` option of the bent plume model.  In the older verions,
+     only the particle number is saved.  Now, the file name has the word
+     "particle_" before the number, making it clear that the data are
+     single bubble model output.
+   . Updated the gridded object of the `ambient` module to handle cases
+     where data are queried outside the available times in gridded 
+     datasets.  If requesting too early, the `base_time` result is returned.
+     If requesting too late, the last available time is returned.  All
+     three sets of temperature, salinity, and current data are checked, and
+     the time bounds are set to the minimum range across all three datasets
+     if they are available for different time periods.  Currently, there is 
+     no check for the case that, e.g., one set of data does not overlap 
+     with the other data -- it is assumed that a user would not try to mix
+     and match data from different time periods within a single profile
+     object and then try to interpolate in time.
 V4.1.0, December 2025 --
    . In the `particle_size_models` module, updated how the gas- and liquid-
      phase `FluidParticle` objects are created from a `FluidMixture` to 
