@@ -548,7 +548,7 @@ def initial_conditions(profile, z0, dbm_particle, yk, q, q_type, de,
     if isinstance(yk, float):
         yk = np.array([yk])
     elif isinstance(yk, list):
-        yk = np.arry(yk)
+        yk = np.array(yk)
     
     # Get the ambient conditions at the release
     if profile.gridded:
