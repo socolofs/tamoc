@@ -349,21 +349,15 @@ class BPM_Sim(object):
         
         """
         # Echo progress to the user
-        print('\nSetting up BPM Simulation Object...')
-        
         # Get the ambient profile if needed
         if self.update_profile:
-            print('    Building a profile object...')
             self._get_profile()
         
         # Get the fluid mixture object if needed
         if self.update_substance:
-            print('    Creating the FluidMixture object...')
             self._get_substance()
-        
-        # Echo progress to the screen
-        print('\nSetting up the spill parameters...')
-        
+
+        # Add gas to oil if required
         if self.mix_gas_for_gor:
             # Add natural gas to the mixture to match a given GOR
             self.dbm_mixture, self.mass_frac = \
@@ -414,13 +408,9 @@ class BPM_Sim(object):
         # Perform flash equilibrium at the release
         Ta, Pa = self.profile.get_values(self.X0[2], ['temperature', 
             'pressure'])
-        print('\nSetting initial conditions with:  ')
-        print(f'    Ta = {Ta:g}, Pa = {Pa:g}')
         m, xi, K = self.dbm_mixture.equilibrium(self.m0, Ta, Pa)
         self.m0_gas = m[0,:]
         self.m0_liq = m[1,:]
-        print(f'    m0_gas = {np.sum(self.m0_gas):.3f} kg/s; ' + \
-            f'm0_liq = {np.sum(self.m0_liq):.3f} kg/s')
         self.yk0_gas = self.dbm_mixture.mol_frac(self.m0_gas)
         self.yk0_liq = self.dbm_mixture.mol_frac(self.m0_liq)        
         

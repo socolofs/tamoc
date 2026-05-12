@@ -699,8 +699,6 @@ def load_gnome_oil(adios_id):
     
     # Read in the desired oil from the ADIOS Oil Library
     gnome_oil = get_oil_props(adios_id)
-    print('     -->Loading NOAA Oil Library Oil:  ' + adios_id)
-    print('     -->Record name:  ' + gnome_oil.record.name)
     
     # Extract properties of this oil from the gnome_oil object
     molecular_weight = gnome_oil.molecular_weight         # g/mol
@@ -834,8 +832,6 @@ def load_adios_oil(adios_id):
     
     # Read in the desired oil from the ADIOS Oil Library
     adios_db_oil = Oil.from_file(adios_id)
-    print('     -->Loading NOAA Oil Library Oil:  ' + adios_id)
-    print('     -->Record name:  ' + adios_db_oil.metadata.name)
     
     # Create a GNOME oil object from this record
     gnome_oil = make_gnome_oil(adios_db_oil)
@@ -1834,13 +1830,6 @@ def Vc_tuning(mass_frac, composition, T_0, rho_0, w_0, rho_i, delta,
             # Compute the whole-oil density in TAMOC
             rho_tamoc = oil.density(mass_frac, T_0[i], P)[1,0]
             rho_adios = rho_0[i]
-            
-            # Print the comparisons
-            print('\n    Density estimates with new TAMOC oil:')
-            print('    -->Measured density at %g K:  %g' % (T_0[i], 
-                rho_0[i]))
-            print('    -->Computed density at %g K:  %g\n' % (T_0[i], 
-                rho_tamoc))
             
             # Update statistics
             sum_abs += np.abs(rho_tamoc - rho_adios)

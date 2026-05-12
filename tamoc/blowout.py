@@ -342,9 +342,6 @@ class Blowout(object):
                                        ['temperature',
                                         'salinity',
                                         'pressure'])
-        # Report conditions
-        print('\nSetting initial condittions with:')
-        print(f'   Ta = {self.T0:g}, Pa = {self.P0:g}')
         
         # Define some of the constant initial conditions
         self.Sj = 0.

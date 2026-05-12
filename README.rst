@@ -12,6 +12,11 @@ size distributions from source flow conditions.
 For typical usage, please see the ./bin directory of the source distribution
 for various example scripts.
 
+Version 4.1.2:  Removed several debugging-type print statements throughout
+                the model to streamline and unify what is printed during 
+                standard model runs. Updated the conda_requirements.txt file
+                to aid in installing required packages in existing virtual
+                environments.
 Version 4.1.1:  Updated the `ambient` module `Profile3DT` object so that
                 out-of-range errors are avoided when trying to get data for
                 times outside the data range.  Single bubble particle 

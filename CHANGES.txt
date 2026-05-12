@@ -1,3 +1,18 @@
+V4.1.2, May 2026 --
+   . Updated the conda_requirements.txt file to allow adding required 
+     modules to a virtual environment that already exists before installing
+     `tamoc`.
+   . Removed a print statement from the `blowout` module on line 345.  This
+     statement had been reporting the ambient conditions.  This is redundant
+     with other print statements.
+   . Removed print statements from the `dbm_utilities` module.  These were
+     progress statements that were included for debugging old version but that
+     are not really useful to production runs. 
+   . Fixed typo on line 551 from np.arry to np.array
+   . Removed several print statements from the `psf` module and updated other
+     print statements to have similar formatting to the rest of the model.
+   . Removed several print statements in the `utils.bpm_utils` module.  Added
+     one new comment.
 V4.1.1, March 2026 --
    . Identified an incompatibility with Numpy 2.4.  For now, the 
      environment.yml file specifies earlier versions only.
