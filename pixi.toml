@@ -21,8 +21,8 @@ openpyxl = "*"
 compilers = "*"  # for fortran
 meson = ">=1.5.0"
 meson-python = ">=0.15.0"
-ninja = ">=1.13.2,<2"
-# ninja-python = "*" # not available for osx-arm64 yet.
+ninja = ">=1.13.2,<2" # conda ninja package is only ninja, not the python wrapper
+# ninja-python = ">=1.13.2,<2"
 pkg-config = ">=0.29.2,<0.30"
 pip = "*"
 python-build = "*"
@@ -73,6 +73,7 @@ test313 = [ "py313", "test", "build" ]
 # and pixi can't seem to get it from conda-forge ???
 build_wheel = {cmd = "python -m build ./", default-environment = "build310"}
 
-install = { cmd = "pip install --root-user-action=ignore --force-reinstall --no-index --find-links=./dist/  tamoc", depends-on = ["build_wheel"]}
+# no-deps because force-reinstall re-installs ALL pacakges.
+install = { cmd = "pip install --no-deps --root-user-action=ignore --force-reinstall --no-index --find-links=./dist/  tamoc", depends-on = ["build_wheel"]}
 
-test = { cmd = "pytest --runslow tamoc/test/", depends-on = ["install"]}
+test = { cmd = "pytest tamoc/test/", depends-on = ["install"]}
