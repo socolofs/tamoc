@@ -9,7 +9,7 @@ version = "1.0.0"
 
 [dependencies]
 python = ">=3.10,<3.14"
-numpy = ">=2.0,<2.4"
+numpy = ">=2.0,<2.3.2"
 scipy = "*"
 # optional I/O libs
 netcdf4 = ">=1.7.4,<2"
@@ -17,27 +17,37 @@ xarray = "*"
 pandas = "*"
 openpyxl = "*"
 
+
 [feature.build.dependencies]
 compilers = "*"  # for fortran
 meson = ">=1.5.0"
 meson-python = ">=0.15.0"
-ninja = ">=1.13.2,<2" # conda ninja package is only ninja, not the python wrapper
-# ninja-python = ">=1.13.2,<2"
+# ninja = ">=1.13.0,<2" # conda ninja package is only ninja, not the python wrapper
+ninja-python = ">=1.13.0,<2"
 pkg-config = ">=0.29.2,<0.30"
 pip = "*"
 python-build = "*"
+
 
 [feature.dev.dependencies]
 matplotlib = "*"
 ipython = "*"
 jupyter = "*"
 
+# this doesn't work, 'cause TAMOC needs a no-build-isolation install'
+# [feature.dev.pypi-dependencies]
+# tamoc = { path = ".", editable = true }
+
+
 [feature.test.dependencies]
 pytest = "*"
 pytest-cov = "*"
+matplotlib = "*" # some tests do use it, maybe they shouldn't, but ...
+
 
 [feature.py310.dependencies]
 python = "~=3.10.0"
+
 
 [feature.py311.dependencies]
 python = "~=3.11.0"
@@ -52,8 +62,8 @@ python = "~=3.13.0"
 
 
 [environments]
-# using the oldest supported python version for the default
-default = { features = ["py310", "dev", "test", "build"], solve-group = "default" }
+# using the oldest working python version for the default
+default = { features = ["py312", "dev", "test", "build"], solve-group = "default" }
 dev310 = ["py310", "dev", "test", "build"]
 dev311 = ["py311", "dev", "test", "build"]
 dev312 = ["py312", "dev", "test", "build"]
@@ -68,12 +78,13 @@ test312 = [ "py312", "test", "build" ]
 test313 = [ "py313", "test", "build" ]
 
 [tasks]
+postinstall = "pip install --no-build-isolation --no-deps -e ."
 # build_wheel = {cmd = "python -m build --skip-dependency-check --no-isolation ./", default-environment = "build310"}
-# we should be running no-isolation, but we need ninja-python to be intstalled
+# we should be running no-isolation, but we need ninja-python to be installed
 # and pixi can't seem to get it from conda-forge ???
 build_wheel = {cmd = "python -m build ./", default-environment = "build310"}
 
-# no-deps because force-reinstall re-installs ALL pacakges.
+# no-deps because force-reinstall re-installs ALL packages.
 install = { cmd = "pip install --no-deps --root-user-action=ignore --force-reinstall --no-index --find-links=./dist/  tamoc", depends-on = ["build_wheel"]}
 
 test = { cmd = "pytest tamoc/test/", depends-on = ["install"]}
