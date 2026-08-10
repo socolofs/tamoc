@@ -26,5 +26,4 @@ jobs:
         environments: ${{ matrix.environment }}
 
     - name: Run Tests
-      working-directory: py_gnome
       run: pixi run -e ${{ matrix.environment }} test
