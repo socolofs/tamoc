@@ -1,0 +1,33 @@
+# This is here so that we can see that building in failing independently of the
+# tests but it could evolve into building wheel and/or conda packages
+# for distribution
+
+name: Building TAMOC
+
+on: [push, pull_request]
+
+jobs:
+
+  build:
+    name: Build ${{ matrix.environment }} on ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, macos-15-intel, windows-latest, ubuntu-latest]
+        environment: [ build310, build311, build312, build313 ]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v7
+
+    - name: Set up Pixi Environment
+      uses: prefix-dev/setup-pixi@v0.10.0
+      with:
+        cache: true
+#        manifest-path: pixi.toml
+        environments: ${{ matrix.environment }}
+
+    - name: Run Tests
+      run: pixi run -e ${{ matrix.environment }} build_wheel
