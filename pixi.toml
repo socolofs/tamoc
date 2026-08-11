@@ -7,6 +7,12 @@ name = "tamoc-dev"
 platforms = ["linux-64", "win-64", "osx-64", "osx-arm64"]
 version = "1.0.0"
 
+# [pypi-options]
+# # Disable build isolation globally for ALL PyPI packages
+# # needed for tamoc 'cause ninja needs to be there'
+# but only if you have pixi install it.
+# no-build-isolation = true
+
 [dependencies]
 python = ">=3.10,<3.14"
 numpy = ">=2.0,<2.3.2"
@@ -23,7 +29,7 @@ compilers = "*"  # for fortran
 meson = ">=1.5.0"
 meson-python = ">=0.15.0"
 # ninja = ">=1.13.0,<2" # conda ninja package is only ninja, not the python wrapper
-ninja-python = ">=1.13.0,<2"
+# ninja-python = ">=1.13.0,<2"
 pkg-config = ">=0.29.2,<0.30"
 pip = "*"
 python-build = "*"
@@ -34,7 +40,8 @@ matplotlib = "*"
 ipython = "*"
 jupyter = "*"
 
-# this doesn't work, 'cause TAMOC needs a no-build-isolation install'
+
+# TAMOC needs a no-build-isolation install -- set up above.
 # [feature.dev.pypi-dependencies]
 # tamoc = { path = ".", editable = true }
 
@@ -62,7 +69,7 @@ python = "~=3.13.0"
 
 
 [environments]
-# using the oldest working python version for the default
+# using py312, 'cause it will actually build there'
 default = { features = ["py312", "dev", "test", "build"], solve-group = "default" }
 dev310 = ["py310", "dev", "test", "build"]
 dev311 = ["py311", "dev", "test", "build"]
@@ -78,11 +85,10 @@ test312 = [ "py312", "test", "build" ]
 test313 = [ "py313", "test", "build" ]
 
 [tasks]
-postinstall = "pip install --no-build-isolation --no-deps -e ."
 # build_wheel = {cmd = "python -m build --skip-dependency-check --no-isolation ./", default-environment = "build310"}
 # we should be running no-isolation, but we need ninja-python to be installed
 # and pixi can't seem to get it from conda-forge ???
-build_wheel = {cmd = "python -m build ./", default-environment = "build310"}
+build_wheel = {cmd = "python -m build ./", default-environment = "build312"}
 
 # no-deps because force-reinstall re-installs ALL packages.
 install = { cmd = "pip install --no-deps --root-user-action=ignore --force-reinstall --no-index --find-links=./dist/  tamoc", depends-on = ["build_wheel"]}
