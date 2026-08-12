@@ -10,7 +10,7 @@
 project(
   'tamoc',
   'c',
-  version: '4.0.0',
+  version: '4.1.2',
   license: 'MIT',
   meson_version: '>= 1.5.0',
   default_options: [
@@ -39,6 +39,10 @@ endif
 
 # Initialize a variable to hold the configuration data
 conf_data = configuration_data()
+
+# to have it put a __version__ string in
+conf_data.set('VERSION', meson.project_version())
+
 
 # Add the machines
 machines = {
