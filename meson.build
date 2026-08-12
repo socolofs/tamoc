@@ -40,6 +40,10 @@ endif
 # Initialize a variable to hold the configuration data
 conf_data = configuration_data()
 
+# to have it put a __version__ string in
+conf_data.set('VERSION', meson.project_version())
+
+
 # Add the machines
 machines = {
   'HOST': host_machine,
