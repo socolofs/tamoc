@@ -5,14 +5,9 @@ authors = ["Scott A. Socolofsky <socolofs@tamu.edu>",
 channels = ["conda-forge"]
 name = "tamoc-dev"
 platforms = ["linux-64", "win-64", "osx-64", "osx-arm64"]
-version = "1.0.0"
+# version = "4.0.0" # this is the version of the pixi workspace
 
-# [pypi-options]
-# # Disable build isolation globally for ALL PyPI packages
-# # needed for tamoc 'cause ninja needs to be there'
-# but only if you have pixi install it.
-# no-build-isolation = true
-
+# required for tamoc itself
 [dependencies]
 python = ">=3.10,<3.14"
 numpy = ">=2.0,<2.3.2"
@@ -23,7 +18,7 @@ xarray = "*"
 pandas = "*"
 openpyxl = "*"
 
-
+# required to build tamoc
 [feature.build.dependencies]
 compilers = "*"  # for fortran
 meson = ">=1.5.0"
@@ -34,7 +29,7 @@ pkg-config = ">=0.29.2,<0.30"
 pip = "*"
 python-build = "*"
 
-
+# required to work on developing tamoc
 [feature.dev.dependencies]
 matplotlib = "*"
 ipython = "*"
@@ -45,7 +40,7 @@ jupyter = "*"
 # [feature.dev.pypi-dependencies]
 # tamoc = { path = ".", editable = true }
 
-
+# required to test tamoc
 [feature.test.dependencies]
 pytest = "*"
 pytest-cov = "*"
@@ -70,6 +65,7 @@ python = "~=3.13.0"
 
 [environments]
 # using py312, 'cause it will actually build there'
+# default envonment has everything -- so "pixi shell" is ready to go
 default = { features = ["py312", "dev", "test", "build"], solve-group = "default" }
 dev310 = ["py310", "dev", "test", "build"]
 dev311 = ["py311", "dev", "test", "build"]
@@ -88,6 +84,8 @@ test313 = [ "py313", "test", "build" ]
 # build_wheel = {cmd = "python -m build --skip-dependency-check --no-isolation ./", default-environment = "build310"}
 # we should be running no-isolation, but we need ninja-python to be installed
 # and pixi can't seem to get it from conda-forge ???
+build_editable = {cmd = "pip install --no-build-isolation -e ."}
+
 build_wheel = {cmd = "python -m build ./", default-environment = "build312"}
 
 # no-deps because force-reinstall re-installs ALL packages.

@@ -11,15 +11,16 @@
 [build-system]
 build-backend = "mesonpy"
 requires = [
-    "meson>=1.5.0",           # Suggested by ChatGPT for editable installs
+#    "meson>=1.5.0", meson-python should bring it in
     "meson-python>=0.15.0",
-    "ninja",                  # Required for editable installs
+#    "ninja",  should be installed by pixi / conda
 	"numpy>=2.0",	
 ]
 
 [project]
 name = "tamoc"
-version = "4.0.0"
+dynamic = ["version"]  # meson will pull it from the meson.build file
+# version = "4.1.2"
 license = { file = "LICENSE.txt" }
 description = "Texas A&M Oil spill / outfall Calculator (TAMOC)"
 authors = [{ name = "Scott A. Socolofsky" }]

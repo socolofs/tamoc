@@ -1,6 +1,9 @@
-__version__ = "4.1.2"
 
+# Do you need np in the tamoc namespace?
 import numpy as np
+
+# __version__ is injected into the __config__ file by meson
+from .__config__ import __version__
 
 # Set flag indicating whether error messages should be verbose
 DEBUG = False
