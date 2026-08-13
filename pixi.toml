@@ -9,8 +9,8 @@ platforms = ["linux-64", "win-64", "osx-64", "osx-arm64"]
 
 # required for tamoc itself
 [dependencies]
-python = ">=3.10,<3.14"
-numpy = ">=2.0,<2.3.2"
+python = ">=3.12,<3.15"
+numpy = ">=2.0,<3"
 scipy = "*"
 # optional I/O libs
 netcdf4 = ">=1.7.4,<2"
@@ -23,8 +23,6 @@ openpyxl = "*"
 compilers = "*"  # for fortran
 meson = ">=1.5.0"
 meson-python = ">=0.15.0"
-# ninja = ">=1.13.0,<2" # conda ninja package is only ninja, not the python wrapper
-# ninja-python = ">=1.13.0,<2"
 pkg-config = ">=0.29.2,<0.30"
 pip = "*"
 python-build = "*"
@@ -36,7 +34,8 @@ ipython = "*"
 jupyter = "*"
 
 
-# TAMOC needs a no-build-isolation install -- set up above.
+# TAMOC needs a no-build-isolation install
+# and building is troublesome, so not putting this here
 # [feature.dev.pypi-dependencies]
 # tamoc = { path = ".", editable = true }
 
@@ -47,14 +46,6 @@ pytest-cov = "*"
 matplotlib = "*" # some tests do use it, maybe they shouldn't, but ...
 
 
-[feature.py310.dependencies]
-python = "~=3.10.0"
-
-
-[feature.py311.dependencies]
-python = "~=3.11.0"
-
-
 [feature.py312.dependencies]
 python = "~=3.12.0"
 
@@ -63,22 +54,22 @@ python = "~=3.12.0"
 python = "~=3.13.0"
 
 
+[feature.py314.dependencies]
+python = "~=3.14.0"
+
+
 [environments]
-# using py312, 'cause it will actually build there'
-# default envonment has everything -- so "pixi shell" is ready to go
+# default environment has everything -- so "pixi shell" is ready to go
 default = { features = ["py312", "dev", "test", "build"], solve-group = "default" }
-dev310 = ["py310", "dev", "test", "build"]
-dev311 = ["py311", "dev", "test", "build"]
 dev312 = ["py312", "dev", "test", "build"]
 dev313 = ["py313", "dev", "test", "build"]
-build310 = ["py310", "build"]
-build311 = ["py311", "build"]
+dev314 = ["py314", "dev", "test", "build"]
 build312 = ["py312", "build"]
 build313 = ["py313", "build"]
-test310 = [ "py310", "test", "build" ]
-test311 = [ "py311", "test", "build" ]
+build314 = ["py314", "build"]
 test312 = [ "py312", "test", "build" ]
 test313 = [ "py313", "test", "build" ]
+test314 = [ "py314", "test", "build" ]
 
 [tasks]
 # build_wheel = {cmd = "python -m build --skip-dependency-check --no-isolation ./", default-environment = "build310"}
