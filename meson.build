@@ -10,7 +10,7 @@
 project(
   'tamoc',
   'c',
-  version: '4.1.2',
+  version: '4.1.3dev',
   license: 'MIT',
   meson_version: '>= 1.5.0',
   default_options: [
