@@ -1,12 +1,13 @@
 # Installation
-python>=3.10,<=3.13.5
+python>=3.12,<3.14
 meson>=1.5.0
-meson-python>=0.15.0
-ninja
+meson-python>=0.20,<1
 pkg-config
 pip
 
 # Fortran code compilation
+# NOTE: compilers brings in all of them
+#       for just fortran, you can just use the fortran package
 compilers # Currently unavailable for Windows. Comment out this line and 
           # download Rtools and add <path>\ucrt64\bin\ to your path: 
           # https://cran.r-project.org/bin/windows/Rtools/rtools40.html

@@ -4,13 +4,13 @@
 #   f2py -c -m dbm_f dbm_phys.f95 dbm_eos.f95 math_funcs.f95 --build-dir build
 # 
 # I have tried to carry over the minimum things from the Scipy structure to
-# support the elements in the f2py bulid and to allow reasonable compatibility
+# support the elements in the f2py build and to allow reasonable compatibility
 # with Windows and MacOS/Unix.
 
 project(
   'tamoc',
   'c',
-  version: '4.0.0',
+  version: '4.1.2',
   license: 'MIT',
   meson_version: '>= 1.5.0',
   default_options: [
@@ -26,7 +26,7 @@ py3 = import('python').find_installation(pure: false)
 py3_dep = py3.dependency()
 
 # Set a variable to hold the minimum Numpy version 
-min_numpy_version = '1.25.2'   # keep in sync with pyproject.toml
+min_numpy_version = '2.3.0'   # keep in sync with pyproject.toml
 
 # Emit a warning for 32-bit Python installs on Windows as this many not work
 is_windows = host_machine.system() == 'windows'
