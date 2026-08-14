@@ -287,21 +287,18 @@ Requirements
 
 This package requires:
 
-* Python 2.3 or higher and is now compatible with both Python 2.7 and
-  Python 3.8+.  Python 2 compatibility will no longer be ensured.  Please 
-  move to Python 3 if you have not already done so.
+* Python 3.12 or higher.
 
-* Numpy version 1.16 or higher
+* Numpy version 2.3 or higher
 
-* Scipy version 1.2.0 or higher
+* Scipy version 1.18 or higher
 
 * The Python netCDF4 package
 
 * The Python xarray package
 
 * To use the Fortran versions of the equations of state, a modern Fortran 
-  compiler is required. Otherwise, the Python version of these codes will be
-  used.
+  compiler is required. Otherwise, the C or Python version of these codes will be used.
 
 * To view plots of the model output, TAMOC uses the matplotlib package
 
@@ -325,22 +322,38 @@ approach of Python that uses `pip` and  `pyproject.toml` and uses the
 approach of the Scipy package.  If any issues or questions arise, please
 also consult the Scipy documentation.
 
-TAMOC can be installed in two different ways, depending on the version of
-Python, NumPy, and setuptools that you are using.  
-
-For older versions of Python (<=3.10.14), the original approach using setup.py
-is still supported. Please see the Legacy Installation instructions below if
-you are installing using these older Python versions.
-
-For the current stable Python release (>=3.13), the numpy.distutils package in
-setup.py is deprecated. These installs will use pyproject.toml with the Meson
-backend. TAMOC 4.0.0-beta is the first release compatible with these tools.
-The following installation instructions follow this new approach.
+It is most easy to use TAMOC with conda pacakges, using either conda or the pixi environment system.
 
 Initial Steps
 =============
 
-The following installation instructions assume you will be installing TMAOC
+pixi
+====
+
+pixi (https://pixi.prefix.dev) is a system for managing environments with complex requiremetns and workflows. See the pixi docs for the details, but this package comes with a pixi configuration to aid in the development and testing of the pacakge.
+
+TL;DR
+-----
+
+1) Install pixi itself:  https://pixi.prefix.dev
+
+2) In the TAMOC source dir type:
+
+``pixi shell``
+
+To get a full development environment
+
+There are also pixi command for building wheels, testing, etc -- see the pixi.toml file for details, or try:
+
+``pixi run``
+
+and it will tell you what commands are available.
+
+
+conda environments
+==================
+
+The following installation instructions assume you will be installing TAMOC
 in a virtual Python environment using conda or mamba.  Also, some of the
 install tools are only compatible with conda-forge versions of the Python 
 packages (e.g., NumPy, Scipy, etc).  Please ensure the following before

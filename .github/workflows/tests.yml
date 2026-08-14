@@ -1,0 +1,29 @@
+name: Pixi Tests
+
+on: [push, pull_request]
+
+jobs:
+
+  tests:
+    name: Test ${{ matrix.environment }} on ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, macos-15-intel, windows-latest, ubuntu-latest]
+        environment: [ test312, test313, test314 ]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v7
+
+    - name: Set up Pixi Environment
+      uses: prefix-dev/setup-pixi@v0.10.0
+      with:
+        cache: true
+#        manifest-path: pixi.toml
+        environments: ${{ matrix.environment }}
+
+    - name: Run Tests
+      run: pixi run -e ${{ matrix.environment }} test

@@ -1,0 +1,85 @@
+[workspace]
+authors = ["Scott A. Socolofsky <socolofs@tamu.edu>",
+           "Chris Barker <chris.barker@noaa.gov>"
+           ]
+channels = ["conda-forge"]
+name = "tamoc-dev"
+platforms = ["linux-64", "win-64", "osx-64", "osx-arm64"]
+# version = "4.0.0" # this is the version of the pixi workspace
+
+# required for tamoc itself
+[dependencies]
+python = ">=3.12,<3.15"
+numpy = ">=2.0,<3"
+scipy = "*"
+# optional I/O libs
+netcdf4 = ">=1.7.4,<2"
+xarray = "*"
+pandas = "*"
+openpyxl = "*"
+
+# required to build tamoc
+[feature.build.dependencies]
+compilers = "*"  # for fortran
+meson = ">=1.5.0"
+meson-python = ">=0.15.0"
+pkg-config = ">=0.29.2,<0.30"
+pip = "*"
+python-build = "*"
+
+# required to work on developing tamoc
+[feature.dev.dependencies]
+matplotlib = "*"
+ipython = "*"
+jupyter = "*"
+
+
+# TAMOC needs a no-build-isolation install
+# and building is troublesome, so not putting this here
+# [feature.dev.pypi-dependencies]
+# tamoc = { path = ".", editable = true }
+
+# required to test tamoc
+[feature.test.dependencies]
+pytest = "*"
+pytest-cov = "*"
+matplotlib = "*" # some tests do use it, maybe they shouldn't, but ...
+
+
+[feature.py312.dependencies]
+python = "~=3.12.0"
+
+
+[feature.py313.dependencies]
+python = "~=3.13.0"
+
+
+[feature.py314.dependencies]
+python = "~=3.14.0"
+
+
+[environments]
+# default environment has everything -- so "pixi shell" is ready to go
+default = { features = ["py312", "dev", "test", "build"], solve-group = "default" }
+dev312 = ["py312", "dev", "test", "build"]
+dev313 = ["py313", "dev", "test", "build"]
+dev314 = ["py314", "dev", "test", "build"]
+build312 = ["py312", "build"]
+build313 = ["py313", "build"]
+build314 = ["py314", "build"]
+test312 = [ "py312", "test", "build" ]
+test313 = [ "py313", "test", "build" ]
+test314 = [ "py314", "test", "build" ]
+
+[tasks]
+# build_wheel = {cmd = "python -m build --skip-dependency-check --no-isolation ./", default-environment = "build310"}
+# we should be running no-isolation, but we need ninja-python to be installed
+# and pixi can't seem to get it from conda-forge ???
+build_editable = {cmd = "pip install --no-build-isolation -e ."}
+
+build_wheel = {cmd = "python -m build ./", default-environment = "build312"}
+
+# no-deps because force-reinstall re-installs ALL packages.
+install = { cmd = "pip install --no-deps --root-user-action=ignore --force-reinstall --no-index --find-links=./dist/  tamoc", depends-on = ["build_wheel"]}
+
+test = { cmd = "pytest tamoc/test/", depends-on = ["install"]}
